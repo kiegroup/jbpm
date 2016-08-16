@@ -44,18 +44,18 @@ import org.xml.sax.SAXException;
 
 public class PropertyHandler extends BaseAbstractHandler implements Handler {
 
-	public PropertyHandler() {
+    public PropertyHandler() {
         initValidParents();
         initValidPeers();
         this.allowNesting = false;
     }
-    
+
     protected void initValidParents() {
         this.validParents = new HashSet<Class<?>>();
         this.validParents.add(ContextContainer.class);
         this.validParents.add(WorkItemNode.class);
     }
-    
+
     protected void initValidPeers() {
         this.validPeers = new HashSet<Class<?>>();
         this.validPeers.add(null);
@@ -66,48 +66,48 @@ public class PropertyHandler extends BaseAbstractHandler implements Handler {
         this.validPeers.add(Lane.class);
         this.validPeers.add(Association.class);
     }
-    
-	@SuppressWarnings("unchecked")
-	public Object start(final String uri, final String localName,
-			            final Attributes attrs, final ExtensibleXmlParser parser)
-			throws SAXException {
-		parser.startElementBuilder(localName, attrs);
 
-		final String id = attrs.getValue("id");
-		final String name = attrs.getValue("name");
-		final String itemSubjectRef = attrs.getValue("itemSubjectRef");
+    @SuppressWarnings("unchecked")
+    public Object start(final String uri, final String localName,
+                        final Attributes attrs, final ExtensibleXmlParser parser)
+            throws SAXException {
+        parser.startElementBuilder(localName, attrs);
 
-		Object parent = parser.getParent();
-		if (parent instanceof ContextContainer) {
-		    ContextContainer contextContainer = (ContextContainer) parent;
-		    VariableScope variableScope = (VariableScope) 
+        final String id = attrs.getValue("id");
+        final String name = attrs.getValue("name");
+        final String itemSubjectRef = attrs.getValue("itemSubjectRef");
+
+        Object parent = parser.getParent();
+        if (parent instanceof ContextContainer) {
+            ContextContainer contextContainer = (ContextContainer) parent;
+            VariableScope variableScope = (VariableScope)
                 contextContainer.getDefaultContext(VariableScope.VARIABLE_SCOPE);
-			List variables = variableScope.getVariables();
-			Variable variable = new Variable();
-			// if name is given use it as variable name instead of id
-			if (name != null && name.length() > 0) {
-			    variable.setName(name);
-			} else {
-			    variable.setName(id);
-			}
-			variable.setMetaData("ItemSubjectRef", itemSubjectRef);
-			variables.add(variable);
-			
-			((ProcessBuildData) parser.getData()).setMetaData("Variable", variable);
-			return variable;
-		}
+            List variables = variableScope.getVariables();
+            Variable variable = new Variable();
+            // if name is given use it as variable name instead of id
+            if (name != null && name.length() > 0) {
+                variable.setName(name);
+            } else {
+                variable.setName(id);
+            }
+            variable.setMetaData("ItemSubjectRef", itemSubjectRef);
+            variables.add(variable);
 
-		return new Variable();
-	}
+            ((ProcessBuildData) parser.getData()).setMetaData("Variable", variable);
+            return variable;
+        }
 
-	public Object end(final String uri, final String localName,
-			          final ExtensibleXmlParser parser) throws SAXException {
-		parser.endElementBuilder();
-		return parser.getCurrent();
-	}
+        return new Variable();
+    }
 
-	public Class<?> generateNodeFor() {
-		return Variable.class;
-	}
+    public Object end(final String uri, final String localName,
+                      final ExtensibleXmlParser parser) throws SAXException {
+        parser.endElementBuilder();
+        return parser.getCurrent();
+    }
+
+    public Class<?> generateNodeFor() {
+        return Variable.class;
+    }
 
 }

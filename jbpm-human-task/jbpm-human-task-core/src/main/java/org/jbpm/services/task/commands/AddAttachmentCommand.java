@@ -39,32 +39,32 @@ import org.kie.internal.task.api.model.InternalContent;
 @XmlAccessorType(XmlAccessType.NONE)
 public class AddAttachmentCommand extends UserGroupCallbackTaskCommand<Long> {
 
-	private static final long serialVersionUID = -1295175842745522756L;
-	
-	@XmlElement
+    private static final long serialVersionUID = -1295175842745522756L;
+
+    @XmlElement
     private JaxbAttachment jaxbAttachment;
 
-	@XmlTransient
-	private Attachment attachment;
-	
-	@XmlElement
+    @XmlTransient
+    private Attachment attachment;
+
+    @XmlElement
     private JaxbContent jaxbContent;
 
-	@XmlTransient
-	private Content content;
-	
-	@XmlTransient
+    @XmlTransient
+    private Content content;
+
+    @XmlTransient
     private Object rawContent;
-    
+
     public AddAttachmentCommand() {
     }
 
     public AddAttachmentCommand(Long taskId, Attachment attachment, Content content) {
-    	this.taskId = taskId;
-    	setAttachment(attachment);
+        this.taskId = taskId;
+        setAttachment(attachment);
         setContent(content);
     }
-    
+
     public AddAttachmentCommand(Long taskId, Attachment attachment, Object rawContent) {
         this.taskId = taskId;
         setAttachment(attachment);
@@ -74,79 +74,79 @@ public class AddAttachmentCommand extends UserGroupCallbackTaskCommand<Long> {
 
     public Long execute(Context cntxt) {
         TaskContext context = (TaskContext) cntxt;
-        
+
         Attachment attachmentImpl = attachment;
         if (attachmentImpl == null) {
-        	attachmentImpl = jaxbAttachment;
-    	}
-        
+            attachmentImpl = jaxbAttachment;
+        }
+
         Content contentImpl = content;
         if (contentImpl == null) {
-        	contentImpl = jaxbContent;
+            contentImpl = jaxbContent;
         }
-        
+
         if (rawContent != null && contentImpl == null) {
             Task task = context.getPersistenceContext().findTask(taskId);
             contentImpl = TaskModelProvider.getFactory().newContent();
-            
+
             ContentMarshallerContext ctx = TaskContentRegistry.get().getMarshallerContext(task.getTaskData().getDeploymentId());
-            
+
             ((InternalContent)contentImpl).setContent(ContentMarshallerHelper.marshallContent(task, rawContent, ctx.getEnvironment()));
             ((InternalAttachment)attachmentImpl).setSize(contentImpl.getContent().length);
         }
-        
+
         doCallbackOperationForAttachment(attachmentImpl, context);
-        
+
         return context.getTaskAttachmentService().addAttachment(taskId, attachmentImpl, contentImpl);
-    	 
+
     }
 
-	public void setAttachment(Attachment attachment) {
-		this.attachment = attachment;
-		if (attachment instanceof JaxbAttachment) {
-        	this.jaxbAttachment = (JaxbAttachment) attachment;
+    public void setAttachment(Attachment attachment) {
+        this.attachment = attachment;
+        if (attachment instanceof JaxbAttachment) {
+            this.jaxbAttachment = (JaxbAttachment) attachment;
         } else {
-        	this.jaxbAttachment = new JaxbAttachment(attachment);
+            this.jaxbAttachment = new JaxbAttachment(attachment);
         }
-	}
-    
+    }
+
     public JaxbAttachment getJaxbAttachment() {
-		return jaxbAttachment;
-	}
+        return jaxbAttachment;
+    }
 
-	public void setJaxbAttachment(JaxbAttachment jaxbAttachment) {
-		this.jaxbAttachment = jaxbAttachment;
-	}
+    public void setJaxbAttachment(JaxbAttachment jaxbAttachment) {
+        this.jaxbAttachment = jaxbAttachment;
+    }
 
-	public JaxbContent getJaxbContent() {
-		return jaxbContent;
-	}
+    public JaxbContent getJaxbContent() {
+        return jaxbContent;
+    }
 
-	public void setJaxbContent(JaxbContent jaxbContent) {
-		this.jaxbContent = jaxbContent;
-	}
+    public void setJaxbContent(JaxbContent jaxbContent) {
+        this.jaxbContent = jaxbContent;
+    }
 
-	public Content getContent() {
-		return content;
-	}
+    public Content getContent() {
+        return content;
+    }
 
-	public void setContent(Content content) {
-		this.content = content;
-		if (content instanceof JaxbContent) {
-        	this.jaxbContent = (JaxbContent) content;
+    public void setContent(Content content) {
+        this.content = content;
+        if (content instanceof JaxbContent) {
+            this.jaxbContent = (JaxbContent) content;
         } else {
-        	this.jaxbContent = new JaxbContent(content);
+            this.jaxbContent = new JaxbContent(content);
         }
-	}
+    }
 
-	public Attachment getAttachment() {
-		return attachment;
-	}
-    
+    public Attachment getAttachment() {
+        return attachment;
+    }
+
     public Object getRawContent() {
         return rawContent;
     }
-    
+
     public void setRawContent(Object rawContent) {
         this.rawContent = rawContent;
     }

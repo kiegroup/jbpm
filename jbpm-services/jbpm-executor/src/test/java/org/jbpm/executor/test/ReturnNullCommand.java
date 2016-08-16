@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 public class ReturnNullCommand implements Command {
 
     private static final Logger logger = LoggerFactory.getLogger(ReturnNullCommand.class);
-    
+
     @Override
     public ExecutionResults execute(CommandContext ctx) throws Exception {
         logger.info("Command executed on executor with data {} and return null..", ctx.getData());

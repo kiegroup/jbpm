@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -34,9 +34,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ProcessExceptionHandlerTest extends AbstractBaseTest {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(ProcessExceptionHandlerTest.class);
-   
+
     @Test
     public void testFaultWithoutHandler() {
         Reader source = new StringReader(
@@ -63,17 +63,17 @@ public class ProcessExceptionHandlerTest extends AbstractBaseTest {
         InternalKnowledgePackage pkg = builder.getPackage();
         PackageBuilderErrors errors = builder.getErrors();
         if (errors != null && !errors.isEmpty()) {
-	        for (DroolsError error: errors.getErrors()) {
-	            logger.error(error.toString());
-	        }
-	        fail("Package could not be compiled");
+            for (DroolsError error: errors.getErrors()) {
+                logger.error(error.toString());
+            }
+            fail("Package could not be compiled");
         }
         StatefulKnowledgeSession session = createKieSession(builder.getPackage());
-        
+
         ProcessInstance processInstance = ( ProcessInstance ) session.startProcess("org.drools.exception");
         assertEquals(ProcessInstance.STATE_ABORTED, processInstance.getState());
     }
-    
+
     @Test
     public void testProcessExceptionHandlerAction() {
         Reader source = new StringReader(
@@ -84,9 +84,9 @@ public class ProcessExceptionHandlerTest extends AbstractBaseTest {
             "         type=\"RuleFlow\" name=\"flow\" id=\"org.drools.exception\" package-name=\"org.drools\" version=\"1\" >\n" +
             "\n" +
             "  <header>\n" +
-			"    <globals>\n" +
-			"      <global identifier=\"list\" type=\"java.util.List\" />\n" +
-			"    </globals>\n" +
+            "    <globals>\n" +
+            "      <global identifier=\"list\" type=\"java.util.List\" />\n" +
+            "    </globals>\n" +
             "    <variables>\n" +
             "      <variable name=\"SomeVar\" >\n" +
             "        <type name=\"org.drools.core.process.core.datatype.impl.type.StringDataType\" />\n" +
@@ -96,12 +96,12 @@ public class ProcessExceptionHandlerTest extends AbstractBaseTest {
             "        <type name=\"org.drools.core.process.core.datatype.impl.type.StringDataType\" />\n" +
             "      </variable>\n" +
             "    </variables>\n" +
-			"    <exceptionHandlers>\n" +
-			"      <exceptionHandler faultName=\"myFault\" type=\"action\" faultVariable=\"faultVar\" >\n" +
-			"        <action type=\"expression\" name=\"Print\" dialect=\"java\" >list.add(context.getVariable(\"faultVar\"));</action>\n" +
-			"      </exceptionHandler>\n" +
-			"    </exceptionHandlers>\n" +
-			"  </header>\n" +
+            "    <exceptionHandlers>\n" +
+            "      <exceptionHandler faultName=\"myFault\" type=\"action\" faultVariable=\"faultVar\" >\n" +
+            "        <action type=\"expression\" name=\"Print\" dialect=\"java\" >list.add(context.getVariable(\"faultVar\"));</action>\n" +
+            "      </exceptionHandler>\n" +
+            "    </exceptionHandlers>\n" +
+            "  </header>\n" +
             "\n" +
             "  <nodes>\n" +
             "    <start id=\"1\" name=\"Start\" />\n" +
@@ -115,7 +115,7 @@ public class ProcessExceptionHandlerTest extends AbstractBaseTest {
             "</process>");
         builder.addRuleFlow(source);
         StatefulKnowledgeSession session = createKieSession(builder.getPackage());
-        
+
         List<String> list = new ArrayList<String>();
         session.setGlobal("list", list);
         ProcessInstance processInstance = ( ProcessInstance ) session.startProcess("org.drools.exception");
@@ -123,7 +123,7 @@ public class ProcessExceptionHandlerTest extends AbstractBaseTest {
         assertEquals(1, list.size());
         assertEquals("SomeValue", list.get(0));
     }
-    
+
     @Test
     public void testProcessExceptionHandlerTriggerNode() {
         Reader source = new StringReader(
@@ -134,15 +134,15 @@ public class ProcessExceptionHandlerTest extends AbstractBaseTest {
             "         type=\"RuleFlow\" name=\"flow\" id=\"org.drools.exception\" package-name=\"org.drools\" version=\"1\" >\n" +
             "\n" +
             "  <header>\n" +
-			"    <globals>\n" +
-			"      <global identifier=\"list\" type=\"java.util.List\" />\n" +
-			"    </globals>\n" +
-			"    <exceptionHandlers>\n" +
-			"      <exceptionHandler faultName=\"myFault\" type=\"action\"  >\n" +
-			"        <action type=\"expression\" name=\"Complete\" dialect=\"java\" >((org.jbpm.process.instance.ProcessInstance) context.getProcessInstance()).setState(org.jbpm.process.instance.ProcessInstance.STATE_COMPLETED);</action>\n" +
-			"      </exceptionHandler>\n" +
-			"    </exceptionHandlers>\n" +
-			"  </header>\n" +
+            "    <globals>\n" +
+            "      <global identifier=\"list\" type=\"java.util.List\" />\n" +
+            "    </globals>\n" +
+            "    <exceptionHandlers>\n" +
+            "      <exceptionHandler faultName=\"myFault\" type=\"action\"  >\n" +
+            "        <action type=\"expression\" name=\"Complete\" dialect=\"java\" >((org.jbpm.process.instance.ProcessInstance) context.getProcessInstance()).setState(org.jbpm.process.instance.ProcessInstance.STATE_COMPLETED);</action>\n" +
+            "      </exceptionHandler>\n" +
+            "    </exceptionHandlers>\n" +
+            "  </header>\n" +
             "\n" +
             "  <nodes>\n" +
             "    <start id=\"1\" name=\"Start\" />\n" +
@@ -159,7 +159,7 @@ public class ProcessExceptionHandlerTest extends AbstractBaseTest {
         ProcessInstance processInstance = ( ProcessInstance ) session.startProcess("org.drools.exception");
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
     }
-    
+
     @Test
     public void testCompositeNodeExceptionHandlerTriggerNode() {
         Reader source = new StringReader(
@@ -170,10 +170,10 @@ public class ProcessExceptionHandlerTest extends AbstractBaseTest {
             "         type=\"RuleFlow\" name=\"flow\" id=\"org.drools.exception\" package-name=\"org.drools\" version=\"1\" >\n" +
             "\n" +
             "  <header>\n" +
-			"    <globals>\n" +
-			"      <global identifier=\"list\" type=\"java.util.List\" />\n" +
-			"    </globals>\n" +
-			"  </header>\n" +
+            "    <globals>\n" +
+            "      <global identifier=\"list\" type=\"java.util.List\" />\n" +
+            "    </globals>\n" +
+            "  </header>\n" +
             "\n" +
             "  <nodes>\n" +
             "    <start id=\"1\" name=\"Start\" />\n" +
@@ -187,11 +187,11 @@ public class ProcessExceptionHandlerTest extends AbstractBaseTest {
             "          <type name=\"org.drools.core.process.core.datatype.impl.type.StringDataType\" />\n" +
             "        </variable>\n" +
             "      </variables>\n" +
-    		"      <exceptionHandlers>\n" +
-    		"        <exceptionHandler faultName=\"MyFault\" type=\"action\" faultVariable=\"FaultVariable\" >\n" +
-    		"          <action type=\"expression\" name=\"Trigger\" dialect=\"java\" >context.getProcessInstance().signalEvent(\"MyEvent\", null);</action>\n" +
-    		"        </exceptionHandler>\n" +
-    		"      </exceptionHandlers>\n" +
+            "      <exceptionHandlers>\n" +
+            "        <exceptionHandler faultName=\"MyFault\" type=\"action\" faultVariable=\"FaultVariable\" >\n" +
+            "          <action type=\"expression\" name=\"Trigger\" dialect=\"java\" >context.getProcessInstance().signalEvent(\"MyEvent\", null);</action>\n" +
+            "        </exceptionHandler>\n" +
+            "      </exceptionHandlers>\n" +
             "      <nodes>\n" +
             "        <fault id=\"1\" name=\"Fault\" faultName=\"MyFault\" faultVariable=\"SomeVar\" />\n" +
             "        <eventNode id=\"2\" name=\"Event\" >\n" +
@@ -205,14 +205,14 @@ public class ProcessExceptionHandlerTest extends AbstractBaseTest {
             "      </nodes>\n" +
             "      <connections>\n" +
             "        <connection from=\"2\" to=\"3\" />\n" +
-    		"      </connections>\n" +
-    		"      <in-ports>\n" +
-    		"        <in-port type=\"DROOLS_DEFAULT\" nodeId=\"1\" nodeInType=\"DROOLS_DEFAULT\" />\n" +
-    		"      </in-ports>\n" +
-    		"      <out-ports>\n" +
-    		"        <out-port type=\"DROOLS_DEFAULT\" nodeId=\"3\" nodeOutType=\"DROOLS_DEFAULT\" />\n" +
-    		"      </out-ports>\n" +
-    		"    </composite>\n" +
+            "      </connections>\n" +
+            "      <in-ports>\n" +
+            "        <in-port type=\"DROOLS_DEFAULT\" nodeId=\"1\" nodeInType=\"DROOLS_DEFAULT\" />\n" +
+            "      </in-ports>\n" +
+            "      <out-ports>\n" +
+            "        <out-port type=\"DROOLS_DEFAULT\" nodeId=\"3\" nodeOutType=\"DROOLS_DEFAULT\" />\n" +
+            "      </out-ports>\n" +
+            "    </composite>\n" +
             "    <end id=\"3\" name=\"End\" />" +
             "  </nodes>\n" +
             "\n" +
@@ -223,9 +223,9 @@ public class ProcessExceptionHandlerTest extends AbstractBaseTest {
             "\n" +
             "</process>");
 
-		builder.addRuleFlow(source);
+        builder.addRuleFlow(source);
         StatefulKnowledgeSession session = createKieSession(builder.getPackage());
-        
+
         List<String> list = new ArrayList<String>();
         session.setGlobal("list", list);
         ProcessInstance processInstance = ( ProcessInstance ) session.startProcess("org.drools.exception");
@@ -233,7 +233,7 @@ public class ProcessExceptionHandlerTest extends AbstractBaseTest {
         assertEquals("SomeValue", list.get(0));
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
     }
-    
+
     @Test
     public void testNestedExceptionHandler() {
         Reader source = new StringReader(
@@ -244,15 +244,15 @@ public class ProcessExceptionHandlerTest extends AbstractBaseTest {
             "         type=\"RuleFlow\" name=\"flow\" id=\"org.drools.exception\" package-name=\"org.drools\" version=\"1\" >\n" +
             "\n" +
             "  <header>\n" +
-			"    <globals>\n" +
-			"      <global identifier=\"list\" type=\"java.util.List\" />\n" +
-			"    </globals>\n" +
-			"    <exceptionHandlers>\n" +
-			"      <exceptionHandler faultName=\"otherFault\" type=\"action\" >\n" +
-			"        <action type=\"expression\" name=\"Print\" dialect=\"java\" >list.add(\"Triggered global exception scope\");</action>\n" +
-			"      </exceptionHandler>\n" +
-			"    </exceptionHandlers>\n" +
-			"  </header>\n" +
+            "    <globals>\n" +
+            "      <global identifier=\"list\" type=\"java.util.List\" />\n" +
+            "    </globals>\n" +
+            "    <exceptionHandlers>\n" +
+            "      <exceptionHandler faultName=\"otherFault\" type=\"action\" >\n" +
+            "        <action type=\"expression\" name=\"Print\" dialect=\"java\" >list.add(\"Triggered global exception scope\");</action>\n" +
+            "      </exceptionHandler>\n" +
+            "    </exceptionHandlers>\n" +
+            "  </header>\n" +
             "\n" +
             "  <nodes>\n" +
             "    <start id=\"1\" name=\"Start\" />\n" +
@@ -266,11 +266,11 @@ public class ProcessExceptionHandlerTest extends AbstractBaseTest {
             "          <type name=\"org.drools.core.process.core.datatype.impl.type.StringDataType\" />\n" +
             "        </variable>\n" +
             "      </variables>\n" +
-    		"      <exceptionHandlers>\n" +
-    		"        <exceptionHandler faultName=\"MyFault\" type=\"action\" faultVariable=\"FaultVariable\" >\n" +
-    		"          <action type=\"expression\" name=\"Trigger\" dialect=\"java\" >((org.jbpm.workflow.instance.node.CompositeNodeInstance) context.getNodeInstance()).signalEvent(\"MyEvent\", null);</action>\n" +
-    		"        </exceptionHandler>\n" +
-    		"      </exceptionHandlers>\n" +
+            "      <exceptionHandlers>\n" +
+            "        <exceptionHandler faultName=\"MyFault\" type=\"action\" faultVariable=\"FaultVariable\" >\n" +
+            "          <action type=\"expression\" name=\"Trigger\" dialect=\"java\" >((org.jbpm.workflow.instance.node.CompositeNodeInstance) context.getNodeInstance()).signalEvent(\"MyEvent\", null);</action>\n" +
+            "        </exceptionHandler>\n" +
+            "      </exceptionHandlers>\n" +
             "      <nodes>\n" +
             "        <fault id=\"1\" name=\"Fault\" faultName=\"MyFault\" faultVariable=\"SomeVar\" />\n" +
             "        <eventNode id=\"2\" name=\"Event\" >\n" +
@@ -282,11 +282,11 @@ public class ProcessExceptionHandlerTest extends AbstractBaseTest {
             "      </nodes>\n" +
             "      <connections>\n" +
             "        <connection from=\"2\" to=\"3\" />\n" +
-    		"      </connections>\n" +
-    		"      <in-ports>\n" +
-    		"        <in-port type=\"DROOLS_DEFAULT\" nodeId=\"1\" nodeInType=\"DROOLS_DEFAULT\" />\n" +
-    		"      </in-ports>\n" +
-    		"    </composite>\n" +
+            "      </connections>\n" +
+            "      <in-ports>\n" +
+            "        <in-port type=\"DROOLS_DEFAULT\" nodeId=\"1\" nodeInType=\"DROOLS_DEFAULT\" />\n" +
+            "      </in-ports>\n" +
+            "    </composite>\n" +
             "    <end id=\"3\" name=\"End\" />" +
             "  </nodes>\n" +
             "\n" +
@@ -297,14 +297,14 @@ public class ProcessExceptionHandlerTest extends AbstractBaseTest {
             "\n" +
             "</process>");
 
-		builder.addRuleFlow(source);
+        builder.addRuleFlow(source);
         StatefulKnowledgeSession session = createKieSession(builder.getPackage());
-        
+
         List<String> list = new ArrayList<String>();
         session.setGlobal("list", list);
         ProcessInstance processInstance = ( ProcessInstance ) session.startProcess("org.drools.exception");
         assertEquals(1, list.size());
         assertEquals(ProcessInstance.STATE_ACTIVE, processInstance.getState());
     }
-    
+
 }

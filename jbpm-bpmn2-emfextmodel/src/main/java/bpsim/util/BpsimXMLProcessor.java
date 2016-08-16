@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -35,31 +35,31 @@ import org.eclipse.emf.ecore.xmi.util.XMLProcessor;
  */
 public class BpsimXMLProcessor extends XMLProcessor {
 
-	/**
-	 * Public constructor to instantiate the helper.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public BpsimXMLProcessor() {
-		super((EPackage.Registry.INSTANCE));
-		BpsimPackage.eINSTANCE.eClass();
-	}
-	
-	/**
-	 * Register for "*" and "xml" file extensions the BpsimResourceFactoryImpl factory.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	protected Map<String, Resource.Factory> getRegistrations() {
-		if (registrations == null) {
-			super.getRegistrations();
-			registrations.put(XML_EXTENSION, new BpsimResourceFactoryImpl());
-			registrations.put(STAR_EXTENSION, new BpsimResourceFactoryImpl());
-		}
-		return registrations;
-	}
+    /**
+     * Public constructor to instantiate the helper.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    public BpsimXMLProcessor() {
+        super((EPackage.Registry.INSTANCE));
+        BpsimPackage.eINSTANCE.eClass();
+    }
+
+    /**
+     * Register for "*" and "xml" file extensions the BpsimResourceFactoryImpl factory.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    @Override
+    protected Map<String, Resource.Factory> getRegistrations() {
+        if (registrations == null) {
+            super.getRegistrations();
+            registrations.put(XML_EXTENSION, new BpsimResourceFactoryImpl());
+            registrations.put(STAR_EXTENSION, new BpsimResourceFactoryImpl());
+        }
+        return registrations;
+    }
 
 } //BpsimXMLProcessor

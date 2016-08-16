@@ -38,27 +38,27 @@ public class FindProcessInstancesCommand extends AuditCommand<List<ProcessInstan
     @XmlAttribute
     @XmlSchemaType(name="string")
     private String processId;
-    
+
     public FindProcessInstancesCommand() {
         this.processId = null;
-	}
-	
+    }
+
     public FindProcessInstancesCommand(String processId) {
         this.processId = processId;
-        if( processId == null || processId.isEmpty() ) { 
+        if( processId == null || processId.isEmpty() ) {
             throw new IllegalArgumentException("The processId field must not be null or empty." );
         }
-	}
-	
+    }
+
     public List<ProcessInstanceLog> execute(Context cntxt) {
         setLogEnvironment(cntxt);
         if( processId == null || processId.isEmpty() ) {
             return this.auditLogService.findProcessInstances();
-        } else { 
+        } else {
             return this.auditLogService.findProcessInstances(processId);
         }
     }
-    
+
     public String getProcessId() {
         return processId;
     }
@@ -70,7 +70,7 @@ public class FindProcessInstancesCommand extends AuditCommand<List<ProcessInstan
     public String toString() {
         if( processId == null || processId.isEmpty() ) {
             return AuditLogService.class.getSimpleName() + ".findProcessInstances()";
-        } else { 
+        } else {
             return AuditLogService.class.getSimpleName() + ".findProcessInstances("+ processId + ")";
         }
     }

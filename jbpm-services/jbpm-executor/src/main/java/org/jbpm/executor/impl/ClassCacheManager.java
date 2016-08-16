@@ -36,11 +36,11 @@ import org.slf4j.LoggerFactory;
  */
 
 public class ClassCacheManager {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(ClassCacheManager.class);
-    
+
     private final Map<String, Command> commandCache = new HashMap<String, Command>();
-    private final Map<String, CommandCallback> callbackCache = new HashMap<String, CommandCallback>();  
+    private final Map<String, CommandCallback> callbackCache = new HashMap<String, CommandCallback>();
 
     /**
      * Finds command by FQCN and if not found loads the class and store the instance in
@@ -50,16 +50,16 @@ public class ClassCacheManager {
      */
     public Command findCommand(String name, ClassLoader cl) {
         synchronized (commandCache) {
-            
+
             if (!commandCache.containsKey(name)) {
-                
+
                 try {
                     Command commandInstance = (Command) Class.forName(name, true, cl).newInstance();
                     commandCache.put(name, commandInstance);
                 } catch (Exception ex) {
                     throw new IllegalArgumentException("Unknown Command implementation with name '" + name + "'");
                 }
-    
+
             } else {
                 Command cmd = commandCache.get(name);
                 if (!cmd.getClass().getClassLoader().equals(cl)) {
@@ -69,11 +69,11 @@ public class ClassCacheManager {
                         commandCache.put(name, commandInstance);
                     } catch (Exception ex) {
                         throw new IllegalArgumentException("Unknown Command implementation with name '" + name + "'");
-                    } 
+                    }
                 }
             }
 
-       
+
         }
         return commandCache.get(name);
     }
@@ -86,7 +86,7 @@ public class ClassCacheManager {
      */
     public CommandCallback findCommandCallback(String name, ClassLoader cl) {
         synchronized (callbackCache) {
-            
+
             if (!callbackCache.containsKey(name)) {
                 try {
                     CommandCallback commandCallbackInstance = (CommandCallback) Class.forName(name, true, cl).newInstance();
@@ -131,31 +131,31 @@ public class ClassCacheManager {
         }
         return callbackList;
     }
-    
+
     protected void closeInstance(Object instance) {
-    	if (instance == null) {
-    		return;
-    	}
-    	
-    	if (instance instanceof Closeable) {
-    		((Closeable) instance).close();
-    	} else if (instance instanceof Cacheable) {
-    		((Cacheable) instance).close();
-    	}
+        if (instance == null) {
+            return;
+        }
+
+        if (instance instanceof Closeable) {
+            ((Closeable) instance).close();
+        } else if (instance instanceof Cacheable) {
+            ((Cacheable) instance).close();
+        }
     }
-        
+
     public void dispose() {
-    	if (commandCache != null) {
-    		for (Object command : commandCache.values()) {
-    			closeInstance(command);
-    		}
-    	}
-    	
-    	if (callbackCache != null) {
-    		for (Object callback : callbackCache.values()) {
-    			closeInstance(callback);
-    		}
-    	}
+        if (commandCache != null) {
+            for (Object command : commandCache.values()) {
+                closeInstance(command);
+            }
+        }
+
+        if (callbackCache != null) {
+            for (Object callback : callbackCache.values()) {
+                closeInstance(callback);
+            }
+        }
     }
 
 }

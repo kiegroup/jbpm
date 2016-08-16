@@ -50,7 +50,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Default implementation of the <code>RegisterableItemsFactory</code> responsible for providing 
+ * Default implementation of the <code>RegisterableItemsFactory</code> responsible for providing
  * a common set of WorkItemHandlers and EventListeners. This factory should not be used in CDI container.
  * <br/>
  * It will deliver fully configured instances of the following:
@@ -61,19 +61,19 @@ import org.slf4j.LoggerFactory;
  * </ul>
  * Moreover, it will invoke its super methods to define the rest of the registerable items, that might override defaults
  * when they are added to the resulting map at the end.
- * 
+ *
  * @see InjectableRegisterableItemsFactory
  */
 public class DefaultRegisterableItemsFactory extends SimpleRegisterableItemsFactory {
-	
-	private static final Logger logger = LoggerFactory.getLogger(DefaultRegisterableItemsFactory.class);
+
+    private static final Logger logger = LoggerFactory.getLogger(DefaultRegisterableItemsFactory.class);
 
     private AuditEventBuilder auditBuilder = new ManagedAuditEventBuilderImpl();
-    
+
     @Override
     public Map<String, WorkItemHandler> getWorkItemHandlers(RuntimeEngine runtime) {
         Map<String, WorkItemHandler> defaultHandlers = new HashMap<String, WorkItemHandler>();
-        //HT handler 
+        //HT handler
         WorkItemHandler handler = getHTWorkItemHandler(runtime);
         if (handler != null) {
             defaultHandlers.put("Human Task", handler);
@@ -82,43 +82,43 @@ public class DefaultRegisterableItemsFactory extends SimpleRegisterableItemsFact
         defaultHandlers.putAll(super.getWorkItemHandlers(runtime));
         // add handlers from descriptor
         defaultHandlers.putAll(getWorkItemHandlersFromDescriptor(runtime));
-        
+
         return defaultHandlers;
     }
 
 
     @Override
-    public List<ProcessEventListener> getProcessEventListeners(RuntimeEngine runtime) {    	
+    public List<ProcessEventListener> getProcessEventListeners(RuntimeEngine runtime) {
         List<ProcessEventListener> defaultListeners = new ArrayList<ProcessEventListener>();
         DeploymentDescriptor descriptor = getRuntimeManager().getDeploymentDescriptor();
         if (descriptor == null) {
-        	// register JPAWorkingMemoryDBLogger
-	        AbstractAuditLogger logger = AuditLoggerFactory.newJPAInstance(runtime.getKieSession().getEnvironment());
-	        logger.setBuilder(getAuditBuilder(runtime));
-	        defaultListeners.add(logger);
+            // register JPAWorkingMemoryDBLogger
+            AbstractAuditLogger logger = AuditLoggerFactory.newJPAInstance(runtime.getKieSession().getEnvironment());
+            logger.setBuilder(getAuditBuilder(runtime));
+            defaultListeners.add(logger);
         } else if (descriptor.getAuditMode() == AuditMode.JPA) {
-        	// register JPAWorkingMemoryDBLogger
-        	AbstractAuditLogger logger = null;
-        	if (descriptor.getPersistenceUnit().equals(descriptor.getAuditPersistenceUnit())) {
-        		logger = AuditLoggerFactory.newJPAInstance(runtime.getKieSession().getEnvironment());
-        	} else {
-        		Environment env = EnvironmentFactory.newEnvironment();
-        		env.set(EnvironmentName.ENTITY_MANAGER_FACTORY, EntityManagerFactoryManager.get().getOrCreate(descriptor.getAuditPersistenceUnit()));
-        		logger = AuditLoggerFactory.newJPAInstance(env);
-        	}
-	        
-	        logger.setBuilder(getAuditBuilder(runtime));
-	        defaultListeners.add(logger);
+            // register JPAWorkingMemoryDBLogger
+            AbstractAuditLogger logger = null;
+            if (descriptor.getPersistenceUnit().equals(descriptor.getAuditPersistenceUnit())) {
+                logger = AuditLoggerFactory.newJPAInstance(runtime.getKieSession().getEnvironment());
+            } else {
+                Environment env = EnvironmentFactory.newEnvironment();
+                env.set(EnvironmentName.ENTITY_MANAGER_FACTORY, EntityManagerFactoryManager.get().getOrCreate(descriptor.getAuditPersistenceUnit()));
+                logger = AuditLoggerFactory.newJPAInstance(env);
+            }
+
+            logger.setBuilder(getAuditBuilder(runtime));
+            defaultListeners.add(logger);
         } else if (descriptor.getAuditMode() == AuditMode.JMS) {
-        	try {
+            try {
                 Properties properties = new Properties();
                 InputStream input = getRuntimeManager().getEnvironment().getClassLoader().getResourceAsStream("/jbpm.audit.jms.properties");
                 properties.load(input);
-                
+
                 @SuppressWarnings({ "unchecked", "rawtypes" })
-				AbstractAuditLogger logger =  AuditLoggerFactory.newJMSInstance((Map)properties);
+                AbstractAuditLogger logger =  AuditLoggerFactory.newJMSInstance((Map)properties);
                 logger.setBuilder(getAuditBuilder(runtime));
-    	        defaultListeners.add(logger);
+                defaultListeners.add(logger);
             } catch (IOException e) {
                 logger.error("Unable to load jms audit properties from {}", "/jbpm.audit.jms.properties", e);
             }
@@ -126,7 +126,7 @@ public class DefaultRegisterableItemsFactory extends SimpleRegisterableItemsFact
         // add any custom listeners
         defaultListeners.addAll(super.getProcessEventListeners(runtime));
         // add listeners from descriptor
-        defaultListeners.addAll(getEventListenerFromDescriptor(runtime, ProcessEventListener.class));        
+        defaultListeners.addAll(getEventListenerFromDescriptor(runtime, ProcessEventListener.class));
         return defaultListeners;
     }
 
@@ -137,14 +137,14 @@ public class DefaultRegisterableItemsFactory extends SimpleRegisterableItemsFact
         // add any custom listeners
         defaultListeners.addAll(super.getAgendaEventListeners(runtime));
         // add listeners from descriptor
-        defaultListeners.addAll(getEventListenerFromDescriptor(runtime, AgendaEventListener.class));        
+        defaultListeners.addAll(getEventListenerFromDescriptor(runtime, AgendaEventListener.class));
         return defaultListeners;
     }
 
     @Override
     public List<RuleRuntimeEventListener> getRuleRuntimeEventListeners(RuntimeEngine runtime) {
         List<RuleRuntimeEventListener> defaultListeners = new ArrayList<RuleRuntimeEventListener>();
-        
+
         // add any custom listeners
         defaultListeners.addAll(super.getRuleRuntimeEventListeners(runtime));
         // add listeners from descriptor
@@ -154,35 +154,35 @@ public class DefaultRegisterableItemsFactory extends SimpleRegisterableItemsFact
 
 
     @Override
-	public List<TaskLifeCycleEventListener> getTaskListeners() {
-    	List<TaskLifeCycleEventListener> defaultListeners = new ArrayList<TaskLifeCycleEventListener>();
+    public List<TaskLifeCycleEventListener> getTaskListeners() {
+        List<TaskLifeCycleEventListener> defaultListeners = new ArrayList<TaskLifeCycleEventListener>();
         defaultListeners.add(new JPATaskLifeCycleEventListener(true));
         // add any custom listeners
         defaultListeners.addAll(super.getTaskListeners());
         // add listeners from deployment descriptor
         defaultListeners.addAll(getTaskListenersFromDescriptor());
-        
+
         return defaultListeners;
-	}
+    }
 
 
-	@Override
-	public Map<String, Object> getGlobals(RuntimeEngine runtime) {
-		Map<String, Object> defaultGlobals = new HashMap<String, Object>();
-				
-		defaultGlobals.putAll(super.getGlobals(runtime));
-		// add globals from descriptor
-		defaultGlobals.putAll(getGlobalsFromDescriptor(runtime));
-		return defaultGlobals;
-	}
+    @Override
+    public Map<String, Object> getGlobals(RuntimeEngine runtime) {
+        Map<String, Object> defaultGlobals = new HashMap<String, Object>();
+
+        defaultGlobals.putAll(super.getGlobals(runtime));
+        // add globals from descriptor
+        defaultGlobals.putAll(getGlobalsFromDescriptor(runtime));
+        return defaultGlobals;
+    }
 
 
-	
+
     protected WorkItemHandler getHTWorkItemHandler(RuntimeEngine runtime) {
 
         LocalHTWorkItemHandler humanTaskHandler = new LocalHTWorkItemHandler();
         humanTaskHandler.setRuntimeManager(((RuntimeEngineImpl)runtime).getManager());
-                
+
         return humanTaskHandler;
     }
 
@@ -192,32 +192,32 @@ public class DefaultRegisterableItemsFactory extends SimpleRegisterableItemsFact
     }
 
     public AuditEventBuilder getAuditBuilder(RuntimeEngine engine) {
-    	if (this.auditBuilder != null && this.auditBuilder instanceof ManagedAuditEventBuilderImpl) {
-    		String identifier = ((RuntimeEngineImpl)engine).getManager().getIdentifier();
-    		((ManagedAuditEventBuilderImpl) this.auditBuilder).setOwnerId(identifier);
-    	}
-    	
-    	return this.auditBuilder;
+        if (this.auditBuilder != null && this.auditBuilder instanceof ManagedAuditEventBuilderImpl) {
+            String identifier = ((RuntimeEngineImpl)engine).getManager().getIdentifier();
+            ((ManagedAuditEventBuilderImpl) this.auditBuilder).setOwnerId(identifier);
+        }
+
+        return this.auditBuilder;
     }
 
     public void setAuditBuilder(AuditEventBuilder auditBuilder) {
         this.auditBuilder = auditBuilder;
-    }    
-    
+    }
+
     protected Object getInstanceFromModel(ObjectModel model, ClassLoader classloader, Map<String, Object> contaxtParams) {
-    	ObjectModelResolver resolver = ObjectModelResolverProvider.get(model.getResolver());
-		if (resolver == null) {
-			logger.warn("Unable to find ObjectModelResolver for {}", model.getResolver());
-		}
-		
-		return resolver.getInstance(model, classloader, contaxtParams);
-    }    
-    
+        ObjectModelResolver resolver = ObjectModelResolverProvider.get(model.getResolver());
+        if (resolver == null) {
+            logger.warn("Unable to find ObjectModelResolver for {}", model.getResolver());
+        }
+
+        return resolver.getInstance(model, classloader, contaxtParams);
+    }
+
     protected Map<String, Object> getParametersMap(RuntimeEngine runtime) {
         RuntimeManager manager = ((RuntimeEngineImpl)runtime).getManager();
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("ksession", runtime.getKieSession());
-        
+
         try {
             parameters.put("taskService", runtime.getTaskService());
         } catch (UnsupportedOperationException e) {
@@ -225,78 +225,78 @@ public class DefaultRegisterableItemsFactory extends SimpleRegisterableItemsFact
         }
         parameters.put("runtimeManager", manager);
         parameters.put("classLoader", getRuntimeManager().getEnvironment().getClassLoader());
-        parameters.put("entityManagerFactory", 
-        		runtime.getKieSession().getEnvironment().get(EnvironmentName.ENTITY_MANAGER_FACTORY));
+        parameters.put("entityManagerFactory",
+                runtime.getKieSession().getEnvironment().get(EnvironmentName.ENTITY_MANAGER_FACTORY));
         parameters.put("kieContainer", getRuntimeManager().getKieContainer());
-        
+
         return parameters;
     }
-    
+
     protected List<TaskLifeCycleEventListener> getTaskListenersFromDescriptor() {
-    	List<TaskLifeCycleEventListener> defaultListeners = new ArrayList<TaskLifeCycleEventListener>();
+        List<TaskLifeCycleEventListener> defaultListeners = new ArrayList<TaskLifeCycleEventListener>();
         DeploymentDescriptor descriptor = getRuntimeManager().getDeploymentDescriptor();
         if (descriptor != null) {
-        	Map<String, Object> params = new HashMap<String, Object>();
-        	params.put("runtimeManager", getRuntimeManager());
-        	params.put("classLoader", getRuntimeManager().getEnvironment().getClassLoader());
-        	params.put("kieContainer", getRuntimeManager().getKieContainer());
-        	for (ObjectModel model : descriptor.getTaskEventListeners()) {
-        		Object taskListener = getInstanceFromModel(model, getRuntimeManager().getEnvironment().getClassLoader(), params);
-        		if (taskListener != null) {
-        			defaultListeners.add((TaskLifeCycleEventListener) taskListener);
-        		}
-        	}
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put("runtimeManager", getRuntimeManager());
+            params.put("classLoader", getRuntimeManager().getEnvironment().getClassLoader());
+            params.put("kieContainer", getRuntimeManager().getKieContainer());
+            for (ObjectModel model : descriptor.getTaskEventListeners()) {
+                Object taskListener = getInstanceFromModel(model, getRuntimeManager().getEnvironment().getClassLoader(), params);
+                if (taskListener != null) {
+                    defaultListeners.add((TaskLifeCycleEventListener) taskListener);
+                }
+            }
         }
-        
+
         return defaultListeners;
     }
-    
+
     protected Map<String, WorkItemHandler> getWorkItemHandlersFromDescriptor(RuntimeEngine runtime) {
-    	Map<String, WorkItemHandler> defaultHandlers = new HashMap<String, WorkItemHandler>();
+        Map<String, WorkItemHandler> defaultHandlers = new HashMap<String, WorkItemHandler>();
         DeploymentDescriptor descriptor = getRuntimeManager().getDeploymentDescriptor();
         if (descriptor != null) {
-        	Map<String, Object> params = getParametersMap(runtime);
-        	for (NamedObjectModel model : descriptor.getWorkItemHandlers()) {
-        		Object hInstance = getInstanceFromModel(model, getRuntimeManager().getEnvironment().getClassLoader(), params);
-        		if (hInstance != null) {
-        			defaultHandlers.put(model.getName(), (WorkItemHandler) hInstance);
-        		}
-        	}
+            Map<String, Object> params = getParametersMap(runtime);
+            for (NamedObjectModel model : descriptor.getWorkItemHandlers()) {
+                Object hInstance = getInstanceFromModel(model, getRuntimeManager().getEnvironment().getClassLoader(), params);
+                if (hInstance != null) {
+                    defaultHandlers.put(model.getName(), (WorkItemHandler) hInstance);
+                }
+            }
         }
-        
+
         return defaultHandlers;
     }
-    
+
     @SuppressWarnings("unchecked")
-	protected <T> List<T>  getEventListenerFromDescriptor(RuntimeEngine runtime, Class<T> type) {
-    	List<T> listeners = new ArrayList<T>();
+    protected <T> List<T>  getEventListenerFromDescriptor(RuntimeEngine runtime, Class<T> type) {
+        List<T> listeners = new ArrayList<T>();
         DeploymentDescriptor descriptor = getRuntimeManager().getDeploymentDescriptor();
         if (descriptor != null) {
-        	Map<String, Object> params = getParametersMap(runtime);
-        	for (ObjectModel model : descriptor.getEventListeners()) {
-        		Object listenerInstance = getInstanceFromModel(model, getRuntimeManager().getEnvironment().getClassLoader(), params);
-        		if (listenerInstance != null && type.isAssignableFrom(listenerInstance.getClass())) {
-        			listeners.add((T) listenerInstance);
-        		}
-        	}
+            Map<String, Object> params = getParametersMap(runtime);
+            for (ObjectModel model : descriptor.getEventListeners()) {
+                Object listenerInstance = getInstanceFromModel(model, getRuntimeManager().getEnvironment().getClassLoader(), params);
+                if (listenerInstance != null && type.isAssignableFrom(listenerInstance.getClass())) {
+                    listeners.add((T) listenerInstance);
+                }
+            }
         }
-        
+
         return listeners;
     }
-    
+
     protected Map<String, Object> getGlobalsFromDescriptor(RuntimeEngine runtime) {
-    	Map<String, Object> globals = new HashMap<String, Object>();
+        Map<String, Object> globals = new HashMap<String, Object>();
         DeploymentDescriptor descriptor = getRuntimeManager().getDeploymentDescriptor();
         if (descriptor != null) {
-        	Map<String, Object> params = getParametersMap(runtime);
-        	for (NamedObjectModel model : descriptor.getGlobals()) {
-        		Object gInstance = getInstanceFromModel(model, getRuntimeManager().getEnvironment().getClassLoader(), params);
-        		if (gInstance != null) {
-        			globals.put(model.getName(), gInstance);
-        		}
-        	}
+            Map<String, Object> params = getParametersMap(runtime);
+            for (NamedObjectModel model : descriptor.getGlobals()) {
+                Object gInstance = getInstanceFromModel(model, getRuntimeManager().getEnvironment().getClassLoader(), params);
+                if (gInstance != null) {
+                    globals.put(model.getName(), gInstance);
+                }
+            }
         }
-        
+
         return globals;
     }
 }

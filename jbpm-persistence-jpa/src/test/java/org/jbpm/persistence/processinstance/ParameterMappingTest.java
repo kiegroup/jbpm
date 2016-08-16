@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -50,16 +50,16 @@ import org.kie.internal.runtime.StatefulKnowledgeSession;
 
 @RunWith(Parameterized.class)
 public class ParameterMappingTest extends AbstractBaseTest {
-    
+
     private HashMap<String, Object> context;
-    
+
     private static final String PROCESS_ID = "org.jbpm.processinstance.subprocess";
     private static final String SUBPROCESS_ID = "org.jbpm.processinstance.helloworld";
     private StatefulKnowledgeSession ksession;
     private ProcessListener listener;
-    
-    public ParameterMappingTest(boolean locking) { 
-       this.useLocking = locking; 
+
+    public ParameterMappingTest(boolean locking) {
+       this.useLocking = locking;
     }
 
     @Parameters
@@ -67,12 +67,12 @@ public class ParameterMappingTest extends AbstractBaseTest {
         Object[][] data = new Object[][] { { false }, { true } };
         return Arrays.asList(data);
     };
-    
+
     @Before
     public void before() {
         context = setupWithPoolingDataSource(JBPM_PERSISTENCE_UNIT_NAME);
         Environment env = createEnvironment(context);
-        if( useLocking ) { 
+        if( useLocking ) {
             env.set(EnvironmentName.USE_PESSIMISTIC_LOCKING, true);
         }
 
@@ -87,7 +87,7 @@ public class ParameterMappingTest extends AbstractBaseTest {
         KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
         kbuilder.add(ResourceFactory.newClassPathResource("processinstance/Subprocess.rf"), ResourceType.DRF);
         kbuilder.add(ResourceFactory.newClassPathResource("processinstance/HelloWorld.rf"), ResourceType.DRF);
-    
+
         return kbuilder.newKnowledgeBase();
     }
 
@@ -171,7 +171,7 @@ public class ParameterMappingTest extends AbstractBaseTest {
         assertTrue(listener.isProcessCompleted(PROCESS_ID));
     }
 
-    
+
     public static class ProcessListener extends DefaultProcessEventListener {
         private final List<String> processesStarted = new ArrayList<String>();
         private final List<String> processesCompleted = new ArrayList<String>();

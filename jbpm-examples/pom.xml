@@ -31,30 +31,30 @@
         </plugin>
         <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
         <plugin>
-        	<groupId>org.eclipse.m2e</groupId>
-        	<artifactId>lifecycle-mapping</artifactId>
-        	<version>1.0.0</version>
-        	<configuration>
-        		<lifecycleMappingMetadata>
-        			<pluginExecutions>
-        				<pluginExecution>
-        					<pluginExecutionFilter>
-        						<groupId>org.codehaus.mojo</groupId>
-        						<artifactId>
-        							build-helper-maven-plugin
-        						</artifactId>
-        						<versionRange>[1.7,)</versionRange>
-        						<goals>
-        							<goal>parse-version</goal>
-        						</goals>
-        					</pluginExecutionFilter>
-        					<action>
-        						<ignore/>
-        					</action>
-        				</pluginExecution>
-        			</pluginExecutions>
-        		</lifecycleMappingMetadata>
-        	</configuration>
+          <groupId>org.eclipse.m2e</groupId>
+          <artifactId>lifecycle-mapping</artifactId>
+          <version>1.0.0</version>
+          <configuration>
+            <lifecycleMappingMetadata>
+              <pluginExecutions>
+                <pluginExecution>
+                  <pluginExecutionFilter>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>
+                      build-helper-maven-plugin
+                    </artifactId>
+                    <versionRange>[1.7,)</versionRange>
+                    <goals>
+                      <goal>parse-version</goal>
+                    </goals>
+                  </pluginExecutionFilter>
+                  <action>
+                    <ignore/>
+                  </action>
+                </pluginExecution>
+              </pluginExecutions>
+            </lifecycleMappingMetadata>
+          </configuration>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -106,19 +106,19 @@
       <artifactId>jbpm-test</artifactId>
     </dependency>
     <dependency>
-    	<groupId>org.subethamail</groupId>
-    	<artifactId>subethasmtp-wiser</artifactId>
-    	<scope>provided</scope>
-    	<exclusions>
+      <groupId>org.subethamail</groupId>
+      <artifactId>subethasmtp-wiser</artifactId>
+      <scope>provided</scope>
+      <exclusions>
         <exclusion>
           <groupId>commons-logging</groupId>
           <artifactId>commons-logging</artifactId>
         </exclusion>
-    	  <exclusion>
-    	    <artifactId>log4j</artifactId>
-    	    <groupId>log4j</groupId>
-    	  </exclusion>
-    	</exclusions>
+        <exclusion>
+          <artifactId>log4j</artifactId>
+          <groupId>log4j</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <!-- Replacement for above excluded 'commons-logging:commons-logging' -->
     <dependency>
@@ -127,8 +127,8 @@
       <scope>runtime</scope>
     </dependency>
     <dependency>
-    	<groupId>com.h2database</groupId>
-    	<artifactId>h2</artifactId>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
     </dependency>
     <dependency>
       <groupId>org.hibernate</groupId>

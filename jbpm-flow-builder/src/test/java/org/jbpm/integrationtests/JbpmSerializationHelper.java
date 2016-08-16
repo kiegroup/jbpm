@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -36,21 +36,21 @@ import java.io.IOException;
  * Marshalling helper class to perform serialize/de-serialize a given object
  */
 public class JbpmSerializationHelper extends SerializationHelper {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(JbpmSerializationHelper.class);
-    
+
     public static <T> T serializeObject(T obj) throws IOException,
                                               ClassNotFoundException {
         return serializeObject( obj,
                                 null );
     }
 
-    public static StatefulKnowledgeSession getSerialisedStatefulKnowledgeSession(KieSession ksession) throws Exception { 
+    public static StatefulKnowledgeSession getSerialisedStatefulKnowledgeSession(KieSession ksession) throws Exception {
         return SerializationHelper.getSerialisedStatefulKnowledgeSession(ksession, true);
     }
-    
+
     @SuppressWarnings("unchecked")
-	public static <T> T serializeObject(T obj,
+    public static <T> T serializeObject(T obj,
                                         ClassLoader classLoader) throws IOException,
                                                                 ClassNotFoundException {
         return (T) DroolsStreamUtils.streamIn( DroolsStreamUtils.streamOut( obj ),
@@ -69,20 +69,20 @@ public class JbpmSerializationHelper extends SerializationHelper {
                                                                                  ObjectMarshallingStrategy strategy,
                                                                                  boolean dispose) throws Exception {
 
-        ObjectMarshallingStrategy [] strategies = new ObjectMarshallingStrategy[] { strategy }; 
-        
+        ObjectMarshallingStrategy [] strategies = new ObjectMarshallingStrategy[] { strategy };
+
         return getSerialisedStatefulKnowledgeSession(ksession, strategies, dispose);
     }
-    
+
     public static StatefulKnowledgeSession getSerialisedStatefulKnowledgeSession(StatefulKnowledgeSession ksession,
                                                                                  ObjectMarshallingStrategy [] strategies,
                                                                                  boolean dispose) throws Exception {
-       
+
         Marshaller marshaller = MarshallerFactory.newMarshaller( ksession.getKieBase(), strategies );
-        
+
         final byte [] b1 = serializeKnowledgeSession(marshaller, ksession);
         StatefulKnowledgeSession ksession2 = deserializeKnowledgeSession(marshaller, b1);
-       
+
         final byte[] b2 = serializeKnowledgeSession(marshaller, ksession2);
 
         // bytes should be the same.
@@ -100,32 +100,32 @@ public class JbpmSerializationHelper extends SerializationHelper {
         return ksession2;
     }
 
-    public static byte [] serializeKnowledgeSession(Marshaller marshaller, 
-                                                    StatefulKnowledgeSession ksession) 
-                                                    throws Exception { 
-       
+    public static byte [] serializeKnowledgeSession(Marshaller marshaller,
+                                                    StatefulKnowledgeSession ksession)
+                                                    throws Exception {
+
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         marshaller.marshall( bos, ksession );
         byte[] ksessionBytes = bos.toByteArray();
         bos.close();
-        
+
         return ksessionBytes;
     }
-    
-    public static StatefulKnowledgeSession deserializeKnowledgeSession(Marshaller marshaller, 
-                                                                       byte [] serializedKsession) 
+
+    public static StatefulKnowledgeSession deserializeKnowledgeSession(Marshaller marshaller,
+                                                                       byte [] serializedKsession)
                                                                        throws Exception {
-        
+
         ByteArrayInputStream bais = new ByteArrayInputStream( serializedKsession );
         StatefulKnowledgeSession deserializedKsession = (StatefulKnowledgeSession)
-    		marshaller.unmarshall( bais,
+            marshaller.unmarshall( bais,
                                    SessionConfiguration.newInstance(),
                                    EnvironmentFactory.newEnvironment() );
         bais.close();
-        
+
         return deserializedKsession;
-    } 
-    
+    }
+
     public static boolean areByteArraysEqual(byte[] b1,
                                              byte[] b2) {
         if ( b1.length != b2.length ) {
@@ -142,5 +142,5 @@ public class JbpmSerializationHelper extends SerializationHelper {
 
         return true;
     }
-    
+
 }

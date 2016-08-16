@@ -44,7 +44,7 @@ public class AsyncHandlerProducer implements WorkItemHandlerProducer {
         if (executorService != null) {
             handlers.put("async",new AsyncWorkItemHandler(executorService, PrintOutCommand.class.getName()));
         }
-        
+
         return handlers;
     }
 

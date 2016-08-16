@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -64,24 +64,24 @@ public class QueryAndParameterAppender {
         this.noClauseAddedYet = false;
     }
 
-    public void addNamedQueryParam(String name, Object value) { 
+    public void addNamedQueryParam(String name, Object value) {
         queryParams.put(name, value);
     }
-   
-    public void openParentheses() { 
+
+    public void openParentheses() {
         ++nestedParentheses;
-        queryBuilder.append(" ( "); 
+        queryBuilder.append(" ( ");
     }
-    
-    public void closeParentheses() { 
-        queryBuilder.append(" ) "); 
+
+    public void closeParentheses() {
+        queryBuilder.append(" ) ");
         --nestedParentheses;
     }
-   
-    public int getParenthesesNesting() { 
+
+    public int getParenthesesNesting() {
         return nestedParentheses;
     }
-    
+
     // "Normal" query parameters --------------------------------------------------------------------------------------------------
 
     public <T> void addQueryParameters( List<? extends Object> paramList, String listId, Class<T> type, String fieldName,
@@ -123,61 +123,61 @@ public class QueryAndParameterAppender {
 
     public <T> void addRangeQueryParameters(List<? extends Object> paramList, String listId, Class<T> type, String fieldName, String joinClause, boolean union ) {
         List<T> listIdParams;
-        if( paramList != null && paramList.size() > 0 ) { 
+        if( paramList != null && paramList.size() > 0 ) {
             Object inputObject = paramList.get(0);
-            if( inputObject == null ) { 
+            if( inputObject == null ) {
                 inputObject = paramList.get(1);
-                if( inputObject == null ) { 
+                if( inputObject == null ) {
                     return;
                 }
-            }  
+            }
             listIdParams = checkAndConvertListToType(paramList, inputObject, listId, type);
-        } else { 
+        } else {
             return;
         }
-        
+
         T min = listIdParams.get(0);
         T max = listIdParams.get(1);
         Map<String, T> paramNameMinMaxMap = new HashMap<String, T>(2);
         StringBuilder queryClause = new StringBuilder("( " );
-        if( joinClause != null ) { 
-           queryClause.append("( "); 
-        } 
+        if( joinClause != null ) {
+           queryClause.append("( ");
+        }
         queryClause.append(fieldName);
-        if( min == null ) { 
-          if( max == null ) { 
+        if( min == null ) {
+          if( max == null ) {
               return;
-          } else { 
+          } else {
               // only max
               String maxParamName = generateParamName();
               queryClause.append(" <= :" + maxParamName + " " );
               paramNameMinMaxMap.put(maxParamName, max);
           }
-        } else if( max == null ) { 
+        } else if( max == null ) {
             // only min
             String minParamName = generateParamName();
             queryClause.append(" >= :" + minParamName + " ");
             paramNameMinMaxMap.put(minParamName, min);
-        } else { 
+        } else {
             // both min and max
             String minParamName = generateParamName();
             String maxParamName = generateParamName();
-            if( union ) { 
+            if( union ) {
                 queryClause.append(" >= :" + minParamName + " OR " + fieldName + " <= :" + maxParamName + " " );
-            } else { 
+            } else {
                 queryClause.append(" BETWEEN :" + minParamName + " AND :" + maxParamName + " " );
             }
             paramNameMinMaxMap.put(minParamName, min);
             paramNameMinMaxMap.put(maxParamName, max);
-        } 
-        if( joinClause != null ) { 
+        }
+        if( joinClause != null ) {
             queryClause.append(") and " + joinClause.trim() + " ");
         }
         queryClause.append(")");
-        
+
         // add query string to query builder and fill params map
         internalAddToQueryBuilder(queryClause.toString(), union);
-        for( Entry<String, T> nameMinMaxEntry : paramNameMinMaxMap.entrySet() ) { 
+        for( Entry<String, T> nameMinMaxEntry : paramNameMinMaxMap.entrySet() ) {
             addNamedQueryParam(nameMinMaxEntry.getKey(), nameMinMaxEntry.getValue());
         }
         queryBuilderModificationCleanup();
@@ -206,7 +206,7 @@ public class QueryAndParameterAppender {
         addRegexQueryParameters(inputParams, listId, fieldName, null, union);
     }
 
-    public void addRegexQueryParameters( List<String> paramValList, String listId, String fieldName, String joinClause, 
+    public void addRegexQueryParameters( List<String> paramValList, String listId, String fieldName, String joinClause,
             boolean union) {
         // setup
         if( paramValList == null || paramValList.isEmpty() ) {
@@ -248,13 +248,13 @@ public class QueryAndParameterAppender {
         queryBuilderModificationCleanup();
     }
 
-    public void addToQueryBuilder( String query, boolean union ) { 
+    public void addToQueryBuilder( String query, boolean union ) {
         // modify query builder
         internalAddToQueryBuilder(query, union);
         // cleanup
         queryBuilderModificationCleanup();
     }
-    
+
     public <T> void addToQueryBuilder( String query, boolean union, String paramName, List<T> paramValList  ) {
         // modify query builder
         internalAddToQueryBuilder(query, union);
@@ -282,14 +282,14 @@ public class QueryAndParameterAppender {
     public void queryBuilderModificationCleanup() {
         this.alreadyUsed = true;
     }
-    
-    public boolean whereClausePresent() { 
+
+    public boolean whereClausePresent() {
         return ! noWhereClauseYet;
     }
 
     @SuppressWarnings("unchecked")
     private <T> List<T> checkAndConvertListToType( List<?> inputList, Object inputObject, String listId, Class<T> type ) {
-        if( logger.isDebugEnabled() ) { 
+        if( logger.isDebugEnabled() ) {
             debugQueryParametersIdentifiers();
         }
         assert type != null : listId + ": type is null!";
@@ -307,50 +307,50 @@ public class QueryAndParameterAppender {
         char first = (char) ('A' + id);
         return new String(first + String.valueOf(((id + 1) / 26) + 1));
     }
-    
-    public StringBuilder getQueryBuilder() { 
+
+    public StringBuilder getQueryBuilder() {
         return queryBuilder;
     }
 
-    public static void debugQueryParametersIdentifiers() { 
-       try { 
-          Field [] fields = QueryParameterIdentifiers.class.getDeclaredFields(); 
+    public static void debugQueryParametersIdentifiers() {
+       try {
+          Field [] fields = QueryParameterIdentifiers.class.getDeclaredFields();
           Map<String, String> fieldValueMap = new TreeMap<String, String>(new Comparator<String>() {
 
             @Override
             public int compare( String o1, String o2 ) {
                 int int1 = -1;
-                try { 
+                try {
                     int1 = Integer.parseInt(o1);
-                } catch(Exception e) { 
+                } catch(Exception e) {
                     // no op
                 }
                 int int2 = -1;
-                try { 
+                try {
                     int2 = Integer.parseInt(o2);
-                } catch(Exception e) { 
+                } catch(Exception e) {
                     // no op
                 }
-                if( int1 > -1 && int2 > -1 ) { 
+                if( int1 > -1 && int2 > -1 ) {
                     return new Integer(int1).compareTo(int2);
                 }
-                if( int1 > -1 && int2 == -1 ) { 
+                if( int1 > -1 && int2 == -1 ) {
                     return -1;
-                } 
-                if( int1 == -1 && int2 > -1 ) { 
+                }
+                if( int1 == -1 && int2 > -1 ) {
                     return 1;
                 }
                 return o1.compareTo(o2);
             }
         });
-          for( Field field : fields ) { 
+          for( Field field : fields ) {
              fieldValueMap.put(field.get(null).toString(), field.getName());
           }
-          for( Entry<String, String> entry : fieldValueMap.entrySet() ) { 
+          for( Entry<String, String> entry : fieldValueMap.entrySet() ) {
              logger.debug(String.format("%-12s : %s", entry.getKey(), entry.getValue()));
           }
-       } catch( Exception e ) { 
-           // ignore 
+       } catch( Exception e ) {
+           // ignore
        }
     }
 }

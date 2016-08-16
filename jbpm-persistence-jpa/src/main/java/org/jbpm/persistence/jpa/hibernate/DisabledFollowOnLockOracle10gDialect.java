@@ -19,7 +19,7 @@ package org.jbpm.persistence.jpa.hibernate;
 import org.hibernate.dialect.Oracle10gDialect;
 
 /**
- * Customized Oracle10gDialect to avoid race conditions when using select for update with paging. 
+ * Customized Oracle10gDialect to avoid race conditions when using select for update with paging.
  *
  */
 public class DisabledFollowOnLockOracle10gDialect extends Oracle10gDialect {

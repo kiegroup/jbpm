@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -35,7 +35,7 @@ public abstract class MapPersistenceTest extends AbstractBaseTest {
         String processId = "minimalProcess";
 
         KieBase kbase = createKieBase(ProcessCreatorForHelp.newShortestProcess( processId ) );
-        
+
         StatefulKnowledgeSession crmPersistentSession = createSession(kbase);
 
         crmPersistentSession.startProcess(processId);
@@ -71,7 +71,7 @@ public abstract class MapPersistenceTest extends AbstractBaseTest {
         Assert.assertNull( ksession.getProcessInstance( process1Id ) );
 
     }
-    
+
     @Test
     public void signalEventTest() {
         String processId = "signalProcessTest";
@@ -80,7 +80,7 @@ public abstract class MapPersistenceTest extends AbstractBaseTest {
                                                          eventType );
 
         KieBase kbase = createKieBase(process);
-        
+
         StatefulKnowledgeSession crmPersistentSession = createSession(kbase);
 
         RuleFlowProcessInstance processInstance = (RuleFlowProcessInstance) crmPersistentSession.startProcess( processId );
@@ -96,7 +96,7 @@ public abstract class MapPersistenceTest extends AbstractBaseTest {
 
         Assert.assertNull( processInstance );
     }
-    
+
     @Test
     public void executeMultipleProcessTest() {
         String processId = "minimalProcess";
@@ -140,7 +140,7 @@ public abstract class MapPersistenceTest extends AbstractBaseTest {
                                                          null );
         Assert.assertNull( ksession2.getProcessInstance( process2Id ) );
     }
-    
+
     @Test
     public void multipleKSessionDifferentIdTest() {
         KieBase kbase1 = KnowledgeBaseFactory.newKnowledgeBase();
@@ -178,7 +178,7 @@ public abstract class MapPersistenceTest extends AbstractBaseTest {
         Assert.assertNotSame(processInstance1Id, processInstance2Id);
 
     }
-    
+
     @Test
     public void multipleSessionsWithSameProcessAndSameWorkItemAndDifferentIdTest() {
         String processId = "minimalProcess";
@@ -203,15 +203,15 @@ public abstract class MapPersistenceTest extends AbstractBaseTest {
         long workItem2Id = handler2.getLatestWorkItem().getId();
         Assert.assertNotSame(workItem1Id, workItem2Id);
     }
-    
+
     @Test
     public void crashProcessBeforePersisting() {
         String processId = "myProcess";
         String workName = "someWork";
 
-        int knowledgeSessionsCountBeforeTest = getKnowledgeSessionsCount(); 
+        int knowledgeSessionsCountBeforeTest = getKnowledgeSessionsCount();
         int processInstancesBeforeTest = getProcessInstancesCount();
-        
+
         KieBase kbase = createKieBase(ProcessCreatorForHelp.newProcessWithOneWork( processId, workName ) );
 
         StatefulKnowledgeSession crmPersistentSession = createSession( kbase );
@@ -225,20 +225,20 @@ public abstract class MapPersistenceTest extends AbstractBaseTest {
             Assert.fail();
         } catch ( RuntimeException re ) {
         }
-        
+
         Assert.assertEquals( knowledgeSessionsCountBeforeTest + 1, getKnowledgeSessionsCount() );
         Assert.assertEquals( processInstancesBeforeTest, getProcessInstancesCount() );
     }
-    
+
     @Test
     public void processWithSubProcessThatCrashTest() {
         String processId = "minimalProcess";
         String subProcessId = "subProcess";
         String workName = "MyWork";
 
-        int knowledgeSessionsCountBeforeTest = getKnowledgeSessionsCount(); 
+        int knowledgeSessionsCountBeforeTest = getKnowledgeSessionsCount();
         int processInstancesBeforeTest = getProcessInstancesCount();
-        
+
         KieBase kbase = createKieBase(
                 ProcessCreatorForHelp.newProcessWithOneWork(subProcessId, workName),
                 ProcessCreatorForHelp.newProcessWithOneSubProcess(processId, subProcessId));
@@ -260,7 +260,7 @@ public abstract class MapPersistenceTest extends AbstractBaseTest {
 
 
     protected abstract StatefulKnowledgeSession createSession(KieBase kbase);
-    
+
     protected abstract StatefulKnowledgeSession disposeAndReloadSession(StatefulKnowledgeSession crmPersistentSession,
                                                                         long ksessionId,
                                                                         KieBase kbase);
@@ -268,7 +268,7 @@ public abstract class MapPersistenceTest extends AbstractBaseTest {
     protected abstract int getProcessInstancesCount();
 
     protected abstract int getKnowledgeSessionsCount();
-   
+
     private static class DummyWorkItemHandler
         implements
         WorkItemHandler {

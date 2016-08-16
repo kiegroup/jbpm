@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -28,24 +28,24 @@ import org.kie.internal.task.api.TaskPersistenceContext;
 @XmlAccessorType(XmlAccessType.NONE)
 public class DeleteAuditEventsCommand extends TaskCommand<Void> {
 
-	private static final long serialVersionUID = -7929370526623674312L;
+    private static final long serialVersionUID = -7929370526623674312L;
 
-	public DeleteAuditEventsCommand() {
-	}
-	
-	public DeleteAuditEventsCommand(long taskId) {
-		this.taskId = taskId;
-	}
-	
-	@Override
-	public Void execute(Context context) {
-		TaskPersistenceContext persistenceContext = ((TaskContext) context).getPersistenceContext();
-        if( this.taskId != null ) { 
+    public DeleteAuditEventsCommand() {
+    }
+
+    public DeleteAuditEventsCommand(long taskId) {
+        this.taskId = taskId;
+    }
+
+    @Override
+    public Void execute(Context context) {
+        TaskPersistenceContext persistenceContext = ((TaskContext) context).getPersistenceContext();
+        if( this.taskId != null ) {
             persistenceContext.executeUpdateString("delete from TaskEventImpl t where t.taskId = " + this.taskId);
-        } else { 
+        } else {
             persistenceContext.executeUpdateString("delete from TaskEventImpl");
         }
-		return null;
-	}
+        return null;
+    }
 
 }

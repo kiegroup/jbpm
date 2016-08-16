@@ -22,10 +22,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class Person implements Serializable {
-    
-	private static final long serialVersionUID = 5L;
-	private Long id;
-	private String name;
+
+    private static final long serialVersionUID = 5L;
+    private Long id;
+    private String name;
 
     public String getName() {
         return name;

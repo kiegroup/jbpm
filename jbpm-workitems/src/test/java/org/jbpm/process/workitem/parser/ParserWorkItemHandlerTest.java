@@ -29,89 +29,89 @@ import org.kie.api.runtime.process.WorkItemManager;
 
 public class ParserWorkItemHandlerTest {
 
-	final int AGE = 27;
-	final String NAME = "William";
-	final String PERSON_XML = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><person><age>"
-			+ AGE + "</age><name>" + NAME + "</name></person>";
-	final String PERSON_JSON = "{\"name\":\"" + NAME + "\",\"age\":" + AGE
-			+ "}";
+    final int AGE = 27;
+    final String NAME = "William";
+    final String PERSON_XML = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><person><age>"
+            + AGE + "</age><name>" + NAME + "</name></person>";
+    final String PERSON_JSON = "{\"name\":\"" + NAME + "\",\"age\":" + AGE
+            + "}";
 
-	ParserWorkItemHandler handler;
+    ParserWorkItemHandler handler;
 
-	@Before
-	public void init() {
-		handler = new ParserWorkItemHandler();
-	}
+    @Before
+    public void init() {
+        handler = new ParserWorkItemHandler();
+    }
 
-	@Test
-	public void testXmlToObject() {
-		WorkItemImpl workItem = new WorkItemImpl();
-		workItem.setParameter(ParserWorkItemHandler.INPUT, PERSON_XML);
-		workItem.setParameter(ParserWorkItemHandler.FORMAT, ParserWorkItemHandler.XML);
-		workItem.setParameter(ParserWorkItemHandler.TYPE,
-				"org.jbpm.process.workitem.parser.Person");
-		handler.executeWorkItem(workItem, new TestWorkItemManager(workItem));
-		Person result = (Person) workItem.getResult(ParserWorkItemHandler.RESULT);
-		assertEquals(AGE, result.getAge());
-		assertEquals(NAME, result.getName());
-	}
+    @Test
+    public void testXmlToObject() {
+        WorkItemImpl workItem = new WorkItemImpl();
+        workItem.setParameter(ParserWorkItemHandler.INPUT, PERSON_XML);
+        workItem.setParameter(ParserWorkItemHandler.FORMAT, ParserWorkItemHandler.XML);
+        workItem.setParameter(ParserWorkItemHandler.TYPE,
+                "org.jbpm.process.workitem.parser.Person");
+        handler.executeWorkItem(workItem, new TestWorkItemManager(workItem));
+        Person result = (Person) workItem.getResult(ParserWorkItemHandler.RESULT);
+        assertEquals(AGE, result.getAge());
+        assertEquals(NAME, result.getName());
+    }
 
-	@Test
-	public void testObjectToXml() {
-		Person p = new Person(NAME, AGE);
-		WorkItemImpl workItem = new WorkItemImpl();
-		workItem.setParameter(ParserWorkItemHandler.INPUT, p);
-		workItem.setParameter(ParserWorkItemHandler.FORMAT, ParserWorkItemHandler.XML);
-		handler.executeWorkItem(workItem, new TestWorkItemManager(workItem));
-		String result = (String) workItem.getResult(ParserWorkItemHandler.RESULT);
-		assertEquals(PERSON_XML, result);
-	}
+    @Test
+    public void testObjectToXml() {
+        Person p = new Person(NAME, AGE);
+        WorkItemImpl workItem = new WorkItemImpl();
+        workItem.setParameter(ParserWorkItemHandler.INPUT, p);
+        workItem.setParameter(ParserWorkItemHandler.FORMAT, ParserWorkItemHandler.XML);
+        handler.executeWorkItem(workItem, new TestWorkItemManager(workItem));
+        String result = (String) workItem.getResult(ParserWorkItemHandler.RESULT);
+        assertEquals(PERSON_XML, result);
+    }
 
-	@Test
-	public void testJsonToObject() {
-		WorkItemImpl workItem = new WorkItemImpl();
-		workItem.setParameter(ParserWorkItemHandler.INPUT, PERSON_JSON);
-		workItem.setParameter(ParserWorkItemHandler.FORMAT, ParserWorkItemHandler.JSON);
-		workItem.setParameter(ParserWorkItemHandler.TYPE,
-				"org.jbpm.process.workitem.parser.Person");
-		handler.executeWorkItem(workItem, new TestWorkItemManager(workItem));
-		Person result = (Person) workItem.getResult(ParserWorkItemHandler.RESULT);
-		assertEquals(AGE, result.getAge());
-		assertEquals(NAME, result.getName());
-	}
+    @Test
+    public void testJsonToObject() {
+        WorkItemImpl workItem = new WorkItemImpl();
+        workItem.setParameter(ParserWorkItemHandler.INPUT, PERSON_JSON);
+        workItem.setParameter(ParserWorkItemHandler.FORMAT, ParserWorkItemHandler.JSON);
+        workItem.setParameter(ParserWorkItemHandler.TYPE,
+                "org.jbpm.process.workitem.parser.Person");
+        handler.executeWorkItem(workItem, new TestWorkItemManager(workItem));
+        Person result = (Person) workItem.getResult(ParserWorkItemHandler.RESULT);
+        assertEquals(AGE, result.getAge());
+        assertEquals(NAME, result.getName());
+    }
 
-	@Test
-	public void testObjectToJson() {
-		Person p = new Person(NAME, AGE);
-		WorkItemImpl workItem = new WorkItemImpl();
-		workItem.setParameter(ParserWorkItemHandler.INPUT, p);
-		workItem.setParameter(ParserWorkItemHandler.FORMAT, ParserWorkItemHandler.JSON);
-		handler.executeWorkItem(workItem, new TestWorkItemManager(workItem));
-		String result = (String) workItem.getResult(ParserWorkItemHandler.RESULT);
-		assertEquals(PERSON_JSON, result);
-	}
+    @Test
+    public void testObjectToJson() {
+        Person p = new Person(NAME, AGE);
+        WorkItemImpl workItem = new WorkItemImpl();
+        workItem.setParameter(ParserWorkItemHandler.INPUT, p);
+        workItem.setParameter(ParserWorkItemHandler.FORMAT, ParserWorkItemHandler.JSON);
+        handler.executeWorkItem(workItem, new TestWorkItemManager(workItem));
+        String result = (String) workItem.getResult(ParserWorkItemHandler.RESULT);
+        assertEquals(PERSON_JSON, result);
+    }
 
-	private class TestWorkItemManager implements WorkItemManager {
+    private class TestWorkItemManager implements WorkItemManager {
 
-		private WorkItem workItem;
+        private WorkItem workItem;
 
-		TestWorkItemManager(WorkItem workItem) {
-			this.workItem = workItem;
-		}
+        TestWorkItemManager(WorkItem workItem) {
+            this.workItem = workItem;
+        }
 
-		public void completeWorkItem(long id, Map<String, Object> results) {
-			((WorkItemImpl) workItem).setResults(results);
+        public void completeWorkItem(long id, Map<String, Object> results) {
+            ((WorkItemImpl) workItem).setResults(results);
 
-		}
+        }
 
-		public void abortWorkItem(long id) {
+        public void abortWorkItem(long id) {
 
-		}
+        }
 
-		public void registerWorkItemHandler(String workItemName,
-				WorkItemHandler handler) {
+        public void registerWorkItemHandler(String workItemName,
+                WorkItemHandler handler) {
 
-		}
-	}
+        }
+    }
 
 }

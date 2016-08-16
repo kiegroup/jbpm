@@ -43,10 +43,10 @@ import org.mvel2.ParserContext;
 /**
  *
  */
-public class MVELUtils { 
+public class MVELUtils {
     private static Map<String, Class<?>> inputs = new HashMap<String, Class<?>>();
-    private static TaskModelFactory factory = TaskModelProvider.getFactory(); 
-    
+    private static TaskModelFactory factory = TaskModelProvider.getFactory();
+
     public static Map<String, Class<?>> getInputs() {
         synchronized (inputs) {
             if (inputs.isEmpty()) {
@@ -77,7 +77,7 @@ public class MVELUtils {
                 inputs.put("UserInfo", UserInfo.class);
                 inputs.put("SubTasksStrategy",SubTasksStrategy.class);
                 inputs.put("Language", factory.newLanguage().getClass());
-                
+
 
                 // org.jbpm.services.task.service
                 inputs.put("Allowed", Allowed.class);
@@ -103,32 +103,32 @@ public class MVELUtils {
             throw new RuntimeException("Exception Thrown",e);
         }
     }
-    public static Object eval(Reader reader) { 
+    public static Object eval(Reader reader) {
         try {
             return eval(toString(reader), null);
         } catch (IOException e) {
             throw new RuntimeException("Exception Thrown",e);
         }
     }
-    
+
     public static Object eval(String str, Map<String, Object> vars) {
-    	ParserConfiguration pconf = new ParserConfiguration();
-    	pconf.addPackageImport("org.jbpm.services.task");
-//    	pconf.addPackageImport("org.jbpm.services.task.service");
-        
-    	pconf.addPackageImport("org.jbpm.services.task.query");
-    	pconf.addPackageImport("java.util");
-    	
-    	for(String entry : getInputs().keySet()){
-    		pconf.addImport(entry, getInputs().get(entry));
+        ParserConfiguration pconf = new ParserConfiguration();
+        pconf.addPackageImport("org.jbpm.services.task");
+//      pconf.addPackageImport("org.jbpm.services.task.service");
+
+        pconf.addPackageImport("org.jbpm.services.task.query");
+        pconf.addPackageImport("java.util");
+
+        for(String entry : getInputs().keySet()){
+            pconf.addImport(entry, getInputs().get(entry));
         }
-    	ParserContext context = new ParserContext(pconf);
+        ParserContext context = new ParserContext(pconf);
         Serializable s = MVEL.compileExpression(str.trim(), context);
 
-        if( vars != null ) { 
+        if( vars != null ) {
         return MVELSafeHelper.getEvaluator().executeExpression(s, vars);
     }
-        else { 
+        else {
             return MVELSafeHelper.getEvaluator().executeExpression(s);
         }
     }
@@ -140,5 +140,5 @@ public class MVELUtils {
         }
         return sb.toString();
     }
-    
+
 }

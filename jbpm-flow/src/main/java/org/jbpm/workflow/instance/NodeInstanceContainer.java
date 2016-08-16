@@ -22,7 +22,7 @@ import org.kie.api.definition.process.Node;
 import org.kie.api.definition.process.NodeContainer;
 
 /**
- * 
+ *
  */
 public interface NodeInstanceContainer extends org.kie.api.runtime.process.NodeInstanceContainer {
 
@@ -35,21 +35,21 @@ public interface NodeInstanceContainer extends org.kie.api.runtime.process.NodeI
     void addNodeInstance(NodeInstance nodeInstance);
 
     void removeNodeInstance(NodeInstance nodeInstance);
-    
+
     NodeContainer getNodeContainer();
-    
+
     void nodeInstanceCompleted(NodeInstance nodeInstance, String outType);
-    
+
     int getState();
-    
+
     void setState(int state);
-    
+
     int getLevelForNode(String uniqueID);
-    
+
     void setCurrentLevel(int level);
-    
+
     int getCurrentLevel();
-    
+
     NodeInstance getNodeInstance(long nodeInstanceId, boolean recursive);
 
 }

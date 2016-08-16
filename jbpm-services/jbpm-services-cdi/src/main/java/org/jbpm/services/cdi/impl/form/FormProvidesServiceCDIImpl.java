@@ -36,13 +36,13 @@ import org.kie.api.task.TaskService;
 @ApplicationScoped
 public class FormProvidesServiceCDIImpl extends FormProviderServiceImpl {
 
-	@Inject
+    @Inject
     @Any
     private Instance<FormProvider> providersInjected;
-	
+
     @PostConstruct
     public void prepare() {
-    	Set<FormProvider> providers = new TreeSet<FormProvider>(new Comparator<FormProvider>() {
+        Set<FormProvider> providers = new TreeSet<FormProvider>(new Comparator<FormProvider>() {
 
             @Override
             public int compare(FormProvider o1, FormProvider o2) {
@@ -52,38 +52,38 @@ public class FormProvidesServiceCDIImpl extends FormProviderServiceImpl {
         for (FormProvider p : providersInjected) {
             providers.add(p);
         }
-        
+
         super.setProviders(providers);
     }
 
     @Inject
-	@Override
-	public void setTaskService(TaskService taskService) {
+    @Override
+    public void setTaskService(TaskService taskService) {
 
-		super.setTaskService(taskService);
-	}
-
-    @Inject
-	@Override
-	public void setBpmn2Service(DefinitionService bpmn2Service) {
-
-		super.setBpmn2Service(bpmn2Service);
-	}
+        super.setTaskService(taskService);
+    }
 
     @Inject
-	@Override
-	public void setDataService(RuntimeDataService dataService) {
+    @Override
+    public void setBpmn2Service(DefinitionService bpmn2Service) {
 
-		super.setDataService(dataService);
-	}
+        super.setBpmn2Service(bpmn2Service);
+    }
 
     @Inject
-	@Override
-	public void setDeploymentService(DeploymentService deploymentService) {
+    @Override
+    public void setDataService(RuntimeDataService dataService) {
 
-		super.setDeploymentService(deploymentService);
-	}
+        super.setDataService(dataService);
+    }
 
-    
-    
+    @Inject
+    @Override
+    public void setDeploymentService(DeploymentService deploymentService) {
+
+        super.setDeploymentService(deploymentService);
+    }
+
+
+
 }

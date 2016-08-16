@@ -22,7 +22,7 @@ import org.kie.internal.task.exception.TaskException;
 /**
  * Exception that is thrown when a <code>User</code> try to perform an <code>Operation</code> on a <code>Task</code>
  *
- * @see org.jbpm.services.task.service.TaskServiceSession#taskOperation(Operation, long, String, String, ContentData, List)  
+ * @see org.jbpm.services.task.service.TaskServiceSession#taskOperation(Operation, long, String, String, ContentData, List)
  */
 public class PermissionDeniedException extends TaskException{
     public PermissionDeniedException(String message) {

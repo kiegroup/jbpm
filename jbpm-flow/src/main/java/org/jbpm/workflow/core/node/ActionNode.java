@@ -23,32 +23,32 @@ import org.jbpm.workflow.core.impl.ExtendedNodeImpl;
 
 /**
  * Default implementation of an action node.
- * 
+ *
  */
 public class ActionNode extends ExtendedNodeImpl {
 
-	private static final long serialVersionUID = 510l;
-	
-	private DroolsAction action;
+    private static final long serialVersionUID = 510l;
 
-	public DroolsAction getAction() {
-		return action;
-	}
+    private DroolsAction action;
 
-	public void setAction(DroolsAction action) {
-		this.action = action;
-	}
+    public DroolsAction getAction() {
+        return action;
+    }
+
+    public void setAction(DroolsAction action) {
+        this.action = action;
+    }
 
     public void validateAddIncomingConnection(final String type, final Connection connection) {
         super.validateAddIncomingConnection(type, connection);
         if (!org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE.equals(type)) {
            throw new IllegalArgumentException(
-                "This type of node [" + connection.getTo().getMetaData().get("UniqueId") + ", " + connection.getTo().getName() 
+                "This type of node [" + connection.getTo().getMetaData().get("UniqueId") + ", " + connection.getTo().getName()
                 + "] only accepts default incoming connection type!");
         }
         if (getFrom() != null && !"true".equals(System.getProperty("jbpm.enable.multi.con"))) {
            throw new IllegalArgumentException(
-                "This type of node [" + connection.getTo().getMetaData().get("UniqueId") + ", " + connection.getTo().getName() 
+                "This type of node [" + connection.getTo().getMetaData().get("UniqueId") + ", " + connection.getTo().getName()
                 + "] cannot have more than one incoming connection!");
         }
     }
@@ -57,14 +57,14 @@ public class ActionNode extends ExtendedNodeImpl {
         super.validateAddOutgoingConnection(type, connection);
         if (!org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE.equals(type)) {
             throw new IllegalArgumentException(
-                "This type of node [" + connection.getFrom().getMetaData().get("UniqueId") + ", " + connection.getFrom().getName() 
+                "This type of node [" + connection.getFrom().getMetaData().get("UniqueId") + ", " + connection.getFrom().getName()
                 + "] only accepts default outgoing connection type!");
         }
         if (getTo() != null && !"true".equals(System.getProperty("jbpm.enable.multi.con"))) {
             throw new IllegalArgumentException(
-                "This type of node [" + connection.getFrom().getMetaData().get("UniqueId") + ", " + connection.getFrom().getName() 
+                "This type of node [" + connection.getFrom().getMetaData().get("UniqueId") + ", " + connection.getFrom().getName()
                 + "] cannot have more than one outgoing connection!");
         }
     }
-    
+
 }

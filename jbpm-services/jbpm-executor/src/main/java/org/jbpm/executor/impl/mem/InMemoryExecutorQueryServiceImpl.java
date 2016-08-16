@@ -35,37 +35,37 @@ import org.kie.internal.executor.api.ExecutorQueryService;
 @SuppressWarnings("unchecked")
 public class InMemoryExecutorQueryServiceImpl implements ExecutorQueryService {
 
-	private InMemoryExecutorStoreService storeService;
-	
-	public void setStoreService(InMemoryExecutorStoreService storeService) {
-		this.storeService = storeService;
-	}
-	
-	public InMemoryExecutorQueryServiceImpl(boolean active) {
-		
-	}
-	
-	@Override
-	public List<RequestInfo> getPendingRequests() {
-		Map<Long, RequestInfo> requests = storeService.getRequests();
-		
-		return (List<RequestInfo>) CollectionUtils.select(requests.values(), new GetRequestsByStatus(STATUS.QUEUED, STATUS.RETRYING));
-	}
+    private InMemoryExecutorStoreService storeService;
 
-	@Override
-	public List<RequestInfo> getPendingRequestById(Long id) {
-		List<RequestInfo> requests = new ArrayList<RequestInfo>();
-		RequestInfo request = storeService.findRequest(id);
-		if (request != null && request.getStatus() == STATUS.QUEUED) {
-			requests.add(request);
-		}
-		return requests;
-	}
+    public void setStoreService(InMemoryExecutorStoreService storeService) {
+        this.storeService = storeService;
+    }
 
-	@Override
-	public RequestInfo getRequestById(Long id) {
-		return storeService.findRequest(id);
-	}
+    public InMemoryExecutorQueryServiceImpl(boolean active) {
+
+    }
+
+    @Override
+    public List<RequestInfo> getPendingRequests() {
+        Map<Long, RequestInfo> requests = storeService.getRequests();
+
+        return (List<RequestInfo>) CollectionUtils.select(requests.values(), new GetRequestsByStatus(STATUS.QUEUED, STATUS.RETRYING));
+    }
+
+    @Override
+    public List<RequestInfo> getPendingRequestById(Long id) {
+        List<RequestInfo> requests = new ArrayList<RequestInfo>();
+        RequestInfo request = storeService.findRequest(id);
+        if (request != null && request.getStatus() == STATUS.QUEUED) {
+            requests.add(request);
+        }
+        return requests;
+    }
+
+    @Override
+    public RequestInfo getRequestById(Long id) {
+        return storeService.findRequest(id);
+    }
 
     @Override
     public List<RequestInfo> getRequestByBusinessKey(String businessKey, QueryContext queryContext) {
@@ -81,145 +81,145 @@ public class InMemoryExecutorQueryServiceImpl implements ExecutorQueryService {
         return applyPaginition(requestsByCommand, queryContext);
     }
 
-	@Override
-	public List<ErrorInfo> getErrorsByRequestId(Long id) {
-		
-		return (List<ErrorInfo>) storeService.findRequest(id).getErrorInfo();
-	}
+    @Override
+    public List<ErrorInfo> getErrorsByRequestId(Long id) {
 
-	@Override
-	public List<RequestInfo> getQueuedRequests() {
-		Map<Long, RequestInfo> requests = storeService.getRequests();
-		
-		return (List<RequestInfo>) CollectionUtils.select(requests.values(), new GetRequestsByStatus(STATUS.QUEUED));
-	}
+        return (List<ErrorInfo>) storeService.findRequest(id).getErrorInfo();
+    }
 
-	@Override
-	public List<RequestInfo> getCompletedRequests() {
-		Map<Long, RequestInfo> requests = storeService.getProcessedRequests();
-		
-		return (List<RequestInfo>) CollectionUtils.select(requests.values(), new GetRequestsByStatus(STATUS.DONE));
-	}
+    @Override
+    public List<RequestInfo> getQueuedRequests() {
+        Map<Long, RequestInfo> requests = storeService.getRequests();
 
-	@Override
-	public List<RequestInfo> getInErrorRequests() {
-		Map<Long, RequestInfo> requests = storeService.getProcessedRequests();
-		
-		return (List<RequestInfo>) CollectionUtils.select(requests.values(), new GetRequestsWitError());
-	}
+        return (List<RequestInfo>) CollectionUtils.select(requests.values(), new GetRequestsByStatus(STATUS.QUEUED));
+    }
 
-	@Override
-	public List<RequestInfo> getCancelledRequests() {
-		Map<Long, RequestInfo> requests = storeService.getProcessedRequests();
-		
-		return (List<RequestInfo>) CollectionUtils.select(requests.values(), new GetRequestsByStatus(STATUS.CANCELLED));
-	}
+    @Override
+    public List<RequestInfo> getCompletedRequests() {
+        Map<Long, RequestInfo> requests = storeService.getProcessedRequests();
 
-	@Override
-	public List<ErrorInfo> getAllErrors() {
-		return new ArrayList<ErrorInfo>(storeService.getErrors().values());
-	}
+        return (List<RequestInfo>) CollectionUtils.select(requests.values(), new GetRequestsByStatus(STATUS.DONE));
+    }
 
-	@Override
-	public List<RequestInfo> getAllRequests() {
-		Map<Long, RequestInfo> requests = new HashMap<Long, RequestInfo>(storeService.getRequests());
-		requests.putAll(storeService.getProcessedRequests());
-		return new ArrayList<RequestInfo>(requests.values());
-	}
+    @Override
+    public List<RequestInfo> getInErrorRequests() {
+        Map<Long, RequestInfo> requests = storeService.getProcessedRequests();
 
-	@Override
-	public List<RequestInfo> getRunningRequests() {
-		Map<Long, RequestInfo> requests = storeService.getRequests();
-		
-		return (List<RequestInfo>) CollectionUtils.select(requests.values(), new GetRequestsByStatus(STATUS.RUNNING));
-	}
+        return (List<RequestInfo>) CollectionUtils.select(requests.values(), new GetRequestsWitError());
+    }
 
-	@Override
-	public List<RequestInfo> getFutureQueuedRequests() {
-		return getQueuedRequests();
-	}
+    @Override
+    public List<RequestInfo> getCancelledRequests() {
+        Map<Long, RequestInfo> requests = storeService.getProcessedRequests();
 
-	@Override
-	public List<RequestInfo> getRequestsByStatus(List<STATUS> statuses) {
-		Map<Long, RequestInfo> requests = new HashMap<Long, RequestInfo>(storeService.getRequests());
-		requests.putAll(storeService.getProcessedRequests());
-		
-		return (List<RequestInfo>) CollectionUtils.select(requests.values(), new GetRequestsByStatus(statuses));
-	}
+        return (List<RequestInfo>) CollectionUtils.select(requests.values(), new GetRequestsByStatus(STATUS.CANCELLED));
+    }
 
-	@Override
-	public RequestInfo getRequestForProcessing() {
-		
-		return storeService.getAndLockFirst();
-	}
-	
-	private class GetRequestsByStatus implements Predicate {
-		
-		private List<STATUS> statuses;
-		
-		GetRequestsByStatus(STATUS... status) {
-			this.statuses = Arrays.asList(status);
-		}
-		
-		GetRequestsByStatus(List<STATUS> statuses) {
-			this.statuses = statuses;
-		}
-		
+    @Override
+    public List<ErrorInfo> getAllErrors() {
+        return new ArrayList<ErrorInfo>(storeService.getErrors().values());
+    }
 
-		@Override
-		public boolean evaluate(Object object) {
-			if (object instanceof RequestInfo) {
-				if (statuses.contains(((RequestInfo)object).getStatus())) {
-					return true;
-				}
-			}
-			return false;
-		}
-		
-	}
-	
-	private class GetRequestsByKey implements Predicate {
-		
-		private String key;
-		
-		GetRequestsByKey(String key) {
-			this.key = key;
-		}
+    @Override
+    public List<RequestInfo> getAllRequests() {
+        Map<Long, RequestInfo> requests = new HashMap<Long, RequestInfo>(storeService.getRequests());
+        requests.putAll(storeService.getProcessedRequests());
+        return new ArrayList<RequestInfo>(requests.values());
+    }
 
-		@Override
-		public boolean evaluate(Object object) {
-			if (object instanceof RequestInfo) {
-				if (key.equals(((RequestInfo)object).getKey())) {
-					return true;
-				}
-			}
-			return false;
-		}
-		
-	}
-	
-	private class GetRequestsWitError implements Predicate {
-		
-		GetRequestsWitError() {
-			
-		}
+    @Override
+    public List<RequestInfo> getRunningRequests() {
+        Map<Long, RequestInfo> requests = storeService.getRequests();
 
-		@Override
-		public boolean evaluate(Object object) {
-			if (object instanceof RequestInfo) {
-				if (!((RequestInfo)object).getErrorInfo().isEmpty()) {
-					return true;
-				}
-			}
-			return false;
-		}
-		
-	}
-	
+        return (List<RequestInfo>) CollectionUtils.select(requests.values(), new GetRequestsByStatus(STATUS.RUNNING));
+    }
+
+    @Override
+    public List<RequestInfo> getFutureQueuedRequests() {
+        return getQueuedRequests();
+    }
+
+    @Override
+    public List<RequestInfo> getRequestsByStatus(List<STATUS> statuses) {
+        Map<Long, RequestInfo> requests = new HashMap<Long, RequestInfo>(storeService.getRequests());
+        requests.putAll(storeService.getProcessedRequests());
+
+        return (List<RequestInfo>) CollectionUtils.select(requests.values(), new GetRequestsByStatus(statuses));
+    }
+
+    @Override
+    public RequestInfo getRequestForProcessing() {
+
+        return storeService.getAndLockFirst();
+    }
+
+    private class GetRequestsByStatus implements Predicate {
+
+        private List<STATUS> statuses;
+
+        GetRequestsByStatus(STATUS... status) {
+            this.statuses = Arrays.asList(status);
+        }
+
+        GetRequestsByStatus(List<STATUS> statuses) {
+            this.statuses = statuses;
+        }
+
+
+        @Override
+        public boolean evaluate(Object object) {
+            if (object instanceof RequestInfo) {
+                if (statuses.contains(((RequestInfo)object).getStatus())) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+    }
+
+    private class GetRequestsByKey implements Predicate {
+
+        private String key;
+
+        GetRequestsByKey(String key) {
+            this.key = key;
+        }
+
+        @Override
+        public boolean evaluate(Object object) {
+            if (object instanceof RequestInfo) {
+                if (key.equals(((RequestInfo)object).getKey())) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+    }
+
+    private class GetRequestsWitError implements Predicate {
+
+        GetRequestsWitError() {
+
+        }
+
+        @Override
+        public boolean evaluate(Object object) {
+            if (object instanceof RequestInfo) {
+                if (!((RequestInfo)object).getErrorInfo().isEmpty()) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+    }
+
     private class GetRequestsByCommand implements Predicate {
-        
+
         private String command;
-        
+
         GetRequestsByCommand(String command) {
             this.command = command;
         }
@@ -233,7 +233,7 @@ public class InMemoryExecutorQueryServiceImpl implements ExecutorQueryService {
             }
             return false;
         }
-        
+
     }
 
     @Override
@@ -268,19 +268,19 @@ public class InMemoryExecutorQueryServiceImpl implements ExecutorQueryService {
 
     @Override
     public List<RequestInfo> getAllRequests(QueryContext queryContext) {
-        
+
         return applyPaginition(getAllRequests(), queryContext);
     }
 
     @Override
     public List<RequestInfo> getRunningRequests(QueryContext queryContext) {
-        
+
         return applyPaginition(getRunningRequests(), queryContext);
     }
 
     @Override
     public List<RequestInfo> getFutureQueuedRequests(QueryContext queryContext) {
-        
+
         return applyPaginition(getFutureQueuedRequests(), queryContext);
     }
 
@@ -289,9 +289,9 @@ public class InMemoryExecutorQueryServiceImpl implements ExecutorQueryService {
 
         return applyPaginition(getRequestsByStatus(statuses), queryContext);
     }
-	
+
     protected <T> List<T> applyPaginition(List<T> input, QueryContext queryContext) {
-        
+
         int end = queryContext.getOffset() + queryContext.getCount();
         if (input.size() < queryContext.getOffset()) {
             // no elements in given range
@@ -306,7 +306,7 @@ public class InMemoryExecutorQueryServiceImpl implements ExecutorQueryService {
     }
 
     @Override
-    public RequestInfo getRequestForProcessing(Long requestId) {        
+    public RequestInfo getRequestForProcessing(Long requestId) {
         return storeService.removeRequest(requestId);
     }
 

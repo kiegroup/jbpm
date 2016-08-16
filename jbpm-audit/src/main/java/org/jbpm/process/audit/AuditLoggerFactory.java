@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -30,10 +30,10 @@ import org.kie.api.runtime.KieSession;
 /**
  * Factory for producing support audit loggers. Currently two types are available:
  * <ul>
- *  <li>JPA - synchronous logger that is bound to the engine transaction and 
+ *  <li>JPA - synchronous logger that is bound to the engine transaction and
  *  persists audit events as part of runtime engine transaction</li>
  *  <li>JMS - asynchronous logger that can be configured to place messages on the queue
- *  either with respect to active transaction (only after transaction is committed) or 
+ *  either with respect to active transaction (only after transaction is committed) or
  *  place them directly as they are generated</li>
  * </ul>
  */
@@ -43,14 +43,14 @@ public class AuditLoggerFactory {
         JPA,
         JMS
     }
-    
+
     /**
-     * Creates new instance of audit logger based on given type and parameters and 
+     * Creates new instance of audit logger based on given type and parameters and
      * registers it directly in given ksession to receive its events.
      * Depending on the types several properties are supported:
      * <bold>JPA</bold>
      * No properties are supported
-     * 
+     *
      * <bold>JMS</bold>
      * <ul>
      * <li>jbpm.audit.jms.transacted - determines if JMS session is transacted or not - default true - type Boolean</li>
@@ -75,26 +75,26 @@ public class AuditLoggerFactory {
                 if (properties.containsKey("jbpm.audit.jms.transacted")) {
                     transacted = (Boolean) properties.get("jbpm.audit.jms.transacted");
                 }
-                
+
                 logger = new AsyncAuditLogProducer(ksession, transacted);
                 // set connection factory and queue if given as property
                 if (properties.containsKey("jbpm.audit.jms.connection.factory")) {
-                    ConnectionFactory connFactory = (ConnectionFactory) properties.get("jbpm.audit.jms.connection.factory"); 
+                    ConnectionFactory connFactory = (ConnectionFactory) properties.get("jbpm.audit.jms.connection.factory");
                     ((AsyncAuditLogProducer) logger).setConnectionFactory(connFactory);
-                }                
+                }
                 if (properties.containsKey("jbpm.audit.jms.queue")) {
-                    Queue queue = (Queue) properties.get("jbpm.audit.jms.queue"); 
+                    Queue queue = (Queue) properties.get("jbpm.audit.jms.queue");
                     ((AsyncAuditLogProducer) logger).setQueue(queue);
                 }
                 try {
                     // look up connection factory and queue if given as property
                     if (properties.containsKey("jbpm.audit.jms.connection.factory.jndi")) {
                         ConnectionFactory connFactory = (ConnectionFactory) InitialContext.doLookup(
-                                (String)properties.get(properties.get("jbpm.audit.jms.connection.factory.jndi"))); 
+                                (String)properties.get(properties.get("jbpm.audit.jms.connection.factory.jndi")));
                         ((AsyncAuditLogProducer) logger).setConnectionFactory(connFactory);
-                    }                
+                    }
                     if (properties.containsKey("jbpm.audit.jms.queue.jndi")) {
-                        Queue queue = (Queue) InitialContext.doLookup((String)properties.get("jbpm.audit.jms.queue.jndi")); 
+                        Queue queue = (Queue) InitialContext.doLookup((String)properties.get("jbpm.audit.jms.queue.jndi"));
                         ((AsyncAuditLogProducer) logger).setQueue(queue);
                     }
                 } catch (NamingException e) {
@@ -104,23 +104,23 @@ public class AuditLoggerFactory {
             default:
                 break;
         }
-        
+
         return logger;
     }
-    
+
     /**
      * Creates new instance of JPA audit logger
-     * NOTE: this will build the logger but it is not registered directly on a session: once received, 
+     * NOTE: this will build the logger but it is not registered directly on a session: once received,
      * it will need to be registered as an event listener
      * @return new instance of JPA audit logger
      */
     public static AbstractAuditLogger newJPAInstance() {
         return new JPAWorkingMemoryDbLogger();
     }
-    
+
     /**
      * Creates new instance of JPA audit logger with given EntityManagerFactory
-     * NOTE: this will build the logger but it is not registered directly on a session: once received, 
+     * NOTE: this will build the logger but it is not registered directly on a session: once received,
      * it will need to be registered as an event listener
      * @param emf EntityManagerFactory used to provide JPA entity manager instances on demand.
      * @param env Environment instance to be used
@@ -129,7 +129,7 @@ public class AuditLoggerFactory {
     public static AbstractAuditLogger newJPAInstance(Environment env) {
         return new JPAWorkingMemoryDbLogger(env);
     }
-    
+
     /**
      * Creates new instance of JMS audit logger based on given parameters.
      * Supported parameters are as follows:
@@ -140,7 +140,7 @@ public class AuditLoggerFactory {
      * <li>jbpm.audit.jms.connection.factory.jndi - JNDI name of the connection factory to look up - type String</li>
      * <li>jbpm.audit.jms.queue.jndi - JNDI name of the queue to look up - type String</li>
      * </ul>
-     * NOTE: this will build the logger but it is not registered directly on a session: once received, 
+     * NOTE: this will build the logger but it is not registered directly on a session: once received,
      * it will need to be registered as an event listener
      * @param properties - optional properties for the type of logger to initialize it
      * @return new instance of JMS audit logger
@@ -149,46 +149,46 @@ public class AuditLoggerFactory {
         AsyncAuditLogProducer logger = new AsyncAuditLogProducer();
         boolean transacted = true;
         if (properties.containsKey("jbpm.audit.jms.transacted")) {
-        	Object transactedObj = properties.get("jbpm.audit.jms.transacted");
-        	if (transactedObj instanceof Boolean) {
-        		transacted = (Boolean) properties.get("jbpm.audit.jms.transacted");
-        	} else {
-        		transacted = Boolean.parseBoolean(transactedObj.toString());
-        	}
+            Object transactedObj = properties.get("jbpm.audit.jms.transacted");
+            if (transactedObj instanceof Boolean) {
+                transacted = (Boolean) properties.get("jbpm.audit.jms.transacted");
+            } else {
+                transacted = Boolean.parseBoolean(transactedObj.toString());
+            }
         }
-        
+
         logger.setTransacted(transacted);
-        
+
         // set connection factory and queue if given as property
         if (properties.containsKey("jbpm.audit.jms.connection.factory")) {
-            ConnectionFactory connFactory = (ConnectionFactory) properties.get("jbpm.audit.jms.connection.factory"); 
+            ConnectionFactory connFactory = (ConnectionFactory) properties.get("jbpm.audit.jms.connection.factory");
             logger.setConnectionFactory(connFactory);
-        }                
+        }
         if (properties.containsKey("jbpm.audit.jms.queue")) {
-            Queue queue = (Queue) properties.get("jbpm.audit.jms.queue"); 
+            Queue queue = (Queue) properties.get("jbpm.audit.jms.queue");
             logger.setQueue(queue);
         }
         try {
             // look up connection factory and queue if given as property
             if (properties.containsKey("jbpm.audit.jms.connection.factory.jndi")) {
                 ConnectionFactory connFactory = (ConnectionFactory) InitialContext.doLookup(
-                        (String)properties.get("jbpm.audit.jms.connection.factory.jndi")); 
+                        (String)properties.get("jbpm.audit.jms.connection.factory.jndi"));
                 logger.setConnectionFactory(connFactory);
-            }                
+            }
             if (properties.containsKey("jbpm.audit.jms.queue.jndi")) {
-                Queue queue = (Queue) InitialContext.doLookup((String)properties.get("jbpm.audit.jms.queue.jndi")); 
+                Queue queue = (Queue) InitialContext.doLookup((String)properties.get("jbpm.audit.jms.queue.jndi"));
                logger.setQueue(queue);
             }
         } catch (NamingException e) {
             throw new RuntimeException("Error when looking up ConnectionFactory/Queue", e);
         }
-        
+
         return logger;
     }
-    
+
     /**
      * Creates new instance of JMS audit logger based on given connection factory and queue.
-     * NOTE: this will build the logger but it is not registered directly on a session: once received, 
+     * NOTE: this will build the logger but it is not registered directly on a session: once received,
      * it will need to be registered as an event listener
      * @param transacted determines if JMS session is transacted or not
      * @param connFactory connection factory instance
@@ -200,8 +200,8 @@ public class AuditLoggerFactory {
         logger.setTransacted(transacted);
         logger.setConnectionFactory(connFactory);
         logger.setQueue(queue);
-        
+
         return logger;
     }
-    
+
 }

@@ -17,7 +17,7 @@
 package org.jbpm.process.core.event;
 
 public interface EventFilter {
-	
-	boolean acceptsEvent(String type, Object event);
+
+    boolean acceptsEvent(String type, Object event);
 
 }

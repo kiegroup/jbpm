@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -24,33 +24,33 @@ import javax.persistence.Id;
 
 @Entity
 public class NonSerializableClass {
-    
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Long id;
 
-	private String someString;
-	@SuppressWarnings("unused")
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+
+    private String someString;
+    @SuppressWarnings("unused")
     private Date creationDate;
 
-	public NonSerializableClass() { 
-	    creationDate = new Date();
-	}
-	
-	public Long getId() {
-		return id;
-	}
+    public NonSerializableClass() {
+        creationDate = new Date();
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public String getSomeString() {
-		return someString;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public void setString(String someString) {
-		this.someString = someString;
-	}
+    public String getSomeString() {
+        return someString;
+    }
+
+    public void setString(String someString) {
+        this.someString = someString;
+    }
 
 }

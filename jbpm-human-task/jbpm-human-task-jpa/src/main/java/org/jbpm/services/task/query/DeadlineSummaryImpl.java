@@ -22,11 +22,11 @@ public class DeadlineSummaryImpl implements org.kie.internal.task.api.model.Dead
     private long taskId;
     private long deadlineId;
     private Date date;
-    
-    public DeadlineSummaryImpl() { 
+
+    public DeadlineSummaryImpl() {
         // default constructor
     }
-            
+
     public DeadlineSummaryImpl(long taskId,
                            long deadlineId,
                            Date date) {
@@ -35,27 +35,27 @@ public class DeadlineSummaryImpl implements org.kie.internal.task.api.model.Dead
         this.deadlineId = deadlineId;
         this.date = date;
     }
-    
+
     public long getTaskId() {
         return taskId;
     }
-    
+
     public void setTaskId(long taskId) {
         this.taskId = taskId;
     }
-    
+
     public long getDeadlineId() {
         return deadlineId;
     }
-    
+
     public void setDeadlineId(long deadlineId) {
         this.deadlineId = deadlineId;
     }
-    
+
     public Date getDate() {
         return date;
     }
-    
+
     public void setDate(Date date) {
         this.date = date;
     }
@@ -83,6 +83,6 @@ public class DeadlineSummaryImpl implements org.kie.internal.task.api.model.Dead
         if ( taskId != other.taskId ) return false;
         return true;
     }
-    
-    
+
+
 }

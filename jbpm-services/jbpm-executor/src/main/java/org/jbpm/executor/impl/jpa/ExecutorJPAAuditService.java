@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -34,12 +34,12 @@ import org.kie.internal.runtime.manager.audit.query.RequestInfoLogDeleteBuilder;
 import org.kie.internal.runtime.manager.audit.query.RequestInfoQueryBuilder;
 
 public class ExecutorJPAAuditService extends TaskJPAAuditService {
-	
-	public ExecutorJPAAuditService(EntityManagerFactory emf) {
-		super(emf);
-	}
 
-	@Override
+    public ExecutorJPAAuditService(EntityManagerFactory emf) {
+        super(emf);
+    }
+
+    @Override
     protected EntityManager getEntityManager() {
         return super.getEntityManager();
     }
@@ -55,40 +55,40 @@ public class ExecutorJPAAuditService extends TaskJPAAuditService {
     }
 
     // Delete Query API -----------------------------------------------------------------------------------------------------------
-    
-    static { 
+
+    static {
         addCriteria(EXECUTOR_TIME_LIST, "l.time", Date.class);
         addCriteria(EXECUTOR_STATUS_LIST, "l.status", STATUS.class);
     }
-	
-	public ErrorInfoDeleteBuilder errorInfoLogDeleteBuilder() {
-		return new ErrorInfoDeleteBuilderImpl(this);
-	}
 
-	public RequestInfoLogDeleteBuilder requestInfoLogDeleteBuilder() {
-		return new RequestInfoDeleteBuilderImpl(this);
-	}
+    public ErrorInfoDeleteBuilder errorInfoLogDeleteBuilder() {
+        return new ErrorInfoDeleteBuilderImpl(this);
+    }
 
-	// Query Query API -----------------------------------------------------------------------------------------------------------
-	
-	private final ExecutorQueryCriteriaUtil queryUtil = new ExecutorQueryCriteriaUtil(this);
-	
+    public RequestInfoLogDeleteBuilder requestInfoLogDeleteBuilder() {
+        return new RequestInfoDeleteBuilderImpl(this);
+    }
+
+    // Query Query API -----------------------------------------------------------------------------------------------------------
+
+    private final ExecutorQueryCriteriaUtil queryUtil = new ExecutorQueryCriteriaUtil(this);
+
     @Override
     protected QueryCriteriaUtil getQueryCriteriaUtil( Class queryType ) {
         if( ErrorInfo.class.equals(queryType)
-                || RequestInfo.class.equals(queryType) ) { 
+                || RequestInfo.class.equals(queryType) ) {
             return queryUtil;
-        } else { 
+        } else {
             return super.getQueryCriteriaUtil(queryType);
         }
     }
-	
-	public ErrorInfoQueryBuilder errorInfoQueryBuilder() {
-		return new ErrorInfoQueryBuilderImpl(this);
-	}
 
-	public RequestInfoQueryBuilder requestInfoQueryBuilder() {
-		return new RequestInfoQueryBuilderImpl(this);
-	}
+    public ErrorInfoQueryBuilder errorInfoQueryBuilder() {
+        return new ErrorInfoQueryBuilderImpl(this);
+    }
+
+    public RequestInfoQueryBuilder requestInfoQueryBuilder() {
+        return new RequestInfoQueryBuilderImpl(this);
+    }
 
 }

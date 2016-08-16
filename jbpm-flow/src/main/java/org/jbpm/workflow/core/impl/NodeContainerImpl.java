@@ -25,7 +25,7 @@ import org.jbpm.process.core.Context;
 import org.jbpm.workflow.core.NodeContainer;
 
 /**
- * 
+ *
  */
 public class NodeContainerImpl implements Serializable, NodeContainer {
 
@@ -60,11 +60,11 @@ public class NodeContainerImpl implements Serializable, NodeContainer {
         if (node == null) {
             throw new IllegalArgumentException("Unknown node id: " + id);
         }
-        return node; 
+        return node;
     }
 
     public Node internalGetNode(long id) {
-    	return getNode(id);
+        return getNode(id);
     }
 
     public void removeNode(final Node node) {

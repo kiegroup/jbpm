@@ -27,20 +27,20 @@ import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
 public class ProcessNodeInstanceFactoryTest extends AbstractBaseTest {
-   
-    public void addLogger() { 
+
+    public void addLogger() {
         logger = LoggerFactory.getLogger(this.getClass());
     }
-    
+
     @Test
     public void testDefaultEntries() throws Exception {
         Node node = new ActionNode();
-        assertEquals( CreateNewNodeFactory.class, NodeInstanceFactoryRegistry.getInstance(null).getProcessNodeInstanceFactory( node ).getClass() );       
+        assertEquals( CreateNewNodeFactory.class, NodeInstanceFactoryRegistry.getInstance(null).getProcessNodeInstanceFactory( node ).getClass() );
     }
-    
+
     @Test
     public void testDiscoveredEntry() {
-    	NodeInstanceFactoryRegistry.getInstance(null).register(MockNode.class, new MockNodeInstanceFactory(  new MockNodeInstance(  new MockNode() ) ));
+        NodeInstanceFactoryRegistry.getInstance(null).register(MockNode.class, new MockNodeInstanceFactory(  new MockNodeInstance(  new MockNode() ) ));
         assertEquals( MockNodeInstanceFactory.class, NodeInstanceFactoryRegistry.getInstance(null).getProcessNodeInstanceFactory( new MockNode() ).getClass() );
     }
 }

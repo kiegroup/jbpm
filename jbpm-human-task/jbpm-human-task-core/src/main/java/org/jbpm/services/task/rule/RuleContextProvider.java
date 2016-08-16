@@ -22,10 +22,10 @@ import org.kie.api.KieBase;
 public interface RuleContextProvider {
 
     KieBase getKieBase(String scope);
-    
+
     void addKieBase(String scope, KieBase kbase);
-    
+
     Map<String, Object> getGlobals(String scope);
-    
+
     void addGlobals(String scope, Map<String, Object> globals);
 }

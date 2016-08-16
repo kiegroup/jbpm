@@ -37,7 +37,7 @@ import org.kie.internal.task.api.model.InternalAttachment;
 import org.kie.internal.task.api.model.InternalContent;
 
 public abstract class TaskAttachmentBaseTest extends HumanTaskServicesBaseTest {
-    
+
     @Test
     public void testAttachmentWithStringInlineContent() {
         // One potential owner, should go straight to state Reserved
@@ -47,8 +47,8 @@ public abstract class TaskAttachmentBaseTest extends HumanTaskServicesBaseTest {
         Task task = TaskFactory.evalTask(new StringReader(str));
         taskService.addTask(task, new HashMap<String, Object>());
         List<TaskSummary> tasks = taskService.getTasksAssignedAsBusinessAdministrator("Bobba Fet", "en-UK");
-        
-        
+
+
         assertEquals(1, tasks.size());
         TaskSummary taskSum = tasks.get(0);
         Attachment attach = TaskModelProvider.getFactory().newAttachment();
@@ -58,13 +58,13 @@ public abstract class TaskAttachmentBaseTest extends HumanTaskServicesBaseTest {
         ((InternalAttachment)attach).setContentType("String");
         Content content = TaskModelProvider.getFactory().newContent();
         ((InternalContent)content).setContent(ContentMarshallerHelper.marshallContent(task, "This is my first inline document", null));
-        
+
         long attachId = taskService.addAttachment(taskSum.getId(), attach, content);
         Assert.assertNotEquals(0, attachId);
-        
+
         Attachment attachmentById = taskService.getAttachmentById(attachId);
         Assert.assertNotNull(attachmentById);
-        
+
         Attachment attach2 = TaskModelProvider.getFactory().newAttachment();
         ((InternalAttachment)attach2).setAccessType(AccessType.Inline);
         ((InternalAttachment)attach2).setAttachedAt(new Date());
@@ -72,27 +72,27 @@ public abstract class TaskAttachmentBaseTest extends HumanTaskServicesBaseTest {
         ((InternalAttachment)attach2).setContentType("String");
         Content content2 = TaskModelProvider.getFactory().newContent();
         ((InternalContent)content2).setContent(ContentMarshallerHelper.marshallContent(task, "This is my second inline document", null));
-        
+
         attachId = taskService.addAttachment(taskSum.getId(), attach2, content2);
         Assert.assertNotEquals(0, attachId);
         attachmentById = taskService.getAttachmentById(attachId);
         Assert.assertNotNull(attachmentById);
         List<Attachment> allAttachmentsByTaskId = taskService.getAllAttachmentsByTaskId(taskSum.getId());
-        
+
         assertEquals(2, allAttachmentsByTaskId.size());
-        
+
         Attachment firstAttach = allAttachmentsByTaskId.get(0);
         long firstAttachContentId = firstAttach.getAttachmentContentId();
         Content firstAttachContent = taskService.getContentById(firstAttachContentId);
         String firstDocString = (String)ContentMarshallerHelper.unmarshall(firstAttachContent.getContent(), null);
         assertEquals("This is my first inline document", firstDocString);
-        
+
         Attachment secondAttach = allAttachmentsByTaskId.get(1);
         long secondAttachContentId = secondAttach.getAttachmentContentId();
         Content secondAttachContent = taskService.getContentById(secondAttachContentId);
         String secondDocString = (String)ContentMarshallerHelper.unmarshall(secondAttachContent.getContent(), null);
         assertEquals("This is my second inline document", secondDocString);
-        
+
     }
-    
+
 }

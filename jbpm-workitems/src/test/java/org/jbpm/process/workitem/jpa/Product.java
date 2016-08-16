@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -24,23 +24,23 @@ import javax.persistence.Id;
 
 @Entity
 public class Product implements Serializable {
-    
+
     private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue
     private long id;
-    
+
     @Column
     private String description;
-    
+
     @Column
     private float price;
 
     public Product() {
     }
 
-    
+
     public Product(String description, float price) {
         super();
         this.description = description;
@@ -71,7 +71,7 @@ public class Product implements Serializable {
     public void setPrice(float price) {
         this.price = price;
     }
-    
+
     @Override
     public String toString() {
         return "[id=" + id + ", description=" + description + ", price=" + price + "]";

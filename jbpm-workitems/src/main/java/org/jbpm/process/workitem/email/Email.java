@@ -17,7 +17,7 @@
 package org.jbpm.process.workitem.email;
 
 public class Email {
-	
+
     private Message    message;
     private Connection connection;
 

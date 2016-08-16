@@ -19,12 +19,12 @@ package org.jbpm.bpmn2.core;
 import java.io.Serializable;
 
 public class Message implements Serializable {
-    
-	private static final long serialVersionUID = 510l;
-	
+
+    private static final long serialVersionUID = 510l;
+
     private String id;
     private String type;
-    
+
     public Message(String id) {
         this.id = id;
     }

@@ -33,53 +33,53 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Simple command to log the contextual data and return empty results. After attempting to get BeanManager
- * and creating simple CDI bean based on given class name as parameter. 
+ * and creating simple CDI bean based on given class name as parameter.
  * Just for demo purpose.
- * 
+ *
  */
 public class QueryRunCommand implements Command{
-    
+
     private static final Logger logger = LoggerFactory.getLogger(QueryRunCommand.class);
 
     public ExecutionResults execute(CommandContext ctx) {
-    	BeanManager manager = CDIUtils.lookUpBeanManager(ctx);
-    	String clazz = QueryService.class.getName();
-    			
-    	try {
-    	    QueryService cdiBean = (QueryService)CDIUtils.createBean(Class.forName(clazz), manager);
-			logger.info("CDI bean created {}", cdiBean);
-			
-			String mapperClass = (String)ctx.getData("mapper");
-			if (mapperClass == null) {
-			    mapperClass = "org.jbpm.kie.services.impl.query.mapper.ProcessInstanceQueryMapper";
-			}
-			
-			Method m = Class.forName(mapperClass).getMethod("get", new Class[0]);
-			
-			QueryResultMapper<?> mapper =  (QueryResultMapper<?>) m.invoke(null, new Object[0]);
-			
-			
-	        Object queryR = cdiBean.query((String)ctx.getData("query"), mapper, new QueryContext());
-	        
-	        logger.info("Result of the query is " + queryR);
-		} catch (Exception e) {		
-			logger.error("Error while creating CDI bean from jbpm executor", e);
-		}
-    	
+        BeanManager manager = CDIUtils.lookUpBeanManager(ctx);
+        String clazz = QueryService.class.getName();
+
+        try {
+            QueryService cdiBean = (QueryService)CDIUtils.createBean(Class.forName(clazz), manager);
+            logger.info("CDI bean created {}", cdiBean);
+
+            String mapperClass = (String)ctx.getData("mapper");
+            if (mapperClass == null) {
+                mapperClass = "org.jbpm.kie.services.impl.query.mapper.ProcessInstanceQueryMapper";
+            }
+
+            Method m = Class.forName(mapperClass).getMethod("get", new Class[0]);
+
+            QueryResultMapper<?> mapper =  (QueryResultMapper<?>) m.invoke(null, new Object[0]);
+
+
+            Object queryR = cdiBean.query((String)ctx.getData("query"), mapper, new QueryContext());
+
+            logger.info("Result of the query is " + queryR);
+        } catch (Exception e) {
+            logger.error("Error while creating CDI bean from jbpm executor", e);
+        }
+
         logger.info("Command executed on executor with data {}", ctx.getData());
         ExecutionResults executionResults = new ExecutionResults();
         return executionResults;
     }
-    
+
     protected Object getParameter(CommandContext commandContext, String parameterName) {
-		if (commandContext.getData(parameterName) != null) {
-			return commandContext.getData(parameterName);
-		}
-		WorkItem workItem = (WorkItem) commandContext.getData("workItem");
-		if (workItem != null) {
-			return workItem.getParameter(parameterName);
-		}
-		return null;
-	}
-    
+        if (commandContext.getData(parameterName) != null) {
+            return commandContext.getData(parameterName);
+        }
+        WorkItem workItem = (WorkItem) commandContext.getData("workItem");
+        if (workItem != null) {
+            return workItem.getParameter(parameterName);
+        }
+        return null;
+    }
+
 }

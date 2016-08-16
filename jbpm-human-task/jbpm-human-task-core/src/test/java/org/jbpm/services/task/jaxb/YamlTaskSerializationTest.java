@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -19,12 +19,12 @@ import org.yaml.snakeyaml.Yaml;
 
 public class YamlTaskSerializationTest extends AbstractTaskSerializationTest {
 
-    public TestType getType() { 
+    public TestType getType() {
         return TestType.YAML;
     }
-    
+
     private Yaml yaml = new Yaml();
-    
+
     public <T> T testRoundTrip(T in) throws Exception {
         String output = yaml.dump(in);
         logger.debug(output);

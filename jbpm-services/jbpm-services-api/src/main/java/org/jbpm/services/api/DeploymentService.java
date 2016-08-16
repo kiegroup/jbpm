@@ -30,52 +30,52 @@ import org.kie.api.runtime.manager.RuntimeManager;
  */
 public interface DeploymentService {
 
-	/**
-	 * Performs deployment operation of given <code>unit</code>.
-	 * @param unit deployment unit to be deployed to runtime
-	 * @throws RuntimeException in case of problems encountered while deploying unit
-	 */
+    /**
+     * Performs deployment operation of given <code>unit</code>.
+     * @param unit deployment unit to be deployed to runtime
+     * @throws RuntimeException in case of problems encountered while deploying unit
+     */
     void deploy(DeploymentUnit unit);
-    
+
     /**
-	 * Performs undeployment operation of given <code>unit</code>.
-	 * @param unit deployment unit to be undeployed from runtime
-	 * @throws RuntimeException in case of problems encountered while deploying unit
-	 */
+     * Performs undeployment operation of given <code>unit</code>.
+     * @param unit deployment unit to be undeployed from runtime
+     * @throws RuntimeException in case of problems encountered while deploying unit
+     */
     void undeploy(DeploymentUnit unit);
-    
+
     /**
-     * Returns <code>RuntimeManager</code> instance dedicated to deployment unit identified by given id 
+     * Returns <code>RuntimeManager</code> instance dedicated to deployment unit identified by given id
      * @param deploymentUnitId identifier of deployment unit
      * @return <code>RuntimeManager</code> if exists for given deployment id otherwise null
      */
     RuntimeManager getRuntimeManager(String deploymentUnitId);
-    
+
     /**
      * Returns <code>DeployedUnit</code> instance for given deployment id if exists
      * @param deploymentUnitId identifier of deployment unit
      * @return <code>DeployedUnit</code> instance if exists for given deployment id otherwise null
      */
     DeployedUnit getDeployedUnit(String deploymentUnitId);
-    
+
     /**
      * Returns all (currently) deployed units.
      * @return collections of all existing deployed units
      */
     Collection<DeployedUnit> getDeployedUnits();
-    
+
     /**
      * Activates given deployment by making sure it will be available for execution.
      * @param deploymentId
      */
     void activate(String deploymentId);
-    
+
     /**
      * Deactivates given deployment by making it only available for already running instances.
      * @param deploymentId
      */
     void deactivate(String deploymentId);
-    
+
     /**
      * Performs a check if given deployment is already active
      * @param deploymentUnitId

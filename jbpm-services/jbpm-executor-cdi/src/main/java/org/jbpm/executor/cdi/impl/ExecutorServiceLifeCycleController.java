@@ -30,16 +30,16 @@ import org.kie.internal.runtime.cdi.BootOnLoad;
 @ApplicationScoped
 public class ExecutorServiceLifeCycleController {
 
-	@Inject
-	private ExecutorService executorService;
-	
-	@PostConstruct
+    @Inject
+    private ExecutorService executorService;
+
+    @PostConstruct
     public void init() {
-		executorService.init();
+        executorService.init();
     }
-    
+
     @PreDestroy
-    public void destroy() {    	
-    	executorService.destroy();
+    public void destroy() {
+        executorService.destroy();
     }
 }

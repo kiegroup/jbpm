@@ -48,27 +48,27 @@ import org.kie.internal.task.api.model.NotificationType;
 import org.kie.internal.task.api.model.Reassignment;
 
 public class CollectionUtils {
-    
+
     public static boolean equals(List list1, List list2) {
         if ( list1 == null && list2 == null ) {
             // both are null
             return true;
         }
-        
+
         if ( list1 == null || list2 == null ) {
             // we know both aren't null, so if one is null them obviously false
             return false;
-        }        
-        
+        }
+
         if ( list1.size() != list2.size() ) {
             return false;
-        } 
-        
+        }
+
         if ( list1.isEmpty() && list2.isEmpty() ) {
             return true;
         }
-        
-       
+
+
         for ( Object item1 : list1) {
             boolean exists = false;
             for ( Object item2 : list2 ) {
@@ -76,36 +76,36 @@ public class CollectionUtils {
                     exists = true;
                     break;
                 }
-            }  
+            }
             if ( !exists ) {
                 return false;
             }
         }
-        
+
         return true;
     }
-    
+
     public static int hashCode(List list) {
         if ( list == null ) {
             return 0;
         }
-        
+
         final int prime = 31;
-        int result = 1;        
+        int result = 1;
         for ( Iterator it = list.iterator(); it.hasNext(); ) {
             Object next = it.next();
             result = prime * result + ((next == null)? 0 : next.hashCode());
-        }        
+        }
         return result;
-    }       
-    
+    }
+
     public static void writeCommentList(List<Comment> list, ObjectOutput out) throws IOException {
         out.writeInt( list.size() );
         for( Comment item : list ) {
             item.writeExternal( out );
         }
-    }    
-    
+    }
+
     public static List<Comment> readCommentList(ObjectInput in) throws IOException, ClassNotFoundException  {
         int size = in.readInt();
         List<Comment> list = new ArrayList<Comment>(size);
@@ -115,16 +115,16 @@ public class CollectionUtils {
             list.add( item );
         }
         return list;
-    }     
-    
-    
+    }
+
+
     public static void writeAttachmentList(List<Attachment> list, ObjectOutput out) throws IOException {
         out.writeInt( list.size() );
         for( Attachment item : list ) {
             item.writeExternal( out );
         }
-    }    
-    
+    }
+
     public static List<Attachment> readAttachmentList(ObjectInput in) throws IOException, ClassNotFoundException  {
         int size = in.readInt();
         List<Attachment> list = new ArrayList<Attachment>(size);
@@ -134,15 +134,15 @@ public class CollectionUtils {
             list.add( item );
         }
         return list;
-    }      
-    
+    }
+
     public static void writeBooleanExpressionList(List<BooleanExpression> list, ObjectOutput out) throws IOException {
         out.writeInt( list.size() );
         for( BooleanExpression item : list ) {
             item.writeExternal( out );
         }
-    }    
-    
+    }
+
     public static List<BooleanExpression> readBooleanExpressionList(ObjectInput in) throws IOException, ClassNotFoundException  {
         int size = in.readInt();
         List<BooleanExpression> list = new ArrayList<BooleanExpression>(size);
@@ -152,9 +152,9 @@ public class CollectionUtils {
             list.add( item );
         }
         return list;
-    }     
+    }
 
-    
+
     public static void writeNotificationList(List<Notification> list, ObjectOutput out) throws IOException {
         out.writeInt( list.size() );
         for( Notification item : list ) {
@@ -162,8 +162,8 @@ public class CollectionUtils {
             out.writeUTF( item.getNotificationType().toString() );
             item.writeExternal( out );
         }
-    }    
-    
+    }
+
     public static List<Notification> readNotificationList(ObjectInput in) throws IOException, ClassNotFoundException  {
         int size = in.readInt();
         List<Notification> list = new ArrayList<Notification>(size);
@@ -179,21 +179,21 @@ public class CollectionUtils {
                     break;
                 }
             }
-             
+
             item.readExternal( in );
             list.add( item );
         }
         return list;
-    }     
-    
-    
+    }
+
+
     public static void writeReassignmentList(List<Reassignment> list, ObjectOutput out) throws IOException {
         out.writeInt( list.size() );
         for( Reassignment item : list ) {
             item.writeExternal( out );
         }
-    }    
-    
+    }
+
     public static List<Reassignment> readReassignmentList(ObjectInput in) throws IOException, ClassNotFoundException  {
         int size = in.readInt();
         List<Reassignment> list = new ArrayList<Reassignment>(size);
@@ -203,15 +203,15 @@ public class CollectionUtils {
             list.add( item );
         }
         return list;
-    }       
-    
+    }
+
     public static void writeDeadlineList(List<Deadline> list, ObjectOutput out) throws IOException {
         out.writeInt( list.size() );
         for( Deadline item : list ) {
             item.writeExternal( out );
         }
-    }    
-    
+    }
+
     public static List<Deadline> readDeadlinesList(ObjectInput in) throws IOException, ClassNotFoundException  {
         int size = in.readInt();
         List<Deadline> list = new ArrayList<Deadline>(size);
@@ -221,15 +221,15 @@ public class CollectionUtils {
             list.add( item );
         }
         return list;
-    }    
-    
+    }
+
     public static void writeEscalationList(List<Escalation> list, ObjectOutput out) throws IOException {
         out.writeInt( list.size() );
         for( Escalation item : list ) {
             item.writeExternal( out );
         }
-    }    
-    
+    }
+
     public static List<Escalation> readEscalationList(ObjectInput in) throws IOException, ClassNotFoundException  {
         int size = in.readInt();
         List<Escalation> list = new ArrayList<Escalation>(size);
@@ -239,15 +239,15 @@ public class CollectionUtils {
             list.add( item );
         }
         return list;
-    }    
-    
+    }
+
     public static void writeI18NTextList(List<I18NText> list, ObjectOutput out) throws IOException {
         out.writeInt( list.size() );
         for( I18NText item : list ) {
             item.writeExternal( out );
         }
-    }    
-    
+    }
+
     public static List<I18NText> readI18NTextList(ObjectInput in) throws IOException, ClassNotFoundException  {
         int size = in.readInt();
         List<I18NText> list = new ArrayList<I18NText>(size);
@@ -258,7 +258,7 @@ public class CollectionUtils {
         }
         return list;
     }
-    
+
     public static void writeOrganizationalEntityList(List<OrganizationalEntity> list, ObjectOutput out) throws IOException {
         out.writeInt( list.size() );
         for( OrganizationalEntity item : list ) {
@@ -270,7 +270,7 @@ public class CollectionUtils {
             item.writeExternal( out );
         }
     }
-    
+
     public static List<OrganizationalEntity> readOrganizationalEntityList(ObjectInput in) throws IOException, ClassNotFoundException  {
         int size = in.readInt();
         List<OrganizationalEntity> list = new ArrayList<OrganizationalEntity>(size);
@@ -279,7 +279,7 @@ public class CollectionUtils {
             if ( type == 0 ) {
                 User user = new UserImpl();
                 user.readExternal( in );
-                list.add( user ); 
+                list.add( user );
             } else {
                 Group group = new GroupImpl();
                 group.readExternal( in );
@@ -287,5 +287,5 @@ public class CollectionUtils {
             }
         }
         return list;
-    }    
+    }
 }

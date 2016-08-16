@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -39,13 +39,13 @@ import org.jbpm.workflow.core.node.TimerNode;
 import org.jbpm.workflow.core.node.WorkItemNode;
 import org.kie.api.definition.process.Node;
 
-// Marco: extend this and extend the ActionNodeBuilder to also collection info.. 
+// Marco: extend this and extend the ActionNodeBuilder to also collection info..
 public class ProcessNodeBuilderRegistry {
-	
-	public static ProcessNodeBuilderRegistry INSTANCE = new ProcessNodeBuilderRegistry();
-	
+
+    public static ProcessNodeBuilderRegistry INSTANCE = new ProcessNodeBuilderRegistry();
+
     private Map<Class< ? extends Node>, ProcessNodeBuilder> registry;
-    
+
     public ProcessNodeBuilderRegistry() {
         this.registry = new HashMap<Class< ? extends Node>, ProcessNodeBuilder>();
 
@@ -98,7 +98,7 @@ public class ProcessNodeBuilderRegistry {
     public ProcessNodeBuilder getNodeBuilder(Node node) {
         return this.registry.get( node.getClass() );
     }
-    
+
     public ProcessNodeBuilder getNodeBuilder(Class< ? extends Node> cls) {
         return this.registry.get( cls );
     }

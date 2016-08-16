@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -18,32 +18,32 @@ package org.jbpm.examples.request;
 import java.io.Serializable;
 
 public class Person implements Serializable {
-	
-	private static final long serialVersionUID = 6L;
-	
-	private String id;
-	private String name;
-	private int age;
-	
-	public Person(String id, String name) {
-		this.id = id;
-		this.name = name;
-	}
 
-	public String getId() {
-		return id;
-	}
+    private static final long serialVersionUID = 6L;
 
-	public String getName() {
-		return name;
-	}
+    private String id;
+    private String name;
+    private int age;
 
-	public int getAge() {
-		return age;
-	}
+    public Person(String id, String name) {
+        this.id = id;
+        this.name = name;
+    }
 
-	public void setAge(int age) {
-		this.age = age;
-	}
+    public String getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
 
 }

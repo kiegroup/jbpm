@@ -25,33 +25,33 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbstractUserGroupInfo {
-	
-	private static final Logger logger = LoggerFactory.getLogger(AbstractUserGroupInfo.class);
 
-	protected Properties readProperties(String propertiesLocation, String defaultProperties) {
-		Properties config = null;
-		URL locationUrl = null;
+    private static final Logger logger = LoggerFactory.getLogger(AbstractUserGroupInfo.class);
+
+    protected Properties readProperties(String propertiesLocation, String defaultProperties) {
+        Properties config = null;
+        URL locationUrl = null;
         if (propertiesLocation == null) {
             propertiesLocation = defaultProperties;
         }
-        
+
         logger.debug("Callback properties will be loaded from {}", propertiesLocation);
         if (propertiesLocation.startsWith("classpath:")) {
-			String stripedLocation = propertiesLocation.replaceFirst("classpath:", "");
-			locationUrl = this.getClass().getResource(stripedLocation);
-	        if (locationUrl == null) {
-	        	locationUrl = Thread.currentThread().getContextClassLoader().getResource(stripedLocation);
-	        }
-		} else {
-			try {
-				locationUrl = new URL(propertiesLocation);
-			} catch (MalformedURLException e) {
-				locationUrl = this.getClass().getResource(propertiesLocation);
-		        if (locationUrl == null) {
-		        	locationUrl = Thread.currentThread().getContextClassLoader().getResource(propertiesLocation);
-		        }
-			}
-		}
+            String stripedLocation = propertiesLocation.replaceFirst("classpath:", "");
+            locationUrl = this.getClass().getResource(stripedLocation);
+            if (locationUrl == null) {
+                locationUrl = Thread.currentThread().getContextClassLoader().getResource(stripedLocation);
+            }
+        } else {
+            try {
+                locationUrl = new URL(propertiesLocation);
+            } catch (MalformedURLException e) {
+                locationUrl = this.getClass().getResource(propertiesLocation);
+                if (locationUrl == null) {
+                    locationUrl = Thread.currentThread().getContextClassLoader().getResource(propertiesLocation);
+                }
+            }
+        }
         if (locationUrl != null) {
             config = new Properties();
             try {
@@ -61,7 +61,7 @@ public abstract class AbstractUserGroupInfo {
                 config = null;
             }
         }
-        
+
         return config;
-	}
+    }
 }

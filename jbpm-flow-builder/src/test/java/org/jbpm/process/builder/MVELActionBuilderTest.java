@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -53,7 +53,7 @@ public class MVELActionBuilderTest extends AbstractBaseTest {
         final InternalKnowledgePackage pkg = new KnowledgePackageImpl( "pkg1" );
 
         ActionDescr actionDescr = new ActionDescr();
-        actionDescr.setText( "list.add( 'hello world' )" );       
+        actionDescr.setText( "list.add( 'hello world' )" );
 
         KnowledgeBuilderImpl pkgBuilder = new KnowledgeBuilderImpl( pkg );
         DialectCompiletimeRegistry dialectRegistry = pkgBuilder.getPackageRegistry( pkg.getName() ).getDialectCompiletimeRegistry();
@@ -61,13 +61,13 @@ public class MVELActionBuilderTest extends AbstractBaseTest {
 
         PackageBuildContext context = new PackageBuildContext();
         context.init( pkgBuilder, pkg, null, dialectRegistry, mvelDialect, null);
-        
-        pkgBuilder.addPackageFromDrl( new StringReader("package pkg1;\nglobal java.util.List list;\n") );        
-        
+
+        pkgBuilder.addPackageFromDrl( new StringReader("package pkg1;\nglobal java.util.List list;\n") );
+
         ActionNode actionNode = new ActionNode();
         DroolsAction action = new DroolsConsequenceAction("mvel", null);
         actionNode.setAction(action);
-        
+
         final MVELActionBuilder builder = new MVELActionBuilder();
         builder.build( context,
                        action,
@@ -79,17 +79,17 @@ public class MVELActionBuilderTest extends AbstractBaseTest {
         final StatefulKnowledgeSession wm = kbase.newStatefulKnowledgeSession();
 
         List<String> list = new  ArrayList<String>();
-        wm.setGlobal( "list", list );     
-        
+        wm.setGlobal( "list", list );
+
         MVELDialectRuntimeData data = (MVELDialectRuntimeData) pkgBuilder.getPackage().getDialectRuntimeRegistry().getDialectData( "mvel");
-        
+
         ((MVELAction) actionNode.getAction().getMetaData("Action")).compile( data );
-        
+
         ProcessContext processContext = new ProcessContext( ((InternalWorkingMemory) wm).getKnowledgeRuntime() );
         ((Action) actionNode.getAction().getMetaData("Action")).execute( processContext );
-        
+
         assertEquals("hello world", list.get(0) );
-    }    
+    }
 
 }
 

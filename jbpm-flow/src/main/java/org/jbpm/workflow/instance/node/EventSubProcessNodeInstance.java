@@ -30,11 +30,11 @@ public class EventSubProcessNodeInstance extends CompositeContextNodeInstance {
     protected EventSubProcessNode getCompositeNode() {
         return (EventSubProcessNode) getNode();
     }
-    
+
     public NodeContainer getNodeContainer() {
         return getCompositeNode();
     }
-    
+
     @Override
     protected String getActivationType() {
        return "RuleFlowStateEventSubProcess-" + getProcessInstance().getProcessId() + "-" + getCompositeNode().getUniqueId();
@@ -49,36 +49,36 @@ public class EventSubProcessNodeInstance extends CompositeContextNodeInstance {
     public void signalEvent(String type, Object event) {
         if (getNodeInstanceContainer().getNodeInstances().contains(this) || type.startsWith("Error-")) {
             StartNode startNode = getCompositeNode().findStartNode();
-            NodeInstance nodeInstance = getNodeInstance(startNode);  
+            NodeInstance nodeInstance = getNodeInstance(startNode);
             ((StartNodeInstance) nodeInstance).signalEvent(type, event);
         }
     }
 
     @Override
     public void nodeInstanceCompleted(org.jbpm.workflow.instance.NodeInstance nodeInstance, String outType) {
-        if (nodeInstance instanceof EndNodeInstance) { 
+        if (nodeInstance instanceof EndNodeInstance) {
             if (getCompositeNode().isKeepActive()) {
                 StartNode startNode = getCompositeNode().findStartNode();
                 triggerCompleted(true);
                 if (startNode.isInterrupting()) {
-                	String faultName = getProcessInstance().getOutcome()==null?"":getProcessInstance().getOutcome();
-                	
-                	if (startNode.getMetaData("FaultCode") != null) {
-                		faultName = (String) startNode.getMetaData("FaultCode");
-                	}
-                	if (getNodeInstanceContainer() instanceof ProcessInstance) {
-                		((ProcessInstance) getProcessInstance()).setState(ProcessInstance.STATE_ABORTED, faultName);
-                	} else {
-                		((NodeInstanceContainer) getNodeInstanceContainer()).setState( ProcessInstance.STATE_ABORTED);
-                	}
-                    
-                }                
-            }            
+                    String faultName = getProcessInstance().getOutcome()==null?"":getProcessInstance().getOutcome();
+
+                    if (startNode.getMetaData("FaultCode") != null) {
+                        faultName = (String) startNode.getMetaData("FaultCode");
+                    }
+                    if (getNodeInstanceContainer() instanceof ProcessInstance) {
+                        ((ProcessInstance) getProcessInstance()).setState(ProcessInstance.STATE_ABORTED, faultName);
+                    } else {
+                        ((NodeInstanceContainer) getNodeInstanceContainer()).setState( ProcessInstance.STATE_ABORTED);
+                    }
+
+                }
+            }
         } else {
             throw new IllegalArgumentException(
                 "Completing a node instance that has no outgoing connection not supported.");
         }
     }
-    
-    
+
+
 }

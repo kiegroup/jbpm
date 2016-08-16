@@ -31,39 +31,39 @@ import org.kie.internal.task.api.model.InternalOrganizationalEntity;
 @XmlAccessorType(XmlAccessType.NONE)
 public class AddGroupCommand extends TaskCommand<Void> {
 
-	/** generated serial version UID */
+    /** generated serial version UID */
     private static final long serialVersionUID = 8723206149543662492L;
-    
+
     @XmlElement
     @XmlSchemaType(name="string")
-	private String groupId;
-    
+    private String groupId;
+
     public AddGroupCommand() {
     }
 
     public AddGroupCommand(String userId) {
-    	this.groupId = userId;
+        this.groupId = userId;
     }
 
 
     public Void execute(Context cntxt) {
         TaskContext context = (TaskContext) cntxt;
-        
+
         Group group = TaskModelProvider.getFactory().newGroup();
         ((InternalOrganizationalEntity) group).setId(groupId);
-        
+
         context.getTaskIdentityService().addGroup(group);
         return null;
-    	 
+
     }
 
-	public String getGroupId() {
-		return groupId;
-	}
+    public String getGroupId() {
+        return groupId;
+    }
 
-	public void setGroupId(String groupId) {
-		this.groupId = groupId;
-	}
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
+    }
 
-    
+
 }

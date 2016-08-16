@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -46,24 +46,24 @@ public class FaultNodeHandler extends AbstractNodeHandler {
         return FaultNode.class;
     }
 
-	public void writeNode(Node node, StringBuilder xmlDump, boolean includeMeta) {
-		FaultNode faultNode = (FaultNode) node;
-		writeNode("fault", faultNode, xmlDump, includeMeta);
-		String faultName = faultNode.getFaultName();
-		if (faultName != null && faultName.length() != 0) {
+    public void writeNode(Node node, StringBuilder xmlDump, boolean includeMeta) {
+        FaultNode faultNode = (FaultNode) node;
+        writeNode("fault", faultNode, xmlDump, includeMeta);
+        String faultName = faultNode.getFaultName();
+        if (faultName != null && faultName.length() != 0) {
             xmlDump.append("faultName=\"" + faultName + "\" ");
         }
-		String faultVariable = faultNode.getFaultVariable();
-		if (faultVariable != null && faultVariable.length() != 0) {
+        String faultVariable = faultNode.getFaultVariable();
+        if (faultVariable != null && faultVariable.length() != 0) {
             xmlDump.append("faultVariable=\"" + faultVariable + "\" ");
         }
         if (includeMeta && containsMetaData(faultNode)) {
-        	xmlDump.append(">" + EOL);
-        	writeMetaData(faultNode, xmlDump);
-        	endNode("fault", xmlDump);
+            xmlDump.append(">" + EOL);
+            writeMetaData(faultNode, xmlDump);
+            endNode("fault", xmlDump);
         } else {
             endNode(xmlDump);
         }
-	}
+    }
 
 }

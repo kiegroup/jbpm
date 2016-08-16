@@ -22,7 +22,7 @@ import org.jbpm.process.instance.ProcessInstance;
 public interface WorkflowProcessInstance extends ProcessInstance, org.kie.api.runtime.process.WorkflowProcessInstance {
 
     void addEventListener(String type, EventListener eventListener, boolean external);
-    
+
     void removeEventListener(String type, EventListener eventListener, boolean external);
 
 }

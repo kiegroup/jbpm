@@ -21,10 +21,10 @@ package org.jbpm.services.task.audit;
  * provided by <code>HumanTaskConfigurator</code>
  */
 public class TaskAuditServiceFactory {
-    
+
     public static TaskAuditConfigurator newTaskAuditServiceConfigurator(){
-        
+
         return new TaskAuditConfigurator();
     }
-    
+
 }

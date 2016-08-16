@@ -25,12 +25,12 @@ import org.slf4j.LoggerFactory;
 
 
 public class ThrowExceptionCommand implements Command{
-    
+
     private static final Logger logger = LoggerFactory.getLogger(ThrowExceptionCommand.class);
 
     public ExecutionResults execute(CommandContext ctx) {
         logger.debug("Hi This is the Exception command!");
-        throw new RuntimeException("Test Exception!");        
+        throw new RuntimeException("Test Exception!");
     }
-    
+
 }

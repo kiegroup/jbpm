@@ -47,7 +47,7 @@ import org.xml.sax.SAXException;
 
 public class IntermediateCatchEventHandler extends AbstractNodeHandler {
 
-	private DataTransformerRegistry transformerRegistry = DataTransformerRegistry.get();
+    private DataTransformerRegistry transformerRegistry = DataTransformerRegistry.get();
 
     public static final String LINK_NAME = "LinkName";
 
@@ -168,7 +168,7 @@ public class IntermediateCatchEventHandler extends AbstractNodeHandler {
     }
 
     @SuppressWarnings("unchecked")
-	protected void handleSignalNode(final Node node, final Element element,
+    protected void handleSignalNode(final Node node, final Element element,
             final String uri, final String localName,
             final ExtensibleXmlParser parser) throws SAXException {
         super.handleNode(node, element, uri, localName, parser);
@@ -253,14 +253,14 @@ public class IntermediateCatchEventHandler extends AbstractNodeHandler {
                     String subNodeName = subNode.getNodeName();
                     if ("timeCycle".equals(subNodeName)) {
                         String delay = subNode.getTextContent();
-                    	int index = delay.indexOf("###");
-                    	if (index != -1) {
-                    		String period = delay.substring(index + 3);
-                    		delay = delay.substring(0, index);
+                        int index = delay.indexOf("###");
+                        if (index != -1) {
+                            String period = delay.substring(index + 3);
+                            delay = delay.substring(0, index);
                             timer.setPeriod(period);
-                    	}
-                    	timer.setTimeType(Timer.TIME_CYCLE);
-                    	timer.setDelay(delay);
+                        }
+                        timer.setTimeType(Timer.TIME_CYCLE);
+                        timer.setDelay(delay);
                         break;
                     } else if ("timeDuration".equals(subNodeName)) {
                         String delay = subNode.getTextContent();
@@ -315,20 +315,20 @@ public class IntermediateCatchEventHandler extends AbstractNodeHandler {
         String to = subNode.getTextContent();
         eventNode.setVariableName(to);
         // transformation
-  		Transformation transformation = null;
-  		subNode = subNode.getNextSibling();
-  		if (subNode != null && "transformation".equals(subNode.getNodeName())) {
-  			String lang = subNode.getAttributes().getNamedItem("language").getNodeValue();
-  			String expression = subNode.getTextContent();
-  			DataTransformer transformer = transformerRegistry.find(lang);
-  			if (transformer == null) {
-  				throw new IllegalArgumentException("No transformer registered for language " + lang);
-  			}
-  			transformation = new Transformation(lang, expression, dataOutputs.get(from));
-  			eventNode.setMetaData("Transformation", transformation);
+        Transformation transformation = null;
+        subNode = subNode.getNextSibling();
+        if (subNode != null && "transformation".equals(subNode.getNodeName())) {
+            String lang = subNode.getAttributes().getNamedItem("language").getNodeValue();
+            String expression = subNode.getTextContent();
+            DataTransformer transformer = transformerRegistry.find(lang);
+            if (transformer == null) {
+                throw new IllegalArgumentException("No transformer registered for language " + lang);
+            }
+            transformation = new Transformation(lang, expression, dataOutputs.get(from));
+            eventNode.setMetaData("Transformation", transformation);
 
-  			eventNode.setEventTransformer(new EventTransformerImpl(transformation));
-  		}
+            eventNode.setEventTransformer(new EventTransformerImpl(transformation));
+        }
     }
 
     public void writeNode(Node node, StringBuilder xmlDump, int metaDataType) {

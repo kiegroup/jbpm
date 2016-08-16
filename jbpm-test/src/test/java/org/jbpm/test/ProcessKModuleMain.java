@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -63,7 +63,7 @@ public class ProcessKModuleMain {
    }
 
    private static RuntimeManager createRuntimeManager() {
-	   cleanupSingletonSessionId();
+       cleanupSingletonSessionId();
        JBPMHelper.startH2Server();
        JBPMHelper.setupDataSource();
        EntityManagerFactory emf = Persistence.createEntityManagerFactory("org.jbpm.persistence.jpa");
@@ -74,21 +74,21 @@ public class ProcessKModuleMain {
        return RuntimeManagerFactory.Factory.get()
            .newSingletonRuntimeManager(builder.get(), "com.sample:example:1.0");
    }
-   
+
    private static void cleanupSingletonSessionId() {
        File tempDir = new File(System.getProperty("java.io.tmpdir"));
        if (tempDir.exists()) {
-           
+
            String[] jbpmSerFiles = tempDir.list(new FilenameFilter() {
-               
+
                @Override
                public boolean accept(File dir, String name) {
-                   
+
                    return name.endsWith("-jbpmSessionId.ser");
                }
            });
            for (String file : jbpmSerFiles) {
-               
+
                new File(tempDir, file).delete();
            }
        }

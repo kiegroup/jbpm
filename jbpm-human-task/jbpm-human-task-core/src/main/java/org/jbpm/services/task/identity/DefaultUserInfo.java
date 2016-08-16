@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -34,29 +34,29 @@ import org.slf4j.LoggerFactory;
 
 
 public class DefaultUserInfo extends AbstractUserGroupInfo implements UserInfo {
-    
-	private static final Logger logger = LoggerFactory.getLogger(DefaultUserInfo.class);
+
+    private static final Logger logger = LoggerFactory.getLogger(DefaultUserInfo.class);
     protected Map<String, Map<String, Object>> registry = new HashMap<String, Map<String,Object>>();
 
     //no no-arg constructor to prevent cdi from auto deploy
     public DefaultUserInfo(boolean activate) {
         try {
-	        Properties registryProps = new Properties();
-	        // BZ-1037445: Obtain the properties file from the webapp classload (current thread classloader).
-	        // If not, when deploying the app into EAP static modules will fail.
-	        InputStream in = this.getClass().getResourceAsStream("/userinfo.properties");
-	        if (in == null) {
-	        	in = Thread.currentThread().getContextClassLoader().getResourceAsStream("/userinfo.properties");
-	        }
-	        if( in != null ) { 
-	            registryProps.load(in);
-	            buildRegistry(registryProps);
-	        }
+            Properties registryProps = new Properties();
+            // BZ-1037445: Obtain the properties file from the webapp classload (current thread classloader).
+            // If not, when deploying the app into EAP static modules will fail.
+            InputStream in = this.getClass().getResourceAsStream("/userinfo.properties");
+            if (in == null) {
+                in = Thread.currentThread().getContextClassLoader().getResourceAsStream("/userinfo.properties");
+            }
+            if( in != null ) {
+                registryProps.load(in);
+                buildRegistry(registryProps);
+            }
         } catch (Exception e) {
             logger.warn("Problem loading userinfo properties {}", e.getMessage(), e);
         }
     }
-    
+
     /**
      * Constructs default UserInfo implementation to provide required information to the escalation handler.
      * following is the string for every organizational entity
@@ -67,11 +67,11 @@ public class DefaultUserInfo extends AbstractUserGroupInfo implements UserInfo {
     public DefaultUserInfo(Properties registryProps) {
         buildRegistry(registryProps);
     }
-    
-    
+
+
     public String getDisplayName(OrganizationalEntity entity) {
         Map<String, Object> entityInfo = registry.get(entity.getId());
-        
+
         if (entityInfo != null) {
             return (String) entityInfo.get("name");
         }
@@ -81,7 +81,7 @@ public class DefaultUserInfo extends AbstractUserGroupInfo implements UserInfo {
     @SuppressWarnings("unchecked")
     public Iterator<OrganizationalEntity> getMembersForGroup(Group group) {
         Map<String, Object> entityInfo = registry.get(group.getId());
-        
+
         if (entityInfo != null && entityInfo.get("members") != null) {
             return  ((List<OrganizationalEntity>) entityInfo.get("members")).iterator();
         }
@@ -90,7 +90,7 @@ public class DefaultUserInfo extends AbstractUserGroupInfo implements UserInfo {
 
     public boolean hasEmail(Group group) {
         Map<String, Object> entityInfo = registry.get(group.getId());
-        
+
         if (entityInfo != null) {
             return entityInfo.containsKey("email");
         }
@@ -99,7 +99,7 @@ public class DefaultUserInfo extends AbstractUserGroupInfo implements UserInfo {
 
     public String getEmailForEntity(OrganizationalEntity entity) {
         Map<String, Object> entityInfo = registry.get(entity.getId());
-        
+
         if (entityInfo != null) {
             return (String) entityInfo.get("email");
         }
@@ -108,7 +108,7 @@ public class DefaultUserInfo extends AbstractUserGroupInfo implements UserInfo {
 
     public String getLanguageForEntity(OrganizationalEntity entity) {
         Map<String, Object> entityInfo = registry.get(entity.getId());
-        
+
         if (entityInfo != null) {
             return (String) entityInfo.get("locale");
         }
@@ -116,45 +116,45 @@ public class DefaultUserInfo extends AbstractUserGroupInfo implements UserInfo {
     }
 
     protected void buildRegistry(Properties registryProps) {
-        
+
         if (registryProps != null) {
             Iterator<Object> propertyKeys = registryProps.keySet().iterator();
             while (propertyKeys.hasNext()) {
                 String propertyKey = (String) propertyKeys.next();
-                
+
                 // following is the string for every organizational entity
                 // email:locale:displayname:[member,member]
                 // members are optional and should be given for group entities
-                
+
                 String propertyValue = registryProps.getProperty(propertyKey);
                 String[] elems = propertyValue.split(":");
-                
+
                 Map<String, Object> entityInfo = new HashMap<String, Object>();
                 entityInfo.put("email", elems[0]);
                 entityInfo.put("locale", elems[1]);
                 entityInfo.put("name", elems[2]);
-                
+
                 if (elems.length == 4 && elems[3] != null) {
                     String memberList = elems[3];
                     if (memberList.startsWith("[")) {
                         memberList = memberList.substring(1);
                     }
-                    
+
                     if (memberList.endsWith("]")) {
                         memberList = memberList.substring(0, memberList.length()-1);
                     }
                     String[] members = memberList.split(",");
-                    
+
                     List<OrganizationalEntity> membersList = new ArrayList<OrganizationalEntity>();
                     for (String member : members) {
-                    	User user = TaskModelProvider.getFactory().newUser();
+                        User user = TaskModelProvider.getFactory().newUser();
                         ((InternalOrganizationalEntity) user).setId(member);
                         membersList.add(user);
                     }
                     entityInfo.put("members", membersList);
                 }
                 registry.put(propertyKey, entityInfo);
-                
+
             }
         }
     }

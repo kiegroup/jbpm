@@ -55,12 +55,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ProcessEventSupportTest extends AbstractBaseTest {
-    
-    public void addLogger() { 
+
+    public void addLogger() {
         logger = LoggerFactory.getLogger(this.getClass());
     }
 
-	@Test
+    @Test
     public void testProcessEventListener() throws Exception {
         KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
 
@@ -69,19 +69,19 @@ public class ProcessEventSupportTest extends AbstractBaseTest {
         RuleFlowProcess process = new RuleFlowProcess();
         process.setId("org.drools.core.process.event");
         process.setName("Event Process");
-        
+
         StartNode startNode = new StartNode();
         startNode.setName("Start");
         startNode.setId(1);
         process.addNode(startNode);
-        
+
         ActionNode actionNode = new ActionNode();
         actionNode.setName("Print");
         DroolsAction action = new DroolsConsequenceAction("java", null);
         action.setMetaData("Action", new Action() {
-			public void execute(ProcessContext context) throws Exception {
-            	logger.info("Executed action");
-			}
+            public void execute(ProcessContext context) throws Exception {
+                logger.info("Executed action");
+            }
         });
         actionNode.setAction(action);
         actionNode.setId(2);
@@ -90,7 +90,7 @@ public class ProcessEventSupportTest extends AbstractBaseTest {
             startNode, Node.CONNECTION_DEFAULT_TYPE,
             actionNode, Node.CONNECTION_DEFAULT_TYPE
         );
-        
+
         EndNode endNode = new EndNode();
         endNode.setName("End");
         endNode.setId(3);
@@ -99,55 +99,55 @@ public class ProcessEventSupportTest extends AbstractBaseTest {
             actionNode, Node.CONNECTION_DEFAULT_TYPE,
             endNode, Node.CONNECTION_DEFAULT_TYPE
         );
-        
+
         pkg.addProcess(process);
         List<KnowledgePackage> pkgs = new ArrayList<KnowledgePackage>();
         pkgs.add( pkg );
         kbase.addKnowledgePackages( pkgs );
-        
+
         StatefulKnowledgeSession session = kbase.newStatefulKnowledgeSession();
         final List<ProcessEvent> processEventList = new ArrayList<ProcessEvent>();
         final ProcessEventListener processEventListener = new ProcessEventListener() {
 
-        	public void afterNodeLeft(ProcessNodeLeftEvent event) {
-				processEventList.add(event);
-			}
+            public void afterNodeLeft(ProcessNodeLeftEvent event) {
+                processEventList.add(event);
+            }
 
-			public void afterNodeTriggered(ProcessNodeTriggeredEvent event) {
-				processEventList.add(event);
-			}
+            public void afterNodeTriggered(ProcessNodeTriggeredEvent event) {
+                processEventList.add(event);
+            }
 
-			public void afterProcessCompleted(ProcessCompletedEvent event) {
-				processEventList.add(event);
-			}
+            public void afterProcessCompleted(ProcessCompletedEvent event) {
+                processEventList.add(event);
+            }
 
-			public void afterProcessStarted(ProcessStartedEvent event) {
-				processEventList.add(event);
-			}
+            public void afterProcessStarted(ProcessStartedEvent event) {
+                processEventList.add(event);
+            }
 
-			public void beforeNodeLeft(ProcessNodeLeftEvent event) {
-				processEventList.add(event);
-			}
+            public void beforeNodeLeft(ProcessNodeLeftEvent event) {
+                processEventList.add(event);
+            }
 
-			public void beforeNodeTriggered(ProcessNodeTriggeredEvent event) {
-				processEventList.add(event);
-			}
+            public void beforeNodeTriggered(ProcessNodeTriggeredEvent event) {
+                processEventList.add(event);
+            }
 
-			public void beforeProcessCompleted(ProcessCompletedEvent event) {
-				processEventList.add(event);
-			}
+            public void beforeProcessCompleted(ProcessCompletedEvent event) {
+                processEventList.add(event);
+            }
 
-			public void beforeProcessStarted(ProcessStartedEvent event) {
-				processEventList.add(event);
-			}
+            public void beforeProcessStarted(ProcessStartedEvent event) {
+                processEventList.add(event);
+            }
 
-			public void beforeVariableChanged(ProcessVariableChangedEvent event) {
-				processEventList.add(event);
-			}
+            public void beforeVariableChanged(ProcessVariableChangedEvent event) {
+                processEventList.add(event);
+            }
 
-			public void afterVariableChanged(ProcessVariableChangedEvent event) {
-				processEventList.add(event);
-			}
+            public void afterVariableChanged(ProcessVariableChangedEvent event) {
+                processEventList.add(event);
+            }
 
         };
         session.addEventListener( processEventListener );
@@ -172,8 +172,8 @@ public class ProcessEventSupportTest extends AbstractBaseTest {
         assertEquals( "Start", ((ProcessNodeTriggeredEvent) processEventList.get(14)).getNodeInstance().getNodeName());
         assertEquals( "org.drools.core.process.event", ((ProcessStartedEvent) processEventList.get(15)).getProcessInstance().getProcessId());
     }
-    
-	@Test
+
+    @Test
     public void testProcessEventListenerWithEvent() throws Exception {
         KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
 
@@ -182,12 +182,12 @@ public class ProcessEventSupportTest extends AbstractBaseTest {
         RuleFlowProcess process = new RuleFlowProcess();
         process.setId("org.drools.core.process.event");
         process.setName("Event Process");
-        
+
         StartNode startNode = new StartNode();
         startNode.setName("Start");
         startNode.setId(1);
         process.addNode(startNode);
-        
+
         ActionNode actionNode = new ActionNode();
         actionNode.setName("Print");
         DroolsAction action = new DroolsConsequenceAction("java", null);
@@ -203,11 +203,11 @@ public class ProcessEventSupportTest extends AbstractBaseTest {
             startNode, Node.CONNECTION_DEFAULT_TYPE,
             actionNode, Node.CONNECTION_DEFAULT_TYPE
         );
-        
+
         EventNode eventNode = new EventNode();
         eventNode.setName("Event");
         eventNode.setId(3);
-        
+
         List<EventFilter> filters = new ArrayList<EventFilter>();
         EventTypeFilter filter = new EventTypeFilter();
         filter.setType("signal");
@@ -218,7 +218,7 @@ public class ProcessEventSupportTest extends AbstractBaseTest {
                 actionNode, Node.CONNECTION_DEFAULT_TYPE,
                 eventNode, Node.CONNECTION_DEFAULT_TYPE
             );
-        
+
         EndNode endNode = new EndNode();
         endNode.setName("End");
         endNode.setId(4);
@@ -227,12 +227,12 @@ public class ProcessEventSupportTest extends AbstractBaseTest {
             eventNode, Node.CONNECTION_DEFAULT_TYPE,
             endNode, Node.CONNECTION_DEFAULT_TYPE
         );
-        
+
         pkg.addProcess(process);
         List<KnowledgePackage> pkgs = new ArrayList<KnowledgePackage>();
         pkgs.add( pkg );
         kbase.addKnowledgePackages( pkgs );
-        
+
         StatefulKnowledgeSession session = kbase.newStatefulKnowledgeSession();
         final List<ProcessEvent> processEventList = new ArrayList<ProcessEvent>();
         final ProcessEventListener processEventListener = new ProcessEventListener() {
@@ -285,7 +285,7 @@ public class ProcessEventSupportTest extends AbstractBaseTest {
         pi.signalEvent("signal", null);
         assertEquals( 20, processEventList.size() );
         assertEquals( "org.drools.core.process.event", ((ProcessStartedEvent) processEventList.get(0)).getProcessInstance().getProcessId());
-        
+
         assertEquals( "Start", ((ProcessNodeTriggeredEvent) processEventList.get(1)).getNodeInstance().getNodeName());
         assertEquals( "Start", ((ProcessNodeLeftEvent) processEventList.get(2)).getNodeInstance().getNodeName());
         assertEquals( "Print", ((ProcessNodeTriggeredEvent) processEventList.get(3)).getNodeInstance().getNodeName());
@@ -305,12 +305,12 @@ public class ProcessEventSupportTest extends AbstractBaseTest {
         assertEquals( "End", ((ProcessNodeLeftEvent) processEventList.get(17)).getNodeInstance().getNodeName());
         assertEquals( "Event", ((ProcessNodeLeftEvent) processEventList.get(19)).getNodeInstance().getNodeName());
         assertEquals( "End", ((ProcessNodeTriggeredEvent) processEventList.get(18)).getNodeInstance().getNodeName());
-       
-        
+
+
     }
-    
-    
-    
+
+
+
     @Test
     public void testProcessEventListenerWithEndEvent() throws Exception {
         KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
@@ -320,12 +320,12 @@ public class ProcessEventSupportTest extends AbstractBaseTest {
         RuleFlowProcess process = new RuleFlowProcess();
         process.setId("org.drools.core.process.event");
         process.setName("Event Process");
-        
+
         StartNode startNode = new StartNode();
         startNode.setName("Start");
         startNode.setId(1);
         process.addNode(startNode);
-        
+
         ActionNode actionNode = new ActionNode();
         actionNode.setName("Print");
         DroolsAction action = new DroolsConsequenceAction("java", null);
@@ -341,7 +341,7 @@ public class ProcessEventSupportTest extends AbstractBaseTest {
             startNode, Node.CONNECTION_DEFAULT_TYPE,
             actionNode, Node.CONNECTION_DEFAULT_TYPE
         );
-        
+
         EndNode endNode = new EndNode();
         endNode.setName("End");
         endNode.setId(3);
@@ -351,12 +351,12 @@ public class ProcessEventSupportTest extends AbstractBaseTest {
             actionNode, Node.CONNECTION_DEFAULT_TYPE,
             endNode, Node.CONNECTION_DEFAULT_TYPE
         );
-        
+
         pkg.addProcess(process);
         List<KnowledgePackage> pkgs = new ArrayList<KnowledgePackage>();
         pkgs.add( pkg );
         kbase.addKnowledgePackages( pkgs );
-        
+
         StatefulKnowledgeSession session = kbase.newStatefulKnowledgeSession();
         final List<ProcessEvent> processEventList = new ArrayList<ProcessEvent>();
         final ProcessEventListener processEventListener = new ProcessEventListener() {
@@ -422,7 +422,7 @@ public class ProcessEventSupportTest extends AbstractBaseTest {
         assertEquals( "Start", ((ProcessNodeTriggeredEvent) processEventList.get(12)).getNodeInstance().getNodeName());
         assertEquals( "org.drools.core.process.event", ((ProcessStartedEvent) processEventList.get(13)).getProcessInstance().getProcessId());
     }
-    
+
     @Test
     public void testProcessEventListenerWithStartEvent() throws Exception {
         KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
@@ -432,7 +432,7 @@ public class ProcessEventSupportTest extends AbstractBaseTest {
         RuleFlowProcess process = new RuleFlowProcess();
         process.setId("org.drools.core.process.event");
         process.setName("Event Process");
-        
+
         StartNode startNode = new StartNode();
         startNode.setName("Start");
         startNode.setId(1);
@@ -442,7 +442,7 @@ public class ProcessEventSupportTest extends AbstractBaseTest {
         trigger.addEventFilter(eventFilter);
         startNode.addTrigger(trigger);
         process.addNode(startNode);
-        
+
         ActionNode actionNode = new ActionNode();
         actionNode.setName("Print");
         DroolsAction action = new DroolsConsequenceAction("java", null);
@@ -458,7 +458,7 @@ public class ProcessEventSupportTest extends AbstractBaseTest {
             startNode, Node.CONNECTION_DEFAULT_TYPE,
             actionNode, Node.CONNECTION_DEFAULT_TYPE
         );
-        
+
         EndNode endNode = new EndNode();
         endNode.setName("End");
         endNode.setId(3);
@@ -467,12 +467,12 @@ public class ProcessEventSupportTest extends AbstractBaseTest {
             actionNode, Node.CONNECTION_DEFAULT_TYPE,
             endNode, Node.CONNECTION_DEFAULT_TYPE
         );
-        
+
         pkg.addProcess(process);
         List<KnowledgePackage> pkgs = new ArrayList<KnowledgePackage>();
         pkgs.add( pkg );
         kbase.addKnowledgePackages( pkgs );
-        
+
         StatefulKnowledgeSession session = kbase.newStatefulKnowledgeSession();
         final List<ProcessEvent> processEventList = new ArrayList<ProcessEvent>();
         final ProcessEventListener processEventListener = new ProcessEventListener() {

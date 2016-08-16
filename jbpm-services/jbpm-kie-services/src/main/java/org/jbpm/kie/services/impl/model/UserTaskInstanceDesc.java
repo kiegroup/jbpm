@@ -22,128 +22,128 @@ import java.util.Date;
 
 public class UserTaskInstanceDesc implements org.jbpm.services.api.model.UserTaskInstanceDesc, Serializable {
 
-	private static final long serialVersionUID = -4594921035584546643L;
+    private static final long serialVersionUID = -4594921035584546643L;
 
-	private Long taskId;
-	private String status;
-	private Date activationTime;
-	private String name;
-	private String description;
-	private Integer priority;
-	private String actualOwner;
-	private String createdBy;
-	private String deploymentId;
-	private String processId;
-	private Long processInstanceId;
-	private Date createdOn;
-	private Date dueDate;
-	
-	
-	
-	public UserTaskInstanceDesc(Long taskId, String status,
-			Date activationTime, String name, String description,
-			Integer priority, String actualOwner, String createdBy,
-			String deploymentId, String processId, Long processInstanceId,
-			Date createdOn, Date dueDate) {
-		super();
-		this.taskId = taskId;
-		this.status = status;
-		this.activationTime = activationTime;
-		this.name = name;
-		this.description = description;
-		this.priority = priority;
-		this.actualOwner = actualOwner;
-		this.createdBy = createdBy;
-		this.deploymentId = deploymentId;
-		this.processId = processId;
-		this.processInstanceId = processInstanceId;
-		this.createdOn = createdOn;
-		this.dueDate = dueDate;
-	}
+    private Long taskId;
+    private String status;
+    private Date activationTime;
+    private String name;
+    private String description;
+    private Integer priority;
+    private String actualOwner;
+    private String createdBy;
+    private String deploymentId;
+    private String processId;
+    private Long processInstanceId;
+    private Date createdOn;
+    private Date dueDate;
 
-	@Override
-	public Long getTaskId() {
-		
-		return this.taskId;
-	}
 
-	@Override
-	public String getStatus() {
-		
-		return this.status;
-	}
 
-	@Override
-	public Date getActivationTime() {
-		
-		return this.activationTime;
-	}
+    public UserTaskInstanceDesc(Long taskId, String status,
+            Date activationTime, String name, String description,
+            Integer priority, String actualOwner, String createdBy,
+            String deploymentId, String processId, Long processInstanceId,
+            Date createdOn, Date dueDate) {
+        super();
+        this.taskId = taskId;
+        this.status = status;
+        this.activationTime = activationTime;
+        this.name = name;
+        this.description = description;
+        this.priority = priority;
+        this.actualOwner = actualOwner;
+        this.createdBy = createdBy;
+        this.deploymentId = deploymentId;
+        this.processId = processId;
+        this.processInstanceId = processInstanceId;
+        this.createdOn = createdOn;
+        this.dueDate = dueDate;
+    }
 
-	@Override
-	public String getName() {
-		
-		return this.name;
-	}
+    @Override
+    public Long getTaskId() {
 
-	@Override
-	public String getDescription() {
-		
-		return this.description;
-	}
+        return this.taskId;
+    }
 
-	@Override
-	public Integer getPriority() {
-		
-		return this.priority;
-	}
+    @Override
+    public String getStatus() {
 
-	@Override
-	public String getCreatedBy() {
-		
-		return this.createdBy;
-	}
+        return this.status;
+    }
 
-	@Override
-	public Date getCreatedOn() {
-		
-		return this.createdOn;
-	}
+    @Override
+    public Date getActivationTime() {
 
-	@Override
-	public Date getDueDate() {
-		
-		return this.dueDate;
-	}
+        return this.activationTime;
+    }
 
-	@Override
-	public Long getProcessInstanceId() {
-		
-		return this.processInstanceId;
-	}
+    @Override
+    public String getName() {
 
-	@Override
-	public String getProcessId() {
-		
-		return this.processId;
-	}
+        return this.name;
+    }
 
-	@Override
-	public String getActualOwner() {
-		
-		return this.actualOwner;
-	}
+    @Override
+    public String getDescription() {
 
-	@Override
-	public String getDeploymentId() {
-		
-		return this.deploymentId;
-	}
+        return this.description;
+    }
 
-	@Override
-	public String toString() {
-		return "UserTaskInstanceDesc [taskId=" + taskId + ", name=" + name
-				+ ", deploymentId=" + deploymentId + ", processInstanceId="
-				+ processInstanceId + "]";
-	}
+    @Override
+    public Integer getPriority() {
+
+        return this.priority;
+    }
+
+    @Override
+    public String getCreatedBy() {
+
+        return this.createdBy;
+    }
+
+    @Override
+    public Date getCreatedOn() {
+
+        return this.createdOn;
+    }
+
+    @Override
+    public Date getDueDate() {
+
+        return this.dueDate;
+    }
+
+    @Override
+    public Long getProcessInstanceId() {
+
+        return this.processInstanceId;
+    }
+
+    @Override
+    public String getProcessId() {
+
+        return this.processId;
+    }
+
+    @Override
+    public String getActualOwner() {
+
+        return this.actualOwner;
+    }
+
+    @Override
+    public String getDeploymentId() {
+
+        return this.deploymentId;
+    }
+
+    @Override
+    public String toString() {
+        return "UserTaskInstanceDesc [taskId=" + taskId + ", name=" + name
+                + ", deploymentId=" + deploymentId + ", processInstanceId="
+                + processInstanceId + "]";
+    }
 
 }

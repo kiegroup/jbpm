@@ -31,76 +31,76 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class JBossUserGroupCallbackImpl extends AbstractUserGroupInfo implements UserGroupCallback {
-	
-	private String separator;
 
-	private static final Logger logger = LoggerFactory.getLogger(JBossUserGroupCallbackImpl.class);
+    private String separator;
 
-	private static final String DEFAULT_PROPERTIES_LOCATION = "file:" + System.getProperty("jboss.server.config.dir") + "/roles.properties";
+    private static final Logger logger = LoggerFactory.getLogger(JBossUserGroupCallbackImpl.class);
 
-	private Map<String, List<String>> groupStore = new HashMap<String, List<String>>();
-	private Set<String> allgroups = new HashSet<String>();
-	
-	//no no-arg constructor to prevent cdi from auto deploy
-	public JBossUserGroupCallbackImpl(boolean activate) {
-		this(System.getProperty("jbpm.user.group.mapping"));
-	}
-	
-	public JBossUserGroupCallbackImpl(String location) {
-		
-		Properties userGroups = readProperties(location, DEFAULT_PROPERTIES_LOCATION);
-		logger.debug("Loaded properties {}", userGroups);
-		init(userGroups);
-	}
-	
-	public JBossUserGroupCallbackImpl(Properties userGroups) {
-		
-		init(userGroups);
-	}
-	
-	protected void init(Properties userGroups) {
-		if (userGroups == null) {
-			throw new IllegalArgumentException("UserGroups properties cannot be null");
-		}
-		this.separator = System.getProperty("org.jbpm.ht.user.separator", ",");
-	        
+    private static final String DEFAULT_PROPERTIES_LOCATION = "file:" + System.getProperty("jboss.server.config.dir") + "/roles.properties";
 
-		List<String> groups = null;
-		Iterator<Object> it = userGroups.keySet().iterator();
-		
-		while (it.hasNext()) {
-			String userId = (String) it.next();
-			
-			groups = Arrays.asList(userGroups.getProperty(userId, "").split(separator));
-			groupStore.put(userId, groups);
-			allgroups.addAll(groups);
-			
-		}
-		
-		// always add Administrator if not already present
-		if (!groupStore.containsKey("Administrator")) {
-			groupStore.put("Administrator", Collections.singletonList("Administrators"));
-			allgroups.add("Administrators");
-		}
-	}
+    private Map<String, List<String>> groupStore = new HashMap<String, List<String>>();
+    private Set<String> allgroups = new HashSet<String>();
 
-	public boolean existsUser(String userId) {
-		return groupStore.containsKey(userId);
-	}
+    //no no-arg constructor to prevent cdi from auto deploy
+    public JBossUserGroupCallbackImpl(boolean activate) {
+        this(System.getProperty("jbpm.user.group.mapping"));
+    }
 
-	public boolean existsGroup(String groupId) {
+    public JBossUserGroupCallbackImpl(String location) {
 
-		return allgroups.contains(groupId);
-	}
-	
-	public List<String> getGroupsForUser(String userId, List<String> groupIds,
-			List<String> allExistingGroupIds) {
-		
-		List<String> groups = groupStore.get(userId);
-		if( groups == null ) { 
-		    groups = new ArrayList<String>(0);
-		}
-		return groups;
-	}
-	
+        Properties userGroups = readProperties(location, DEFAULT_PROPERTIES_LOCATION);
+        logger.debug("Loaded properties {}", userGroups);
+        init(userGroups);
+    }
+
+    public JBossUserGroupCallbackImpl(Properties userGroups) {
+
+        init(userGroups);
+    }
+
+    protected void init(Properties userGroups) {
+        if (userGroups == null) {
+            throw new IllegalArgumentException("UserGroups properties cannot be null");
+        }
+        this.separator = System.getProperty("org.jbpm.ht.user.separator", ",");
+
+
+        List<String> groups = null;
+        Iterator<Object> it = userGroups.keySet().iterator();
+
+        while (it.hasNext()) {
+            String userId = (String) it.next();
+
+            groups = Arrays.asList(userGroups.getProperty(userId, "").split(separator));
+            groupStore.put(userId, groups);
+            allgroups.addAll(groups);
+
+        }
+
+        // always add Administrator if not already present
+        if (!groupStore.containsKey("Administrator")) {
+            groupStore.put("Administrator", Collections.singletonList("Administrators"));
+            allgroups.add("Administrators");
+        }
+    }
+
+    public boolean existsUser(String userId) {
+        return groupStore.containsKey(userId);
+    }
+
+    public boolean existsGroup(String groupId) {
+
+        return allgroups.contains(groupId);
+    }
+
+    public List<String> getGroupsForUser(String userId, List<String> groupIds,
+            List<String> allExistingGroupIds) {
+
+        List<String> groups = groupStore.get(userId);
+        if( groups == null ) {
+            groups = new ArrayList<String>(0);
+        }
+        return groups;
+    }
+
 }

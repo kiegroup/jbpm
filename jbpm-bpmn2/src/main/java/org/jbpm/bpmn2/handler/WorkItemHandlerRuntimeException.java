@@ -28,24 +28,24 @@ public class WorkItemHandlerRuntimeException extends RuntimeException {
 
     /** Generated serial version uid */
     private static final long serialVersionUID = 1217036861831832336L;
-    
+
     public final static String WORKITEMHANDLERTYPE = "workItemHandlerType";
-    
+
     private HashMap<String, Object> info = new HashMap<String, Object>();
- 
-    public WorkItemHandlerRuntimeException(Throwable cause, String message) { 
+
+    public WorkItemHandlerRuntimeException(Throwable cause, String message) {
         super(message, cause);
     }
 
-    public WorkItemHandlerRuntimeException(Throwable cause) { 
+    public WorkItemHandlerRuntimeException(Throwable cause) {
         super(cause);
     }
 
-    public void setInformation( String informationName, Object information ) { 
+    public void setInformation( String informationName, Object information ) {
         this.info.put(informationName, information);
     }
-    
-    public Map<String, Object> getInformationMap() { 
+
+    public Map<String, Object> getInformationMap() {
         return Collections.unmodifiableMap(this.info);
     }
 

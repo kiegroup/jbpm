@@ -56,13 +56,13 @@ public abstract class AbstractAvailableJobsExecutor {
     protected int retries = Integer.parseInt(System.getProperty("org.kie.executor.retry.count", "3"));
 
     protected Map<String, Object> contextData = new HashMap<String, Object>();
-       
+
     protected ExecutorQueryService queryService;
-   
+
     protected ClassCacheManager classCacheManager;
-   
+
     protected ExecutorStoreService executorStoreService;
-    
+
     protected ExecutorEventSupport eventSupport = new ExecutorEventSupport();
 
     public void setEventSupport(ExecutorEventSupport eventSupport) {
@@ -71,38 +71,38 @@ public abstract class AbstractAvailableJobsExecutor {
 
     public void setQueryService(ExecutorQueryService queryService) {
         this.queryService = queryService;
-    }    
+    }
 
     public void setClassCacheManager(ClassCacheManager classCacheManager) {
         this.classCacheManager = classCacheManager;
     }
-    
-	public void setExecutorStoreService(ExecutorStoreService executorStoreService) {
-		this.executorStoreService = executorStoreService;
-	}
-     
+
+    public void setExecutorStoreService(ExecutorStoreService executorStoreService) {
+        this.executorStoreService = executorStoreService;
+    }
+
     public void executeGivenJob(RequestInfo request) {
         Throwable exception = null;
         try {
             eventSupport.fireBeforeJobExecuted(request, null);
             if (request != null) {
-            	boolean processReoccurring = false;
-            	Command cmd = null;
+                boolean processReoccurring = false;
+                Command cmd = null;
                 CommandContext ctx = null;
                 List<CommandCallback> callbacks = null;
                 ClassLoader cl = getClassLoader(request.getDeploymentId());
                 try {
-    
+
                     logger.debug("Processing Request Id: {}, status {} command {}", request.getId(), request.getStatus(), request.getCommandName());
-                    
-                    
+
+
                     byte[] reqData = request.getRequestData();
                     if (reqData != null) {
                         ObjectInputStream in = null;
                         try {
                             in = new ClassLoaderObjectInputStream(cl, new ByteArrayInputStream(reqData));
                             ctx = (CommandContext) in.readObject();
-                        } catch (IOException e) {                        
+                        } catch (IOException e) {
                             logger.warn("Exception while serializing context data", e);
                             return;
                         } finally {
@@ -112,22 +112,22 @@ public abstract class AbstractAvailableJobsExecutor {
                         }
                     }
                     for (Map.Entry<String, Object> entry : contextData.entrySet()) {
-                    	ctx.setData(entry.getKey(), entry.getValue());
+                        ctx.setData(entry.getKey(), entry.getValue());
                     }
                     // add class loader so internally classes can be created with valid (kjar) deployment
                     ctx.setData("ClassLoader", cl);
-                    
-                    
+
+
                     cmd = classCacheManager.findCommand(request.getCommandName(), cl);
                     ExecutionResults results = cmd.execute(ctx);
-                    
-                    callbacks = classCacheManager.buildCommandCallback(ctx, cl);                
-                    
+
+                    callbacks = classCacheManager.buildCommandCallback(ctx, cl);
+
                     for (CommandCallback handler : callbacks) {
-                        
+
                         handler.onCommandDone(ctx, results);
                     }
-                    
+
                     if (results != null) {
                         try {
                             ByteArrayOutputStream bout = new ByteArrayOutputStream();
@@ -139,52 +139,52 @@ public abstract class AbstractAvailableJobsExecutor {
                             request.setResponseData(null);
                         }
                     }
-    
+
                     request.setStatus(STATUS.DONE);
-                     
+
                     executorStoreService.updateRequest(request);
                     processReoccurring = true;
-                    
+
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 } catch (Throwable e) {
                     exception = e;
-                    callbacks = classCacheManager.buildCommandCallback(ctx, cl);  
-                    
-                	processReoccurring = handleException(request, e, ctx, callbacks);
-                	
+                    callbacks = classCacheManager.buildCommandCallback(ctx, cl);
+
+                    processReoccurring = handleException(request, e, ctx, callbacks);
+
                 } finally {
-                	handleCompletion(processReoccurring, cmd, ctx);
-                	eventSupport.fireAfterJobExecuted(request, exception);
+                    handleCompletion(processReoccurring, cmd, ctx);
+                    eventSupport.fireAfterJobExecuted(request, exception);
                 }
             }
         } catch (Exception e) {
             logger.warn("Unexpected error while processin executor's job {}", e.getMessage(), e);
         }
     }
-    
+
     protected ClassLoader getClassLoader(String deploymentId) {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         if (deploymentId == null) {
             return cl;
         }
-        
+
         InternalRuntimeManager manager = ((InternalRuntimeManager)RuntimeManagerRegistry.get().getManager(deploymentId));
-        if (manager != null && manager.getEnvironment().getClassLoader() != null) {            
+        if (manager != null && manager.getEnvironment().getClassLoader() != null) {
             cl = manager.getEnvironment().getClassLoader();
         }
-        
+
         return cl;
     }
-    
+
     public void addContextData(String name, Object data) {
-    	this.contextData.put(name, data);
+        this.contextData.put(name, data);
     }
-    
+
     @SuppressWarnings("unchecked")
     protected boolean handleException(RequestInfo request, Throwable e, CommandContext ctx, List<CommandCallback> callbacks) {
         logger.warn("Error during command {} error message {}", request.getCommandName(), e.getMessage(), e);
-        
+
         ErrorInfo errorInfo = new ErrorInfo(e.getMessage(), ExceptionUtils.getStackTrace(e.fillInStackTrace()));
         errorInfo.setRequestInfo(request);
 
@@ -193,8 +193,8 @@ public abstract class AbstractAvailableJobsExecutor {
         if (request.getRetries() > 0) {
             request.setStatus(STATUS.RETRYING);
             request.setRetries(request.getRetries() - 1);
-            
-            
+
+
             // calculate next retry time
             List<Long> retryDelay = (List<Long>) ctx.getData("retryDelay");
             if (retryDelay != null) {
@@ -206,38 +206,38 @@ public abstract class AbstractAvailableJobsExecutor {
                     // in case there is no element matching given execution, use last one
                     retryAdd = retryDelay.get(retryDelay.size()-1);
                 }
-                
+
                 request.setTime(new Date(System.currentTimeMillis() + retryAdd));
                 request.setExecutions(request.getExecutions() + 1);
                 logger.info("Retrying request ( with id {}) - delay configured, next retry at {}", request.getId(), request.getTime());
             }
-            
+
             logger.debug("Retrying ({}) still available!", request.getRetries());
-            
+
             executorStoreService.updateRequest(request);
-            
+
             return false;
         } else {
             logger.debug("Error no retries left!");
             request.setStatus(STATUS.ERROR);
             request.setExecutions(request.getExecutions() + 1);
-            
+
             executorStoreService.updateRequest(request);
-            
+
             if (callbacks != null) {
-                for (CommandCallback handler : callbacks) {                        
-                    handler.onCommandError(ctx, e);                        
+                for (CommandCallback handler : callbacks) {
+                    handler.onCommandError(ctx, e);
                 }
             }
             return true;
         }
     }
-    
+
     protected void handleCompletion(boolean processReoccurring, Command cmd, CommandContext ctx) {
         if (processReoccurring && cmd != null && cmd instanceof Reoccurring) {
             Date current = new Date();
             Date nextScheduleTime = ((Reoccurring) cmd).getScheduleTime();
-            
+
             if (nextScheduleTime != null && nextScheduleTime.after(current)) {
                 String businessKey = (String) ctx.getData("businessKey");
                 RequestInfo requestInfo = new RequestInfo();
@@ -257,7 +257,7 @@ public abstract class AbstractAvailableJobsExecutor {
                     try {
                         // remove transient data
                         ctx.getData().remove("ClassLoader");
-                        
+
                         ByteArrayOutputStream bout = new ByteArrayOutputStream();
                         ObjectOutputStream oout = new ObjectOutputStream(bout);
                         oout.writeObject(ctx);
@@ -267,7 +267,7 @@ public abstract class AbstractAvailableJobsExecutor {
                         requestInfo.setRequestData(null);
                     }
                 }
-                
+
                 executorStoreService.persistRequest(requestInfo);
             }
         }

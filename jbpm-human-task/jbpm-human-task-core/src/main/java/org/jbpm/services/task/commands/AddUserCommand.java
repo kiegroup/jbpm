@@ -29,25 +29,25 @@ import org.kie.internal.task.api.model.InternalOrganizationalEntity;
 @XmlAccessorType(XmlAccessType.NONE)
 public class AddUserCommand extends TaskCommand<Void> {
 
-	private static final long serialVersionUID = 5800835226386301758L;
+    private static final long serialVersionUID = 5800835226386301758L;
 
     public AddUserCommand() {
     }
 
     public AddUserCommand(String userId) {
-    	this.userId = userId;
+        this.userId = userId;
     }
 
 
     public Void execute(Context cntxt) {
         TaskContext context = (TaskContext) cntxt;
-        
+
         User user = TaskModelProvider.getFactory().newUser();
         ((InternalOrganizationalEntity) user).setId(userId);
-        
+
         context.getTaskIdentityService().addUser(user);
         return null;
-    	 
+
     }
 
 }

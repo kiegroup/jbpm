@@ -23,21 +23,21 @@ import org.mvel2.integration.impl.SimpleValueResolver;
 
 public class VariableScopeResolverFactory extends ImmutableDefaultFactory {
 
-	private static final long serialVersionUID = 510l;
-	
-	private VariableScopeInstance variableScope;
-	
-	public VariableScopeResolverFactory(VariableScopeInstance variableScope) {
-		this.variableScope = variableScope;
-	}
+    private static final long serialVersionUID = 510l;
 
-	public boolean isResolveable(String name) {
-		return variableScope.getVariable(name) != null;
-	}
-	
-	public VariableResolver getVariableResolver(String name) {
-		Object value = variableScope.getVariable(name);
-		return new SimpleValueResolver(value);
-	}
-	
+    private VariableScopeInstance variableScope;
+
+    public VariableScopeResolverFactory(VariableScopeInstance variableScope) {
+        this.variableScope = variableScope;
+    }
+
+    public boolean isResolveable(String name) {
+        return variableScope.getVariable(name) != null;
+    }
+
+    public VariableResolver getVariableResolver(String name) {
+        Object value = variableScope.getVariable(name);
+        return new SimpleValueResolver(value);
+    }
+
 }

@@ -1344,7 +1344,7 @@
                 (t.taskData.actualOwner.id = :userId or t.taskData.actualOwner is null) and 
                 t.taskData.expirationTime = :expirationDate and
                 t.taskData.status in (:status) and 
-	            ( potentialOwners.id = :userId or potentialOwners.id in (:groupIds) )  and 
+              ( potentialOwners.id = :userId or potentialOwners.id in (:groupIds) )  and 
                 (t.peopleAssignments.excludedOwners is empty or excludedOwners.id != :userId)
                 order by t.id DESC
         </query>

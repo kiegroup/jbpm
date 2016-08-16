@@ -18,7 +18,7 @@ package org.jbpm.workflow.core.node;
 public class BoundaryEventNode extends EventNode {
 
     private static final long serialVersionUID = 3448981074702415561L;
-    
+
     private String attachedToNodeId;
 
     public String getAttachedToNodeId() {

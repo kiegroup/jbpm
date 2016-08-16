@@ -22,8 +22,8 @@ import org.kie.api.executor.RequestInfo;
 public interface AsynchronousJobEvent {
 
     RequestInfo getJob();
-    
+
     boolean failed();
-    
+
     Throwable getException();
 }

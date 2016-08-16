@@ -31,37 +31,37 @@ import org.kie.internal.runtime.cdi.Activate;
 @Activate(whenNotAvailable="org.jbpm.runtime.manager.impl.RuntimeManagerFactoryImpl")
 public class InMemoryExecutorServiceProducer {
 
-	@Produces
-	public ExecutorService produceExecutorService() {
-		ExecutorService service = ExecutorServiceFactory.newExecutorService();
-		
-		return service;
-	}
+    @Produces
+    public ExecutorService produceExecutorService() {
+        ExecutorService service = ExecutorServiceFactory.newExecutorService();
 
-	@Produces
-	public ExecutorStoreService produceStoreService() {
-		ExecutorStoreService storeService = new InMemoryExecutorStoreService(true);
-		
-		return storeService;
-	}
+        return service;
+    }
 
-	@Produces
-	public ExecutorAdminService produceAdminService() {
-		ExecutorAdminService adminService = new InMemoryExecutorAdminServiceImpl(true);
-		InMemoryExecutorStoreService storeService = new InMemoryExecutorStoreService(true);
-		
-		((InMemoryExecutorAdminServiceImpl) adminService).setStoreService(storeService);
-		
-		return adminService;
-	}
+    @Produces
+    public ExecutorStoreService produceStoreService() {
+        ExecutorStoreService storeService = new InMemoryExecutorStoreService(true);
 
-	@Produces
-	public ExecutorQueryService produceQueryService() {
-		ExecutorQueryService queryService = new InMemoryExecutorQueryServiceImpl(true);
-		InMemoryExecutorStoreService storeService = new InMemoryExecutorStoreService(true);		
-		((InMemoryExecutorQueryServiceImpl) queryService).setStoreService(storeService);
-		
-		return queryService;
-	}
+        return storeService;
+    }
+
+    @Produces
+    public ExecutorAdminService produceAdminService() {
+        ExecutorAdminService adminService = new InMemoryExecutorAdminServiceImpl(true);
+        InMemoryExecutorStoreService storeService = new InMemoryExecutorStoreService(true);
+
+        ((InMemoryExecutorAdminServiceImpl) adminService).setStoreService(storeService);
+
+        return adminService;
+    }
+
+    @Produces
+    public ExecutorQueryService produceQueryService() {
+        ExecutorQueryService queryService = new InMemoryExecutorQueryServiceImpl(true);
+        InMemoryExecutorStoreService storeService = new InMemoryExecutorStoreService(true);
+        ((InMemoryExecutorQueryServiceImpl) queryService).setStoreService(storeService);
+
+        return queryService;
+    }
 
 }

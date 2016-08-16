@@ -99,17 +99,17 @@ import org.kie.api.definition.process.Process;
 import org.w3c.dom.Document;
 
 public class XMLPersistenceTest extends XMLTestCase {
-   
+
     @BeforeClass
-    public static void configure() { 
+    public static void configure() {
         LoggingPrintStream.interceptSysOutSysErr();
     }
-    
+
     @AfterClass
-    public static void reset() { 
+    public static void reset() {
         LoggingPrintStream.resetInterceptSysOutSysErr();
     }
-    
+
     @Test
     public void testPersistenceOfEmptyNodes() throws Exception {
         RuleFlowProcess process = new RuleFlowProcess() {
@@ -137,13 +137,13 @@ public class XMLPersistenceTest extends XMLTestCase {
         process.addNode(new FaultNode());
         process.addNode(new StateNode());
         process.addNode(new DynamicNode());
-        
+
         String xml = XmlRuleFlowProcessDumper.INSTANCE.dump(process, false);
         if (xml == null) {
             throw new IllegalArgumentException("Failed to persist empty nodes!");
         }
 
-        
+
         SemanticModules modules = new SemanticModules();
         modules.addSemanticModule(new ProcessSemanticModule());
         XmlProcessReader reader = new XmlProcessReader(modules, getClass().getClassLoader());
@@ -153,14 +153,14 @@ public class XMLPersistenceTest extends XMLTestCase {
         if (process == null) {
             throw new IllegalArgumentException("Failed to reload process!");
         }
-        
+
         assertEquals(17, process.getNodes().length);
-        
+
         String xml2 = XmlRuleFlowProcessDumper.INSTANCE.dump(process, false);
         if (xml2 == null) {
             throw new IllegalArgumentException("Failed to persist empty nodes!");
         }
-       
+
         assertXMLEqual(xml, xml2);
 //        assertEquals(xml, xml2);
     }
@@ -176,17 +176,17 @@ public class XMLPersistenceTest extends XMLTestCase {
             }
         };
         process.setMetaData("routerLayout", 1);
-        
+
         Set<String> imports = new HashSet<String>();
         imports.add("import1");
         imports.add("import2");
         process.setImports(imports);
-        
+
         Map<String, String> globals = new HashMap<String, String>();
         globals.put("name1", "type1");
         globals.put("name2", "type2");
         process.setGlobals(globals);
-        
+
         List<Variable> variables = new ArrayList<Variable>();
         Variable variable = new Variable();
         variable.setName("variable1");
@@ -204,7 +204,7 @@ public class XMLPersistenceTest extends XMLTestCase {
         Person person = new Person();
         person.setName("John");
         variable.setValue(person);
-        variables.add(variable);        
+        variables.add(variable);
         variable = new Variable();
         variable.setName("variable4");
         ListDataType listDataType = new ListDataType();
@@ -216,14 +216,14 @@ public class XMLPersistenceTest extends XMLTestCase {
         variable.setValue(list);
         variables.add(variable);
         process.getVariableScope().setVariables(variables);
-        
+
         Swimlane swimlane = new Swimlane();
         swimlane.setName("actor1");
         process.getSwimlaneContext().addSwimlane(swimlane);
         swimlane = new Swimlane();
         swimlane.setName("actor2");
         process.getSwimlaneContext().addSwimlane(swimlane);
-        
+
         ActionExceptionHandler exceptionHandler = new ActionExceptionHandler();
         exceptionHandler.setFaultVariable("faultVariable");
         DroolsConsequenceAction action = new DroolsConsequenceAction("dialect", "consequence");
@@ -234,7 +234,7 @@ public class XMLPersistenceTest extends XMLTestCase {
         action = new DroolsConsequenceAction("dialect2", "consequence2");
         exceptionHandler.setAction(action);
         process.getExceptionScope().setExceptionHandler("myFault2", exceptionHandler);
-        
+
         StartNode startNode = new StartNode();
         startNode.setName("start");
         startNode.setMetaData("x", 1);
@@ -260,7 +260,7 @@ public class XMLPersistenceTest extends XMLTestCase {
         eventTrigger.setInMappings(inMapping);
         startNode.addTrigger(eventTrigger);
         process.addNode(startNode);
-        
+
         ActionNode actionNode = new ActionNode();
         actionNode.setName("action");
         actionNode.setMetaData("x", 1);
@@ -270,7 +270,7 @@ public class XMLPersistenceTest extends XMLTestCase {
         action = new DroolsConsequenceAction("dialect", "consequence");
         actionNode.setAction(action);
         process.addNode(actionNode);
-        
+
         RuleSetNode ruleSetNode = new RuleSetNode();
         ruleSetNode.setName("action");
         ruleSetNode.setMetaData("x", 1);
@@ -289,7 +289,7 @@ public class XMLPersistenceTest extends XMLTestCase {
         action = new DroolsConsequenceAction("dialect", "consequence");
         ruleSetNode.addTimer(timer, action);
         process.addNode(ruleSetNode);
-        
+
         FaultNode faultNode = new FaultNode();
         faultNode.setName("action");
         faultNode.setMetaData("x", 1);
@@ -299,7 +299,7 @@ public class XMLPersistenceTest extends XMLTestCase {
         faultNode.setFaultName("faultName");
         faultNode.setFaultVariable("faultVariable");
         process.addNode(faultNode);
-        
+
         Split split = new Split();
         split.setName("split");
         split.setMetaData("x", 1);
@@ -325,7 +325,7 @@ public class XMLPersistenceTest extends XMLTestCase {
         split.setConstraint(connection, constraint);
         process.addNode(split);
         new ConnectionImpl(startNode, Node.CONNECTION_DEFAULT_TYPE, split, Node.CONNECTION_DEFAULT_TYPE);
-        
+
         EventNode eventNode = new EventNode();
         eventNode.setName("action");
         eventNode.setMetaData("x", 1);
@@ -337,7 +337,7 @@ public class XMLPersistenceTest extends XMLTestCase {
         eventFilter.setType("eventType");
         eventNode.addEventFilter(eventFilter);
         process.addNode(eventNode);
-        
+
         Join join = new Join();
         join.setName("join");
         join.setMetaData("x", 1);
@@ -350,7 +350,7 @@ public class XMLPersistenceTest extends XMLTestCase {
         new ConnectionImpl(actionNode, Node.CONNECTION_DEFAULT_TYPE, join, Node.CONNECTION_DEFAULT_TYPE);
         new ConnectionImpl(ruleSetNode, Node.CONNECTION_DEFAULT_TYPE, join, Node.CONNECTION_DEFAULT_TYPE);
         new ConnectionImpl(eventNode, Node.CONNECTION_DEFAULT_TYPE, join, Node.CONNECTION_DEFAULT_TYPE);
-        
+
         MilestoneNode milestone = new MilestoneNode();
         milestone.setName("milestone");
         milestone.setMetaData("x", 1);
@@ -378,7 +378,7 @@ public class XMLPersistenceTest extends XMLTestCase {
         process.addNode(milestone);
         connection = new ConnectionImpl(join, Node.CONNECTION_DEFAULT_TYPE, milestone, Node.CONNECTION_DEFAULT_TYPE);
         connection.setMetaData("bendpoints", "[10,10;20,20]");
-        
+
         SubProcessNode subProcess = new SubProcessNode();
         subProcess.setName("subProcess");
         subProcess.setMetaData("x", 1);
@@ -437,7 +437,7 @@ public class XMLPersistenceTest extends XMLTestCase {
         process.addNode(workItemNode);
         connection = new ConnectionImpl(subProcess, Node.CONNECTION_DEFAULT_TYPE, workItemNode, Node.CONNECTION_DEFAULT_TYPE);
         connection.setMetaData("bendpoints", "[]");
-        
+
         HumanTaskNode humanTaskNode = new HumanTaskNode();
         humanTaskNode.setName("Human Task");
         work = humanTaskNode.getWork();
@@ -458,7 +458,7 @@ public class XMLPersistenceTest extends XMLTestCase {
         humanTaskNode.setActions(ExtendedNodeImpl.EVENT_NODE_EXIT, actions);
         process.addNode(humanTaskNode);
         connection = new ConnectionImpl(workItemNode, Node.CONNECTION_DEFAULT_TYPE, humanTaskNode, Node.CONNECTION_DEFAULT_TYPE);
-        
+
         TimerNode timerNode = new TimerNode();
         timerNode.setName("timer");
         timerNode.setMetaData("x", 1);
@@ -471,7 +471,7 @@ public class XMLPersistenceTest extends XMLTestCase {
         timerNode.setTimer(timer);
         process.addNode(timerNode);
         new ConnectionImpl(humanTaskNode, Node.CONNECTION_DEFAULT_TYPE, timerNode, Node.CONNECTION_DEFAULT_TYPE);
-        
+
         ForEachNode forEachNode = new ForEachNode();
         forEachNode.setName("ForEach");
         forEachNode.setCollectionExpression("collection");
@@ -486,7 +486,7 @@ public class XMLPersistenceTest extends XMLTestCase {
         forEachNode.getCompositeNode().linkOutgoingConnections(subActionNode2.getId(), Node.CONNECTION_DEFAULT_TYPE, Node.CONNECTION_DEFAULT_TYPE);
         process.addNode(forEachNode);
         new ConnectionImpl(timerNode, Node.CONNECTION_DEFAULT_TYPE, forEachNode, Node.CONNECTION_DEFAULT_TYPE);
-        
+
         CompositeContextNode compositeNode = new CompositeContextNode();
         compositeNode.setName("Composite");
         VariableScope variableScope = new VariableScope();
@@ -515,7 +515,7 @@ public class XMLPersistenceTest extends XMLTestCase {
         compositeNode.linkOutgoingConnections(subActionNode2.getId(), Node.CONNECTION_DEFAULT_TYPE, Node.CONNECTION_DEFAULT_TYPE);
         process.addNode(compositeNode);
         new ConnectionImpl(forEachNode, Node.CONNECTION_DEFAULT_TYPE, compositeNode, Node.CONNECTION_DEFAULT_TYPE);
-        
+
         EndNode endNode = new EndNode();
         endNode.setName("end");
         endNode.setTerminate(false);
@@ -524,7 +524,7 @@ public class XMLPersistenceTest extends XMLTestCase {
         endNode.setMetaData("width", 3);
         endNode.setMetaData("height", 4);
         process.addNode(endNode);
-        
+
         StateNode stateNode = new StateNode();
         stateNode.setName("state");
         stateNode.setMetaData("x", 1);
@@ -566,13 +566,13 @@ public class XMLPersistenceTest extends XMLTestCase {
         constraint.setConstraint("constraint-text2");
         stateNode.setConstraint(connection, constraint);
         process.addNode(stateNode);
-        
+
         String xml = XmlRuleFlowProcessDumper.INSTANCE.dump(process, true);
         if (xml == null) {
             throw new IllegalArgumentException("Failed to persist full nodes!");
         }
-        
-        
+
+
         SemanticModules modules = new SemanticModules();
         modules.addSemanticModule(new ProcessSemanticModule());
         XmlProcessReader reader = new XmlProcessReader(modules, getClass().getClassLoader());
@@ -582,32 +582,32 @@ public class XMLPersistenceTest extends XMLTestCase {
         if (process == null) {
             throw new IllegalArgumentException("Failed to reload process!");
         }
-        
+
         assertEquals(16, process.getNodes().length);
-        
+
         assertEquals(2, process.getImports().size());
         assertEquals(2, process.getGlobals().size());
         assertEquals(4, process.getVariableScope().getVariables().size());
         assertEquals(2, process.getSwimlaneContext().getSwimlanes().size());
         assertEquals(2, process.getExceptionScope().getExceptionHandlers().size());
-        
-        
+
+
         String xml2 = XmlRuleFlowProcessDumper.INSTANCE.dump(process, true);
         if (xml2 == null) {
             throw new IllegalArgumentException("Failed to persist empty nodes!");
-        }       
-    
+        }
+
         Document control = XMLUnit.buildDocument(XMLUnit.newControlParser(), new StringReader(xml));
         Document test = XMLUnit.buildDocument(XMLUnit.newTestParser(), new StringReader(xml2));
         Diff diff = new Diff(control, test, null, new ElementNameAndAttributeQualifier("name"));
-    
+
         assertTrue( diff.toString(), diff.similar() );
         // test serialization of process elements
-        
+
     }
-   
+
     public void testSpecialCharacters() {
         // TODO
     }
-    
+
 }

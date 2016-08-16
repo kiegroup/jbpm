@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -37,15 +37,15 @@ public class VariableHandler extends BaseAbstractHandler
             this.validParents = new HashSet<Class<?>>();
             this.validParents.add( ContextContainer.class );
 
-            this.validPeers = new HashSet<Class<?>>();         
-            this.validPeers.add( null );            
+            this.validPeers = new HashSet<Class<?>>();
+            this.validPeers.add( null );
 
             this.allowNesting = false;
         }
     }
-    
 
-    
+
+
     public Object start(final String uri,
                         final String localName,
                         final Attributes attrs,
@@ -55,8 +55,8 @@ public class VariableHandler extends BaseAbstractHandler
         ContextContainer contextContainer = (ContextContainer) parser.getParent();
         final String name = attrs.getValue("name");
         emptyAttributeCheck(localName, "name", name, parser);
-        
-        VariableScope variableScope = (VariableScope) 
+
+        VariableScope variableScope = (VariableScope)
             contextContainer.getDefaultContext(VariableScope.VARIABLE_SCOPE);
         Variable variable = new Variable();
         if (variableScope != null) {
@@ -71,10 +71,10 @@ public class VariableHandler extends BaseAbstractHandler
             throw new SAXParseException(
                 "Could not find default variable scope.", parser.getLocator());
         }
-        
+
         return variable;
-    }    
-    
+    }
+
     public Object end(final String uri,
                       final String localName,
                       final ExtensibleXmlParser parser) throws SAXException {
@@ -84,6 +84,6 @@ public class VariableHandler extends BaseAbstractHandler
 
     public Class<?> generateNodeFor() {
         return Variable.class;
-    }    
+    }
 
 }

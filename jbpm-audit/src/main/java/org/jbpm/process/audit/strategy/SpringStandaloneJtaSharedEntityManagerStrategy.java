@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -22,13 +22,13 @@ public class SpringStandaloneJtaSharedEntityManagerStrategy extends StandaloneJt
 
     private final EntityManager em;
     private boolean manageTx;
-    
+
     public SpringStandaloneJtaSharedEntityManagerStrategy(EntityManagerFactory emf) {
         super(null);
         this.em = emf.createEntityManager();
         this.manageTx = true;
     }
-    
+
     public SpringStandaloneJtaSharedEntityManagerStrategy(EntityManager em) {
         super(null);
         this.em = em;
@@ -39,22 +39,22 @@ public class SpringStandaloneJtaSharedEntityManagerStrategy extends StandaloneJt
     public EntityManager getEntityManager() {
         return em;
     }
-    
+
     @Override
     public void leaveTransaction(EntityManager em, Object transaction) {
         // do not close or clear the entity manager
         if (manageTx) {
-        	commitTransaction(transaction);
+            commitTransaction(transaction);
         }
     }
 
-	@Override
-	public Object joinTransaction(EntityManager em) {
-		if (manageTx) {
-			return super.joinTransaction(em);
-		}
-		
-		return manageTx;
-	}
+    @Override
+    public Object joinTransaction(EntityManager em) {
+        if (manageTx) {
+            return super.joinTransaction(em);
+        }
+
+        return manageTx;
+    }
 
 }

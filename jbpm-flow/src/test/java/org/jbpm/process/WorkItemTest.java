@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -48,17 +48,17 @@ import org.slf4j.LoggerFactory;
 
 public class WorkItemTest extends AbstractBaseTest {
 
-    public void addLogger() { 
+    public void addLogger() {
         logger = LoggerFactory.getLogger(this.getClass());
     }
-    
-	@Test
+
+    @Test
     public void testReachNonRegisteredWorkItemHandler() {
         String processId = "org.drools.actions";
         String workName = "Unnexistent Task";
         RuleFlowProcess process = getWorkItemProcess( processId,
                                                       workName );
-        KieSession ksession = createKieSession(process); 
+        KieSession ksession = createKieSession(process);
 
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put( "UserName",
@@ -77,14 +77,14 @@ public class WorkItemTest extends AbstractBaseTest {
         Assert.assertNull( processInstance );
     }
 
-	@Test
+    @Test
     public void testCancelNonRegisteredWorkItemHandler() {
         String processId = "org.drools.actions";
         String workName = "Unnexistent Task";
         RuleFlowProcess process = getWorkItemProcess( processId,
                                                       workName );
-        KieSession ksession = createKieSession(process); 
-        
+        KieSession ksession = createKieSession(process);
+
         ksession.getWorkItemManager().registerWorkItemHandler( workName,
                                                                new DoNothingWorkItemHandler() );
 

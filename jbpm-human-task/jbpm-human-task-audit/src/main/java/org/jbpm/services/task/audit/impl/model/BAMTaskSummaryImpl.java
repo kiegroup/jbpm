@@ -40,15 +40,15 @@ public class BAMTaskSummaryImpl implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO, generator="bamTaskIdSeq")
     @Column(name = "pk")
     private Long pk  = 0L;
-    
+
     @Version
     @Column(name = "OPTLOCK")
     private Integer version;
-    
+
     private long taskId;
-    
+
     private String taskName;
-    
+
     private String status;
 
     @Temporal(TemporalType.TIMESTAMP)
@@ -57,9 +57,9 @@ public class BAMTaskSummaryImpl implements Serializable {
     private Date startDate;
     @Temporal(TemporalType.TIMESTAMP)
     private Date endDate;
-    
+
     private long processInstanceId;
-    
+
      // Initiator
     private String userId;
     private Long duration;
@@ -75,8 +75,8 @@ public class BAMTaskSummaryImpl implements Serializable {
         this.createdDate = createdDate;
         this.processInstanceId = processInstanceId;
     }
-    
-    
+
+
 
     public long getTaskId() {
         return taskId;
@@ -148,97 +148,97 @@ public class BAMTaskSummaryImpl implements Serializable {
         return "BAMTaskSummary{" + "pk=" + pk + ", taskId=" + taskId + ", name=" + taskName + ", status=" + status + ", createdDate=" + createdDate + ", startDate=" + startDate + ", endDate=" + endDate + ", processInstanceId=" + processInstanceId + ", userId=" + userId + ", duration=" + duration + '}';
     }
 
-	public Integer getVersion() {
-		return version;
-	}
+    public Integer getVersion() {
+        return version;
+    }
 
-	public void setVersion(Integer version) {
-		this.version = version;
-	}
+    public void setVersion(Integer version) {
+        this.version = version;
+    }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result
-				+ ((createdDate == null) ? 0 : createdDate.hashCode());
-		result = prime * result
-				+ ((duration == null) ? 0 : duration.hashCode());
-		result = prime * result + ((endDate == null) ? 0 : endDate.hashCode());
-		result = prime * result + ((pk == null) ? 0 : pk.hashCode());
-		result = prime * result
-				+ (int) (processInstanceId ^ (processInstanceId >>> 32));
-		result = prime * result
-				+ ((startDate == null) ? 0 : startDate.hashCode());
-		result = prime * result + ((status == null) ? 0 : status.hashCode());
-		result = prime * result + (int) (taskId ^ (taskId >>> 32));
-		result = prime * result
-				+ ((taskName == null) ? 0 : taskName.hashCode());
-		result = prime * result + ((userId == null) ? 0 : userId.hashCode());
-		result = prime * result + ((version == null) ? 0 : version.hashCode());
-		return result;
-	}
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result
+                + ((createdDate == null) ? 0 : createdDate.hashCode());
+        result = prime * result
+                + ((duration == null) ? 0 : duration.hashCode());
+        result = prime * result + ((endDate == null) ? 0 : endDate.hashCode());
+        result = prime * result + ((pk == null) ? 0 : pk.hashCode());
+        result = prime * result
+                + (int) (processInstanceId ^ (processInstanceId >>> 32));
+        result = prime * result
+                + ((startDate == null) ? 0 : startDate.hashCode());
+        result = prime * result + ((status == null) ? 0 : status.hashCode());
+        result = prime * result + (int) (taskId ^ (taskId >>> 32));
+        result = prime * result
+                + ((taskName == null) ? 0 : taskName.hashCode());
+        result = prime * result + ((userId == null) ? 0 : userId.hashCode());
+        result = prime * result + ((version == null) ? 0 : version.hashCode());
+        return result;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		BAMTaskSummaryImpl other = (BAMTaskSummaryImpl) obj;
-		if (createdDate == null) {
-			if (other.createdDate != null)
-				return false;
-		} else if (!createdDate.equals(other.createdDate))
-			return false;
-		if (duration == null) {
-			if (other.duration != null)
-				return false;
-		} else if (!duration.equals(other.duration))
-			return false;
-		if (endDate == null) {
-			if (other.endDate != null)
-				return false;
-		} else if (!endDate.equals(other.endDate))
-			return false;
-		if (pk == null) {
-			if (other.pk != null)
-				return false;
-		} else if (!pk.equals(other.pk))
-			return false;
-		if (processInstanceId != other.processInstanceId)
-			return false;
-		if (startDate == null) {
-			if (other.startDate != null)
-				return false;
-		} else if (!startDate.equals(other.startDate))
-			return false;
-		if (status == null) {
-			if (other.status != null)
-				return false;
-		} else if (!status.equals(other.status))
-			return false;
-		if (taskId != other.taskId)
-			return false;
-		if (taskName == null) {
-			if (other.taskName != null)
-				return false;
-		} else if (!taskName.equals(other.taskName))
-			return false;
-		if (userId == null) {
-			if (other.userId != null)
-				return false;
-		} else if (!userId.equals(other.userId))
-			return false;
-		if (version == null) {
-			if (other.version != null)
-				return false;
-		} else if (!version.equals(other.version))
-			return false;
-		return true;
-	}
-    
-	
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        BAMTaskSummaryImpl other = (BAMTaskSummaryImpl) obj;
+        if (createdDate == null) {
+            if (other.createdDate != null)
+                return false;
+        } else if (!createdDate.equals(other.createdDate))
+            return false;
+        if (duration == null) {
+            if (other.duration != null)
+                return false;
+        } else if (!duration.equals(other.duration))
+            return false;
+        if (endDate == null) {
+            if (other.endDate != null)
+                return false;
+        } else if (!endDate.equals(other.endDate))
+            return false;
+        if (pk == null) {
+            if (other.pk != null)
+                return false;
+        } else if (!pk.equals(other.pk))
+            return false;
+        if (processInstanceId != other.processInstanceId)
+            return false;
+        if (startDate == null) {
+            if (other.startDate != null)
+                return false;
+        } else if (!startDate.equals(other.startDate))
+            return false;
+        if (status == null) {
+            if (other.status != null)
+                return false;
+        } else if (!status.equals(other.status))
+            return false;
+        if (taskId != other.taskId)
+            return false;
+        if (taskName == null) {
+            if (other.taskName != null)
+                return false;
+        } else if (!taskName.equals(other.taskName))
+            return false;
+        if (userId == null) {
+            if (other.userId != null)
+                return false;
+        } else if (!userId.equals(other.userId))
+            return false;
+        if (version == null) {
+            if (other.version != null)
+                return false;
+        } else if (!version.equals(other.version))
+            return false;
+        return true;
+    }
+
+
 }

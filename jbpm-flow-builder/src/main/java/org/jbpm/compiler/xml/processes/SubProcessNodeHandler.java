@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -36,25 +36,25 @@ public class SubProcessNodeHandler extends AbstractNodeHandler {
         SubProcessNode subProcessNode = (SubProcessNode) node;
         String processId = element.getAttribute("processId");
         if (processId != null && processId.length() > 0) {
-        	subProcessNode.setProcessId(processId);
+            subProcessNode.setProcessId(processId);
         }
         String waitForCompletion = element.getAttribute("waitForCompletion");
         subProcessNode.setWaitForCompletion(!"false".equals(waitForCompletion));
         String independent = element.getAttribute("independent");
         subProcessNode.setIndependent(!"false".equals(independent));
         for (String eventType: subProcessNode.getActionTypes()) {
-        	handleAction(subProcessNode, element, eventType);
+            handleAction(subProcessNode, element, eventType);
         }
     }
 
     @SuppressWarnings("unchecked")
-	public Class generateNodeFor() {
+    public Class generateNodeFor() {
         return SubProcessNode.class;
     }
 
-	public void writeNode(Node node, StringBuilder xmlDump, boolean includeMeta) {
-		SubProcessNode subProcessNode = (SubProcessNode) node;
-		writeNode("subProcess", subProcessNode, xmlDump, includeMeta);
+    public void writeNode(Node node, StringBuilder xmlDump, boolean includeMeta) {
+        SubProcessNode subProcessNode = (SubProcessNode) node;
+        writeNode("subProcess", subProcessNode, xmlDump, includeMeta);
         String processId = subProcessNode.getProcessId();
         if (processId != null) {
             xmlDump.append("processId=\"" + processId + "\" ");
@@ -67,7 +67,7 @@ public class SubProcessNodeHandler extends AbstractNodeHandler {
         }
         xmlDump.append(">" + EOL);
         if (includeMeta) {
-        	writeMetaData(subProcessNode, xmlDump);
+            writeMetaData(subProcessNode, xmlDump);
         }
         Map<String, String> inMappings = subProcessNode.getInMappings();
         for (Map.Entry<String, String> inMapping: inMappings.entrySet()) {
@@ -84,10 +84,10 @@ public class SubProcessNodeHandler extends AbstractNodeHandler {
                              + "to=\"" + outMapping.getValue() + "\" />" + EOL);
         }
         for (String eventType: subProcessNode.getActionTypes()) {
-        	writeActions(eventType, subProcessNode.getActions(eventType), xmlDump);
+            writeActions(eventType, subProcessNode.getActions(eventType), xmlDump);
         }
         writeTimers(subProcessNode.getTimers(), xmlDump);
         endNode("subProcess", xmlDump);
-	}
+    }
 
 }

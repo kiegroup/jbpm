@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -43,29 +43,29 @@ import org.slf4j.LoggerFactory;
 
 public class TaskTransactionInterceptor extends AbstractInterceptor {
 
-	private static Logger logger = LoggerFactory.getLogger(TaskTransactionInterceptor.class);
+    private static Logger logger = LoggerFactory.getLogger(TaskTransactionInterceptor.class);
     private static String SPRING_TM_CLASSNAME = "org.springframework.transaction.support.AbstractPlatformTransactionManager";
-	
-	private CommandService             commandService;
+
+    private CommandService             commandService;
     private TransactionManager         txm;
     private TaskPersistenceContextManager  tpm;
     private boolean eagerDisabled = false;
-    
+
     public TaskTransactionInterceptor(Environment environment) {
-    	this.eagerDisabled = Boolean.getBoolean("jbpm.ht.eager.disabled");
-    	initTransactionManager(environment);
+        this.eagerDisabled = Boolean.getBoolean("jbpm.ht.eager.disabled");
+        initTransactionManager(environment);
     }
-	
-	@Override
-	public synchronized <T> T execute(Command<T> command) {
-		boolean transactionOwner = false;
-		T result = null;
-		
+
+    @Override
+    public synchronized <T> T execute(Command<T> command) {
+        boolean transactionOwner = false;
+        T result = null;
+
         try {
             transactionOwner = txm.begin();
             tpm.beginCommandScopedEntityManager();
             TransactionManagerHelper.registerTransactionSyncInContainer(this.txm, new TaskSynchronizationImpl( this ));
-                
+
             result = executeNext((Command<T>) command);
             postInit(result);
             txm.commit( transactionOwner );
@@ -73,15 +73,15 @@ public class TaskTransactionInterceptor extends AbstractInterceptor {
             return result;
 
         } catch (TaskException e) {
-        	// allow to handle TaskException as business exceptions on caller side
-        	// if transaction is owned by other component like process engine
-        	if (transactionOwner) {
-        		rollbackTransaction( e, transactionOwner );
-        		e.setRecoverable(false);
-        		throw e;
-        	} else {
-        		throw e;
-        	}
+            // allow to handle TaskException as business exceptions on caller side
+            // if transaction is owned by other component like process engine
+            if (transactionOwner) {
+                rollbackTransaction( e, transactionOwner );
+                e.setRecoverable(false);
+                throw e;
+            } else {
+                throw e;
+            }
         }
         catch ( RuntimeException re ) {
             rollbackTransaction( re, transactionOwner );
@@ -90,78 +90,78 @@ public class TaskTransactionInterceptor extends AbstractInterceptor {
             rollbackTransaction( t1,  transactionOwner );
             throw new RuntimeException( "Wrapped exception see cause", t1 );
         }
-		
-	}
-	
-	private void rollbackTransaction(Exception t1, boolean transactionOwner) {
-		try {
-			logger.warn("Could not commit session", t1);
-			txm.rollback(transactionOwner);
-		} catch (Exception t2) {
-			logger.error("Could not rollback", t2);
-			throw new RuntimeException("Could not commit session or rollback", t2);
-		}
-	}
-	
-	public void addInterceptor(Interceptor interceptor) {
+
+    }
+
+    private void rollbackTransaction(Exception t1, boolean transactionOwner) {
+        try {
+            logger.warn("Could not commit session", t1);
+            txm.rollback(transactionOwner);
+        } catch (Exception t2) {
+            logger.error("Could not rollback", t2);
+            throw new RuntimeException("Could not commit session or rollback", t2);
+        }
+    }
+
+    public void addInterceptor(Interceptor interceptor) {
         interceptor.setNext( this.commandService == null ? this : this.commandService );
         this.commandService = interceptor;
     }
-	
-	@Override
-	public Context getContext() {
-		
-		final TaskPersistenceContext persistenceContext = tpm.getPersistenceContext(); 
-		persistenceContext.joinTransaction();
-	
-        return new TaskContext() {
-			
-			@Override
-			public void set(String identifier, Object value) {	
-				txm.putResource(identifier, value);
-			}
-			
-			@Override
-			public void remove(String identifier) {
-			}
-			
-			@Override
-			public String getName() {
-				return null;
-			}
-			
-			@Override
-			public World getContextManager() {
-				return null;
-			}
-			
-			@Override
-			public Object get(String identifier) {
-				return txm.getResource(identifier);
-			}
-			
-			@Override
-			public void setPersistenceContext(TaskPersistenceContext context) {
-			}
-			
-			@Override
-			public TaskPersistenceContext getPersistenceContext() {
-				return persistenceContext;
-			}
 
-			@Override
-			public UserGroupCallback getUserGroupCallback() {
-				return null;
-			}
+    @Override
+    public Context getContext() {
+
+        final TaskPersistenceContext persistenceContext = tpm.getPersistenceContext();
+        persistenceContext.joinTransaction();
+
+        return new TaskContext() {
+
+            @Override
+            public void set(String identifier, Object value) {
+                txm.putResource(identifier, value);
+            }
+
+            @Override
+            public void remove(String identifier) {
+            }
+
+            @Override
+            public String getName() {
+                return null;
+            }
+
+            @Override
+            public World getContextManager() {
+                return null;
+            }
+
+            @Override
+            public Object get(String identifier) {
+                return txm.getResource(identifier);
+            }
+
+            @Override
+            public void setPersistenceContext(TaskPersistenceContext context) {
+            }
+
+            @Override
+            public TaskPersistenceContext getPersistenceContext() {
+                return persistenceContext;
+            }
+
+            @Override
+            public UserGroupCallback getUserGroupCallback() {
+                return null;
+            }
 
             @Override
             public Task loadTaskVariables(Task task) {
                 return task;
             }
-		};
-	}
-	
-	public void initTransactionManager(Environment env) {
+        };
+    }
+
+    public void initTransactionManager(Environment env) {
         Object tm = env.get( EnvironmentName.TRANSACTION_MANAGER );
         if ( env.get( EnvironmentName.TASK_PERSISTENCE_CONTEXT_MANAGER ) != null &&
              env.get( EnvironmentName.TRANSACTION_MANAGER ) != null ) {
@@ -179,7 +179,7 @@ public class TaskTransactionInterceptor extends AbstractInterceptor {
                     con = cls.getConstructors()[0];
                     this.tpm = (TaskPersistenceContextManager) con.newInstance( new Object[]{env} );
                 } catch ( Exception e ) {
-    
+
                     logger.warn( "Could not instantiate DroolsSpringTransactionManager" );
                     throw new RuntimeException( "Could not instantiate org.kie.container.spring.beans.persistence.DroolsSpringTransactionManager", e );
                 }
@@ -212,49 +212,49 @@ public class TaskTransactionInterceptor extends AbstractInterceptor {
         }
         return false;
     }
-    
+
     private void postInit(Object result) {
-    	if (result instanceof Task) {
-    		Task task = (Task) result;
-    		if (task != null && !eagerDisabled) {
-    			task.getNames().size();
-    			task.getDescriptions().size();
-    			task.getSubjects().size();
-    			task.getPeopleAssignments().getBusinessAdministrators().size();
-    			task.getPeopleAssignments().getPotentialOwners().size();
-    			((InternalPeopleAssignments) task.getPeopleAssignments()).getRecipients().size();
-    			((InternalPeopleAssignments) task.getPeopleAssignments()).getExcludedOwners().size();
-    			((InternalPeopleAssignments) task.getPeopleAssignments()).getTaskStakeholders().size();
-    			task.getTaskData().getAttachments().size();
-    			task.getTaskData().getComments().size();
-    			((InternalTask)task).getDeadlines().getStartDeadlines().size();
-    			((InternalTask)task).getDeadlines().getEndDeadlines().size();
-    		}
-    	} else if (result instanceof Collection<?>) {
+        if (result instanceof Task) {
+            Task task = (Task) result;
+            if (task != null && !eagerDisabled) {
+                task.getNames().size();
+                task.getDescriptions().size();
+                task.getSubjects().size();
+                task.getPeopleAssignments().getBusinessAdministrators().size();
+                task.getPeopleAssignments().getPotentialOwners().size();
+                ((InternalPeopleAssignments) task.getPeopleAssignments()).getRecipients().size();
+                ((InternalPeopleAssignments) task.getPeopleAssignments()).getExcludedOwners().size();
+                ((InternalPeopleAssignments) task.getPeopleAssignments()).getTaskStakeholders().size();
+                task.getTaskData().getAttachments().size();
+                task.getTaskData().getComments().size();
+                ((InternalTask)task).getDeadlines().getStartDeadlines().size();
+                ((InternalTask)task).getDeadlines().getEndDeadlines().size();
+            }
+        } else if (result instanceof Collection<?>) {
             ((Collection<?>) result).size();
-    	}	
+        }
     }
-    
-	private static class TaskSynchronizationImpl extends
-			OrderedTransactionSynchronization {
 
-		TaskTransactionInterceptor service;
+    private static class TaskSynchronizationImpl extends
+            OrderedTransactionSynchronization {
 
-		public TaskSynchronizationImpl(TaskTransactionInterceptor service) {
-			super(1, "TaskService-"+service.toString());
-			this.service = service;
-		}
+        TaskTransactionInterceptor service;
 
-		public void afterCompletion(int status) {
+        public TaskSynchronizationImpl(TaskTransactionInterceptor service) {
+            super(1, "TaskService-"+service.toString());
+            this.service = service;
+        }
 
-			this.service.tpm.endCommandScopedEntityManager();
+        public void afterCompletion(int status) {
 
-		}
+            this.service.tpm.endCommandScopedEntityManager();
 
-		public void beforeCompletion() {
-			// not used
-		}
+        }
 
-	}
+        public void beforeCompletion() {
+            // not used
+        }
+
+    }
 
 }

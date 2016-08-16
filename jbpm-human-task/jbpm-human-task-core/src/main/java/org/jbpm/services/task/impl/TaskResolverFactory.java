@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -25,17 +25,17 @@ public class TaskResolverFactory extends ImmutableDefaultFactory {
 
     private static final long serialVersionUID = 8019024969834990593L;
     private Task task;
-    
+
     public TaskResolverFactory(Task task) {
-        this.task = task;              
+        this.task = task;
     }
     public boolean isResolveable(String name) {
         return "task".equals(name);
     }
-    
-    
+
+
     public VariableResolver getVariableResolver(String name) {
-   
+
         return new SimpleValueResolver(task);
     }
 

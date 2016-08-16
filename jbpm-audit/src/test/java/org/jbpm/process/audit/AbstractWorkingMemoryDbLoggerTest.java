@@ -48,16 +48,16 @@ import bitronix.tm.BitronixTransactionManager;
 import bitronix.tm.TransactionManagerServices;
 
 /**
- * This class tests the following classes: 
+ * This class tests the following classes:
  * <ul>
  * <li>WorkingMemoryDbLogger</li>
  * </ul>
  */
 public abstract class AbstractWorkingMemoryDbLoggerTest extends AbstractBaseTest {
-    
+
     protected static final Logger logger = LoggerFactory.getLogger(AbstractWorkingMemoryDbLoggerTest.class);
     protected HashMap<String, Object> context;
-    
+
     protected AuditLogService logService;
 
     @Before
@@ -72,11 +72,11 @@ public abstract class AbstractWorkingMemoryDbLoggerTest extends AbstractBaseTest
     public void tearDown() throws Exception {
         BitronixTransactionManager txm = TransactionManagerServices.getTransactionManager();
         assertTrue("There is still a transaction running!", txm.getCurrentTransaction() == null );
-        
+
         cleanUp(context);
         logService.dispose();
     }
-   
+
     protected static KnowledgeBase createKnowledgeBase() {
         // create a builder
         KnowledgeBuilderImpl builder = new KnowledgeBuilderImpl();
@@ -87,22 +87,22 @@ public abstract class AbstractWorkingMemoryDbLoggerTest extends AbstractBaseTest
         builder.addProcessFromXml(source);
         source = new InputStreamReader(AbstractWorkingMemoryDbLoggerTest.class.getResourceAsStream("/ruleflow3.rf"));
         builder.addProcessFromXml(source);
-        // create the knowledge base 
+        // create the knowledge base
         KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
         kbase.addKnowledgePackages((Collection) Arrays.asList(builder.getPackage()));
         return kbase;
     }
 
     public abstract ProcessInstance startProcess(String processName);
-    
+
     @Test
-	public void testLogger1() {
+    public void testLogger1() {
         // start process instance
         long processInstanceId = startProcess("com.sample.ruleflow").getId();
-        
+
         logger.debug("Checking process instances for process 'com.sample.ruleflow'");
         List<ProcessInstanceLog> processInstances =
-        	logService.findProcessInstances("com.sample.ruleflow");
+            logService.findProcessInstances("com.sample.ruleflow");
         assertEquals(1, processInstances.size());
         ProcessInstanceLog processInstance = processInstances.get(0);
         logger.debug("{}", processInstance);
@@ -119,17 +119,17 @@ public abstract class AbstractWorkingMemoryDbLoggerTest extends AbstractBaseTest
             assertNotNull(nodeInstance.getDate());
         }
         logService.clear();
-	}
+    }
 
     @Test
-	public void testLogger2() {
+    public void testLogger2() {
         // start process instance
         startProcess("com.sample.ruleflow");
         startProcess("com.sample.ruleflow");
-        
+
         logger.debug("Checking process instances for process 'com.sample.ruleflow'");
         List<ProcessInstanceLog> processInstances =
-        	logService.findProcessInstances("com.sample.ruleflow");
+            logService.findProcessInstances("com.sample.ruleflow");
         assertEquals(2, processInstances.size());
         for (ProcessInstanceLog processInstance: processInstances) {
             logger.debug("{}", processInstance);
@@ -142,15 +142,15 @@ public abstract class AbstractWorkingMemoryDbLoggerTest extends AbstractBaseTest
             assertEquals(6, nodeInstances.size());
         }
         logService.clear();
-	}
+    }
 
     @Test
-	public void testLogger3() {
+    public void testLogger3() {
         long processInstanceId = startProcess("com.sample.ruleflow2").getId();
-        
+
         logger.debug("Checking process instances for process 'com.sample.ruleflow2'");
         List<ProcessInstanceLog> processInstances =
-        	logService.findProcessInstances("com.sample.ruleflow2");
+            logService.findProcessInstances("com.sample.ruleflow2");
         assertEquals(1, processInstances.size());
         ProcessInstanceLog processInstance = processInstances.get(0);
         logger.debug("{}", processInstance);
@@ -169,5 +169,5 @@ public abstract class AbstractWorkingMemoryDbLoggerTest extends AbstractBaseTest
         }
         assertEquals(14, nodeInstances.size());
         logService.clear();
-	}
+    }
 }

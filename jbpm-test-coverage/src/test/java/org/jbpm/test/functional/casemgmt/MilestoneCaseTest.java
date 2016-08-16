@@ -30,7 +30,7 @@ import org.kie.api.runtime.process.ProcessInstance;
 import qa.tools.ikeeper.annotation.BZ;
 
 public class MilestoneCaseTest extends JbpmTestCase {
-    
+
     protected static final String TERMINATE_CASE = "org/jbpm/test/functional/casemgmt/TerminateMilestone.bpmn2";
 
     @Test(timeout = 30000)

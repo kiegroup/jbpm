@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -19,33 +19,33 @@ import java.io.Serializable;
 
 public class OrderEligibility implements Serializable {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
 
-	
-	private OrderDetails orderDetails = null;
-	
-	private Boolean orderEligibile = false;
-	
-	public OrderEligibility(OrderDetails orderDetails) {
-		this.orderDetails = orderDetails;
-	}
 
-	public OrderDetails getOrderDetails() {
-		return orderDetails;
-	}
+    private OrderDetails orderDetails = null;
 
-	public void setOrderDetails(OrderDetails orderDetails) {
-		this.orderDetails = orderDetails;
-	}
+    private Boolean orderEligibile = false;
 
-	public Boolean getOrderEligibile() {
-		return orderEligibile;
-	}
+    public OrderEligibility(OrderDetails orderDetails) {
+        this.orderDetails = orderDetails;
+    }
 
-	public void setOrderEligibile(Boolean orderEligibile) {
-		this.orderEligibile = orderEligibile;
-	}
+    public OrderDetails getOrderDetails() {
+        return orderDetails;
+    }
+
+    public void setOrderDetails(OrderDetails orderDetails) {
+        this.orderDetails = orderDetails;
+    }
+
+    public Boolean getOrderEligibile() {
+        return orderEligibile;
+    }
+
+    public void setOrderEligibile(Boolean orderEligibile) {
+        this.orderEligibile = orderEligibile;
+    }
 }

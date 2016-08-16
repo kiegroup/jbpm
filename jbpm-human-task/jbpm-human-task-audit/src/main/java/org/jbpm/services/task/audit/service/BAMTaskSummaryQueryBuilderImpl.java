@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -37,23 +37,23 @@ import org.kie.internal.query.QueryParameterIdentifiers;
 
 public class BAMTaskSummaryQueryBuilderImpl extends AbstractAuditQueryBuilderImpl<BAMTaskSummaryQueryBuilder, BAMTaskSummaryImpl>  implements BAMTaskSummaryQueryBuilder {
 
-    public BAMTaskSummaryQueryBuilderImpl(CommandExecutor cmdService) { 
+    public BAMTaskSummaryQueryBuilderImpl(CommandExecutor cmdService) {
         super(cmdService);
      }
-     
-     public BAMTaskSummaryQueryBuilderImpl(JPAAuditLogService jpaAuditService) { 
+
+     public BAMTaskSummaryQueryBuilderImpl(JPAAuditLogService jpaAuditService) {
         super(jpaAuditService);
-     }		
+     }
 
-	@Override
-	public BAMTaskSummaryQueryBuilder taskId(long... taskId) {
-		addLongParameter(TASK_ID_LIST, "task id", taskId);
+    @Override
+    public BAMTaskSummaryQueryBuilder taskId(long... taskId) {
+        addLongParameter(TASK_ID_LIST, "task id", taskId);
         return this;
-	}
+    }
 
-	@Override
+    @Override
     public BAMTaskSummaryQueryBuilder taskIdRange( Long taskIdMin, Long taskIdMax ) {
-		addRangeParameters(TASK_ID_LIST, "task id", taskIdMin, taskIdMax);
+        addRangeParameters(TASK_ID_LIST, "task id", taskIdMin, taskIdMax);
         return this;
     }
 
@@ -65,7 +65,7 @@ public class BAMTaskSummaryQueryBuilderImpl extends AbstractAuditQueryBuilderImp
 
     @Override
     public BAMTaskSummaryQueryBuilder startDateRange( Date startDateMin, Date startDateMax ) {
-		addRangeParameters(START_DATE_LIST, "start date", startDateMin, startDateMax);
+        addRangeParameters(START_DATE_LIST, "start date", startDateMin, startDateMax);
         return this;
     }
 
@@ -78,9 +78,9 @@ public class BAMTaskSummaryQueryBuilderImpl extends AbstractAuditQueryBuilderImp
     @Override
     public BAMTaskSummaryQueryBuilder taskStatus( Status... status ) {
         String [] stringStatuses = null;
-        if( status != null ) { 
+        if( status != null ) {
             stringStatuses = new String[status.length];
-            for( int i = 0; i < status.length; ++i ) { 
+            for( int i = 0; i < status.length; ++i ) {
                 stringStatuses[i] = status[i].toString();
             }
         }
@@ -102,7 +102,7 @@ public class BAMTaskSummaryQueryBuilderImpl extends AbstractAuditQueryBuilderImp
 
     @Override
     public BAMTaskSummaryQueryBuilder endDateRange( Date endDateMin, Date endDateMax ) {
-		addRangeParameters(END_DATE_LIST, "end date", endDateMin, endDateMax);
+        addRangeParameters(END_DATE_LIST, "end date", endDateMin, endDateMax);
         return this;
     }
 
@@ -114,39 +114,39 @@ public class BAMTaskSummaryQueryBuilderImpl extends AbstractAuditQueryBuilderImp
 
     @Override
     public BAMTaskSummaryQueryBuilder createdOnRange( Date createdOnMin, Date createdOnMax ) {
-		addRangeParameters(CREATED_ON_LIST, "created on", createdOnMin, createdOnMax);
+        addRangeParameters(CREATED_ON_LIST, "created on", createdOnMin, createdOnMax);
         return this;
     }
 
     @Override
-	public BAMTaskSummaryQueryBuilder taskName(String... name) {
-		addObjectParameter(TASK_NAME_LIST, "task name", name);
+    public BAMTaskSummaryQueryBuilder taskName(String... name) {
+        addObjectParameter(TASK_NAME_LIST, "task name", name);
         return this;
-	}
+    }
 
     @Override
     public BAMTaskSummaryQueryBuilder id( long... id ) {
-		addLongParameter(ID_LIST, "id", id);
+        addLongParameter(ID_LIST, "id", id);
         return this;
     }
 
     @Override
     public BAMTaskSummaryQueryBuilder ascending( org.jbpm.services.task.audit.BAMTaskSummaryQueryBuilder.OrderBy field ) {
-		String listId = convertOrderByToListId(field);
-		this.queryWhere.setAscending(listId);
+        String listId = convertOrderByToListId(field);
+        this.queryWhere.setAscending(listId);
         return this;
     }
 
     @Override
     public BAMTaskSummaryQueryBuilder descending( org.jbpm.services.task.audit.BAMTaskSummaryQueryBuilder.OrderBy field ) {
-		String listId = convertOrderByToListId(field);
-		this.queryWhere.setDescending(listId);
+        String listId = convertOrderByToListId(field);
+        this.queryWhere.setDescending(listId);
         return this;
     }
-    
-    private String convertOrderByToListId(org.jbpm.services.task.audit.BAMTaskSummaryQueryBuilder.OrderBy field) { 
+
+    private String convertOrderByToListId(org.jbpm.services.task.audit.BAMTaskSummaryQueryBuilder.OrderBy field) {
         String listId;
-        switch( field ) { 
+        switch( field ) {
         case taskId:
             listId = QueryParameterIdentifiers.TASK_ID_LIST;
             break;
@@ -167,7 +167,7 @@ public class BAMTaskSummaryQueryBuilderImpl extends AbstractAuditQueryBuilderImp
             break;
         default:
             throw new IllegalArgumentException("Unknown 'order-by' field: " + field.toString() );
-        } 
+        }
         return listId;
     }
 

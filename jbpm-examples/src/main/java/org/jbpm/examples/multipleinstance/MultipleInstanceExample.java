@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -33,45 +33,45 @@ import org.kie.api.task.TaskService;
 import org.kie.api.task.model.TaskSummary;
 
 public class MultipleInstanceExample {
-	
-	public static final void main(String[] args) {
-		try {
-            RuntimeManager manager = getRuntimeManager("multipleinstance/multipleinstance.bpmn");        
+
+    public static final void main(String[] args) {
+        try {
+            RuntimeManager manager = getRuntimeManager("multipleinstance/multipleinstance.bpmn");
             RuntimeEngine runtime = manager.getRuntimeEngine(null);
             KieSession ksession = runtime.getKieSession();
 
-			// start a new process instance
-			Map<String, Object> params = new HashMap<String, Object>();
-			List<String> list = new ArrayList<String>();
-			list.add("krisv");
-			list.add("john doe");
-			list.add("superman");
-			params.put("list", list);
-			ksession.startProcess("com.sample.multipleinstance", params);
+            // start a new process instance
+            Map<String, Object> params = new HashMap<String, Object>();
+            List<String> list = new ArrayList<String>();
+            list.add("krisv");
+            list.add("john doe");
+            list.add("superman");
+            params.put("list", list);
+            ksession.startProcess("com.sample.multipleinstance", params);
 
             TaskService taskService = runtime.getTaskService();
-    		List<TaskSummary> tasks = taskService.getTasksAssignedAsPotentialOwner("sales-rep", "en-UK");
-    		for (TaskSummary task: tasks) {
-	            System.out.println("Sales-rep executing task " + task.getName() + "(" + task.getId() + ": " + task.getDescription() + ")");
-	            taskService.start(task.getId(), "sales-rep");
-	            taskService.complete(task.getId(), "sales-rep", null);
-    		}
-            
+            List<TaskSummary> tasks = taskService.getTasksAssignedAsPotentialOwner("sales-rep", "en-UK");
+            for (TaskSummary task: tasks) {
+                System.out.println("Sales-rep executing task " + task.getName() + "(" + task.getId() + ": " + task.getDescription() + ")");
+                taskService.start(task.getId(), "sales-rep");
+                taskService.complete(task.getId(), "sales-rep", null);
+            }
+
             manager.disposeRuntimeEngine(runtime);
         } catch (Throwable t) {
             t.printStackTrace();
         }
         System.exit(0);
-	}
+    }
 
     private static RuntimeManager getRuntimeManager(String process) {
         // load up the knowledge base
-    	JBPMHelper.startH2Server();
-    	JBPMHelper.setupDataSource();
+        JBPMHelper.startH2Server();
+        JBPMHelper.setupDataSource();
         RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get().newDefaultBuilder()
             .addAsset(KieServices.Factory.get().getResources().newClassPathResource(process), ResourceType.BPMN2)
             .get();
         return RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);
     }
-    
+
 }

@@ -54,25 +54,25 @@ import org.kie.internal.task.api.model.InternalTaskData;
 @XmlAccessorType(XmlAccessType.NONE)
 public class AddTaskCommand extends UserGroupCallbackTaskCommand<Long> {
 
-	private static final long serialVersionUID = 743368767949233891L;
+    private static final long serialVersionUID = 743368767949233891L;
 
-	@XmlElement
+    @XmlElement
     private JaxbTask jaxbTask;
-    
+
     @XmlTransient
     private Task task;
-    
+
     @XmlJavaTypeAdapter(JaxbMapAdapter.class)
     @XmlElement(name="parameter")
     private Map<String, Object> params;
-    
+
     // TODO support ContentData marshalling
     @XmlTransient // remove and add @XmlElement when done
     private ContentData data;
-    
+
     public AddTaskCommand() {
     }
-  
+
 
     public AddTaskCommand(Task task, Map<String, Object> params) {
         setTask(task);
@@ -80,39 +80,39 @@ public class AddTaskCommand extends UserGroupCallbackTaskCommand<Long> {
     }
 
     public AddTaskCommand(Task task, ContentData data) {
-    	setTask(task);
+        setTask(task);
         this.data = data;
     }
 
     public Long execute(Context cntxt) {
-    	Long taskId = null;
+        Long taskId = null;
         TaskContext context = (TaskContext) cntxt;
 
-    	if (task == null) {
-    		task = jaxbTask;
-    	}
-    	Task taskImpl = null;
-    	if (task instanceof JaxbTask) {
-    	    taskImpl = ((JaxbTask) task).getTask();
-    	} else {
-    		taskImpl = task;
-    	}
-	    initializeTask(taskImpl);
-	    context.getTaskRuleService().executeRules(taskImpl, userId, data != null?data:params, TaskRuleService.ADD_TASK_SCOPE);
+        if (task == null) {
+            task = jaxbTask;
+        }
+        Task taskImpl = null;
+        if (task instanceof JaxbTask) {
+            taskImpl = ((JaxbTask) task).getTask();
+        } else {
+            taskImpl = task;
+        }
+        initializeTask(taskImpl);
+        context.getTaskRuleService().executeRules(taskImpl, userId, data != null?data:params, TaskRuleService.ADD_TASK_SCOPE);
         doCallbackOperationForPeopleAssignments((InternalPeopleAssignments) taskImpl.getPeopleAssignments(), context);
         doCallbackOperationForTaskData((InternalTaskData) taskImpl.getTaskData(), context);
         doCallbackOperationForTaskDeadlines(((InternalTask) taskImpl).getDeadlines(), context);
-        
-	    if (data != null) {
-	    	taskId = context.getTaskInstanceService().addTask(taskImpl, data);
+
+        if (data != null) {
+            taskId = context.getTaskInstanceService().addTask(taskImpl, data);
         } else {
             ((InternalTaskData)taskImpl.getTaskData()).setTaskInputVariables(params);
-        	taskId = context.getTaskInstanceService().addTask(taskImpl, params);
-        }      
-    	
-    	scheduleDeadlinesForTask((InternalTask) taskImpl, context.getTaskDeadlinesService());
-    	
-    	return taskId;
+            taskId = context.getTaskInstanceService().addTask(taskImpl, params);
+        }
+
+        scheduleDeadlinesForTask((InternalTask) taskImpl, context.getTaskDeadlinesService());
+
+        return taskId;
     }
 
     public JaxbTask getJaxbTask() {
@@ -128,20 +128,20 @@ public class AddTaskCommand extends UserGroupCallbackTaskCommand<Long> {
     }
 
     public void setTask(Task task) {
-    	this.task = task;
+        this.task = task;
         if (task instanceof JaxbTask) {
-        	this.jaxbTask = (JaxbTask) task;
+            this.jaxbTask = (JaxbTask) task;
         } else {
-        	this.jaxbTask = new JaxbTask(task);
+            this.jaxbTask = new JaxbTask(task);
         }
     }
 
     public Map<String, Object> getParams() {
         return params;
     }
-    
+
     public void setParams(Map<String, Object> params) {
-    	this.params = params;
+        this.params = params;
     }
 
     public ContentData getData() {
@@ -151,29 +151,29 @@ public class AddTaskCommand extends UserGroupCallbackTaskCommand<Long> {
     public void setData(ContentData data) {
         this.data = data;
     }
-    
+
     private void scheduleDeadlinesForTask(final InternalTask task, TaskDeadlinesService deadlineService) {
         final long now = System.currentTimeMillis();
 
         Deadlines deadlines = task.getDeadlines();
-        
+
         if (deadlines != null) {
             final List<? extends Deadline> startDeadlines = deadlines.getStartDeadlines();
-    
+
             if (startDeadlines != null) {
                 scheduleDeadlines(startDeadlines, now, task.getId(), DeadlineType.START, deadlineService);
             }
-    
+
             final List<? extends Deadline> endDeadlines = deadlines.getEndDeadlines();
-    
+
             if (endDeadlines != null) {
                 scheduleDeadlines(endDeadlines, now, task.getId(), DeadlineType.END, deadlineService);
             }
         }
     }
 
-    private void scheduleDeadlines(final List<? extends Deadline> deadlines, final long now, 
-    		final long taskId, DeadlineType type, TaskDeadlinesService deadlineService) {
+    private void scheduleDeadlines(final List<? extends Deadline> deadlines, final long now,
+            final long taskId, DeadlineType type, TaskDeadlinesService deadlineService) {
         for (Deadline deadline : deadlines) {
             if (!deadline.isEscalated()) {
                 // only escalate when true - typically this would only be true
@@ -183,16 +183,16 @@ public class AddTaskCommand extends UserGroupCallbackTaskCommand<Long> {
             }
         }
     }
-    
+
     private void initializeTask(Task task){
         Status assignedStatus = null;
-            
+
         if (task.getPeopleAssignments() != null && task.getPeopleAssignments().getPotentialOwners() != null && task.getPeopleAssignments().getPotentialOwners().size() == 1) {
             // if there is a single potential owner, assign and set status to Reserved
             OrganizationalEntity potentialOwner = task.getPeopleAssignments().getPotentialOwners().get(0);
             // if there is a single potential user owner, assign and set status to Reserved
             if (potentialOwner instanceof User) {
-            	((InternalTaskData) task.getTaskData()).setActualOwner((User) potentialOwner);
+                ((InternalTaskData) task.getTaskData()).setActualOwner((User) potentialOwner);
 
                 assignedStatus = Status.Reserved;
             }
@@ -211,6 +211,6 @@ public class AddTaskCommand extends UserGroupCallbackTaskCommand<Long> {
         if (assignedStatus != null) {
             ((InternalTaskData) task.getTaskData()).setStatus(assignedStatus);
         }
-        
+
     }
 }

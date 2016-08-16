@@ -29,15 +29,15 @@ import org.jbpm.services.api.query.QueryResultMapper;
  *
  */
 public class ProcessInstanceQueryMapper extends AbstractQueryMapper<ProcessInstanceDesc> implements QueryResultMapper<List<ProcessInstanceDesc>> {
-    
+
     private static final long serialVersionUID = 5935133069234696714L;
 
     /**
-     * Dedicated for ServiceLoader to create instance, use <code>get()</code> method instead 
+     * Dedicated for ServiceLoader to create instance, use <code>get()</code> method instead
      */
     public ProcessInstanceQueryMapper() {
     }
-    
+
     /**
      * Default access to get instance of the mapper
      * @return
@@ -51,22 +51,22 @@ public class ProcessInstanceQueryMapper extends AbstractQueryMapper<ProcessInsta
         if (result instanceof DataSet) {
             DataSet dataSetResult = (DataSet) result;
             List<ProcessInstanceDesc> mappedResult = new ArrayList<ProcessInstanceDesc>();
-            
+
             if (dataSetResult != null) {
-                
+
                 for (int i = 0; i < dataSetResult.getRowCount(); i++) {
                     ProcessInstanceDesc pi = buildInstance(dataSetResult, i);
                     mappedResult.add(pi);
-                
+
                 }
             }
-            
+
             return mappedResult;
         }
-        
+
         throw new IllegalArgumentException("Unsupported result for mapping " + result);
     }
-    
+
     protected ProcessInstanceDesc buildInstance(DataSet dataSetResult, int index) {
         ProcessInstanceDesc pi = new org.jbpm.kie.services.impl.model.ProcessInstanceDesc(
                 getColumnLongValue(dataSetResult, COLUMN_PROCESSINSTANCEID, index),
@@ -78,7 +78,7 @@ public class ProcessInstanceQueryMapper extends AbstractQueryMapper<ProcessInsta
                 getColumnDateValue(dataSetResult, COLUMN_START, index),
                 getColumnStringValue(dataSetResult, COLUMN_IDENTITY, index),
                 getColumnStringValue(dataSetResult, COLUMN_PROCESSINSTANCEDESCRIPTION, index),
-                getColumnStringValue(dataSetResult, COLUMN_CORRELATIONKEY, index), 
+                getColumnStringValue(dataSetResult, COLUMN_CORRELATIONKEY, index),
                 getColumnLongValue(dataSetResult, COLUMN_PARENTPROCESSINSTANCEID, index)
                 );
         return pi;

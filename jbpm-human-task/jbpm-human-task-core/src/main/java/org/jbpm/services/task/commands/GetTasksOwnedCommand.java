@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -35,7 +35,7 @@ public class GetTasksOwnedCommand extends UserGroupCallbackTaskCommand<List<Task
 
     @XmlElement
     private List<Status> statuses;
-   
+
     @XmlElement(type=QueryFilter.class)
     private QueryFilter filter;
 
@@ -51,7 +51,7 @@ public class GetTasksOwnedCommand extends UserGroupCallbackTaskCommand<List<Task
         this.userId = userId;
         this.statuses = status;
     }
-    
+
     public GetTasksOwnedCommand(String userId, List<Status> status, QueryFilter filter) {
         this.userId = userId;
         this.statuses = status;
@@ -72,7 +72,7 @@ public class GetTasksOwnedCommand extends UserGroupCallbackTaskCommand<List<Task
         doCallbackUserOperation(userId, context);
         doUserGroupCallbackOperation(userId, null, context);
         return context.getTaskQueryService().getTasksOwned(userId, statuses, filter);
-        
+
     }
 
 }

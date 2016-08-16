@@ -51,29 +51,29 @@ import org.kie.internal.task.api.TaskQueryService;
  *
  */
 public class TaskContext implements org.kie.internal.task.api.TaskContext {
-    
+
     private TaskPersistenceContext persistenceContext;
     private Environment environment;
     private TaskEventSupport taskEventSupport;
-    
+
     private org.kie.internal.task.api.TaskContext delegate;
-    
+
     public TaskContext() {
-    }   
-    
-    public TaskContext(Context context, Environment environment, TaskEventSupport taskEventSupport) {    	
-    	if (context instanceof org.kie.internal.task.api.TaskContext) {
-    		this.delegate = ((org.kie.internal.task.api.TaskContext) context);
-    		this.persistenceContext = ((org.kie.internal.task.api.TaskContext) context).getPersistenceContext();
-    	}
-    	this.environment = environment;
-    	this.taskEventSupport = taskEventSupport;
-    }  
-    
+    }
+
+    public TaskContext(Context context, Environment environment, TaskEventSupport taskEventSupport) {
+        if (context instanceof org.kie.internal.task.api.TaskContext) {
+            this.delegate = ((org.kie.internal.task.api.TaskContext) context);
+            this.persistenceContext = ((org.kie.internal.task.api.TaskContext) context).getPersistenceContext();
+        }
+        this.environment = environment;
+        this.taskEventSupport = taskEventSupport;
+    }
+
     public TaskInstanceService getTaskInstanceService() {
         return new TaskInstanceServiceImpl(this, persistenceContext, getMvelLifeCycleManager(), taskEventSupport, environment);
     }
-    
+
     public TaskDefService getTaskDefService() {
         return new TaskDefServiceImpl(persistenceContext);
     }
@@ -85,11 +85,11 @@ public class TaskContext implements org.kie.internal.task.api.TaskContext {
     public TaskContentService getTaskContentService() {
         return new TaskContentServiceImpl(this, persistenceContext, taskEventSupport);
     }
-    
+
     public TaskCommentService getTaskCommentService() {
-    	return new TaskCommentServiceImpl(persistenceContext);
+        return new TaskCommentServiceImpl(persistenceContext);
     }
-    
+
     public TaskAttachmentService getTaskAttachmentService() {
         return new TaskAttachmentServiceImpl(persistenceContext);
     }
@@ -97,66 +97,66 @@ public class TaskContext implements org.kie.internal.task.api.TaskContext {
     public TaskIdentityService getTaskIdentityService() {
         return new TaskIdentityServiceImpl(persistenceContext);
     }
-    
+
     public TaskAdminService getTaskAdminService() {
-    	return new TaskAdminServiceImpl(persistenceContext);
+        return new TaskAdminServiceImpl(persistenceContext);
     }
-    
+
     public TaskDeadlinesService getTaskDeadlinesService() {
-    	return new TaskDeadlinesServiceImpl(persistenceContext);
+        return new TaskDeadlinesServiceImpl(persistenceContext);
     }
 
     public TaskRuleService getTaskRuleService() {
-    	return new TaskRuleServiceImpl(RuleContextProviderImpl.get());
-    }
-    
-    public TaskPersistenceContext getPersistenceContext() {
-    	if (persistenceContext == null) {
-    		throw new IllegalStateException("No task persistence context available");
-    	}
-    	return persistenceContext;
+        return new TaskRuleServiceImpl(RuleContextProviderImpl.get());
     }
 
-	public void setPersistenceContext(TaskPersistenceContext persistenceContext) {
-		this.persistenceContext = persistenceContext;
-	}	
+    public TaskPersistenceContext getPersistenceContext() {
+        if (persistenceContext == null) {
+            throw new IllegalStateException("No task persistence context available");
+        }
+        return persistenceContext;
+    }
+
+    public void setPersistenceContext(TaskPersistenceContext persistenceContext) {
+        this.persistenceContext = persistenceContext;
+    }
 
     public Object get(String string) {
-    	if (string.startsWith("local:")) {
-    		return delegate.get(string);
-    	}
+        if (string.startsWith("local:")) {
+            return delegate.get(string);
+        }
         return this.environment.get(string);
     }
 
     public void set(String string, Object o) {
-    	if (string.startsWith("local:")) {
-    		delegate.set(string, o);
-    		return;
-    	}
-    	
-        if (this.environment.get(string) != null) {
-        	throw new IllegalArgumentException("Cannot override value for property " + string);
+        if (string.startsWith("local:")) {
+            delegate.set(string, o);
+            return;
         }
-    	this.environment.set(string, o);
+
+        if (this.environment.get(string) != null) {
+            throw new IllegalArgumentException("Cannot override value for property " + string);
+        }
+        this.environment.set(string, o);
     }
 
 
-	@Override
-	public UserGroupCallback getUserGroupCallback() {
-		return (UserGroupCallback) get(EnvironmentName.TASK_USER_GROUP_CALLBACK);
-	}
+    @Override
+    public UserGroupCallback getUserGroupCallback() {
+        return (UserGroupCallback) get(EnvironmentName.TASK_USER_GROUP_CALLBACK);
+    }
 
-	private LifeCycleManager getMvelLifeCycleManager() { 
+    private LifeCycleManager getMvelLifeCycleManager() {
         return new MVELLifeCycleManager(this, persistenceContext, getTaskContentService(), taskEventSupport);
-	}
-	
-	public TaskEventSupport getTaskEventSupport() {
-	    return this.taskEventSupport;
-	}
-	/*
-	 * currently not used methods 
-	 */
-	
+    }
+
+    public TaskEventSupport getTaskEventSupport() {
+        return this.taskEventSupport;
+    }
+    /*
+     * currently not used methods
+     */
+
     public World getContextManager() {
         throw new UnsupportedOperationException("Not supported for this type of context.");
     }
@@ -172,6 +172,6 @@ public class TaskContext implements org.kie.internal.task.api.TaskContext {
     @Override
     public Task loadTaskVariables(Task task) {
         return getTaskContentService().loadTaskVariables(task);
-    }    
+    }
 
 }

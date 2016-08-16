@@ -26,138 +26,138 @@ import java.util.List;
  *
  */
 public class QueryParam implements Serializable {
-    
+
     private static final long serialVersionUID = -7751811350486978746L;
-    
+
     private String column;
     private String operator;
     private List<?> value;
-    
+
     public QueryParam(String column, String operator, List<?> value) {
         this.column = column;
         this.operator = operator;
         this.value = value;
     }
-    
+
     public static QueryParam isNull(String column) {
         return new QueryParam(column, "IS_NULL", null);
     }
-    
+
     public static QueryParam isNotNull(String column) {
         return new QueryParam(column, "NOT_NULL", null);
     }
-    
+
     public static QueryParam equalsTo(String column, Comparable<?>...values) {
         return new QueryParam(column, "EQUALS_TO", Arrays.asList(values));
     }
-    
+
     public static QueryParam notEqualsTo(String column, Comparable<?>...values) {
         return new QueryParam(column, "NOT_EQUALS_TO", Arrays.asList(values));
     }
-    
+
     @SuppressWarnings("unchecked")
     public static QueryParam likeTo(String column, boolean caseSensitive, Comparable<?> value) {
         return new QueryParam(column, "LIKE_TO", Arrays.asList(value, caseSensitive));
     }
-    
+
     @SuppressWarnings("unchecked")
     public static QueryParam greaterThan(String column, Comparable<?> value) {
         return new QueryParam(column, "GREATER_THAN", Arrays.asList(value));
     }
-    
+
     @SuppressWarnings("unchecked")
     public static QueryParam greaterOrEqualTo(String column, Comparable<?> value) {
         return new QueryParam(column, "GREATER_OR_EQUALS_TO", Arrays.asList(value));
     }
-    
+
     @SuppressWarnings("unchecked")
     public static QueryParam lowerThan(String column, Comparable<?> value) {
         return new QueryParam(column, "LOWER_THAN", Arrays.asList(value));
     }
-    
+
     @SuppressWarnings("unchecked")
     public static QueryParam lowerOrEqualTo(String column, Comparable<?> value) {
         return new QueryParam(column, "LOWER_OR_EQUALS_TO", Arrays.asList(value));
     }
-    
+
     @SuppressWarnings("unchecked")
     public static QueryParam between(String column, Comparable<?> start, Comparable<?> end) {
         return new QueryParam(column, "BETWEEN", Arrays.asList(start, end));
     }
-        
+
     public static QueryParam in(String column, List<?> values) {
         return new QueryParam(column, "IN", values);
     }
-    
+
     public static QueryParam notIn(String column, List<?> values) {
         return new QueryParam(column, "NOT_IN", values);
     }
-    
+
     public static QueryParam count(String column) {
         return new QueryParam(column, "COUNT", Arrays.asList(column));
     }
-    
+
     public static QueryParam distinct(String column) {
         return new QueryParam(column, "DISTINCT", Arrays.asList(column));
     }
-    
+
     public static QueryParam average(String column) {
         return new QueryParam(column, "AVERAGE", Arrays.asList(column));
     }
-    
+
     public static QueryParam sum(String column) {
         return new QueryParam(column, "SUM", Arrays.asList(column));
     }
-    
+
     public static QueryParam min(String column) {
         return new QueryParam(column, "MIN", Arrays.asList(column));
     }
-    
+
     public static QueryParam max(String column) {
         return new QueryParam(column, "MAX", Arrays.asList(column));
     }
-    
+
     public static QueryParam[] groupBy(String column) {
         return new QueryParam[] {new QueryParam(column, "group", Arrays.asList(column)), new QueryParam(column, null, Arrays.asList(column))};
     }
-    
+
     public String getColumn() {
         return column;
     }
-    
+
     public void setColumn(String column) {
         this.column = column;
     }
-    
+
     public String getOperator() {
         return operator;
     }
-    
+
     public void setOperator(String operator) {
         this.operator = operator;
     }
-    
+
     public List<?> getValue() {
         return value;
     }
-    
+
     public void setValue(List<?> value) {
         this.value = value;
     }
-    
+
     public static Builder getBuilder() {
         return new Builder();
     }
-    
+
     public static class Builder {
         private List<QueryParam> parameters = new ArrayList<QueryParam>();
-        
+
         public Builder append(QueryParam...params) {
             this.parameters.addAll(Arrays.asList(params));
-            
+
             return this;
         }
-        
+
         public QueryParam[] get() {
             return this.parameters.toArray(new QueryParam[this.parameters.size()]);
         }

@@ -46,7 +46,7 @@ public class Bpmn2ImportHandler extends BaseAbstractHandler implements Handler {
             this.validPeers.add(Signal.class);
             this.validPeers.add(DataStore.class);
             this.validPeers.add(RuleFlowProcess.class);
-            
+
             this.allowNesting = false;
         }
     }

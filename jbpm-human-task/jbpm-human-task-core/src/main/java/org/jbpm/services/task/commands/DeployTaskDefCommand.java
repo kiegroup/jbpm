@@ -30,14 +30,14 @@ import org.kie.internal.task.api.model.TaskDef;
 public class DeployTaskDefCommand extends TaskCommand<Void> {
 
 
-	private static final long serialVersionUID = 5656199063761548979L;
+    private static final long serialVersionUID = 5656199063761548979L;
 
-	@XmlTransient
-	private TaskDef taskDef;
-	
-	public DeployTaskDefCommand() {
-	}
-	
+    @XmlTransient
+    private TaskDef taskDef;
+
+    public DeployTaskDefCommand() {
+    }
+
     public DeployTaskDefCommand(TaskDef taskDef) {
         this.taskDef = taskDef;
     }
@@ -45,7 +45,7 @@ public class DeployTaskDefCommand extends TaskCommand<Void> {
     public Void execute(Context cntxt) {
         TaskContext context = (TaskContext) cntxt;
         context.getTaskDefService().deployTaskDef(taskDef);
-    	return null;
-           
+        return null;
+
     }
 }

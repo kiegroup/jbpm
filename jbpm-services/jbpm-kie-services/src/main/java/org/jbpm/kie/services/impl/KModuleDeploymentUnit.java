@@ -31,9 +31,9 @@ import org.kie.internal.runtime.conf.RuntimeStrategy;
 
 public class KModuleDeploymentUnit implements DeploymentUnit, AttributesAware, Serializable {
 
-	private static final long serialVersionUID = 1L;
-	
-	private String artifactId;
+    private static final long serialVersionUID = 1L;
+
+    private String artifactId;
     private String groupId;
     private String version;
     private String kbaseName;
@@ -41,15 +41,15 @@ public class KModuleDeploymentUnit implements DeploymentUnit, AttributesAware, S
 
     private RuntimeStrategy strategy = RuntimeStrategy.SINGLETON;
     private MergeMode mergeMode = MergeMode.MERGE_COLLECTIONS;
-    
+
     private DeploymentDescriptor deploymentDescriptor;
     private boolean deployed = false;
     private boolean strategyUnset = true;
-    
+
     private transient KieContainer kieContainer;
-    
+
     private Map<String, String> attributes = new HashMap<String, String>();
-    
+
     public KModuleDeploymentUnit(String groupId, String artifactId, String version) {
         this.groupId = groupId;
         this.artifactId = artifactId;
@@ -92,10 +92,10 @@ public class KModuleDeploymentUnit implements DeploymentUnit, AttributesAware, S
     }
 
     public void setStrategy(RuntimeStrategy strategy) {
-    	if (strategyUnset) {
-    		this.strategy = strategy;
-    		this.strategyUnset = false;
-    	}
+        if (strategyUnset) {
+            this.strategy = strategy;
+            this.strategyUnset = false;
+        }
     }
 
     public String getArtifactId() {
@@ -143,61 +143,61 @@ public class KModuleDeploymentUnit implements DeploymentUnit, AttributesAware, S
         return getIdentifier() + " [strategy=" + strategy + "]";
     }
 
-	public MergeMode getMergeMode() {
-		if (mergeMode == null) {
-			mergeMode = MergeMode.MERGE_COLLECTIONS;
-		}
-		return mergeMode;
-	}
+    public MergeMode getMergeMode() {
+        if (mergeMode == null) {
+            mergeMode = MergeMode.MERGE_COLLECTIONS;
+        }
+        return mergeMode;
+    }
 
-	public void setMergeMode(MergeMode mergeMode) {
-		this.mergeMode = mergeMode;
-	}
+    public void setMergeMode(MergeMode mergeMode) {
+        this.mergeMode = mergeMode;
+    }
 
-	public DeploymentDescriptor getDeploymentDescriptor() {
-		return deploymentDescriptor;
-	}
+    public DeploymentDescriptor getDeploymentDescriptor() {
+        return deploymentDescriptor;
+    }
 
-	public void setDeploymentDescriptor(DeploymentDescriptor deploymentDescriptor) {
-		this.deploymentDescriptor = deploymentDescriptor;
-	}
+    public void setDeploymentDescriptor(DeploymentDescriptor deploymentDescriptor) {
+        this.deploymentDescriptor = deploymentDescriptor;
+    }
 
-	public boolean isDeployed() {
-		return deployed;
-	}
+    public boolean isDeployed() {
+        return deployed;
+    }
 
-	public void setDeployed(boolean deployed) {
-		this.deployed = deployed;
-	}
-	
-	public void resetStrategy() {
-		this.strategyUnset = true;
-	}
+    public void setDeployed(boolean deployed) {
+        this.deployed = deployed;
+    }
 
-	@Override
-	public void addAttribute(String name, String value) {
-		this.attributes.put(name, value);
-	}
+    public void resetStrategy() {
+        this.strategyUnset = true;
+    }
 
-	@Override
-	public String removeAttribute(String name) {
-		return this.attributes.remove(name);
-	}
+    @Override
+    public void addAttribute(String name, String value) {
+        this.attributes.put(name, value);
+    }
 
-	@Override
-	public Map<String, String> getAttributes() {
-	    if (this.attributes == null){
-	        return Collections.EMPTY_MAP;
-	    }
-		return Collections.unmodifiableMap(this.attributes);
-	}
+    @Override
+    public String removeAttribute(String name) {
+        return this.attributes.remove(name);
+    }
 
-	public KieContainer getKieContainer() {
-		return kieContainer;
-	}
+    @Override
+    public Map<String, String> getAttributes() {
+        if (this.attributes == null){
+            return Collections.EMPTY_MAP;
+        }
+        return Collections.unmodifiableMap(this.attributes);
+    }
 
-	public void setKieContainer(KieContainer kieContainer) {
-		this.kieContainer = kieContainer;
-	}
+    public KieContainer getKieContainer() {
+        return kieContainer;
+    }
+
+    public void setKieContainer(KieContainer kieContainer) {
+        this.kieContainer = kieContainer;
+    }
 
 }

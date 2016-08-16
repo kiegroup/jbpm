@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -75,22 +75,22 @@ import static org.junit.Assert.*;
 
 @RunWith(Parameterized.class)
 public class SingleSessionCommandServiceTest extends AbstractBaseTest {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(SingleSessionCommandServiceTest.class);
 
-	private HashMap<String, Object> context;
-	private Environment env;
-    
-    public SingleSessionCommandServiceTest(boolean locking) { 
-       this.useLocking = locking; 
+    private HashMap<String, Object> context;
+    private Environment env;
+
+    public SingleSessionCommandServiceTest(boolean locking) {
+       this.useLocking = locking;
     }
-    
+
     @Parameters
     public static Collection<Object[]> persistence() {
         Object[][] data = new Object[][] { { false }, { true } };
         return Arrays.asList(data);
     };
-    
+
     public void setUp() {
         String testMethodName = Thread.currentThread().getStackTrace()[2].getMethodName();
         context = setupWithPoolingDataSource(JBPM_PERSISTENCE_UNIT_NAME);
@@ -105,7 +105,7 @@ public class SingleSessionCommandServiceTest extends AbstractBaseTest {
     @Test
     public void testPersistenceWorkItems() throws Exception {
         setUp();
-        
+
         KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
         Collection<KnowledgePackage> kpkgs = getProcessWorkItems();
         kbase.addKnowledgePackages( kpkgs );
@@ -214,12 +214,12 @@ public class SingleSessionCommandServiceTest extends AbstractBaseTest {
         assertNull( processInstance );
         service.dispose();
     }
-    
+
     @Test
-    
+
     public void testPersistenceWorkItemsUserTransaction() throws Exception {
         setUp();
-        
+
         KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
         Collection<KnowledgePackage> kpkgs = getProcessWorkItems();
         kbase.addKnowledgePackages( kpkgs );
@@ -346,7 +346,7 @@ public class SingleSessionCommandServiceTest extends AbstractBaseTest {
         service.dispose();
     }
 
-	private Collection<KnowledgePackage> getProcessWorkItems() {
+    private Collection<KnowledgePackage> getProcessWorkItems() {
         RuleFlowProcess process = new RuleFlowProcess();
         process.setId( "org.drools.test.TestProcess" );
         process.setName( "TestProcess" );
@@ -421,7 +421,7 @@ public class SingleSessionCommandServiceTest extends AbstractBaseTest {
     @Test
     public void testPersistenceSubProcess() {
         setUp();
-        
+
         Properties properties = new Properties();
         properties.setProperty( "drools.commandService",
                                 SingleSessionCommandService.class.getName() );
@@ -455,7 +455,7 @@ public class SingleSessionCommandServiceTest extends AbstractBaseTest {
         service.dispose();
 
         service = new SingleSessionCommandService( sessionId,
-        		                                   ruleBase,
+                                                   ruleBase,
                                                    config,
                                                    env );
         GetProcessInstanceCommand getProcessInstanceCommand = new GetProcessInstanceCommand();
@@ -499,48 +499,48 @@ public class SingleSessionCommandServiceTest extends AbstractBaseTest {
         service.dispose();
     }
 
-	private InternalKnowledgePackage getProcessSubProcess() {
+    private InternalKnowledgePackage getProcessSubProcess() {
         RuleFlowProcess process = new RuleFlowProcess();
         process.setId( "org.drools.test.TestProcess" );
         process.setName( "TestProcess" );
         process.setPackageName( "org.drools.test" );
-        
+
         StartNode start = new StartNode();
         start.setId( 1 );
         start.setName( "Start" );
         process.addNode( start );
-        
+
         ActionNode actionNode = new ActionNode();
         actionNode.setId( 2 );
         actionNode.setName( "Action" );
-        
+
         DroolsConsequenceAction action = new DroolsConsequenceAction();
         action.setDialect( "java" );
         action.setConsequence( "System.out.println(\"Executed action\");" );
         actionNode.setAction( action );
         process.addNode( actionNode );
-        
+
         new ConnectionImpl( start,
                             Node.CONNECTION_DEFAULT_TYPE,
                             actionNode,
                             Node.CONNECTION_DEFAULT_TYPE );
-        
+
         SubProcessNode subProcessNode = new SubProcessNode();
         subProcessNode.setId( 3 );
         subProcessNode.setName( "SubProcess" );
         subProcessNode.setProcessId( "org.drools.test.SubProcess" );
         process.addNode( subProcessNode );
-        
+
         new ConnectionImpl( actionNode,
                             Node.CONNECTION_DEFAULT_TYPE,
                             subProcessNode,
                             Node.CONNECTION_DEFAULT_TYPE );
-        
+
         EndNode end = new EndNode();
         end.setId( 4 );
         end.setName( "End" );
         process.addNode( end );
-        
+
         new ConnectionImpl( subProcessNode,
                             Node.CONNECTION_DEFAULT_TYPE,
                             end,
@@ -555,46 +555,46 @@ public class SingleSessionCommandServiceTest extends AbstractBaseTest {
         process.setId( "org.drools.test.SubProcess" );
         process.setName( "SubProcess" );
         process.setPackageName( "org.drools.test" );
-        
+
         start = new StartNode();
         start.setId( 1 );
         start.setName( "Start" );
         process.addNode( start );
-        
+
         actionNode = new ActionNode();
         actionNode.setId( 2 );
         actionNode.setName( "Action" );
-        
+
         action = new DroolsConsequenceAction();
         action.setDialect( "java" );
         action.setConsequence( "System.out.println(\"Executed action\");" );
         actionNode.setAction( action );
         process.addNode( actionNode );
-        
+
         new ConnectionImpl( start,
                             Node.CONNECTION_DEFAULT_TYPE,
                             actionNode,
                             Node.CONNECTION_DEFAULT_TYPE );
-        
+
         WorkItemNode workItemNode = new WorkItemNode();
         workItemNode.setId( 3 );
         workItemNode.setName( "WorkItem1" );
-        
+
         Work work = new WorkImpl();
         work.setName( "MyWork" );
         workItemNode.setWork( work );
         process.addNode( workItemNode );
-        
+
         new ConnectionImpl( actionNode,
                             Node.CONNECTION_DEFAULT_TYPE,
                             workItemNode,
                             Node.CONNECTION_DEFAULT_TYPE );
-        
+
         end = new EndNode();
         end.setId( 6 );
         end.setName( "End" );
         process.addNode( end );
-        
+
         new ConnectionImpl( workItemNode,
                             Node.CONNECTION_DEFAULT_TYPE,
                             end,
@@ -608,7 +608,7 @@ public class SingleSessionCommandServiceTest extends AbstractBaseTest {
     @Test
     public void testPersistenceTimer() throws Exception {
         setUp();
-        
+
         Properties properties = new Properties();
         properties.setProperty( "drools.commandService",
                                 SingleSessionCommandService.class.getName() );
@@ -618,7 +618,7 @@ public class SingleSessionCommandServiceTest extends AbstractBaseTest {
                                 JPAWorkItemManagerFactory.class.getName() );
         properties.setProperty( "drools.processSignalManagerFactory",
                                 JPASignalManagerFactory.class.getName() );
-        
+
         SessionConfiguration config = SessionConfiguration.newInstance( properties );
         config.setOption( TimerJobFactoryOption.get(TimerJobFactoryType.JPA.getId()) );
 
@@ -634,8 +634,8 @@ public class SingleSessionCommandServiceTest extends AbstractBaseTest {
         startProcessCommand.setProcessId( "org.drools.test.TestProcess" );
         ProcessInstance processInstance = service.execute( startProcessCommand );
         logger.info( "Started process instance {}", processInstance.getId() );
-        
-        
+
+
         Thread.sleep( 500 );
         service.dispose();
 
@@ -660,7 +660,7 @@ public class SingleSessionCommandServiceTest extends AbstractBaseTest {
         assertNull( processInstance );
     }
 
-	private List<KnowledgePackage> getProcessTimer() {
+    private List<KnowledgePackage> getProcessTimer() {
         RuleFlowProcess process = new RuleFlowProcess();
         process.setId( "org.drools.test.TestProcess" );
         process.setName( "TestProcess" );
@@ -713,7 +713,7 @@ public class SingleSessionCommandServiceTest extends AbstractBaseTest {
     @Test
     public void testPersistenceTimer2() throws Exception {
         setUp();
-        
+
         Properties properties = new Properties();
         properties.setProperty( "drools.commandService",
                                 SingleSessionCommandService.class.getName() );
@@ -726,7 +726,7 @@ public class SingleSessionCommandServiceTest extends AbstractBaseTest {
 
         SessionConfiguration config = SessionConfiguration.newInstance( properties );
         config.setOption( TimerJobFactoryOption.get(TimerJobFactoryType.JPA.getId()) );
-        
+
         KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
         Collection<KnowledgePackage> kpkgs = getProcessTimer2();
         kbase.addKnowledgePackages( kpkgs );
@@ -752,7 +752,7 @@ public class SingleSessionCommandServiceTest extends AbstractBaseTest {
         assertNull( processInstance );
     }
 
-	private List<KnowledgePackage> getProcessTimer2() {
+    private List<KnowledgePackage> getProcessTimer2() {
         RuleFlowProcess process = new RuleFlowProcess();
         process.setId( "org.drools.test.TestProcess" );
         process.setName( "TestProcess" );

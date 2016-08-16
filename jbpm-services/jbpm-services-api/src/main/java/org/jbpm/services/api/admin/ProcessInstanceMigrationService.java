@@ -21,7 +21,7 @@ import java.util.Map;
 
 /**
  * Provides migration service for process instances. Migration usually is
- * required when new version of the process definition is deployed and active 
+ * required when new version of the process definition is deployed and active
  * instances should be moved to it instead of staying at the current one.
  *
  */
@@ -44,7 +44,7 @@ public interface ProcessInstanceMigrationService {
      * @return returns complete migration report
      */
     MigrationReport migrate(String sourceDeploymentId, Long processInstanceId, String targetDeploymentId, String targetProcessId);
-    
+
     /**
      * Migrates given process instance (with node mapping) that belongs to source deployment, into target process id that belongs to target deployment.
      * Following rules are enforced:
@@ -63,7 +63,7 @@ public interface ProcessInstanceMigrationService {
      * @return returns complete migration report
      */
     MigrationReport migrate(String sourceDeploymentId, Long processInstanceId, String targetDeploymentId, String targetProcessId, Map<String, String> nodeMapping);
-    
+
     /**
      * Migrates given process instances that belong to source deployment, into target process id that belongs to target deployment.
      * Following rules are enforced:
@@ -81,7 +81,7 @@ public interface ProcessInstanceMigrationService {
      * @return returns complete migration report
      */
     List<MigrationReport> migrate(String sourceDeploymentId, List<Long> processInstanceIds, String targetDeploymentId, String targetProcessId);
-    
+
     /**
      * Migrates given process instances (with node mapping) that belong to source deployment, into target process id that belongs to target deployment.
      * Following rules are enforced:
@@ -100,5 +100,5 @@ public interface ProcessInstanceMigrationService {
      * @return returns list of migration reports one per each process instance
      */
     List<MigrationReport> migrate(String sourceDeploymentId, List<Long> processInstanceIds, String targetDeploymentId, String targetProcessId, Map<String, String> nodeMapping);
-    
+
 }

@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -35,15 +35,15 @@ public class TypeHandler extends BaseAbstractHandler
             this.validParents = new HashSet<Class<?>>();
             this.validParents.add( TypeObject.class );
 
-            this.validPeers = new HashSet<Class<?>>();         
-            this.validPeers.add( null );            
+            this.validPeers = new HashSet<Class<?>>();
+            this.validPeers.add( null );
 
             this.allowNesting = false;
         }
     }
-    
 
-    
+
+
     public Object start(final String uri,
                         final String localName,
                         final Attributes attrs,
@@ -60,7 +60,7 @@ public class TypeHandler extends BaseAbstractHandler
             if (dataType instanceof ObjectDataType) {
                 String className = attrs.getValue("className");
                 if (className == null) {
-                	className = "java.lang.Object";
+                    className = "java.lang.Object";
                 }
                 ((ObjectDataType) dataType).setClassName(className);
             }
@@ -74,11 +74,11 @@ public class TypeHandler extends BaseAbstractHandler
             throw new SAXParseException(
                 "Could not access datatype " + name, parser.getLocator());
         }
-        
+
         typeable.setType(dataType);
         return dataType;
-    }    
-    
+    }
+
     public Object end(final String uri,
                       final String localName,
                       final ExtensibleXmlParser parser) throws SAXException {
@@ -88,6 +88,6 @@ public class TypeHandler extends BaseAbstractHandler
 
     public Class<?> generateNodeFor() {
         return DataType.class;
-    }    
+    }
 
 }

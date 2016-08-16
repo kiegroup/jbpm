@@ -25,19 +25,19 @@ import java.util.Date;
  *
  */
 public interface MigrationEntry extends Serializable {
-    
+
     /**
      * Return timestamp of the entry - when it was created
      * @return
      */
     Date getTimestamp();
-    
+
     /**
      * Returns actual message of the entry
      * @return
      */
     String getMessage();
-    
+
     /**
      * Returns type of the entry - INFO, WARN, ERROR
      * @return

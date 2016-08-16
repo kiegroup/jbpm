@@ -42,36 +42,36 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 public class SendHtml {
-	
-	private static final String MAIL_JNDI_KEY = System.getProperty("org.kie.mail.session", "mail/jbpmMailSession");
-	
-	private static boolean debug = Boolean.parseBoolean(System.getProperty("org.kie.mail.debug", "false"));
-    
+
+    private static final String MAIL_JNDI_KEY = System.getProperty("org.kie.mail.session", "mail/jbpmMailSession");
+
+    private static boolean debug = Boolean.parseBoolean(System.getProperty("org.kie.mail.debug", "false"));
+
     public static void sendHtml(Email email) {
         sendHtml(email, email.getConnection());
-    } 
-    
+    }
+
     public static void sendHtml(Email email, boolean debug) {
         sendHtml(email, email.getConnection(), debug);
     }
-    
+
     public static void sendHtml(Email email, Connection connection) {
         sendHtml(email, connection, debug);
     }
-    
+
     public static void sendHtml(Email email, Connection connection, boolean debug) {
         int port = Integer.parseInt(connection.getPort());
         String mailhost = connection.getHost();
         String username = connection.getUserName();
         String password = connection.getPassword();
-       
+
         Session session = getSession(connection);
-        
+
         session.setDebug( debug );
-        
+
         try {
             Message msg = fillMessage(email, session);
-            
+
             // send the thing off
             Transport t = (Transport)session.getTransport("smtp");
             try {
@@ -88,7 +88,7 @@ public class SendHtml {
         }
     }
 
-    private static Message fillMessage(Email email, Session session) { 
+    private static Message fillMessage(Email email, Session session) {
         org.jbpm.process.workitem.email.Message message = email.getMessage();
 
         String subject = message.getSubject();
@@ -96,11 +96,11 @@ public class SendHtml {
         String replyTo = message.getReplyTo();
 
         String mailer = "sendhtml";
-        
+
         if ( from == null ) {
             throw new RuntimeException("Email must have 'from' address" );
         }
-        
+
         if ( replyTo == null ) {
             replyTo = from;
         }
@@ -111,7 +111,7 @@ public class SendHtml {
             msg = new MimeMessage( session );
             msg.setFrom( new InternetAddress( from ) );
             msg.setReplyTo( new InternetAddress[] {  new InternetAddress( replyTo ) }  );
-            
+
             for ( Recipient recipient : message.getRecipients().getRecipients() ) {
                 RecipientType type = null;
                 if ( "To".equals( recipient.getType() ) ) {
@@ -126,15 +126,15 @@ public class SendHtml {
 
                 msg.addRecipients( type, InternetAddress.parse( recipient.getEmail(), false ) );
             }
-            
+
             if (message.hasAttachment()) {
                 Multipart multipart = new MimeMultipart();
                 // prepare body as first mime body part
                 MimeBodyPart messageBodyPart = new MimeBodyPart();
 
-                messageBodyPart.setDataHandler( new DataHandler( new ByteArrayDataSource( message.getBody(), "text/html" ) ) );         
+                messageBodyPart.setDataHandler( new DataHandler( new ByteArrayDataSource( message.getBody(), "text/html" ) ) );
                 multipart.addBodyPart(messageBodyPart);
-                
+
                 List<String> attachments = message.getAttachments();
                 for (String attachment : attachments) {
                     MimeBodyPart attachementBodyPart = new MimeBodyPart();
@@ -152,18 +152,18 @@ public class SendHtml {
             } else {
                 msg.setDataHandler( new DataHandler( new ByteArrayDataSource( message.getBody(), "text/html" ) ) );
             }
-            
+
             msg.setSubject( subject );
-            
+
             msg.setHeader( "X-Mailer", mailer );
             msg.setSentDate( new Date() );
         } catch ( Exception e ) {
             throw new RuntimeException( "Unable to send email", e );
         }
-        
+
         return msg;
     }
-    
+
     public static void collect(String body, Message msg) throws MessagingException, IOException {
 //        String subject = msg.getSubject();
         StringBuffer sb = new StringBuffer();
@@ -178,15 +178,15 @@ public class SendHtml {
         sb.append( body );
 //        sb.append( "</BODY>\n" );
 //        sb.append( "</HTML>\n" );
-        
+
     }
-    
-    
+
+
     private static Session getSession(Connection connection) {
 
         Session session = null;
         try {
-        	session = InitialContext.doLookup(MAIL_JNDI_KEY);
+            session = InitialContext.doLookup(MAIL_JNDI_KEY);
         } catch (NamingException e1) {
             String username = connection.getUserName();
             String password = connection.getPassword();
@@ -194,37 +194,37 @@ public class SendHtml {
             Properties properties = new Properties();
             properties.setProperty("mail.smtp.host", connection.getHost());
             properties.setProperty("mail.smtp.port", connection.getPort());
-	        
-	        if( connection.getStartTls() != null && connection.getStartTls() ) { 
-	            properties.put("mail.smtp.starttls.enable","true");
-	        }     
-	        if( username != null ) { 
-	            properties.setProperty("mail.smtp.submitter", username);
-	            if( password != null) {
-	                Authenticator authenticator = new Authenticator(username, password);
-	                properties.setProperty("mail.smtp.auth", "true");
-	                session = Session.getInstance(properties, authenticator);
-	            }
-	            else { 
-	                session = Session.getInstance(properties);
-	            }
-	        }
-	        else { 
-	            session = Session.getInstance(properties);
-	        }
+
+            if( connection.getStartTls() != null && connection.getStartTls() ) {
+                properties.put("mail.smtp.starttls.enable","true");
+            }
+            if( username != null ) {
+                properties.setProperty("mail.smtp.submitter", username);
+                if( password != null) {
+                    Authenticator authenticator = new Authenticator(username, password);
+                    properties.setProperty("mail.smtp.auth", "true");
+                    session = Session.getInstance(properties, authenticator);
+                }
+                else {
+                    session = Session.getInstance(properties);
+                }
+            }
+            else {
+                session = Session.getInstance(properties);
+            }
 
         }
-       
+
         return session;
     }
-    
+
     protected static URL getAttachemntURL(String attachment) throws MalformedURLException {
         if (attachment.startsWith("classpath:")) {
             String location = attachment.replaceFirst("classpath:", "");
             return SendHtml.class.getResource(location);
         } else {
             URL attachmentUrl = new URL(attachment);
-            
+
             return attachmentUrl;
         }
     }

@@ -26,8 +26,8 @@ import org.dashbuilder.dataset.DataSet;
 
 
 public abstract class AbstractQueryMapper<T> {
-    
-    
+
+
     protected abstract T buildInstance(DataSet dataSetResult, int index);
 
     protected Long getColumnLongValue(DataSet currentDataSet, String columnId, int index){
@@ -35,7 +35,7 @@ public abstract class AbstractQueryMapper<T> {
         if (column == null) {
             return null;
         }
-        
+
         Object value = column.getValues().get(index);
         return value != null ? ((Number) value).longValue() : null;
     }
@@ -45,7 +45,7 @@ public abstract class AbstractQueryMapper<T> {
         if (column == null) {
             return null;
         }
-        
+
         Object value = column.getValues().get(index);
         return value != null ? value.toString() : null;
     }
@@ -68,24 +68,24 @@ public abstract class AbstractQueryMapper<T> {
         if (column == null) {
             return -1;
         }
-        
+
         Object value = column.getValues().get(index);
         return value != null ? ((Number) value).intValue() : -1;
     }
-    
+
     protected Double getColumnDoubleValue(DataSet currentDataSet, String columnId, int index){
         DataColumn column = currentDataSet.getColumnById( columnId );
         if (column == null) {
             return null;
         }
-        
+
         Object value = column.getValues().get(index);
         return value != null ? ((Number) value).doubleValue() : null;
     }
-    
+
     protected Map<String, Object> readVariables(Map<String, String> variablesMap, DataSet currentDataSet, int i) {
         Map<String, Object> variables = new HashMap<String, Object>();
-        
+
         for (Entry<String, String> entry : variablesMap.entrySet()) {
             // now add variable
             String varName = entry.getKey();
@@ -101,11 +101,11 @@ public abstract class AbstractQueryMapper<T> {
             } else {
                 varValue = getColumnStringValue(currentDataSet, varName, i);
             }
-            
+
             variables.put(varName, varValue);
         }
-        
+
         return variables;
     }
-      
+
 }

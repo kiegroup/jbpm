@@ -24,67 +24,67 @@ import org.kie.api.task.model.User;
 import org.kie.internal.task.exception.TaskException;
 
 public class TaskServiceRequest {
-    
+
     private String type;
     private User user;
     private Map<String, Object> parameters;
     private boolean allowed = true;
     private List<String> reasons;
     private Class<? extends TaskException> exceptionClass;
-    
+
     public TaskServiceRequest(String type, User user, Map<String, Object> parameters) {
         this.type = type;
         this.user = user;
         this.parameters = parameters;
     }
-    
+
     public String getType() {
         return type;
     }
-    
+
     public User getUser() {
         return user;
     }
-    
+
     public Map<String, Object> getParameters() {
         return parameters;
     }
-    
+
     public Object getParameter(String name) {
         if (parameters == null) {
             return null;
         }
         return parameters.get(name);
     }
-    
+
     public boolean isAllowed() {
         return allowed;
     }
-    
+
     public void setAllowed(boolean allowed) {
         this.allowed = allowed;
     }
-    
+
     public List<String> getReasons() {
         return reasons;
     }
-    
+
     public void addReason(String reason) {
         if (reasons == null) {
             reasons = new ArrayList<String>();
         }
         reasons.add(reason);
     }
-    
+
     public TaskException getException(String message) {
-        if (this.exceptionClass != null) {            
+        if (this.exceptionClass != null) {
             try {
                 return this.exceptionClass.getConstructor(new Class[]{String.class}).newInstance(new Object[]{message});
             } catch (Exception e) {
                 //do nothing
             }
         }
-        
+
         return new CannotAddTaskException(message);
     }
 

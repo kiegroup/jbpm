@@ -30,8 +30,8 @@ public class Activator
     implements
     BundleActivator {
 
-	private ServiceRegistration taskModelFactoryReg;
-    
+    private ServiceRegistration taskModelFactoryReg;
+
     public void start(BundleContext bc) throws Exception {
         this.taskModelFactoryReg = bc.registerService( new String[]{ TaskModelProviderService.class.getName(), Service.class.getName()},
                                                                      new TaskModelProviderImpl(),
@@ -40,7 +40,7 @@ public class Activator
 
     public void stop(BundleContext bc) throws Exception {
         this.taskModelFactoryReg.unregister();
-        
+
     }
 
 }

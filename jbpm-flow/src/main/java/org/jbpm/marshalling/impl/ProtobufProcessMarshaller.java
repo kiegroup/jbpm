@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -51,16 +51,16 @@ import com.google.protobuf.ExtensionRegistry;
 public class ProtobufProcessMarshaller
         implements
         ProcessMarshaller {
-	
-	private static boolean persistWorkItemVars = Boolean.parseBoolean(System.getProperty("org.jbpm.wi.variable.persist", "true"));
-	// mainly for testability as the setting is global
-	public static void setWorkItemVarsPersistence(boolean turnOn) {
-		persistWorkItemVars = turnOn;
-	}
+
+    private static boolean persistWorkItemVars = Boolean.parseBoolean(System.getProperty("org.jbpm.wi.variable.persist", "true"));
+    // mainly for testability as the setting is global
+    public static void setWorkItemVarsPersistence(boolean turnOn) {
+        persistWorkItemVars = turnOn;
+    }
 
     public void writeProcessInstances(MarshallerWriteContext context) throws IOException {
         ProtobufMessages.ProcessData.Builder _pdata = (ProtobufMessages.ProcessData.Builder) context.parameterObject;
-                                                  
+
         List<org.kie.api.runtime.process.ProcessInstance> processInstances = new ArrayList<org.kie.api.runtime.process.ProcessInstance>( context.wm.getProcessInstances() );
         Collections.sort( processInstances,
                           new Comparator<org.kie.api.runtime.process.ProcessInstance>() {
@@ -73,7 +73,7 @@ public class ProtobufProcessMarshaller
         for ( org.kie.api.runtime.process.ProcessInstance processInstance : processInstances ) {
             String processType = processInstance.getProcess().getType();
             JBPMMessages.ProcessInstance _instance = (JBPMMessages.ProcessInstance) ProcessMarshallerRegistry.INSTANCE.getMarshaller( processType )
-                    .writeProcessInstance( context, 
+                    .writeProcessInstance( context,
                                            processInstance );
             _pdata.addExtension( JBPMMessages.processInstance, _instance );
         }
@@ -92,7 +92,7 @@ public class ProtobufProcessMarshaller
 
     public void writeWorkItems(MarshallerWriteContext context) throws IOException {
         ProtobufMessages.ProcessData.Builder _pdata = (ProtobufMessages.ProcessData.Builder) context.parameterObject;
-        
+
         List<WorkItem> workItems = new ArrayList<WorkItem>( ((WorkItemManager) context.wm.getWorkItemManager()).getWorkItems() );
         Collections.sort( workItems,
                           new Comparator<WorkItem>() {
@@ -102,7 +102,7 @@ public class ProtobufProcessMarshaller
                               }
                           } );
         for ( WorkItem workItem : workItems ) {
-            _pdata.addExtension( JBPMMessages.workItem, 
+            _pdata.addExtension( JBPMMessages.workItem,
                                  writeWorkItem( context,
                                                 workItem ) );
         }
@@ -175,7 +175,7 @@ public class ProtobufProcessMarshaller
         return _timer.build();
     }
 
-    public static TimerInstance readTimer(MarshallerReaderContext context, 
+    public static TimerInstance readTimer(MarshallerReaderContext context,
                                           JBPMMessages.ProcessTimer.TimerInstance _timer) {
         TimerInstance timer = new TimerInstance();
         timer.setId( _timer.getId());
@@ -184,9 +184,9 @@ public class ProtobufProcessMarshaller
         timer.setPeriod( _timer.getPeriod() );
         timer.setProcessInstanceId( _timer.getProcessInstanceId() );
         if (_timer.hasDEPRECATEDSessionId()) {
-        	timer.setSessionId( _timer.getDEPRECATEDSessionId() );
+            timer.setSessionId( _timer.getDEPRECATEDSessionId() );
         } else {
-        	timer.setSessionId( _timer.getSessionId() );
+            timer.setSessionId( _timer.getSessionId() );
         }
         timer.setActivated( new Date( _timer.getActivatedTime() ) );
         if ( _timer.hasLastTriggered() ) {
@@ -203,13 +203,13 @@ public class ProtobufProcessMarshaller
                 .setProcessInstancesId( workItem.getProcessInstanceId() )
                 .setName( workItem.getName() )
                 .setState( workItem.getState() );
-        
+
         if (workItem instanceof org.drools.core.process.instance.WorkItem) {
-        	if (((org.drools.core.process.instance.WorkItem)workItem).getDeploymentId() != null){
-        	_workItem.setDeploymentId(((org.drools.core.process.instance.WorkItem)workItem).getDeploymentId());
-        	}
-        	_workItem.setNodeId(((org.drools.core.process.instance.WorkItem)workItem).getNodeId())
-        	.setNodeInstanceId(((org.drools.core.process.instance.WorkItem)workItem).getNodeInstanceId());
+            if (((org.drools.core.process.instance.WorkItem)workItem).getDeploymentId() != null){
+            _workItem.setDeploymentId(((org.drools.core.process.instance.WorkItem)workItem).getDeploymentId());
+            }
+            _workItem.setNodeId(((org.drools.core.process.instance.WorkItem)workItem).getNodeId())
+            .setNodeInstanceId(((org.drools.core.process.instance.WorkItem)workItem).getNodeInstanceId());
         }
 
         if ( includeVariables ) {
@@ -223,7 +223,7 @@ public class ProtobufProcessMarshaller
 
     public static WorkItem readWorkItem(MarshallerReaderContext context,
                                         JBPMMessages.WorkItem _workItem ) throws IOException {
-        return readWorkItem( context, 
+        return readWorkItem( context,
                              _workItem,
                              true );
     }
@@ -269,7 +269,7 @@ public class ProtobufProcessMarshaller
         }
         return builder.build();
     }
-    
+
     public static Variable marshallVariablesMap(MarshallerWriteContext context, Map<String, Object> variables) throws IOException{
         Map<String, Variable> marshalledVariables = new HashMap<String, Variable>();
         for(String key : variables.keySet()){
@@ -281,19 +281,19 @@ public class ProtobufProcessMarshaller
                    .setValue( ByteString.copyFrom( strategy.marshal( context.strategyContext.get( strategy ),
                                                                      context,
                                                                      variables.get(key) ) ) );
-                
-            } 
-                                     
-           
-            
+
+            }
+
+
+
             marshalledVariables.put(key, builder.build());
         }
-        
+
         return marshallVariable(context, "variablesMap" ,marshalledVariables);
     }
-    
+
     public static VariableContainer marshallVariablesContainer(MarshallerWriteContext context, Map<String, Object> variables) throws IOException{
-    	JBPMMessages.VariableContainer.Builder vcbuilder = JBPMMessages.VariableContainer.newBuilder();
+        JBPMMessages.VariableContainer.Builder vcbuilder = JBPMMessages.VariableContainer.newBuilder();
         for(String key : variables.keySet()){
             JBPMMessages.Variable.Builder builder = JBPMMessages.Variable.newBuilder().setName( key );
             if(variables.get(key) != null){
@@ -303,14 +303,14 @@ public class ProtobufProcessMarshaller
                    .setValue( ByteString.copyFrom( strategy.marshal( context.strategyContext.get( strategy ),
                                                                      context,
                                                                      variables.get(key) ) ) );
-                
-            } 
-                                     
-           
-            
+
+            }
+
+
+
             vcbuilder.addVariable(builder.build());
         }
-        
+
         return vcbuilder.build();
     }
 
@@ -323,26 +323,26 @@ public class ProtobufProcessMarshaller
         ObjectMarshallingStrategy strategy = context.usedStrategies.get( _variable.getStrategyIndex() );
         Object value = strategy.unmarshal( context.strategyContexts.get( strategy ),
                                            context,
-                                           _variable.getValue().toByteArray(), 
+                                           _variable.getValue().toByteArray(),
                                            (context.kBase == null)?null:context.kBase.getRootClassLoader() );
         return value;
     }
-    
-	public static Map<String, Object> unmarshallVariableContainerValue(MarshallerReaderContext context, JBPMMessages.VariableContainer _variableContiner)
-			throws IOException, ClassNotFoundException {
-		Map<String, Object> variables = new HashMap<String, Object>();
-		if (_variableContiner.getVariableCount() == 0) {
-			return variables;
-		}
-		
-		for (Variable _variable : _variableContiner.getVariableList()) {
-		
-			Object value = ProtobufProcessMarshaller.unmarshallVariableValue(context, _variable);
-			
-			variables.put(_variable.getName(), value);
-		}
-		return variables;
-	}
+
+    public static Map<String, Object> unmarshallVariableContainerValue(MarshallerReaderContext context, JBPMMessages.VariableContainer _variableContiner)
+            throws IOException, ClassNotFoundException {
+        Map<String, Object> variables = new HashMap<String, Object>();
+        if (_variableContiner.getVariableCount() == 0) {
+            return variables;
+        }
+
+        for (Variable _variable : _variableContiner.getVariableList()) {
+
+            Object value = ProtobufProcessMarshaller.unmarshallVariableValue(context, _variable);
+
+            variables.put(_variable.getName(), value);
+        }
+        return variables;
+    }
 
     public void init(MarshallerReaderContext context) {
         ExtensionRegistry registry = (ExtensionRegistry) context.parameterObject;
@@ -356,7 +356,7 @@ public class ProtobufProcessMarshaller
     @Override
     public void writeWorkItem(MarshallerWriteContext context, org.drools.core.process.instance.WorkItem workItem) {
         try {
-            JBPMMessages.WorkItem _workItem = writeWorkItem(context, workItem, persistWorkItemVars);        
+            JBPMMessages.WorkItem _workItem = writeWorkItem(context, workItem, persistWorkItemVars);
             PersisterHelper.writeToStreamWithHeader( context, _workItem );
         } catch (IOException e) {
             throw new IllegalArgumentException( "IOException while storing work item instance "
@@ -369,7 +369,7 @@ public class ProtobufProcessMarshaller
         try {
             ExtensionRegistry registry = PersisterHelper.buildRegistry(context, null);
             Header _header = PersisterHelper.readFromStreamWithHeaderPreloaded(context, registry);
-            JBPMMessages.WorkItem _workItem = JBPMMessages.WorkItem.parseFrom(_header.getPayload(), registry); 
+            JBPMMessages.WorkItem _workItem = JBPMMessages.WorkItem.parseFrom(_header.getPayload(), registry);
             return (org.drools.core.process.instance.WorkItem) readWorkItem(context, _workItem, persistWorkItemVars);
         } catch (IOException e) {
             throw new IllegalArgumentException( "IOException while fetching work item instance : " + e.getMessage(), e );

@@ -24,24 +24,24 @@ import org.kie.api.executor.ExecutionResults;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 /**
- * If this class is used by more than one test, then 
- * this class needs to be changed so that multiple tests 
- * do not cause deadlocks by using the same CyclicBarrier instance. 
- * 
- * At the moment, this test is only used by the 
+ * If this class is used by more than one test, then
+ * this class needs to be changed so that multiple tests
+ * do not cause deadlocks by using the same CyclicBarrier instance.
+ *
+ * At the moment, this test is only used by the
  * @{link {@link AsyncCaseTest#testAsyncWorkItem()}
  * test method.
  */
 public class CheckCallCommand implements Command {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(CheckCallCommand.class);
 
     private static CyclicBarrier barrier = new CyclicBarrier(2);
-    
+
     public CheckCallCommand() {
-   
+
     }
-    
+
     public static CyclicBarrier getBarrier() {
         return barrier;
     }
@@ -49,13 +49,13 @@ public class CheckCallCommand implements Command {
     @Override
     public ExecutionResults execute(CommandContext ctx) throws Exception {
         logger.debug("Command executed on executor with data {}", ctx.getData());
-        
+
         // wait for all parties to wait on barrier
         barrier.await();
-        
+
         ExecutionResults executionResults = new ExecutionResults();
         executionResults.setData("commandExecuted", true);
         return executionResults;
     }
-    
+
 }

@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -22,33 +22,33 @@ import org.kie.internal.task.api.TaskPersistenceContext;
 
 public abstract class PersistableEventListener implements TaskLifeCycleEventListener {
 
-	private EntityManagerFactory emf;
+    private EntityManagerFactory emf;
 
-	public PersistableEventListener(EntityManagerFactory emf) {
-		this.emf = emf;
-	}
+    public PersistableEventListener(EntityManagerFactory emf) {
+        this.emf = emf;
+    }
 
-	protected TaskPersistenceContext getPersistenceContext(TaskPersistenceContext persistenceContext) {
-		if (emf != null) {
-			return new JPATaskPersistenceContext(emf.createEntityManager()) {
+    protected TaskPersistenceContext getPersistenceContext(TaskPersistenceContext persistenceContext) {
+        if (emf != null) {
+            return new JPATaskPersistenceContext(emf.createEntityManager()) {
 
-				@Override
-				public void close() {
-					em.flush();
-					super.close();
-				}
-				
-			};
-		}
+                @Override
+                public void close() {
+                    em.flush();
+                    super.close();
+                }
 
-		return persistenceContext;
-	}
+            };
+        }
 
-	protected void cleanup(TaskPersistenceContext persistenceContext) {
-		if (emf != null) {
-			persistenceContext.close();
-		}
-	}
+        return persistenceContext;
+    }
+
+    protected void cleanup(TaskPersistenceContext persistenceContext) {
+        if (emf != null) {
+            persistenceContext.close();
+        }
+    }
 
 
 

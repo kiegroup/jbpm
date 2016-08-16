@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -17,94 +17,94 @@ package org.jbpm.process.workitem;
 
 public class WorkDefinitionImpl extends org.drools.core.process.core.impl.WorkDefinitionExtensionImpl {
 
-	private static final long serialVersionUID = 5L;
-	
-	private String[] dependencies;
-	private String[] mavenDependencies;
-	private String description;
-	private String defaultHandler;
-	private String category;
-	private String path;
-	private String file;
-	private String documentation;
-	private String iconEncoded;
-	private String version;
-	private String widType;
-	
-	public String getDocumentation() {
-		return documentation;
-	}
+    private static final long serialVersionUID = 5L;
 
-	public void setDocumentation(String documentation) {
-		this.documentation = documentation;
-	}
+    private String[] dependencies;
+    private String[] mavenDependencies;
+    private String description;
+    private String defaultHandler;
+    private String category;
+    private String path;
+    private String file;
+    private String documentation;
+    private String iconEncoded;
+    private String version;
+    private String widType;
 
-	public String getFile() {
-		return file;
-	}
+    public String getDocumentation() {
+        return documentation;
+    }
 
-	public void setFile(String file) {
-		this.file = file;
-	}
+    public void setDocumentation(String documentation) {
+        this.documentation = documentation;
+    }
 
-	public String getPath() {
-		return path;
-	}
+    public String getFile() {
+        return file;
+    }
 
-	public void setPath(String path) {
-		this.path = path;
-	}
+    public void setFile(String file) {
+        this.file = file;
+    }
 
-	public String getCategory() {
-		return category;
-	}
+    public String getPath() {
+        return path;
+    }
 
-	public void setCategory(String category) {
-		this.category = category;
-	}
+    public void setPath(String path) {
+        this.path = path;
+    }
 
-	public String[] getDependencies() {
-		return dependencies;
-	}
-	
-	public void setDependencies(String[] dependencies) { this.dependencies = dependencies; }
-	
-	public String getDefaultHandler() {
-		return defaultHandler;
-	}
-	
-	public void setDefaultHandler(String defaultHandler) {
-		this.defaultHandler = defaultHandler;
-	}
+    public String getCategory() {
+        return category;
+    }
 
-	public String getIconEncoded() {
-		return iconEncoded;
-	}
+    public void setCategory(String category) {
+        this.category = category;
+    }
 
-	public void setIconEncoded(String iconEncoded) {
-		this.iconEncoded = iconEncoded;
-	}
+    public String[] getDependencies() {
+        return dependencies;
+    }
 
-	public String[] getMavenDependencies() {
-		return mavenDependencies;
-	}
+    public void setDependencies(String[] dependencies) { this.dependencies = dependencies; }
 
-	public void setMavenDependencies(String[] mavenDependencies) {
-		this.mavenDependencies = mavenDependencies;
-	}
+    public String getDefaultHandler() {
+        return defaultHandler;
+    }
 
-	public String getVersion() { return version; }
+    public void setDefaultHandler(String defaultHandler) {
+        this.defaultHandler = defaultHandler;
+    }
 
-	public void setVersion(String version) {
-		this.version = version;
-	}
+    public String getIconEncoded() {
+        return iconEncoded;
+    }
 
-	public String getDescription() { return description; }
+    public void setIconEncoded(String iconEncoded) {
+        this.iconEncoded = iconEncoded;
+    }
 
-	public void setDescription(String description) { this.description = description; }
+    public String[] getMavenDependencies() {
+        return mavenDependencies;
+    }
 
-	public String getWidType() { return widType; }
+    public void setMavenDependencies(String[] mavenDependencies) {
+        this.mavenDependencies = mavenDependencies;
+    }
 
-	public void setWidType(String widType) { this.widType = widType; }
-	
+    public String getVersion() { return version; }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    public String getDescription() { return description; }
+
+    public void setDescription(String description) { this.description = description; }
+
+    public String getWidType() { return widType; }
+
+    public void setWidType(String widType) { this.widType = widType; }
+
 }

@@ -33,15 +33,15 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.kie.api.definition.process.Process;
 public class ErrorHandler extends BaseAbstractHandler implements Handler {
-	
-	@SuppressWarnings("unchecked")
-	public ErrorHandler() {
-		if ((this.validParents == null) && (this.validPeers == null)) {
-			this.validParents = new HashSet();
-			this.validParents.add(Definitions.class);
 
-			this.validPeers = new HashSet();
-			this.validPeers.add(null);
+    @SuppressWarnings("unchecked")
+    public ErrorHandler() {
+        if ((this.validParents == null) && (this.validPeers == null)) {
+            this.validParents = new HashSet();
+            this.validParents.add(Definitions.class);
+
+            this.validPeers = new HashSet();
+            this.validPeers.add(null);
             this.validPeers.add(ItemDefinition.class);
             this.validPeers.add(Message.class);
             this.validPeers.add(Interface.class);
@@ -51,42 +51,42 @@ public class ErrorHandler extends BaseAbstractHandler implements Handler {
             this.validPeers.add(DataStore.class);
             this.validPeers.add(RuleFlowProcess.class);
 
-			this.allowNesting = false;
-		}
-	}
+            this.allowNesting = false;
+        }
+    }
 
-	@SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked")
     public Object start(final String uri, final String localName,
-			            final Attributes attrs, final ExtensibleXmlParser parser)
-			throws SAXException {
-		parser.startElementBuilder(localName, attrs);
+                        final Attributes attrs, final ExtensibleXmlParser parser)
+            throws SAXException {
+        parser.startElementBuilder(localName, attrs);
 
-		String id = attrs.getValue("id");
-		String errorCode = attrs.getValue("errorCode");
-		String structureRef = attrs.getValue("structureRef");
+        String id = attrs.getValue("id");
+        String errorCode = attrs.getValue("errorCode");
+        String structureRef = attrs.getValue("structureRef");
 
-		Definitions definitions = (Definitions) parser.getParent();
+        Definitions definitions = (Definitions) parser.getParent();
 
-		List<Error> errors = definitions.getErrors();
+        List<Error> errors = definitions.getErrors();
         if (errors == null) {
-        	errors = new ArrayList<Error>();
+            errors = new ArrayList<Error>();
             definitions.setErrors(errors);
             ((ProcessBuildData) parser.getData()).setMetaData("Errors", errors);
         }
-        Error e = new Error(id, errorCode, structureRef); 
+        Error e = new Error(id, errorCode, structureRef);
         errors.add(e);
-        
-		return e;
-	}
 
-	public Object end(final String uri, final String localName,
-			          final ExtensibleXmlParser parser) throws SAXException {
-		parser.endElementBuilder();
-		return parser.getCurrent();
-	}
+        return e;
+    }
 
-	public Class<?> generateNodeFor() {
-		return Error.class;
-	}
+    public Object end(final String uri, final String localName,
+                      final ExtensibleXmlParser parser) throws SAXException {
+        parser.endElementBuilder();
+        return parser.getCurrent();
+    }
+
+    public Class<?> generateNodeFor() {
+        return Error.class;
+    }
 
 }

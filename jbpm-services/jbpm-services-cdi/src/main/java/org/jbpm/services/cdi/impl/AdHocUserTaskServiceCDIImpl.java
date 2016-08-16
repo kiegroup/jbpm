@@ -25,18 +25,18 @@ import org.kie.internal.task.api.InternalTaskService;
 
 @ApplicationScoped
 public class AdHocUserTaskServiceCDIImpl extends AdHocUserTaskServiceImpl {
-	
-	@Inject
-	private Instance<InternalTaskService> injectedTaskService;
-	
-	@Inject
-	@Override
-	public void setNonProcessScopedTaskService(InternalTaskService nonProcessScopedTaskService) {
-		super.setNonProcessScopedTaskService(nonProcessScopedTaskService);
-	}
 
-	@Override
-	protected InternalTaskService getInternalTaskService() {
-		return injectedTaskService.get();
-	}
+    @Inject
+    private Instance<InternalTaskService> injectedTaskService;
+
+    @Inject
+    @Override
+    public void setNonProcessScopedTaskService(InternalTaskService nonProcessScopedTaskService) {
+        super.setNonProcessScopedTaskService(nonProcessScopedTaskService);
+    }
+
+    @Override
+    protected InternalTaskService getInternalTaskService() {
+        return injectedTaskService.get();
+    }
 }

@@ -35,7 +35,7 @@ public class SuspendProcessInstanceCommand implements GenericCommand<Object>, Pr
 
     /** Generated serial version UID */
     private static final long serialVersionUID = 5824052805419980114L;
-    
+
     @XmlAttribute
     @XmlSchemaType(name="long")
     private Long processInstanceId;
@@ -60,7 +60,7 @@ public class SuspendProcessInstanceCommand implements GenericCommand<Object>, Pr
             throw new IllegalArgumentException( "Could not find process instance for id " + processInstanceId );
         }
         if ( processInstance.getState() != ProcessInstance.STATE_ACTIVE ) {
-        	throw new IllegalArgumentException( "Process instance with id " + processInstanceId + " in state " + processInstance.getState());
+            throw new IllegalArgumentException( "Process instance with id " + processInstanceId + " in state " + processInstance.getState());
         }
         ((org.jbpm.process.instance.ProcessInstance) processInstance).setState( ProcessInstance.STATE_SUSPENDED );
         return null;

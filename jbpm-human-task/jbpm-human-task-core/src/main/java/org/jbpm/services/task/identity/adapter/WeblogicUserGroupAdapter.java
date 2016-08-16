@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -32,7 +32,7 @@ public class WeblogicUserGroupAdapter implements UserGroupAdapter {
     private Class<?> webLogicSecurity;
 
     public WeblogicUserGroupAdapter() {
-    	try {
+        try {
             this.webLogicSecurity = Class.forName("weblogic.security.Security");
         } catch ( Exception e ) {
             logger.info( "Unable to find weblogic.security.Security, disabling weblogic adapter" );
@@ -40,19 +40,19 @@ public class WeblogicUserGroupAdapter implements UserGroupAdapter {
     }
 
 
-	@Override
+    @Override
     public List<String> getGroupsForUser(String userId) {
         List<String> roles = new ArrayList<String>();
         if (webLogicSecurity == null || userId == null || userId.isEmpty()) {
             return roles;
         }
         try {
-        	Method method = webLogicSecurity.getMethod("getCurrentSubject", new Class[]{});
+            Method method = webLogicSecurity.getMethod("getCurrentSubject", new Class[]{});
             Subject wlsSubject = (Subject) method.invoke( null, new Object[]{ } );
             if ( wlsSubject != null ) {
                 for ( java.security.Principal p : wlsSubject.getPrincipals() ) {
                     if (p.getClass().getName().indexOf("WLSGroup") != -1) {
-                    	roles.add(  p.getName() );
+                        roles.add(  p.getName() );
                     }
                 }
             }

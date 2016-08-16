@@ -18,9 +18,9 @@ package org.jbpm.services.api.query;
 
 /**
  * QueryParamBuilder is responsible for building up one or more filter parameters.
- * 
- * QueryService (that is primary consumer of this builder) will call the 
- * <code>build</code> method as long as it returns non null value. 
+ *
+ * QueryService (that is primary consumer of this builder) will call the
+ * <code>build</code> method as long as it returns non null value.
  * That way it allows to build multiple filters from single builder or build complex
  * filters e.g. nested etc with single builder
  *

@@ -25,7 +25,7 @@ import org.kie.api.runtime.process.NodeInstance;
 
 /**
  * Runtime counterpart of an action node.
- * 
+ *
  */
 public class ActionNodeInstance extends NodeInstanceImpl {
 
@@ -40,20 +40,20 @@ public class ActionNodeInstance extends NodeInstanceImpl {
             throw new IllegalArgumentException(
                 "An ActionNode only accepts default incoming connections!");
         }
-		Action action = (Action) getActionNode().getAction().getMetaData("Action");
-		try {
-		    ProcessContext context = new ProcessContext(getProcessInstance().getKnowledgeRuntime());
-		    context.setNodeInstance(this);
-	        executeAction(action);
-		} catch( WorkflowRuntimeException wre) { 
-		    throw wre;
-		} catch (Exception e) {
-		    // for the case that one of the following throws an exception
-		    // - the ProcessContext() constructor 
-		    // - or context.setNodeInstance(this) 
-		    throw new WorkflowRuntimeException(this, getProcessInstance(), "Unable to execute Action: " + e.getMessage(), e);
-		} 
-    	triggerCompleted();
+        Action action = (Action) getActionNode().getAction().getMetaData("Action");
+        try {
+            ProcessContext context = new ProcessContext(getProcessInstance().getKnowledgeRuntime());
+            context.setNodeInstance(this);
+            executeAction(action);
+        } catch( WorkflowRuntimeException wre) {
+            throw wre;
+        } catch (Exception e) {
+            // for the case that one of the following throws an exception
+            // - the ProcessContext() constructor
+            // - or context.setNodeInstance(this)
+            throw new WorkflowRuntimeException(this, getProcessInstance(), "Unable to execute Action: " + e.getMessage(), e);
+        }
+        triggerCompleted();
     }
 
     public void triggerCompleted() {

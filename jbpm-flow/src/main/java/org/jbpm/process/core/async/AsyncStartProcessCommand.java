@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -44,7 +44,7 @@ import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 public class AsyncStartProcessCommand implements Command {
 
     private static CorrelationKeyFactory correlationKeyFactory = KieInternalServices.Factory.get().newCorrelationKeyFactory();
-    
+
     @SuppressWarnings("unchecked")
     @Override
     public ExecutionResults execute(CommandContext ctx) throws Exception {
@@ -52,59 +52,59 @@ public class AsyncStartProcessCommand implements Command {
         String processId = (String) getData("ProcessId", ctx);
         String correlationKey = (String) getData("CorrelationKey", ctx);
         Map<String, Object> variables = (Map<String, Object>) getData("Variables", ctx);
-        
+
         if (deploymentId == null || processId == null) {
             throw new IllegalArgumentException("Deployment id and process id is required");
         }
-        
+
         RuntimeManager runtimeManager = RuntimeManagerRegistry.get().getManager(deploymentId);
         if (runtimeManager == null) {
-            throw new IllegalArgumentException("No runtime manager found for deployment id " + deploymentId);  
+            throw new IllegalArgumentException("No runtime manager found for deployment id " + deploymentId);
         }
-        RuntimeEngine engine = runtimeManager.getRuntimeEngine(ProcessInstanceIdContext.get());        
+        RuntimeEngine engine = runtimeManager.getRuntimeEngine(ProcessInstanceIdContext.get());
         try {
             if (correlationKey == null || correlationKey.isEmpty()) {
                 engine.getKieSession().startProcess(processId, variables);
             } else {
                 String[] correlationKeyProperties = correlationKey.split(",");
-                
+
                 CorrelationKey ck = correlationKeyFactory.newCorrelationKey(Arrays.asList(correlationKeyProperties));
                 ((CorrelationAwareProcessRuntime) engine.getKieSession()).startProcess(processId, ck, variables);
             }
-            
+
             return new ExecutionResults();
         } finally {
             runtimeManager.disposeRuntimeEngine(engine);
         }
     }
-    
+
     protected Object getData(String name, CommandContext ctx) {
         if (ctx.getData(name) != null) {
             return ctx.getData(name);
         }
         WorkItem workItem = (WorkItem) ctx.getData("workItem");
-        
+
         if (workItem != null) {
             return workItem.getParameter(name);
         }
-        
+
         return null;
     }
-    
+
     protected String getDeploymentId(CommandContext ctx) {
         String deploymentId = (String) ctx.getData("DeploymentId");
         if (deploymentId != null) {
             return deploymentId;
         }
         WorkItem workItem = (WorkItem) ctx.getData("workItem");
-        
+
         if (workItem != null) {
             deploymentId = (String) workItem.getParameter("DeploymentId");
             if (deploymentId == null) {
                 deploymentId = ((WorkItemImpl)workItem).getDeploymentId();
             }
-        }        
-            
+        }
+
         return deploymentId;
     }
 

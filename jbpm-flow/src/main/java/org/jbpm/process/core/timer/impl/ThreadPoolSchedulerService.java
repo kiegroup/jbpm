@@ -44,37 +44,37 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  */
 public class ThreadPoolSchedulerService implements GlobalSchedulerService {
-    
+
     private AtomicLong idCounter = new AtomicLong();
     private ScheduledThreadPoolExecutor scheduler;
     private TimerService globalTimerService;
     private SchedulerServiceInterceptor interceptor = new DelegateSchedulerServiceInterceptor(this);
-    
+
     private int poolSize;
-    
+
     private ConcurrentHashMap<String, JobHandle> activeTimer = new ConcurrentHashMap<String, JobHandle>();
-    
+
     public ThreadPoolSchedulerService(int poolSize) {
-        this.poolSize = poolSize;        
+        this.poolSize = poolSize;
     }
-    
+
 
     @Override
     public void initScheduler(TimerService globalTimerService) {
         this.globalTimerService = globalTimerService;
-        
+
         this.scheduler = new ScheduledThreadPoolExecutor(poolSize);
     }
 
     @Override
     public void shutdown() {
         try {
-        	this.scheduler.shutdown();
+            this.scheduler.shutdown();
             if ( !this.scheduler.awaitTermination( 10, TimeUnit.SECONDS ) ) {
-            	this.scheduler.shutdownNow();
+                this.scheduler.shutdownNow();
             }
         } catch ( InterruptedException e ) {
-        	this.scheduler.shutdownNow();
+            this.scheduler.shutdownNow();
             Thread.currentThread().interrupt();
         }
     }
@@ -94,10 +94,10 @@ public class ThreadPoolSchedulerService implements GlobalSchedulerService {
                 if (activeTimer.containsKey(jobname)) {
                     return activeTimer.get(jobname);
                 }
-            
+
             }
             GlobalJDKJobHandle jobHandle = new GlobalJDKJobHandle( idCounter.getAndIncrement() );
-            
+
             TimerJobInstance jobInstance = globalTimerService.
                                  getTimerJobFactoryManager().createTimerJobInstance( job,
                                                                                      ctx,
@@ -130,7 +130,7 @@ public class ThreadPoolSchedulerService implements GlobalSchedulerService {
             } else {
                 processCtx = (ProcessJobContext) jobContext;
             }
-            
+
             String jobname = processCtx.getSessionId() + "-" + processCtx.getProcessInstanceId() + "-" + processCtx.getTimer().getId();
             if (processCtx instanceof StartProcessJobContext) {
                 jobname = "StartProcess-"+((StartProcessJobContext) processCtx).getProcessId()+ "-" + processCtx.getTimer().getId();
@@ -141,9 +141,9 @@ public class ThreadPoolSchedulerService implements GlobalSchedulerService {
             // do nothing in case ProcessJobContext was not given
         }
         boolean removed =  this.scheduler.remove( (Runnable) ((GlobalJDKJobHandle) jobHandle).getFuture() );
-        return removed;       
+        return removed;
     }
-    
+
     @Override
     public void internalSchedule(TimerJobInstance timerJobInstance) {
         if (scheduler.isShutdown()) {
@@ -169,25 +169,25 @@ public class ThreadPoolSchedulerService implements GlobalSchedulerService {
         jobHandle.setFuture( future );
         globalTimerService.getTimerJobFactoryManager().addTimerJobInstance( timerJobInstance );
     }
-    
+
     public static class GlobalJDKJobHandle extends GlobalJobHandle implements Serializable {
-    
+
         private static final long     serialVersionUID = 510l;
-    
-        private transient ScheduledFuture<Void> future;       
-    
+
+        private transient ScheduledFuture<Void> future;
+
         public GlobalJDKJobHandle(long id) {
             super(id);
         }
-    
+
         public ScheduledFuture<Void> getFuture() {
             return future;
         }
-    
+
         public void setFuture(ScheduledFuture<Void> future) {
             this.future = future;
-        }    
-    
+        }
+
     }
 
     @Override
@@ -205,18 +205,18 @@ public class ThreadPoolSchedulerService implements GlobalSchedulerService {
 
     @Override
     public void setInterceptor(SchedulerServiceInterceptor interceptor) {
-        this.interceptor = interceptor;        
+        this.interceptor = interceptor;
     }
 
-	@Override
-	public boolean retryEnabled() {
-		return true;
-	}
+    @Override
+    public boolean retryEnabled() {
+        return true;
+    }
 
 
-	@Override
-	public boolean isValid(GlobalJobHandle jobHandle) {
-		
-		return true;
-	}
+    @Override
+    public boolean isValid(GlobalJobHandle jobHandle) {
+
+        return true;
+    }
 }

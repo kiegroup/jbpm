@@ -67,46 +67,46 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Default implementation of a RuleFlow process instance.
- * 
+ *
  */
 public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
-		implements WorkflowProcessInstance,
-		org.jbpm.workflow.instance.NodeInstanceContainer {
+        implements WorkflowProcessInstance,
+        org.jbpm.workflow.instance.NodeInstanceContainer {
 
-	private static final long serialVersionUID = 510l;
-	private static final Logger logger = LoggerFactory.getLogger(WorkflowProcessInstanceImpl.class);
+    private static final long serialVersionUID = 510l;
+    private static final Logger logger = LoggerFactory.getLogger(WorkflowProcessInstanceImpl.class);
 
-	private final List<NodeInstance> nodeInstances = new ArrayList<NodeInstance>();;
+    private final List<NodeInstance> nodeInstances = new ArrayList<NodeInstance>();;
 
-	private AtomicLong singleNodeInstanceCounter = new AtomicLong(0);
+    private AtomicLong singleNodeInstanceCounter = new AtomicLong(0);
 
-	private Map<String, List<EventListener>> eventListeners = new HashMap<String, List<EventListener>>();
-	private Map<String, List<EventListener>> externalEventListeners = new HashMap<String, List<EventListener>>();
+    private Map<String, List<EventListener>> eventListeners = new HashMap<String, List<EventListener>>();
+    private Map<String, List<EventListener>> externalEventListeners = new HashMap<String, List<EventListener>>();
 
-	private List<String> completedNodeIds = new ArrayList<String>();
-	private List<String> activatingNodeIds;
-	private Map<String, Integer> iterationLevels = new HashMap<String, Integer>();
-	private int currentLevel;
-	private boolean persisted = false;
-	private Object faultData;
+    private List<String> completedNodeIds = new ArrayList<String>();
+    private List<String> activatingNodeIds;
+    private Map<String, Integer> iterationLevels = new HashMap<String, Integer>();
+    private int currentLevel;
+    private boolean persisted = false;
+    private Object faultData;
 
-	private boolean signalCompletion = true;
-	
-	private String deploymentId;
+    private boolean signalCompletion = true;
+
+    private String deploymentId;
 
     public NodeContainer getNodeContainer() {
-		return getWorkflowProcess();
-	}
+        return getWorkflowProcess();
+    }
 
-	public void addNodeInstance(final NodeInstance nodeInstance) {
-	    if (nodeInstance.getId() == 0) {
-            // assign new id only if it does not exist as it might already be set by marshalling 
+    public void addNodeInstance(final NodeInstance nodeInstance) {
+        if (nodeInstance.getId() == 0) {
+            // assign new id only if it does not exist as it might already be set by marshalling
             // it's important to keep same ids of node instances as they might be references e.g. exclusive group
-    	    long id = singleNodeInstanceCounter.getAndIncrement();
-    		((NodeInstanceImpl) nodeInstance).setId(id);
-	    }
-		this.nodeInstances.add(nodeInstance);
-	}
+            long id = singleNodeInstanceCounter.getAndIncrement();
+            ((NodeInstanceImpl) nodeInstance).setId(id);
+        }
+        this.nodeInstances.add(nodeInstance);
+    }
 
     @Override
     public int getLevelForNode(String uniqueID) {
@@ -127,172 +127,172 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
         return value;
     }
 
-	public void removeNodeInstance(final NodeInstance nodeInstance) {
-		if (((NodeInstanceImpl) nodeInstance).isInversionOfControl()) {
-			getKnowledgeRuntime().delete(
-					getKnowledgeRuntime().getFactHandle(nodeInstance));
-		}
-		this.nodeInstances.remove(nodeInstance);
-	}
+    public void removeNodeInstance(final NodeInstance nodeInstance) {
+        if (((NodeInstanceImpl) nodeInstance).isInversionOfControl()) {
+            getKnowledgeRuntime().delete(
+                    getKnowledgeRuntime().getFactHandle(nodeInstance));
+        }
+        this.nodeInstances.remove(nodeInstance);
+    }
 
-	public Collection<org.kie.api.runtime.process.NodeInstance> getNodeInstances() {
-		return new ArrayList<org.kie.api.runtime.process.NodeInstance>(getNodeInstances(false));
-	}
+    public Collection<org.kie.api.runtime.process.NodeInstance> getNodeInstances() {
+        return new ArrayList<org.kie.api.runtime.process.NodeInstance>(getNodeInstances(false));
+    }
 
-	public Collection<NodeInstance> getNodeInstances(boolean recursive) {
-		Collection<NodeInstance> result = nodeInstances;
-		if (recursive) {
-			result = new ArrayList<NodeInstance>(result);
-			for (Iterator<NodeInstance> iterator = nodeInstances.iterator(); iterator
-					.hasNext();) {
-				NodeInstance nodeInstance = iterator.next();
-				if (nodeInstance instanceof NodeInstanceContainer) {
-					result
-							.addAll(((org.jbpm.workflow.instance.NodeInstanceContainer) nodeInstance)
-									.getNodeInstances(true));
-				}
-			}
-		}
-		return Collections.unmodifiableCollection(result);
-	}
+    public Collection<NodeInstance> getNodeInstances(boolean recursive) {
+        Collection<NodeInstance> result = nodeInstances;
+        if (recursive) {
+            result = new ArrayList<NodeInstance>(result);
+            for (Iterator<NodeInstance> iterator = nodeInstances.iterator(); iterator
+                    .hasNext();) {
+                NodeInstance nodeInstance = iterator.next();
+                if (nodeInstance instanceof NodeInstanceContainer) {
+                    result
+                            .addAll(((org.jbpm.workflow.instance.NodeInstanceContainer) nodeInstance)
+                                    .getNodeInstances(true));
+                }
+            }
+        }
+        return Collections.unmodifiableCollection(result);
+    }
 
-	public NodeInstance getNodeInstance(long nodeInstanceId) {
-		for (NodeInstance nodeInstance: nodeInstances) {
-			if (nodeInstance.getId() == nodeInstanceId) {
-				return nodeInstance;
-			}
-		}
-		return null;
-	}
+    public NodeInstance getNodeInstance(long nodeInstanceId) {
+        for (NodeInstance nodeInstance: nodeInstances) {
+            if (nodeInstance.getId() == nodeInstanceId) {
+                return nodeInstance;
+            }
+        }
+        return null;
+    }
 
-	public NodeInstance getNodeInstance(long nodeInstanceId, boolean recursive) {
-		for (NodeInstance nodeInstance: getNodeInstances(recursive)) {
-			if (nodeInstance.getId() == nodeInstanceId) {
-				return nodeInstance;
-			}
-		}
-		return null;
-	}
+    public NodeInstance getNodeInstance(long nodeInstanceId, boolean recursive) {
+        for (NodeInstance nodeInstance: getNodeInstances(recursive)) {
+            if (nodeInstance.getId() == nodeInstanceId) {
+                return nodeInstance;
+            }
+        }
+        return null;
+    }
 
-	public List<String> getActiveNodeIds() {
-		List<String> result = new ArrayList<String>();
-		addActiveNodeIds(this, result);
-		return result;
-	}
+    public List<String> getActiveNodeIds() {
+        List<String> result = new ArrayList<String>();
+        addActiveNodeIds(this, result);
+        return result;
+    }
 
-	private void addActiveNodeIds(NodeInstanceContainer container, List<String> result) {
-		for (org.kie.api.runtime.process.NodeInstance nodeInstance: container.getNodeInstances()) {
-			result.add(((NodeImpl) ((NodeInstanceImpl) nodeInstance).getNode()).getUniqueId());
-			if (nodeInstance instanceof NodeInstanceContainer) {
-				addActiveNodeIds((NodeInstanceContainer) nodeInstance, result);
-			}
-		}
-	}
+    private void addActiveNodeIds(NodeInstanceContainer container, List<String> result) {
+        for (org.kie.api.runtime.process.NodeInstance nodeInstance: container.getNodeInstances()) {
+            result.add(((NodeImpl) ((NodeInstanceImpl) nodeInstance).getNode()).getUniqueId());
+            if (nodeInstance instanceof NodeInstanceContainer) {
+                addActiveNodeIds((NodeInstanceContainer) nodeInstance, result);
+            }
+        }
+    }
 
-	public NodeInstance getFirstNodeInstance(final long nodeId) {
-		for (final Iterator<NodeInstance> iterator = this.nodeInstances
-				.iterator(); iterator.hasNext();) {
-			final NodeInstance nodeInstance = iterator.next();
-			if (nodeInstance.getNodeId() == nodeId && nodeInstance.getLevel() == getCurrentLevel()) {
-				return nodeInstance;
-			}
-		}
-		return null;
-	}
+    public NodeInstance getFirstNodeInstance(final long nodeId) {
+        for (final Iterator<NodeInstance> iterator = this.nodeInstances
+                .iterator(); iterator.hasNext();) {
+            final NodeInstance nodeInstance = iterator.next();
+            if (nodeInstance.getNodeId() == nodeId && nodeInstance.getLevel() == getCurrentLevel()) {
+                return nodeInstance;
+            }
+        }
+        return null;
+    }
 
-	public List<NodeInstance> getNodeInstances(final long nodeId) {
-		List<NodeInstance> result = new ArrayList<NodeInstance>();
-		for (final Iterator<NodeInstance> iterator = this.nodeInstances
-				.iterator(); iterator.hasNext();) {
-			final NodeInstance nodeInstance = iterator.next();
-			if (nodeInstance.getNodeId() == nodeId) {
-				result.add(nodeInstance);
-			}
-		}
-		return result;
-	}
+    public List<NodeInstance> getNodeInstances(final long nodeId) {
+        List<NodeInstance> result = new ArrayList<NodeInstance>();
+        for (final Iterator<NodeInstance> iterator = this.nodeInstances
+                .iterator(); iterator.hasNext();) {
+            final NodeInstance nodeInstance = iterator.next();
+            if (nodeInstance.getNodeId() == nodeId) {
+                result.add(nodeInstance);
+            }
+        }
+        return result;
+    }
 
-	public List<NodeInstance> getNodeInstances(final long nodeId, final List<NodeInstance> currentView) {
-		List<NodeInstance> result = new ArrayList<NodeInstance>();
-		for (final Iterator<NodeInstance> iterator = currentView.iterator(); iterator.hasNext();) {
-			final NodeInstance nodeInstance = iterator.next();
-			if (nodeInstance.getNodeId() == nodeId) {
-				result.add(nodeInstance);
-			}
-		}
-		return result;
-	}
+    public List<NodeInstance> getNodeInstances(final long nodeId, final List<NodeInstance> currentView) {
+        List<NodeInstance> result = new ArrayList<NodeInstance>();
+        for (final Iterator<NodeInstance> iterator = currentView.iterator(); iterator.hasNext();) {
+            final NodeInstance nodeInstance = iterator.next();
+            if (nodeInstance.getNodeId() == nodeId) {
+                result.add(nodeInstance);
+            }
+        }
+        return result;
+    }
 
-	public NodeInstance getNodeInstance(final Node node) {
-	    Node actualNode = node;
-	    // async continuation handling
-	    if (node instanceof AsyncEventNode) {
+    public NodeInstance getNodeInstance(final Node node) {
+        Node actualNode = node;
+        // async continuation handling
+        if (node instanceof AsyncEventNode) {
             actualNode = ((AsyncEventNode) node).getActualNode();
         } else if (Boolean.parseBoolean((String)node.getMetaData().get("customAsync"))) {
             actualNode = new AsyncEventNode(node);
         }
 
 
-		NodeInstanceFactory conf = NodeInstanceFactoryRegistry.getInstance(getKnowledgeRuntime().getEnvironment()).getProcessNodeInstanceFactory(actualNode);
-		if (conf == null) {
-			throw new IllegalArgumentException("Illegal node type: "
-					+ node.getClass());
-		}
-		NodeInstanceImpl nodeInstance  = (NodeInstanceImpl) conf.getNodeInstance(actualNode, this, this);
+        NodeInstanceFactory conf = NodeInstanceFactoryRegistry.getInstance(getKnowledgeRuntime().getEnvironment()).getProcessNodeInstanceFactory(actualNode);
+        if (conf == null) {
+            throw new IllegalArgumentException("Illegal node type: "
+                    + node.getClass());
+        }
+        NodeInstanceImpl nodeInstance  = (NodeInstanceImpl) conf.getNodeInstance(actualNode, this, this);
 
-		if (nodeInstance == null) {
-			throw new IllegalArgumentException("Illegal node type: "
-					+ node.getClass());
-		}
-		if (((NodeInstanceImpl) nodeInstance).isInversionOfControl()) {
-			getKnowledgeRuntime().insert(nodeInstance);
-		}
-		return nodeInstance;
-	}
+        if (nodeInstance == null) {
+            throw new IllegalArgumentException("Illegal node type: "
+                    + node.getClass());
+        }
+        if (((NodeInstanceImpl) nodeInstance).isInversionOfControl()) {
+            getKnowledgeRuntime().insert(nodeInstance);
+        }
+        return nodeInstance;
+    }
 
-	public long getNodeInstanceCounter() {
-		return singleNodeInstanceCounter.get();
-	}
+    public long getNodeInstanceCounter() {
+        return singleNodeInstanceCounter.get();
+    }
 
-	public void internalSetNodeInstanceCounter(long nodeInstanceCounter) {
-	    this.singleNodeInstanceCounter = new AtomicLong(nodeInstanceCounter);
-	}
+    public void internalSetNodeInstanceCounter(long nodeInstanceCounter) {
+        this.singleNodeInstanceCounter = new AtomicLong(nodeInstanceCounter);
+    }
 
-	public AtomicLong internalGetNodeInstanceCounter() {
-		return this.singleNodeInstanceCounter;
-	}
+    public AtomicLong internalGetNodeInstanceCounter() {
+        return this.singleNodeInstanceCounter;
+    }
 
-	public WorkflowProcess getWorkflowProcess() {
-		return (WorkflowProcess) getProcess();
-	}
+    public WorkflowProcess getWorkflowProcess() {
+        return (WorkflowProcess) getProcess();
+    }
 
-	public Object getVariable(String name) {
-		// for disconnected process instances, try going through the variable scope instances
-		// (as the default variable scope cannot be retrieved as the link to the process could
-		// be null and the associated working memory is no longer accessible)
-		if (getKnowledgeRuntime() == null) {
-			List<ContextInstance> variableScopeInstances =
-				getContextInstances(VariableScope.VARIABLE_SCOPE);
-			if (variableScopeInstances != null && variableScopeInstances.size() == 1) {
-				for (ContextInstance contextInstance: variableScopeInstances) {
-					Object value = ((VariableScopeInstance) contextInstance).getVariable(name);
-					if (value != null) {
-						return value;
-					}
-				}
-			}
-			return null;
-		}
-		// else retrieve the variable scope
-		VariableScopeInstance variableScopeInstance = (VariableScopeInstance)
-			getContextInstance(VariableScope.VARIABLE_SCOPE);
-		if (variableScopeInstance == null) {
-			return null;
-		}
-		return variableScopeInstance.getVariable(name);
-	}
+    public Object getVariable(String name) {
+        // for disconnected process instances, try going through the variable scope instances
+        // (as the default variable scope cannot be retrieved as the link to the process could
+        // be null and the associated working memory is no longer accessible)
+        if (getKnowledgeRuntime() == null) {
+            List<ContextInstance> variableScopeInstances =
+                getContextInstances(VariableScope.VARIABLE_SCOPE);
+            if (variableScopeInstances != null && variableScopeInstances.size() == 1) {
+                for (ContextInstance contextInstance: variableScopeInstances) {
+                    Object value = ((VariableScopeInstance) contextInstance).getVariable(name);
+                    if (value != null) {
+                        return value;
+                    }
+                }
+            }
+            return null;
+        }
+        // else retrieve the variable scope
+        VariableScopeInstance variableScopeInstance = (VariableScopeInstance)
+            getContextInstance(VariableScope.VARIABLE_SCOPE);
+        if (variableScopeInstance == null) {
+            return null;
+        }
+        return variableScopeInstance.getVariable(name);
+    }
 
-	public Map<String, Object> getVariables() {
+    public Map<String, Object> getVariables() {
         // for disconnected process instances, try going through the variable scope instances
         // (as the default variable scope cannot be retrieved as the link to the process could
         // be null and the associated working memory is no longer accessible)
@@ -317,26 +317,26 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
             return null;
         }
         return variableScopeInstance.getVariables();
-	}
+    }
 
-	public void setVariable(String name, Object value) {
-		VariableScope variableScope = (VariableScope) ((ContextContainer) getProcess()).getDefaultContext( VariableScope.VARIABLE_SCOPE );
-		VariableScopeInstance variableScopeInstance = (VariableScopeInstance)
-			getContextInstance(VariableScope.VARIABLE_SCOPE);
-		if (variableScopeInstance == null) {
-			throw new IllegalArgumentException("No variable scope found.");
-		}
-		variableScope.validateVariable(getProcessName(), name, value);
-		variableScopeInstance.setVariable(name, value);
-	}
+    public void setVariable(String name, Object value) {
+        VariableScope variableScope = (VariableScope) ((ContextContainer) getProcess()).getDefaultContext( VariableScope.VARIABLE_SCOPE );
+        VariableScopeInstance variableScopeInstance = (VariableScopeInstance)
+            getContextInstance(VariableScope.VARIABLE_SCOPE);
+        if (variableScopeInstance == null) {
+            throw new IllegalArgumentException("No variable scope found.");
+        }
+        variableScope.validateVariable(getProcessName(), name, value);
+        variableScopeInstance.setVariable(name, value);
+    }
 
-	public void setState(final int state, String outcome, Object faultData) {
-		this.faultData = faultData;
-		setState(state, outcome);
-	}
+    public void setState(final int state, String outcome, Object faultData) {
+        this.faultData = faultData;
+        setState(state, outcome);
+    }
 
-	public void setState(final int state, String outcome) {
-	    super.setState(state, outcome);
+    public void setState(final int state, String outcome) {
+        super.setState(state, outcome);
         // TODO move most of this to ProcessInstanceImpl
         if (state == ProcessInstance.STATE_COMPLETED
                 || state == ProcessInstance.STATE_ABORTED) {
@@ -356,23 +356,23 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
             if (isSignalCompletion()) {
                 RuntimeManager manager = (RuntimeManager) kruntime.getEnvironment().get("RuntimeManager");
                 if (getParentProcessInstanceId() > 0 && manager != null) {
-                	try {
-    	                RuntimeEngine runtime = manager.getRuntimeEngine(ProcessInstanceIdContext.get(getParentProcessInstanceId()));
-    	                KnowledgeRuntime managedkruntime = (KnowledgeRuntime) runtime.getKieSession();
-    	                managedkruntime.signalEvent("processInstanceCompleted:" + getId(), this);
-                	} catch (SessionNotFoundException e) {
-                		// in case no session is found for parent process let's skip signal for process instance completion
-                	}
+                    try {
+                        RuntimeEngine runtime = manager.getRuntimeEngine(ProcessInstanceIdContext.get(getParentProcessInstanceId()));
+                        KnowledgeRuntime managedkruntime = (KnowledgeRuntime) runtime.getKieSession();
+                        managedkruntime.signalEvent("processInstanceCompleted:" + getId(), this);
+                    } catch (SessionNotFoundException e) {
+                        // in case no session is found for parent process let's skip signal for process instance completion
+                    }
                 } else {
                     processRuntime.getSignalManager().signalEvent("processInstanceCompleted:" + getId(), this);
                 }
             }
         }
-	}
+    }
 
-	public void setState(final int state) {
-		setState(state, null);
-	}
+    public void setState(final int state) {
+        setState(state, null);
+    }
 
     public void disconnect() {
         removeEventListeners();
@@ -386,201 +386,201 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
         super.disconnect();
     }
 
-	public void reconnect() {
-		super.reconnect();
-		for (NodeInstance nodeInstance : nodeInstances) {
-			if (nodeInstance instanceof EventBasedNodeInstanceInterface) {
-				((EventBasedNodeInstanceInterface) nodeInstance)
-						.addEventListeners();
-			}
-		}
-		registerExternalEventNodeListeners();
-	}
+    public void reconnect() {
+        super.reconnect();
+        for (NodeInstance nodeInstance : nodeInstances) {
+            if (nodeInstance instanceof EventBasedNodeInstanceInterface) {
+                ((EventBasedNodeInstanceInterface) nodeInstance)
+                        .addEventListeners();
+            }
+        }
+        registerExternalEventNodeListeners();
+    }
 
-	public String toString() {
-		final StringBuilder sb = new StringBuilder("WorkflowProcessInstance");
-		sb.append(getId());
-		sb.append(" [processId=");
-		sb.append(getProcessId());
-		sb.append(",state=");
-		sb.append(getState());
-		sb.append("]");
-		return sb.toString();
-	}
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("WorkflowProcessInstance");
+        sb.append(getId());
+        sb.append(" [processId=");
+        sb.append(getProcessId());
+        sb.append(",state=");
+        sb.append(getState());
+        sb.append("]");
+        return sb.toString();
+    }
 
-	public void start() {
-		start(null);
-	}
+    public void start() {
+        start(null);
+    }
 
-	public void start(String trigger) {
-		synchronized (this) {
-			registerExternalEventNodeListeners();
-			// activate timer event sub processes
-	        Node[] nodes = getNodeContainer().getNodes();
-	        for (Node node : nodes) {
-	            if (node instanceof EventSubProcessNode) {
-	                Map<Timer, DroolsAction> timers = ((EventSubProcessNode) node).getTimers();
-	                if (timers != null && !timers.isEmpty()) {
-	                    EventSubProcessNodeInstance eventSubprocess = (EventSubProcessNodeInstance) getNodeInstance(node);
-	                    eventSubprocess.trigger(null, org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE);
-	                }
-	            }
-	        }
-			super.start(trigger);
-		}
-	}
+    public void start(String trigger) {
+        synchronized (this) {
+            registerExternalEventNodeListeners();
+            // activate timer event sub processes
+            Node[] nodes = getNodeContainer().getNodes();
+            for (Node node : nodes) {
+                if (node instanceof EventSubProcessNode) {
+                    Map<Timer, DroolsAction> timers = ((EventSubProcessNode) node).getTimers();
+                    if (timers != null && !timers.isEmpty()) {
+                        EventSubProcessNodeInstance eventSubprocess = (EventSubProcessNodeInstance) getNodeInstance(node);
+                        eventSubprocess.trigger(null, org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE);
+                    }
+                }
+            }
+            super.start(trigger);
+        }
+    }
 
-	private void registerExternalEventNodeListeners() {
-		for (Node node : getWorkflowProcess().getNodes()) {
-			if (node instanceof EventNode) {
-				if ("external".equals(((EventNode) node).getScope())) {
-					addEventListener(((EventNode) node).getType(), EMPTY_EVENT_LISTENER, true);
-				}
+    private void registerExternalEventNodeListeners() {
+        for (Node node : getWorkflowProcess().getNodes()) {
+            if (node instanceof EventNode) {
+                if ("external".equals(((EventNode) node).getScope())) {
+                    addEventListener(((EventNode) node).getType(), EMPTY_EVENT_LISTENER, true);
+                }
             } else if (node instanceof EventSubProcessNode) {
                 List<String> events = ((EventSubProcessNode) node).getEvents();
                 for (String type : events) {
                     addEventListener(type, EMPTY_EVENT_LISTENER, true);
                 }
             }
-		}
-		if( getWorkflowProcess().getMetaData().containsKey("Compensation") ) {
-		    addEventListener("Compensation", new CompensationEventListener(this), true);
-		}
-	}
+        }
+        if( getWorkflowProcess().getMetaData().containsKey("Compensation") ) {
+            addEventListener("Compensation", new CompensationEventListener(this), true);
+        }
+    }
 
-	private void unregisterExternalEventNodeListeners() {
-		for (Node node : getWorkflowProcess().getNodes()) {
-			if (node instanceof EventNode) {
-				if ("external".equals(((EventNode) node).getScope())) {
-					externalEventListeners.remove(((EventNode) node).getType());
-				}
-			}
-		}
-	}
+    private void unregisterExternalEventNodeListeners() {
+        for (Node node : getWorkflowProcess().getNodes()) {
+            if (node instanceof EventNode) {
+                if ("external".equals(((EventNode) node).getScope())) {
+                    externalEventListeners.remove(((EventNode) node).getType());
+                }
+            }
+        }
+    }
 
-	public void signalEvent(String type, Object event) {
-	    synchronized (this) {
-			if (getState() != ProcessInstance.STATE_ACTIVE) {
-				return;
-			}
-			InternalRuntimeManager manager = (InternalRuntimeManager) getKnowledgeRuntime().getEnvironment().get("RuntimeManager");
-	        if (manager != null) {            
-	            // check if process instance is owned by the same manager as the one owning ksession
-	            if (!manager.getIdentifier().equals(getDeploymentId())) {	                
-	                logger.debug("Skipping signal on process instance " + getId() + " as it's owned by another deployment " +
-	                                                    getDeploymentId() + " != " + manager.getIdentifier());	                
-	                return;
-	            }
-	        }
-			List<NodeInstance> currentView = new ArrayList<NodeInstance>(this.nodeInstances);
+    public void signalEvent(String type, Object event) {
+        synchronized (this) {
+            if (getState() != ProcessInstance.STATE_ACTIVE) {
+                return;
+            }
+            InternalRuntimeManager manager = (InternalRuntimeManager) getKnowledgeRuntime().getEnvironment().get("RuntimeManager");
+            if (manager != null) {
+                // check if process instance is owned by the same manager as the one owning ksession
+                if (!manager.getIdentifier().equals(getDeploymentId())) {
+                    logger.debug("Skipping signal on process instance " + getId() + " as it's owned by another deployment " +
+                                                        getDeploymentId() + " != " + manager.getIdentifier());
+                    return;
+                }
+            }
+            List<NodeInstance> currentView = new ArrayList<NodeInstance>(this.nodeInstances);
 
-			try {
-				this.activatingNodeIds = new ArrayList<String>();
-				List<EventListener> listeners = eventListeners.get(type);
-				if (listeners != null) {
-					for (EventListener listener : listeners) {
-						listener.signalEvent(type, event);
-					}
-				}
-				listeners = externalEventListeners.get(type);
-				if (listeners != null) {
-					for (EventListener listener : listeners) {
-						listener.signalEvent(type, event);
-					}
-				}
-				for (Node node : getWorkflowProcess().getNodes()) {
-			        if (node instanceof EventNodeInterface) {
-			            if (((EventNodeInterface) node).acceptsEvent(type, event)) {
-			                if (node instanceof EventNode && ((EventNode) node).getFrom() == null) {
-			                    EventNodeInstance eventNodeInstance = (EventNodeInstance) getNodeInstance(node);
-			                    eventNodeInstance.signalEvent(type, event);
-			                } else if (node instanceof EventSubProcessNode ) {
-			                    EventSubProcessNodeInstance eventNodeInstance = (EventSubProcessNodeInstance) getNodeInstance(node);
-			                    eventNodeInstance.signalEvent(type, event);
-			                }  else {
-								List<NodeInstance> nodeInstances = getNodeInstances(node.getId(), currentView);
-			                    if (nodeInstances != null && !nodeInstances.isEmpty()) {
-			                        for (NodeInstance nodeInstance : nodeInstances) {
-										((EventNodeInstanceInterface) nodeInstance).signalEvent(type, event);
-			                        }
-			                    }
-			                }
-			            }
-			        }
-				}
-				if (((org.jbpm.workflow.core.WorkflowProcess) getWorkflowProcess()).isDynamic()) {
-					for (Node node : getWorkflowProcess().getNodes()) {
-						if (type.equals(node.getName()) && node.getIncomingConnections().isEmpty()) {
-			    			NodeInstance nodeInstance = getNodeInstance(node);
-			                ((org.jbpm.workflow.instance.NodeInstance) nodeInstance)
-			                	.trigger(null, NodeImpl.CONNECTION_DEFAULT_TYPE);
-			    		}
-					}
-				}
-			} finally {
-				if (this.activatingNodeIds != null) {
-					this.activatingNodeIds.clear();
-					this.activatingNodeIds = null;
-				}
-			}
-		}
-	}
+            try {
+                this.activatingNodeIds = new ArrayList<String>();
+                List<EventListener> listeners = eventListeners.get(type);
+                if (listeners != null) {
+                    for (EventListener listener : listeners) {
+                        listener.signalEvent(type, event);
+                    }
+                }
+                listeners = externalEventListeners.get(type);
+                if (listeners != null) {
+                    for (EventListener listener : listeners) {
+                        listener.signalEvent(type, event);
+                    }
+                }
+                for (Node node : getWorkflowProcess().getNodes()) {
+                    if (node instanceof EventNodeInterface) {
+                        if (((EventNodeInterface) node).acceptsEvent(type, event)) {
+                            if (node instanceof EventNode && ((EventNode) node).getFrom() == null) {
+                                EventNodeInstance eventNodeInstance = (EventNodeInstance) getNodeInstance(node);
+                                eventNodeInstance.signalEvent(type, event);
+                            } else if (node instanceof EventSubProcessNode ) {
+                                EventSubProcessNodeInstance eventNodeInstance = (EventSubProcessNodeInstance) getNodeInstance(node);
+                                eventNodeInstance.signalEvent(type, event);
+                            }  else {
+                                List<NodeInstance> nodeInstances = getNodeInstances(node.getId(), currentView);
+                                if (nodeInstances != null && !nodeInstances.isEmpty()) {
+                                    for (NodeInstance nodeInstance : nodeInstances) {
+                                        ((EventNodeInstanceInterface) nodeInstance).signalEvent(type, event);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if (((org.jbpm.workflow.core.WorkflowProcess) getWorkflowProcess()).isDynamic()) {
+                    for (Node node : getWorkflowProcess().getNodes()) {
+                        if (type.equals(node.getName()) && node.getIncomingConnections().isEmpty()) {
+                            NodeInstance nodeInstance = getNodeInstance(node);
+                            ((org.jbpm.workflow.instance.NodeInstance) nodeInstance)
+                                .trigger(null, NodeImpl.CONNECTION_DEFAULT_TYPE);
+                        }
+                    }
+                }
+            } finally {
+                if (this.activatingNodeIds != null) {
+                    this.activatingNodeIds.clear();
+                    this.activatingNodeIds = null;
+                }
+            }
+        }
+    }
 
-	public void addEventListener(String type, EventListener listener, boolean external) {
-		Map<String, List<EventListener>> eventListeners = external ? this.externalEventListeners : this.eventListeners;
-		List<EventListener> listeners = eventListeners.get(type);
-		if (listeners == null) {
-			listeners = new CopyOnWriteArrayList<EventListener>();
-			eventListeners.put(type, listeners);
-			if (external) {
-				((InternalProcessRuntime) getKnowledgeRuntime().getProcessRuntime())
-					.getSignalManager().addEventListener(type, this);
-			}
-		}
-		listeners.add(listener);
-	}
+    public void addEventListener(String type, EventListener listener, boolean external) {
+        Map<String, List<EventListener>> eventListeners = external ? this.externalEventListeners : this.eventListeners;
+        List<EventListener> listeners = eventListeners.get(type);
+        if (listeners == null) {
+            listeners = new CopyOnWriteArrayList<EventListener>();
+            eventListeners.put(type, listeners);
+            if (external) {
+                ((InternalProcessRuntime) getKnowledgeRuntime().getProcessRuntime())
+                    .getSignalManager().addEventListener(type, this);
+            }
+        }
+        listeners.add(listener);
+    }
 
-	public void removeEventListener(String type, EventListener listener, boolean external) {
-		Map<String, List<EventListener>> eventListeners = external ? this.externalEventListeners : this.eventListeners;
-		List<EventListener> listeners = eventListeners.get(type);
-		if (listeners != null) {
-		    listeners.remove(listener);
-			if (listeners.isEmpty()) {
-				eventListeners.remove(type);
-				if (external) {
-					((InternalProcessRuntime) getKnowledgeRuntime().getProcessRuntime())
-						.getSignalManager().removeEventListener(type, this);
-				}
-			}
-		} else {
-			eventListeners.remove(type);
-		}
-	}
+    public void removeEventListener(String type, EventListener listener, boolean external) {
+        Map<String, List<EventListener>> eventListeners = external ? this.externalEventListeners : this.eventListeners;
+        List<EventListener> listeners = eventListeners.get(type);
+        if (listeners != null) {
+            listeners.remove(listener);
+            if (listeners.isEmpty()) {
+                eventListeners.remove(type);
+                if (external) {
+                    ((InternalProcessRuntime) getKnowledgeRuntime().getProcessRuntime())
+                        .getSignalManager().removeEventListener(type, this);
+                }
+            }
+        } else {
+            eventListeners.remove(type);
+        }
+    }
 
 
-	private void removeEventListeners() {
-		for (String type : externalEventListeners.keySet()) {
-			((InternalProcessRuntime) getKnowledgeRuntime().getProcessRuntime())
-				.getSignalManager().removeEventListener(type, this);
-		}
-	}
+    private void removeEventListeners() {
+        for (String type : externalEventListeners.keySet()) {
+            ((InternalProcessRuntime) getKnowledgeRuntime().getProcessRuntime())
+                .getSignalManager().removeEventListener(type, this);
+        }
+    }
 
-	public String[] getEventTypes() {
-		return externalEventListeners.keySet().toArray(new String[externalEventListeners.size()]);
-	}
+    public String[] getEventTypes() {
+        return externalEventListeners.keySet().toArray(new String[externalEventListeners.size()]);
+    }
 
-	public void nodeInstanceCompleted(NodeInstance nodeInstance, String outType) {
-	    Node nodeInstanceNode = nodeInstance.getNode();
-	    if( nodeInstanceNode != null ) {
-	        Object compensationBoolObj =  nodeInstanceNode.getMetaData().get("isForCompensation");
-	        boolean isForCompensation = compensationBoolObj == null ? false : ((Boolean) compensationBoolObj);
-	        if( isForCompensation ) {
-	            return;
-	        }
-	    }
-	    if (nodeInstance instanceof EndNodeInstance ||
-        		((org.jbpm.workflow.core.WorkflowProcess) getWorkflowProcess()).isDynamic()
-        		|| nodeInstance instanceof CompositeNodeInstance) {
+    public void nodeInstanceCompleted(NodeInstance nodeInstance, String outType) {
+        Node nodeInstanceNode = nodeInstance.getNode();
+        if( nodeInstanceNode != null ) {
+            Object compensationBoolObj =  nodeInstanceNode.getMetaData().get("isForCompensation");
+            boolean isForCompensation = compensationBoolObj == null ? false : ((Boolean) compensationBoolObj);
+            if( isForCompensation ) {
+                return;
+            }
+        }
+        if (nodeInstance instanceof EndNodeInstance ||
+                ((org.jbpm.workflow.core.WorkflowProcess) getWorkflowProcess()).isDynamic()
+                || nodeInstance instanceof CompositeNodeInstance) {
             if (((org.jbpm.workflow.core.WorkflowProcess) getProcess()).isAutoComplete()) {
                 if (canComplete()) {
                     setState(ProcessInstance.STATE_COMPLETED);
@@ -590,34 +590,34 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
             throw new IllegalArgumentException(
                     "Completing a node instance that has no outgoing connection is not supported.");
         }
-	}
+    }
 
-	private boolean canComplete() {
-	    if (nodeInstances.isEmpty()) {
-	        return true;
-	    } else {
-	        int eventSubprocessCounter = 0;
-	        for (NodeInstance nodeInstance : nodeInstances) {
-	            Node node = nodeInstance.getNode();
-	            if (node instanceof EventSubProcessNode) {
-	                if (((EventSubProcessNodeInstance) nodeInstance).getNodeInstances().isEmpty()) {
-	                    eventSubprocessCounter++;
-	                }
-	            } else {
-	                return false;
-	            }
-	        }
-	        return eventSubprocessCounter == nodeInstances.size();
-	    }
-	}
+    private boolean canComplete() {
+        if (nodeInstances.isEmpty()) {
+            return true;
+        } else {
+            int eventSubprocessCounter = 0;
+            for (NodeInstance nodeInstance : nodeInstances) {
+                Node node = nodeInstance.getNode();
+                if (node instanceof EventSubProcessNode) {
+                    if (((EventSubProcessNodeInstance) nodeInstance).getNodeInstances().isEmpty()) {
+                        eventSubprocessCounter++;
+                    }
+                } else {
+                    return false;
+                }
+            }
+            return eventSubprocessCounter == nodeInstances.size();
+        }
+    }
 
-	public void addCompletedNodeId(String uniqueId) {
-	    this.completedNodeIds.add(uniqueId.intern());
-	}
+    public void addCompletedNodeId(String uniqueId) {
+        this.completedNodeIds.add(uniqueId.intern());
+    }
 
-	public List<String> getCompletedNodeIds() {
-	    return new ArrayList<String>(this.completedNodeIds);
-	}
+    public List<String> getCompletedNodeIds() {
+        return new ArrayList<String>(this.completedNodeIds);
+    }
 
     public int getCurrentLevel() {
         return currentLevel;
@@ -631,31 +631,31 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
         return iterationLevels;
     }
 
-	public boolean isPersisted() {
-		return persisted;
-	}
+    public boolean isPersisted() {
+        return persisted;
+    }
 
-	public void setPersisted(boolean persisted) {
-		this.persisted = persisted;
-	}
+    public void setPersisted(boolean persisted) {
+        this.persisted = persisted;
+    }
 
-	public void addActivatingNodeId(String uniqueId) {
-		if (this.activatingNodeIds == null) {
-			return;
-		}
-	    this.activatingNodeIds.add(uniqueId.intern());
-	}
+    public void addActivatingNodeId(String uniqueId) {
+        if (this.activatingNodeIds == null) {
+            return;
+        }
+        this.activatingNodeIds.add(uniqueId.intern());
+    }
 
-	public List<String> getActivatingNodeIds() {
-		if (this.activatingNodeIds == null) {
-			return Collections.emptyList();
-		}
-	    return new ArrayList<String>(this.activatingNodeIds);
-	}
+    public List<String> getActivatingNodeIds() {
+        if (this.activatingNodeIds == null) {
+            return Collections.emptyList();
+        }
+        return new ArrayList<String>(this.activatingNodeIds);
+    }
 
-	public Object getFaultData() {
-		return faultData;
-	}
+    public Object getFaultData() {
+        return faultData;
+    }
 
     public boolean isSignalCompletion() {
         return signalCompletion;
@@ -664,11 +664,11 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
     public void setSignalCompletion(boolean signalCompletion) {
         this.signalCompletion = signalCompletion;
     }
-    
+
     public String getDeploymentId() {
         return deploymentId;
     }
-    
+
     public void setDeploymentId(String deploymentId) {
         this.deploymentId = deploymentId;
     }

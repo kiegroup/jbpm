@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -38,14 +38,14 @@ import org.kie.internal.task.api.UserGroupCallback;
 
 public class MultipleRuntimeManagerTest extends JbpmTestCase  {
 
-	public MultipleRuntimeManagerTest() {
-		super(true, true);
-	}
+    public MultipleRuntimeManagerTest() {
+        super(true, true);
+    }
 
     @Test
     public void testCreationOfRuntimeManagersConcurrently() throws Exception {
-    	List<RuntimeManager> managers = new CopyOnWriteArrayList<RuntimeManager>();
-    	
+        List<RuntimeManager> managers = new CopyOnWriteArrayList<RuntimeManager>();
+
         HumanTaskResolver htr1 = new HumanTaskResolver(1, managers);
         HumanTaskResolver htr2 = new HumanTaskResolver(2, managers);
 
@@ -57,7 +57,7 @@ public class MultipleRuntimeManagerTest extends JbpmTestCase  {
 
         t1.join();
         t2.join();
-        
+
         assertEquals(2, managers.size());
     }
 

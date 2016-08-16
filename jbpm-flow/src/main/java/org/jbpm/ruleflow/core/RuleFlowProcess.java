@@ -39,7 +39,7 @@ public class RuleFlowProcess extends WorkflowProcessImpl {
     public static final String RULEFLOW_TYPE = "RuleFlow";
 
     private static final long serialVersionUID = 510l;
-    
+
     public RuleFlowProcess() {
         setType(RULEFLOW_TYPE);
         // TODO create contexts on request ?
@@ -53,11 +53,11 @@ public class RuleFlowProcess extends WorkflowProcessImpl {
         addContext(exceptionScope);
         setDefaultContext(exceptionScope);
     }
-    
+
     public VariableScope getVariableScope() {
         return (VariableScope) getDefaultContext(VariableScope.VARIABLE_SCOPE);
     }
-    
+
     public SwimlaneContext getSwimlaneContext() {
         return (SwimlaneContext) getDefaultContext(SwimlaneContext.SWIMLANE_SCOPE);
     }
@@ -65,7 +65,7 @@ public class RuleFlowProcess extends WorkflowProcessImpl {
     public ExceptionScope getExceptionScope() {
         return (ExceptionScope) getDefaultContext(ExceptionScope.EXCEPTION_SCOPE);
     }
-    
+
     public CompensationScope getCompensationScope() {
         return (CompensationScope) getDefaultContext(CompensationScope.COMPENSATION_SCOPE);
     }
@@ -73,59 +73,59 @@ public class RuleFlowProcess extends WorkflowProcessImpl {
     protected NodeContainer createNodeContainer() {
         return new WorkflowProcessNodeContainer();
     }
-    
+
     public List<Node> getStartNodes() {
-    	return getStartNodes(this.getNodes());
+        return getStartNodes(this.getNodes());
     }
-    
+
     public static List<Node> getStartNodes(Node[] nodes) {
         List<Node> startNodes = new ArrayList<Node>();
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] instanceof StartNode) {
-            	startNodes.add((StartNode) nodes[i]);
+                startNodes.add((StartNode) nodes[i]);
             }
         }
-        
+
         return startNodes;
     }
-    
+
     public StartNode getStart(String trigger) {
         Node[] nodes = getNodes();
-        
+
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] instanceof StartNode) {
-            	
-            	StartNode start = ((StartNode) nodes[i]);
+
+                StartNode start = ((StartNode) nodes[i]);
                 // return start node that is not event based node
-                if (trigger == null && ((start.getTriggers() == null 
+                if (trigger == null && ((start.getTriggers() == null
                         || start.getTriggers().isEmpty())
                         && start.getTimer() == null)) {
                     return start;
                 } else {
-                	if (start.getTriggers() != null) {
-	                	for (Trigger t : start.getTriggers()) {
-	                		if (t instanceof EventTrigger) {
-	                			for ( EventFilter filter : ((EventTrigger) t).getEventFilters() ) {
-						            if ( filter.acceptsEvent( trigger, null ) ) {
-						                return start;
-						            }
-						        }
-	                		} else if (t instanceof ConstraintTrigger && "conditional".equals(trigger)) {
-	                			return start;
-	                		}
-	                	}
-                	} else if (start.getTimer() != null) {
-                	
-                		if ("timer".equals(trigger)) {
-                			return start;
-                		}
-                	}
+                    if (start.getTriggers() != null) {
+                        for (Trigger t : start.getTriggers()) {
+                            if (t instanceof EventTrigger) {
+                                for ( EventFilter filter : ((EventTrigger) t).getEventFilters() ) {
+                                    if ( filter.acceptsEvent( trigger, null ) ) {
+                                        return start;
+                                    }
+                                }
+                            } else if (t instanceof ConstraintTrigger && "conditional".equals(trigger)) {
+                                return start;
+                            }
+                        }
+                    } else if (start.getTimer() != null) {
+
+                        if ("timer".equals(trigger)) {
+                            return start;
+                        }
+                    }
                 }
             }
         }
         return null;
     }
-    
+
     public List<StartNode> getTimerStart() {
         Node[] nodes = getNodes();
 
@@ -143,7 +143,7 @@ public class RuleFlowProcess extends WorkflowProcessImpl {
     }
 
     private class WorkflowProcessNodeContainer extends NodeContainerImpl {
-        
+
         private static final long serialVersionUID = 510l;
 
         protected void validateAddNode(Node node) {
@@ -157,7 +157,7 @@ public class RuleFlowProcess extends WorkflowProcessImpl {
                 }
             }
         }
-        
+
     }
 
 }

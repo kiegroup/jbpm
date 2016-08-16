@@ -34,30 +34,30 @@ public class HTWorkItemHandlerTest extends HTWorkItemHandlerBaseTest {
     private EntityManagerFactory emf;
     private WorkItemHandler htWorkItemHandler;
     private PoolingDataSource pds;
-    
+
     @Before
     public void setUp() throws Exception {
-    	pds = setupPoolingDataSource();
+        pds = setupPoolingDataSource();
         emf = Persistence.createEntityManagerFactory("org.jbpm.services.task");
         ksession = new TestStatefulKnowledgeSession();
         ksession.setEnvironment(EnvironmentFactory.newEnvironment());
         this.taskService = (InternalTaskService) HumanTaskServiceFactory.newTaskServiceConfigurator()
-				.entityManagerFactory(emf)
-				.getTaskService();
+                .entityManagerFactory(emf)
+                .getTaskService();
         htWorkItemHandler = new NonManagedLocalHTWorkItemHandler(ksession, taskService);
- 
+
         setHandler(htWorkItemHandler);
     }
 
     @After
     public void tearDown() throws Exception {
         int removeAllTasks = ((InternalTaskService)taskService).removeAllTasks();
-		if (emf != null) {
-			emf.close();
-		}
-		if (pds != null) {
-			pds.close();
-		}
+        if (emf != null) {
+            emf.close();
+        }
+        if (pds != null) {
+            pds.close();
+        }
 
     }
 

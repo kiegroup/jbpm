@@ -33,7 +33,7 @@ import org.kie.api.runtime.Globals;
 import org.kie.api.runtime.process.ProcessContext;
 
 public class JavaScriptReturnValueEvaluator implements ReturnValueEvaluator, Externalizable {
-    
+
     private static final long   serialVersionUID = 630l;
 
     private String expr;
@@ -56,10 +56,10 @@ public class JavaScriptReturnValueEvaluator implements ReturnValueEvaluator, Ext
     public Object evaluate(ProcessContext context) throws Exception {
         ScriptEngineManager factory = new ScriptEngineManager();
         ScriptEngine engine = factory.getEngineByName("JavaScript");
-        
+
         // insert globals into context
         Globals globals = context.getKieRuntime().getGlobals();
-        
+
         if (globals != null && globals.getGlobalKeys() != null) {
             for (String gKey : globals.getGlobalKeys()) {
                 engine.put(gKey, globals.get(gKey));
@@ -71,7 +71,7 @@ public class JavaScriptReturnValueEvaluator implements ReturnValueEvaluator, Ext
             // insert process variables
             VariableScopeInstance variableScope = (VariableScopeInstance) ((WorkflowProcessInstance)context.getProcessInstance())
                     .getContextInstance(VariableScope.VARIABLE_SCOPE);
-    
+
             Map<String, Object> variables = variableScope.getVariables();
             if (variables != null ) {
                 for (Entry<String, Object> variable : variables.entrySet()) {
@@ -83,16 +83,16 @@ public class JavaScriptReturnValueEvaluator implements ReturnValueEvaluator, Ext
         Object value = engine.eval(expr);
 
         if ( !(value instanceof Boolean) ) {
-            throw new RuntimeException( "Constraints must return boolean values: " + 
-        		expr + " returns " + value + 
-        		(value == null? "" : " (type=" + value.getClass()));
+            throw new RuntimeException( "Constraints must return boolean values: " +
+                expr + " returns " + value +
+                (value == null? "" : " (type=" + value.getClass()));
         }
-        
+
         return ((Boolean) value).booleanValue();
     }
 
     public String toString() {
         return this.expr;
-    }    
+    }
 
 }

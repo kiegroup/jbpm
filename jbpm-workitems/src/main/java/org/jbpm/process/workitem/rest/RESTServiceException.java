@@ -18,36 +18,36 @@ package org.jbpm.process.workitem.rest;
 
 /**
  * Dedicated exception to provide information about failed REST service invocation.
- * This exception can be thrown when there was successful connection but response code 
+ * This exception can be thrown when there was successful connection but response code
  * is different than 2XX codes.
  *
  */
 public class RESTServiceException extends RuntimeException {
 
-	private static final long serialVersionUID = -2461370884711166642L;
+    private static final long serialVersionUID = -2461370884711166642L;
 
-	private int status;
-	private String response;
-	private String endoint;
-	
-	public RESTServiceException(int status, String response, String endoint) {
-		super("Unsuccessful response from REST server (status " + status +", endpoint " + endoint +", response " + response +"");
-		this.status = status;
-		this.response = response;
-		this.endoint = endoint;
-	}
+    private int status;
+    private String response;
+    private String endoint;
 
-	public int getStatus() {
-		return status;
-	}
+    public RESTServiceException(int status, String response, String endoint) {
+        super("Unsuccessful response from REST server (status " + status +", endpoint " + endoint +", response " + response +"");
+        this.status = status;
+        this.response = response;
+        this.endoint = endoint;
+    }
 
-	public String getResponse() {
-		return response;
-	}
+    public int getStatus() {
+        return status;
+    }
 
-	public String getEndoint() {
-		return endoint;
-	}
-	
-	
+    public String getResponse() {
+        return response;
+    }
+
+    public String getEndoint() {
+        return endoint;
+    }
+
+
 }

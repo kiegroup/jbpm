@@ -24,5 +24,5 @@ import org.jbpm.kie.services.impl.FormManagerServiceImpl;
  */
 @ApplicationScoped
 public class FormManagerServiceCDIImpl extends FormManagerServiceImpl{
-    
+
 }

@@ -15,21 +15,21 @@ import org.slf4j.LoggerFactory;
 public class CountDownProcessEventListener extends DefaultProcessEventListener {
 
     private static final Logger logger = LoggerFactory.getLogger(CountDownProcessEventListener.class);
-    
+
     private String nodeName;
     private CountDownLatch latch;
-    
+
     private boolean reactOnBeforeNodeLeft = false;
-    
+
     public CountDownProcessEventListener() {
-        
+
     }
-    
+
     public CountDownProcessEventListener(String nodeName, int threads) {
         this.nodeName = nodeName;
         this.latch = new CountDownLatch(threads);
     }
-    
+
     public CountDownProcessEventListener(String nodeName, int threads, boolean reactOnBeforeNodeLeft) {
         this.nodeName = nodeName;
         this.latch = new CountDownLatch(threads);
@@ -42,7 +42,7 @@ public class CountDownProcessEventListener extends DefaultProcessEventListener {
             countDown();
         }
     }
-    
+
     @Override
     public void beforeNodeLeft(ProcessNodeLeftEvent event) {
         if (reactOnBeforeNodeLeft && nodeName.equals(event.getNodeInstance().getNodeName())) {
@@ -57,7 +57,7 @@ public class CountDownProcessEventListener extends DefaultProcessEventListener {
             logger.debug("Interrputed thread while waiting for all triggers for node {}", nodeName);
         }
     }
-    
+
     public void waitTillCompleted(long timeOut) {
         try {
             latch.await(timeOut, TimeUnit.MILLISECONDS);
@@ -65,16 +65,16 @@ public class CountDownProcessEventListener extends DefaultProcessEventListener {
             logger.debug("Interrputed thread while waiting for all triggers for node {}", nodeName);
         }
     }
-    
+
     public void reset(int threads) {
         this.latch = new CountDownLatch(threads);
     }
-    
+
     public void reset(String nodeName, int threads) {
         this.nodeName = nodeName;
         this.latch = new CountDownLatch(threads);
     }
-    
+
     protected void countDown() {
         try {
             TransactionManager tm = TransactionManagerFactory.get().newTransactionManager();
@@ -82,17 +82,17 @@ public class CountDownProcessEventListener extends DefaultProcessEventListener {
                     && tm.getStatus() != TransactionManager.STATUS_ROLLEDBACK
                     && tm.getStatus() != TransactionManager.STATUS_COMMITTED) {
                 tm.registerTransactionSynchronization(new TransactionSynchronization() {
-                    
+
                     @Override
-                    public void beforeCompletion() {        
+                    public void beforeCompletion() {
                     }
-                    
+
                     @Override
                     public void afterCompletion(int status) {
                         latch.countDown();
                     }
                 });
-            } else {            
+            } else {
                 latch.countDown();
             }
         } catch (Exception e) {

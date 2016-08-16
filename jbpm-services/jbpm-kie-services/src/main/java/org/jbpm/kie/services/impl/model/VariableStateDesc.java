@@ -35,14 +35,14 @@ public class VariableStateDesc implements VariableDesc, Serializable{
     private String newValue;
     private String deploymentId;
     private long processInstanceId;
-    
+
     private Date dataTimeStamp;
 
     public VariableStateDesc() {
-     
+
     }
-    
-    
+
+
 
     public VariableStateDesc(String variableId, String variableInstanceId, String oldValue, String newValue,
             String deploymentId, long processInstanceId, Date date) {
@@ -55,7 +55,7 @@ public class VariableStateDesc implements VariableDesc, Serializable{
         this.dataTimeStamp = date;
     }
 
-   
+
     public String getVariableId() {
         return variableId;
     }
@@ -88,10 +88,10 @@ public class VariableStateDesc implements VariableDesc, Serializable{
     public String toString() {
         return "VariableStateDesc["+dataTimeStamp.toString()+"]{variableId=" + variableId + ", variableInstanceId=" + variableInstanceId + ", oldValue=" + oldValue + ", newValue=" + newValue + ", deploymentId=" + deploymentId + ", processInstanceId=" + processInstanceId + '}';
     }
-    
-    
 
-   
-    
-    
+
+
+
+
+
 }

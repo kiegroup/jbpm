@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -36,7 +36,7 @@ import org.kie.internal.task.api.TaskPersistenceContext;
 public class GetAllAdminAuditTasksByUserCommand extends UserGroupCallbackTaskCommand<List<AuditTask>> {
 
     private QueryFilter filter;
-    
+
 
     public GetAllAdminAuditTasksByUserCommand() {
         this.filter = new QueryFilter(0, 0);
@@ -59,7 +59,7 @@ public class GetAllAdminAuditTasksByUserCommand extends UserGroupCallbackTaskCom
                 persistenceContext.addParametersToMap("businessAdmins", groupIds,"firstResult", filter.getOffset(),
                         "maxResults", filter.getCount()),
                 ClassUtil.<List<AuditTask>>castClass(List.class));
-   
+
         return groupTasks;
     }
 

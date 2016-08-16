@@ -33,17 +33,17 @@ import org.kie.internal.task.api.model.InternalOrganizationalEntity;
 import org.kie.internal.task.exception.TaskException;
 
 public class TaskRuleServiceImpl implements TaskRuleService {
-    
+
     private RuleContextProvider ruleContextProvider;
-    
+
     public TaskRuleServiceImpl() {
-    	
+
     }
-    
+
     public TaskRuleServiceImpl(RuleContextProvider ruleContextProvider) {
-    	this.ruleContextProvider = ruleContextProvider;
-    }   
-    
+        this.ruleContextProvider = ruleContextProvider;
+    }
+
     @Override
     public void executeRules(Task task, String userId, Object params, String scope) throws TaskException {
         KieBase ruleBase = ruleContextProvider.getKieBase(scope);
@@ -61,11 +61,11 @@ public class TaskRuleServiceImpl implements TaskRuleService {
             session.setGlobal("request", request);
             session.insert(task);
             if (params != null) {
-            	if (params instanceof ContentData) {
-            		ContentMarshallerContext ctx = TaskContentRegistry.get().getMarshallerContext(task);
-            		params = ContentMarshallerHelper.unmarshall(((ContentData) params).getContent(), ctx.getEnvironment(), ctx.getClassloader());
-            	}
-            	
+                if (params instanceof ContentData) {
+                    ContentMarshallerContext ctx = TaskContentRegistry.get().getMarshallerContext(task);
+                    params = ContentMarshallerHelper.unmarshall(((ContentData) params).getContent(), ctx.getEnvironment(), ctx.getClassloader());
+                }
+
                 session.insert(params);
             }
             session.fireAllRules();

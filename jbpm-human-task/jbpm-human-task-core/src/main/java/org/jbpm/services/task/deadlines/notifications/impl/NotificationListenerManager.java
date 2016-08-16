@@ -26,47 +26,47 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Manages broadcasting of notification events to all found listeners 
+ * Manages broadcasting of notification events to all found listeners
  *
  */
 public class NotificationListenerManager {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(NotificationListenerManager.class);
-    
+
     private static ServiceLoader<NotificationListener> listenersLoaded = ServiceLoader.load(NotificationListener.class);
-    
+
     private static NotificationListenerManager INSTANCE = new NotificationListenerManager();
-    
+
     private List<NotificationListener> listeners = new ArrayList<NotificationListener>();
-    
+
     private NotificationListenerManager() {
         for (NotificationListener listener : listenersLoaded) {
             listeners.add(listener);
-        }        
+        }
     }
 
     /**
-     * Broadcast given event to all listeners independently meaning catches possible exceptions to 
+     * Broadcast given event to all listeners independently meaning catches possible exceptions to
      * avoid breaking notification by listeners
      * @param event notification event to be sent
      * @param params additional parameters see NotificationListener.onNotification for details.
-     * 
+     *
      * @see NotificationListener#onNotification(NotificationEvent, Object...)
      */
     public void broadcast(NotificationEvent event, UserInfo userInfo) {
-        
+
         for (NotificationListener listener : listeners) {
             try {
                 logger.debug("Sending notification {} to {} with params {}", event, listener, userInfo);
                 listener.onNotification(event, userInfo);
             } catch (Exception e) {
-                logger.warn("Exception encountered while notifying listener {} with event {} - error {}", 
+                logger.warn("Exception encountered while notifying listener {} with event {} - error {}",
                         listener, event, e.getMessage());
             }
         }
     }
-    
-    public static NotificationListenerManager get() {        
+
+    public static NotificationListenerManager get() {
         return INSTANCE;
     }
 }

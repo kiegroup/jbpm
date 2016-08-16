@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -97,23 +97,23 @@ public class UnmarshallingOverdueTimersTest extends AbstractBaseTest {
     private static String bpmn2FileName = "BPMN2-TimerInterrupted.bpmn2";
 
     private static boolean debug = true;
-    
+
     @Test(timeout=10000)
     public void startDisposeAndReloadTimerProcess() throws Exception {
         CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("timer", 1);
-        if( debug ) { 
+        if( debug ) {
             String shellVar = "TEST";
             String shellVarVal = System.getenv(shellVar);
-            if( shellVarVal != null ) { 
+            if( shellVarVal != null ) {
                 debug = false;
             }
         }
-        
+
         String sessionPropName = "KSESSION_ID";
         String sessionPropVal = System.getenv(sessionPropName);
         String processPropName = "PROCESS_ID";
         String processPropVal = System.getenv(sessionPropName);
-        
+
         if (sessionPropVal == null || debug ) {
             KnowledgeBase kbase = loadKnowledgeBase(bpmn2FileName);
             StatefulKnowledgeSession ksession = createStatefulKnowledgeSession(kbase);
@@ -124,39 +124,39 @@ public class UnmarshallingOverdueTimersTest extends AbstractBaseTest {
 
             // note process start time
             Calendar cal = GregorianCalendar.getInstance();
-            
+
             // start process
             ProcessInstance processInstance = ksession.startProcess("interruptedTimer", params);
             long processId = processInstance.getId();
             // print info for next test
-            if( debug ) { 
+            if( debug ) {
                 processPropVal = Long.toString(processId);
             }
-            else { 
+            else {
                 logger.info("export {}={}", processPropName, processId );
             }
 
-            // dispose of session 
+            // dispose of session
             KieSessionConfiguration config = ksession.getSessionConfiguration();
             long ksessionId = knowledgeSessionDispose(ksession);
-            
+
             // print info for next test
-            if( debug ) { 
+            if( debug ) {
                 sessionPropVal = Long.toString(ksessionId);
             }
-            else { 
+            else {
                 logger.info("export {}={}", sessionPropName, ksessionId );
-                
+
             }
-            
-            if( !debug ) { 
+
+            if( !debug ) {
                 cal.add(Calendar.SECOND, (int) seconds);
                 SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS");
                 logger.info("Please wait at least {} [{}]", (seconds + timeUnit),  sdf.format(cal.getTime()));
             }
-        } 
-       
-        
+        }
+
+
         if( sessionPropVal != null || debug ) {
             // reload session
             int ksessionId = Integer.parseInt(sessionPropVal);
@@ -166,9 +166,9 @@ public class UnmarshallingOverdueTimersTest extends AbstractBaseTest {
 
             logger.debug("! waiting 5 seconds for timer to fire");
             countDownListener.waitTillCompleted();
-            
+
             ProcessInstance processInstance = ksession.getProcessInstance(processInstanceId);
-            if( processInstance != null ) { 
+            if( processInstance != null ) {
                 assertTrue("Process has not terminated.", processInstance.getState() == ProcessInstance.STATE_COMPLETED );
             }
         }

@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -36,11 +36,11 @@ public class JPASignalManager extends DefaultSignalManager {
     public JPASignalManager(InternalKnowledgeRuntime kruntime) {
         super(kruntime);
     }
-    
+
     public void signalEvent(String type, Object event) {
         String actualSignalType = type.replaceFirst(ASYNC_SIGNAL_PREFIX, "");
-        
-        ProcessPersistenceContextManager contextManager 
+
+        ProcessPersistenceContextManager contextManager
             = (ProcessPersistenceContextManager) getKnowledgeRuntime().getEnvironment().get( EnvironmentName.PERSISTENCE_CONTEXT_MANAGER );
         ProcessPersistenceContext context = contextManager.getProcessPersistenceContext();
         List<Long> processInstancesToSignalList = context.getProcessInstancesWaitingForEvent(actualSignalType);
@@ -49,24 +49,24 @@ public class JPASignalManager extends DefaultSignalManager {
             RuntimeManager runtimeManager = ((RuntimeManager)getKnowledgeRuntime().getEnvironment().get("RuntimeManager"));
             ExecutorService executorService = (ExecutorService) getKnowledgeRuntime().getEnvironment().get("ExecutorService");
             if (runtimeManager != null && executorService != null) {
-                
+
                 for (Long processInstanceId : processInstancesToSignalList) {
                     CommandContext ctx = new CommandContext();
                     ctx.setData("DeploymentId", runtimeManager.getIdentifier());
                     ctx.setData("ProcessInstanceId", processInstanceId);
                     ctx.setData("Signal", actualSignalType);
                     ctx.setData("Event", event);
-                    
+
                     executorService.scheduleRequest(AsyncSignalEventCommand.class.getName(), ctx);
                 }
-                
+
                 return;
             } else {
                 logger.warn("Signal should be sent asynchronously but there is no executor service available, continuing sync...");
             }
         }
-        
-        
+
+
         for ( long id : processInstancesToSignalList ) {
             try {
                 getKnowledgeRuntime().getProcessInstance( id );

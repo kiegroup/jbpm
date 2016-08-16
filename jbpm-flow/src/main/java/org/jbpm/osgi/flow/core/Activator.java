@@ -33,9 +33,9 @@ public class Activator
     implements
     BundleActivator {
     private ServiceRegistration processRuntimeReg;
-    
+
     private ServiceRegistration processRuntimeReg2;
-    
+
     public void start(BundleContext bc) throws Exception {
         this.processRuntimeReg = bc.registerService( new String[]{ ProcessRuntimeFactoryService.class.getName(), Service.class.getName()},
                                                                    new ProcessRuntimeFactoryServiceImpl(),
@@ -50,7 +50,7 @@ public class Activator
     public void stop(BundleContext bc) throws Exception {
         this.processRuntimeReg.unregister();
         this.processRuntimeReg2.unregister();
-        
+
     }
 
 }

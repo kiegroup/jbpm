@@ -25,44 +25,44 @@ import java.io.ObjectOutputStream;
 import org.apache.commons.io.input.ClassLoaderObjectInputStream;
 
 public abstract class AbstractRemoteObject {
-	
-	private transient ClassLoader classLoader = this.getClass().getClassLoader(); 
 
-	public void setClassLoader(ClassLoader classLoader) {
-		this.classLoader = classLoader;
-	}
+    private transient ClassLoader classLoader = this.getClass().getClassLoader();
 
-	protected Object deserialize(byte[] bytes) {
-		Object result = null;
-		ObjectInputStream in = null;
+    public void setClassLoader(ClassLoader classLoader) {
+        this.classLoader = classLoader;
+    }
+
+    protected Object deserialize(byte[] bytes) {
+        Object result = null;
+        ObjectInputStream in = null;
         try {
             in = new ClassLoaderObjectInputStream(classLoader, new ByteArrayInputStream(bytes));
             result = in.readObject();
-        } catch (Exception e) {                        
+        } catch (Exception e) {
 
-        	throw new RuntimeException("Unable to deserialize stream ", e);
+            throw new RuntimeException("Unable to deserialize stream ", e);
         } finally {
             if (in != null) {
                 try {
-					in.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+                    in.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
-        
+
         return result;
-	}
-	
-	protected byte[] serialize(Object input) {
-		try {
-			ByteArrayOutputStream bout = new ByteArrayOutputStream();
-	        ObjectOutputStream oout = new ObjectOutputStream(bout);
-	        oout.writeObject(input);
-	        
-	        return bout.toByteArray();
-		} catch (Exception e) {
-			throw new RuntimeException("Unable to serialize object " + input, e);
-		}
-	}
+    }
+
+    protected byte[] serialize(Object input) {
+        try {
+            ByteArrayOutputStream bout = new ByteArrayOutputStream();
+            ObjectOutputStream oout = new ObjectOutputStream(bout);
+            oout.writeObject(input);
+
+            return bout.toByteArray();
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to serialize object " + input, e);
+        }
+    }
 }

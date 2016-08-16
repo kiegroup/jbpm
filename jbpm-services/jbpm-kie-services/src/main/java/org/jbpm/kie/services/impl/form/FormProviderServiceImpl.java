@@ -41,42 +41,42 @@ public class FormProviderServiceImpl implements FormProviderService {
 
     private static Logger logger = LoggerFactory.getLogger(FormProviderServiceImpl.class);
 
-    
+
     private TaskService taskService;
-    
+
     private DefinitionService bpmn2Service;
-    
+
     private RuntimeDataService dataService;
-    
-    private DeploymentService deploymentService;    
-    
+
+    private DeploymentService deploymentService;
+
     public void setTaskService(TaskService taskService) {
-		this.taskService = taskService;
-	}
+        this.taskService = taskService;
+    }
 
-	public void setBpmn2Service(DefinitionService bpmn2Service) {
-		this.bpmn2Service = bpmn2Service;
-	}
+    public void setBpmn2Service(DefinitionService bpmn2Service) {
+        this.bpmn2Service = bpmn2Service;
+    }
 
-	public void setDataService(RuntimeDataService dataService) {
-		this.dataService = dataService;
-	}
+    public void setDataService(RuntimeDataService dataService) {
+        this.dataService = dataService;
+    }
 
-	public void setDeploymentService(DeploymentService deploymentService) {
-		this.deploymentService = deploymentService;
-	}
+    public void setDeploymentService(DeploymentService deploymentService) {
+        this.deploymentService = deploymentService;
+    }
 
-	public void setProviders(Set<FormProvider> providers) {
-		this.providers = providers;
-	}
+    public void setProviders(Set<FormProvider> providers) {
+        this.providers = providers;
+    }
 
-	private Set<FormProvider> providers;
+    private Set<FormProvider> providers;
 
 
 
     @Override
     public String getFormDisplayProcess(String deploymentId, String processId) {
-    	ProcessDefinition processDesc = dataService.getProcessesByDeploymentIdProcessId(deploymentId, processId);
+        ProcessDefinition processDesc = dataService.getProcessesByDeploymentIdProcessId(deploymentId, processId);
         Map<String, String> processData = bpmn2Service.getProcessVariables(deploymentId, processId);
 
         if (processData == null) {
@@ -158,7 +158,7 @@ public class FormProviderServiceImpl implements FormProviderService {
             finalOutput.putAll( (Map<String, Object>) output );
         }
 
-        // merge template with process variables        
+        // merge template with process variables
         renderContext.put("task", task);
         renderContext.put("marshallerContext", marshallerContext);
 

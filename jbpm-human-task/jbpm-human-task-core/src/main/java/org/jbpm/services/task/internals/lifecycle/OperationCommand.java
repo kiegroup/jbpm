@@ -36,11 +36,11 @@ public class OperationCommand {
     private boolean       groupTargetEntityAllowed = true;
     private boolean       skipable;
     private Operation     exec;
-    
-    public OperationCommand() { 
+
+    public OperationCommand() {
         // Default constructor
     }
-    
+
     public List<Status> getStatus() {
         return status;
     }
@@ -61,8 +61,8 @@ public class OperationCommand {
     }
     public Status getNewStatus() {
         return newStatus;
-    }        
-    
+    }
+
     public boolean isSetNewOwnerToNull() {
         return setNewOwnerToNull;
     }
@@ -106,12 +106,12 @@ public class OperationCommand {
         this.removeUserFromPotentialOwners = removeUserFromPotentialOwners;
     }
     public boolean isSkipable() {
-		return skipable;
-	}
-	public void setSkipable(boolean skippable) {
-		this.skipable = skippable;
-	}
-	public Operation getExec() {
+        return skipable;
+    }
+    public void setSkipable(boolean skippable) {
+        this.skipable = skippable;
+    }
+    public Operation getExec() {
         return exec;
     }
     public void setExec(Operation exec) {
@@ -119,10 +119,10 @@ public class OperationCommand {
     }
     public boolean isGroupTargetEntityAllowed() {
         return groupTargetEntityAllowed;
-    }    
+    }
     public void setGroupTargetEntityAllowed(boolean groupTargetEntityAllowed) {
         this.groupTargetEntityAllowed = groupTargetEntityAllowed;
     }
-    
-    
+
+
 }

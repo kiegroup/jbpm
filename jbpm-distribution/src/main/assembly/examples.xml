@@ -10,7 +10,7 @@
       <directory>..</directory>
       <outputDirectory></outputDirectory>
       <includes>
-        <include>jbpm-examples/**</include>	  
+        <include>jbpm-examples/**</include>   
       </includes>
       <excludes>
         <exclude>**/.gitignore</exclude>

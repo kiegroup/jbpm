@@ -61,7 +61,7 @@ public class AuditTaskImpl implements Serializable, AuditTask {
     private long parentId;
     private String deploymentId;
     private Long workItemId;
-   
+
 
     public AuditTaskImpl() {
     }

@@ -27,14 +27,14 @@ import org.kie.internal.command.Context;
 @XmlAccessorType(XmlAccessType.NONE)
 public class DeleteContentCommand extends TaskCommand<Void> {
 
-	private static final long serialVersionUID = 5656199063761548979L;
+    private static final long serialVersionUID = 5656199063761548979L;
 
-	@XmlElement
-	private Long contentId;
-	
-	public DeleteContentCommand() {
-	}
-	
+    @XmlElement
+    private Long contentId;
+
+    public DeleteContentCommand() {
+    }
+
     public DeleteContentCommand(long taskId, Long contentId) {
         this.taskId = taskId;
         this.contentId = contentId;
@@ -43,15 +43,15 @@ public class DeleteContentCommand extends TaskCommand<Void> {
     public Void execute(Context cntxt) {
         TaskContext context = (TaskContext) cntxt;
         context.getTaskContentService().deleteDocumentContent(taskId, contentId);
-    	return null;
-           
+        return null;
+
     }
 
-	public Long getContentId() {
-		return contentId;
-	}
+    public Long getContentId() {
+        return contentId;
+    }
 
-	public void setContentId(Long contentId) {
-		this.contentId = contentId;
-	}
+    public void setContentId(Long contentId) {
+        this.contentId = contentId;
+    }
 }

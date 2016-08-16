@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -17,37 +17,37 @@ package org.jbpm.runtime.manager.impl.deploy.testobject;
 
 public class EmbedingCustomObject {
 
-	private SimpleCustomObject customObject;
-	private String description;
-	
-	public EmbedingCustomObject() {
-		
-	}
-	
-	public EmbedingCustomObject(SimpleCustomObject customObject, String description) {
-		this.setCustomObject(customObject);
-		this.setDescription(description);
-	}
+    private SimpleCustomObject customObject;
+    private String description;
+
+    public EmbedingCustomObject() {
+
+    }
+
+    public EmbedingCustomObject(SimpleCustomObject customObject, String description) {
+        this.setCustomObject(customObject);
+        this.setDescription(description);
+    }
 
 
-	public SimpleCustomObject getCustomObject() {
-		return customObject;
-	}
+    public SimpleCustomObject getCustomObject() {
+        return customObject;
+    }
 
 
-	public void setCustomObject(SimpleCustomObject customObject) {
-		this.customObject = customObject;
-	}
+    public void setCustomObject(SimpleCustomObject customObject) {
+        this.customObject = customObject;
+    }
 
 
-	public String getDescription() {
-		return description;
-	}
+    public String getDescription() {
+        return description;
+    }
 
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
-	
-	
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+
 }

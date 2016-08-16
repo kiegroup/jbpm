@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -28,23 +28,23 @@ import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
 
 public abstract class AbstractBaseTest {
-    
+
     @BeforeClass
-    public static void configure() { 
+    public static void configure() {
         LoggingPrintStream.interceptSysOutSysErr();
         Logger logger = LoggerFactory.getLogger(DatabaseMetadata.class);
     }
-   
-    public static void hackTheDatabaseMetadataLoggerBecauseTheresALogbackXmlInTheClasspath() { 
+
+    public static void hackTheDatabaseMetadataLoggerBecauseTheresALogbackXmlInTheClasspath() {
         String [] fieldName = { "LOG", "log", "logger" };
         try {
             Object loggerObj = null;
-            for( int i = 0; i < fieldName.length; ++i ) { 
+            for( int i = 0; i < fieldName.length; ++i ) {
                 Field loggerField;
                 Class objClass = null;
-                if( loggerObj == null ) { 
+                if( loggerObj == null ) {
                     objClass = DatabaseMetadata.class;
-                } else { 
+                } else {
                    objClass = loggerObj.getClass();
                 }
                 loggerField = objClass.getDeclaredField(fieldName[i]);
@@ -55,11 +55,11 @@ public abstract class AbstractBaseTest {
         } catch( Exception e ) {
             e.printStackTrace();
             // do nothing
-        } 
+        }
     }
-    
+
     @AfterClass
-    public static void reset() { 
+    public static void reset() {
         LoggingPrintStream.resetInterceptSysOutSysErr();
     }
 }

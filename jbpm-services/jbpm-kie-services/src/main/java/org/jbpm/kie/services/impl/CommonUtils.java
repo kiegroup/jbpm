@@ -21,25 +21,25 @@ import org.kie.internal.command.ProcessInstanceIdCommand;
 
 /**
  * This class is also used in the kie-remote-client module
- * 
+ *
  *
  */
 public class CommonUtils {
-	
-	/**
-	 * Returns the process instance id field in a command, if available
-	 * </p>
-	 * See the CommonUtils.testProcessInstanceIdCommands test in this module 
-	 * 
-	 * @param command The {@link Command} instance
-	 * @return the process instance id, if it's available in this command
-	 */
-	public static Long getProcessInstanceId(Command<?> command) {
-		if (command instanceof ProcessInstanceIdCommand) {
-			return ((ProcessInstanceIdCommand) command).getProcessInstanceId();
-		} 
+
+    /**
+     * Returns the process instance id field in a command, if available
+     * </p>
+     * See the CommonUtils.testProcessInstanceIdCommands test in this module
+     *
+     * @param command The {@link Command} instance
+     * @return the process instance id, if it's available in this command
+     */
+    public static Long getProcessInstanceId(Command<?> command) {
+        if (command instanceof ProcessInstanceIdCommand) {
+            return ((ProcessInstanceIdCommand) command).getProcessInstanceId();
+        }
 
         return null;
-		
-	}
+
+    }
 }

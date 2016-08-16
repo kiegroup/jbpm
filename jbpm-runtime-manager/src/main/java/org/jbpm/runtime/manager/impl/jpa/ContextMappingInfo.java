@@ -39,18 +39,18 @@ import javax.persistence.Version;
 @Entity
 @SequenceGenerator(name="contextMappingInfoIdSeq", sequenceName="CONTEXT_MAPPING_INFO_ID_SEQ")
 @NamedQueries(value=
-    {@NamedQuery(name="FindContextMapingByContextId", 
+    {@NamedQuery(name="FindContextMapingByContextId",
                 query="from ContextMappingInfo where contextId = :contextId"
-                		+ " and ownerId = :ownerId"),
-                @NamedQuery(name="FindContextMapingByKSessionId", 
+                        + " and ownerId = :ownerId"),
+                @NamedQuery(name="FindContextMapingByKSessionId",
                 query="from ContextMappingInfo where ksessionId = :ksessionId"
-                		+ " and ownerId = :ownerId"),
-                @NamedQuery(name="FindKSessionToInit", 
+                        + " and ownerId = :ownerId"),
+                @NamedQuery(name="FindKSessionToInit",
                 query="select cmInfo.ksessionId from ContextMappingInfo cmInfo, "
-                		+ "ProcessInstanceInfo processInstanceInfo join processInstanceInfo.eventTypes eventTypes"
-                		+ " where eventTypes = 'timer' and cmInfo.contextId = cast(processInstanceInfo.processInstanceId as string)"
-                		+ " and cmInfo.ownerId = :ownerId"),
-        		@NamedQuery(name="FindProcessInstanceWaitingForEvent", 
+                        + "ProcessInstanceInfo processInstanceInfo join processInstanceInfo.eventTypes eventTypes"
+                        + " where eventTypes = 'timer' and cmInfo.contextId = cast(processInstanceInfo.processInstanceId as string)"
+                        + " and cmInfo.ownerId = :ownerId"),
+                @NamedQuery(name="FindProcessInstanceWaitingForEvent",
                 query="select cmInfo.contextId from ContextMappingInfo cmInfo, "
                         + "ProcessInstanceInfo processInstanceInfo join processInstanceInfo.eventTypes eventTypes"
                         + " where eventTypes = :eventType and cmInfo.contextId = cast(processInstanceInfo.processInstanceId as string)"
@@ -58,7 +58,7 @@ import javax.persistence.Version;
 public class ContextMappingInfo implements Serializable {
 
     private static final long serialVersionUID = 533985957655465840L;
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator="contextMappingInfoIdSeq")
     private Long mappingId;
@@ -66,7 +66,7 @@ public class ContextMappingInfo implements Serializable {
     @Version
     @Column(name = "OPTLOCK")
     private int version;
-    
+
     @Column(name="CONTEXT_ID", nullable=false)
     private String contextId;
     @Column(name="KSESSION_ID", nullable=false)
@@ -74,8 +74,8 @@ public class ContextMappingInfo implements Serializable {
     @Column(name="OWNER_ID")
     private String ownerId;
 
-	public ContextMappingInfo() {
-        
+    public ContextMappingInfo() {
+
     }
 
     public ContextMappingInfo(String contextId, Long ksessionId, String ownerId) {
@@ -115,13 +115,13 @@ public class ContextMappingInfo implements Serializable {
     public void setKsessionId(Long ksessionId) {
         this.ksessionId = ksessionId;
     }
-        
-    public String getOwnerId() {
-		return ownerId;
-	}
 
-	public void setOwnerId(String ownerId) {
-		this.ownerId = ownerId;
-	}
+    public String getOwnerId() {
+        return ownerId;
+    }
+
+    public void setOwnerId(String ownerId) {
+        this.ownerId = ownerId;
+    }
 
 }

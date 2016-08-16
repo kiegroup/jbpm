@@ -11,14 +11,14 @@
   <property name="eclipse.workspace.dir" value="${install.home}/workspace"/>
 
   <property name="slf4j.download.url" value="http://repo1.maven.org/maven2/org/slf4j/slf4j-jdk14/1.5.11/slf4j-jdk14-1.5.11.jar"/>
-	
+  
   <property name="jpa.version" value="JPA2"/>
   <property name="hibernate.tools.4.download.url" value="https://repository.jboss.org/nexus/content/groups/public/org/hibernate/hibernate-tools/4.0.0-CR1/hibernate-tools-4.0.0-CR1.jar"/>
   <property name="hibernate.tools.3.download.url" value="https://repository.jboss.org/nexus/content/groups/public/org/hibernate/hibernate-tools/3.2.4.GA/hibernate-tools-3.2.4.GA.jar"/>
   <property name="hibernate4.download.url" value="https://repository.jboss.org/nexus/content/groups/public/org/hibernate"/>
   <property name="freemarker.download.url" value="https://repository.jboss.org/nexus/content/repositories/central/org/freemarker/freemarker/2.3.19/freemarker-2.3.19.jar"/>
   <property name="jboss.logging.download.url" value="https://repository.jboss.org/nexus/content/groups/public/org/jboss/logging/jboss-logging/3.1.2.GA/jboss-logging-3.1.2.GA.jar"/>
-	
+  
   <path id="generate.ddl.JPA2.class.path">
     <fileset dir="${install.home}/runtime">
       <include name="*.jar"/>
@@ -43,7 +43,7 @@
       <include name="antlr-2.7.7.jar"/>
       <include name="hibernate-jpa-2.0-api*.jar"/>
       <include name="jta-1.1.jar"/>
-	  <include name="jboss-transaction-api*.jar"/>
+    <include name="jboss-transaction-api*.jar"/>
       <include name="javassist-*.jar"/>
     </fileset>
   </path>
@@ -56,8 +56,8 @@
     <fileset dir="${install.home}/runtime/lib/">
       <include name="drools*.jar"/>
     </fileset>
-  </path>	
-	
+  </path> 
+  
   <!-- ############ DOWNLOAD ############ -->
 
   <!-- Download JDBC driver jar-->
@@ -107,7 +107,7 @@
 
   <!-- Download Eclipse -->
   <condition property="download.type" value="win32">
-  	<and>
+    <and>
       <os family="windows" />
       <not>
         <or>
@@ -125,7 +125,7 @@
         <os arch="amd64" />
       </or>
     </and>
-  </condition>	
+  </condition>  
   <condition property="download.type" value="macosx-cocoa-x86_64">
     <and>
       <os family="mac" />
@@ -157,16 +157,16 @@
         <os arch="amd64" />
       </or>
     </and>
-  </condition>		
+  </condition>    
   <condition property="download.extension" value="zip">
     <os family="windows" />
-  </condition>		
+  </condition>    
   <condition property="download.extension" value="tar.gz">
     <or>
       <os family="mac" />
       <os family="unix" />
     </or>
-  </condition>	
+  </condition>  
   <condition property="expandTypeZip" value="true">
     <equals arg1="${download.extension}" arg2="zip" />
   </condition>   
@@ -252,7 +252,7 @@
     <echo message="Checking jBPM console download ..." />
     <condition property="jBPM.console.not.available">
       <and>
-    	<not>
+      <not>
           <available file="${install.home}/lib/jbpm-console-${jBPM.version}-${jboss.war.type}.war" />
         </not>
       </and>
@@ -261,15 +261,15 @@
   <target name="download.jBPM.console" depends="download.jBPM.console.check" if="jBPM.console.not.available">
     <echo message="Getting jBPM console ..." />
     <mkdir dir="${install.home}/lib"/>
-  	<get src="${jBPM.console.url}" dest="${install.home}/lib/jbpm-console-${jBPM.version}-${jboss.war.type}.war"  />
+    <get src="${jBPM.console.url}" dest="${install.home}/lib/jbpm-console-${jBPM.version}-${jboss.war.type}.war"  />
   </target>
-	
+  
   <!-- Download kie-server -->
   <target name="download.kie.server.check">
     <echo message="Checking KIE Server download ..." />
     <condition property="kie.server.not.available">
       <and>
-    	<not>
+      <not>
           <available file="${install.home}/lib/kie-server-${jBPM.version}-${jboss.war.type}.war" />
         </not>
       </and>
@@ -278,7 +278,7 @@
   <target name="download.kie.server" depends="download.kie.server.check" if="kie.server.not.available">
     <echo message="Getting KIE Server ..." />
     <mkdir dir="${install.home}/lib"/>
-  	<get src="${kie.server.url}" dest="${install.home}/lib/kie-server-${jBPM.version}-${jboss.war.type}.war"  />
+    <get src="${kie.server.url}" dest="${install.home}/lib/kie-server-${jBPM.version}-${jboss.war.type}.war"  />
   </target>
 
   <!-- ############ INSTALL ############ -->
@@ -291,7 +291,7 @@
     <chmod perm="a+x" file="${jboss.home}/bin/standalone.sh" />
     <chmod perm="a+x" file="${jboss.home}/bin/jboss-cli.sh" />
   </target>
-	
+  
   <!-- Install jBPM console -->
   <target name="install.jBPM-console.into.jboss" depends="download.db.driver,download.jBPM.console,install.configuration.into.jboss">
     <mkdir dir="${install.home}/target"/>
@@ -305,8 +305,8 @@
     <copy todir="${install.home}/target/jbpm-console-war/WEB-INF/classes" overwrite="true">
       <fileset dir="${install.home}/conf"/>
     </copy>
-  	<!-- install dependencies -->
-  	<antcall target="install.dependencies" />
+    <!-- install dependencies -->
+    <antcall target="install.dependencies" />
     <zip basedir="${install.home}/target/jbpm-console-war"
          destfile="${install.home}/target/jbpm-console-${jBPM.version}-${jboss.war.type}.war"/>
     <copy file="${install.home}/target/jbpm-console-${jBPM.version}-${jboss.war.type}.war"
@@ -337,22 +337,22 @@
   </target>
 
   <!-- Install dependencies -->
-  <target name="install.dependencies">	
-  	<copy todir="${install.home}/target/jbpm-console-war/WEB-INF/lib">
-  		<fileset dir="${install.home}/dependencies">
-  		  <include name="**/*.jar"/>
-  		</fileset>
+  <target name="install.dependencies">  
+    <copy todir="${install.home}/target/jbpm-console-war/WEB-INF/lib">
+      <fileset dir="${install.home}/dependencies">
+        <include name="**/*.jar"/>
+      </fileset>
     </copy>
   </target>
-	
+  
   <!-- Install Dashboard -->
   <target name="install.dashboard.into.jboss" depends="download.dashboard">
     <mkdir dir="${install.home}/target"/>
     <mkdir dir="${install.home}/target/dashboard-builder-war"/>
     <unzip src="${install.home}/lib/dashboard-builder-${dashboard.version}-${jboss.war.type}.war"
            dest="${install.home}/target/dashboard-builder-war"/>
-  	<copy tofile="${install.home}/target/dashboard-builder-war/WEB-INF/jboss-web.xml" overwrite="true" 
-  		  file="${install.home}/dashboard-builder-jboss-web.xml" failonerror="false"/>
+    <copy tofile="${install.home}/target/dashboard-builder-war/WEB-INF/jboss-web.xml" overwrite="true" 
+        file="${install.home}/dashboard-builder-jboss-web.xml" failonerror="false"/>
     <zip basedir="${install.home}/target/dashboard-builder-war"
          destfile="${install.home}/target/dashboard-builder-${dashboard.version}.war"/>
     <copy file="${install.home}/target/dashboard-builder-${dashboard.version}.war"
@@ -363,10 +363,10 @@
 
   <!-- Install Eclipse -->
   <target name="install.eclipse" depends="download.eclipse,download.eclipse.gef">   
-    <antcall target="unzipEclipse" />	
+    <antcall target="unzipEclipse" /> 
     <antcall target="untarEclipse" />
     <unzip dest="${install.home}" overwrite="true" 
-           src="${install.home}/lib/GEF-SDK-3.10.1.zip" />				         
+           src="${install.home}/lib/GEF-SDK-3.10.1.zip" />                 
   </target>
   
   <target name="unzipEclipse" if="expandTypeZip">
@@ -458,7 +458,7 @@
     <condition property="start.h2.db">
       <equals arg1="${db.name}" arg2="h2"/>
     </condition>
-  </target>	
+  </target> 
 
   <!-- Start H2 server -->
   <target name="start.h2" depends="start.h2.check" if="start.h2.db">
@@ -555,7 +555,7 @@
       <arg value="-perspective" />
       <arg value="org.jbpm.eclipse.JBPMPerspective" />
     </exec>
-  	<chmod perm="a+x" file="./generate.mac.eclipse.preferences.sh" />
+    <chmod perm="a+x" file="./generate.mac.eclipse.preferences.sh" />
     <exec executable="./generate.mac.eclipse.preferences.sh" osfamily="mac"/>
     <exec executable="./Eclipse.app/Contents/MacOS/eclipse" spawn="yes" osfamily="mac">
       <arg value="-data" />
@@ -574,7 +574,7 @@
   <target name="start.demo.eclipse" depends="start.h2,start.eclipse" />
 
   <!-- Start Demo (No Eclipse)--> 
-  <target name="start.demo.noeclipse" depends="start.h2,start.jboss" />	
+  <target name="start.demo.noeclipse" depends="start.h2,start.jboss" /> 
   
   <!-- Stop Demo -->
   <target name="stop.demo" depends="stop.h2,stop.jboss" />
@@ -583,35 +583,35 @@
 
 
   <!-- ############ CLEAN ############ -->
-	
+  
   <!-- Clean jboss -->
   <target name="clean.jboss">
     <delete dir="${jboss.home}"/>
-  	<antcall target="clean.jboss.repository" />    
+    <antcall target="clean.jboss.repository" />    
   </target>
-	
+  
   <target name="clean.db" >
     <delete file="${user.home}/jbpm-db.h2.db" failonerror="false"/>
-  	<delete file="${user.home}/jbpm-db.trace.db" failonerror="false"/>
+    <delete file="${user.home}/jbpm-db.trace.db" failonerror="false"/>
   </target>
 
   <target name="check.clean.repository">
     <condition property="clean.repository">
-	  <equals arg1="${jboss.clean.repository}" arg2="true" />
-	</condition>
+    <equals arg1="${jboss.clean.repository}" arg2="true" />
+  </condition>
   </target>
 
   <target name="clean.jboss.repository" if="clean.repository" depends="check.clean.repository">
-  	<delete dir="${install.home}/.niogit"/>
+    <delete dir="${install.home}/.niogit"/>
     <delete dir="${install.home}/.index"/>
     <delete dir="${install.home}/.security"/>
     <delete dir="${install.home}/repositories"/>
   </target>
-	
+  
   <target name="check.clean.eclipse.workspace">
     <condition property="clean.eclipse.workspace">
-	  <equals arg1="${eclipse.clean.workspace}" arg2="true" />
-	</condition>
+    <equals arg1="${eclipse.clean.workspace}" arg2="true" />
+  </condition>
   </target>
 
   <!-- Clean eclipse -->
@@ -625,67 +625,67 @@
   <target name="clean.demo" depends="clean.jboss,clean.eclipse,clean.generated.ddl,clean.db" />
   <!-- Clean Demo (No Eclipse) -->
   <target name="clean.demo.noeclipse" depends="clean.jboss,clean.generated.ddl,clean.db" />
-	
+  
   <!-- ############### generate DDL out of persitence.xml ############### -->
-	<target name="download.ddl.check">
-	    <echo message="Checking if ddl generation dependencies jars has been downloaded ..." />
-	    <condition property="ddl.dependencies.not.available">
-	      <not>
-	        <available file="${install.home}/lib/ddl-dependencies" />
-	      </not>
-	    </condition>
-	  </target>	
-	
+  <target name="download.ddl.check">
+      <echo message="Checking if ddl generation dependencies jars has been downloaded ..." />
+      <condition property="ddl.dependencies.not.available">
+        <not>
+          <available file="${install.home}/lib/ddl-dependencies" />
+        </not>
+      </condition>
+    </target> 
+  
   <target name="download.ddl.dependencies" depends="download.ddl.check" if="ddl.dependencies.not.available">
     <echo message="Getting hibernate4 libs ..." />
     <mkdir dir="${install.home}/lib/ddl-dependencies"/>
     <get src="${hibernate4.download.url}/hibernate-core/4.2.0.Final/hibernate-core-4.2.0.Final.jar" dest="${install.home}/lib/ddl-dependencies" />
-  	<get src="${hibernate4.download.url}/hibernate-entitymanager/4.2.0.Final/hibernate-entitymanager-4.2.0.Final.jar" dest="${install.home}/lib/ddl-dependencies" />
+    <get src="${hibernate4.download.url}/hibernate-entitymanager/4.2.0.Final/hibernate-entitymanager-4.2.0.Final.jar" dest="${install.home}/lib/ddl-dependencies" />
     <get src="${hibernate4.download.url}/common/hibernate-commons-annotations/4.0.1.Final/hibernate-commons-annotations-4.0.1.Final.jar" dest="${install.home}/lib/ddl-dependencies" />
-  	<get src="${jboss.logging.download.url}" dest="${install.home}/lib/ddl-dependencies" />
-  	
-  	<echo message="Getting freemarker ..." />
-  	<get src="${freemarker.download.url}" dest="${install.home}/lib/ddl-dependencies" />
-  	
-  	<echo message="Getting hibernate tools 4 ..." />
-  	<get src="${hibernate.tools.4.download.url}" dest="${install.home}/lib/ddl-dependencies/hibernate-tools4.jar" />
-  	
-  	<echo message="Getting hibernate tools 3 ..." />
-  	<get src="${hibernate.tools.3.download.url}" dest="${install.home}/lib/ddl-dependencies/hibernate-tools3.jar" />
+    <get src="${jboss.logging.download.url}" dest="${install.home}/lib/ddl-dependencies" />
+    
+    <echo message="Getting freemarker ..." />
+    <get src="${freemarker.download.url}" dest="${install.home}/lib/ddl-dependencies" />
+    
+    <echo message="Getting hibernate tools 4 ..." />
+    <get src="${hibernate.tools.4.download.url}" dest="${install.home}/lib/ddl-dependencies/hibernate-tools4.jar" />
+    
+    <echo message="Getting hibernate tools 3 ..." />
+    <get src="${hibernate.tools.3.download.url}" dest="${install.home}/lib/ddl-dependencies/hibernate-tools3.jar" />
   </target>
-	
-	<!-- Clean generated ddl -->
-	<target name="clean.generated.ddl" >
-		<delete dir="db/export-jbpm"/>
-		<delete dir="db/export-ht"/>
-	</target>
-	
-	<target name="jbpm.schemaexport" depends="install.jBPM.runtime,download.ddl.dependencies">
-	  <delete dir="db/export-jbpm"/>
-	  <!-- task definition; project.class.path contains all necessary libs -->
-	  <taskdef name="hibernatetool" classname="org.hibernate.tool.ant.HibernateToolTask"
-	      classpathref="generate.ddl.${jpa.version}.class.path" />
-	  <mkdir dir="db/export-jbpm"/>
-	  <mkdir dir="db/export-jbpm/META-INF"/>
-	  <copy tofile="db/export-jbpm/META-INF/persistence.xml" file="db/jbpm-persistence-${jpa.version}.xml"/>
-	  <copy todir="db/export-jbpm/META-INF">
-    	  <fileset dir="db/">
-    	  	<include name="ProcessInstanceInfo.hbm.xml"/>
-    	  	<include name="ProcessInstanceInfoMapping.xml"/>
-    	  </fileset>
-	  </copy>	
-	  <hibernatetool destdir="db/export-jbpm">
-	    <jpaconfiguration persistenceunit="org.jbpm.persistence.jpa.ddl" />
-	    <classpath>
-    	    <pathelement path="${generate.ddl.JPA2.class.path}"/>
-	    	<dirset dir="db/export-jbpm/">
-	        </dirset>
-	    </classpath>
-	    <hbm2ddl outputfilename="jbpmschemaexport.sql" format="true"
-	        export="false" drop="true" />
-	  </hibernatetool>
-	  <delete dir="db/export-jbpm/META-INF"/>
-	</target>
+  
+  <!-- Clean generated ddl -->
+  <target name="clean.generated.ddl" >
+    <delete dir="db/export-jbpm"/>
+    <delete dir="db/export-ht"/>
+  </target>
+  
+  <target name="jbpm.schemaexport" depends="install.jBPM.runtime,download.ddl.dependencies">
+    <delete dir="db/export-jbpm"/>
+    <!-- task definition; project.class.path contains all necessary libs -->
+    <taskdef name="hibernatetool" classname="org.hibernate.tool.ant.HibernateToolTask"
+        classpathref="generate.ddl.${jpa.version}.class.path" />
+    <mkdir dir="db/export-jbpm"/>
+    <mkdir dir="db/export-jbpm/META-INF"/>
+    <copy tofile="db/export-jbpm/META-INF/persistence.xml" file="db/jbpm-persistence-${jpa.version}.xml"/>
+    <copy todir="db/export-jbpm/META-INF">
+        <fileset dir="db/">
+          <include name="ProcessInstanceInfo.hbm.xml"/>
+          <include name="ProcessInstanceInfoMapping.xml"/>
+        </fileset>
+    </copy> 
+    <hibernatetool destdir="db/export-jbpm">
+      <jpaconfiguration persistenceunit="org.jbpm.persistence.jpa.ddl" />
+      <classpath>
+          <pathelement path="${generate.ddl.JPA2.class.path}"/>
+        <dirset dir="db/export-jbpm/">
+          </dirset>
+      </classpath>
+      <hbm2ddl outputfilename="jbpmschemaexport.sql" format="true"
+          export="false" drop="true" />
+    </hibernatetool>
+    <delete dir="db/export-jbpm/META-INF"/>
+  </target>
 
    <target name="ht.schemaexport" depends="install.jBPM.runtime,download.ddl.dependencies">
       <delete dir="db/export-ht"/>
@@ -694,10 +694,10 @@
           classpathref="generate.ddl.${jpa.version}.class.path" />
       <mkdir dir="db/export-ht"/>
       <mkdir dir="db/export-ht/META-INF"/>
-   	  <copy tofile="db/export-ht/META-INF/persistence.xml" file="db/task-persistence-${jpa.version}.xml"/>
+      <copy tofile="db/export-ht/META-INF/persistence.xml" file="db/task-persistence-${jpa.version}.xml"/>
       <copy todir="db/export-ht/META-INF">
         <fileset dir="db/">
-      	  <include name="Taskorm-${jpa.version}.xml"/>
+          <include name="Taskorm-${jpa.version}.xml"/>
         </fileset>
       </copy>   
       <hibernatetool destdir="db/export-ht">

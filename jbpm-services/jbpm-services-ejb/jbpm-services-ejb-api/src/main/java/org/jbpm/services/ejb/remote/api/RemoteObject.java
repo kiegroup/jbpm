@@ -24,19 +24,19 @@ import java.io.Serializable;
  */
 public class RemoteObject extends AbstractRemoteObject implements Serializable {
 
-	private static final long serialVersionUID = 61486849584640922L;
+    private static final long serialVersionUID = 61486849584640922L;
 
-	private byte[] content;
-	
-	public RemoteObject(Object object) {
-		this.content = serialize(object);
-	}
-	
-	public Object get() {
-		if (this.content == null) {
-			return null;
-		}
-		
-		return deserialize(content);
-	}
+    private byte[] content;
+
+    public RemoteObject(Object object) {
+        this.content = serialize(object);
+    }
+
+    public Object get() {
+        if (this.content == null) {
+            return null;
+        }
+
+        return deserialize(content);
+    }
 }

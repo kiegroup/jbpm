@@ -32,12 +32,12 @@ import org.kie.internal.process.CorrelationProperty;
 @SequenceGenerator(name="correlationPropertyInfoIdSeq", sequenceName="CORRELATION_PROP_ID_SEQ")
 public class CorrelationPropertyInfo implements CorrelationProperty<String>, Serializable {
 
-	private static final long serialVersionUID = -4469224502447675428L;
+    private static final long serialVersionUID = -4469224502447675428L;
 
-	public CorrelationPropertyInfo() {
-        
+    public CorrelationPropertyInfo() {
+
     }
-    
+
     public CorrelationPropertyInfo(String name, String value) {
         this.name = name;
         this.value = value;
@@ -47,24 +47,24 @@ public class CorrelationPropertyInfo implements CorrelationProperty<String>, Ser
     @GeneratedValue(strategy = GenerationType.AUTO, generator="correlationPropertyInfoIdSeq")
     @Column(name = "propertyId")
     private long id;
-    
+
     @Version
     @Column(name = "OPTLOCK")
     private int version;
-    
+
     @ManyToOne
     private CorrelationKeyInfo correlationKey;
-    
+
     private String name;
     private String value;
-    
+
     @Override
     public String getName() {
         return this.name;
     }
 
     @Override
-    public String getType() {        
+    public String getType() {
         return String.class.getName();
     }
 
@@ -130,6 +130,6 @@ public class CorrelationPropertyInfo implements CorrelationProperty<String>, Ser
             return false;
         return true;
     }
-    
+
 
 }

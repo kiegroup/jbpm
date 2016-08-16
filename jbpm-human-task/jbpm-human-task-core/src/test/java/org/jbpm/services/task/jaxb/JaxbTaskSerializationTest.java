@@ -119,7 +119,7 @@ public class JaxbTaskSerializationTest extends AbstractTaskSerializationTest {
     public void taskCommandSubTypesCanBeSerialized() throws Exception {
         for (Class<?> jaxbClass : reflections.getSubTypesOf(TaskCommand.class)) {
             if (jaxbClass.equals(UserGroupCallbackTaskCommand.class)
-            		|| jaxbClass.equals(GetCurrentTxTasksCommand.class)) {
+                    || jaxbClass.equals(GetCurrentTxTasksCommand.class)) {
                 continue;
             }
             addClassesToSerializationContext(jaxbClass);
@@ -160,7 +160,7 @@ public class JaxbTaskSerializationTest extends AbstractTaskSerializationTest {
                   taskCmdSubTypes.remove(xmlElemAnnoType);
                }
                if( ! taskCmdSubTypes.isEmpty() ) {
-            	   System.out.println("##### " + taskCmdSubTypes.iterator().next().getCanonicalName());
+                   System.out.println("##### " + taskCmdSubTypes.iterator().next().getCanonicalName());
                   fail( "(" + taskCmdSubTypes.iterator().next().getSimpleName() + ") Not all " + TaskCommand.class.getSimpleName() + " sub types have been added to the @XmlElements in the CompositeCommand." + field.getName() + " field.");
                }
            } else {

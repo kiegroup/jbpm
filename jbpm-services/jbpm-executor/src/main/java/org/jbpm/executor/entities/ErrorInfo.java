@@ -37,16 +37,16 @@ import org.slf4j.LoggerFactory;
 @Entity
 @SequenceGenerator(name="errorInfoIdSeq", sequenceName="ERROR_INFO_ID_SEQ")
 public class ErrorInfo implements org.kie.internal.executor.api.ErrorInfo, Serializable {
-	
-	private static final Logger logger = LoggerFactory.getLogger(ErrorInfo.class);
+
+    private static final Logger logger = LoggerFactory.getLogger(ErrorInfo.class);
 
     private static final long serialVersionUID = 1548071325967795108L;
-    
+
     @Transient
-	private final int MESSAGE_LOG_LENGTH = Integer.parseInt(System.getProperty("org.kie.executor.msg.length", "255"));
+    private final int MESSAGE_LOG_LENGTH = Integer.parseInt(System.getProperty("org.kie.executor.msg.length", "255"));
     @Transient
     private final int STACKTRACE_LOG_LENGTH = Integer.parseInt(System.getProperty("org.kie.executor.stacktrace.length", "5000"));
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator="errorInfoIdSeq")
     private Long id;
@@ -56,11 +56,11 @@ public class ErrorInfo implements org.kie.internal.executor.api.ErrorInfo, Seria
     private String message;
     @Column(length=5000)
     private String stacktrace;
-    
+
     @ManyToOne
     @JoinColumn(name="REQUEST_ID", nullable=false)
     private RequestInfo requestInfo;
-    
+
     public ErrorInfo() {
     }
 
@@ -109,9 +109,9 @@ public class ErrorInfo implements org.kie.internal.executor.api.ErrorInfo, Seria
 
     public void setRequestInfo(RequestInfo requestInfo) {
         this.requestInfo = requestInfo;
-    }   
+    }
 
-	@Override
+    @Override
     public String toString() {
         return "ErrorInfo{" + "id=" + id + ", time=" + time + ", message=" + message + ", stacktrace=" + stacktrace + ", requestInfo=" + requestInfo.getId() + '}';
     }
@@ -155,15 +155,15 @@ public class ErrorInfo implements org.kie.internal.executor.api.ErrorInfo, Seria
     }
 
     protected void trimToSize() {
-    	if (this.message != null && this.message.length() > MESSAGE_LOG_LENGTH) {
-    		logger.warn("trimming message as it's too long : {}", this.message.length());
-    		this.message = message.substring(0, MESSAGE_LOG_LENGTH);
-    	}
-    	
-    	if (this.stacktrace != null && this.stacktrace.length() > STACKTRACE_LOG_LENGTH) {
-    		logger.warn("trimming stacktrace as it's too long : {}", this.stacktrace.length());
-    		this.stacktrace = stacktrace.substring(0, STACKTRACE_LOG_LENGTH);
-    	}
+        if (this.message != null && this.message.length() > MESSAGE_LOG_LENGTH) {
+            logger.warn("trimming message as it's too long : {}", this.message.length());
+            this.message = message.substring(0, MESSAGE_LOG_LENGTH);
+        }
+
+        if (this.stacktrace != null && this.stacktrace.length() > STACKTRACE_LOG_LENGTH) {
+            logger.warn("trimming stacktrace as it's too long : {}", this.stacktrace.length());
+            this.stacktrace = stacktrace.substring(0, STACKTRACE_LOG_LENGTH);
+        }
     }
-    
+
 }

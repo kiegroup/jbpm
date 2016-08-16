@@ -21,7 +21,7 @@ import org.kie.api.runtime.process.WorkItemHandler;
 import org.kie.api.runtime.process.WorkItemManager;
 
 /**
- * 
+ *
  */
 public class SystemOutWorkItemHandler implements WorkItemHandler {
 

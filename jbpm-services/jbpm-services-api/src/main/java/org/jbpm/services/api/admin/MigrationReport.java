@@ -21,8 +21,8 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Represents complete migration report to provide all required details 
- * about performed steps during process instance migration. 
+ * Represents complete migration report to provide all required details
+ * about performed steps during process instance migration.
  *
  */
 public interface MigrationReport extends Serializable {

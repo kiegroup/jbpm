@@ -19,6 +19,6 @@ package org.jbpm.services.api.model;
 import java.util.Map;
 
 public interface ProcessInstanceWithVarsDesc extends ProcessInstanceDesc {
-	
+
     Map<String, Object> getVariables();
 }

@@ -53,7 +53,7 @@ import org.kie.internal.runtime.manager.Mapper;
 import org.kie.internal.runtime.manager.RuntimeEnvironment;
 
 /**
- * The most basic implementation of the <code>RuntimeEnvironment</code> that, at the same time, serves as base 
+ * The most basic implementation of the <code>RuntimeEnvironment</code> that, at the same time, serves as base
  * implementation for all extensions. Encapsulates all important configuration that <code>RuntimeManager</code>
  * requires for execution.
  * <ul>
@@ -70,10 +70,10 @@ import org.kie.internal.runtime.manager.RuntimeEnvironment;
  *
  */
 public class SimpleRuntimeEnvironment implements RuntimeEnvironment, SchedulerProvider {
-    
+
     protected boolean usePersistence;
     protected EntityManagerFactory emf;
-    
+
     protected Map<String, Object> environmentEntries;
     protected Environment environment;
     protected KieSessionConfiguration configuration;
@@ -84,13 +84,13 @@ public class SimpleRuntimeEnvironment implements RuntimeEnvironment, SchedulerPr
     protected UserGroupCallback userGroupCallback;
     protected GlobalSchedulerService schedulerService;
     protected ClassLoader classLoader;
-    
-    protected Properties sessionConfigProperties;      
-    
+
+    protected Properties sessionConfigProperties;
+
     public SimpleRuntimeEnvironment() {
-        this(new SimpleRegisterableItemsFactory());        
+        this(new SimpleRegisterableItemsFactory());
     }
-    
+
     public SimpleRuntimeEnvironment(RegisterableItemsFactory registerableItemsFactory) {
         this.environment = EnvironmentFactory.newEnvironment();
         this.environmentEntries = new HashMap<String, Object>();
@@ -98,67 +98,67 @@ public class SimpleRuntimeEnvironment implements RuntimeEnvironment, SchedulerPr
         this.registerableItemsFactory = registerableItemsFactory;
 
     }
-    
+
     public void init() {
         if (this.mapper == null) {
             this.mapper = new InMemoryMapper();
         }
     }
-    
+
     /**
      * Adds given asset to knowledge builder to produce KieBase
-     * @param resource asset to be added 
+     * @param resource asset to be added
      * @param type type of the asset
      */
     public void addAsset(Resource resource, ResourceType type) {
         /**
          * The code below (CSV/XLS) was added because of timelines related to switchyard/fuse.
-         *  
-         * However, it is an ugly hack: As soon as is possible, the code below should be removed or refactored. 
+         *
+         * However, it is an ugly hack: As soon as is possible, the code below should be removed or refactored.
          * - an "addAsset(Resource, ResourceType, ResourceConfiguration)" method should be added to this implementation
          * - or the kbuilder code should be refactored so that there are two ResourceTypes: CSV and XLS
-         * 
+         *
          * (refactoring the kbuilder code is probably a better idea.)
          */
         boolean replaced = false;
-        if (resource.getSourcePath() != null ) { 
+        if (resource.getSourcePath() != null ) {
             String path = resource.getSourcePath();
-          
+
             String typeStr = null;
-            if( path.toLowerCase().endsWith(".csv") ) { 
+            if( path.toLowerCase().endsWith(".csv") ) {
                 typeStr = DecisionTableInputType.CSV.toString();
-            } else if( path.toLowerCase().endsWith(".xls") ) { 
+            } else if( path.toLowerCase().endsWith(".xls") ) {
                 typeStr = DecisionTableInputType.XLS.toString();
-            } 
-           
-            if( typeStr != null ) { 
+            }
+
+            if( typeStr != null ) {
                 String worksheetName = null;
                 boolean replaceConfig = true;
                 ResourceConfiguration config = resource.getConfiguration();
-                if( config != null && config instanceof DecisionTableConfiguration ) { 
+                if( config != null && config instanceof DecisionTableConfiguration ) {
                     DecisionTableInputType realType = DecisionTableInputType.valueOf(typeStr);
-                    if( ((DecisionTableConfiguration) config).getInputType().equals(realType) ) { 
+                    if( ((DecisionTableConfiguration) config).getInputType().equals(realType) ) {
                        replaceConfig = false;
-                    } else { 
+                    } else {
                         worksheetName = ((DecisionTableConfiguration) config).getWorksheetName();
                     }
                 }
 
-                if( replaceConfig ) { 
+                if( replaceConfig ) {
                     Properties prop = new Properties();
                     prop.setProperty(ResourceTypeImpl.KIE_RESOURCE_CONF_CLASS, DecisionTableConfigurationImpl.class.getName());
                     prop.setProperty(DecisionTableConfigurationImpl.DROOLS_DT_TYPE, typeStr);
-                    if( worksheetName != null ) { 
+                    if( worksheetName != null ) {
                         prop.setProperty(DecisionTableConfigurationImpl.DROOLS_DT_WORKSHEET, worksheetName);
                     }
                     ResourceConfiguration conf = ResourceTypeImpl.fromProperties(prop);
                     this.kbuilder.add(resource, type, conf);
                     replaced = true;
                 }
-            } 
-        } 
-        
-        if( ! replaced ) { 
+            }
+        }
+
+        if( ! replaced ) {
             this.kbuilder.add(resource, type);
         }
 
@@ -171,9 +171,9 @@ public class SimpleRuntimeEnvironment implements RuntimeEnvironment, SchedulerPr
             throw new IllegalArgumentException("Cannot add asset: " + errorMessage.toString());
         }
     }
-    
+
     /**
-     * Adds element to the drools/jbpm environment - the value must be thread save as it will be shared between all 
+     * Adds element to the drools/jbpm environment - the value must be thread save as it will be shared between all
      * <code>RuntimeEngine</code> instances
      * @param name name of the environment entry
      * @param value value of the environment entry
@@ -182,7 +182,7 @@ public class SimpleRuntimeEnvironment implements RuntimeEnvironment, SchedulerPr
         this.environment.set(name, value);
         this.environmentEntries.put(name, value);
     }
-    
+
     /**
      * Adds configuration property that will be part of <code>KieSessionConfiguration</code>
      * @param name name of the property
@@ -202,9 +202,9 @@ public class SimpleRuntimeEnvironment implements RuntimeEnvironment, SchedulerPr
         }
         return this.kbase;
     }
-    
+
     public Environment getEnvironmentTemplate() {
-    	return this.environment;
+        return this.environment;
     }
 
     @Override
@@ -215,28 +215,28 @@ public class SimpleRuntimeEnvironment implements RuntimeEnvironment, SchedulerPr
 
     @Override
     public KieSessionConfiguration getConfiguration() {
-    	KieSessionConfiguration config = null;
-    	if (this.sessionConfigProperties != null) {
-    		config = KieServices.Factory.get().newKieSessionConfiguration(this.sessionConfigProperties, classLoader);
+        KieSessionConfiguration config = null;
+        if (this.sessionConfigProperties != null) {
+            config = KieServices.Factory.get().newKieSessionConfiguration(this.sessionConfigProperties, classLoader);
         } else {
-        	config = KieServices.Factory.get().newKieSessionConfiguration(null, classLoader);
+            config = KieServices.Factory.get().newKieSessionConfiguration(null, classLoader);
         }
-    	// add special option to fire activations marked as eager directly
-    	config.setOption(ForceEagerActivationOption.YES);
-    	
-    	return config;
+        // add special option to fire activations marked as eager directly
+        config.setOption(ForceEagerActivationOption.YES);
+
+        return config;
     }
     @Override
     public boolean usePersistence() {
-        
+
         return this.usePersistence;
     }
-    
+
     @Override
     public RegisterableItemsFactory getRegisterableItemsFactory() {
         return this.registerableItemsFactory;
     }
-    
+
     @Override
     public void close() {
 
@@ -248,10 +248,10 @@ public class SimpleRuntimeEnvironment implements RuntimeEnvironment, SchedulerPr
             copy.set(name, value);
         }
     }
-    
+
     protected Environment copyEnvironment() {
         Environment copy = EnvironmentFactory.newEnvironment();
-        
+
         addIfPresent(EnvironmentName.ENTITY_MANAGER_FACTORY,copy);
         addIfPresent(EnvironmentName.CALENDARS, copy);
         addIfPresent(EnvironmentName.DATE_FORMATS, copy);
@@ -263,39 +263,39 @@ public class SimpleRuntimeEnvironment implements RuntimeEnvironment, SchedulerPr
         addIfPresent(EnvironmentName.TRANSACTION_SYNCHRONIZATION_REGISTRY, copy);
         addIfPresent(EnvironmentName.TRANSACTION, copy);
         addIfPresent(EnvironmentName.USE_LOCAL_TRANSACTIONS, copy);
-        addIfPresent(EnvironmentName.USE_PESSIMISTIC_LOCKING, copy);        
-        
+        addIfPresent(EnvironmentName.USE_PESSIMISTIC_LOCKING, copy);
+
         if (usePersistence()) {
-            ObjectMarshallingStrategy[] strategies = (ObjectMarshallingStrategy[]) copy.get(EnvironmentName.OBJECT_MARSHALLING_STRATEGIES);        
-            
+            ObjectMarshallingStrategy[] strategies = (ObjectMarshallingStrategy[]) copy.get(EnvironmentName.OBJECT_MARSHALLING_STRATEGIES);
+
             List<ObjectMarshallingStrategy> listStrategies = new ArrayList<ObjectMarshallingStrategy>(Arrays.asList(strategies));
             listStrategies.add(0, new ProcessInstanceResolverStrategy());
-            strategies = new ObjectMarshallingStrategy[listStrategies.size()];  
+            strategies = new ObjectMarshallingStrategy[listStrategies.size()];
             copy.set(EnvironmentName.OBJECT_MARSHALLING_STRATEGIES, listStrategies.toArray(strategies));
         }
-        // copy if present in environment template which in general should not be used 
-        // unless with some framework support to make EM thread safe - like spring 
+        // copy if present in environment template which in general should not be used
+        // unless with some framework support to make EM thread safe - like spring
         addIfPresent(EnvironmentName.APP_SCOPED_ENTITY_MANAGER, copy);
         addIfPresent(EnvironmentName.CMD_SCOPED_ENTITY_MANAGER, copy);
-        
-        
+
+
         addIfPresent("IS_JTA_TRANSACTION", copy);
         addIfPresent("IS_TIMER_CMT", copy);
-		addIfPresent("IS_SHARED_ENTITY_MANAGER", copy);
-		addIfPresent("TRANSACTION_LOCK_ENABLED", copy);
-		addIfPresent("IdentityProvider", copy);
-		addIfPresent("jbpm.business.calendar", copy);
-		
-		// handle for custom environment entries that might be required by non engine use cases
-		if (!environmentEntries.isEmpty()) {
-			for (Entry<String, Object> entry : environmentEntries.entrySet()) {
-				// don't override
-				if (copy.get(entry.getKey()) != null) {
-					continue;
-				}
-				copy.set(entry.getKey(), entry.getValue());
-			}
-		}
+        addIfPresent("IS_SHARED_ENTITY_MANAGER", copy);
+        addIfPresent("TRANSACTION_LOCK_ENABLED", copy);
+        addIfPresent("IdentityProvider", copy);
+        addIfPresent("jbpm.business.calendar", copy);
+
+        // handle for custom environment entries that might be required by non engine use cases
+        if (!environmentEntries.isEmpty()) {
+            for (Entry<String, Object> entry : environmentEntries.entrySet()) {
+                // don't override
+                if (copy.get(entry.getKey()) != null) {
+                    continue;
+                }
+                copy.set(entry.getKey(), entry.getValue());
+            }
+        }
 
         return copy;
     }
@@ -303,12 +303,12 @@ public class SimpleRuntimeEnvironment implements RuntimeEnvironment, SchedulerPr
     public Mapper getMapper() {
         return this.mapper;
     }
-    
+
     @Override
     public UserGroupCallback getUserGroupCallback() {
         return this.userGroupCallback;
     }
-    
+
     public void setUserGroupCallback(UserGroupCallback userGroupCallback) {
         this.userGroupCallback = userGroupCallback;
     }
@@ -327,16 +327,16 @@ public class SimpleRuntimeEnvironment implements RuntimeEnvironment, SchedulerPr
     public void setKieBase(KieBase kbase) {
         this.kbase = kbase;
     }
-    
+
     public void setMapper(Mapper mapper) {
         this.mapper = mapper;
     }
-    
+
     @Override
     public GlobalSchedulerService getSchedulerService() {
         return this.schedulerService;
     }
-    
+
     public void setSchedulerService(GlobalSchedulerService schedulerService) {
         this.schedulerService = schedulerService;
     }
@@ -344,7 +344,7 @@ public class SimpleRuntimeEnvironment implements RuntimeEnvironment, SchedulerPr
     public void setRegisterableItemsFactory(RegisterableItemsFactory registerableItemsFactory) {
         this.registerableItemsFactory = registerableItemsFactory;
     }
-    
+
     public EntityManagerFactory getEmf() {
         return emf;
     }

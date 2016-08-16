@@ -34,34 +34,34 @@ public class TimerNodeFactory extends NodeFactory {
     protected Node createNode() {
         return new TimerNode();
     }
-    
+
     protected TimerNode getTimerNode() {
-    	return (TimerNode) getNode();
+        return (TimerNode) getNode();
     }
 
     public TimerNodeFactory name(String name) {
         getNode().setName(name);
         return this;
     }
-    
+
     public TimerNodeFactory delay(String delay) {
-    	Timer timer = getTimerNode().getTimer();
-    	if (timer == null) {
-    		timer = new Timer();
-    		getTimerNode().setTimer(timer);
-    	}
-    	timer.setDelay(delay);
-    	return this;
+        Timer timer = getTimerNode().getTimer();
+        if (timer == null) {
+            timer = new Timer();
+            getTimerNode().setTimer(timer);
+        }
+        timer.setDelay(delay);
+        return this;
     }
-    
+
     public TimerNodeFactory period(String period) {
-    	Timer timer = getTimerNode().getTimer();
-    	if (timer == null) {
-    		timer = new Timer();
-    		getTimerNode().setTimer(timer);
-    	}
-    	timer.setPeriod(period);
-    	return this;
+        Timer timer = getTimerNode().getTimer();
+        if (timer == null) {
+            timer = new Timer();
+            getTimerNode().setTimer(timer);
+        }
+        timer.setPeriod(period);
+        return this;
     }
-    
+
 }

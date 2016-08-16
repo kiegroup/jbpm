@@ -31,36 +31,36 @@ public class CommonUtilsTest {
     private static final Reflections reflections = new Reflections(
             ClasspathHelper.forPackage("org.drools"),
             ClasspathHelper.forPackage("org.jbpm"),
-            new TypeAnnotationsScanner(), 
+            new TypeAnnotationsScanner(),
             new FieldAnnotationsScanner(), new SubTypesScanner());
 
     @Test
     public void testProcessInstanceIdCommands() {
 
-        List<Class<? extends Command>> cmdClasses 
+        List<Class<? extends Command>> cmdClasses
             = new ArrayList<Class<? extends Command>>(reflections.getSubTypesOf(Command.class));
         assertFalse( "Empty set of command classes to test?!?", cmdClasses.isEmpty() );
-       
+
         // sort alphabetically in order to easily find problems and to make test reproducible
         Collections.sort(cmdClasses, new Comparator<Class>() {
             @Override
             public int compare( Class o1, Class o2 ) {
-                if( o1 == null ) { 
+                if( o1 == null ) {
                     return -1;
-                } else if( o2 == null ) { 
+                } else if( o2 == null ) {
                     return 1;
-                } else { 
+                } else {
                     return o1.getName().compareTo(o2.getName());
                 }
             }
         });
-        
-        for( Class<? extends Command> cmdClass : cmdClasses ) { 
+
+        for( Class<? extends Command> cmdClass : cmdClasses ) {
             System.out.println(cmdClass.getName());
            Field procInstIdField = findProcessInstanceIdField(cmdClass);
-           if( procInstIdField != null ) { 
+           if( procInstIdField != null ) {
               List<Class<?>> cmdClassInterfaces = Arrays.asList(cmdClass.getInterfaces());
-              assertTrue( cmdClass.getName() + " does not implement the " 
+              assertTrue( cmdClass.getName() + " does not implement the "
                       + ProcessInstanceIdCommand.class.getSimpleName() + " interface!",
                       cmdClassInterfaces.contains(ProcessInstanceIdCommand.class));
            }

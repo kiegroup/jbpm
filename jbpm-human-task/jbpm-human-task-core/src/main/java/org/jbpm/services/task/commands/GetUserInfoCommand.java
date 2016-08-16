@@ -26,16 +26,16 @@ import org.kie.internal.task.api.UserInfo;
 @XmlRootElement(name="get-user-info-command")
 @XmlAccessorType(XmlAccessType.NONE)
 public class GetUserInfoCommand extends TaskCommand<UserInfo> {
-	
-	private static final long serialVersionUID = -5174631969130504959L;
 
-	public GetUserInfoCommand() {
-	}
+    private static final long serialVersionUID = -5174631969130504959L;
 
-	public UserInfo execute(Context cntxt) {
+    public GetUserInfoCommand() {
+    }
+
+    public UserInfo execute(Context cntxt) {
         TaskContext context = (TaskContext) cntxt;
-        
-    	return (UserInfo) context.get(EnvironmentName.TASK_USER_INFO);
-       
+
+        return (UserInfo) context.get(EnvironmentName.TASK_USER_INFO);
+
     }
 }

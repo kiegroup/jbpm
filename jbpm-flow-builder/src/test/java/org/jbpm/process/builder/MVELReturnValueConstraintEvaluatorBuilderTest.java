@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -80,27 +80,27 @@ public class MVELReturnValueConstraintEvaluatorBuilderTest extends AbstractBaseT
         kbase.addKnowledgePackages( packages );
         final StatefulKnowledgeSession ksession = kbase.newStatefulKnowledgeSession();
 
-        ksession.setGlobal( "value", true );        
+        ksession.setGlobal( "value", true );
 
         RuleFlowProcessInstance processInstance = new RuleFlowProcessInstance();
         processInstance.setKnowledgeRuntime( (InternalKnowledgeRuntime) ksession );
 
         SplitInstance splitInstance = new SplitInstance();
         splitInstance.setProcessInstance( processInstance );
-        
-        MVELDialectRuntimeData data = (MVELDialectRuntimeData) pkgBuilder.getPackage().getDialectRuntimeRegistry().getDialectData( "mvel");        
-        
+
+        MVELDialectRuntimeData data = (MVELDialectRuntimeData) pkgBuilder.getPackage().getDialectRuntimeRegistry().getDialectData( "mvel");
+
         ( (MVELReturnValueEvaluator) node.getReturnValueEvaluator()).compile( data );
 
         assertTrue( node.evaluate( splitInstance,
                                    null,
                                    null ) );
-        
-        ksession.setGlobal( "value", false );     
-        
+
+        ksession.setGlobal( "value", false );
+
         assertFalse( node.evaluate( splitInstance,
                                    null,
-                                   null ) );        
+                                   null ) );
     }
 
 }

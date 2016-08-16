@@ -23,89 +23,89 @@ import java.util.Map;
 import org.jbpm.services.api.model.UserTaskDefinition;
 
 public class UserTaskDefinitionImpl implements UserTaskDefinition, Serializable {
-		
-	private static final long serialVersionUID = -8240667577168891456L;
-	
-	private String name;
-	private Integer priority;
-	private String comment;
-	private String createdBy;
-	private boolean skippable;
 
-	private Collection<String> associatedEntities;
-	private Map<String, String> taskInputMappings;
-	private Map<String, String> taskOutputMappings;
+    private static final long serialVersionUID = -8240667577168891456L;
 
-	@Override
-	public String getName() {		
-		return name;
-	}
+    private String name;
+    private Integer priority;
+    private String comment;
+    private String createdBy;
+    private boolean skippable;
 
-	@Override
-	public Integer getPriority() {		
-		return priority;
-	}
+    private Collection<String> associatedEntities;
+    private Map<String, String> taskInputMappings;
+    private Map<String, String> taskOutputMappings;
 
-	@Override
-	public String getComment() {		
-		return comment;
-	}
+    @Override
+    public String getName() {
+        return name;
+    }
 
-	@Override
-	public String getCreatedBy() {		
-		return createdBy;
-	}
+    @Override
+    public Integer getPriority() {
+        return priority;
+    }
 
-	@Override
-	public boolean isSkippable() {		
-		return skippable;
-	}
+    @Override
+    public String getComment() {
+        return comment;
+    }
 
-	@Override
-	public Collection<String> getAssociatedEntities() {		
-		return associatedEntities;
-	}
+    @Override
+    public String getCreatedBy() {
+        return createdBy;
+    }
 
-	@Override
-	public Map<String, String> getTaskInputMappings() {		
-		return taskInputMappings;
-	}
+    @Override
+    public boolean isSkippable() {
+        return skippable;
+    }
 
-	@Override
-	public Map<String, String> getTaskOutputMappings() {		
-		return taskOutputMappings;
-	}
+    @Override
+    public Collection<String> getAssociatedEntities() {
+        return associatedEntities;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    @Override
+    public Map<String, String> getTaskInputMappings() {
+        return taskInputMappings;
+    }
 
-	public void setPriority(Integer priority) {
-		this.priority = priority;
-	}
+    @Override
+    public Map<String, String> getTaskOutputMappings() {
+        return taskOutputMappings;
+    }
 
-	public void setComment(String comment) {
-		this.comment = comment;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public void setCreatedBy(String createdBy) {
-		this.createdBy = createdBy;
-	}
+    public void setPriority(Integer priority) {
+        this.priority = priority;
+    }
 
-	public void setSkippable(boolean skippable) {
-		this.skippable = skippable;
-	}
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
 
-	public void setAssociatedEntities(Collection<String> associatedEntities) {
-		this.associatedEntities = associatedEntities;
-	}
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
 
-	public void setTaskInputMappings(Map<String, String> taskInputMappings) {
-		this.taskInputMappings = taskInputMappings;
-	}
+    public void setSkippable(boolean skippable) {
+        this.skippable = skippable;
+    }
 
-	public void setTaskOutputMappings(Map<String, String> taskOutputMappings) {
-		this.taskOutputMappings = taskOutputMappings;
-	}
+    public void setAssociatedEntities(Collection<String> associatedEntities) {
+        this.associatedEntities = associatedEntities;
+    }
+
+    public void setTaskInputMappings(Map<String, String> taskInputMappings) {
+        this.taskInputMappings = taskInputMappings;
+    }
+
+    public void setTaskOutputMappings(Map<String, String> taskOutputMappings) {
+        this.taskOutputMappings = taskOutputMappings;
+    }
 
 }

@@ -33,7 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RuleFlowProcessFactory extends RuleFlowNodeContainerFactory {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(RuleFlowProcessFactory.class);
 
     public static RuleFlowProcessFactory createProcess(String id) {
@@ -45,93 +45,93 @@ public class RuleFlowProcessFactory extends RuleFlowNodeContainerFactory {
         process.setId(id);
         setNodeContainer(process);
     }
-    
+
     protected RuleFlowProcess getRuleFlowProcess() {
-    	return (RuleFlowProcess) getNodeContainer();
+        return (RuleFlowProcess) getNodeContainer();
     }
 
     public RuleFlowProcessFactory name(String name) {
-    	getRuleFlowProcess().setName(name);
+        getRuleFlowProcess().setName(name);
         return this;
     }
 
     public RuleFlowProcessFactory version(String version) {
-    	getRuleFlowProcess().setVersion(version);
+        getRuleFlowProcess().setVersion(version);
         return this;
     }
 
     public RuleFlowProcessFactory packageName(String packageName) {
-    	getRuleFlowProcess().setPackageName(packageName);
+        getRuleFlowProcess().setPackageName(packageName);
         return this;
     }
 
     public RuleFlowProcessFactory imports(String... imports) {
-    	getRuleFlowProcess().setImports(new HashSet<String>(Arrays.asList(imports)));
+        getRuleFlowProcess().setImports(new HashSet<String>(Arrays.asList(imports)));
         return this;
     }
-    
+
     public RuleFlowProcessFactory functionImports(String... functionImports) {
-    	getRuleFlowProcess().setFunctionImports(Arrays.asList(functionImports));
+        getRuleFlowProcess().setFunctionImports(Arrays.asList(functionImports));
         return this;
     }
-    
+
     public RuleFlowProcessFactory globals(Map<String, String> globals) {
-    	getRuleFlowProcess().setGlobals(globals);
+        getRuleFlowProcess().setGlobals(globals);
         return this;
     }
-    
+
     public RuleFlowProcessFactory global(String name, String type) {
-    	Map<String, String> globals = getRuleFlowProcess().getGlobals();
-    	if (globals == null) {
-    		globals = new HashMap<String, String>();
-    		getRuleFlowProcess().setGlobals(globals);
-    	}
-    	globals.put(name, type);
-    	return this;
+        Map<String, String> globals = getRuleFlowProcess().getGlobals();
+        if (globals == null) {
+            globals = new HashMap<String, String>();
+            getRuleFlowProcess().setGlobals(globals);
+        }
+        globals.put(name, type);
+        return this;
     }
 
     public RuleFlowProcessFactory variable(String name, DataType type) {
-    	return variable(name, type, null);
+        return variable(name, type, null);
     }
-    
+
     public RuleFlowProcessFactory variable(String name, DataType type, Object value) {
-    	return variable(name, type, value, null, null);
+        return variable(name, type, value, null, null);
     }
-    
+
     public RuleFlowProcessFactory variable(String name, DataType type, String metaDataName, Object metaDataValue) {
-    	return variable(name, type, null, metaDataName, metaDataValue);
+        return variable(name, type, null, metaDataName, metaDataValue);
     }
-    
+
     public RuleFlowProcessFactory variable(String name, DataType type, Object value, String metaDataName, Object metaDataValue) {
-    	Variable variable = new Variable();
-    	variable.setName(name);
-    	variable.setType(type);
-    	variable.setValue(value);
-    	if (metaDataName != null && metaDataValue != null) {
-    		variable.setMetaData(metaDataName, metaDataValue);
-    	}
-    	getRuleFlowProcess().getVariableScope().getVariables().add(variable);
-    	return this;
+        Variable variable = new Variable();
+        variable.setName(name);
+        variable.setType(type);
+        variable.setValue(value);
+        if (metaDataName != null && metaDataValue != null) {
+            variable.setMetaData(metaDataName, metaDataValue);
+        }
+        getRuleFlowProcess().getVariableScope().getVariables().add(variable);
+        return this;
     }
-    
+
     public RuleFlowProcessFactory swimlane(String name) {
-    	Swimlane swimlane = new Swimlane();
-    	swimlane.setName(name);
-    	getRuleFlowProcess().getSwimlaneContext().addSwimlane(swimlane);
-    	return this;
+        Swimlane swimlane = new Swimlane();
+        swimlane.setName(name);
+        getRuleFlowProcess().getSwimlaneContext().addSwimlane(swimlane);
+        return this;
     }
-    
+
     public RuleFlowProcessFactory exceptionHandler(String exception, ExceptionHandler exceptionHandler) {
-    	getRuleFlowProcess().getExceptionScope().setExceptionHandler(exception, exceptionHandler);
-    	return this;
+        getRuleFlowProcess().getExceptionScope().setExceptionHandler(exception, exceptionHandler);
+        return this;
     }
-    
+
     public RuleFlowProcessFactory exceptionHandler(String exception, String dialect, String action) {
-    	ActionExceptionHandler exceptionHandler = new ActionExceptionHandler();
-    	exceptionHandler.setAction(new DroolsConsequenceAction(dialect, action));
-    	return exceptionHandler(exception, exceptionHandler);
+        ActionExceptionHandler exceptionHandler = new ActionExceptionHandler();
+        exceptionHandler.setAction(new DroolsConsequenceAction(dialect, action));
+        return exceptionHandler(exception, exceptionHandler);
     }
-    
+
     public RuleFlowProcessFactory validate() {
         ProcessValidationError[] errors = RuleFlowProcessValidator.getInstance().validateProcess(getRuleFlowProcess());
         for (ProcessValidationError error : errors) {
@@ -142,9 +142,9 @@ public class RuleFlowProcessFactory extends RuleFlowNodeContainerFactory {
         }
         return this;
     }
-    
+
     public RuleFlowNodeContainerFactory done() {
-    	throw new IllegalArgumentException("Already on the top-level.");
+        throw new IllegalArgumentException("Already on the top-level.");
     }
 
     public RuleFlowProcess getProcess() {

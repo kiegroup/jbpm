@@ -34,7 +34,7 @@ import org.kie.api.runtime.process.NodeInstance;
 
 /**
  * Runtime counterpart of an event node.
- * 
+ *
  */
 public class EventNodeInstance extends ExtendedNodeInstanceImpl implements EventNodeInstanceInterface, EventBasedNodeInstanceInterface {
 
@@ -43,29 +43,29 @@ public class EventNodeInstance extends ExtendedNodeInstanceImpl implements Event
     private static final long serialVersionUID = 510l;
 
     public void signalEvent(String type, Object event) {
-    	String variableName = getEventNode().getVariableName();
-    	if (variableName != null) {
-    		VariableScopeInstance variableScopeInstance = (VariableScopeInstance)
-    			resolveContextInstance(VariableScope.VARIABLE_SCOPE, variableName);
-    		if (variableScopeInstance == null) {
-    			throw new IllegalArgumentException(
-					"Could not find variable for event node: " + variableName);
-    		}
-    		EventTransformer transformer = getEventNode().getEventTransformer();
-    		if (transformer != null) {
-    			event = transformer.transformEvent(event);
-    		}
-    		variableScopeInstance.setVariable(variableName, event);
-    	}
-    	triggerCompleted();
+        String variableName = getEventNode().getVariableName();
+        if (variableName != null) {
+            VariableScopeInstance variableScopeInstance = (VariableScopeInstance)
+                resolveContextInstance(VariableScope.VARIABLE_SCOPE, variableName);
+            if (variableScopeInstance == null) {
+                throw new IllegalArgumentException(
+                    "Could not find variable for event node: " + variableName);
+            }
+            EventTransformer transformer = getEventNode().getEventTransformer();
+            if (transformer != null) {
+                event = transformer.transformEvent(event);
+            }
+            variableScopeInstance.setVariable(variableName, event);
+        }
+        triggerCompleted();
     }
 
     public void internalTrigger(final NodeInstance from, String type) {
-    	if (!org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE.equals(type)) {
+        if (!org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE.equals(type)) {
             throw new IllegalArgumentException(
                 "An EventNode only accepts default incoming connections!");
         }
-    	addEventListeners();
+        addEventListeners();
         // Do nothing, event activated
     }
 
@@ -74,16 +74,16 @@ public class EventNodeInstance extends ExtendedNodeInstanceImpl implements Event
     }
 
     public void triggerCompleted() {
-    	getProcessInstance().removeEventListener(getEventType(), getEventListener(), true);
+        getProcessInstance().removeEventListener(getEventType(), getEventListener(), true);
         ((org.jbpm.workflow.instance.NodeInstanceContainer)getNodeInstanceContainer()).setCurrentLevel(getLevel());
         triggerCompleted(org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE, true);
     }
 
     @Override
-	public void cancel() {
-    	getProcessInstance().removeEventListener(getEventType(), getEventListener(), true);
-		super.cancel();
-	}
+    public void cancel() {
+        getProcessInstance().removeEventListener(getEventType(), getEventListener(), true);
+        super.cancel();
+    }
 
    private class VariableExternalEventListener implements EventListener, Serializable {
         private static final long serialVersionUID = 5L;
@@ -102,43 +102,43 @@ public class EventNodeInstance extends ExtendedNodeInstanceImpl implements Event
         }
     }
 
-	@Override
-	public void addEventListeners() {
-	    String eventType = getEventType();
-	    if (isVariableExpression(getEventNode().getType())) {
-	        getProcessInstance().addEventListener(eventType, new VariableExternalEventListener(eventType), true);
-	    } else {
-	        getProcessInstance().addEventListener(eventType, getEventListener(), true);
-	    }
-	}
+    @Override
+    public void addEventListeners() {
+        String eventType = getEventType();
+        if (isVariableExpression(getEventNode().getType())) {
+            getProcessInstance().addEventListener(eventType, new VariableExternalEventListener(eventType), true);
+        } else {
+            getProcessInstance().addEventListener(eventType, getEventListener(), true);
+        }
+    }
 
-	@Override
-	public void removeEventListeners() {
+    @Override
+    public void removeEventListeners() {
 
 
-	}
+    }
 
-	public String getEventType() {
-	    return resolveVariable(getEventNode().getType());
-	}
+    public String getEventType() {
+        return resolveVariable(getEventNode().getType());
+    }
 
-	protected EventListener getEventListener() {
-	    return EMPTY_EVENT_LISTENER;
-	}
+    protected EventListener getEventListener() {
+        return EMPTY_EVENT_LISTENER;
+    }
 
-	private boolean isVariableExpression(String eventType) {
-	    if (eventType == null ){
-	        return false;
-	    }
-	    Matcher matcher = PARAMETER_MATCHER.matcher(eventType);
-	    if (matcher.find()) {
-	        return true;
-	    }
+    private boolean isVariableExpression(String eventType) {
+        if (eventType == null ){
+            return false;
+        }
+        Matcher matcher = PARAMETER_MATCHER.matcher(eventType);
+        if (matcher.find()) {
+            return true;
+        }
 
-	    return false;
-	}
+        return false;
+    }
 
-	private String resolveVariable(String s) {
+    private String resolveVariable(String s) {
         if (s == null) {
             return null;
         }
@@ -164,7 +164,7 @@ public class EventNodeInstance extends ExtendedNodeInstanceImpl implements Event
         return s;
     }
 
-	private void callSignal(String type, Object event) {
-	    signalEvent(type, event);
-	}
+    private void callSignal(String type, Object event) {
+        signalEvent(type, event);
+    }
 }

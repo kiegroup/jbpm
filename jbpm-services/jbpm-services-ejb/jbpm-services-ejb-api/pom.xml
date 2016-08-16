@@ -9,7 +9,7 @@
   <name>jBPM :: EJB Services API</name>
   
   <dependencies>
-  	<dependency>
+    <dependency>
       <groupId>org.jbpm</groupId>
       <artifactId>jbpm-services-api</artifactId>
     </dependency>

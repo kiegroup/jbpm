@@ -27,7 +27,7 @@ public class NodeInstanceEvent implements Serializable {
     private long nodeInstanceId;
     private String nodeName;
     private long nodeId;
-    
+
     public NodeInstanceEvent(ProcessNodeEvent event) {
         this.nodeInstanceId = event.getNodeInstance().getId();
         this.nodeName = event.getNodeInstance().getNodeName();
@@ -66,5 +66,5 @@ public class NodeInstanceEvent implements Serializable {
     public void setNodeId(long nodeId) {
         this.nodeId = nodeId;
     }
-    
+
 }

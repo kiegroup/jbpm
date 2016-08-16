@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -32,11 +32,11 @@ public class JpaProcessPersistenceContextManager extends JpaPersistenceContextMa
 
     public ProcessPersistenceContext getProcessPersistenceContext() {
         Boolean locking = (Boolean) env.get(EnvironmentName.USE_PESSIMISTIC_LOCKING);
-        if( locking == null ) { 
+        if( locking == null ) {
             locking = false;
         }
-        
-        boolean useJTA = true; 
+
+        boolean useJTA = true;
         return new JpaProcessPersistenceContext( getCommandScopedEntityManager(), useJTA, locking, txm );
     }
 
@@ -48,7 +48,7 @@ public class JpaProcessPersistenceContextManager extends JpaPersistenceContextMa
         if (env.get(EnvironmentName.CMD_SCOPED_ENTITY_MANAGER) == null) {
             env.set(EnvironmentName.CMD_SCOPED_ENTITY_MANAGER, em);
         }
-        
+
         return em;
     }
 

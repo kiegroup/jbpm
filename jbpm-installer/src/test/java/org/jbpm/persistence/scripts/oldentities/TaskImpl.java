@@ -63,7 +63,7 @@ public class TaskImpl {
     @GeneratedValue(strategy = GenerationType.AUTO, generator="taskIdSeq")
     @Column(name = "id")
     private Long                 id = 0L;
-    
+
     @Version
     @Column(name = "OPTLOCK")
     private int                  version;
@@ -102,14 +102,14 @@ public class TaskImpl {
     @Enumerated(EnumType.STRING)
     // Default Behaviour
     private SubTasksStrategy subTaskStrategy = SubTasksStrategy.NoAction;
-    
+
     private String               taskType;
-    
+
     private String               formName;
-    
+
     @Basic
     private Short archived = 0;
-    
+
 
     public TaskImpl() {
     }
@@ -130,7 +130,7 @@ public class TaskImpl {
         } else {
             out.writeBoolean(false);
         }
-        
+
         if ( peopleAssignments != null ) {
             out.writeBoolean( true );
             peopleAssignments.writeExternal( out );
@@ -171,11 +171,11 @@ public class TaskImpl {
         names = CollectionUtils.readI18NTextList( in );
         subjects = CollectionUtils.readI18NTextList( in );
         descriptions = CollectionUtils.readI18NTextList( in );
-        
+
         if (in.readBoolean()) {
             subTaskStrategy = SubTasksStrategy.valueOf(in.readUTF());
         }
-        
+
         if ( in.readBoolean() ) {
             peopleAssignments = new PeopleAssignmentsImpl();
             peopleAssignments.readExternal( in );
@@ -197,7 +197,7 @@ public class TaskImpl {
         }
 
     }
-    
+
     public Long getId() {
         return id;
     }
@@ -220,7 +220,7 @@ public class TaskImpl {
             this.archived = (archived == true) ? new Short("1") : new Short("0");
         }
     }
-    
+
     public int getVersion() {
         return this.version;
     }
@@ -304,7 +304,7 @@ public class TaskImpl {
     public void setFormName(String formName) {
         this.formName = formName;
     }
-    
+
     @Override
     public int hashCode() {
         final int prime = 31;

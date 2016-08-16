@@ -25,7 +25,7 @@ import org.kie.api.runtime.process.NodeInstance;
 
 /**
  * Runtime counterpart of a start node.
- * 
+ *
  */
 public class StartNodeInstance extends NodeInstanceImpl {
 
@@ -42,7 +42,7 @@ public class StartNodeInstance extends NodeInstanceImpl {
         }
         triggerCompleted();
     }
-    
+
     public void signalEvent(String type, Object event) {
         String variableName = (String) getStartNode().getMetaData("TriggerMapping");
         if (variableName != null) {
@@ -52,21 +52,21 @@ public class StartNodeInstance extends NodeInstanceImpl {
                 throw new IllegalArgumentException(
                     "Could not find variable for start node: " + variableName);
             }
-            
+
             EventTransformer transformer = getStartNode().getEventTransformer();
-    		if (transformer != null) {
-    			event = transformer.transformEvent(event);
-    		}
-            
+            if (transformer != null) {
+                event = transformer.transformEvent(event);
+            }
+
             variableScopeInstance.setVariable(variableName, event);
         }
         triggerCompleted();
     }
-    
+
     public StartNode getStartNode() {
         return (StartNode) getNode();
     }
-   
+
     public void triggerCompleted() {
         ((org.jbpm.workflow.instance.NodeInstanceContainer)getNodeInstanceContainer()).setCurrentLevel(getLevel());
         triggerCompleted(org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE, true);

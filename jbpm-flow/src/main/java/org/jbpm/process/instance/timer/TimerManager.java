@@ -1,12 +1,12 @@
 /**
  * Copyright 2010 Red Hat, Inc. and/or its affiliates.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -53,7 +53,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
+ *
  */
 public class TimerManager {
 
@@ -81,16 +81,16 @@ public class TimerManager {
             timer.setProcessInstanceId(processInstance.getId());
             timer.setSessionId(((KieSession) kruntime).getIdentifier());
             timer.setActivated(new Date());
-            
+
             Trigger trigger = null;
-            
+
             if (timer.getCronExpression() != null) {
                 Date startTime = new Date(timerService.getCurrentTime() + 1000);
                 trigger = new CronTrigger(timerService.getCurrentTime(), startTime, null, -1, timer.getCronExpression(), null, null);
                 // cron timers are by nature repeatable
                 timer.setPeriod(1);
             } else {
-            	trigger = new IntervalTrigger(timerService.getCurrentTime(), null, null, timer.getRepeatLimit(),
+                trigger = new IntervalTrigger(timerService.getCurrentTime(), null, null, timer.getRepeatLimit(),
                     timer.getDelay(), timer.getPeriod(), null, null);
             }
             ProcessJobContext ctx = new ProcessJobContext(timer, trigger, processInstance.getId(), this.kruntime);
@@ -164,17 +164,17 @@ public class TimerManager {
     }
 
     public void cancelTimer(long timerId) {
-		try {
-			kruntime.startOperation();
+        try {
+            kruntime.startOperation();
             kruntime.executeQueuedActions();
 
-			TimerInstance timer = timers.remove(timerId);
-			if (timer != null) {
-				timerService.removeJob(timer.getJobHandle());
-			}
-		} finally {
-			kruntime.endOperation();
-		}
+            TimerInstance timer = timers.remove(timerId);
+            if (timer != null) {
+                timerService.removeJob(timer.getJobHandle());
+            }
+        } finally {
+            kruntime.endOperation();
+        }
     }
 
     public void dispose() {
@@ -217,7 +217,7 @@ public class TimerManager {
     }
 
     public static class ProcessTimerOutputMarshaller implements TimersOutputMarshaller {
-        
+
         public Timer serialize(JobContext jobCtx, MarshallerWriteContext outputCtx) {
             // do not store StartProcess timers as they are registered whenever session starts
             if (jobCtx instanceof StartProcessJobContext) {
@@ -293,12 +293,12 @@ public class TimerManager {
                 ctx.getTimer().setLastTriggered(
                         new Date(ctx.getKnowledgeRuntime().<SessionClock> getSessionClock().getCurrentTime()));
 
-                
+
                 // if there is no more trigger reset period on timer so its node instance can be removed
                 if (ctx.getTrigger().hasNextFireTime() == null) {
                     ctx.getTimer().setPeriod(0);
                 }
-                
+
                 ((InternalProcessRuntime) kruntime.getProcessRuntime()).getSignalManager().signalEvent(processInstanceId,
                         "timerTriggered", ctx.getTimer());
 
@@ -442,7 +442,7 @@ public class TimerManager {
 
     /**
      * Overdue aware trigger that introduces fixed delay to allow completion of session initialization
-     * 
+     *
      */
     public static class OverdueTrigger implements Trigger {
 

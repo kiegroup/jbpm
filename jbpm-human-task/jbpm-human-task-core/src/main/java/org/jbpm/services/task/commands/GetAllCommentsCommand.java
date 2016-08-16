@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -28,16 +28,16 @@ import org.kie.internal.command.Context;
 @XmlAccessorType(XmlAccessType.NONE)
 public class GetAllCommentsCommand extends TaskCommand<List<Comment>> {
 
-	private static final long serialVersionUID = 5911387213149078240L;
-	
-	public GetAllCommentsCommand() {
-	}
-	
-	public GetAllCommentsCommand(Long taskId) {
-		this.taskId = taskId;
-	}
+    private static final long serialVersionUID = 5911387213149078240L;
 
-	public List<Comment> execute(Context cntxt) {
+    public GetAllCommentsCommand() {
+    }
+
+    public GetAllCommentsCommand(Long taskId) {
+        this.taskId = taskId;
+    }
+
+    public List<Comment> execute(Context cntxt) {
         TaskContext context = (TaskContext) cntxt;
         return context.getTaskCommentService().getAllCommentsByTaskId(taskId);
     }

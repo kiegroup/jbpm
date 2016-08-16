@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -40,16 +40,16 @@ public class GetTasksByVariableNameCommand extends UserGroupCallbackTaskCommand<
 
     @XmlElement
     private List<Status> statuses;
-    
+
     @XmlElement
     private String variableName;
-   
+
     @XmlElement(type=QueryFilter.class)
     private QueryFilter filter;
 
     public GetTasksByVariableNameCommand() {
     }
-    
+
     public GetTasksByVariableNameCommand(String userId, String variableName, List<Status> status, QueryFilter filter) {
         this.userId = userId;
         this.variableName = variableName;
@@ -81,17 +81,17 @@ public class GetTasksByVariableNameCommand extends UserGroupCallbackTaskCommand<
             }
         }
         TaskPersistenceContext persistenceContext = context.getPersistenceContext();
-        
+
         List<TaskSummary> tasks = (List<TaskSummary>) persistenceContext.queryWithParametersInTransaction("TasksByStatusByVariableName",
                 persistenceContext.addParametersToMap(
                                         "userId", userId,
                                         "groupIds", groupIds,
-                                        "variableName", variableName,                                        
+                                        "variableName", variableName,
                                         "status", statuses),
                                         ClassUtil.<List<TaskSummary>>castClass(List.class));
-        
+
         return tasks;
-       
+
     }
 
 }

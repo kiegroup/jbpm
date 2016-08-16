@@ -59,7 +59,7 @@ import bitronix.tm.resource.jdbc.PoolingDataSource;
 public abstract class HumanTaskServicesBaseTest {
 
     private static final Logger logger = LoggerFactory.getLogger(HumanTaskServicesBaseTest.class);
-    
+
     protected InternalTaskService taskService;
 
     @BeforeClass

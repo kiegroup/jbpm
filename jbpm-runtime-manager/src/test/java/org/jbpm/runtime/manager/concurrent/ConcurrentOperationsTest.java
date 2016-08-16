@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -54,11 +54,11 @@ import java.util.Properties;
 import static org.junit.Assert.*;
 
 public class ConcurrentOperationsTest extends AbstractBaseTest {
-    
+
     private PoolingDataSource pds;
-    private UserGroupCallback userGroupCallback;  
+    private UserGroupCallback userGroupCallback;
     private RuntimeManager manager;
-    
+
     @Before
     public void setup() {
         TestUtil.cleanupSingletonSessionId();
@@ -68,7 +68,7 @@ public class ConcurrentOperationsTest extends AbstractBaseTest {
         properties.setProperty("john", "HR");
         userGroupCallback = new JBossUserGroupCallbackImpl(properties);
     }
-    
+
     @After
     public void teardown() {
         if (manager != null) {
@@ -77,23 +77,23 @@ public class ConcurrentOperationsTest extends AbstractBaseTest {
         pds.close();
     }
 
-  
-    
+
+
     @Test(timeout=10000)
     public void testExecuteProcessWithAsyncHandler() throws Exception {
-    	final CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("Log", 1);
+        final CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("Log", 1);
         RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
-    			.newDefaultBuilder()
+                .newDefaultBuilder()
                 .userGroupCallback(userGroupCallback)
                 .addEnvironmentEntry("TRANSACTION_LOCK_ENABLED", true)
                 .registerableItemsFactory(new DefaultRegisterableItemsFactory(){
 
-					@Override
-					public Map<String, WorkItemHandler> getWorkItemHandlers(RuntimeEngine runtime) {
-						Map<String, WorkItemHandler> handlers = super.getWorkItemHandlers(runtime);
-						handlers.put("Log", new AsyncWorkItemHandler(((RuntimeEngineImpl)runtime).getManager()));
-						return handlers;
-					}
+                    @Override
+                    public Map<String, WorkItemHandler> getWorkItemHandlers(RuntimeEngine runtime) {
+                        Map<String, WorkItemHandler> handlers = super.getWorkItemHandlers(runtime);
+                        handlers.put("Log", new AsyncWorkItemHandler(((RuntimeEngineImpl)runtime).getManager()));
+                        return handlers;
+                    }
 
                     @Override
                     public List<ProcessEventListener> getProcessEventListeners(RuntimeEngine runtime) {
@@ -102,60 +102,60 @@ public class ConcurrentOperationsTest extends AbstractBaseTest {
                         listeners.add(countDownListener);
                         return listeners;
                     }
-                	
+
                 })
                 .addAsset(ResourceFactory.newClassPathResource("BPMN2-CustomTask.bpmn2"), ResourceType.BPMN2)
                 .get();
-        
-        manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);        
+
+        manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);
         assertNotNull(manager);
-        
+
         RuntimeEngine runtime = manager.getRuntimeEngine(EmptyContext.get());
         KieSession ksession = runtime.getKieSession();
-        assertNotNull(ksession);       
-        
+        assertNotNull(ksession);
+
         long sessionId = ksession.getIdentifier();
         assertTrue(sessionId == 1);
-        
+
         runtime = manager.getRuntimeEngine(EmptyContext.get());
-        ksession = runtime.getKieSession();        
+        ksession = runtime.getKieSession();
         assertEquals(sessionId, ksession.getIdentifier());
-        
+
         UserTransaction ut = InitialContext.doLookup("java:comp/UserTransaction");
         ut.begin();
         ProcessInstance processInstance = ksession.startProcess("customtask");
         logger.debug("Started process, committing...");
         ut.commit();
-        
+
         countDownListener.waitTillCompleted();
-        
+
         processInstance = ksession.getProcessInstance(processInstance.getId());
         assertNull(processInstance);
-        
+
         // dispose session that should not have affect on the session at all
         manager.disposeRuntimeEngine(runtime);
-               
+
         // close manager which will close session maintained by the manager
         manager.close();
     }
-    
+
     @Test(timeout=10000)
     public void testExecuteHumanTaskWithAsyncHandler() throws Exception {
         final CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("Log", 1);
         RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
-    			.newDefaultBuilder()
-                .userGroupCallback(userGroupCallback) 
+                .newDefaultBuilder()
+                .userGroupCallback(userGroupCallback)
                 .addEnvironmentEntry("TRANSACTION_LOCK_ENABLED", true)
                 .registerableItemsFactory(new DefaultRegisterableItemsFactory(){
 
-					@Override
-					public Map<String, WorkItemHandler> getWorkItemHandlers(RuntimeEngine runtime) {
-						Map<String, WorkItemHandler> handlers = super.getWorkItemHandlers(runtime);
-						handlers.put("Log", new AsyncWorkItemHandler(((RuntimeEngineImpl)runtime).getManager()));
-						return handlers;
-					}
-                	
-					@Override
+                    @Override
+                    public Map<String, WorkItemHandler> getWorkItemHandlers(RuntimeEngine runtime) {
+                        Map<String, WorkItemHandler> handlers = super.getWorkItemHandlers(runtime);
+                        handlers.put("Log", new AsyncWorkItemHandler(((RuntimeEngineImpl)runtime).getManager()));
+                        return handlers;
+                    }
+
+                    @Override
                     public List<ProcessEventListener> getProcessEventListeners(RuntimeEngine runtime) {
 
                         List<ProcessEventListener> listeners = super.getProcessEventListeners(runtime);
@@ -165,90 +165,90 @@ public class ConcurrentOperationsTest extends AbstractBaseTest {
                 })
                 .addAsset(ResourceFactory.newClassPathResource("BPMN2-CustomAndHumanTask.bpmn2"), ResourceType.BPMN2)
                 .get();
-        
-        manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);        
+
+        manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);
         assertNotNull(manager);
-        
+
         RuntimeEngine runtime = manager.getRuntimeEngine(EmptyContext.get());
         KieSession ksession = runtime.getKieSession();
-        assertNotNull(ksession);       
-        
+        assertNotNull(ksession);
+
         long sessionId = ksession.getIdentifier();
         assertTrue(sessionId == 1);
-        
+
         runtime = manager.getRuntimeEngine(EmptyContext.get());
-        ksession = runtime.getKieSession();        
+        ksession = runtime.getKieSession();
         assertEquals(sessionId, ksession.getIdentifier());
-        
-        
+
+
         ProcessInstance processInstance = ksession.startProcess("customandhumantask");
         logger.debug("Started process, committing...");
-        
+
         TaskService taskService = runtime.getTaskService();
-        
+
         List<TaskSummary> tasks = taskService.getTasksAssignedAsPotentialOwner("john", "en-UK");
         assertEquals(1, tasks.size());
-        
+
         long taskId = tasks.get(0).getId();
-        
+
         taskService.start(taskId, "john");
         UserTransaction ut = InitialContext.doLookup("java:comp/UserTransaction");
-        ut.begin();        
+        ut.begin();
         taskService.complete(taskId, "john", null);
         logger.debug("Task completed, committing...");
         ut.commit();
         ksession.fireAllRules();
         countDownListener.waitTillCompleted();
-        
+
         processInstance = ksession.getProcessInstance(processInstance.getId());
         assertNull(processInstance);
-        
+
         // dispose session that should not have affect on the session at all
         manager.disposeRuntimeEngine(runtime);
-               
+
         // close manager which will close session maintained by the manager
         manager.close();
     }
-    
+
     private class AsyncWorkItemHandler implements WorkItemHandler {
-    	
-    	private RuntimeManager runtimeManager;
-    	
-    	AsyncWorkItemHandler(RuntimeManager runtimeManager) {
-    		this.runtimeManager = runtimeManager;
-    	}
 
-		@Override
-		public void executeWorkItem(final WorkItem workItem, WorkItemManager manager) {
-			
-			new Thread() {
+        private RuntimeManager runtimeManager;
 
-				@Override
-				public void run() {
-				    
-					try {
-					    Thread.sleep(1000);
-					    
-    					RuntimeEngine engine = runtimeManager.getRuntimeEngine(EmptyContext.get());// only for singleton
+        AsyncWorkItemHandler(RuntimeManager runtimeManager) {
+            this.runtimeManager = runtimeManager;
+        }
+
+        @Override
+        public void executeWorkItem(final WorkItem workItem, WorkItemManager manager) {
+
+            new Thread() {
+
+                @Override
+                public void run() {
+
+                    try {
+                        Thread.sleep(1000);
+
+                        RuntimeEngine engine = runtimeManager.getRuntimeEngine(EmptyContext.get());// only for singleton
                         logger.debug("staring a thread....");
                         engine.getKieSession().insert("doing it async");
-    					logger.debug("Completing the work item");
-    					
-    					engine.getKieSession().getWorkItemManager().completeWorkItem(workItem.getId(), null);
-    					runtimeManager.disposeRuntimeEngine(engine);
-					} catch (Exception e) {
-					    logger.error("Error when executing async operation", e);
-					}
-				}
-				
-			}.start();
-			
-		}
+                        logger.debug("Completing the work item");
 
-		@Override
-		public void abortWorkItem(WorkItem workItem, WorkItemManager manager) {
+                        engine.getKieSession().getWorkItemManager().completeWorkItem(workItem.getId(), null);
+                        runtimeManager.disposeRuntimeEngine(engine);
+                    } catch (Exception e) {
+                        logger.error("Error when executing async operation", e);
+                    }
+                }
 
-		}
-    	
+            }.start();
+
+        }
+
+        @Override
+        public void abortWorkItem(WorkItem workItem, WorkItemManager manager) {
+
+        }
+
     }
 }

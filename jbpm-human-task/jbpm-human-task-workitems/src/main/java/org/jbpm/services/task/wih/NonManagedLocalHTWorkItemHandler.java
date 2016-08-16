@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
  * Can be bootstrapped in two ways:
  * <ul>
  *  <li/>by constructor and providing both KieSession and TaskService</li>
- *  <li/>by no arg constructor and then use setters for KieSession and TaskService, 
+ *  <li/>by no arg constructor and then use setters for KieSession and TaskService,
  *  after using setters call to init method is required</li>
  * </ul>
  *
@@ -61,20 +61,20 @@ public class NonManagedLocalHTWorkItemHandler extends AbstractHTWorkItemHandler 
     private TaskService taskService;
     private TaskLifeCycleEventListener listener;
     private boolean initialized = false;
-   
+
     public NonManagedLocalHTWorkItemHandler() {
     }
-    
+
     public NonManagedLocalHTWorkItemHandler(KieSession ksession, TaskService taskService) {
         this.ksession = ksession;
         this.taskService = taskService;
         init();
     }
-    
+
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void init() {
         if(!initialized) {
-            
+
             listener = new NonManagedTaskEventListener(this.ksession, this.taskService);
             if (taskService instanceof EventService) {
                 ((EventService)taskService).registerTaskEventListener(listener);
@@ -82,17 +82,17 @@ public class NonManagedLocalHTWorkItemHandler extends AbstractHTWorkItemHandler 
             initialized = true;
         }
     }
-    
+
     @SuppressWarnings({ "rawtypes" })
     public void close() {
         if (taskService instanceof EventService) {
             ((EventService)taskService).clearTaskEventListeners();
         }
     }
-   
+
     @Override
     public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
-        
+
         Task task = createTaskBasedOnWorkItemParams(ksession, workItem);
         ContentData content = createTaskContentBasedOnWorkItemParams(ksession, workItem);
         try {
@@ -115,7 +115,7 @@ public class NonManagedLocalHTWorkItemHandler extends AbstractHTWorkItemHandler 
                 logMsg.append(". Error reported by task server: ").append(e.getMessage());
                 logger.error(logMsg.toString(), e);
             }
-        } 
+        }
     }
 
     @Override
@@ -128,7 +128,7 @@ public class NonManagedLocalHTWorkItemHandler extends AbstractHTWorkItemHandler 
                 logger.info(e.getMessage());
             }
         }
-        
+
     }
 
     public KieSession getKsession() {

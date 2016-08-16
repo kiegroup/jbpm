@@ -27,11 +27,11 @@ public abstract class ExceptionScopeInstance extends AbstractContextInstance {
     public String getContextType() {
         return ExceptionScope.EXCEPTION_SCOPE;
     }
-    
+
     public ExceptionScope getExceptionScope() {
         return (ExceptionScope) getContext();
     }
-    
+
     public void handleException(String exception, Object params) {
         ExceptionHandler handler = getExceptionScope().getExceptionHandler(exception);
         if (handler == null) {
@@ -40,7 +40,7 @@ public abstract class ExceptionScopeInstance extends AbstractContextInstance {
         }
         handleException(handler, exception, params);
     }
-    
+
     public abstract void handleException(ExceptionHandler handler, String exception, Object params);
 
 }

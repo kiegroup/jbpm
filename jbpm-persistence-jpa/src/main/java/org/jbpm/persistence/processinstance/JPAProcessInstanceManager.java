@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -49,9 +49,9 @@ import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
  * This is an implementation of the {@link ProcessInstanceManager} that uses JPA.
  * </p>
  * What's important to remember here is that we have a jbpm-console which has 1 static (stateful) knowledge session
- * which is used by multiple threads: each request sent to the jbpm-console is picked up in it's own thread. 
+ * which is used by multiple threads: each request sent to the jbpm-console is picked up in it's own thread.
  * </p>
- * This means that multiple threads can be using the same instance of this class. 
+ * This means that multiple threads can be using the same instance of this class.
  */
 public class JPAProcessInstanceManager
     implements
@@ -63,14 +63,14 @@ public class JPAProcessInstanceManager
     // Added volatile so that if something happens, we can figure out what
     private volatile transient Map<Long, ProcessInstance> processInstances = new ConcurrentHashMap<Long, ProcessInstance>();
 
-    
+
     public void setKnowledgeRuntime(InternalKnowledgeRuntime kruntime) {
         this.kruntime = kruntime;
     }
 
     public void addProcessInstance(ProcessInstance processInstance, CorrelationKey correlationKey) {
         ProcessInstanceInfo processInstanceInfo = new ProcessInstanceInfo( processInstance, this.kruntime.getEnvironment() );
-        ProcessPersistenceContext context 
+        ProcessPersistenceContext context
             = ((ProcessPersistenceContextManager) this.kruntime.getEnvironment()
                     .get( EnvironmentName.PERSISTENCE_CONTEXT_MANAGER ))
                     .getProcessPersistenceContext();
@@ -86,11 +86,11 @@ public class JPAProcessInstanceManager
         }
         internalAddProcessInstance(processInstance);
     }
-    
+
     public void internalAddProcessInstance(ProcessInstance processInstance) {
         if( ((ConcurrentHashMap<Long, ProcessInstance>) processInstances)
-                .putIfAbsent(processInstance.getId(), processInstance) 
-                != null ) { 
+                .putIfAbsent(processInstance.getId(), processInstance)
+                != null ) {
             throw new ConcurrentModificationException(
                     "Duplicate process instance [" + processInstance.getProcessId() + "/" + processInstance.getId() + "]"
                     + " added to process instance manager." );
@@ -111,43 +111,43 @@ public class JPAProcessInstanceManager
         processInstance = (org.jbpm.process.instance.ProcessInstance) this.processInstances.get(id);
         if (processInstance != null) {
             if (((WorkflowProcessInstanceImpl) processInstance).isPersisted() && !readOnly) {
-            	ProcessPersistenceContextManager ppcm 
-        	    = (ProcessPersistenceContextManager) this.kruntime.getEnvironment().get( EnvironmentName.PERSISTENCE_CONTEXT_MANAGER );
-            	ppcm.beginCommandScopedEntityManager();
-            	ProcessPersistenceContext context = ppcm.getProcessPersistenceContext();
+                ProcessPersistenceContextManager ppcm
+                = (ProcessPersistenceContextManager) this.kruntime.getEnvironment().get( EnvironmentName.PERSISTENCE_CONTEXT_MANAGER );
+                ppcm.beginCommandScopedEntityManager();
+                ProcessPersistenceContext context = ppcm.getProcessPersistenceContext();
                 ProcessInstanceInfo processInstanceInfo = context.findProcessInstanceInfo( id );
                 if ( processInstanceInfo == null ) {
                     return null;
-                }                
+                }
                 TransactionManagerHelper.addToUpdatableSet(txm, processInstanceInfo);
                 processInstanceInfo.updateLastReadDate();
-  
+
             }
-        	return processInstance;
+            return processInstance;
         }
 
-    	// Make sure that the cmd scoped entity manager has started
-    	ProcessPersistenceContextManager ppcm 
-    	    = (ProcessPersistenceContextManager) this.kruntime.getEnvironment().get( EnvironmentName.PERSISTENCE_CONTEXT_MANAGER );
-    	ppcm.beginCommandScopedEntityManager();
-    	
+        // Make sure that the cmd scoped entity manager has started
+        ProcessPersistenceContextManager ppcm
+            = (ProcessPersistenceContextManager) this.kruntime.getEnvironment().get( EnvironmentName.PERSISTENCE_CONTEXT_MANAGER );
+        ppcm.beginCommandScopedEntityManager();
+
         ProcessPersistenceContext context = ppcm.getProcessPersistenceContext();
         ProcessInstanceInfo processInstanceInfo = context.findProcessInstanceInfo( id );
         if ( processInstanceInfo == null ) {
             return null;
         }
         processInstance = (org.jbpm.process.instance.ProcessInstance)
-        	processInstanceInfo.getProcessInstance(kruntime, this.kruntime.getEnvironment());
+            processInstanceInfo.getProcessInstance(kruntime, this.kruntime.getEnvironment());
         if (!readOnly) {
             processInstanceInfo.updateLastReadDate();
             TransactionManagerHelper.addToUpdatableSet(txm, processInstanceInfo);
         }
         if (((ProcessInstanceImpl) processInstance).getProcessXml() == null) {
-	        Process process = kruntime.getKieBase().getProcess( processInstance.getProcessId() );
-	        if ( process == null ) {
-	            throw new IllegalArgumentException( "Could not find process " + processInstance.getProcessId() );
-	        }
-	        processInstance.setProcess( process );
+            Process process = kruntime.getKieBase().getProcess( processInstance.getProcessId() );
+            if ( process == null ) {
+                throw new IllegalArgumentException( "Could not find process " + processInstance.getProcessId() );
+            }
+            processInstance.setProcess( process );
         }
         if ( processInstance.getKnowledgeRuntime() == null ) {
             Long parentProcessInstanceId = (Long) ((ProcessInstanceImpl) processInstance).getMetaData().get("ParentProcessInstanceId");
@@ -167,7 +167,7 @@ public class JPAProcessInstanceManager
     public void removeProcessInstance(ProcessInstance processInstance) {
         ProcessPersistenceContext context = ((ProcessPersistenceContextManager) this.kruntime.getEnvironment().get( EnvironmentName.PERSISTENCE_CONTEXT_MANAGER )).getProcessPersistenceContext();
         ProcessInstanceInfo processInstanceInfo = context.findProcessInstanceInfo( processInstance.getId() );
-        
+
         if ( processInstanceInfo != null ) {
             context.remove( processInstanceInfo );
         }
@@ -177,7 +177,7 @@ public class JPAProcessInstanceManager
     public void internalRemoveProcessInstance(ProcessInstance processInstance) {
         processInstances.remove( processInstance.getId() );
     }
-    
+
     public void clearProcessInstances() {
         for (ProcessInstance processInstance: new ArrayList<ProcessInstance>(processInstances.values())) {
             ((ProcessInstanceImpl) processInstance).disconnect();
@@ -188,11 +188,11 @@ public class JPAProcessInstanceManager
         try {
             // at this point only timers are considered as state that needs to be cleared
             TimerManager timerManager = ((InternalProcessRuntime)kruntime.getProcessRuntime()).getTimerManager();
-            
+
             for (ProcessInstance processInstance: new ArrayList<ProcessInstance>(processInstances.values())) {
                 WorkflowProcessInstance pi = ((WorkflowProcessInstance) processInstance);
-    
-                
+
+
                 for (org.kie.api.runtime.process.NodeInstance nodeInstance : pi.getNodeInstances()) {
                     if (nodeInstance instanceof TimerNodeInstance){
                         if (((TimerNodeInstance)nodeInstance).getTimerInstance() != null) {
@@ -207,11 +207,11 @@ public class JPAProcessInstanceManager
                         }
                     }
                 }
-                
+
             }
         } catch (Exception e) {
-            // catch everything here to make sure it will not break any following 
-            // logic to allow complete clean up 
+            // catch everything here to make sure it will not break any following
+            // logic to allow complete clean up
         }
     }
 

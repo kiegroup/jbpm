@@ -20,20 +20,20 @@ import java.util.Collection;
 import java.util.Map;
 
 public interface UserTaskDefinition {
-    
+
     String getName();
 
     Integer getPriority();
-    
+
     String getComment();
-    
+
     String getCreatedBy();
-    
+
     boolean isSkippable();
-    
+
     Collection<String> getAssociatedEntities();
-    
+
     Map<String, String> getTaskInputMappings();
-    
+
     Map<String, String> getTaskOutputMappings();
 }

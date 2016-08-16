@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -32,14 +32,14 @@ import org.kie.internal.runtime.manager.audit.query.NodeInstanceLogQueryBuilder;
 
 public class NodeInstLogQueryBuilderImpl extends AbstractAuditQueryBuilderImpl<NodeInstanceLogQueryBuilder, NodeInstanceLog> implements NodeInstanceLogQueryBuilder {
 
-    public NodeInstLogQueryBuilderImpl(CommandExecutor cmdService) { 
+    public NodeInstLogQueryBuilderImpl(CommandExecutor cmdService) {
        super(cmdService);
     }
-    
-    public NodeInstLogQueryBuilderImpl(JPAAuditLogService jpaAuditService) { 
+
+    public NodeInstLogQueryBuilderImpl(JPAAuditLogService jpaAuditService) {
        super(jpaAuditService);
     }
-    
+
     @Override
     public NodeInstanceLogQueryBuilder nodeInstanceId( String... nodeInstanceId ) {
         addObjectParameter(NODE_INSTANCE_ID_LIST, "node instance id", nodeInstanceId);
@@ -63,7 +63,7 @@ public class NodeInstLogQueryBuilderImpl extends AbstractAuditQueryBuilderImpl<N
         addObjectParameter(TYPE_LIST, "node type", type);
         return this;
     }
-    
+
     @Override
     public NodeInstanceLogQueryBuilder workItemId( long... workItemId ) {
         addLongParameter(WORK_ITEM_ID_LIST, "work item id", workItemId);

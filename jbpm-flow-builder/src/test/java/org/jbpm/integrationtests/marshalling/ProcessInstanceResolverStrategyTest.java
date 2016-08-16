@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -55,7 +55,7 @@ import org.kie.internal.runtime.StatefulKnowledgeSession;
 public class ProcessInstanceResolverStrategyTest extends AbstractBaseTest {
 
     private final static String PROCESS_NAME = "simpleProcess.xml";
-    
+
     @Test
     public void testAccept() {
         KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
@@ -68,12 +68,12 @@ public class ProcessInstanceResolverStrategyTest extends AbstractBaseTest {
         processInstance.setKnowledgeRuntime((InternalKnowledgeRuntime) ksession);
 
         ProcessInstanceResolverStrategy strategy = new ProcessInstanceResolverStrategy();
-        
+
         assertTrue( strategy.accept(processInstance) );
         Object object = new Object();
         assertTrue( ! strategy.accept(object) );
     }
-    
+
 
     @Test
     public void testProcessInstanceResolverStrategy() throws Exception {
@@ -87,23 +87,23 @@ public class ProcessInstanceResolverStrategyTest extends AbstractBaseTest {
 
         // strategy setup
         ProcessInstanceResolverStrategy strategy = new ProcessInstanceResolverStrategy();
-        ObjectMarshallingStrategy[] strategies = { 
+        ObjectMarshallingStrategy[] strategies = {
                 strategy,
-                MarshallerFactory.newSerializeMarshallingStrategy() 
+                MarshallerFactory.newSerializeMarshallingStrategy()
         };
 
-        
+
         // Test strategy.write
         org.kie.api.marshalling.MarshallingConfiguration marshallingConfig = new MarshallingConfigurationImpl(strategies, true, true);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        MarshallerWriteContext writerContext 
+        MarshallerWriteContext writerContext
             = new MarshallerWriteContext(baos,
                                          ((InternalKnowledgeBase) kbase),
-										 (InternalWorkingMemory) ((StatefulKnowledgeSessionImpl) ksession),
-										 RuleBaseNodes.getNodeMap(((InternalKnowledgeBase) kbase)),
-										 marshallingConfig.getObjectMarshallingStrategyStore(), 
-										 marshallingConfig.isMarshallProcessInstances(),
-										 marshallingConfig.isMarshallWorkItems(), ksession.getEnvironment());
+                                         (InternalWorkingMemory) ((StatefulKnowledgeSessionImpl) ksession),
+                                         RuleBaseNodes.getNodeMap(((InternalKnowledgeBase) kbase)),
+                                         marshallingConfig.getObjectMarshallingStrategyStore(),
+                                         marshallingConfig.isMarshallProcessInstances(),
+                                         marshallingConfig.isMarshallWorkItems(), ksession.getEnvironment());
 
         strategy.write(writerContext, processInstance);
         baos.close();
@@ -123,7 +123,7 @@ public class ProcessInstanceResolverStrategyTest extends AbstractBaseTest {
         assertNotNull(pim);
         assertNotNull(ProcessInstanceResolverStrategy.retrieveKnowledgeRuntime(writerContext));
         assertTrue(processInstance == pim.getProcessInstance(serializedProcessInstanceId));
-        
+
         // Test strategy.read
         bais = new ByteArrayInputStream(bytes);
         MarshallerReaderContext readerContext = new MarshallerReaderContext(bais,
@@ -135,7 +135,7 @@ public class ProcessInstanceResolverStrategyTest extends AbstractBaseTest {
                                                                             marshallingConfig.isMarshallWorkItems() ,
                                                                             EnvironmentFactory.newEnvironment());
         readerContext.wm = ((StatefulKnowledgeSessionImpl) ksession).getInternalWorkingMemory();
-        Object procInstObject = strategy.read(readerContext); 
+        Object procInstObject = strategy.read(readerContext);
         assertTrue(procInstObject != null && procInstObject instanceof ProcessInstance );
         assertTrue(processInstance == procInstObject);
     }

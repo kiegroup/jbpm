@@ -39,44 +39,44 @@ public class GlobalJPATimerJobFactoryManager implements CommandServiceTimerJobFa
     private CommandService commandService;
     private Map<Long, Map<Long, TimerJobInstance>> timerInstances;
     private Map<Long, TimerJobInstance> singleTimerInstances;
-    
+
     public void setCommandService(CommandService commandService) {
         this.commandService = commandService;
     }
-    
+
     public GlobalJPATimerJobFactoryManager() {
         timerInstances = new ConcurrentHashMap<Long, Map<Long, TimerJobInstance>>();
         singleTimerInstances = new ConcurrentHashMap<Long, TimerJobInstance>();
-        
+
     }
-    
+
     public TimerJobInstance createTimerJobInstance(Job job,
                                                    JobContext ctx,
                                                    Trigger trigger,
                                                    JobHandle handle,
                                                    InternalSchedulerService scheduler) {
-    	long sessionId = -1;
-    	if (ctx instanceof ProcessJobContext) {
+        long sessionId = -1;
+        if (ctx instanceof ProcessJobContext) {
             sessionId = ((ProcessJobContext) ctx).getSessionId();
             Map<Long, TimerJobInstance> instances = timerInstances.get(sessionId);
             if (instances == null) {
                 instances = new ConcurrentHashMap<Long, TimerJobInstance>();
                 timerInstances.put(sessionId, instances);
             }
-        }        
+        }
         ctx.setJobHandle( handle );
         GlobalJpaTimerJobInstance jobInstance = new GlobalJpaTimerJobInstance( new SelfRemovalJob( job ),
                                                                    new SelfRemovalJobContext( ctx,
-                                                                		   emptyStore ),
+                                                                           emptyStore ),
                                                                    trigger,
                                                                    handle,
                                                                    scheduler);
-    
+
         return jobInstance;
     }
-    
+
     public void addTimerJobInstance(TimerJobInstance instance) {
-    
+
         JobContext ctx = instance.getJobContext();
         if (ctx instanceof SelfRemovalJobContext) {
             ctx = ((SelfRemovalJobContext) ctx).getJobContext();
@@ -93,9 +93,9 @@ public class GlobalJPATimerJobFactoryManager implements CommandServiceTimerJobFa
             instances = singleTimerInstances;
         }
         instances.put( instance.getJobHandle().getId(),
-                                 instance );        
+                                 instance );
     }
-    
+
     public void removeTimerJobInstance(TimerJobInstance instance) {
         JobContext ctx = instance.getJobContext();
         if (ctx instanceof SelfRemovalJobContext) {
@@ -112,14 +112,14 @@ public class GlobalJPATimerJobFactoryManager implements CommandServiceTimerJobFa
         } else {
             instances = singleTimerInstances;
         }
-        instances.remove( instance.getJobHandle().getId() );        
+        instances.remove( instance.getJobHandle().getId() );
     }
-    
-    
+
+
     public Collection<TimerJobInstance> getTimerJobInstances() {
         return singleTimerInstances.values();
     }
-    
+
     public Collection<TimerJobInstance> getTimerJobInstances(Long sessionId) {
         Map<Long, TimerJobInstance> sessionTimerJobs = timerInstances.get(sessionId);
         if (sessionTimerJobs == null) {
@@ -127,9 +127,9 @@ public class GlobalJPATimerJobFactoryManager implements CommandServiceTimerJobFa
         }
         return sessionTimerJobs.values();
     }
-    
+
     public CommandService getCommandService() {
         return this.commandService;
     }
-    
+
 }

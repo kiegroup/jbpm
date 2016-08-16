@@ -19,7 +19,7 @@ package org.jbpm.services.task.exception;
 import org.kie.internal.task.exception.TaskException;
 
 /**
- * Exception that is thrown when the parameters to a query are incorrect, with regard to either the number or type. 
+ * Exception that is thrown when the parameters to a query are incorrect, with regard to either the number or type.
  *
  * @see org.jbpm.services.task.service.TaskPersistenceManager#runQueryWithParametersInTx
  */
@@ -28,7 +28,7 @@ public class IncorrectParametersException extends TaskException {
     public IncorrectParametersException(String message) {
         super(message);
     }
-    
+
     public IncorrectParametersException(String message, Throwable cause) {
         super(message, cause);
     }

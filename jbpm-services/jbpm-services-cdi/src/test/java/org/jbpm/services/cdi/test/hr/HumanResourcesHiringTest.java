@@ -71,13 +71,13 @@ import org.slf4j.LoggerFactory;
 
 @RunWith(Arquillian.class)
 public class HumanResourcesHiringTest extends AbstractKieServicesBaseTest {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(HumanResourcesHiringTest.class);
 
     @Deployment()
     public static Archive<?> createDeployment() {
         return ShrinkWrap.create(JavaArchive.class, "domain-services.jar")
-        		.addPackage("org.jbpm.services.task")
+                .addPackage("org.jbpm.services.task")
                 .addPackage("org.jbpm.services.task.wih") // work items org.jbpm.services.task.wih
                 .addPackage("org.jbpm.services.task.annotations")
                 .addPackage("org.jbpm.services.task.api")
@@ -102,32 +102,32 @@ public class HumanResourcesHiringTest extends AbstractKieServicesBaseTest {
                 .addPackage("org.kie.internal.runtime.manager")
                 .addPackage("org.kie.internal.runtime.manager.context")
                 .addPackage("org.kie.internal.runtime.manager.cdi.qualifier")
-                
+
                 .addPackage("org.jbpm.runtime.manager.impl")
-                .addPackage("org.jbpm.runtime.manager.impl.cdi")                               
+                .addPackage("org.jbpm.runtime.manager.impl.cdi")
                 .addPackage("org.jbpm.runtime.manager.impl.factory")
                 .addPackage("org.jbpm.runtime.manager.impl.jpa")
                 .addPackage("org.jbpm.runtime.manager.impl.manager")
                 .addPackage("org.jbpm.runtime.manager.impl.task")
                 .addPackage("org.jbpm.runtime.manager.impl.tx")
-                
+
                 .addPackage("org.jbpm.shared.services.api")
                 .addPackage("org.jbpm.shared.services.impl")
                 .addPackage("org.jbpm.shared.services.impl.tx")
-                
+
                 .addPackage("org.jbpm.kie.services.api")
-                .addPackage("org.jbpm.kie.services.impl")                
+                .addPackage("org.jbpm.kie.services.impl")
                 .addPackage("org.jbpm.kie.services.api.bpmn2")
                 .addPackage("org.jbpm.kie.services.impl.bpmn2")
                 .addPackage("org.jbpm.kie.services.impl.event.listeners")
                 .addPackage("org.jbpm.kie.services.impl.audit")
                 .addPackage("org.jbpm.kie.services.impl.form")
                 .addPackage("org.jbpm.kie.services.impl.form.provider")
-                .addPackage("org.jbpm.kie.services.impl.query")  
-                .addPackage("org.jbpm.kie.services.impl.query.mapper")  
-                .addPackage("org.jbpm.kie.services.impl.query.persistence")  
-                .addPackage("org.jbpm.kie.services.impl.query.preprocessor")  
-                
+                .addPackage("org.jbpm.kie.services.impl.query")
+                .addPackage("org.jbpm.kie.services.impl.query.mapper")
+                .addPackage("org.jbpm.kie.services.impl.query.persistence")
+                .addPackage("org.jbpm.kie.services.impl.query.preprocessor")
+
                 .addPackage("org.jbpm.services.cdi")
                 .addPackage("org.jbpm.services.cdi.impl")
                 .addPackage("org.jbpm.services.cdi.impl.form")
@@ -135,7 +135,7 @@ public class HumanResourcesHiringTest extends AbstractKieServicesBaseTest {
                 .addPackage("org.jbpm.services.cdi.producer")
                 .addPackage("org.jbpm.services.cdi.impl.security")
                 .addPackage("org.jbpm.services.cdi.impl.query")
-                
+
                 .addPackage("org.jbpm.kie.services.test")
                 .addPackage("org.jbpm.services.cdi.test") // Identity Provider Test Impl here
                 .addClass("org.jbpm.services.cdi.test.util.CDITestHelperNoTaskService")
@@ -146,24 +146,24 @@ public class HumanResourcesHiringTest extends AbstractKieServicesBaseTest {
                 .addAsManifestResource("META-INF/beans.xml", ArchivePaths.create("beans.xml"));
 
     }
- 
+
     @BeforeClass
     public static void setup() {
         TestUtil.cleanupSingletonSessionId();
      }
 
- 
+
     @Override
-	protected void close() {
-		// do nothing here and let CDI close resources
-	}
+    protected void close() {
+        // do nothing here and let CDI close resources
+    }
 
-	@Override
-	protected void configureServices() {
-		// do nothing here and let CDI configure services 
-	}
+    @Override
+    protected void configureServices() {
+        // do nothing here and let CDI configure services
+    }
 
-	/*
+    /*
      * end of initialization code, tests start here
      */
     @Inject
@@ -199,7 +199,7 @@ public class HumanResourcesHiringTest extends AbstractKieServicesBaseTest {
     private RuntimeManagerFactory managerFactory;
 
     @SuppressWarnings("unchecked")
-	private void testHiringProcess(RuntimeManager manager, Context<?> context) {
+    private void testHiringProcess(RuntimeManager manager, Context<?> context) {
 
         RuntimeEngine runtime = manager.getRuntimeEngine(context);
         KieSession ksession = runtime.getKieSession();
@@ -233,20 +233,20 @@ public class HumanResourcesHiringTest extends AbstractKieServicesBaseTest {
                  throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
              }
          });
-        
-        
+
+
         ProcessInstance processInstance = ksession.startProcess("hiring");
 
         Collection<NodeInstanceDesc> activeNodes = runtimeDataService.getProcessInstanceHistoryActive(
-        															processInstance.getId(), new QueryContext());
+                                                                    processInstance.getId(), new QueryContext());
         assertNotNull(activeNodes);
         assertEquals(1, activeNodes.size());
-        
+
         Collection<NodeInstanceDesc> completedNodes = runtimeDataService.getProcessInstanceHistoryCompleted(
-        															processInstance.getId(), new QueryContext());
+                                                                    processInstance.getId(), new QueryContext());
         assertNotNull(completedNodes);
         assertEquals(1, completedNodes.size());
-        
+
         List<TaskSummary> tasks = ((InternalTaskService) taskService).getTasksAssignedByGroup("HR");
 
         TaskSummary HRInterview = tasks.get(0);
@@ -262,16 +262,16 @@ public class HumanResourcesHiringTest extends AbstractKieServicesBaseTest {
         hrOutput.put("out_score", 8);
 
         taskService.complete(HRInterview.getId(), "katy", hrOutput);
-        
+
         activeNodes = runtimeDataService.getProcessInstanceHistoryActive(
-						processInstance.getId(), new QueryContext());
-		assertNotNull(activeNodes);
-		assertEquals(1, activeNodes.size());
-		
-		completedNodes = runtimeDataService.getProcessInstanceHistoryCompleted(
-						processInstance.getId(), new QueryContext());
-		assertNotNull(completedNodes);
-		assertEquals(2, completedNodes.size());
+                        processInstance.getId(), new QueryContext());
+        assertNotNull(activeNodes);
+        assertEquals(1, activeNodes.size());
+
+        completedNodes = runtimeDataService.getProcessInstanceHistoryCompleted(
+                        processInstance.getId(), new QueryContext());
+        assertNotNull(completedNodes);
+        assertEquals(2, completedNodes.size());
 
 
         assertNotNull(processInstance);
@@ -305,16 +305,16 @@ public class HumanResourcesHiringTest extends AbstractKieServicesBaseTest {
         techOutput.put("out_score", 8);
 
         taskService.complete(techInterview.getId(), "salaboy", techOutput);
-        
+
         activeNodes = runtimeDataService.getProcessInstanceHistoryActive(
-						processInstance.getId(), new QueryContext());
-		assertNotNull(activeNodes);
-		assertEquals(1, activeNodes.size());
-		
-		completedNodes = runtimeDataService.getProcessInstanceHistoryCompleted(
-						processInstance.getId(), new QueryContext());
-		assertNotNull(completedNodes);
-		assertEquals(3, completedNodes.size());
+                        processInstance.getId(), new QueryContext());
+        assertNotNull(activeNodes);
+        assertEquals(1, activeNodes.size());
+
+        completedNodes = runtimeDataService.getProcessInstanceHistoryCompleted(
+                        processInstance.getId(), new QueryContext());
+        assertNotNull(completedNodes);
+        assertEquals(3, completedNodes.size());
 
 
         tasks = ((InternalTaskService) taskService).getTasksAssignedByGroup("Accounting");
@@ -342,16 +342,16 @@ public class HumanResourcesHiringTest extends AbstractKieServicesBaseTest {
 
 
         taskService.complete(createProposal.getId(), "john", proposalOutput);
-        
+
         activeNodes = runtimeDataService.getProcessInstanceHistoryActive(
-						processInstance.getId(), new QueryContext());
-		assertNotNull(activeNodes);
-		assertEquals(1, activeNodes.size());
-		
-		completedNodes = runtimeDataService.getProcessInstanceHistoryCompleted(
-						processInstance.getId(), new QueryContext());
-		assertNotNull(completedNodes);
-		assertEquals(5, completedNodes.size());
+                        processInstance.getId(), new QueryContext());
+        assertNotNull(activeNodes);
+        assertEquals(1, activeNodes.size());
+
+        completedNodes = runtimeDataService.getProcessInstanceHistoryCompleted(
+                        processInstance.getId(), new QueryContext());
+        assertNotNull(completedNodes);
+        assertEquals(5, completedNodes.size());
 
         tasks = ((InternalTaskService) taskService).getTasksAssignedByGroup("HR");
         assertNotNull(tasks);
@@ -375,18 +375,18 @@ public class HumanResourcesHiringTest extends AbstractKieServicesBaseTest {
         Map<String, Object> signOutput = new HashMap<String, Object>();
         signOutput.put("out_signed", true);
         taskService.complete(signContract.getId(), "katy", signOutput);
-        
-        activeNodes = runtimeDataService.getProcessInstanceHistoryActive(
-						processInstance.getId(), new QueryContext());
-		assertNotNull(activeNodes);
-		assertEquals(0, activeNodes.size());
-		
-		completedNodes = runtimeDataService.getProcessInstanceHistoryCompleted(
-						processInstance.getId(), new QueryContext());
-		assertNotNull(completedNodes);
-		assertEquals(8, completedNodes.size());
 
-        
+        activeNodes = runtimeDataService.getProcessInstanceHistoryActive(
+                        processInstance.getId(), new QueryContext());
+        assertNotNull(activeNodes);
+        assertEquals(0, activeNodes.size());
+
+        completedNodes = runtimeDataService.getProcessInstanceHistoryCompleted(
+                        processInstance.getId(), new QueryContext());
+        assertNotNull(completedNodes);
+        assertEquals(8, completedNodes.size());
+
+
         int removeAllTasks = ((InternalTaskService) taskService).removeAllTasks();
         logger.debug(">>> Removed Tasks > {}", removeAllTasks);
 

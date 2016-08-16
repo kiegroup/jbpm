@@ -22,21 +22,21 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.kie.internal.command.Context;
 
 /**
- *  Operation.Stop 
-        : [ new OperationCommand().{ 
+ *  Operation.Stop
+        : [ new OperationCommand().{
                 status = [ Status.InProgress ],
-                allowed = [ Allowed.Owner, Allowed.BusinessAdministrator ],               
+                allowed = [ Allowed.Owner, Allowed.BusinessAdministrator ],
                 newStatus = Status.Reserved
-            } ],                 
+            } ],
  */
 @XmlRootElement(name="stop-task-command")
 @XmlAccessorType(XmlAccessType.NONE)
 public class StopTaskCommand extends UserGroupCallbackTaskCommand<Void> {
-	
-	private static final long serialVersionUID = -4282226852650036375L;
 
-	public StopTaskCommand() {
-	}
+    private static final long serialVersionUID = -4282226852650036375L;
+
+    public StopTaskCommand() {
+    }
 
     public StopTaskCommand(long taskId, String userId) {
         this.taskId = taskId;
@@ -48,10 +48,10 @@ public class StopTaskCommand extends UserGroupCallbackTaskCommand<Void> {
         doCallbackUserOperation(userId, context);
         groupIds = doUserGroupCallbackOperation(userId, null, context);
         context.set("local:groups", groupIds);
-    	context.getTaskInstanceService().stop(taskId, userId);
-    	return null;
-        
+        context.getTaskInstanceService().stop(taskId, userId);
+        return null;
+
     }
 
-    
+
 }

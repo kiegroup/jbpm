@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -27,7 +27,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
 public class ProcessHandler extends BaseAbstractHandler implements Handler {
-    
+
     public ProcessHandler() {
         if ( (this.validParents == null) && (this.validPeers == null) ) {
             this.validParents = new HashSet();
@@ -39,21 +39,21 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
             this.allowNesting = false;
         }
     }
-    
+
     public Object start(final String uri,
                         final String localName,
                         final Attributes attrs,
                         final ExtensibleXmlParser parser) throws SAXException {
         parser.startElementBuilder( localName,
                                     attrs );
-        
+
         final String id = attrs.getValue( "id" );
         final String name = attrs.getValue( "name" );
         final String version = attrs.getValue( "version" );
         final String type = attrs.getValue( "type" );
         final String packageName = attrs.getValue( "package-name" );
         final String routerLayout = attrs.getValue( "routerLayout" );
-        
+
         RuleFlowProcess process = new RuleFlowProcess();
         process.setId( id );
         process.setName( name );
@@ -65,19 +65,19 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
         }
 
         ((ProcessBuildData)parser.getData()).addProcess( process );
-        
+
         return process;
-    }    
-    
+    }
+
     public Object end(final String uri,
                       final String localName,
                       final ExtensibleXmlParser parser) throws SAXException {
-        final Element element = parser.endElementBuilder();        
+        final Element element = parser.endElementBuilder();
         return parser.getCurrent();
     }
 
     public Class generateNodeFor() {
         return org.kie.api.definition.process.Process.class;
-    }    
+    }
 
 }

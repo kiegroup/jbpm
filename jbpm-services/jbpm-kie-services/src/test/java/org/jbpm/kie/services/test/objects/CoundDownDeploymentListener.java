@@ -28,20 +28,20 @@ public class CoundDownDeploymentListener implements DeploymentEventListener {
     private static Logger logger = LoggerFactory.getLogger(CoundDownDeploymentListener.class);
 
     private CountDownLatch latch;
-    
+
     private boolean deploy;
     private boolean undeploy;
     private boolean activate;
     private boolean deactivate;
-    
+
     public CoundDownDeploymentListener() {
         this.latch = new CountDownLatch(0);
     }
-    
+
     public CoundDownDeploymentListener(int threads) {
         this.latch = new CountDownLatch(threads);
     }
-    
+
     @Override
     public void onDeploy(DeploymentEvent event) {
         if (deploy) {
@@ -69,7 +69,7 @@ public class CoundDownDeploymentListener implements DeploymentEventListener {
             this.latch.countDown();
         }
     }
-    
+
     public void waitTillCompleted() {
         try {
             latch.await();
@@ -77,7 +77,7 @@ public class CoundDownDeploymentListener implements DeploymentEventListener {
             logger.debug("Interrputed thread while waiting for all triggers notification/reassignment");
         }
     }
-    
+
     public void waitTillCompleted(long timeOut) {
         try {
             latch.await(timeOut, TimeUnit.MILLISECONDS);
@@ -85,47 +85,47 @@ public class CoundDownDeploymentListener implements DeploymentEventListener {
             logger.debug("Interrputed thread while waiting for all triggers notification/reassignment");
         }
     }
-    
+
     public void reset(int threads) {
         this.latch = new CountDownLatch(threads);
     }
 
-    
+
     public boolean isDeploy() {
         return deploy;
     }
 
-    
+
     public void setDeploy(boolean deploy) {
         this.deploy = deploy;
     }
 
-    
+
     public boolean isUndeploy() {
         return undeploy;
     }
 
-    
+
     public void setUndeploy(boolean undeploy) {
         this.undeploy = undeploy;
     }
 
-    
+
     public boolean isActivate() {
         return activate;
     }
 
-    
+
     public void setActivate(boolean activate) {
         this.activate = activate;
     }
 
-    
+
     public boolean isDeactivate() {
         return deactivate;
     }
 
-    
+
     public void setDeactivate(boolean deactivate) {
         this.deactivate = deactivate;
     }

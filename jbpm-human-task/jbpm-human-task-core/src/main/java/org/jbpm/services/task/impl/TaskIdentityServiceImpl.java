@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -38,18 +38,18 @@ public class TaskIdentityServiceImpl implements TaskIdentityService {
 
     public TaskIdentityServiceImpl() {
     }
-    
+
     public TaskIdentityServiceImpl(TaskPersistenceContext persistenceContext) {
-    	this.persistenceContext = persistenceContext;
+        this.persistenceContext = persistenceContext;
     }
 
     public void setPersistenceContext(TaskPersistenceContext persistenceContext) {
         this.persistenceContext = persistenceContext;
     }
-    
+
     public void addUser(User user) {
         persistenceContext.persistUser(user);
- 
+
     }
 
     public void addGroup(Group group) {
@@ -60,20 +60,20 @@ public class TaskIdentityServiceImpl implements TaskIdentityService {
         Group group = persistenceContext.findGroup(groupId);
         persistenceContext.remove(group);
     }
-    
+
     public void removeUser(String userId) {
         User user = persistenceContext.findUser(userId);
         persistenceContext.remove(user);
     }
 
     public List<User> getUsers() {
-        return persistenceContext.queryStringInTransaction("from User", 
-        		ClassUtil.<List<User>>castClass(List.class));
+        return persistenceContext.queryStringInTransaction("from User",
+                ClassUtil.<List<User>>castClass(List.class));
     }
 
     public List<Group> getGroups() {
         return persistenceContext.queryStringInTransaction("from Group",
-        		ClassUtil.<List<Group>>castClass(List.class));
+                ClassUtil.<List<Group>>castClass(List.class));
     }
 
     public User getUserById(String userId) {

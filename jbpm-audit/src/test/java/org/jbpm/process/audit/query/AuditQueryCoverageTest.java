@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -45,52 +45,52 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AuditQueryCoverageTest extends JPAAuditLogService {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(AuditQueryCoverageTest.class);
-  
+
     private static EntityManagerFactory emf;
-    
+
     private ProcessInstanceLog [] pilTestData;
     private VariableInstanceLog [] vilTestData;
     private NodeInstanceLog [] nilTestData;
-   
+
     @BeforeClass
-    public static void configure() { 
+    public static void configure() {
         emf = beforeClass(JBPM_PERSISTENCE_UNIT_NAME);
     }
-    
+
     @AfterClass
-    public static void reset() { 
+    public static void reset() {
         afterClass();
     }
 
     @Before
     public void setUp() throws Exception {
-        if( pilTestData == null ) { 
-            // this is not really necessary.. 
+        if( pilTestData == null ) {
+            // this is not really necessary..
             pilTestData = createTestProcessInstanceLogData(emf);
             vilTestData = createTestVariableInstanceLogData(emf);
             nilTestData = createTestNodeInstanceLogData(emf);
         }
         this.persistenceStrategy = new StandaloneJtaStrategy(emf);
     }
-  
+
     private static ModuleSpecificInputFiller inputFiller = new ModuleSpecificInputFiller() {
-       
+
         private final JPACorrelationKeyFactory correlationKeyFactory = new JPACorrelationKeyFactory();
-       
+
         private int orderByType = 0;
-        
+
         @Override
         public Object fillInput( Class type ) {
-            if( type.equals(CorrelationKey.class) ) { 
+            if( type.equals(CorrelationKey.class) ) {
                 return correlationKeyFactory.newCorrelationKey("business-key");
-            } else if( type.equals(OrderBy.class) ) { 
-                return ( orderByType++ % 2 == 0 ? 
+            } else if( type.equals(OrderBy.class) ) {
+                return ( orderByType++ % 2 == 0 ?
                     OrderBy.processId
                     : OrderBy.processInstanceId );
-            }  else if( type.isArray() ) {  
-                CorrelationKey [] corrKeyArr = { 
+            }  else if( type.isArray() ) {
+                CorrelationKey [] corrKeyArr = {
                         correlationKeyFactory.newCorrelationKey("key:one"),
                         correlationKeyFactory.newCorrelationKey("key:two")
                 };
@@ -99,29 +99,29 @@ public class AuditQueryCoverageTest extends JPAAuditLogService {
             return null;
         }
     };
-    
+
     @Test
     public void processInstanceLogQueryCoverageTest() {
-       ProcessInstanceLogQueryBuilder queryBuilder = this.processInstanceLogQuery(); 
+       ProcessInstanceLogQueryBuilder queryBuilder = this.processInstanceLogQuery();
        Class builderClass = ProcessInstanceLogQueryBuilder.class;
-       
+
        queryBuilderCoverageTest(queryBuilder, builderClass, inputFiller);
     }
-   
+
     @Test
     public void variableInstanceLogQueryBuilderCoverageTest() {
        VariableInstanceLogQueryBuilder queryBuilder = this.variableInstanceLogQuery();
        Class builderClass = VariableInstanceLogQueryBuilder.class;
-       
+
        queryBuilderCoverageTest(queryBuilder, builderClass, inputFiller);
     }
-    
+
     @Test
     public void nodeInstanceLogQueryBuilderCoverageTest() {
        NodeInstanceLogQueryBuilder queryBuilder = this.nodeInstanceLogQuery();
        Class builderClass = NodeInstanceLogQueryBuilder.class;
-       
+
        queryBuilderCoverageTest(queryBuilder, builderClass, inputFiller);
     }
-    
+
 }

@@ -65,7 +65,7 @@ public interface DocumentStorageService {
      * @return              true if it was possible to remove, false if not
      */
     boolean deleteDocument(Document document);
-    
+
     /**
      * Lists available document with paging support.
      * @param page page to be displayed

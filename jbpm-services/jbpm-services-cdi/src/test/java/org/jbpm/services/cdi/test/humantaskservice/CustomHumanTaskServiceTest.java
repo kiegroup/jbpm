@@ -46,7 +46,7 @@ public class CustomHumanTaskServiceTest extends AbstractKieServicesBaseTest {
     @Deployment()
     public static Archive<?> createDeployment() {
         return ShrinkWrap.create(JavaArchive.class, "jbpm-runtime-manager.jar")
-        		.addPackage("org.jbpm.services.task")
+                .addPackage("org.jbpm.services.task")
                 .addPackage("org.jbpm.services.task.wih") // work items org.jbpm.services.task.wih
                 .addPackage("org.jbpm.services.task.annotations")
                 .addPackage("org.jbpm.services.task.api")
@@ -92,11 +92,11 @@ public class CustomHumanTaskServiceTest extends AbstractKieServicesBaseTest {
                 .addPackage("org.jbpm.kie.services.impl.audit")
                 .addPackage("org.jbpm.kie.services.impl.form")
                 .addPackage("org.jbpm.kie.services.impl.form.provider")
-                .addPackage("org.jbpm.kie.services.impl.query")  
-                .addPackage("org.jbpm.kie.services.impl.query.mapper")  
-                .addPackage("org.jbpm.kie.services.impl.query.persistence")  
-                .addPackage("org.jbpm.kie.services.impl.query.preprocessor")  
-                
+                .addPackage("org.jbpm.kie.services.impl.query")
+                .addPackage("org.jbpm.kie.services.impl.query.mapper")
+                .addPackage("org.jbpm.kie.services.impl.query.persistence")
+                .addPackage("org.jbpm.kie.services.impl.query.preprocessor")
+
                 .addPackage("org.jbpm.services.cdi")
                 .addPackage("org.jbpm.services.cdi.impl")
                 .addPackage("org.jbpm.services.cdi.impl.form")
@@ -119,9 +119,9 @@ public class CustomHumanTaskServiceTest extends AbstractKieServicesBaseTest {
     }
 
     @Override
-	protected void configureServices() {
-		// do nothing here and let CDI configure services
-	}
+    protected void configureServices() {
+        // do nothing here and let CDI configure services
+    }
     /*
      * end of initialization code, tests start here
      */

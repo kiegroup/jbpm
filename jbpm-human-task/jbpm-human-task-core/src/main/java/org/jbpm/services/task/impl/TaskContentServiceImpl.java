@@ -39,40 +39,40 @@ public class TaskContentServiceImpl implements TaskContentService {
 
     private TaskPersistenceContext persistenceContext;
     private TaskEventSupport taskEventSupport;
-    
+
     private org.kie.internal.task.api.TaskContext context;
 
     public TaskContentServiceImpl() {
     }
-    
+
     public TaskContentServiceImpl(org.kie.internal.task.api.TaskContext context, TaskPersistenceContext persistenceContext, TaskEventSupport taskEventSupport) {
-    	this.context = context;    	
+        this.context = context;
         this.persistenceContext = persistenceContext;
-    	this.taskEventSupport = taskEventSupport;
+        this.taskEventSupport = taskEventSupport;
     }
 
     public void setPersistenceContext(TaskPersistenceContext persistenceContext) {
         this.persistenceContext = persistenceContext;
     }
-    
+
     public void setTaskEventSupport(TaskEventSupport taskEventSupport) {
         this.taskEventSupport = taskEventSupport;
     }
-    
+
     @SuppressWarnings("unchecked")
-	public long addOutputContent(long taskId, Map<String, Object> params) {
+    public long addOutputContent(long taskId, Map<String, Object> params) {
         Task task = persistenceContext.findTask(taskId);
         long outputContentId = task.getTaskData().getOutputContentId();
         Content outputContent = persistenceContext.findContent(outputContentId);
 
         long contentId = -1;
-        if (outputContent == null) { 
+        if (outputContent == null) {
             ContentMarshallerContext context = getMarshallerContext(task);
             ContentData outputContentData = ContentMarshallerHelper.marshal(task, params, context.getEnvironment());
             Content content = TaskModelProvider.getFactory().newContent();
             ((InternalContent) content).setContent(outputContentData.getContent());
             persistenceContext.persistContent(content);
-            
+
             ((InternalTaskData) task.getTaskData()).setOutput(content.getId(), outputContentData);
             contentId = content.getId();
         } else {
@@ -89,7 +89,7 @@ public class TaskContentServiceImpl implements TaskContentService {
         }
         ((InternalTaskData)task.getTaskData()).setTaskOutputVariables(params);
         taskEventSupport.fireAfterTaskOutputVariablesChanged(task, context, params);
-        
+
         return contentId;
     }
 
@@ -110,25 +110,25 @@ public class TaskContentServiceImpl implements TaskContentService {
     }
 
     public List<Content> getAllContentByTaskId(long taskId) {
-    	Task task = persistenceContext.findTask(taskId);
-    	
-    	long inputContentId = task.getTaskData().getDocumentContentId();
-    	long outputContentId = task.getTaskData().getOutputContentId();
-    	long faultContentId = task.getTaskData().getFaultContentId();
-    	
-    	List<Content> allContent = new ArrayList<Content>();
-    	
-    	allContent.add(persistenceContext.findContent(inputContentId));
-    	allContent.add(persistenceContext.findContent(outputContentId));
-    	allContent.add(persistenceContext.findContent(faultContentId));
-    	
+        Task task = persistenceContext.findTask(taskId);
+
+        long inputContentId = task.getTaskData().getDocumentContentId();
+        long outputContentId = task.getTaskData().getOutputContentId();
+        long faultContentId = task.getTaskData().getFaultContentId();
+
+        List<Content> allContent = new ArrayList<Content>();
+
+        allContent.add(persistenceContext.findContent(inputContentId));
+        allContent.add(persistenceContext.findContent(outputContentId));
+        allContent.add(persistenceContext.findContent(faultContentId));
+
         return allContent;
     }
 
     public Content getContentById(long contentId) {
         return persistenceContext.findContent(contentId);
     }
-    
+
     @Override
     public void addMarshallerContext(String ownerId, ContentMarshallerContext context) {
         TaskContentRegistry.get().addMarshallerContext(ownerId, context);
@@ -136,8 +136,8 @@ public class TaskContentServiceImpl implements TaskContentService {
 
     @Override
     public void removeMarshallerContext(String ownerId) {
-    	TaskContentRegistry.get().removeMarshallerContext(ownerId);
-    }   
+        TaskContentRegistry.get().removeMarshallerContext(ownerId);
+    }
 
     public ContentMarshallerContext getMarshallerContext(Task task) {
         return TaskContentRegistry.get().getMarshallerContext(task);
@@ -157,27 +157,27 @@ public class TaskContentServiceImpl implements TaskContentService {
         }
         return task;
     }
-    
+
     @SuppressWarnings("unchecked")
     protected Map<String, Object> loadContentData(Long contentId, Task task) {
-        
-        if (contentId != null) {           
+
+        if (contentId != null) {
             Map<String, Object> data = null;
             Content contentById = getContentById(contentId);
-            
+
             if (contentById != null) {
                 ContentMarshallerContext mContext = getMarshallerContext(task);
                 Object unmarshalledObject = ContentMarshallerHelper.unmarshall(contentById.getContent(), mContext.getEnvironment(), mContext.getClassloader());
-                if (!(unmarshalledObject instanceof Map)) {            
+                if (!(unmarshalledObject instanceof Map)) {
                     data = new HashMap<String, Object>();
                     data.put("Content", unmarshalledObject);
-        
+
                 } else {
                     data = (Map<String, Object>) unmarshalledObject;
                 }
-                
+
                 return data;
-            }  
+            }
         }
         return null;
     }

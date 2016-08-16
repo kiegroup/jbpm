@@ -54,13 +54,13 @@ import org.kie.internal.runtime.manager.context.EmptyContext;
 import org.kie.scanner.MavenRepository;
 
 public class PostDeploymentServiceTest extends AbstractKieServicesBaseTest {
-    
-    
+
+
     private List<DeploymentUnit> units = new ArrayList<DeploymentUnit>();
-    
+
     @Before
     public void prepare() {
-    	configureServices();
+        configureServices();
         KieServices ks = KieServices.Factory.get();
         ReleaseId releaseId = ks.newReleaseId(GROUP_ID, ARTIFACT_ID, VERSION);
         List<String> processes = new ArrayList<String>();
@@ -69,7 +69,7 @@ public class PostDeploymentServiceTest extends AbstractKieServicesBaseTest {
         processes.add("repo/processes/general/signal.bpmn");
         processes.add("repo/processes/general/import.bpmn");
         processes.add("repo/processes/general/callactivity.bpmn");
-        
+
         InternalKieModule kJar1 = createKieJar(ks, releaseId, processes);
         File pom = new File("target/kmodule", "pom.xml");
         pom.getParentFile().mkdir();
@@ -78,13 +78,13 @@ public class PostDeploymentServiceTest extends AbstractKieServicesBaseTest {
             fs.write(getPom(releaseId).getBytes());
             fs.close();
         } catch (Exception e) {
-            
+
         }
         MavenRepository repository = getMavenRepository();
         repository.deployArtifact(releaseId, kJar1, pom);
 
     }
-    
+
     @After
     public void cleanup() {
         cleanupSingletonSessionId();
@@ -96,91 +96,91 @@ public class PostDeploymentServiceTest extends AbstractKieServicesBaseTest {
         }
         close();
     }
-    
+
     @Test
     public void testDeploymentOfProcesses() {
-        
+
         assertNotNull(deploymentService);
-        
+
         DeploymentUnit deploymentUnit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
-        
+
         deploymentService.deploy(deploymentUnit);
         units.add(deploymentUnit);
-        
+
         DeployedUnit deployed = deploymentService.getDeployedUnit(deploymentUnit.getIdentifier());
         assertNotNull(deployed);
         assertNotNull(deployed.getDeploymentUnit());
         assertNotNull(deployed.getRuntimeManager());
-        
+
         assertNotNull(runtimeDataService);
         Collection<ProcessDefinition> processes = runtimeDataService.getProcesses(new QueryContext());
         assertNotNull(processes);
         assertEquals(5, processes.size());
-        
+
         processes = runtimeDataService.getProcessesByFilter("custom", new QueryContext());
         assertNotNull(processes);
         assertEquals(1, processes.size());
-        
+
         processes = runtimeDataService.getProcessesByDeploymentId(deploymentUnit.getIdentifier(), new QueryContext());
         assertNotNull(processes);
         assertEquals(5, processes.size());
-        
+
         ProcessDefinition process = runtimeDataService.getProcessesByDeploymentIdProcessId(deploymentUnit.getIdentifier(), "customtask");
         assertNotNull(process);
-        
+
         RuntimeManager manager = deploymentService.getRuntimeManager(deploymentUnit.getIdentifier());
         assertNotNull(manager);
-        
+
         RuntimeEngine engine = manager.getRuntimeEngine(EmptyContext.get());
         assertNotNull(engine);
-        
+
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("id", "test");
         ProcessInstance processInstance = engine.getKieSession().startProcess("customtask", params);
-        
+
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
-        
-    }    
-    
+
+    }
+
     @Test
     public void testDuplicatedDeployment() {
-            
+
         assertNotNull(deploymentService);
         ((KModuleDeploymentService)deploymentService).addListener(new DeploymentEventListener() {
-			
-			@Override
-			public void onUnDeploy(DeploymentEvent event) {
-				
-			}
-			
-			@Override
-			public void onDeploy(DeploymentEvent event) {
-				throw new IllegalArgumentException("On purpose");
-				
-			}
 
-			@Override
-			public void onActivate(DeploymentEvent event) {
-				
-			}
+            @Override
+            public void onUnDeploy(DeploymentEvent event) {
 
-			@Override
-			public void onDeactivate(DeploymentEvent event) {
-				
-			}
-		});
+            }
+
+            @Override
+            public void onDeploy(DeploymentEvent event) {
+                throw new IllegalArgumentException("On purpose");
+
+            }
+
+            @Override
+            public void onActivate(DeploymentEvent event) {
+
+            }
+
+            @Override
+            public void onDeactivate(DeploymentEvent event) {
+
+            }
+        });
         DeploymentUnit deploymentUnit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION, "KBase-test", "ksession-test");
         try {
-        	deploymentService.deploy(deploymentUnit);
-        	units.add(deploymentUnit);
-        	fail("Deployment should fail due to post process failuer - see ThrowExceptionOnDeploymentEvent");
+            deploymentService.deploy(deploymentUnit);
+            units.add(deploymentUnit);
+            fail("Deployment should fail due to post process failuer - see ThrowExceptionOnDeploymentEvent");
         } catch (RuntimeException e) {
-        	
+
         }
-        
+
         DeployedUnit deployedGeneral = deploymentService.getDeployedUnit(deploymentUnit.getIdentifier());
         assertNull(deployedGeneral);
         assertFalse(RuntimeManagerRegistry.get().isRegistered(deploymentUnit.getIdentifier()));
-        
+
     }
 }

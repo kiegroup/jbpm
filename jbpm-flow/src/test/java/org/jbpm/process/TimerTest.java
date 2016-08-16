@@ -36,19 +36,19 @@ import org.slf4j.LoggerFactory;
 
 public class TimerTest extends AbstractBaseTest  {
 
-    public void addLogger() { 
+    public void addLogger() {
         logger = LoggerFactory.getLogger(this.getClass());
     }
-    
-	private int counter = 0;
-	   
+
+    private int counter = 0;
+
     static {
         ProcessRuntimeFactory.setProcessRuntimeFactoryService(new ProcessRuntimeFactoryServiceImpl());
     }
-    
+
     @Test
     @Ignore
-	public void testTimer() {
+    public void testTimer() {
 //        AbstractRuleBase ruleBase = (AbstractRuleBase) RuleBaseFactory.newRuleBase();
 //        ExecutorService executorService = new DefaultExecutorService();
 //        final StatefulSession workingMemory = new ReteooStatefulSession(1, ruleBase, executorService);
@@ -57,14 +57,14 @@ public class TimerTest extends AbstractBaseTest  {
         final StatefulKnowledgeSession workingMemory = kbase.newStatefulKnowledgeSession();
 
         RuleFlowProcessInstance processInstance = new RuleFlowProcessInstance() {
-			private static final long serialVersionUID = 510l;
-			public void signalEvent(String type, Object event) {
-        		if ("timerTriggered".equals(type)) {
-        			TimerInstance timer = (TimerInstance) event;
-        			logger.info("Timer {} triggered", timer.getId());
-            		counter++;
-        		}
-        	}
+            private static final long serialVersionUID = 510l;
+            public void signalEvent(String type, Object event) {
+                if ("timerTriggered".equals(type)) {
+                    TimerInstance timer = (TimerInstance) event;
+                    logger.info("Timer {} triggered", timer.getId());
+                    counter++;
+                }
+            }
         };
         processInstance.setKnowledgeRuntime(((InternalWorkingMemory) workingMemory).getKnowledgeRuntime());
         processInstance.setId(1234);
@@ -72,33 +72,33 @@ public class TimerTest extends AbstractBaseTest  {
         processRuntime.getProcessInstanceManager().internalAddProcessInstance(processInstance);
 
         new Thread(new Runnable() {
-			public void run() {
-	        	workingMemory.fireUntilHalt();       	
-			}
+            public void run() {
+                workingMemory.fireUntilHalt();
+            }
         }).start();
 
         TimerManager timerManager = ((InternalProcessRuntime) ((InternalWorkingMemory) workingMemory).getProcessRuntime()).getTimerManager();
         TimerInstance timer = new TimerInstance();
         timerManager.registerTimer(timer, processInstance);
         try {
-        	Thread.sleep(1000);
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
-        	// do nothing
+            // do nothing
         }
         assertEquals(1, counter);
-        
+
         counter = 0;
         timer = new TimerInstance();
         timer.setDelay(500);
         timerManager.registerTimer(timer, processInstance);
         assertEquals(0, counter);
         try {
-        	Thread.sleep(1000);
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
-        	// do nothing
+            // do nothing
         }
         assertEquals(1, counter);
-        
+
         counter = 0;
         timer = new TimerInstance();
         timer.setDelay(500);
@@ -106,12 +106,12 @@ public class TimerTest extends AbstractBaseTest  {
         timerManager.registerTimer(timer, processInstance);
         assertEquals(0, counter);
         try {
-        	Thread.sleep(700);
+            Thread.sleep(700);
         } catch (InterruptedException e) {
-        	// do nothing
+            // do nothing
         }
         assertEquals(1, counter);
-        
+
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
@@ -119,15 +119,15 @@ public class TimerTest extends AbstractBaseTest  {
         }
         // we can't know exactly how many times this will fire as timers are not precise, but should be atleast 4
         assertTrue( counter >= 4 );
-        
+
         timerManager.cancelTimer(timer.getId());
         int lastCount = counter;
-        try {            
-        	Thread.sleep(1000);
+        try {
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
-        	// do nothing
+            // do nothing
         }
         assertEquals(lastCount, counter);
-	}
-	
+    }
+
 }

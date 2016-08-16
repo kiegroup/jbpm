@@ -40,7 +40,7 @@ public class EmailNotificationImpl extends NotificationImpl implements org.kie.i
     @OneToMany(cascade = CascadeType.ALL)
     @MapKeyColumn(name="mapkey")
     private Map<LanguageImpl, EmailNotificationHeaderImpl> emailHeaders;
-    
+
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
         super.writeExternal( out );
@@ -53,7 +53,7 @@ public class EmailNotificationImpl extends NotificationImpl implements org.kie.i
             out.writeInt( 0 );
         }
     }
-    
+
     @Override
     public void readExternal(ObjectInput in) throws IOException,
                                             ClassNotFoundException {
@@ -68,10 +68,10 @@ public class EmailNotificationImpl extends NotificationImpl implements org.kie.i
             }
         }
     }
-    
+
     public NotificationType getNotificationType() {
         return NotificationType.Email;
-    }        
+    }
 
     public Map<? extends Language, ? extends EmailNotificationHeader> getEmailHeaders() {
         return emailHeaders;
@@ -79,7 +79,7 @@ public class EmailNotificationImpl extends NotificationImpl implements org.kie.i
 
     public void setEmailHeaders(Map<? extends Language, ? extends EmailNotificationHeader> emailHeaders) {
         this.emailHeaders = (Map<LanguageImpl, EmailNotificationHeaderImpl>) emailHeaders;
-    }    
+    }
 
     @Override
     public int hashCode() {
@@ -99,8 +99,8 @@ public class EmailNotificationImpl extends NotificationImpl implements org.kie.i
             if ( other.emailHeaders != null ) return false;
         } else if ( !emailHeaders.equals( other.emailHeaders ) ) return false;
         return true;
-    }    
-    
-    
-    
+    }
+
+
+
 }

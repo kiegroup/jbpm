@@ -33,7 +33,7 @@ public class ExecutorEventSupport extends AbstractEventSupport<AsynchronousJobLi
             } while (iter.hasNext());
         }
     }
-    
+
     public void fireBeforeJobExecuted(final RequestInfo job, Throwable exception) {
         final Iterator<AsynchronousJobListener> iter = getEventListenersIterator();
         if (iter.hasNext()) {
@@ -42,7 +42,7 @@ public class ExecutorEventSupport extends AbstractEventSupport<AsynchronousJobLi
             } while (iter.hasNext());
         }
     }
-    
+
     public void fireBeforeJobCancelled(final RequestInfo job, Throwable exception) {
         final Iterator<AsynchronousJobListener> iter = getEventListenersIterator();
         if (iter.hasNext()) {
@@ -51,7 +51,7 @@ public class ExecutorEventSupport extends AbstractEventSupport<AsynchronousJobLi
             } while (iter.hasNext());
         }
     }
-    
+
     public void fireAfterJobScheduled(final RequestInfo job, Throwable exception) {
         final Iterator<AsynchronousJobListener> iter = getEventListenersIterator();
         if (iter.hasNext()) {
@@ -60,7 +60,7 @@ public class ExecutorEventSupport extends AbstractEventSupport<AsynchronousJobLi
             } while (iter.hasNext());
         }
     }
-    
+
     public void fireAfterJobExecuted(final RequestInfo job, Throwable exception) {
         final Iterator<AsynchronousJobListener> iter = getEventListenersIterator();
         if (iter.hasNext()) {
@@ -69,7 +69,7 @@ public class ExecutorEventSupport extends AbstractEventSupport<AsynchronousJobLi
             } while (iter.hasNext());
         }
     }
-    
+
     public void fireAfterJobCancelled(final RequestInfo job, Throwable exception) {
         final Iterator<AsynchronousJobListener> iter = getEventListenersIterator();
         if (iter.hasNext()) {

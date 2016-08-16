@@ -37,32 +37,32 @@ public class AuditQueryCriteriaUtilTest {
     private static JPAAuditLogService auditLogService;
 
     private static final Logger logger = LoggerFactory.getLogger(AuditQueryCriteriaUtilTest.class);
-   
+
     @BeforeClass
-    public static void configure() { 
+    public static void configure() {
         AbstractBaseTest.hackTheDatabaseMetadataLoggerBecauseTheresALogbackXmlInTheClasspath();
         context = setupWithPoolingDataSource(JBPM_PERSISTENCE_UNIT_NAME);
         emf = (EntityManagerFactory) context.get(ENTITY_MANAGER_FACTORY);
         auditLogService = new JPAAuditLogService(emf);
         util = new AuditQueryCriteriaUtil(auditLogService);
     }
-    
+
     @AfterClass
-    public static void reset() { 
+    public static void reset() {
         cleanUp(context);
     }
 
     @Test
-    public void auditQueryCriteriaWhereTest() { 
+    public void auditQueryCriteriaWhereTest() {
         QueryWhere where = new QueryWhere();
-        
-        // OR 
+
+        // OR
         where.setToUnion();
         where.addParameter(NODE_ID_LIST, "node.id");
         where.addParameter(NODE_INSTANCE_ID_LIST, "node-inst");
         where.addParameter(TYPE_LIST, "type");
-        
-        // OR ( 
+
+        // OR (
         where.newGroup();
         where.setToLike();
         where.addParameter(NODE_NAME_LIST, "n*ends.X" );
@@ -70,24 +70,24 @@ public class AuditQueryCriteriaUtilTest {
         where.setToIntersection();
         where.addParameter(TYPE_LIST, "oneOf3", "twoOf3", "thrOf3" );
         where.endGroup();
-        
+
         where.setToIntersection();
         where.addRangeParameter(PROCESS_INSTANCE_ID_LIST, 0l, true);
         where.addRangeParameter(PROCESS_INSTANCE_ID_LIST, 10l, false);
         where.addParameter(PROCESS_ID_LIST, "org.process.id");
-        
+
         List<NodeInstanceLog> result = util.doCriteriaQuery(where, NodeInstanceLog.class);
         assertNotNull( "Null result from 1rst query.", result );
     }
 
     @Test
-    public void auditQueryCriteriaMetaTest() { 
+    public void auditQueryCriteriaMetaTest() {
         QueryWhere where = new QueryWhere();
-        
-        where.setAscending(QueryParameterIdentifiers.NODE_INSTANCE_ID_LIST); 
+
+        where.setAscending(QueryParameterIdentifiers.NODE_INSTANCE_ID_LIST);
         where.setCount(10);
         where.setOffset(2);
-        
+
         List<NodeInstanceLog> result = util.doCriteriaQuery(where, NodeInstanceLog.class);
         assertNotNull( "Null result from 1rst query.", result );
     }

@@ -25,7 +25,7 @@ public class CustomCommand implements Command {
 
     @Override
     public ExecutionResults execute(CommandContext ctx) throws Exception {
-        
+
         return new ExecutionResults();
     }
 

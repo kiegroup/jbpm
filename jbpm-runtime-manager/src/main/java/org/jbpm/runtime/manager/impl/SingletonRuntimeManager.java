@@ -37,10 +37,10 @@ import org.slf4j.LoggerFactory;
 
 /**
  * This RuntimeManager is backed by a "Singleton" strategy, meaning that only one <code>RuntimeEngine</code> instance will
- * exist for for the given RuntimeManager instance. The RuntimeEngine will be synchronized to make sure it will work 
+ * exist for for the given RuntimeManager instance. The RuntimeEngine will be synchronized to make sure it will work
  * properly in multi-threaded environments. However, this might cause some performance issues due to sequential execution.
  * <br/>
- * An important aspect of this manager is that it will persists it's identifier as a temporary file to keep track of the 
+ * An important aspect of this manager is that it will persists it's identifier as a temporary file to keep track of the
  * <code>KieSession</code> it was using to maintain its state: for example, the session state including (drools) facts, etc.
  * The mentioned file is named as follows:<br>
  * <code>manager.getIdentifier()-jbpmSessionId.ser</code>
@@ -57,9 +57,9 @@ import org.slf4j.LoggerFactory;
  * will do the trick.
  */
 public class SingletonRuntimeManager extends AbstractRuntimeManager {
-	
-	private static final Logger logger = LoggerFactory.getLogger(SingletonRuntimeManager.class);
-    
+
+    private static final Logger logger = LoggerFactory.getLogger(SingletonRuntimeManager.class);
+
     private RuntimeEngine singleton;
     private SessionFactory factory;
     private TaskServiceFactory taskServiceFactory;
@@ -68,38 +68,38 @@ public class SingletonRuntimeManager extends AbstractRuntimeManager {
         super(null, null);
         // no-op just for cdi, spring and other frameworks
     }
-    
+
     public SingletonRuntimeManager(RuntimeEnvironment environment, SessionFactory factory, TaskServiceFactory taskServiceFactory, String identifier) {
         super(environment, identifier);
         this.factory = factory;
         this.taskServiceFactory = taskServiceFactory;
         this.identifier = identifier;
     }
-    
+
     public void init() {
 
         // TODO should we proxy/wrap the ksession so we capture dispose.destroy method calls?
         String location = getLocation();
         Long knownSessionId = getPersistedSessionId(location, identifier);
         InternalTaskService internalTaskService = (InternalTaskService) taskServiceFactory.newTaskService();
-        
-        
+
+
         if (knownSessionId > 0) {
             try {
                 this.singleton = new SynchronizedRuntimeImpl(factory.findKieSessionById(knownSessionId), internalTaskService);
             } catch (RuntimeException e) {
                 // in case session with known id was found
             }
-        } 
-        
+        }
+
         if (this.singleton == null) {
-            
-            this.singleton = new SynchronizedRuntimeImpl(factory.newKieSession(), internalTaskService);            
+
+            this.singleton = new SynchronizedRuntimeImpl(factory.newKieSession(), internalTaskService);
             persistSessionId(location, identifier, singleton.getKieSession().getIdentifier());
         }
         ((RuntimeEngineImpl) singleton).setManager(this);
-        TaskContentRegistry.get().addMarshallerContext(getIdentifier(), 
-    			new ContentMarshallerContext(environment.getEnvironment(), environment.getClassLoader()));
+        TaskContentRegistry.get().addMarshallerContext(getIdentifier(),
+                new ContentMarshallerContext(environment.getEnvironment(), environment.getClassLoader()));
         configureRuntimeOnTaskService(internalTaskService, singleton);
         registerItems(this.singleton);
         attachManager(this.singleton);
@@ -108,11 +108,11 @@ public class SingletonRuntimeManager extends AbstractRuntimeManager {
 
     @SuppressWarnings("rawtypes")
     @Override
-    public RuntimeEngine getRuntimeEngine(Context context) {  
-    	if (isClosed()) {
-    		throw new IllegalStateException("Runtime manager " + identifier + " is already closed");
-    	}
-    	checkPermission();
+    public RuntimeEngine getRuntimeEngine(Context context) {
+        if (isClosed()) {
+            throw new IllegalStateException("Runtime manager " + identifier + " is already closed");
+        }
+        checkPermission();
         // always return the same instance
         return this.singleton;
     }
@@ -128,14 +128,14 @@ public class SingletonRuntimeManager extends AbstractRuntimeManager {
 
     @Override
     public void validate(KieSession ksession, Context<?> context) throws IllegalStateException {
-    	if (isClosed()) {
-    		throw new IllegalStateException("Runtime manager " + identifier + " is already closed");
-    	}
+        if (isClosed()) {
+            throw new IllegalStateException("Runtime manager " + identifier + " is already closed");
+        }
         if (this.singleton != null && this.singleton.getKieSession().getIdentifier() != ksession.getIdentifier()) {
             throw new IllegalStateException("Invalid session was used for this context " + context);
         }
     }
-    
+
     @Override
     public void disposeRuntimeEngine(RuntimeEngine runtime) {
         // no-op, singleton session is always active
@@ -149,17 +149,17 @@ public class SingletonRuntimeManager extends AbstractRuntimeManager {
         super.close();
         // dispose singleton session only when manager is closing
         try {
-        	removeRuntimeFromTaskService();
+            removeRuntimeFromTaskService();
         } catch (UnsupportedOperationException e) {
-        	logger.debug("Exception while closing task service, was it initialized? {}", e.getMessage());
+            logger.debug("Exception while closing task service, was it initialized? {}", e.getMessage());
         }
         if (this.singleton instanceof Disposable) {
             ((Disposable) this.singleton).dispose();
         }
         factory.close();
-        this.singleton = null;   
+        this.singleton = null;
     }
-    
+
     /**
      * Retrieves session id from serialized file named jbpmSessionId.ser from given location.
      * @param location directory where jbpmSessionId.ser file should be
@@ -169,21 +169,21 @@ public class SingletonRuntimeManager extends AbstractRuntimeManager {
     protected Long getPersistedSessionId(String location, String identifier) {
         File sessionIdStore = new File(location + File.separator + identifier+ "-jbpmSessionId.ser");
         if (sessionIdStore.exists()) {
-        	Long knownSessionId = null; 
+            Long knownSessionId = null;
             FileInputStream fis = null;
             ObjectInputStream in = null;
             try {
                 fis = new FileInputStream(sessionIdStore);
                 in = new ObjectInputStream(fis);
-                
-            	Object tmp = in.readObject();
-            	if (tmp instanceof Integer) {
-            		tmp = new Long((Integer) tmp);
-            	}
-        		knownSessionId = (Long) tmp;
-                
+
+                Object tmp = in.readObject();
+                if (tmp instanceof Integer) {
+                    tmp = new Long((Integer) tmp);
+                }
+                knownSessionId = (Long) tmp;
+
                 return knownSessionId.longValue();
-                
+
             } catch (Exception e) {
                 return 0L;
             } finally {
@@ -199,14 +199,14 @@ public class SingletonRuntimeManager extends AbstractRuntimeManager {
                     } catch (IOException e) {
                     }
                 }
- 
+
             }
-            
+
         } else {
             return 0L;
         }
     }
-    
+
     /**
      * Stores gives ksessionId in a serialized file in given location under jbpmSessionId.ser file name
      * @param location directory where serialized file should be stored
@@ -241,7 +241,7 @@ public class SingletonRuntimeManager extends AbstractRuntimeManager {
             }
         }
     }
-    
+
     protected String getLocation() {
         String location = System.getProperty("jbpm.data.dir", System.getProperty("jboss.server.data.dir"));
         if (location == null) {

@@ -36,15 +36,15 @@ public class FindProcessInstanceCommand extends AuditCommand<ProcessInstanceLog>
     @XmlAttribute(required=true, name="process-instance-id")
     @XmlSchemaType(name="long")
     private Long processInstanceId;
-    
-    public FindProcessInstanceCommand() { 
+
+    public FindProcessInstanceCommand() {
         // no-arg for JAXB
     }
-    
+
     public FindProcessInstanceCommand(long processInstanceId) {
         this.processInstanceId = processInstanceId;
-	}
-	
+    }
+
     public ProcessInstanceLog execute(Context cntxt) {
         setLogEnvironment(cntxt);
         return this.auditLogService.findProcessInstance(processInstanceId);

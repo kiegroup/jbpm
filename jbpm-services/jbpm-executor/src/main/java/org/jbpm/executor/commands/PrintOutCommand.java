@@ -23,12 +23,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Simple command to log the contextual data and return empty results. 
+ * Simple command to log the contextual data and return empty results.
  * Just for demo purpose.
- * 
+ *
  */
 public class PrintOutCommand implements Command{
-    
+
     private static final Logger logger = LoggerFactory.getLogger(PrintOutCommand.class);
 
     public ExecutionResults execute(CommandContext ctx) {
@@ -36,5 +36,5 @@ public class PrintOutCommand implements Command{
         ExecutionResults executionResults = new ExecutionResults();
         return executionResults;
     }
-    
+
 }

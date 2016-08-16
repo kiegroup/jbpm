@@ -22,11 +22,11 @@ public class ExtendedRuleFlowLogEvent extends RuleFlowLogEvent {
     private long parentProcessInstanceId;
     private String outcome;
     private int processInstanceState;
-    
+
     public ExtendedRuleFlowLogEvent(int type, String processId, String processName, long processInstanceId, long parentProcessInstanceId) {
         super(type, processId, processName, processInstanceId);
         this.parentProcessInstanceId = parentProcessInstanceId;
-       
+
     }
 
     public ExtendedRuleFlowLogEvent(int type, String processId, String processName, long processInstanceId, int processInstanceState, String outcome) {

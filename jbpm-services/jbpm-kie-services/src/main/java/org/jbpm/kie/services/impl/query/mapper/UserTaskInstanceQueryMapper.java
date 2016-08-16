@@ -32,33 +32,33 @@ public class UserTaskInstanceQueryMapper extends AbstractQueryMapper<UserTaskIns
 
     private static final long serialVersionUID = 5935133069234696712L;
     /**
-     * Dedicated for ServiceLoader to create instance, use <code>get()</code> method instead 
+     * Dedicated for ServiceLoader to create instance, use <code>get()</code> method instead
      */
     public UserTaskInstanceQueryMapper() {
         super();
     }
-    
+
     public static UserTaskInstanceQueryMapper get() {
         return new UserTaskInstanceQueryMapper();
     }
-    
+
     @Override
     public List<UserTaskInstanceDesc> map(Object result) {
         if (result instanceof DataSet) {
             DataSet dataSetResult = (DataSet) result;
             List<UserTaskInstanceDesc> mappedResult = new ArrayList<UserTaskInstanceDesc>();
-            
+
             if (dataSetResult != null) {
-                
+
                 for (int i = 0; i < dataSetResult.getRowCount(); i++) {
                     UserTaskInstanceDesc ut = buildInstance(dataSetResult, i);
-                    mappedResult.add(ut);                
+                    mappedResult.add(ut);
                 }
             }
-            
+
             return mappedResult;
         }
-        
+
         throw new IllegalArgumentException("Unsupported result for mapping " + result);
     }
 
@@ -81,7 +81,7 @@ public class UserTaskInstanceQueryMapper extends AbstractQueryMapper<UserTaskIns
                 );
         return userTask;
     }
-    
+
     @Override
     public String getName() {
         return "UserTasks";

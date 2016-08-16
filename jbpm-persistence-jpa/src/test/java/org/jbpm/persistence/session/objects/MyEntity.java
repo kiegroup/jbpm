@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -30,9 +30,9 @@ import javax.persistence.Id;
 public class MyEntity implements Serializable {
 
 
-	private static final long serialVersionUID = 510l;
-	
-	@Id @GeneratedValue(strategy=GenerationType.AUTO)
+    private static final long serialVersionUID = 510l;
+
+    @Id @GeneratedValue(strategy=GenerationType.AUTO)
     private Long id;
     private String test;
 
@@ -98,5 +98,5 @@ public class MyEntity implements Serializable {
         hash = 41 * hash + (this.test != null ? this.test.hashCode() : 0);
         return hash;
     }
-    
+
 }

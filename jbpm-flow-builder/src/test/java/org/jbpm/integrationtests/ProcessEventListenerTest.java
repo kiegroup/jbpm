@@ -1,11 +1,11 @@
 /*
- * 
+ *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -41,11 +41,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ProcessEventListenerTest extends AbstractBaseTest {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(ProcessEventListenerTest.class);
 
     @Test
-	public void testInternalNodeSignalEvent() {
+    public void testInternalNodeSignalEvent() {
         Reader source = new StringReader(process);
         builder.addRuleFlow(source);
         KieSession session = createKieSession(builder.getPackage());
@@ -56,7 +56,7 @@ public class ProcessEventListenerTest extends AbstractBaseTest {
 
         ((InternalWorkingMemory)session).getProcessRuntime().addEventListener(listener);
         ProcessInstance processInstance =
-        	((InternalWorkingMemory)session).getProcessRuntime().startProcess("org.drools.core.event");
+            ((InternalWorkingMemory)session).getProcessRuntime().startProcess("org.drools.core.event");
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
         assertEquals("MyValue", ((VariableScopeInstance)
                                     ((org.jbpm.process.instance.ProcessInstance) processInstance)
@@ -68,8 +68,8 @@ public class ProcessEventListenerTest extends AbstractBaseTest {
         assertEquals( "org.drools.core.event", ((ProcessStartedEvent) processEventList.get(2)).getProcessInstance().getProcessId());
 
     }
-    
-    private ProcessEventListener createProcessEventListener(final List<ProcessEvent> processEventList) {  
+
+    private ProcessEventListener createProcessEventListener(final List<ProcessEvent> processEventList) {
         return new ProcessEventListener() {
 
             public void afterNodeLeft(ProcessNodeLeftEvent event) {
@@ -113,8 +113,8 @@ public class ProcessEventListenerTest extends AbstractBaseTest {
             }
         };
     }
-    
-    private static final String process = 
+
+    private static final String process =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "<process xmlns=\"http://drools.org/drools-5.0/process\"\n" +
             "         xmlns:xs=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
@@ -152,5 +152,5 @@ public class ProcessEventListenerTest extends AbstractBaseTest {
             "  </connections>\n" +
             "\n" +
             "</process>";
-            
+
 }

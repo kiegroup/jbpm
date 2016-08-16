@@ -34,13 +34,13 @@ import org.kie.api.definition.process.NodeContainer;
 
 /**
  * Default implementation of a node.
- * 
+ *
  */
 public abstract class NodeImpl implements Node, Serializable, ContextResolver {
 
     private static final long serialVersionUID = 510l;
 
-	protected static final NodeImpl[] EMPTY_NODE_ARRAY = new NodeImpl[0];
+    protected static final NodeImpl[] EMPTY_NODE_ARRAY = new NodeImpl[0];
 
     private long id;
     private static final AtomicLong uniqueIdGen = new AtomicLong(0);
@@ -51,7 +51,7 @@ public abstract class NodeImpl implements Node, Serializable, ContextResolver {
     private NodeContainer parentNodeContainer;
     private Map<String, Context> contexts = new HashMap<String, Context>();
     private Map<String, Object> metaData = new HashMap<String, Object>();
-    
+
     protected Map<ConnectionRef, Constraint> constraints = new HashMap<ConnectionRef, Constraint>();
 
     public NodeImpl() {
@@ -63,22 +63,22 @@ public abstract class NodeImpl implements Node, Serializable, ContextResolver {
     public long getId() {
         return this.id;
     }
-    
+
     public String getUniqueId() {
-    	String result = id + "";
-    	NodeContainer nodeContainer = getNodeContainer();
-    	while (nodeContainer instanceof CompositeNode) {
-    		CompositeNode composite = (CompositeNode) nodeContainer;
-    		result = composite.getId() + ":" + result;
-    		nodeContainer = composite.getNodeContainer();
-    	}
-    	return result;
+        String result = id + "";
+        NodeContainer nodeContainer = getNodeContainer();
+        while (nodeContainer instanceof CompositeNode) {
+            CompositeNode composite = (CompositeNode) nodeContainer;
+            result = composite.getId() + ":" + result;
+            nodeContainer = composite.getNodeContainer();
+        }
+        return result;
     }
 
     public void setId(final long id) {
         this.id = id;
         String uniqueId = (String) getMetaData("UniqueId");
-        if( uniqueId == null ) { 
+        if( uniqueId == null ) {
             setMetaData("UniqueId", "_jbpm-unique-" + uniqueIdGen.getAndIncrement() );
         }
     }
@@ -119,7 +119,7 @@ public abstract class NodeImpl implements Node, Serializable, ContextResolver {
             throw new IllegalArgumentException("Connection cannot be null");
         }
     }
-    
+
     public List<Connection> getIncomingConnections(String type) {
         List<Connection> result = incomingConnections.get(type);
         if (result == null) {
@@ -159,11 +159,11 @@ public abstract class NodeImpl implements Node, Serializable, ContextResolver {
         validateRemoveIncomingConnection(type, connection);
         this.incomingConnections.get(type).remove(connection);
     }
-    
+
     public void clearIncomingConnection() {
         this.incomingConnections.clear();
     }
-    
+
     public void clearOutgoingConnection() {
         this.outgoingConnections.clear();
     }
@@ -198,22 +198,22 @@ public abstract class NodeImpl implements Node, Serializable, ContextResolver {
                     + connection + "> is not part of the outgoing connections");
         }
     }
-    
+
     /** Helper method for nodes that have at most one default incoming connection */
-	public Connection getFrom() {
+    public Connection getFrom() {
         final List<Connection> list =
             getIncomingConnections(org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE);
         if (list.size() == 0) {
             return null;
         }
         if (list.size() == 1) {
-        	return list.get(0);
+            return list.get(0);
         }
-        if ("true".equals(System.getProperty("jbpm.enable.multi.con"))) { 
-        	return list.get(0);
+        if ("true".equals(System.getProperty("jbpm.enable.multi.con"))) {
+            return list.get(0);
         } else {
-        	throw new IllegalArgumentException(
-    		"Trying to retrieve the from connection but multiple connections are present");
+            throw new IllegalArgumentException(
+            "Trying to retrieve the from connection but multiple connections are present");
         }
     }
 
@@ -225,13 +225,13 @@ public abstract class NodeImpl implements Node, Serializable, ContextResolver {
             return null;
         }
         if (list.size() == 1) {
-        	return list.get(0);
+            return list.get(0);
         }
-        if ("true".equals(System.getProperty("jbpm.enable.multi.con"))) { 
-        	return list.get(0);
+        if ("true".equals(System.getProperty("jbpm.enable.multi.con"))) {
+            return list.get(0);
         } else {
-        	throw new IllegalArgumentException(
-    		"Trying to retrieve the to connection but multiple connections are present");
+            throw new IllegalArgumentException(
+            "Trying to retrieve the to connection but multiple connections are present");
         }
     }
 
@@ -248,19 +248,19 @@ public abstract class NodeImpl implements Node, Serializable, ContextResolver {
     public NodeContainer getNodeContainer() {
         return parentNodeContainer;
     }
-    
+
     public void setNodeContainer(NodeContainer nodeContainer) {
         this.parentNodeContainer = nodeContainer;
     }
-    
+
     public void setContext(String contextId, Context context) {
         this.contexts.put(contextId, context);
     }
-    
+
     public Context getContext(String contextId) {
         return this.contexts.get(contextId);
     }
-    
+
     public Context resolveContext(String contextId, Object param) {
         Context context = getContext(contextId);
         if (context != null) {
@@ -271,32 +271,32 @@ public abstract class NodeImpl implements Node, Serializable, ContextResolver {
         }
         return ((org.jbpm.workflow.core.NodeContainer) parentNodeContainer).resolveContext(contextId, param);
     }
-    
+
     public void setMetaData(String name, Object value) {
         this.metaData.put(name, value);
     }
-    
+
     public Object getMetaData(String name) {
         return this.metaData.get(name);
     }
-    
+
     public Map<String, Object> getMetaData() {
-    	return this.metaData;
+        return this.metaData;
     }
-    
+
     public void setMetaData(Map<String, Object> metaData) {
-    	this.metaData = metaData;
+        this.metaData = metaData;
     }
-    
+
     public Constraint getConstraint(final Connection connection) {
         if ( connection == null ) {
             throw new IllegalArgumentException( "connection is null" );
         }
 
-        
+
        ConnectionRef ref = new ConnectionRef(connection.getTo().getId(), connection.getToType());
        return this.constraints.get(ref);
-       
+
     }
 
     public Constraint internalGetConstraint(final ConnectionRef ref) {
@@ -305,7 +305,7 @@ public abstract class NodeImpl implements Node, Serializable, ContextResolver {
 
     public void setConstraint(final Connection connection,
                               final Constraint constraint) {
-    	if ( connection == null ) {
+        if ( connection == null ) {
             throw new IllegalArgumentException( "connection is null" );
         }
         if (!getDefaultOutgoingConnections().contains(connection)) {
@@ -318,15 +318,15 @@ public abstract class NodeImpl implements Node, Serializable, ContextResolver {
     }
 
     public void addConstraint(ConnectionRef connectionRef, Constraint constraint) {
-    	if (connectionRef == null) {
-    		throw new IllegalArgumentException(
-				"A " + this.getName() + " node only accepts constraints linked to a connection");
-    	}
+        if (connectionRef == null) {
+            throw new IllegalArgumentException(
+                "A " + this.getName() + " node only accepts constraints linked to a connection");
+        }
         this.constraints.put(connectionRef, constraint);
     }
 
     public Map<ConnectionRef, Constraint> getConstraints() {
         return Collections.unmodifiableMap( this.constraints );
     }
-    
+
 }

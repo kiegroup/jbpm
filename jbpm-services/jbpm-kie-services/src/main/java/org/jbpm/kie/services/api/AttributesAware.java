@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -19,9 +19,9 @@ import java.util.Map;
 
 public interface AttributesAware {
 
-	void addAttribute(String name, String value);
-	
-	String removeAttribute(String name);
-	
-	Map<String, String> getAttributes();
+    void addAttribute(String name, String value);
+
+    String removeAttribute(String name);
+
+    Map<String, String> getAttributes();
 }

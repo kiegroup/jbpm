@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -21,23 +21,23 @@ import org.drools.core.time.impl.TimerJobInstance;
 
 public class EjbTimerJob implements Serializable {
 
-	private static final long serialVersionUID = -1299880116250779151L;
-	private TimerJobInstance timerJobInstance;
+    private static final long serialVersionUID = -1299880116250779151L;
+    private TimerJobInstance timerJobInstance;
 
-	public EjbTimerJob(TimerJobInstance timerJobInstance) {
-		this.timerJobInstance = timerJobInstance;
-	}
+    public EjbTimerJob(TimerJobInstance timerJobInstance) {
+        this.timerJobInstance = timerJobInstance;
+    }
 
-	public TimerJobInstance getTimerJobInstance() {
-		return timerJobInstance;
-	}
+    public TimerJobInstance getTimerJobInstance() {
+        return timerJobInstance;
+    }
 
-	public void setTimerJobInstance(TimerJobInstance timerJobInstance) {
-		this.timerJobInstance = timerJobInstance;
-	}
+    public void setTimerJobInstance(TimerJobInstance timerJobInstance) {
+        this.timerJobInstance = timerJobInstance;
+    }
 
-	@Override
-	public String toString() {
-		return "EjbTimerJob [timerJobInstance=" + timerJobInstance + "]";
-	}
+    @Override
+    public String toString() {
+        return "EjbTimerJob [timerJobInstance=" + timerJobInstance + "]";
+    }
 }

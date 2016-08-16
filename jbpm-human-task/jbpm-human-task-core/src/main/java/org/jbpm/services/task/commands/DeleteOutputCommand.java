@@ -26,12 +26,12 @@ import org.kie.internal.command.Context;
 @XmlAccessorType(XmlAccessType.NONE)
 public class DeleteOutputCommand extends UserGroupCallbackTaskCommand<Void> {
 
-	/** generated serial version UID */
-	private static final long serialVersionUID = 5656199063761548979L;
+    /** generated serial version UID */
+    private static final long serialVersionUID = 5656199063761548979L;
 
-	public DeleteOutputCommand() {
-	}
-	
+    public DeleteOutputCommand() {
+    }
+
     public DeleteOutputCommand(long taskId, String userId) {
         this.taskId = taskId;
         this.userId = userId;
@@ -41,8 +41,8 @@ public class DeleteOutputCommand extends UserGroupCallbackTaskCommand<Void> {
         TaskContext context = (TaskContext) cntxt;
         doCallbackUserOperation(userId, context);
         doUserGroupCallbackOperation(userId, null, context);
-    	context.getTaskInstanceService().deleteOutput(taskId, userId);
-    	return null;
-           
+        context.getTaskInstanceService().deleteOutput(taskId, userId);
+        return null;
+
     }
 }

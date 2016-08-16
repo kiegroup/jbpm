@@ -36,33 +36,33 @@ import org.slf4j.LoggerFactory;
  * @author salaboy
  */
 public class FTPUploadWorkItemHandler extends AbstractLogOrThrowWorkItemHandler {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(FTPUploadWorkItemHandler.class);
-    
+
     private String user;
     private String password;
     private String server;
     private String filePath;
     private int port;
-    private FTPClient client; 
-   
+    private FTPClient client;
+
     private Connection connection;
     private boolean result = false;
 
-	public void setConnection(String host, String port, String userName, String password) {
-		connection = new Connection();
-		connection.setHost(host);
-		connection.setPort(port);
-		connection.setUserName(userName);
-		connection.setPassword(password);
-	}
+    public void setConnection(String host, String port, String userName, String password) {
+        connection = new Connection();
+        connection.setHost(host);
+        connection.setPort(port);
+        connection.setUserName(userName);
+        connection.setPassword(password);
+    }
 
     public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
 
         this.user = (String) workItem.getParameter("User");
         this.password = (String) workItem.getParameter("Password");
         this.filePath = (String) workItem.getParameter("FilePath");
-        
+
         client = new FTPClient();
         try {
             if(connection != null){
@@ -70,7 +70,7 @@ public class FTPUploadWorkItemHandler extends AbstractLogOrThrowWorkItemHandler 
                 int reply = client.getReplyCode();
 
                 if (FTPReply.isPositiveCompletion(reply)) {
-            
+
                     if(client.login(user, password)){
 
                         InputStream input;
@@ -78,7 +78,7 @@ public class FTPUploadWorkItemHandler extends AbstractLogOrThrowWorkItemHandler 
                         client.setFileType(FTP.BINARY_FILE_TYPE);
                         this.setResult(client.storeFile(filePath, input));
                         client.logout();
-                        
+
                         manager.completeWorkItem(workItem.getId(), null);
                     } else {
                         logger.warn("Could not logon to FTP server, status returned {}", client.getStatus());
@@ -88,7 +88,7 @@ public class FTPUploadWorkItemHandler extends AbstractLogOrThrowWorkItemHandler 
                 }
 
             }
-            
+
         } catch (Exception ex) {
             handleException(ex);
         }

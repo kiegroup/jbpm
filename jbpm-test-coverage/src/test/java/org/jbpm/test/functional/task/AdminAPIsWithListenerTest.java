@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -61,15 +61,15 @@ public class AdminAPIsWithListenerTest extends JbpmTestCase {
         super(true, true);
     }
 
-    
-    
+
+
     @Before
     public void setUp() throws Exception {
         super.setUp();
         emfTasks = Persistence.createEntityManagerFactory("org.jbpm.services.task");
         userInfo = new DefaultUserInfo(null);
     }
-    
+
 
     @After
     public void tearDown() throws Exception {
@@ -79,10 +79,10 @@ public class AdminAPIsWithListenerTest extends JbpmTestCase {
         }
     }
 
- 
+
 
     @SuppressWarnings("unchecked")
-	@Test
+    @Test
     public void automaticCleanUpTest() throws Exception {
 
         createRuntimeManager("org/jbpm/test/functional/task/patient-appointment.bpmn");
@@ -93,7 +93,7 @@ public class AdminAPIsWithListenerTest extends JbpmTestCase {
         KnowledgeRuntimeLoggerFactory.newConsoleLogger((KnowledgeRuntimeEventManager) ksession);
 
         ksession.addEventListener(new TaskCleanUpProcessEventListener(taskService));
-        
+
         // let check how many listeners we have
         assertEquals(2, ((EventService<TaskLifeCycleEventListener>)taskService).getTaskEventListeners().size());
         assertEquals(2, ((EventService<TaskLifeCycleEventListener>)taskService).getTaskEventListeners().size());
@@ -136,7 +136,7 @@ public class AdminAPIsWithListenerTest extends JbpmTestCase {
 
         taskService.complete(doctorTasks.get(0).getId(), "doctor", null);
 
-        // tasks for manager 
+        // tasks for manager
         managerTasks = taskService.getTasksAssignedAsPotentialOwner("manager", "en-UK");
         Assert.assertEquals(1, managerTasks.size());
         taskService.start(managerTasks.get(0).getId(), "manager");
@@ -148,7 +148,7 @@ public class AdminAPIsWithListenerTest extends JbpmTestCase {
         Assert.assertNull(process);
 
 
-        final EntityManager em = emfTasks.createEntityManager();       
+        final EntityManager em = emfTasks.createEntityManager();
         Assert.assertEquals(0, em.createQuery("select t from TaskImpl t").getResultList().size());
         Assert.assertEquals(0, em.createQuery("select i from I18NTextImpl i").getResultList().size());
         Assert.assertEquals(0, em.createNativeQuery("select * from PeopleAssignments_BAs").getResultList().size());
@@ -162,12 +162,12 @@ public class AdminAPIsWithListenerTest extends JbpmTestCase {
 
     @Test
     public void automaticCleanUpTestAbortProcess() throws Exception {
-    	
+
         createRuntimeManager("org/jbpm/test/functional/task/patient-appointment.bpmn");
         RuntimeEngine runtimeEngine = getRuntimeEngine();
         KieSession ksession = runtimeEngine.getKieSession();
         TaskService taskService = runtimeEngine.getTaskService();
-        
+
         KnowledgeRuntimeLoggerFactory.newConsoleLogger((KnowledgeRuntimeEventManager) ksession);
 
         ksession.addEventListener(new TaskCleanUpProcessEventListener(taskService));
@@ -230,29 +230,29 @@ public class AdminAPIsWithListenerTest extends JbpmTestCase {
         Assert.assertEquals(0, em.createQuery("select c from ContentImpl c").getResultList().size());
         em.close();
     }
-    
+
     @Test
     public void automaticCleanUpWitCallActivityTest() throws Exception {
 
-        createRuntimeManager("org/jbpm/test/functional/task/CallActivity.bpmn2", 
-                "org/jbpm/test/functional/task/CallActivity2.bpmn2", 
+        createRuntimeManager("org/jbpm/test/functional/task/CallActivity.bpmn2",
+                "org/jbpm/test/functional/task/CallActivity2.bpmn2",
                 "org/jbpm/test/functional/task/CallActivitySubProcess.bpmn2");
         RuntimeEngine runtimeEngine = getRuntimeEngine();
         KieSession ksession = runtimeEngine.getKieSession();
-        TaskService taskService = runtimeEngine.getTaskService();        
+        TaskService taskService = runtimeEngine.getTaskService();
 
         ksession.addEventListener(new TaskCleanUpProcessEventListener(taskService));
-        
+
         ProcessInstance processInstance = ksession.startProcess("ParentProcessCA");
-        
+
         List<TaskSummary> tasks = taskService.getTasksAssignedAsPotentialOwner("john", "en-UK");
         assertEquals(1,  tasks.size());
-        
+
         long taskId = tasks.get(0).getId();
-        
+
         taskService.start(taskId, "john");
         taskService.complete(taskId, "john", null);
-        
+
         assertProcessInstanceCompleted(processInstance.getId());
 
         final EntityManager em = emfTasks.createEntityManager();
@@ -268,7 +268,7 @@ public class AdminAPIsWithListenerTest extends JbpmTestCase {
         em.close();
 
     }
-    
+
     @Test
     public void automaticCleanUpForSubProcessWithSingletonStrategy() throws Exception {
 
@@ -295,7 +295,7 @@ public class AdminAPIsWithListenerTest extends JbpmTestCase {
         Map<String, Object> results = new HashMap<String, Object>();
         results.put("comment", "Agreed, existing laptop needs replacing");
         results.put("outcome", "Accept");
-        
+
         // complete the human task of the main process
         taskService.complete(task1.getId(), "john", results);
 
@@ -304,23 +304,23 @@ public class AdminAPIsWithListenerTest extends JbpmTestCase {
 
         // main process instance shall be aborted
         assertProcessInstanceAborted(pi.getId());
-        
-        
+
+
         AuditService logService = runtime.getAuditService();
 
         List<? extends ProcessInstanceLog> logs = logService.findProcessInstances("com.mycompany.sample");
         assertNotNull(logs);
         assertEquals(1, logs.size());
-        
+
         assertEquals(ProcessInstance.STATE_ABORTED, logs.get(0).getStatus().intValue());
-        
+
         logs = logService.findProcessInstances("com.mycompany.sample.subprocess");
         assertNotNull(logs);
         assertEquals(1, logs.size());
-        
+
         assertEquals(ProcessInstance.STATE_ABORTED, logs.get(0).getStatus().intValue());
         manager.close();
-        
+
         final EntityManager em = emfTasks.createEntityManager();
 
         Assert.assertEquals(0, em.createQuery("select t from TaskImpl t").getResultList().size());

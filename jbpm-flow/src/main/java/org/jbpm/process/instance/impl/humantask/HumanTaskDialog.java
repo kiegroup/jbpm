@@ -45,12 +45,12 @@ import javax.swing.event.ListSelectionListener;
 import org.kie.api.runtime.process.WorkItem;
 
 /**
- * 
+ *
  */
 public class HumanTaskDialog extends JDialog {
-    
+
     private static final long serialVersionUID = 510l;
-    
+
     private HumanTaskHandler handler;
     private WorkItem workItem;
     private JTextField resultNameField;
@@ -60,7 +60,7 @@ public class HumanTaskDialog extends JDialog {
     private JButton removeResultButton;
     private JButton completeButton;
     private JButton abortButton;
-    
+
     public HumanTaskDialog(HumanTaskHandler handler, WorkItem workItem) {
         super(handler, "Execute Human Task", true);
         this.handler = handler;
@@ -68,13 +68,13 @@ public class HumanTaskDialog extends JDialog {
         setSize(new Dimension(400, 400));
         initializeComponent();
     }
-    
+
     private void initializeComponent() {
         JPanel panel = new JPanel();
         panel.setLayout(new GridBagLayout());
         getRootPane().setLayout(new BorderLayout());
         getRootPane().add(panel, BorderLayout.CENTER);
-        
+
         // Parameters
         JLabel nameLabel = new JLabel("Name");
         GridBagConstraints c = new GridBagConstraints();
@@ -90,7 +90,7 @@ public class HumanTaskDialog extends JDialog {
         c.fill = GridBagConstraints.HORIZONTAL;
         c.insets = new Insets(5, 5, 5, 5);
         panel.add(nameField, c);
-        
+
         JLabel priorityLabel = new JLabel("Priority");
         c = new GridBagConstraints();
         c.gridy = 1;
@@ -107,7 +107,7 @@ public class HumanTaskDialog extends JDialog {
         c.fill = GridBagConstraints.HORIZONTAL;
         c.insets = new Insets(5, 5, 5, 5);
         panel.add(priorityField, c);
-        
+
         JLabel commentLabel = new JLabel("Comment");
         c = new GridBagConstraints();
         c.gridy = 2;
@@ -125,7 +125,7 @@ public class HumanTaskDialog extends JDialog {
         c.fill = GridBagConstraints.BOTH;
         c.insets = new Insets(5, 5, 5, 5);
         panel.add(params, c);
-        
+
         int additionalParameters = 0;
         for (Map.Entry<String, Object> entry: workItem.getParameters().entrySet()) {
             String name = entry.getKey();
@@ -151,12 +151,12 @@ public class HumanTaskDialog extends JDialog {
                 panel.add(field, c);
             }
         }
-        
+
         // Result Panel
         JPanel resultPanel = new JPanel();
         resultPanel.setLayout(new GridBagLayout());
         resultPanel.setBorder(new TitledBorder("Results"));
-        
+
         JLabel resultNameLabel = new JLabel("Name");
         c = new GridBagConstraints();
         c.insets = new Insets(5, 5, 5, 5);
@@ -187,7 +187,7 @@ public class HumanTaskDialog extends JDialog {
         c.fill = GridBagConstraints.HORIZONTAL;
         c.insets = new Insets(5, 5, 5, 5);
         resultPanel.add(addResultButton, c);
-        
+
         resultList = new JList();
         resultList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         resultList.addListSelectionListener(new ListSelectionListener() {
@@ -217,15 +217,15 @@ public class HumanTaskDialog extends JDialog {
         c.anchor = GridBagConstraints.NORTH;
         c.insets = new Insets(5, 5, 5, 5);
         resultPanel.add(removeResultButton, c);
-        
+
         c = new GridBagConstraints();
         c.gridy = 3 + additionalParameters;
         c.gridwidth = 2;
         c.weighty = 1;
         c.fill = GridBagConstraints.BOTH;
         panel.add(resultPanel, c);
-        
-        
+
+
         // Buttom Panel
         JPanel bottomPanel = new JPanel();
         bottomPanel.setLayout(new GridBagLayout());
@@ -250,7 +250,7 @@ public class HumanTaskDialog extends JDialog {
         c = new GridBagConstraints();
         c.insets = new Insets(5, 5, 5, 5);
         bottomPanel.add(abortButton, c);
-        
+
         c = new GridBagConstraints();
         c.gridy = 4 + additionalParameters;
         c.gridwidth = 2;
@@ -258,7 +258,7 @@ public class HumanTaskDialog extends JDialog {
         c.insets = new Insets(5, 5, 5, 5);
         panel.add(bottomPanel, c);
     }
-    
+
     private void addResult() {
         String name = resultNameField.getText();
         String value = resultValueField.getText();
@@ -278,11 +278,11 @@ public class HumanTaskDialog extends JDialog {
         resultNameField.setText("");
         resultValueField.setText("");
     }
-    
+
     private void reloadResultList() {
         resultList.setListData(results.toArray());
     }
-    
+
     private void removeResult() {
         int index = resultList.getSelectedIndex();
         if (index != -1) {
@@ -290,7 +290,7 @@ public class HumanTaskDialog extends JDialog {
             reloadResultList();
         }
     }
-    
+
     private void complete() {
         Map<String, Object> resultMap = null;
         if (results.size() > 0) {
@@ -302,12 +302,12 @@ public class HumanTaskDialog extends JDialog {
         handler.complete(workItem, resultMap);
         dispose();
     }
-    
+
     private void abort() {
         handler.abort(workItem);
         dispose();
     }
-    
+
     public static class Result {
         private String name;
         private Object value;

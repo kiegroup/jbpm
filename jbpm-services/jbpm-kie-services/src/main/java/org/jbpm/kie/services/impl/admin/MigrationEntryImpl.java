@@ -26,7 +26,7 @@ public class MigrationEntryImpl implements org.jbpm.services.api.admin.Migration
     private Date timestamp;
     private String message;
     private String type;
-    
+
     public MigrationEntryImpl(Date timestamp, String message, String type) {
         super();
         this.timestamp = timestamp;
@@ -37,24 +37,24 @@ public class MigrationEntryImpl implements org.jbpm.services.api.admin.Migration
     public Date getTimestamp() {
         return timestamp;
     }
-    
+
     public void setTimestamp(Date timestamp) {
         this.timestamp = timestamp;
     }
-    
+
     public String getMessage() {
         return message;
     }
-    
+
     public void setMessage(String message) {
         this.message = message;
     }
-    
+
     @Override
     public String getType() {
         return type;
     }
-    
+
     public void setType(String type) {
         this.type = type;
     }

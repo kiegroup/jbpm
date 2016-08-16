@@ -34,38 +34,38 @@ import org.kie.internal.task.api.TaskIdentityService;
 @XmlAccessorType(XmlAccessType.NONE)
 public class AddUsersGroupsCommand extends TaskCommand<Void> {
 
-	private static final long serialVersionUID = 5800835226386301758L;
+    private static final long serialVersionUID = 5800835226386301758L;
 
-	@XmlJavaTypeAdapter(JaxbMapAdapter.class)
-	@XmlElement
-	private Map<String, User> users;
-	
-	@XmlJavaTypeAdapter(JaxbMapAdapter.class)
-	@XmlElement
-	private Map<String, Group> groups;
-    
+    @XmlJavaTypeAdapter(JaxbMapAdapter.class)
+    @XmlElement
+    private Map<String, User> users;
+
+    @XmlJavaTypeAdapter(JaxbMapAdapter.class)
+    @XmlElement
+    private Map<String, Group> groups;
+
     public AddUsersGroupsCommand() {
     }
 
     public AddUsersGroupsCommand(Map<String, User> users, Map<String, Group> groups) {
-    	this.users = users;
-    	this.groups = groups;
+        this.users = users;
+        this.groups = groups;
     }
 
 
     public Void execute(Context cntxt) {
         TaskContext context = (TaskContext) cntxt;
-        
+
         TaskIdentityService identityService = context.getTaskIdentityService();
         for (User user : users.values()) {
-        	identityService.addUser(user);
+            identityService.addUser(user);
         }
 
         for (Group group : groups.values()) {
-        	identityService.addGroup(group);
+            identityService.addGroup(group);
         }
         return null;
-    	 
+
     }
 
 }

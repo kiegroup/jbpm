@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -40,31 +40,31 @@ import org.jbpm.workflow.core.DroolsAction;
 import org.jbpm.workflow.core.impl.NodeImpl;
 
 public class XmlWorkflowProcessDumper {
-    
+
     private final static String EOL = System.getProperty( "line.separator" );
-    
+
     private String type;
     private String namespace;
     private String schemaLocation;
     private SemanticModule semanticModule;
-    
+
     public XmlWorkflowProcessDumper(String type, String namespace, String schemaLocation, SemanticModule semanticModule) {
         this.type = type;
         this.namespace = namespace;
         this.schemaLocation = schemaLocation;
         this.semanticModule = semanticModule;
     }
-    
+
     public String dump(WorkflowProcess process) {
         return dump(process, true);
     }
-    
+
     public String dump(WorkflowProcess process, boolean includeMeta) {
         StringBuilder xmlDump = new StringBuilder();
         visitProcess(process, xmlDump, includeMeta);
         return xmlDump.toString();
     }
-    
+
     protected void visitProcess(WorkflowProcess process, StringBuilder xmlDump, boolean includeMeta) {
         xmlDump.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?> " + EOL
             + "<process xmlns=\"" + namespace + "\"" + EOL
@@ -95,30 +95,30 @@ public class XmlWorkflowProcessDumper {
         visitConnections(process.getNodes(), xmlDump, includeMeta);
         xmlDump.append("</process>");
     }
-    
+
     protected void visitHeader(WorkflowProcess process, StringBuilder xmlDump, boolean includeMeta) {
         xmlDump.append("  <header>" + EOL);
         visitImports(((org.jbpm.process.core.Process) process).getImports(), xmlDump);
         visitGlobals(((org.jbpm.process.core.Process) process).getGlobals(), xmlDump);
         visitFunctionImports(((org.jbpm.process.core.Process) process).getFunctionImports(), xmlDump);
         VariableScope variableScope = (VariableScope)
-        	((org.jbpm.process.core.Process) process).getDefaultContext(VariableScope.VARIABLE_SCOPE);
+            ((org.jbpm.process.core.Process) process).getDefaultContext(VariableScope.VARIABLE_SCOPE);
         if (variableScope != null) {
             visitVariables(variableScope.getVariables(), xmlDump);
         }
         SwimlaneContext swimlaneContext = (SwimlaneContext)
-        	((org.jbpm.process.core.Process) process).getDefaultContext(SwimlaneContext.SWIMLANE_SCOPE);
+            ((org.jbpm.process.core.Process) process).getDefaultContext(SwimlaneContext.SWIMLANE_SCOPE);
         if (swimlaneContext != null) {
             visitSwimlanes(swimlaneContext.getSwimlanes(), xmlDump);
         }
         ExceptionScope exceptionScope = (ExceptionScope)
-        	((org.jbpm.process.core.Process) process).getDefaultContext(ExceptionScope.EXCEPTION_SCOPE);
+            ((org.jbpm.process.core.Process) process).getDefaultContext(ExceptionScope.EXCEPTION_SCOPE);
         if (exceptionScope != null) {
             visitExceptionHandlers(exceptionScope.getExceptionHandlers(), xmlDump);
         }
         xmlDump.append("  </header>" + EOL + EOL);
     }
-    
+
     private void visitImports(Collection<String> imports, StringBuilder xmlDump) {
         if (imports != null && imports.size() > 0) {
             xmlDump.append("    <imports>" + EOL);
@@ -128,7 +128,7 @@ public class XmlWorkflowProcessDumper {
             xmlDump.append("    </imports>" + EOL);
         }
     }
-    
+
     private void visitFunctionImports(List<String> imports, StringBuilder xmlDump) {
         if (imports != null && imports.size() > 0) {
             xmlDump.append("    <functionImports>" + EOL);
@@ -138,7 +138,7 @@ public class XmlWorkflowProcessDumper {
             xmlDump.append("    </functionImports>" + EOL);
         }
     }
-    
+
     private void visitGlobals(Map<String, String> globals, StringBuilder xmlDump) {
         if (globals != null && globals.size() > 0) {
             xmlDump.append("    <globals>" + EOL);
@@ -148,7 +148,7 @@ public class XmlWorkflowProcessDumper {
             xmlDump.append("    </globals>" + EOL);
         }
     }
-    
+
     public static void visitVariables(List<Variable> variables, StringBuilder xmlDump) {
         if (variables != null && variables.size() > 0) {
             xmlDump.append("    <variables>" + EOL);
@@ -164,7 +164,7 @@ public class XmlWorkflowProcessDumper {
             xmlDump.append("    </variables>" + EOL);
         }
     }
-    
+
     private void visitSwimlanes(Collection<Swimlane> swimlanes, StringBuilder xmlDump) {
         if (swimlanes != null && swimlanes.size() > 0) {
             xmlDump.append("    <swimlanes>" + EOL);
@@ -174,51 +174,51 @@ public class XmlWorkflowProcessDumper {
             xmlDump.append("    </swimlanes>" + EOL);
         }
     }
-    
+
     public static void visitExceptionHandlers(Map<String, ExceptionHandler> exceptionHandlers, StringBuilder xmlDump) {
         if (exceptionHandlers != null && exceptionHandlers.size() > 0) {
             xmlDump.append("    <exceptionHandlers>" + EOL);
             for (Map.Entry<String, ExceptionHandler> entry: exceptionHandlers.entrySet()) {
-            	ExceptionHandler exceptionHandler = entry.getValue();
-            	if (exceptionHandler instanceof ActionExceptionHandler) {
-            		ActionExceptionHandler actionExceptionHandler = (ActionExceptionHandler) exceptionHandler;
-            		xmlDump.append("      <exceptionHandler faultName=\"" + entry.getKey() + "\" type=\"action\" ");
-            		String faultVariable = actionExceptionHandler.getFaultVariable();
-            		if (faultVariable != null && faultVariable.length() > 0) {
-            			xmlDump.append("faultVariable=\"" + faultVariable + "\" ");
-            		}
-        			xmlDump.append(">" + EOL);
-        			DroolsAction action = actionExceptionHandler.getAction();
-        			if (action != null) {
-        				AbstractNodeHandler.writeAction(action, xmlDump);
-        			}
-        			xmlDump.append("      </exceptionHandler>" + EOL);
-            	} else {
-            		throw new IllegalArgumentException("Unknown exception handler type: " + exceptionHandler);
-            	}
+                ExceptionHandler exceptionHandler = entry.getValue();
+                if (exceptionHandler instanceof ActionExceptionHandler) {
+                    ActionExceptionHandler actionExceptionHandler = (ActionExceptionHandler) exceptionHandler;
+                    xmlDump.append("      <exceptionHandler faultName=\"" + entry.getKey() + "\" type=\"action\" ");
+                    String faultVariable = actionExceptionHandler.getFaultVariable();
+                    if (faultVariable != null && faultVariable.length() > 0) {
+                        xmlDump.append("faultVariable=\"" + faultVariable + "\" ");
+                    }
+                    xmlDump.append(">" + EOL);
+                    DroolsAction action = actionExceptionHandler.getAction();
+                    if (action != null) {
+                        AbstractNodeHandler.writeAction(action, xmlDump);
+                    }
+                    xmlDump.append("      </exceptionHandler>" + EOL);
+                } else {
+                    throw new IllegalArgumentException("Unknown exception handler type: " + exceptionHandler);
+                }
             }
             xmlDump.append("    </exceptionHandlers>" + EOL);
         }
     }
-    
+
     public static void visitDataType(DataType dataType, StringBuilder xmlDump) {
         xmlDump.append("        <type name=\"" + dataType.getClass().getName() + "\" ");
         // TODO make this pluggable so datatypes can write out other properties as well
         if (dataType instanceof ObjectDataType) {
-        	String className = ((ObjectDataType) dataType).getClassName();
-        	if (className != null
-        			&& className.trim().length() > 0 
-        			&& !"java.lang.Object".equals(className)) {
-        		xmlDump.append("className=\"" + className + "\" ");
-        	}
+            String className = ((ObjectDataType) dataType).getClassName();
+            if (className != null
+                    && className.trim().length() > 0
+                    && !"java.lang.Object".equals(className)) {
+                xmlDump.append("className=\"" + className + "\" ");
+            }
         }
         xmlDump.append("/>" + EOL);
     }
-    
+
     public static void visitValue(Object value, DataType dataType, StringBuilder xmlDump) {
-		xmlDump.append("        <value>" + XmlDumper.replaceIllegalChars(dataType.writeValue(value)) + "</value>" + EOL);
+        xmlDump.append("        <value>" + XmlDumper.replaceIllegalChars(dataType.writeValue(value)) + "</value>" + EOL);
     }
-    
+
     private void visitNodes(WorkflowProcess process, StringBuilder xmlDump, boolean includeMeta) {
         xmlDump.append("  <nodes>" + EOL);
         for (Node node: process.getNodes()) {
@@ -226,17 +226,17 @@ public class XmlWorkflowProcessDumper {
         }
         xmlDump.append("  </nodes>" + EOL + EOL);
     }
-    
+
     public void visitNode(Node node, StringBuilder xmlDump, boolean includeMeta) {
-     	Handler handler = semanticModule.getHandlerByClass(node.getClass());
+        Handler handler = semanticModule.getHandlerByClass(node.getClass());
         if (handler != null) {
-        	((AbstractNodeHandler) handler).writeNode((org.jbpm.workflow.core.Node) node, xmlDump, includeMeta);
+            ((AbstractNodeHandler) handler).writeNode((org.jbpm.workflow.core.Node) node, xmlDump, includeMeta);
         } else {
-        	throw new IllegalArgumentException(
+            throw new IllegalArgumentException(
                 "Unknown node type: " + node);
         }
     }
-    
+
     private void visitConnections(Node[] nodes, StringBuilder xmlDump, boolean includeMeta) {
         List<Connection> connections = new ArrayList<Connection>();
         for (Node node: nodes) {
@@ -250,7 +250,7 @@ public class XmlWorkflowProcessDumper {
         }
         xmlDump.append("  </connections>" + EOL + EOL);
     }
-    
+
     public void visitConnection(Connection connection, StringBuilder xmlDump, boolean includeMeta) {
         xmlDump.append("    <connection from=\"" + connection.getFrom().getId() + "\" ");
         if (!NodeImpl.CONNECTION_DEFAULT_TYPE.equals(connection.getFromType())) {
@@ -268,5 +268,5 @@ public class XmlWorkflowProcessDumper {
         }
         xmlDump.append("/>" + EOL);
     }
-    
+
 }

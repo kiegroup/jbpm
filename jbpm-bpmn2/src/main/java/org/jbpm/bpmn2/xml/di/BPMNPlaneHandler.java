@@ -43,18 +43,18 @@ public class BPMNPlaneHandler extends BaseAbstractHandler implements Handler {
         initValidPeers();
         this.allowNesting = false;
     }
-    
+
     protected void initValidParents() {
         this.validParents = new HashSet<Class<?>>();
         this.validParents.add(Definitions.class);
     }
-    
+
     protected void initValidPeers() {
         this.validPeers = new HashSet<Class<?>>();
-		this.validPeers.add(null);
+        this.validPeers.add(null);
         this.validPeers.add(Process.class);
     }
-    
+
     public Object start(final String uri, final String localName,
                         final Attributes attrs, final ExtensibleXmlParser parser)
             throws SAXException {
@@ -78,23 +78,23 @@ public class BPMNPlaneHandler extends BaseAbstractHandler implements Handler {
             }
         }
         if (process != null) {
-	        for (NodeInfo nodeInfo: processInfo.getNodeInfos()) {
-	        	processNodeInfo(nodeInfo, process.getNodes());
-	        }
-	        postProcessNodeOffset(process.getNodes(), 0, 0);
-	        for (ConnectionInfo connectionInfo: processInfo.getConnectionInfos()) {
-	            if (connectionInfo.getBendpoints() != null) {
-	            	processConnectionInfo(connectionInfo, process.getNodes());
-	            }
-	        }
+            for (NodeInfo nodeInfo: processInfo.getNodeInfos()) {
+                processNodeInfo(nodeInfo, process.getNodes());
+            }
+            postProcessNodeOffset(process.getNodes(), 0, 0);
+            for (ConnectionInfo connectionInfo: processInfo.getConnectionInfos()) {
+                if (connectionInfo.getBendpoints() != null) {
+                    processConnectionInfo(connectionInfo, process.getNodes());
+                }
+            }
         }
         return processInfo;
     }
-    
+
     private boolean processNodeInfo(NodeInfo nodeInfo, Node[] nodes) {
-    	if (nodeInfo == null || nodeInfo.getNodeRef() == null) {
-    		return false;
-    	}
+        if (nodeInfo == null || nodeInfo.getNodeRef() == null) {
+            return false;
+        }
         for (Node node: nodes) {
             String id = (String) node.getMetaData().get("UniqueId");
             if (nodeInfo.getNodeRef().equals(id)) {
@@ -104,60 +104,60 @@ public class BPMNPlaneHandler extends BaseAbstractHandler implements Handler {
                 ((org.jbpm.workflow.core.Node) node).setMetaData("height", nodeInfo.getHeight());
                 return true;
             }
-        	if (node instanceof NodeContainer) {
-        		boolean found = processNodeInfo(nodeInfo, ((NodeContainer) node).getNodes());
-        		if (found) {
-        			return true;
-        		}
+            if (node instanceof NodeContainer) {
+                boolean found = processNodeInfo(nodeInfo, ((NodeContainer) node).getNodes());
+                if (found) {
+                    return true;
+                }
             }
         }
         return false;
     }
-    
+
     private void postProcessNodeOffset(Node[] nodes, int xOffset, int yOffset) {
-    	for (Node node: nodes) {
-    		Integer x = (Integer) node.getMetaData().get("x");
-    		if (x != null) {
-    			((org.jbpm.workflow.core.Node) node).setMetaData("x", x - xOffset);
-    		}
-    		Integer y = (Integer) node.getMetaData().get("y");
-    		if (y != null) {
-    			((org.jbpm.workflow.core.Node) node).setMetaData("y", y - yOffset);
-    		}
-    		if (node instanceof NodeContainer) {
-    			postProcessNodeOffset(((NodeContainer) node).getNodes(), xOffset + (x == null ? 0 : x), yOffset + (y == null ? 0 : y));
-    		}
-    	}
+        for (Node node: nodes) {
+            Integer x = (Integer) node.getMetaData().get("x");
+            if (x != null) {
+                ((org.jbpm.workflow.core.Node) node).setMetaData("x", x - xOffset);
+            }
+            Integer y = (Integer) node.getMetaData().get("y");
+            if (y != null) {
+                ((org.jbpm.workflow.core.Node) node).setMetaData("y", y - yOffset);
+            }
+            if (node instanceof NodeContainer) {
+                postProcessNodeOffset(((NodeContainer) node).getNodes(), xOffset + (x == null ? 0 : x), yOffset + (y == null ? 0 : y));
+            }
+        }
     }
-    
+
     private boolean processConnectionInfo(ConnectionInfo connectionInfo, Node[] nodes) {
         for (Node node: nodes) {
-        	for (List<Connection> connections: node.getOutgoingConnections().values()) {
-        		for (Connection connection: connections) {
+            for (List<Connection> connections: node.getOutgoingConnections().values()) {
+                for (Connection connection: connections) {
                     String id = (String) connection.getMetaData().get("UniqueId");
                     if (id != null && id.equals(connectionInfo.getElementRef())) {
                         ((ConnectionImpl) connection).setMetaData(
                             "bendpoints", connectionInfo.getBendpoints());
                         return true;
                     }
-        		}
-        	}
-        	if (node instanceof NodeContainer) {
-        		boolean found = processConnectionInfo(connectionInfo, ((NodeContainer) node).getNodes());
-        		if (found) {
-        			return true;
-        		}
-        	}
-		}
+                }
+            }
+            if (node instanceof NodeContainer) {
+                boolean found = processConnectionInfo(connectionInfo, ((NodeContainer) node).getNodes());
+                if (found) {
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
     public Class<?> generateNodeFor() {
         return ProcessInfo.class;
     }
-    
+
     public static class ProcessInfo {
-        
+
         private String processRef;
         private List<NodeInfo> nodeInfos = new ArrayList<NodeInfo>();
         private List<ConnectionInfo> connectionInfos = new ArrayList<ConnectionInfo>();
@@ -165,27 +165,27 @@ public class BPMNPlaneHandler extends BaseAbstractHandler implements Handler {
         public ProcessInfo(String processRef) {
             this.processRef = processRef;
         }
-        
+
         public String getProcessRef() {
             return processRef;
         }
-        
+
         public void addNodeInfo(NodeInfo nodeInfo) {
             this.nodeInfos.add(nodeInfo);
         }
-        
+
         public List<NodeInfo> getNodeInfos() {
             return nodeInfos;
         }
-        
+
         public void addConnectionInfo(ConnectionInfo connectionInfo) {
             connectionInfos.add(connectionInfo);
         }
-        
+
         public List<ConnectionInfo> getConnectionInfos() {
             return connectionInfos;
         }
-        
+
     }
 
 }

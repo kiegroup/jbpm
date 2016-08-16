@@ -24,14 +24,14 @@ import org.kie.api.runtime.manager.Context;
 
 /**
  * An in-memory implementation of the context to <code>KieSession</code> identifier mapping.
- * Used only when the <code>RuntimeManager</code> is used without persistence. 
+ * Used only when the <code>RuntimeManager</code> is used without persistence.
  *
  */
 public class InMemoryMapper extends InternalMapper {
 
     private Map<Object, Long> mapping = new ConcurrentHashMap<Object, Long>();
-    
-    
+
+
     @Override
     public void saveMapping(Context<?> context, Long ksessionId, String ownerId) {
         this.mapping.put(context.getContextId(), ksessionId);
@@ -60,13 +60,13 @@ public class InMemoryMapper extends InternalMapper {
     }
 
     public boolean hasContext(Long ksessionId) {
-    	return mapping.containsValue(ksessionId);
+        return mapping.containsValue(ksessionId);
     }
 
     @Override
     public List<String> findContextIdForEvent(String eventType, String ownerId) {
-        List<String> contextIds = new ArrayList<String>(); 
-        
+        List<String> contextIds = new ArrayList<String>();
+
         if (mapping != null && !mapping.isEmpty()) {
             for (Object contextId : mapping.keySet()) {
                 contextIds.add(contextId.toString());

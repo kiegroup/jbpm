@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -33,41 +33,41 @@ import org.slf4j.LoggerFactory;
 @XmlRootElement(name="init-deadlines-command")
 @XmlAccessorType(XmlAccessType.NONE)
 public class InitDeadlinesCommand extends TaskCommand<Void> {
-	
-	private static final long serialVersionUID = -8095766991770311489L;
-	private static final Logger logger = LoggerFactory.getLogger(InitDeadlinesCommand.class);
 
-	public InitDeadlinesCommand() {		
-	}
+    private static final long serialVersionUID = -8095766991770311489L;
+    private static final Logger logger = LoggerFactory.getLogger(InitDeadlinesCommand.class);
 
-	@Override
-	public Void execute(Context context) {
-		TaskContext ctx = (TaskContext) context;
-		
-		TaskPersistenceContext persistenceContext = ctx.getPersistenceContext();
-		TaskDeadlinesService deadlineService = ctx.getTaskDeadlinesService();
-		
+    public InitDeadlinesCommand() {
+    }
+
+    @Override
+    public Void execute(Context context) {
+        TaskContext ctx = (TaskContext) context;
+
+        TaskPersistenceContext persistenceContext = ctx.getPersistenceContext();
+        TaskDeadlinesService deadlineService = ctx.getTaskDeadlinesService();
+
         try {
-	        long now = System.currentTimeMillis();
-	        List<DeadlineSummary> resultList = persistenceContext.queryInTransaction("UnescalatedStartDeadlines",
-	        										ClassUtil.<List<DeadlineSummary>>castClass(List.class));
-	        for (DeadlineSummary summary : resultList) {
-	            long delay = summary.getDate().getTime() - now;
-	            deadlineService.schedule(summary.getTaskId(), summary.getDeadlineId(), delay, DeadlineType.START);
-	
-	        }
-	        
-	        resultList = persistenceContext.queryInTransaction("UnescalatedEndDeadlines",
-	        		ClassUtil.<List<DeadlineSummary>>castClass(List.class));
-	        for (DeadlineSummary summary : resultList) {
-	            long delay = summary.getDate().getTime() - now;
-	            deadlineService.schedule(summary.getTaskId(), summary.getDeadlineId(), delay, DeadlineType.END);
-	        }
+            long now = System.currentTimeMillis();
+            List<DeadlineSummary> resultList = persistenceContext.queryInTransaction("UnescalatedStartDeadlines",
+                                                    ClassUtil.<List<DeadlineSummary>>castClass(List.class));
+            for (DeadlineSummary summary : resultList) {
+                long delay = summary.getDate().getTime() - now;
+                deadlineService.schedule(summary.getTaskId(), summary.getDeadlineId(), delay, DeadlineType.START);
+
+            }
+
+            resultList = persistenceContext.queryInTransaction("UnescalatedEndDeadlines",
+                    ClassUtil.<List<DeadlineSummary>>castClass(List.class));
+            for (DeadlineSummary summary : resultList) {
+                long delay = summary.getDate().getTime() - now;
+                deadlineService.schedule(summary.getTaskId(), summary.getDeadlineId(), delay, DeadlineType.END);
+            }
         } catch (Exception e) {
 
-        	logger.error("Error when executing deadlines", e);
+            logger.error("Error when executing deadlines", e);
         }
-		return null;
-	}
+        return null;
+    }
 
 }

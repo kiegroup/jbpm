@@ -44,14 +44,14 @@ import org.xml.sax.SAXException;
  */
 public class SignalHandler extends BaseAbstractHandler implements Handler {
 
-	@SuppressWarnings("unchecked")
-	public SignalHandler() {
-		if ((this.validParents == null) && (this.validPeers == null)) {
-			this.validParents = new HashSet();
-			this.validParents.add(Definitions.class);
+    @SuppressWarnings("unchecked")
+    public SignalHandler() {
+        if ((this.validParents == null) && (this.validPeers == null)) {
+            this.validParents = new HashSet();
+            this.validParents.add(Definitions.class);
 
-			this.validPeers = new HashSet();
-			this.validPeers.add(null);
+            this.validPeers = new HashSet();
+            this.validPeers.add(null);
             this.validPeers.add(ItemDefinition.class);
             this.validPeers.add(Message.class);
             this.validPeers.add(Interface.class);
@@ -61,20 +61,20 @@ public class SignalHandler extends BaseAbstractHandler implements Handler {
             this.validPeers.add(DataStore.class);
             this.validPeers.add(RuleFlowProcess.class);
 
-			this.allowNesting = false;
-		}
-	}
+            this.allowNesting = false;
+        }
+    }
 
-	@SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked")
     public Object start(final String uri, final String localName,
-			            final Attributes attrs, final ExtensibleXmlParser parser)
-			throws SAXException {
-		parser.startElementBuilder(localName, attrs);
+                        final Attributes attrs, final ExtensibleXmlParser parser)
+            throws SAXException {
+        parser.startElementBuilder(localName, attrs);
 
-		// according to the (Semantic.)xsd, both the name and structureRef are optional
-		String id = attrs.getValue("id");
-		String name = attrs.getValue("name"); // referred to by the signalEventDefinition.signalRef attr
-		String structureRef = attrs.getValue("structureRef");
+        // according to the (Semantic.)xsd, both the name and structureRef are optional
+        String id = attrs.getValue("id");
+        String name = attrs.getValue("name"); // referred to by the signalEventDefinition.signalRef attr
+        String structureRef = attrs.getValue("structureRef");
 
         ProcessBuildData buildData = (ProcessBuildData) parser.getData();
         Map<String, Signal> signals = (Map<String, Signal>) buildData.getMetaData("Signals");
@@ -86,17 +86,17 @@ public class SignalHandler extends BaseAbstractHandler implements Handler {
         Signal s = new Signal(id, name, structureRef);
         signals.put(id, s);
 
-		return s;
-	}
+        return s;
+    }
 
-	public Object end(final String uri, final String localName,
-			          final ExtensibleXmlParser parser) throws SAXException {
-		parser.endElementBuilder();
-		return parser.getCurrent();
-	}
+    public Object end(final String uri, final String localName,
+                      final ExtensibleXmlParser parser) throws SAXException {
+        parser.endElementBuilder();
+        return parser.getCurrent();
+    }
 
-	public Class<?> generateNodeFor() {
-		return Error.class;
-	}
+    public Class<?> generateNodeFor() {
+        return Error.class;
+    }
 
 }

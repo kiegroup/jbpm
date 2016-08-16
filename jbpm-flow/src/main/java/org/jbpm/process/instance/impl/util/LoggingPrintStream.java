@@ -26,8 +26,8 @@ public class LoggingPrintStream extends PrintStream {
     protected Logger logger;
     private StringBuilder buffer = new StringBuilder();
     protected boolean isError = false;
-    
-    public LoggingPrintStream(OutputStream outputStream, boolean isError) { 
+
+    public LoggingPrintStream(OutputStream outputStream, boolean isError) {
         super(outputStream);
         this.isError = isError;
         String className = Thread.currentThread().getStackTrace()[2].getClassName();
@@ -37,137 +37,137 @@ public class LoggingPrintStream extends PrintStream {
             logger = LoggerFactory.getLogger(this.getClass());
         }
     }
-    
-    protected void log(String s) {                   
+
+    protected void log(String s) {
         if (isError) {
             logger.error(s);
         } else {
             logger.info(s);
         }
-    
-    }    
-    
-    private void write(String s) { 
-        synchronized (buffer) {            
+
+    }
+
+    private void write(String s) {
+        synchronized (buffer) {
             buffer.append(s);
         }
     }
-    
-    private synchronized void newLine() { 
-    
+
+    private synchronized void newLine() {
+
         log(buffer.toString());
         buffer.delete(0, buffer.length());
-        
+
     }
-    
+
     public void print(boolean b) {
         write(b ? "true" : "false");
     }
-    
+
     public void print(char c) {
         write(String.valueOf(c));
     }
-    
+
     public void print(int i) {
         write(String.valueOf(i));
     }
-    
+
     public void print(long l) {
         write(String.valueOf(l));
     }
-    
+
     public void print(float f) {
         write(String.valueOf(f));
     }
-    
+
     public void print(double d) {
         write(String.valueOf(d));
     }
-    
+
     public void print(char s[]) {
         write(String.valueOf(s));
     }
-    
+
     public void print(String s) {
         write(s == null ? "null" : s);
     }
-    
+
     public void print(Object obj) {
         write(String.valueOf(obj));
     }
-    
+
     public void println() {
         newLine();
     }
-    
+
     public void println(boolean x) {
         synchronized (logger) {
             print(x);
             newLine();
         }
     }
-    
+
     public void println(char x) {
         synchronized (logger) {
             print(x);
             newLine();
         }
     }
-    
+
     public void println(int x) {
         synchronized (logger) {
             print(x);
             newLine();
         }
     }
-    
+
     public void println(long x) {
         synchronized (logger) {
             print(x);
             newLine();
         }
     }
-    
+
     public void println(float x) {
         synchronized (logger) {
             print(x);
             newLine();
         }
     }
-    
+
     public void println(double x) {
         synchronized (logger) {
             print(x);
             newLine();
         }
     }
-    
+
     public void println(char x[]) {
         synchronized (logger) {
             print(x);
             newLine();
         }
     }
-    
+
     public void println(String x) {
         synchronized (logger) {
             print(x);
             newLine();
         }
     }
-    
+
     public void println(Object x) {
         synchronized (logger) {
             print(x);
             newLine();
         }
     }
-    
+
     public static void interceptSysOutSysErr() {
 //        System.setOut(new LoggingPrintStream(System.out, false));
 //        System.setErr(new LoggingPrintStream(System.err, true));
     }
-    
+
     public static void resetInterceptSysOutSysErr() {
 //        System.setOut(System.out);
 //        System.setErr(System.err);

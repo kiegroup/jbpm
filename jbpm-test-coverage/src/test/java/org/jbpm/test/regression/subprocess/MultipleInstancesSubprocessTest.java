@@ -69,9 +69,9 @@ public class MultipleInstancesSubprocessTest extends JbpmTestCase {
         List<Command<?>> commands = new ArrayList<Command<?>>();
         commands.add(getCommands().newStartProcess(TIMER_EVENT_PARENT_ID, params));
         ksession.execute(getCommands().newBatchExecution(commands, null));
-       
+
         String lastNodeName = "main-end";
-        assertTrue( "Node '" + lastNodeName + "' was not triggered on time!", 
+        assertTrue( "Node '" + lastNodeName + "' was not triggered on time!",
                 processEvents.waitForNodeTobeTriggered(lastNodeName, 4000));
 
         Assertions.assertThat(processEvents.wasNodeTriggered("main-script1")).isTrue();

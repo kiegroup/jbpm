@@ -13,11 +13,11 @@ public class CountDownAsyncJobListener implements AsynchronousJobListener {
 
     private static final Logger logger = LoggerFactory.getLogger(CountDownAsyncJobListener.class);
     private CountDownLatch latch;
-    
+
     public CountDownAsyncJobListener(int threads) {
         this.latch = new CountDownLatch(threads);
     }
-    
+
     public void waitTillCompleted() {
         try {
             latch.await();
@@ -25,7 +25,7 @@ public class CountDownAsyncJobListener implements AsynchronousJobListener {
             logger.debug("Interrputed thread while waiting for all async jobs");
         }
     }
-    
+
     public void waitTillCompleted(long timeOut) {
         try {
             latch.await(timeOut, TimeUnit.MILLISECONDS);
@@ -33,11 +33,11 @@ public class CountDownAsyncJobListener implements AsynchronousJobListener {
             logger.debug("Interrputed thread while waiting for all async jobs");
         }
     }
-    
+
     public void reset(int threads) {
         this.latch = new CountDownLatch(threads);
     }
-    
+
     @Override
     public void beforeJobScheduled(AsynchronousJobEvent event) {
 
@@ -50,7 +50,7 @@ public class CountDownAsyncJobListener implements AsynchronousJobListener {
 
     @Override
     public void beforeJobExecuted(AsynchronousJobEvent event) {
-    
+
     }
 
     @Override

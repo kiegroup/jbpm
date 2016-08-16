@@ -22,7 +22,7 @@ package org.jbpm.services.api.query.model;
  *
  */
 public interface QueryDefinition {
-    
+
     public enum Target {
         PROCESS,
         TASK,
@@ -40,39 +40,39 @@ public interface QueryDefinition {
      * @return
      */
     String getName();
-    
+
     /**
      * Sets unique name for this query definition
      * @param name
      */
     void setName(String name);
-    
+
     /**
-     * Returns source location of this query 
-     * Depends on exact type of the query definition (e.g. data base location - data source name) 
+     * Returns source location of this query
+     * Depends on exact type of the query definition (e.g. data base location - data source name)
      * @return
      */
     String getSource();
-    
+
     /**
      * Sets source location of this query
-     * Depends on exact type of the query definition (e.g. data base location - data source name) 
+     * Depends on exact type of the query definition (e.g. data base location - data source name)
      * @param source
      */
     void setSource(String source);
-    
+
     /**
      * Returns expression used to collect/fetch data as part of the query
      * @return
      */
     String getExpression();
-    
+
     /**
      * Sets expression used to collect/fetch data as part of the query
      * @param expression
      */
     void setExpression(String expression);
-    
+
     /**
      * Returns target of this query definition
      * @return

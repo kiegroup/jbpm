@@ -24,11 +24,11 @@ import org.kie.internal.command.Context;
 @XmlRootElement(name="remove-task-command")
 @XmlAccessorType(XmlAccessType.NONE)
 public class RemoveTaskCommand extends UserGroupCallbackTaskCommand<Void> {
-	
-	private static final long serialVersionUID = -5174631969130504959L;
 
-	public RemoveTaskCommand() {
-	}
+    private static final long serialVersionUID = -5174631969130504959L;
+
+    public RemoveTaskCommand() {
+    }
 
     public RemoveTaskCommand(long taskId, String userId) {
         this.taskId = taskId;
@@ -39,8 +39,8 @@ public class RemoveTaskCommand extends UserGroupCallbackTaskCommand<Void> {
         TaskContext context = (TaskContext) cntxt;
         doCallbackUserOperation(userId, context);
         doUserGroupCallbackOperation(userId, null, context);
-    	context.getTaskInstanceService().remove(taskId, userId);
-    	return null;
-       
+        context.getTaskInstanceService().remove(taskId, userId);
+        return null;
+
     }
 }

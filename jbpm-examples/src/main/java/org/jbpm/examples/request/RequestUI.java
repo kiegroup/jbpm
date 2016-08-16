@@ -49,13 +49,13 @@ import org.kie.api.runtime.process.WorkItemManager;
 import org.kie.api.runtime.process.WorkflowProcessInstance;
 
 /**
- * 
+ *
  * @author <a href="mailto:kris_verlaenen@hotmail.com">Kris Verlaenen</a>
  */
 public class RequestUI extends JFrame {
 
     private static final long serialVersionUID = 510l;
-    
+
     private int requestId = 0;
     private JTextField nameField;
     private JTextField amountField;
@@ -63,24 +63,24 @@ public class RequestUI extends JFrame {
     private JTextField processField;
     private KieSession ksession;
     private WorkflowProcessInstance processInstance;
-    
+
     public static void main(String[] args) {
-    	new RequestUI().setVisible(true);
+        new RequestUI().setVisible(true);
     }
-    
+
     public RequestUI() {
         setSize(new Dimension(400, 300));
         setTitle("Requests");
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         initializeComponent();
     }
-    
+
     private void initializeComponent() {
         JPanel panel = new JPanel();
         panel.setLayout(new GridBagLayout());
         getRootPane().setLayout(new BorderLayout());
         getRootPane().add(panel, BorderLayout.CENTER);
-        
+
         JLabel nameLabel = new JLabel("Name");
         GridBagConstraints c = new GridBagConstraints();
         c.anchor = GridBagConstraints.EAST;
@@ -93,7 +93,7 @@ public class RequestUI extends JFrame {
         c.fill = GridBagConstraints.HORIZONTAL;
         c.insets = new Insets(5, 5, 5, 5);
         panel.add(nameField, c);
-        
+
         JLabel amountLabel = new JLabel("Amount");
         c = new GridBagConstraints();
         c.gridy = 1;
@@ -108,7 +108,7 @@ public class RequestUI extends JFrame {
         c.fill = GridBagConstraints.HORIZONTAL;
         c.insets = new Insets(5, 5, 5, 5);
         panel.add(amountField, c);
-        
+
         JButton selectButton = new JButton("Request");
         selectButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
@@ -134,7 +134,7 @@ public class RequestUI extends JFrame {
         c.fill = GridBagConstraints.HORIZONTAL;
         c.insets = new Insets(5, 5, 5, 5);
         panel.add(signalField, c);
-        
+
         JButton signalButton = new JButton("Signal");
         signalButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
@@ -160,7 +160,7 @@ public class RequestUI extends JFrame {
         c.fill = GridBagConstraints.HORIZONTAL;
         c.insets = new Insets(5, 5, 5, 5);
         panel.add(processField, c);
-        
+
         JButton addButton = new JButton("Dynamically add sub-process");
         addButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
@@ -176,70 +176,70 @@ public class RequestUI extends JFrame {
 
         ksession = createKieSession();
     }
-    
+
     private void select() {
-    	int id = ++this.requestId;
-		Request request = new Request(id + "");
-		request.setPersonId(nameField.getText());
-		request.setAmount(Long.parseLong(amountField.getText()));
-		if (ksession == null) {
-			ksession = createKieSession();
-		}
-		ksession.insert(request);
-		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("request", request);
-		processInstance = (WorkflowProcessInstance) ksession.startProcess("com.sample.requestHandling", params);
-		ksession.insert(processInstance);
-		// rule validation
-		ksession.fireAllRules();
-	}
-    
+        int id = ++this.requestId;
+        Request request = new Request(id + "");
+        request.setPersonId(nameField.getText());
+        request.setAmount(Long.parseLong(amountField.getText()));
+        if (ksession == null) {
+            ksession = createKieSession();
+        }
+        ksession.insert(request);
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("request", request);
+        processInstance = (WorkflowProcessInstance) ksession.startProcess("com.sample.requestHandling", params);
+        ksession.insert(processInstance);
+        // rule validation
+        ksession.fireAllRules();
+    }
+
     private void signal() {
-    	ksession.signalEvent(signalField.getText(), null, processInstance.getId());
+        ksession.signalEvent(signalField.getText(), null, processInstance.getId());
     }
-    
+
     private void addSubProcessInstance() {
-    	DynamicNodeInstance dynamicNodeInstance = (DynamicNodeInstance)
-		processInstance.getNodeInstances().iterator().next();
-    	DynamicUtils.addDynamicSubProcess(dynamicNodeInstance, ksession, "com.sample.contactCustomer", null);
+        DynamicNodeInstance dynamicNodeInstance = (DynamicNodeInstance)
+        processInstance.getNodeInstances().iterator().next();
+        DynamicUtils.addDynamicSubProcess(dynamicNodeInstance, ksession, "com.sample.contactCustomer", null);
     }
-    
+
     private KieSession createKieSession() {
-    	try {
-			final KieSession ksession = getKieSession();
-			KieServices.Factory.get().getLoggers().newThreadedFileLogger(ksession, "test", 1000);
-    		UIWorkItemHandler handler = new UIWorkItemHandler();
-    		ksession.getWorkItemManager().registerWorkItemHandler("Human Task", handler);
-    		handler.setVisible(true);
-    		ksession.getWorkItemManager().registerWorkItemHandler("Email", new WorkItemHandler() {
-    			public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
-    				System.out.println("Sending email ...");
-    				manager.completeWorkItem(workItem.getId(), null);
-    			}
-    			public void abortWorkItem(WorkItem workItem, WorkItemManager manager) {
-    			}
-    		});
-			Person person = new Person("john", "John Doe");
-			person.setAge(40);
-			ksession.insert(person);
-			person = new Person("krisv", "Kris Verlaenen");
-			person.setAge(30);
-			ksession.insert(person);
-			person = new Person("baby", "Baby");
-			person.setAge(1);
-			ksession.insert(person);
-			ksession.addEventListener(new DefaultProcessEventListener() {
-				public void beforeProcessStarted(ProcessStartedEvent event) {
-					ksession.insert(event);
-				}
-			});
-			return ksession;
-    	} catch (Throwable t) {
-    		throw new RuntimeException("Could not initialize session!", t);
-    	}
+        try {
+            final KieSession ksession = getKieSession();
+            KieServices.Factory.get().getLoggers().newThreadedFileLogger(ksession, "test", 1000);
+            UIWorkItemHandler handler = new UIWorkItemHandler();
+            ksession.getWorkItemManager().registerWorkItemHandler("Human Task", handler);
+            handler.setVisible(true);
+            ksession.getWorkItemManager().registerWorkItemHandler("Email", new WorkItemHandler() {
+                public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
+                    System.out.println("Sending email ...");
+                    manager.completeWorkItem(workItem.getId(), null);
+                }
+                public void abortWorkItem(WorkItem workItem, WorkItemManager manager) {
+                }
+            });
+            Person person = new Person("john", "John Doe");
+            person.setAge(40);
+            ksession.insert(person);
+            person = new Person("krisv", "Kris Verlaenen");
+            person.setAge(30);
+            ksession.insert(person);
+            person = new Person("baby", "Baby");
+            person.setAge(1);
+            ksession.insert(person);
+            ksession.addEventListener(new DefaultProcessEventListener() {
+                public void beforeProcessStarted(ProcessStartedEvent event) {
+                    ksession.insert(event);
+                }
+            });
+            return ksession;
+        } catch (Throwable t) {
+            throw new RuntimeException("Could not initialize session!", t);
+        }
     }
-    
-	private static KieSession getKieSession() throws Exception {
+
+    private static KieSession getKieSession() throws Exception {
         RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get().newEmptyBuilder()
             .addAsset(KieServices.Factory.get().getResources().newClassPathResource("request/requestHandling.bpmn"), ResourceType.BPMN2)
             .addAsset(KieServices.Factory.get().getResources().newClassPathResource("request/contactCustomer.bpmn"), ResourceType.BPMN2)
@@ -249,6 +249,6 @@ public class RequestUI extends JFrame {
             .addAsset(KieServices.Factory.get().getResources().newClassPathResource("request/adhoc.drl"), ResourceType.DRL)
             .get();
         return RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment).getRuntimeEngine(null).getKieSession();
-	}
-	
+    }
+
 }

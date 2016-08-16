@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -19,18 +19,18 @@ import javax.enterprise.util.AnnotationLiteral;
 import javax.inject.Named;
 
 public class NamedLiteral extends AnnotationLiteral<Named> implements Named {
-	
-	private static final long serialVersionUID = -9086478550298751826L;
-	
-	private String name;
-	
-	public NamedLiteral(String name) {
-		this.name = name;
-	}
-	
-	@Override
-	public String value() {
-		
-		return name;
-	}
+
+    private static final long serialVersionUID = -9086478550298751826L;
+
+    private String name;
+
+    public NamedLiteral(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String value() {
+
+        return name;
+    }
 }

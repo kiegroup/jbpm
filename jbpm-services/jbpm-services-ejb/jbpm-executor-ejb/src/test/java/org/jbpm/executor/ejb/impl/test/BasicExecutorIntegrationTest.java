@@ -54,30 +54,30 @@ import org.slf4j.LoggerFactory;
 
 @RunWith(Arquillian.class)
 public class BasicExecutorIntegrationTest {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(BasicExecutorIntegrationTest.class);
     public static final Map<String, Object> cachedEntities = new HashMap<String, Object>();
-    
-	@Deployment
-	public static WebArchive createDeployment() {
 
-		File archive = new File("target/executor-war-ejb-app.war");
-		if (!archive.exists()) {
-			throw new IllegalStateException("There is no archive yet generated, run maven build or mvn assembly:assembly");
-		}
-		WebArchive war = ShrinkWrap.createFromZipFile(WebArchive.class, archive);
-		war.addPackage("org.jbpm.executor.ejb.impl.test"); // test cases
-		
-		return war;
-	}
-    
-	@EJB
+    @Deployment
+    public static WebArchive createDeployment() {
+
+        File archive = new File("target/executor-war-ejb-app.war");
+        if (!archive.exists()) {
+            throw new IllegalStateException("There is no archive yet generated, run maven build or mvn assembly:assembly");
+        }
+        WebArchive war = ShrinkWrap.createFromZipFile(WebArchive.class, archive);
+        war.addPackage("org.jbpm.executor.ejb.impl.test"); // test cases
+
+        return war;
+    }
+
+    @EJB
     protected ExecutorServiceEJB executorService;
-    
-    
+
+
     @PersistenceUnit(unitName="org.jbpm.domain")
     protected EntityManagerFactory emf = null;
-    
+
     @Before
     public void setUp() {
 
@@ -87,9 +87,9 @@ public class BasicExecutorIntegrationTest {
     public void tearDown() {
         executorService.clearAllRequests();
         executorService.clearAllErrors();
-        
+
         System.clearProperty("org.kie.executor.msg.length");
-    	System.clearProperty("org.kie.executor.stacktrace.length");
+        System.clearProperty("org.kie.executor.stacktrace.length");
     }
 
     @Test
@@ -133,7 +133,7 @@ public class BasicExecutorIntegrationTest {
         assertEquals(2, ((AtomicLong) cachedEntities.get((String) commandContext.getData("businessKey"))).longValue());
 
     }
-    
+
     @Test
     public void addAnotherCallbackTest() throws InterruptedException {
 
@@ -161,24 +161,24 @@ public class BasicExecutorIntegrationTest {
         try {
             in = new ObjectInputStream(new ByteArrayInputStream(responseData));
             results = (ExecutionResults) in.readObject();
-        } catch (Exception e) {                        
+        } catch (Exception e) {
             logger.warn("Exception while serializing context data", e);
             return;
         } finally {
             if (in != null) {
                 try {
-					in.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+                    in.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
-        
+
         String result = (String)results.getData("custom");
         assertNotNull(result);
         assertEquals("custom callback invoked", result);
     }
-    
+
     @Test
     public void multipleCallbackTest() throws InterruptedException {
 
@@ -206,19 +206,19 @@ public class BasicExecutorIntegrationTest {
         try {
             in = new ObjectInputStream(new ByteArrayInputStream(responseData));
             results = (ExecutionResults) in.readObject();
-        } catch (Exception e) {                        
+        } catch (Exception e) {
             logger.warn("Exception while serializing context data", e);
             return;
         } finally {
             if (in != null) {
                 try {
-					in.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+                    in.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
-        
+
         String result = (String)results.getData("custom");
         assertNotNull(result);
         assertEquals("custom callback invoked", result);
@@ -272,14 +272,14 @@ public class BasicExecutorIntegrationTest {
     @Test
     public void cancelRequestTest() throws InterruptedException {
 
-        //  The executor is on purpose not started to not fight against race condition 
+        //  The executor is on purpose not started to not fight against race condition
         // with the request cancelations.
         CommandContext ctxCMD = new CommandContext();
         String businessKey = UUID.randomUUID().toString();
         ctxCMD.setData("businessKey", businessKey);
 
         Long requestId = executorService.scheduleRequest("org.jbpm.executor.commands.PrintOutCommand", ctxCMD);
-        
+
         List<RequestInfo> requests = executorService.getRequestsByBusinessKey(businessKey, new QueryContext());
         assertNotNull(requests);
         assertEquals(1, requests.size());
@@ -292,11 +292,11 @@ public class BasicExecutorIntegrationTest {
         assertEquals(1, cancelledRequests.size());
 
     }
-    
+
     @Test
     public void executorExceptionTrimmingTest() throws InterruptedException {
-    	System.setProperty("org.kie.executor.msg.length", "10");
-    	System.setProperty("org.kie.executor.stacktrace.length", "20");
+        System.setProperty("org.kie.executor.msg.length", "10");
+        System.setProperty("org.kie.executor.stacktrace.length", "20");
         CommandContext commandContext = new CommandContext();
         commandContext.setData("businessKey", UUID.randomUUID().toString());
         cachedEntities.put((String) commandContext.getData("businessKey"), new AtomicLong(1));
@@ -314,15 +314,15 @@ public class BasicExecutorIntegrationTest {
         List<ErrorInfo> errors = executorService.getAllErrors(new QueryContext());
         logger.info("Errors: {}", errors);
         assertEquals(1, errors.size());
-        
+
         ErrorInfo error = errors.get(0);
-        
+
         assertEquals(10, error.getMessage().length());
         assertEquals(20, error.getStacktrace().length());
 
 
     }
-    
+
     @Test
     public void reoccurringExcecutionTest() throws InterruptedException {
         CommandContext ctxCMD = new CommandContext();
@@ -341,12 +341,12 @@ public class BasicExecutorIntegrationTest {
 
 
     }
-    
+
     @Test
     public void cleanupLogExcecutionTest() throws InterruptedException {
         CommandContext ctxCMD = new CommandContext();
         ctxCMD.setData("businessKey", UUID.randomUUID().toString());
-        
+
         Long requestId = executorService.scheduleRequest("org.jbpm.executor.commands.ReoccurringPrintOutCommand", ctxCMD);
 
         Thread.sleep(9000);
@@ -357,25 +357,25 @@ public class BasicExecutorIntegrationTest {
         assertEquals(1, queuedRequests.size());
         List<RequestInfo> executedRequests = executorService.getCompletedRequests(new QueryContext());
         assertEquals(3, executedRequests.size());
-        
+
         executorService.cancelRequest(requestId+3);
-        
+
         List<RequestInfo> canceled = executorService.getCancelledRequests(new QueryContext());
-        
+
         ExecutorJPAAuditService auditService = new ExecutorJPAAuditService(emf);
         int resultCount = auditService.requestInfoLogDeleteBuilder()
                 .date(canceled.get(0).getTime())
                 .status(STATUS.ERROR)
                 .build()
                 .execute();
-        
+
         assertEquals(0, resultCount);
-        
+
         resultCount = auditService.errorInfoLogDeleteBuilder()
                 .date(canceled.get(0).getTime())
                 .build()
                 .execute();
-        
+
         assertEquals(0, resultCount);
 
         ctxCMD = new CommandContext();
@@ -385,9 +385,9 @@ public class BasicExecutorIntegrationTest {
         ctxCMD.setData("SkipProcessLog", "true");
         ctxCMD.setData("SkipTaskLog", "true");
         executorService.scheduleRequest("org.jbpm.executor.commands.LogCleanupCommand", ctxCMD);
-        
+
         Thread.sleep(5000);
-        
+
         inErrorRequests = executorService.getInErrorRequests(new QueryContext());
         assertEquals(0, inErrorRequests.size());
         queuedRequests = executorService.getQueuedRequests(new QueryContext());
@@ -404,7 +404,7 @@ public class BasicExecutorIntegrationTest {
         ctxCMD.setData("businessKey", businessKey);
 
         Long requestId = executorService.scheduleRequest("org.jbpm.executor.test.CustomCommand", ctxCMD);
-        
+
         List<RequestInfo> requests = executorService.getRequestsByCommand("org.jbpm.executor.test.CustomCommand", new QueryContext());
         assertNotNull(requests);
         assertEquals(1, requests.size());
@@ -417,5 +417,5 @@ public class BasicExecutorIntegrationTest {
         assertEquals(1, cancelledRequests.size());
 
     }
-    
+
 }

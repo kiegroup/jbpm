@@ -207,7 +207,7 @@ public class SignalEventTest extends JbpmTestCase {
         getKieSession().startProcess(throwingProcessId);
 
         boolean run = (strategy == Strategy.SINGLETON && scope != Scope.PROCESS_INSTANCE) ||
-                (strategy == Strategy.PROCESS_INSTANCE && scope == Scope.PROJECT) || 
+                (strategy == Strategy.PROCESS_INSTANCE && scope == Scope.PROJECT) ||
                 (strategy == Strategy.PROCESS_INSTANCE && scope == Scope.DEFAULT);
 
         List<? extends ProcessInstanceLog> instances = getRuntimeEngine().getAuditService().findProcessInstances();

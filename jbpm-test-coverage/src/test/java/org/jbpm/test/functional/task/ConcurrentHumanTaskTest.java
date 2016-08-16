@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -58,97 +58,97 @@ import org.kie.internal.task.api.UserGroupCallback;
 
 public class ConcurrentHumanTaskTest extends JbpmTestCase {
 
-	public ConcurrentHumanTaskTest() {
-		super(true, true);
-	}
+    public ConcurrentHumanTaskTest() {
+        super(true, true);
+    }
 
-	private static final int THREADS = 2;	
-	
-	@Before
-	public void populateOrgEntity() {
-	    TaskService taskService = HumanTaskServiceFactory.newTaskServiceConfigurator().entityManagerFactory(getEmf()).getTaskService();
-	    
-	    ((InternalTaskService)taskService).addUser(TaskModelProvider.getFactory().newUser("krisv"));
-	    ((InternalTaskService)taskService).addUser(TaskModelProvider.getFactory().newUser("sales-rep"));
-	    ((InternalTaskService)taskService).addUser(TaskModelProvider.getFactory().newUser("john"));
-	    ((InternalTaskService)taskService).addUser(TaskModelProvider.getFactory().newUser("Administrator"));
-	    
-	    ((InternalTaskService)taskService).addGroup(TaskModelProvider.getFactory().newGroup("sales"));
-	    ((InternalTaskService)taskService).addGroup(TaskModelProvider.getFactory().newGroup("PM"));
-	    ((InternalTaskService)taskService).addGroup(TaskModelProvider.getFactory().newGroup("Administrators"));
-	}
+    private static final int THREADS = 2;
 
-	@Test(timeout=10000)
-	public void testConcurrentInvocationsIncludingUserTasks() throws Exception {
-	    CountDownLatch latch = new CountDownLatch(THREADS);
-	    for (int i = 0; i < THREADS; i++) {
-			ProcessRunner pr = new ProcessRunner(i, getEmf(), latch);
-			Thread t = new Thread(pr, i + "-process-runner");
-			t.start();	
-						
-		}
-		
-		latch.await();
-		AuditLogService logService = new JPAAuditLogService(getEmf());
-		
-		List<? extends ProcessInstanceLog> logs = logService.findProcessInstances("com.sample.humantask.concurrent");
-		assertEquals(2, logs.size());
-		
-		for (ProcessInstanceLog log : logs) {
-			assertEquals(ProcessInstance.STATE_COMPLETED, log.getStatus().intValue());
-		}
-		
-		logService.dispose();
-	}
+    @Before
+    public void populateOrgEntity() {
+        TaskService taskService = HumanTaskServiceFactory.newTaskServiceConfigurator().entityManagerFactory(getEmf()).getTaskService();
+
+        ((InternalTaskService)taskService).addUser(TaskModelProvider.getFactory().newUser("krisv"));
+        ((InternalTaskService)taskService).addUser(TaskModelProvider.getFactory().newUser("sales-rep"));
+        ((InternalTaskService)taskService).addUser(TaskModelProvider.getFactory().newUser("john"));
+        ((InternalTaskService)taskService).addUser(TaskModelProvider.getFactory().newUser("Administrator"));
+
+        ((InternalTaskService)taskService).addGroup(TaskModelProvider.getFactory().newGroup("sales"));
+        ((InternalTaskService)taskService).addGroup(TaskModelProvider.getFactory().newGroup("PM"));
+        ((InternalTaskService)taskService).addGroup(TaskModelProvider.getFactory().newGroup("Administrators"));
+    }
+
+    @Test(timeout=10000)
+    public void testConcurrentInvocationsIncludingUserTasks() throws Exception {
+        CountDownLatch latch = new CountDownLatch(THREADS);
+        for (int i = 0; i < THREADS; i++) {
+            ProcessRunner pr = new ProcessRunner(i, getEmf(), latch);
+            Thread t = new Thread(pr, i + "-process-runner");
+            t.start();
+
+        }
+
+        latch.await();
+        AuditLogService logService = new JPAAuditLogService(getEmf());
+
+        List<? extends ProcessInstanceLog> logs = logService.findProcessInstances("com.sample.humantask.concurrent");
+        assertEquals(2, logs.size());
+
+        for (ProcessInstanceLog log : logs) {
+            assertEquals(ProcessInstance.STATE_COMPLETED, log.getStatus().intValue());
+        }
+
+        logService.dispose();
+    }
 }
 
 class ProcessRunner implements Runnable {
 
-	private int i;
-	private EntityManagerFactory emf;
-	private CountDownLatch latch;
+    private int i;
+    private EntityManagerFactory emf;
+    private CountDownLatch latch;
 
-	public ProcessRunner(int i, EntityManagerFactory emf, CountDownLatch latch) {
-		this.i = i;
-		this.emf = emf;
-		this.latch = latch;
-	}
+    public ProcessRunner(int i, EntityManagerFactory emf, CountDownLatch latch) {
+        this.i = i;
+        this.emf = emf;
+        this.latch = latch;
+    }
 
-	private RuntimeManager getRuntimeManager(String process, int i) {
-		Properties properties = new Properties();
-		properties.setProperty("krisv", "");
-		properties.setProperty("sales-rep", "sales");
-		properties.setProperty("john", "PM");
+    private RuntimeManager getRuntimeManager(String process, int i) {
+        Properties properties = new Properties();
+        properties.setProperty("krisv", "");
+        properties.setProperty("sales-rep", "sales");
+        properties.setProperty("john", "PM");
 
-		KnowledgeBuilder knowledgeBuilder = createKBuilder(process, ResourceType.BPMN2);
-		KieBase kieBase = knowledgeBuilder.newKnowledgeBase();
+        KnowledgeBuilder knowledgeBuilder = createKBuilder(process, ResourceType.BPMN2);
+        KieBase kieBase = knowledgeBuilder.newKnowledgeBase();
 
-		UserGroupCallback userGroupCallback = new JBossUserGroupCallbackImpl( properties);
-		// load up the knowledge base
-		TimerServiceRegistry.getInstance();
-		RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get().newDefaultBuilder()
-				.userGroupCallback(userGroupCallback).persistence(true)
-				.entityManagerFactory(emf).knowledgeBase(kieBase).get();
-		return RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment, "id-" + i);
-	}
+        UserGroupCallback userGroupCallback = new JBossUserGroupCallbackImpl( properties);
+        // load up the knowledge base
+        TimerServiceRegistry.getInstance();
+        RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get().newDefaultBuilder()
+                .userGroupCallback(userGroupCallback).persistence(true)
+                .entityManagerFactory(emf).knowledgeBase(kieBase).get();
+        return RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment, "id-" + i);
+    }
 
-	private KnowledgeBuilder createKBuilder(String resource, ResourceType resourceType) {
-		KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
-		kbuilder.add(ResourceFactory.newClassPathResource(resource), resourceType);
-		if (kbuilder.hasErrors()) {
-			int errors = kbuilder.getErrors().size();
-			if (errors > 0) {
-				System.out.println("Found " + errors + " errors");
-				for (KnowledgeBuilderError error : kbuilder.getErrors()) {
-					System.out.println(error.getMessage());
-				}
-			}
-			throw new IllegalArgumentException("Application process definition has errors, see log for more details");
-		}
-		return kbuilder;
-	}
+    private KnowledgeBuilder createKBuilder(String resource, ResourceType resourceType) {
+        KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
+        kbuilder.add(ResourceFactory.newClassPathResource(resource), resourceType);
+        if (kbuilder.hasErrors()) {
+            int errors = kbuilder.getErrors().size();
+            if (errors > 0) {
+                System.out.println("Found " + errors + " errors");
+                for (KnowledgeBuilderError error : kbuilder.getErrors()) {
+                    System.out.println(error.getMessage());
+                }
+            }
+            throw new IllegalArgumentException("Application process definition has errors, see log for more details");
+        }
+        return kbuilder;
+    }
 
-	@Override
+    @Override
     public void run() {
         System.out.println(" building runtime: " + i);
         RuntimeManager manager = getRuntimeManager("org/jbpm/test/functional/task/ConcurrentHumanTask.bpmn", i);
@@ -170,18 +170,18 @@ class ProcessRunner implements Runnable {
 
 class HumanTaskResolver implements Runnable {
 
-	private final long pid;
-	private final RuntimeManager runtime;
-	private CountDownLatch latch;
+    private final long pid;
+    private final RuntimeManager runtime;
+    private CountDownLatch latch;
 
-	public HumanTaskResolver(long pid, RuntimeManager runtime, CountDownLatch latch) {
-		this.pid = pid;
-		this.runtime = runtime;
-		this.latch = latch;
-		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>" + pid);
-	}
+    public HumanTaskResolver(long pid, RuntimeManager runtime, CountDownLatch latch) {
+        this.pid = pid;
+        this.runtime = runtime;
+        this.latch = latch;
+        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>" + pid);
+    }
 
-	@Override
+    @Override
     public void run() {
         System.out.println(pid + " running tasks");
         // "sales-rep" reviews request
@@ -233,23 +233,23 @@ class HumanTaskResolver implements Runnable {
         Assert.assertNotNull(result);
         taskService4.complete(task4.getId(), "sales-rep", null);
 
-        System.out.println("Process instance completed");        
+        System.out.println("Process instance completed");
         runtime.close();
-        
+
         latch.countDown();
     }
 
-	public TaskService getTaskService() {
-		return runtime.getRuntimeEngine(ProcessInstanceIdContext.get(pid)).getTaskService();
-	}
+    public TaskService getTaskService() {
+        return runtime.getRuntimeEngine(ProcessInstanceIdContext.get(pid)).getTaskService();
+    }
 
-	protected TaskSummary selectTaskForProcessInstance(List<TaskSummary> tasks) {
-		for (TaskSummary ts : tasks) {
-			if (ts.getProcessInstanceId().longValue() == pid) {
-				return ts;
-			}
-		}
+    protected TaskSummary selectTaskForProcessInstance(List<TaskSummary> tasks) {
+        for (TaskSummary ts : tasks) {
+            if (ts.getProcessInstanceId().longValue() == pid) {
+                return ts;
+            }
+        }
 
-		return null;
-	}
+        return null;
+    }
 }

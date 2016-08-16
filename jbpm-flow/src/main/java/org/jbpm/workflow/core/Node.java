@@ -23,39 +23,39 @@ import org.kie.api.definition.process.NodeContainer;
 import org.jbpm.process.core.Contextable;
 
 /**
- * Represents a node in a RuleFlow. 
- * 
+ * Represents a node in a RuleFlow.
+ *
  */
 public interface Node extends org.kie.api.definition.process.Node, Contextable, Serializable {
 
     static final String CONNECTION_DEFAULT_TYPE = "DROOLS_DEFAULT";
-    
+
     /**
      * Method for setting the id of the node
-     * 
-     * @param id	the id of the node
+     *
+     * @param id    the id of the node
      */
     void setId(long id);
 
     /**
      * Method for setting the name of the node
-     * 
-     * @param name 	the name of the node
+     *
+     * @param name  the name of the node
      */
     void setName(String name);
-    
+
     String getUniqueId();
 
     void addIncomingConnection(String type, Connection connection);
-    
+
     void addOutgoingConnection(String type, Connection connection);
-    
+
     void removeIncomingConnection(String type, Connection connection);
-    
+
     void removeOutgoingConnection(String type, Connection connection);
-    
+
     void setNodeContainer(NodeContainer nodeContainer);
-    
+
     void setMetaData(String name, Object value);
-    
+
 }

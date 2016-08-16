@@ -26,7 +26,7 @@ import org.kie.internal.runtime.manager.SessionNotFoundException;
 
 /**
  * SessionFactory implementation backed with an in-memory store of used sessions. This does not preserve state
- * between server restarts or even <code>RuntimeManager</code> close. For that, the more permanent store 
+ * between server restarts or even <code>RuntimeManager</code> close. For that, the more permanent store
  * <code>JPASessionFactory</code> should be used.
  *
  * @see JPASessionFactory
@@ -37,12 +37,12 @@ public class InMemorySessionFactory implements SessionFactory {
     private KieBase kbase;
     // TODO all sessions stored here should be proxied so it can be removed on dispose/destroy
     private Map<Long, KieSession> sessions = new ConcurrentHashMap<Long, KieSession>();
-    
+
     public InMemorySessionFactory(RuntimeEnvironment environment) {
         this.environment = environment;
         this.kbase = environment.getKieBase();
     }
-    
+
     @Override
     public KieSession newKieSession() {
         KieSession ksession = kbase.newKieSession(environment.getConfiguration(), environment.getEnvironment());

@@ -27,13 +27,13 @@ import org.kie.internal.runtime.manager.EventListenerProducer;
 @org.jbpm.runtime.manager.api.qualifiers.Process
 public class CustomProcessEventListenerProducer implements EventListenerProducer<ProcessEventListener> {
 
-	@Override
-	public List<ProcessEventListener> getEventListeners(String identifier, Map<String, Object> params) {
-		
-		List<ProcessEventListener> processEventListeners = new ArrayList<ProcessEventListener>();
-		processEventListeners.add(new DebugProcessEventListener());
-		
-		return processEventListeners;
-	}
+    @Override
+    public List<ProcessEventListener> getEventListeners(String identifier, Map<String, Object> params) {
+
+        List<ProcessEventListener> processEventListeners = new ArrayList<ProcessEventListener>();
+        processEventListeners.add(new DebugProcessEventListener());
+
+        return processEventListeners;
+    }
 
 }

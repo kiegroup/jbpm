@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -33,39 +33,39 @@ import org.jbpm.process.audit.VariableInstanceLog;
 import org.jbpm.process.audit.strategy.StandaloneJtaStrategy;
 
 public class AuditQueryDataUtil {
-    
+
     private static Random random = new Random();
 
-    static long randomLong() { 
+    static long randomLong() {
         long result = (long) Math.abs(random.nextInt());
-        while( result == 23l ) { 
+        while( result == 23l ) {
            result = (long) Math.abs(random.nextInt());
         }
         return result;
     }
 
-    static String randomString() { 
+    static String randomString() {
         return UUID.randomUUID().toString();
     }
 
-    static Calendar randomCal() { 
+    static Calendar randomCal() {
         Calendar cal = GregorianCalendar.getInstance();
         cal.roll(Calendar.DAY_OF_YEAR, -1*random.nextInt(10*365));
         cal.set(Calendar.MILLISECOND, 0);
         cal.set(Calendar.SECOND, 0);
         return cal;
     }
-    
-    static ProcessInstanceLog [] createTestProcessInstanceLogData(EntityManagerFactory emf) { 
+
+    static ProcessInstanceLog [] createTestProcessInstanceLogData(EntityManagerFactory emf) {
         StandaloneJtaStrategy jtaHelper = new StandaloneJtaStrategy(emf);
         EntityManager em = jtaHelper.getEntityManager();
-   
+
         int numEntities = 11;
         ProcessInstanceLog [] testData = new ProcessInstanceLog[numEntities];
-        
+
         Calendar cal = randomCal();
-        
-        for( int i = 0; i < numEntities; ++i ) { 
+
+        for( int i = 0; i < numEntities; ++i ) {
             ProcessInstanceLog pil = new ProcessInstanceLog(randomLong(), randomString());
             pil.setDuration(randomLong());
             pil.setExternalId(randomString());
@@ -77,17 +77,17 @@ public class AuditQueryDataUtil {
             pil.setProcessVersion(randomString());
             pil.setStatus(random.nextInt());
             pil.setCorrelationKey(randomString());
-            
+
             cal.add(Calendar.MINUTE, 1);
             pil.setStart(cal.getTime());
             cal.add(Calendar.DAY_OF_YEAR, 1);
             pil.setEnd(cal.getTime());
-            
-            testData[i] = pil; 
+
+            testData[i] = pil;
         }
-    
-        for( int i = 0; i < numEntities; ++i ) { 
-           switch(i) { 
+
+        for( int i = 0; i < numEntities; ++i ) {
+           switch(i) {
            case 1:
                testData[i-1].setDuration(testData[i].getDuration());
                break;
@@ -125,20 +125,20 @@ public class AuditQueryDataUtil {
             em.persist(testData[i]);
         }
         jtaHelper.leaveTransaction(em, tx);
-        
+
         return testData;
     }
 
-    static VariableInstanceLog [] createTestVariableInstanceLogData(EntityManagerFactory emf) { 
+    static VariableInstanceLog [] createTestVariableInstanceLogData(EntityManagerFactory emf) {
         StandaloneJtaStrategy jtaHelper = new StandaloneJtaStrategy(emf);
         EntityManager em = jtaHelper.getEntityManager();
-    
+
         int numEntities = 8;
         VariableInstanceLog [] testData = new VariableInstanceLog[numEntities];
-       
+
         Calendar cal = randomCal();
-        
-        for( int i = 0; i < numEntities; ++i ) { 
+
+        for( int i = 0; i < numEntities; ++i ) {
             VariableInstanceLog vil = new VariableInstanceLog();
             vil.setProcessInstanceId(randomLong());
             vil.setProcessId(randomString());
@@ -149,12 +149,12 @@ public class AuditQueryDataUtil {
             vil.setValue(randomString());
             vil.setOldValue(randomString());
             vil.setExternalId(randomString());
-            
-            testData[i] = vil; 
+
+            testData[i] = vil;
         }
-    
-        for( int i = 0; i < numEntities; ++i ) { 
-           switch(i) { 
+
+        for( int i = 0; i < numEntities; ++i ) {
+           switch(i) {
            case 1:
                testData[i-1].setDate(testData[i].getDate());
                break;
@@ -183,20 +183,20 @@ public class AuditQueryDataUtil {
             em.persist(testData[i]);
         }
         jtaHelper.leaveTransaction(em, tx);
-        
+
         return testData;
     }
 
-    static NodeInstanceLog [] createTestNodeInstanceLogData(EntityManagerFactory emf) { 
+    static NodeInstanceLog [] createTestNodeInstanceLogData(EntityManagerFactory emf) {
         StandaloneJtaStrategy jtaHelper = new StandaloneJtaStrategy(emf);
         EntityManager em = jtaHelper.getEntityManager();
-    
+
         int numEntities = 9;
         NodeInstanceLog [] testData = new NodeInstanceLog[numEntities];
-        
+
         Calendar cal = randomCal();
-    
-        for( int i = 0; i < numEntities; ++i ) { 
+
+        for( int i = 0; i < numEntities; ++i ) {
             NodeInstanceLog nil = new NodeInstanceLog();
             nil.setProcessInstanceId(randomLong());
             nil.setProcessId(randomString());
@@ -210,12 +210,12 @@ public class AuditQueryDataUtil {
             nil.setWorkItemId(randomLong());
             nil.setConnection(randomString());
             nil.setExternalId(randomString());
-            
-            testData[i] = nil; 
+
+            testData[i] = nil;
         }
-    
-        for( int i = 0; i < numEntities; ++i ) { 
-           switch(i) { 
+
+        for( int i = 0; i < numEntities; ++i ) {
+           switch(i) {
            case 1:
                testData[i-1].setDate(testData[i].getDate());
                break;
@@ -247,27 +247,27 @@ public class AuditQueryDataUtil {
             em.persist(testData[i]);
         }
         jtaHelper.leaveTransaction(em, tx);
-        
+
         return testData;
     }
 
     static int MAX = 2;
     static int MIN = 1;
     static int BOTH = 0;
-    
+
     static void verifyMaxMinDuration( List<org.kie.api.runtime.manager.audit.ProcessInstanceLog> procInstLogs, int test, long... maxOrMin ) {
-       for( org.kie.api.runtime.manager.audit.ProcessInstanceLog log : procInstLogs ) { 
+       for( org.kie.api.runtime.manager.audit.ProcessInstanceLog log : procInstLogs ) {
            assertNotNull( "Duration is null" , log.getDuration() );
            long dur = log.getDuration();
-           if( test == MAX ) { 
-               assertTrue( "Duration " + dur + " is larger than max " + maxOrMin[0] + ": " + dur, dur <= maxOrMin[0] ); 
-           } else if( test == MIN ) { 
-               assertTrue( "Duration " + dur + " is smaller than min " + maxOrMin[0], dur >= maxOrMin[0] ); 
+           if( test == MAX ) {
+               assertTrue( "Duration " + dur + " is larger than max " + maxOrMin[0] + ": " + dur, dur <= maxOrMin[0] );
+           } else if( test == MIN ) {
+               assertTrue( "Duration " + dur + " is smaller than min " + maxOrMin[0], dur >= maxOrMin[0] );
            } else { // BOTH
-               assertTrue( "Duration " + dur + " is smaller than min " + maxOrMin[0], dur >= maxOrMin[0] ); 
-               assertTrue( "Duration " + dur + " is larger than max " + maxOrMin[1], dur <= maxOrMin[1] ); 
+               assertTrue( "Duration " + dur + " is smaller than min " + maxOrMin[0], dur >= maxOrMin[0] );
+               assertTrue( "Duration " + dur + " is larger than max " + maxOrMin[1], dur <= maxOrMin[1] );
            }
        }
     }
-    
+
 }

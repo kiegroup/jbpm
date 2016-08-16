@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -45,21 +45,21 @@ import org.kie.internal.task.query.AuditTaskQueryBuilder;
 
 public class AuditTaskQueryBuilderImpl extends AbstractAuditQueryBuilderImpl<AuditTaskQueryBuilder, AuditTask>  implements AuditTaskQueryBuilder {
 
-    public AuditTaskQueryBuilderImpl(CommandExecutor cmdService) { 
+    public AuditTaskQueryBuilderImpl(CommandExecutor cmdService) {
         super(cmdService);
      }
-     
-     public AuditTaskQueryBuilderImpl(JPAAuditLogService jpaAuditService) { 
+
+     public AuditTaskQueryBuilderImpl(JPAAuditLogService jpaAuditService) {
         super(jpaAuditService);
-     }		
+     }
 
-	@Override
-	public AuditTaskQueryBuilder taskId(long... taskId) {
-		addLongParameter(TASK_ID_LIST, "task id", taskId);
+    @Override
+    public AuditTaskQueryBuilder taskId(long... taskId) {
+        addLongParameter(TASK_ID_LIST, "task id", taskId);
         return this;
-	}
+    }
 
-	@Override
+    @Override
     public AuditTaskQueryBuilder taskIdRange( Long taskIdMin, Long taskIdMax ) {
         long [] params = { taskIdMin, taskIdMax };
         addRangeParameters(TASK_ID_LIST, "task id", taskIdMin, taskIdMax );
@@ -69,13 +69,13 @@ public class AuditTaskQueryBuilderImpl extends AbstractAuditQueryBuilderImpl<Aud
     @Override
     public AuditTaskQueryBuilder taskStatus(Status... status) {
         String [] stringStatuses = null;
-        if( status != null ) { 
+        if( status != null ) {
             stringStatuses = new String[status.length];
-            for( int i = 0; i < status.length; ++i ) { 
+            for( int i = 0; i < status.length; ++i ) {
                 stringStatuses[i] = status[i].toString();
             }
         }
-    	addObjectParameter(TASK_STATUS_LIST, "task status", stringStatuses);
+        addObjectParameter(TASK_STATUS_LIST, "task status", stringStatuses);
         return this;
     }
 
@@ -134,22 +134,22 @@ public class AuditTaskQueryBuilderImpl extends AbstractAuditQueryBuilderImpl<Aud
     }
 
     @Override
-	public AuditTaskQueryBuilder taskName(String... name) {
-		addObjectParameter(TASK_NAME_LIST, "task name", name);
+    public AuditTaskQueryBuilder taskName(String... name) {
+        addObjectParameter(TASK_NAME_LIST, "task name", name);
         return this;
-	}
+    }
 
-	@Override
-	public AuditTaskQueryBuilder description(String... description) {
-		addObjectParameter(TASK_DESCRIPTION_LIST, "task description", description);
+    @Override
+    public AuditTaskQueryBuilder description(String... description) {
+        addObjectParameter(TASK_DESCRIPTION_LIST, "task description", description);
         return this;
-	}
-	
-	@Override
-	public AuditTaskQueryBuilder workItemId(long... workItemId) {
-		addLongParameter(WORK_ITEM_ID_LIST, "work item id", workItemId);
+    }
+
+    @Override
+    public AuditTaskQueryBuilder workItemId(long... workItemId) {
+        addLongParameter(WORK_ITEM_ID_LIST, "work item id", workItemId);
         return this;
-	}
+    }
 
     @Override
     public AuditTaskQueryBuilder priority( int... priority ) {
@@ -177,21 +177,21 @@ public class AuditTaskQueryBuilderImpl extends AbstractAuditQueryBuilderImpl<Aud
 
     @Override
     public AuditTaskQueryBuilder ascending( org.kie.internal.task.query.AuditTaskQueryBuilder.OrderBy field ) {
-    	String listId = convertOrderByToListId(field);
-    	this.queryWhere.setAscending(listId);
+        String listId = convertOrderByToListId(field);
+        this.queryWhere.setAscending(listId);
         return this;
     }
 
     @Override
     public AuditTaskQueryBuilder descending( org.kie.internal.task.query.AuditTaskQueryBuilder.OrderBy field ) {
-    	String listId = convertOrderByToListId(field);
-    	this.queryWhere.setDescending(listId);
+        String listId = convertOrderByToListId(field);
+        this.queryWhere.setDescending(listId);
         return this;
     }
 
-    private String convertOrderByToListId(org.kie.internal.task.query.AuditTaskQueryBuilder.OrderBy field) { 
+    private String convertOrderByToListId(org.kie.internal.task.query.AuditTaskQueryBuilder.OrderBy field) {
         String listId;
-        switch( field ) { 
+        switch( field ) {
         case activationTime:
             listId = TASK_ACTIVATION_TIME_LIST;
             break;
@@ -209,7 +209,7 @@ public class AuditTaskQueryBuilderImpl extends AbstractAuditQueryBuilderImpl<Aud
             break;
         default:
             throw new IllegalArgumentException("Unknown 'order-by' field: " + field.toString() );
-        } 
+        }
         return listId;
     }
 

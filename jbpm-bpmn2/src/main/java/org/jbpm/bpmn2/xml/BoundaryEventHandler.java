@@ -48,14 +48,14 @@ import org.xml.sax.SAXException;
 
 public class BoundaryEventHandler extends AbstractNodeHandler {
 
-	private DataTransformerRegistry transformerRegistry = DataTransformerRegistry.get();
+    private DataTransformerRegistry transformerRegistry = DataTransformerRegistry.get();
 
     protected Node createNode(Attributes attrs) {
         return new BoundaryEventNode();
     }
 
     @SuppressWarnings("unchecked")
-	public Class generateNodeFor() {
+    public Class generateNodeFor() {
         return BoundaryEventNode.class;
     }
 
@@ -107,7 +107,7 @@ public class BoundaryEventHandler extends AbstractNodeHandler {
     }
 
     @SuppressWarnings("unchecked")
-	protected void handleEscalationNode(final Node node, final Element element, final String uri,
+    protected void handleEscalationNode(final Node node, final Element element, final String uri,
             final String localName, final ExtensibleXmlParser parser, final String attachedTo,
             final boolean cancelActivity) throws SAXException {
         super.handleNode(node, element, uri, localName, parser);
@@ -136,14 +136,14 @@ public class BoundaryEventHandler extends AbstractNodeHandler {
                 String escalationRef = ((Element) xmlNode).getAttribute("escalationRef");
                 if (escalationRef != null && escalationRef.trim().length() > 0) {
                     Map<String, Escalation> escalations = (Map<String, Escalation>)
-		                ((ProcessBuildData) parser.getData()).getMetaData(ProcessHandler.ESCALATIONS);
-		            if (escalations == null) {
-		                throw new IllegalArgumentException("No escalations found");
-		            }
-		            Escalation escalation = escalations.get(escalationRef);
-		            if (escalation == null) {
-		                throw new IllegalArgumentException("Could not find escalation " + escalationRef);
-		            }
+                        ((ProcessBuildData) parser.getData()).getMetaData(ProcessHandler.ESCALATIONS);
+                    if (escalations == null) {
+                        throw new IllegalArgumentException("No escalations found");
+                    }
+                    Escalation escalation = escalations.get(escalationRef);
+                    if (escalation == null) {
+                        throw new IllegalArgumentException("Could not find escalation " + escalationRef);
+                    }
                     List<EventFilter> eventFilters = new ArrayList<EventFilter>();
                     EventTypeFilter eventFilter = new EventTypeFilter();
                     String type = escalation.getEscalationCode();
@@ -160,7 +160,7 @@ public class BoundaryEventHandler extends AbstractNodeHandler {
     }
 
     @SuppressWarnings("unchecked")
-	protected void handleErrorNode(final Node node, final Element element, final String uri,
+    protected void handleErrorNode(final Node node, final Element element, final String uri,
             final String localName, final ExtensibleXmlParser parser, final String attachedTo,
             final boolean cancelActivity) throws SAXException {
         super.handleNode(node, element, uri, localName, parser);
@@ -179,34 +179,34 @@ public class BoundaryEventHandler extends AbstractNodeHandler {
             } else if ("errorEventDefinition".equals(nodeName)) {
                 String errorRef = ((Element) xmlNode).getAttribute("errorRef");
                 if (errorRef != null && errorRef.trim().length() > 0) {
-                	List<Error> errors = (List<Error>) ((ProcessBuildData) parser.getData()).getMetaData("Errors");
-		            if (errors == null) {
-		                throw new IllegalArgumentException("No errors found");
-		            }
-		            Error error = null;
-		            for( Error listError : errors ) {
-		                if( errorRef.equals(listError.getId()) ) {
-		                    error = listError;
-		                }
-		            }
-		            if (error == null) {
-		                throw new IllegalArgumentException("Could not find error " + errorRef);
-		            }
-		            String type = error.getErrorCode();
-		            boolean hasErrorCode = true;
-		            if (type == null) {
-		            	type = error.getId();
-		            	hasErrorCode = false;
-		            }
-		            String structureRef = error.getStructureRef();
-		            if (structureRef != null) {
-		            	Map<String, ItemDefinition> itemDefs = (Map<String, ItemDefinition>)((ProcessBuildData)
-		            			parser.getData()).getMetaData("ItemDefinitions");
+                    List<Error> errors = (List<Error>) ((ProcessBuildData) parser.getData()).getMetaData("Errors");
+                    if (errors == null) {
+                        throw new IllegalArgumentException("No errors found");
+                    }
+                    Error error = null;
+                    for( Error listError : errors ) {
+                        if( errorRef.equals(listError.getId()) ) {
+                            error = listError;
+                        }
+                    }
+                    if (error == null) {
+                        throw new IllegalArgumentException("Could not find error " + errorRef);
+                    }
+                    String type = error.getErrorCode();
+                    boolean hasErrorCode = true;
+                    if (type == null) {
+                        type = error.getId();
+                        hasErrorCode = false;
+                    }
+                    String structureRef = error.getStructureRef();
+                    if (structureRef != null) {
+                        Map<String, ItemDefinition> itemDefs = (Map<String, ItemDefinition>)((ProcessBuildData)
+                                parser.getData()).getMetaData("ItemDefinitions");
 
-		            	if (itemDefs.containsKey(structureRef)) {
-		            		structureRef = itemDefs.get(structureRef).getStructureRef();
-		            	}
-		            }
+                        if (itemDefs.containsKey(structureRef)) {
+                            structureRef = itemDefs.get(structureRef).getStructureRef();
+                        }
+                    }
 
                     List<EventFilter> eventFilters = new ArrayList<EventFilter>();
                     EventTypeFilter eventFilter = new EventTypeFilter();
@@ -444,20 +444,20 @@ public class BoundaryEventHandler extends AbstractNodeHandler {
         subNode = subNode.getNextSibling();
         String to = subNode.getTextContent();
         // transformation
- 		Transformation transformation = null;
- 		subNode = subNode.getNextSibling();
- 		if (subNode != null && "transformation".equals(subNode.getNodeName())) {
- 			String lang = subNode.getAttributes().getNamedItem("language").getNodeValue();
- 			String expression = subNode.getTextContent();
- 			DataTransformer transformer = transformerRegistry.find(lang);
- 			if (transformer == null) {
- 				throw new IllegalArgumentException("No transformer registered for language " + lang);
- 			}
- 			transformation = new Transformation(lang, expression, dataOutputs.get(from));
- 			eventNode.setMetaData("Transformation", transformation);
+        Transformation transformation = null;
+        subNode = subNode.getNextSibling();
+        if (subNode != null && "transformation".equals(subNode.getNodeName())) {
+            String lang = subNode.getAttributes().getNamedItem("language").getNodeValue();
+            String expression = subNode.getTextContent();
+            DataTransformer transformer = transformerRegistry.find(lang);
+            if (transformer == null) {
+                throw new IllegalArgumentException("No transformer registered for language " + lang);
+            }
+            transformation = new Transformation(lang, expression, dataOutputs.get(from));
+            eventNode.setMetaData("Transformation", transformation);
 
- 			eventNode.setEventTransformer(new EventTransformerImpl(transformation));
- 		}
+            eventNode.setEventTransformer(new EventTransformerImpl(transformation));
+        }
 
         eventNode.setVariableName(to);
 
@@ -507,12 +507,12 @@ public class BoundaryEventHandler extends AbstractNodeHandler {
 
 
                 if (duration != null && cycle != null) {
-                	String lang = (String) eventNode.getMetaData("Language");
-                	String language = "";
-                	if (lang != null && !lang.isEmpty()) {
-                		language = "language=\""+lang + "\" ";
-                	}
-                	xmlDump.append(
+                    String lang = (String) eventNode.getMetaData("Language");
+                    String language = "";
+                    if (lang != null && !lang.isEmpty()) {
+                        language = "language=\""+lang + "\" ";
+                    }
+                    xmlDump.append(
                             "      <timerEventDefinition>" + EOL +
                             "        <timeDuration xsi:type=\"tFormalExpression\">" + XmlDumper.replaceIllegalChars(duration) + "</timeDuration>" + EOL +
                             "        <timeCycle xsi:type=\"tFormalExpression\" " +language +">" + XmlDumper.replaceIllegalChars(cycle) + "</timeCycle>" + EOL +
@@ -528,11 +528,11 @@ public class BoundaryEventHandler extends AbstractNodeHandler {
                             "        <timeDate xsi:type=\"tFormalExpression\">" + XmlDumper.replaceIllegalChars(date) + "</timeDate>" + EOL +
                             "      </timerEventDefinition>" + EOL);
                 } else {
-                	String lang = (String) eventNode.getMetaData("Language");
-                	String language = "";
-                	if (lang != null && !lang.isEmpty()) {
-                		language = "language=\""+lang + "\" ";
-                	}
+                    String lang = (String) eventNode.getMetaData("Language");
+                    String language = "";
+                    if (lang != null && !lang.isEmpty()) {
+                        language = "language=\""+lang + "\" ";
+                    }
                     xmlDump.append(
                             "      <timerEventDefinition>" + EOL +
                             "        <timeCycle xsi:type=\"tFormalExpression\" " +language +">" + XmlDumper.replaceIllegalChars(cycle) + "</timeCycle>" + EOL +

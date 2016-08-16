@@ -19,51 +19,51 @@ package org.jbpm.executor.objects;
 import java.util.Date;
 
 public class HelloService {
-	
-	public static String VALIDATE_STRING = null;
-    
+
+    public static String VALIDATE_STRING = null;
+
     public String hello(String name) {
         System.out.println(Thread.currentThread().getName() + " Service invoked with name " + name);
         return "Hello " + name + "!";
     }
-    
+
     public String hello(Object name) {
         System.out.println(Thread.currentThread().getName() + " Service invoked with name " + name + " at " + new Date());
         return "Hello " + name + "!";
     }
-    
+
     public String hello1(Object name) {
         System.out.println(Thread.currentThread().getName() + " Service invoked with name " + name + " at " + new Date());
         return "Hello " + name + "!";
     }
-    
+
     public String hello2(Object name) {
         System.out.println(Thread.currentThread().getName() + " Service invoked with name " + name + " at " + new Date());
         return "Hello " + name + "!";
     }
-    
+
     public String hello3(Object name) {
         System.out.println(Thread.currentThread().getName() + " Service invoked with name " + name + " at " + new Date());
         return "Hello " + name + "!";
     }
-    
+
     public String hello4(Object name) {
         System.out.println(Thread.currentThread().getName() + " Service invoked with name " + name + " at " + new Date());
         return "Hello " + name + "!";
     }
-    
+
     public String helloEcho(String name) {
         System.out.println(Thread.currentThread().getName() + " Service invoked with name " + name);
         return name;
     }
-    
+
     public String validate(String value) {
-    	if (VALIDATE_STRING != null) {
-    		if (!VALIDATE_STRING.equals(value)) {
-    			throw new RuntimeException("Value does not match expected string: " + value);
-    		}
-    	}
-    	return value;
+        if (VALIDATE_STRING != null) {
+            if (!VALIDATE_STRING.equals(value)) {
+                throw new RuntimeException("Value does not match expected string: " + value);
+            }
+        }
+        return value;
     }
 
     public String helloException(String name) {

@@ -24,18 +24,18 @@ import org.jbpm.process.instance.ContextInstance;
  * of a node, containing all runtime state.  Node instance classes also
  * contain the logic on what to do when it is being triggered (start
  * executing) or completed (end of execution).
- * 
+ *
  */
 public interface NodeInstance extends org.kie.api.runtime.process.NodeInstance {
 
     void trigger(org.kie.api.runtime.process.NodeInstance from, String type);
 
     void cancel();
-    
+
     Node getNode();
-    
+
     ContextInstance resolveContextInstance(String contextId, Object param);
-    
+
     int getLevel();
-    
+
 }

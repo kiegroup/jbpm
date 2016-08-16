@@ -5,12 +5,12 @@ import java.io.Serializable;
 import org.jbpm.casemgmt.role.Role;
 
 public class RoleImpl implements Role, Serializable {
-    
+
     private static final long serialVersionUID = 630L;
-    
+
     private String name;
     private Integer cardinality;
-    
+
     public RoleImpl(String name) {
         this.name = name;
     }

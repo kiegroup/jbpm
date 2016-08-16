@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 
 
 public class SimpleIncrementCallback implements CommandCallback {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(SimpleIncrementCallback.class);
 
     public void onCommandDone(CommandContext ctx, ExecutionResults results) {
@@ -41,6 +41,6 @@ public class SimpleIncrementCallback implements CommandCallback {
     public void onCommandError(CommandContext ctx, Throwable exception) {
         logger.info("Command for request with business key {} failed an no more retries will be performed",
                 ctx.getData("businessKey"));
-        
+
     }
 }

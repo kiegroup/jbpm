@@ -57,77 +57,77 @@ import org.kie.api.runtime.manager.RuntimeEnvironmentBuilder;
 import org.kie.api.task.UserGroupCallback;
 
 /**
- * 
+ *
  * @author <a href="mailto:kris_verlaenen@hotmail.com">Kris Verlaenen</a>
  */
 public class ChecklistUI extends JFrame {
 
     private static final long serialVersionUID = 510l;
-    
-    private static ImageIcon[] ICONS = { 
-    	new ImageIcon(ChecklistUI.class.getResource("/checklist/status/check32.png")),
-    	new ImageIcon(ChecklistUI.class.getResource("/checklist/status/inprogress32.png")),
-    	new ImageIcon(ChecklistUI.class.getResource("/checklist/status/abort32.png")),
-    	new ImageIcon(ChecklistUI.class.getResource("/checklist/status/optional32.png"))
+
+    private static ImageIcon[] ICONS = {
+        new ImageIcon(ChecklistUI.class.getResource("/checklist/status/check32.png")),
+        new ImageIcon(ChecklistUI.class.getResource("/checklist/status/inprogress32.png")),
+        new ImageIcon(ChecklistUI.class.getResource("/checklist/status/abort32.png")),
+        new ImageIcon(ChecklistUI.class.getResource("/checklist/status/optional32.png"))
     };
-    
-    private static ImageIcon[] TYPE_ICONS = { 
-    	new ImageIcon(ChecklistUI.class.getResource("/checklist/type/UserTask.png")),
-    	new ImageIcon(ChecklistUI.class.getResource("/checklist/type/ScriptTask.png")),
-    	new ImageIcon(ChecklistUI.class.getResource("/checklist/type/CallActivity.png")),
-    	new ImageIcon(ChecklistUI.class.getResource("/checklist/type/ServiceTask.png"))
+
+    private static ImageIcon[] TYPE_ICONS = {
+        new ImageIcon(ChecklistUI.class.getResource("/checklist/type/UserTask.png")),
+        new ImageIcon(ChecklistUI.class.getResource("/checklist/type/ScriptTask.png")),
+        new ImageIcon(ChecklistUI.class.getResource("/checklist/type/CallActivity.png")),
+        new ImageIcon(ChecklistUI.class.getResource("/checklist/type/ServiceTask.png"))
     };
-    
+
     private ChecklistManager checklistManager;
-	List<ChecklistItem> items = null;
-    
+    List<ChecklistItem> items = null;
+
     private JComboBox contexts;
     private JTable itemTable;
     private JTextField userNameTextField;
     private boolean ctrl = false;
-    
+
     public ChecklistUI() {
         setSize(new Dimension(450, 350));
         setTitle("Checklist");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         initializeComponent();
-        
-		JBPMHelper.startH2Server();
-		JBPMHelper.setupDataSource();
-		RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get().newDefaultBuilder()
+
+        JBPMHelper.startH2Server();
+        JBPMHelper.setupDataSource();
+        RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get().newDefaultBuilder()
             .userGroupCallback(new UserGroupCallback() {
-    			public List<String> getGroupsForUser(String userId, List<String> groupIds, List<String> allExistingGroupIds) {
-    				List<String> result = new ArrayList<String>();
-    				if ("actor4".equals(userId)) {
-    					result.add("group1");
-    				} else if ("krisv".equals(userId)) {
-    					result.add("employee");
-    				} else if ("john".equals(userId)) {
-    					result.add("manager");
-    				}
-    				return result;
-    			}
-    			public boolean existsUser(String arg0) {
-    				return true;
-    			}
-    			public boolean existsGroup(String arg0) {
-    				return true;
-    			}
-    		})
+                public List<String> getGroupsForUser(String userId, List<String> groupIds, List<String> allExistingGroupIds) {
+                    List<String> result = new ArrayList<String>();
+                    if ("actor4".equals(userId)) {
+                        result.add("group1");
+                    } else if ("krisv".equals(userId)) {
+                        result.add("employee");
+                    } else if ("john".equals(userId)) {
+                        result.add("manager");
+                    }
+                    return result;
+                }
+                public boolean existsUser(String arg0) {
+                    return true;
+                }
+                public boolean existsGroup(String arg0) {
+                    return true;
+                }
+            })
             .addAsset(KieServices.Factory.get().getResources().newClassPathResource("checklist/SampleChecklistProcess.bpmn"), ResourceType.BPMN2)
             .addAsset(KieServices.Factory.get().getResources().newClassPathResource("checklist/AdHocProcess.bpmn"), ResourceType.BPMN2)
             .addAsset(KieServices.Factory.get().getResources().newClassPathResource("checklist/travel.bpmn"), ResourceType.BPMN2)
             .addAsset(KieServices.Factory.get().getResources().newClassPathResource("checklist/expenses.bpmn"), ResourceType.BPMN2)
             .get();
-		checklistManager = new DefaultChecklistManager(environment);
+        checklistManager = new DefaultChecklistManager(environment);
     }
-    
+
     private void initializeComponent() {
         JPanel panel = new JPanel();
         panel.setLayout(new GridBagLayout());
         getRootPane().setLayout(new BorderLayout());
         getRootPane().add(panel, BorderLayout.CENTER);
-        
+
         JButton createButton = new JButton("New...");
         createButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
@@ -138,7 +138,7 @@ public class ChecklistUI extends JFrame {
         c.insets = new Insets(5, 5, 5, 5);
         c.anchor = GridBagConstraints.WEST;
         panel.add(createButton, c);
-        
+
         contexts = new JComboBox(new DefaultComboBoxModel());
         contexts.setPreferredSize(new Dimension(80, 24));
         contexts.setSize(new Dimension(80, 24));
@@ -149,11 +149,11 @@ public class ChecklistUI extends JFrame {
         c.insets = new Insets(5, 5, 5, 5);
         panel.add(contexts, c);
         contexts.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				refresh();
-			}
-		});
-        
+            public void actionPerformed(ActionEvent e) {
+                refresh();
+            }
+        });
+
         JButton refreshButton = new JButton("Refresh");
         refreshButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
@@ -163,67 +163,67 @@ public class ChecklistUI extends JFrame {
         c = new GridBagConstraints();
         c.insets = new Insets(5, 5, 5, 5);
         panel.add(refreshButton, c);
-        
+
         itemTable = new JTable(1, 6);
         itemTable.setRowHeight(35);
         itemTable.setShowHorizontalLines(false);
         itemTable.setShowVerticalLines(false);
         itemTable.addKeyListener(new KeyListener() {
-			public void keyTyped(KeyEvent e) {
-			}
-			public void keyReleased(KeyEvent e) {
-				ctrl = false;
-			}
-			public void keyPressed(KeyEvent e) {
-				if (e.isControlDown()) {
-					ctrl = true;
-				}
-			}
-		});
+            public void keyTyped(KeyEvent e) {
+            }
+            public void keyReleased(KeyEvent e) {
+                ctrl = false;
+            }
+            public void keyPressed(KeyEvent e) {
+                if (e.isControlDown()) {
+                    ctrl = true;
+                }
+            }
+        });
         itemTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-			public void valueChanged(ListSelectionEvent e) {
-				int index = e.getFirstIndex();
-				if (index >= 0 && index < items.size()) {
-					ChecklistItem item = items.get(index);
-					if (item.getStatus() == Status.Created) {
-						String actorId = getActorId();
-						try {
-							checklistManager.claimTask(actorId, item.getTaskId());
-							if (ctrl) {
-								checklistManager.abortTask(actorId, item.getTaskId());
-							} else {
-								checklistManager.completeTask(actorId, item.getTaskId());
-							}
-						} catch (Throwable t) {
-							// Do nothing
-						}
-						refresh();
-					} else if (item.getStatus() == Status.Reserved) {
-						String actorId = getActorId();
-						if (item.getActors().equals(actorId)) {
-							try {
-								if (ctrl) {
-									checklistManager.abortTask(actorId, item.getTaskId());
-								} else {
-									checklistManager.completeTask(actorId, item.getTaskId());
-								}
-							} catch (Throwable t) {
-								// Do nothing
-							}
-							refresh();
-						}
-					} else if (item.getStatus() == Status.Optional) {
-						try {
-							checklistManager.selectOptionalTask(item.getName(), Long.valueOf((String) contexts.getSelectedItem()));
-						} catch (Throwable t) {
-							// Do nothing
-							t.printStackTrace();
-						}
-						refresh();
-					}
-				}
-			}
-		});
+            public void valueChanged(ListSelectionEvent e) {
+                int index = e.getFirstIndex();
+                if (index >= 0 && index < items.size()) {
+                    ChecklistItem item = items.get(index);
+                    if (item.getStatus() == Status.Created) {
+                        String actorId = getActorId();
+                        try {
+                            checklistManager.claimTask(actorId, item.getTaskId());
+                            if (ctrl) {
+                                checklistManager.abortTask(actorId, item.getTaskId());
+                            } else {
+                                checklistManager.completeTask(actorId, item.getTaskId());
+                            }
+                        } catch (Throwable t) {
+                            // Do nothing
+                        }
+                        refresh();
+                    } else if (item.getStatus() == Status.Reserved) {
+                        String actorId = getActorId();
+                        if (item.getActors().equals(actorId)) {
+                            try {
+                                if (ctrl) {
+                                    checklistManager.abortTask(actorId, item.getTaskId());
+                                } else {
+                                    checklistManager.completeTask(actorId, item.getTaskId());
+                                }
+                            } catch (Throwable t) {
+                                // Do nothing
+                            }
+                            refresh();
+                        }
+                    } else if (item.getStatus() == Status.Optional) {
+                        try {
+                            checklistManager.selectOptionalTask(item.getName(), Long.valueOf((String) contexts.getSelectedItem()));
+                        } catch (Throwable t) {
+                            // Do nothing
+                            t.printStackTrace();
+                        }
+                        refresh();
+                    }
+                }
+            }
+        });
         // TODO:
         // default width of columns
         // icons for state
@@ -239,14 +239,14 @@ public class ChecklistUI extends JFrame {
         c.fill = GridBagConstraints.BOTH;
         c.insets = new Insets(5, 5, 5, 5);
         panel.add(itemTable, c);
-        
+
         JLabel nameLabel = new JLabel("Logged in as:");
         c = new GridBagConstraints();
         c.gridy = 2;
         c.insets = new Insets(5, 5, 5, 5);
         c.anchor = GridBagConstraints.WEST;
         panel.add(nameLabel, c);
-        
+
         userNameTextField = new JTextField("krisv");
         userNameTextField.setPreferredSize(new Dimension(80, 20));
         userNameTextField.setSize(new Dimension(80, 20));
@@ -257,7 +257,7 @@ public class ChecklistUI extends JFrame {
         c.insets = new Insets(5, 5, 5, 5);
         c.anchor = GridBagConstraints.WEST;
         panel.add(userNameTextField, c);
-        
+
         JButton createItemButton = new JButton("+");
         createItemButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
@@ -272,75 +272,75 @@ public class ChecklistUI extends JFrame {
 
         panel.doLayout();
     }
-    
+
     private String getActorId() {
-    	return userNameTextField.getText();
+        return userNameTextField.getText();
     }
-    
+
     private void refresh() {
-    	Long processInstanceId = getSelectedProcessInstance();
-    	if (processInstanceId != null) {
-    		List<ChecklistContextConstraint> contexts = null;
-    		items = checklistManager.getTasks(processInstanceId, contexts);
-    	} else {
-    		items = new ArrayList<ChecklistItem>();
-    	}
-    	DefaultTableModel tableModel = new DefaultTableModel(items.size(), 5);
-    	for (int i = 0; i < items.size(); i++) {
-    		ChecklistItem item = items.get(i);
-			String orderingNb = item.getOrderingNb();
-			if (orderingNb == null) {
-				orderingNb = "";
-			} else if (orderingNb.endsWith("+")) {
-				orderingNb = "*";
-			}
-    		tableModel.setValueAt(item.getStatus(), i, 0);
-    		tableModel.setValueAt("(" + orderingNb + ")", i, 1);
-    		tableModel.setValueAt(item.getName(), i, 2);
-    		tableModel.setValueAt(item.getType(), i, 3);
-    		tableModel.setValueAt(item.getActors(), i, 4);
-//    		tableModel.setValueAt(item.getPriority(), i, 4);
-    	}
-    	itemTable.setModel(tableModel);
+        Long processInstanceId = getSelectedProcessInstance();
+        if (processInstanceId != null) {
+            List<ChecklistContextConstraint> contexts = null;
+            items = checklistManager.getTasks(processInstanceId, contexts);
+        } else {
+            items = new ArrayList<ChecklistItem>();
+        }
+        DefaultTableModel tableModel = new DefaultTableModel(items.size(), 5);
+        for (int i = 0; i < items.size(); i++) {
+            ChecklistItem item = items.get(i);
+            String orderingNb = item.getOrderingNb();
+            if (orderingNb == null) {
+                orderingNb = "";
+            } else if (orderingNb.endsWith("+")) {
+                orderingNb = "*";
+            }
+            tableModel.setValueAt(item.getStatus(), i, 0);
+            tableModel.setValueAt("(" + orderingNb + ")", i, 1);
+            tableModel.setValueAt(item.getName(), i, 2);
+            tableModel.setValueAt(item.getType(), i, 3);
+            tableModel.setValueAt(item.getActors(), i, 4);
+//          tableModel.setValueAt(item.getPriority(), i, 4);
+        }
+        itemTable.setModel(tableModel);
         itemTable.getColumnModel().getColumn(0).setCellRenderer(new DefaultTableCellRenderer() {
-			private static final long serialVersionUID = 6L;
-			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-				super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            private static final long serialVersionUID = 6L;
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
                 JLabel label = new JLabel();
                 if (value != null) {
-                	label.setHorizontalAlignment(JLabel.CENTER);
-                	switch ((Status) value) {
-                		case Completed: label.setIcon(ICONS[0]); break;
-                		case Aborted: label.setIcon(ICONS[2]); break;
-                		case InProgress: label.setIcon(ICONS[1]); break;
-                		case Created: label.setIcon(ICONS[1]); break;
-                		case Reserved: label.setIcon(ICONS[1]); break;
-                		case Ready: label.setIcon(ICONS[1]); break;
-                		case Optional: label.setIcon(ICONS[3]); break;
-                		case Pending: break;
-                		default: break;                			
-                	}
+                    label.setHorizontalAlignment(JLabel.CENTER);
+                    switch ((Status) value) {
+                        case Completed: label.setIcon(ICONS[0]); break;
+                        case Aborted: label.setIcon(ICONS[2]); break;
+                        case InProgress: label.setIcon(ICONS[1]); break;
+                        case Created: label.setIcon(ICONS[1]); break;
+                        case Reserved: label.setIcon(ICONS[1]); break;
+                        case Ready: label.setIcon(ICONS[1]); break;
+                        case Optional: label.setIcon(ICONS[3]); break;
+                        case Pending: break;
+                        default: break;
+                    }
                 }
                 return label;
             }
         });
         itemTable.getColumnModel().getColumn(3).setCellRenderer(new DefaultTableCellRenderer() {
-			private static final long serialVersionUID = 6L;
-			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-				super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            private static final long serialVersionUID = 6L;
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
                 JLabel label = new JLabel();
-            	label.setHorizontalAlignment(JLabel.CENTER);
+                label.setHorizontalAlignment(JLabel.CENTER);
                 if (value != null) {
-                	String s = (String) value;
-                	if ("HumanTaskNode".equals(s)) {
-                		label.setIcon(TYPE_ICONS[0]);
-                	} else if ("ActionNode".equals(s)) {
-                		label.setIcon(TYPE_ICONS[1]);
-                	} else if ("SubProcessNode".equals(s)) {
-                		label.setIcon(TYPE_ICONS[2]);
-                	} else if ("WorkItemNode".equals(s)) {
-                		label.setIcon(TYPE_ICONS[3]);
-                	}
+                    String s = (String) value;
+                    if ("HumanTaskNode".equals(s)) {
+                        label.setIcon(TYPE_ICONS[0]);
+                    } else if ("ActionNode".equals(s)) {
+                        label.setIcon(TYPE_ICONS[1]);
+                    } else if ("SubProcessNode".equals(s)) {
+                        label.setIcon(TYPE_ICONS[2]);
+                    } else if ("WorkItemNode".equals(s)) {
+                        label.setIcon(TYPE_ICONS[3]);
+                    }
                 }
                 return label;
             }
@@ -353,98 +353,98 @@ public class ChecklistUI extends JFrame {
         itemTable.getColumnModel().getColumn(3).setMaxWidth(32);
         itemTable.getColumnModel().getColumn(4).setPreferredWidth(120);
     }
-    
+
     private void create() {
-    	String s = (String) JOptionPane.showInputDialog(
+        String s = (String) JOptionPane.showInputDialog(
             this, "Select Checklist Template:", "Select Template",
             JOptionPane.PLAIN_MESSAGE, null,
             new Object[] {
-        		"None",
-        		"Business Trip",
-        		"Sample1"
+                "None",
+                "Business Trip",
+                "Sample1"
             },
             "None");
-    	if (s == null) {
-    		return;
-    	}
-    	String processId = null;
-    	if ("Sample1".equals(s)) {
-    		processId = "org.jbpm.examples.checklist.sample1";
-    	} else if ("Business Trip".equals(s)) {
-    		processId = "org.jbpm.examples.checklist.travel";
-    	}
-    	long processInstanceId = checklistManager.createContext(processId, getActorId());
-    	String contextName = processInstanceId + "";
-    	contexts.addItem(contextName);
-    	contexts.setSelectedItem(contextName);
-    	refresh();
+        if (s == null) {
+            return;
+        }
+        String processId = null;
+        if ("Sample1".equals(s)) {
+            processId = "org.jbpm.examples.checklist.sample1";
+        } else if ("Business Trip".equals(s)) {
+            processId = "org.jbpm.examples.checklist.travel";
+        }
+        long processInstanceId = checklistManager.createContext(processId, getActorId());
+        String contextName = processInstanceId + "";
+        contexts.addItem(contextName);
+        contexts.setSelectedItem(contextName);
+        refresh();
     }
-    
+
     private Long getSelectedProcessInstance() {
-    	Object selected = contexts.getSelectedItem();
-    	if (selected != null) {
-    		try {
-    			return new Long((String) selected);
-    		} catch (NumberFormatException e) {
-    			// Do nothing
-    		}
-    	}
-    	return null;
+        Object selected = contexts.getSelectedItem();
+        if (selected != null) {
+            try {
+                return new Long((String) selected);
+            } catch (NumberFormatException e) {
+                // Do nothing
+            }
+        }
+        return null;
     }
-    
+
     private void createNewItem() {
-    	if (getSelectedProcessInstance() != null) {
-	    	CreateItemDialog dialog = new CreateItemDialog(this, getActorId());
-	    	dialog.setVisible(true);
-	    	String name = dialog.getItemName();
-	    	if (name != null) {
-	    		ChecklistItem item = getSelectedItem();
-	    		String orderingNb = null;
-	    		if (item != null) {
-	    			orderingNb = item.getOrderingNb() + "+";
-	    		} else {
-	    			if (items.size() == 0) {
-	    				orderingNb = "1+";
-	    			} else {
-	    				orderingNb = items.get(items.size() - 1).getOrderingNb() + "+";
-	    			}
-	    		}
-	    		String[] actors = null;
-	    		String actorIds = dialog.getActors();
-	    		if (actorIds.trim().length() == 0) {
-	    			actors = new String[0];
-	    		} else {
-	    			actors = actorIds.split(",");
-	    		}
-	    		String[] groups = null;
-	    		String groupIds = dialog.getGroups();
-	    		if (groupIds.trim().length() == 0) {
-	    			groups = new String[0];
-	    		} else {
-	    			groups = groupIds.split(",");
-	    		}
-	    		checklistManager.addTask(
-    				dialog.getActors(),
-    				actors,
-    				groups,
-    				name,
-    				orderingNb,
-    				getSelectedProcessInstance());
-	    		refresh();
-	    	}
-    	}
+        if (getSelectedProcessInstance() != null) {
+            CreateItemDialog dialog = new CreateItemDialog(this, getActorId());
+            dialog.setVisible(true);
+            String name = dialog.getItemName();
+            if (name != null) {
+                ChecklistItem item = getSelectedItem();
+                String orderingNb = null;
+                if (item != null) {
+                    orderingNb = item.getOrderingNb() + "+";
+                } else {
+                    if (items.size() == 0) {
+                        orderingNb = "1+";
+                    } else {
+                        orderingNb = items.get(items.size() - 1).getOrderingNb() + "+";
+                    }
+                }
+                String[] actors = null;
+                String actorIds = dialog.getActors();
+                if (actorIds.trim().length() == 0) {
+                    actors = new String[0];
+                } else {
+                    actors = actorIds.split(",");
+                }
+                String[] groups = null;
+                String groupIds = dialog.getGroups();
+                if (groupIds.trim().length() == 0) {
+                    groups = new String[0];
+                } else {
+                    groups = groupIds.split(",");
+                }
+                checklistManager.addTask(
+                    dialog.getActors(),
+                    actors,
+                    groups,
+                    name,
+                    orderingNb,
+                    getSelectedProcessInstance());
+                refresh();
+            }
+        }
     }
-    
+
     private ChecklistItem getSelectedItem() {
-    	int index = itemTable.getSelectedRow();
-    	if (index >= 0) {
-    		return items.get(index);
-    	}
-    	return null;
+        int index = itemTable.getSelectedRow();
+        if (index >= 0) {
+            return items.get(index);
+        }
+        return null;
     }
-    
+
     public static void main(String[] args) {
-		new ChecklistUI().setVisible(true);
-	}
-    
+        new ChecklistUI().setVisible(true);
+    }
+
 }

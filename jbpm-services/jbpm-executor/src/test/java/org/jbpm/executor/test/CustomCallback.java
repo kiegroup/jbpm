@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -20,15 +20,15 @@ import org.kie.api.executor.CommandContext;
 import org.kie.api.executor.ExecutionResults;
 
 public class CustomCallback implements CommandCallback {
-    
-	@Override
-	public void onCommandDone(CommandContext ctx, ExecutionResults results) {
-		results.setData("custom", "custom callback invoked");
-	}
 
-	@Override
-	public void onCommandError(CommandContext ctx, Throwable exception) {
-		
-	}
+    @Override
+    public void onCommandDone(CommandContext ctx, ExecutionResults results) {
+        results.setData("custom", "custom callback invoked");
+    }
+
+    @Override
+    public void onCommandError(CommandContext ctx, Throwable exception) {
+
+    }
 
 }

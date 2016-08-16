@@ -54,7 +54,7 @@ public class ProcessAssetDesc implements ProcessDefinition {
 
     private boolean active = true;
 
-	public ProcessAssetDesc() {
+    public ProcessAssetDesc() {
     }
 
 
@@ -70,11 +70,11 @@ public class ProcessAssetDesc implements ProcessDefinition {
     }
 
     private String safeValue(String value) {
-    	if (value == null) {
-    		return "";
-    	}
+        if (value == null) {
+            return "";
+        }
 
-    	return value;
+        return value;
     }
 
     @Override
@@ -147,46 +147,46 @@ public class ProcessAssetDesc implements ProcessDefinition {
 
     @Override
     public Map<String, Collection<String>> getAssociatedEntities() {
-    	return associatedEntities;
+        return associatedEntities;
     }
 
 
     public void setAssociatedEntities(
-    		Map<String, Collection<String>> associatedEntities) {
-    	this.associatedEntities = associatedEntities;
+            Map<String, Collection<String>> associatedEntities) {
+        this.associatedEntities = associatedEntities;
     }
 
 
     @Override
     public Map<String, String> getServiceTasks() {
-    	return serviceTasks;
+        return serviceTasks;
     }
 
 
     public void setServiceTasks(Map<String, String> serviceTasks) {
-    	this.serviceTasks = serviceTasks;
+        this.serviceTasks = serviceTasks;
     }
 
 
     @Override
     public Map<String, String> getProcessVariables() {
-    	return processVariables;
+        return processVariables;
     }
 
 
     public void setProcessVariables(Map<String, String> processVariables) {
-    	this.processVariables = processVariables;
+        this.processVariables = processVariables;
     }
 
 
     @Override
     public Collection<String> getReusableSubProcesses() {
-    	return reusableSubProcesses;
+        return reusableSubProcesses;
     }
 
 
     public void setReusableSubProcesses(Collection<String> reusableSubProcesses) {
-    	this.reusableSubProcesses = reusableSubProcesses;
+        this.reusableSubProcesses = reusableSubProcesses;
     }
 
 
@@ -244,30 +244,30 @@ public class ProcessAssetDesc implements ProcessDefinition {
         this.forms.put(id, formContent);
     }
 
-	public List<String> getRoles() {
-		return roles;
-	}
+    public List<String> getRoles() {
+        return roles;
+    }
 
 
-	public void setRoles(List<String> roles) {
-		this.roles = roles;
-	}
+    public void setRoles(List<String> roles) {
+        this.roles = roles;
+    }
 
 
-	public boolean isActive() {
-		return active;
-	}
+    public boolean isActive() {
+        return active;
+    }
 
 
-	public void setActive(boolean active) {
-		this.active = active;
-	}
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 
 
     @Override
     public String toString() {
         return "ProcessDesc{id=" + id + ", name=" + name + ", version=" + version + ", packageName=" + packageName
-        		+ ", type=" + type + ", knowledgeType=" + knowledgeType + ", namespace=" + namespace + "active=" + active + "}";
+                + ", type=" + type + ", knowledgeType=" + knowledgeType + ", namespace=" + namespace + "active=" + active + "}";
     }
 
     @Override

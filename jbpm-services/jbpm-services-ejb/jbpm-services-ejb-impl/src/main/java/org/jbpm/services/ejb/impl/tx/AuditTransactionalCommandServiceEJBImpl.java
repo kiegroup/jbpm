@@ -27,23 +27,23 @@ import org.kie.internal.runtime.conf.DeploymentDescriptor;
 
 @Stateless
 public class AuditTransactionalCommandServiceEJBImpl extends TransactionalCommandService {
-	
-	@PersistenceUnit(unitName="org.jbpm.domain")
-	@Override
-	public void setEmf(EntityManagerFactory emf) {
-		DeploymentDescriptorManager manager = new DeploymentDescriptorManager("org.jbpm.domain");
-    	DeploymentDescriptor descriptor = manager.getDefaultDescriptor();
-    	if (!"org.jbpm.domain".equals(descriptor.getAuditPersistenceUnit())) {
-    		super.setEmf( EntityManagerFactoryManager.get().getOrCreate(descriptor.getAuditPersistenceUnit()) );
-    	} else {
-    		super.setEmf(emf);
-    	}
-	}
-	
-	
-	public AuditTransactionalCommandServiceEJBImpl() {
-		super(null);
-		// entity manager will be set by setter method
-	}
+
+    @PersistenceUnit(unitName="org.jbpm.domain")
+    @Override
+    public void setEmf(EntityManagerFactory emf) {
+        DeploymentDescriptorManager manager = new DeploymentDescriptorManager("org.jbpm.domain");
+        DeploymentDescriptor descriptor = manager.getDefaultDescriptor();
+        if (!"org.jbpm.domain".equals(descriptor.getAuditPersistenceUnit())) {
+            super.setEmf( EntityManagerFactoryManager.get().getOrCreate(descriptor.getAuditPersistenceUnit()) );
+        } else {
+            super.setEmf(emf);
+        }
+    }
+
+
+    public AuditTransactionalCommandServiceEJBImpl() {
+        super(null);
+        // entity manager will be set by setter method
+    }
 
 }

@@ -37,24 +37,24 @@ import org.kie.internal.process.CorrelationProperty;
 @SequenceGenerator(name="correlationKeyInfoIdSeq", sequenceName="CORRELATION_KEY_ID_SEQ")
 public class CorrelationKeyInfo implements CorrelationKey, Serializable {
 
-	private static final long serialVersionUID = 4469298702447675428L;
+    private static final long serialVersionUID = 4469298702447675428L;
 
-	@Id
+    @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator="correlationKeyInfoIdSeq")
     @Column(name = "keyId")
     private long id;
-    
+
     @Version
     @Column(name = "OPTLOCK")
     private int version;
-    
+
     private long processInstanceId;
-    
+
     private String name;
-    
+
     @OneToMany(mappedBy="correlationKey", cascade=CascadeType.ALL)
     private List<CorrelationPropertyInfo> properties;
-    
+
     @Override
     public String getName() {
         return this.name;
@@ -76,7 +76,7 @@ public class CorrelationKeyInfo implements CorrelationKey, Serializable {
     public void setName(String name) {
         this.name = name;
     }
-    
+
     public void addProperty(CorrelationPropertyInfo property) {
         if (this.properties == null) {
             this.properties = new ArrayList<CorrelationPropertyInfo>();
@@ -137,9 +137,9 @@ public class CorrelationKeyInfo implements CorrelationKey, Serializable {
         return id;
     }
 
-	@Override
-	public String toExternalForm() {
-		return CorrelationKeyXmlAdapter.marshalCorrelationKey(this);
-	}
+    @Override
+    public String toExternalForm() {
+        return CorrelationKeyXmlAdapter.marshalCorrelationKey(this);
+    }
 
 }

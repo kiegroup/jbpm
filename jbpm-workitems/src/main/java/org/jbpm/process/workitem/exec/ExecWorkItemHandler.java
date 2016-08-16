@@ -24,20 +24,20 @@ import org.kie.api.runtime.process.WorkItemManager;
 
 public class ExecWorkItemHandler extends AbstractLogOrThrowWorkItemHandler {
 
-	public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
-		String command = (String) workItem.getParameter("Command");
-		CommandLine commandLine = CommandLine.parse(command);
-		DefaultExecutor executor = new DefaultExecutor();
-		try {
-			executor.execute(commandLine);
-			manager.completeWorkItem(workItem.getId(), null);
-		} catch (Throwable t) {
-			handleException(t);
-		}
-	}
+    public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
+        String command = (String) workItem.getParameter("Command");
+        CommandLine commandLine = CommandLine.parse(command);
+        DefaultExecutor executor = new DefaultExecutor();
+        try {
+            executor.execute(commandLine);
+            manager.completeWorkItem(workItem.getId(), null);
+        } catch (Throwable t) {
+            handleException(t);
+        }
+    }
 
-	public void abortWorkItem(WorkItem workItem, WorkItemManager manager) {
-		// Do nothing, this work item cannot be aborted
-	}
+    public void abortWorkItem(WorkItem workItem, WorkItemManager manager) {
+        // Do nothing, this work item cannot be aborted
+    }
 
 }

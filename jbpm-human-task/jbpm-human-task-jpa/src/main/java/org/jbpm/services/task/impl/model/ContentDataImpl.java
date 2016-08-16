@@ -23,69 +23,69 @@ import java.io.ObjectOutput;
 import org.kie.internal.task.api.model.AccessType;
 
 public class ContentDataImpl implements org.kie.internal.task.api.model.ContentData {
-	
-	private AccessType accessType;
-	private String type;
-	private byte[] content;
 
-	public AccessType getAccessType() {
-		return accessType;
-	}
+    private AccessType accessType;
+    private String type;
+    private byte[] content;
 
-	public void setAccessType(AccessType accessType) {
-		this.accessType = accessType;
-	}
+    public AccessType getAccessType() {
+        return accessType;
+    }
 
-	public String getType() {
-		return type;
-	}
+    public void setAccessType(AccessType accessType) {
+        this.accessType = accessType;
+    }
 
-	public void setType(String type) {
-		this.type = type;
-	}
+    public String getType() {
+        return type;
+    }
 
-	public byte[] getContent() {
-		return content;
-	}
+    public void setType(String type) {
+        this.type = type;
+    }
 
-	public void setContent(byte[] content) {
-		this.content = content;
-	}
+    public byte[] getContent() {
+        return content;
+    }
 
-	public void writeExternal(ObjectOutput out) throws IOException {
-		if ( accessType != null ) {
+    public void setContent(byte[] content) {
+        this.content = content;
+    }
+
+    public void writeExternal(ObjectOutput out) throws IOException {
+        if ( accessType != null ) {
             out.writeBoolean( true );
             out.writeUTF( accessType.toString() );
-		} else {
+        } else {
             out.writeBoolean( false );
         }
-		if ( type != null ) {
+        if ( type != null ) {
             out.writeBoolean( true );
             out.writeUTF( type );
-		} else {
+        } else {
             out.writeBoolean( false );
         }
-		if ( content != null ) {
+        if ( content != null ) {
             out.writeBoolean( true );
             out.writeInt( content.length );
             out.write( content );
-		} else {
+        } else {
             out.writeBoolean( false );
         }
     }
-    
+
     public void readExternal(ObjectInput in) throws IOException,
                                             ClassNotFoundException {
-    	if (in.readBoolean()) {
-    		accessType = AccessType.valueOf(in.readUTF());
-    	}
-    	if (in.readBoolean()) {
-    		type = in.readUTF();
-    	}
-    	if (in.readBoolean()) {
-    		content = new byte[ in.readInt() ];
-    		in.readFully( content );
-    	}
+        if (in.readBoolean()) {
+            accessType = AccessType.valueOf(in.readUTF());
+        }
+        if (in.readBoolean()) {
+            type = in.readUTF();
+        }
+        if (in.readBoolean()) {
+            content = new byte[ in.readInt() ];
+            in.readFully( content );
+        }
     }
 
 }

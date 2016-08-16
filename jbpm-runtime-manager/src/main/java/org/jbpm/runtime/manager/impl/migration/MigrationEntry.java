@@ -20,14 +20,14 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * Represent single entry of the process instance migration. 
+ * Represent single entry of the process instance migration.
  * Entry is classified as:
  * <ul>
  *  <li>INFO - information about performed operation</li>
  *  <li>WARN - indicates of possible issues or not recommended settings</li>
  *  <li>ERROR - indicates a failure within process instance migration and rollback</li>
- * </ul> 
- * 
+ * </ul>
+ *
  */
 public class MigrationEntry implements Serializable {
 
@@ -38,29 +38,29 @@ public class MigrationEntry implements Serializable {
         WARN,
         ERROR;
     }
-    
+
     private Date timestamp;
     private String message;
     private Type type;
-    
+
     public MigrationEntry(Type type, String message) {
         this.timestamp = new Date();
         this.type = type;
         this.message = message;
     }
-    
+
     public Date getTimestamp() {
         return timestamp;
     }
-    
+
     public void setTimestamp(Date timestamp) {
         this.timestamp = timestamp;
     }
-    
+
     public String getMessage() {
         return message;
     }
-    
+
     public void setMessage(String message) {
         this.message = message;
     }
@@ -77,5 +77,5 @@ public class MigrationEntry implements Serializable {
     public void setType(Type type) {
         this.type = type;
     }
-    
+
 }

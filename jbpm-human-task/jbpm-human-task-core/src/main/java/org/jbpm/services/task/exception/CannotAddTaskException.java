@@ -27,9 +27,9 @@ import org.kie.internal.task.exception.TaskException;
  */
 public class CannotAddTaskException extends TaskException {
 
-	private static final long serialVersionUID = 7726830444895556394L;
+    private static final long serialVersionUID = 7726830444895556394L;
 
-	public CannotAddTaskException(String message) {
+    public CannotAddTaskException(String message) {
         super(message);
     }
 

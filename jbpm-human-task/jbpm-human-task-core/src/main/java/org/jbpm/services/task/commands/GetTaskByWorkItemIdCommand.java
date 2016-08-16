@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -28,28 +28,28 @@ import org.kie.internal.command.Context;
 @XmlAccessorType(XmlAccessType.NONE)
 public class GetTaskByWorkItemIdCommand extends TaskCommand<Task> {
 
-	private static final long serialVersionUID = 6296898155907765061L;
+    private static final long serialVersionUID = 6296898155907765061L;
 
-	@XmlElement
+    @XmlElement
     @XmlSchemaType(name="long")
-	private Long workItemId;
-	
-	public GetTaskByWorkItemIdCommand() {
-	}
-	
-	public GetTaskByWorkItemIdCommand(Long workItemId) {
-		this.workItemId = workItemId;
+    private Long workItemId;
+
+    public GetTaskByWorkItemIdCommand() {
     }
-	
+
+    public GetTaskByWorkItemIdCommand(Long workItemId) {
+        this.workItemId = workItemId;
+    }
+
     public Long getWorkItemId() {
-		return workItemId;
-	}
+        return workItemId;
+    }
 
-	public void setWorkItemId(Long workItemId) {
-		this.workItemId = workItemId;
-	}
+    public void setWorkItemId(Long workItemId) {
+        this.workItemId = workItemId;
+    }
 
-	public Task execute(Context cntxt) {
+    public Task execute(Context cntxt) {
         TaskContext context = (TaskContext) cntxt;
 
         return context.getTaskQueryService().getTaskByWorkItemId(workItemId);

@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -46,18 +46,18 @@ import org.slf4j.LoggerFactory;
  */
 @Ignore
 public class MultipleProcessesPerThreadTest extends AbstractBaseTest {
-    
+
     private static final int LOOPS = 1000;
-    
+
     private static final Logger logger = LoggerFactory.getLogger(MultipleProcessesPerThreadTest.class);
-    
+
     protected static StatefulKnowledgeSession createStatefulKnowledgeSession(KnowledgeBase kbase) {
         return kbase.newStatefulKnowledgeSession();
     }
-    
+
     @Test
     public void doMultipleProcessesInMultipleThreads() {
-        
+
         HelloWorldProcessThread hello = new HelloWorldProcessThread();
         UserTaskProcessThread user = new UserTaskProcessThread();
 
@@ -70,7 +70,7 @@ public class MultipleProcessesPerThreadTest extends AbstractBaseTest {
         } catch (Throwable t) {
             t.printStackTrace();
         }
-        
+
         assertTrue( "Hello World process thread did not complete successfully", hello.status == Status.SUCCESS );
         assertTrue( "User Task process thread did not complete successfully", user.status == Status.SUCCESS );
     }
@@ -89,15 +89,15 @@ public class MultipleProcessesPerThreadTest extends AbstractBaseTest {
         public void run() {
             this.status = Status.SUCCESS;
             StatefulKnowledgeSession ksession = null;
-            
-            try { 
+
+            try {
                 KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
                 kbuilder.add(ResourceFactory.newClassPathResource("BPMN2-MultiThreadServiceProcess-Timer.bpmn", getClass()), ResourceType.BPMN2);
                 KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
                 kbase.addKnowledgePackages(kbuilder.getKnowledgePackages());
 
                 ksession = createStatefulKnowledgeSession(kbase);
-            } catch(Exception e) { 
+            } catch(Exception e) {
                 e.printStackTrace();
                 logger.error("Unable to set up knowlede base or session.", e);
                 this.status = Status.FAIL;
@@ -122,7 +122,7 @@ public class MultipleProcessesPerThreadTest extends AbstractBaseTest {
                     t.printStackTrace();
                 }
             }
-            
+
         }
 
         public synchronized void join() throws InterruptedException {
@@ -144,20 +144,20 @@ public class MultipleProcessesPerThreadTest extends AbstractBaseTest {
         public void run() {
             this.status = Status.SUCCESS;
             StatefulKnowledgeSession ksession = null;
-            
-            try { 
+
+            try {
                 KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
                 kbuilder.add(ResourceFactory.newClassPathResource("BPMN2-MultiThreadServiceProcess-Task.bpmn", getClass()), ResourceType.BPMN2);
                 KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
                 kbase.addKnowledgePackages(kbuilder.getKnowledgePackages());
 
                 ksession = createStatefulKnowledgeSession(kbase);
-            } catch(Exception e) { 
+            } catch(Exception e) {
                 e.printStackTrace();
                 logger.error("Unable to set up knowlede base or session.", e);
                 this.status = Status.FAIL;
             }
-            
+
             TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
             ksession.getWorkItemManager().registerWorkItemHandler("Human Task", workItemHandler);
 
@@ -196,7 +196,7 @@ public class MultipleProcessesPerThreadTest extends AbstractBaseTest {
                     t.printStackTrace();
                 }
             }
-            
+
 
         }
 

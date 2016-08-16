@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -24,28 +24,28 @@ import org.kie.internal.task.api.TaskPersistenceContext;
 import org.kie.internal.task.api.TaskPersistenceContextManager;
 
 public class JPATaskPersistenceContextManager extends
-		AbstractPersistenceContextManager implements
-		TaskPersistenceContextManager {
-	
-	public JPATaskPersistenceContextManager(Environment environment) {
-		super(environment);
-	}
+        AbstractPersistenceContextManager implements
+        TaskPersistenceContextManager {
 
-	@Override
-	public TaskPersistenceContext getPersistenceContext() {
-		Boolean locking = (Boolean) env.get(EnvironmentName.USE_PESSIMISTIC_LOCKING);
-        if( locking == null ) { 
+    public JPATaskPersistenceContextManager(Environment environment) {
+        super(environment);
+    }
+
+    @Override
+    public TaskPersistenceContext getPersistenceContext() {
+        Boolean locking = (Boolean) env.get(EnvironmentName.USE_PESSIMISTIC_LOCKING);
+        if( locking == null ) {
             locking = false;
         }
-        
-        boolean useJTA = true; 
-		EntityManager em = getCommandScopedEntityManager();
-		return new JPATaskPersistenceContext(em, useJTA, locking);
-	}
 
-	@Override
-	public void beginCommandScopedEntityManager() {
-		getCommandScopedEntityManager();
-	}
+        boolean useJTA = true;
+        EntityManager em = getCommandScopedEntityManager();
+        return new JPATaskPersistenceContext(em, useJTA, locking);
+    }
+
+    @Override
+    public void beginCommandScopedEntityManager() {
+        getCommandScopedEntityManager();
+    }
 
 }

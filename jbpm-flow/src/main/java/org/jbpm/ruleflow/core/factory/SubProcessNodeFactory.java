@@ -40,9 +40,9 @@ public class SubProcessNodeFactory extends NodeFactory {
     protected Node createNode() {
         return new SubProcessNode();
     }
-    
+
     protected SubProcessNode getSubProcessNode() {
-    	return (SubProcessNode) getNode();
+        return (SubProcessNode) getNode();
     }
 
     public SubProcessNodeFactory name(String name) {
@@ -51,33 +51,33 @@ public class SubProcessNodeFactory extends NodeFactory {
     }
 
     public SubProcessNodeFactory processId(final String processId) {
-    	getSubProcessNode().setProcessId(processId);
+        getSubProcessNode().setProcessId(processId);
         return this;
     }
 
     public SubProcessNodeFactory waitForCompletion(boolean waitForCompletion) {
-    	getSubProcessNode().setWaitForCompletion(waitForCompletion);
+        getSubProcessNode().setWaitForCompletion(waitForCompletion);
         return this;
     }
 
     public SubProcessNodeFactory inMapping(String parameterName, String variableName) {
-    	getSubProcessNode().addInMapping(parameterName, variableName);
+        getSubProcessNode().addInMapping(parameterName, variableName);
         return this;
     }
 
     public SubProcessNodeFactory outMapping(String parameterName, String variableName) {
-    	getSubProcessNode().addOutMapping(parameterName, variableName);
+        getSubProcessNode().addOutMapping(parameterName, variableName);
         return this;
     }
 
     public SubProcessNodeFactory independent(boolean independent) {
-    	getSubProcessNode().setIndependent(independent);
+        getSubProcessNode().setIndependent(independent);
         return this;
     }
 
     public SubProcessNodeFactory onEntryAction(String dialect, String action) {
         if (getSubProcessNode().getActions(dialect) != null) {
-        	getSubProcessNode().getActions(dialect).add(new DroolsConsequenceAction(dialect, action));
+            getSubProcessNode().getActions(dialect).add(new DroolsConsequenceAction(dialect, action));
         } else {
             List<DroolsAction> actions = new ArrayList<DroolsAction>();
             actions.add(new DroolsConsequenceAction(dialect, action));
@@ -88,7 +88,7 @@ public class SubProcessNodeFactory extends NodeFactory {
 
     public SubProcessNodeFactory onExitAction(String dialect, String action) {
         if (getSubProcessNode().getActions(dialect) != null) {
-        	getSubProcessNode().getActions(dialect).add(new DroolsConsequenceAction(dialect, action));
+            getSubProcessNode().getActions(dialect).add(new DroolsConsequenceAction(dialect, action));
         } else {
             List<DroolsAction> actions = new ArrayList<DroolsAction>();
             actions.add(new DroolsConsequenceAction(dialect, action));
@@ -98,11 +98,11 @@ public class SubProcessNodeFactory extends NodeFactory {
     }
 
     public SubProcessNodeFactory timer(String delay, String period, String dialect, String action) {
-    	Timer timer = new Timer();
-    	timer.setDelay(delay);
-    	timer.setPeriod(period);
-    	getSubProcessNode().addTimer(timer, new DroolsConsequenceAction(dialect, action));
-    	return this;
+        Timer timer = new Timer();
+        timer.setDelay(delay);
+        timer.setPeriod(period);
+        getSubProcessNode().addTimer(timer, new DroolsConsequenceAction(dialect, action));
+        return this;
     }
-    
+
 }

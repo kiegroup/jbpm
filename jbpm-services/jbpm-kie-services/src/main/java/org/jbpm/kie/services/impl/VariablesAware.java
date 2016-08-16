@@ -19,16 +19,16 @@ package org.jbpm.kie.services.impl;
 /**
  * Provides additional hook to process variables before they will be used by services.
  * Common use case might be to unwrap variables from some transport related "cover"
- *  
+ *
  */
 public interface VariablesAware {
 
-	/**
-	 * Generic processing method that might be simply returning same instance of variables
-	 * if no processing is required.
-	 * @param variables object that holds varialble(s)
-	 * @param cl classloader that shall be used to operate on the variables e.g. project class loader
-	 * @return
-	 */
-	<T> T  process(T variables, ClassLoader cl);
+    /**
+     * Generic processing method that might be simply returning same instance of variables
+     * if no processing is required.
+     * @param variables object that holds varialble(s)
+     * @param cl classloader that shall be used to operate on the variables e.g. project class loader
+     * @return
+     */
+    <T> T  process(T variables, ClassLoader cl);
 }

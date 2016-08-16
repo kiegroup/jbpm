@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -22,40 +22,40 @@ import org.kie.internal.task.api.ContentMarshallerContext;
 
 public class TaskContentRegistry {
 
-	private static TaskContentRegistry INSTANCE = new TaskContentRegistry();
-	
+    private static TaskContentRegistry INSTANCE = new TaskContentRegistry();
+
     private ConcurrentHashMap<String, ContentMarshallerContext> marhsalContexts = new ConcurrentHashMap<String, ContentMarshallerContext>();
-    
+
     private TaskContentRegistry() {
-    	
+
     }
-	public static TaskContentRegistry get() {
-		return INSTANCE;
-	}
-    
-	public synchronized void addMarshallerContext(String ownerId, ContentMarshallerContext context) {
-		this.marhsalContexts.put(ownerId, context);
-	}
+    public static TaskContentRegistry get() {
+        return INSTANCE;
+    }
 
-	
-	public synchronized void removeMarshallerContext(String ownerId) {
-		this.marhsalContexts.remove(ownerId);
-	}
+    public synchronized void addMarshallerContext(String ownerId, ContentMarshallerContext context) {
+        this.marhsalContexts.put(ownerId, context);
+    }
 
-	
-	public ContentMarshallerContext getMarshallerContext(Task task) {
-		if (task.getTaskData().getDeploymentId() != null && this.marhsalContexts.containsKey(task.getTaskData().getDeploymentId())) {
+
+    public synchronized void removeMarshallerContext(String ownerId) {
+        this.marhsalContexts.remove(ownerId);
+    }
+
+
+    public ContentMarshallerContext getMarshallerContext(Task task) {
+        if (task.getTaskData().getDeploymentId() != null && this.marhsalContexts.containsKey(task.getTaskData().getDeploymentId())) {
             return this.marhsalContexts.get(task.getTaskData().getDeploymentId());
         }
-        
+
         return new ContentMarshallerContext();
-	}
-	
-	public ContentMarshallerContext getMarshallerContext(String deploymentId) {
-		if (deploymentId != null && this.marhsalContexts.containsKey(deploymentId)) {
+    }
+
+    public ContentMarshallerContext getMarshallerContext(String deploymentId) {
+        if (deploymentId != null && this.marhsalContexts.containsKey(deploymentId)) {
             return this.marhsalContexts.get(deploymentId);
         }
-        
+
         return new ContentMarshallerContext();
-	}
+    }
 }

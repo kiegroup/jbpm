@@ -22,15 +22,15 @@ import org.kie.internal.task.api.TaskContext;
 import org.kie.internal.task.api.TaskPersistenceContext;
 
 public class CleanUpCommand extends TaskCommand<Void>{
-	private static final long serialVersionUID = 7161011443481073090L;
+    private static final long serialVersionUID = 7161011443481073090L;
 
-	@Override
-	public Void execute(Context context) {
-		TaskPersistenceContext persistenceContext = ((TaskContext) context).getPersistenceContext();
+    @Override
+    public Void execute(Context context) {
+        TaskPersistenceContext persistenceContext = ((TaskContext) context).getPersistenceContext();
         persistenceContext.executeUpdateString("delete from  NodeInstanceLog nid");
         persistenceContext.executeUpdateString("delete from  ProcessInstanceLog pid");
         persistenceContext.executeUpdateString("delete from  VariableInstanceLog vsd");
         persistenceContext.executeUpdateString("delete from  AuditTaskImpl vsd");
-		return null;
-	}
+        return null;
+    }
 }

@@ -31,7 +31,7 @@ import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessInstance;
 
 /**
- * This class tests the following classes: 
+ * This class tests the following classes:
  * <ul>
  * <li>WorkingMemoryDbLogger</li>
  * </ul>
@@ -39,35 +39,35 @@ import org.kie.api.runtime.process.ProcessInstance;
 public class WorkingMemoryDbLoggerWithSeparateLoggingEmfTest extends AbstractWorkingMemoryDbLoggerTest {
 
     private KieSession ksession = null;
-   
+
     private EntityManagerFactory emf;
-    
+
     @Before
-    public void beforeThis() { 
+    public void beforeThis() {
         emf = Persistence.createEntityManagerFactory("org.jbpm.logging.jta");
         logService = new JPAAuditLogService(emf);
     }
-   
+
     @After
-    public void afterThis() { 
-       if( emf != null && emf.isOpen() ) { 
+    public void afterThis() {
+       if( emf != null && emf.isOpen() ) {
            emf.close();
        }
        emf = null;
     }
-    
+
     @Override
     public ProcessInstance startProcess(String processName) {
-        if( ksession == null ) { 
+        if( ksession == null ) {
             KieBase kbase = createKnowledgeBase();
-            
+
             Environment env = createEnvironment(context);
             ksession = createKieSession(kbase, env);
-            
+
             ksession.addEventListener(new JPAWorkingMemoryDbLogger(emf));
             ksession.getWorkItemManager().registerWorkItemHandler("Human Task", new SystemOutWorkItemHandler());
         }
         return ksession.startProcess(processName);
     }
-    
+
 }

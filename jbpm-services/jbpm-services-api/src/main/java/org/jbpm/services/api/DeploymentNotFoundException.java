@@ -18,14 +18,14 @@ package org.jbpm.services.api;
 
 public class DeploymentNotFoundException extends RuntimeException {
 
-	private static final long serialVersionUID = 4139469799335673649L;
-	
-	public DeploymentNotFoundException(String message) {
-		super(message);
-	}
+    private static final long serialVersionUID = 4139469799335673649L;
 
-	public DeploymentNotFoundException(String message, Throwable t) {
-		super(message, t);
-	}
+    public DeploymentNotFoundException(String message) {
+        super(message);
+    }
+
+    public DeploymentNotFoundException(String message, Throwable t) {
+        super(message, t);
+    }
 
 }

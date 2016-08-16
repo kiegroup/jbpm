@@ -31,19 +31,19 @@ import org.kie.internal.task.api.UserInfo;
 @Selectable
 public class LDAPUserGroupInfoProducer implements UserGroupInfoProducer {
 
-	private UserGroupCallback callback = new LDAPUserGroupCallbackImpl(true);
-	private UserInfo userInfo = new LDAPUserInfoImpl(true);
-	
-	@Override
-	@Produces
-	public UserGroupCallback produceCallback() {
-		return callback;
-	}
+    private UserGroupCallback callback = new LDAPUserGroupCallbackImpl(true);
+    private UserInfo userInfo = new LDAPUserInfoImpl(true);
 
-	@Override
-	@Produces
-	public UserInfo produceUserInfo() {
-		return userInfo;
-	}
+    @Override
+    @Produces
+    public UserGroupCallback produceCallback() {
+        return callback;
+    }
+
+    @Override
+    @Produces
+    public UserInfo produceUserInfo() {
+        return userInfo;
+    }
 
 }

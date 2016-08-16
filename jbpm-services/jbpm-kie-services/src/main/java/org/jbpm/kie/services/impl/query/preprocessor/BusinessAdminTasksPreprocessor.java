@@ -30,8 +30,8 @@ import org.kie.internal.identity.IdentityProvider;
 public class BusinessAdminTasksPreprocessor implements DataSetPreprocessor {
 
     private IdentityProvider identityProvider;
-    
-    
+
+
     public BusinessAdminTasksPreprocessor(IdentityProvider identityProvider) {
         this.identityProvider = identityProvider;
     }
@@ -43,10 +43,10 @@ public class BusinessAdminTasksPreprocessor implements DataSetPreprocessor {
         if (identityProvider == null) {
             return;
         }
-        
+
         List<Comparable> orgEntities = new ArrayList<Comparable>(identityProvider.getRoles());
         orgEntities.add(identityProvider.getName());
-               
+
         if (lookup.getFirstFilterOp() != null) {
             lookup.getFirstFilterOp().addFilterColumn(equalsTo(COLUMN_ORGANIZATIONAL_ENTITY, orgEntities));
         } else {

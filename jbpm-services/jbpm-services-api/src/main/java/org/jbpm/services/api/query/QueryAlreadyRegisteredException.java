@@ -18,14 +18,14 @@ package org.jbpm.services.api.query;
 
 public class QueryAlreadyRegisteredException extends RuntimeException {
 
-	private static final long serialVersionUID = 4139469799335556639L;
-	
-	public QueryAlreadyRegisteredException(String message) {
-		super(message);
-	}
+    private static final long serialVersionUID = 4139469799335556639L;
 
-	public QueryAlreadyRegisteredException(String message, Throwable t) {
-		super(message, t);
-	}
+    public QueryAlreadyRegisteredException(String message) {
+        super(message);
+    }
+
+    public QueryAlreadyRegisteredException(String message, Throwable t) {
+        super(message, t);
+    }
 
 }

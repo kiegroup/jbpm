@@ -23,7 +23,7 @@ import java.lang.annotation.Target;
 import javax.inject.Qualifier;
 
 /**
- * Defines a annotated element that is of type Process and is used with 
+ * Defines a annotated element that is of type Process and is used with
  * <code>EventListenerProducer</code>
  */
 @Qualifier

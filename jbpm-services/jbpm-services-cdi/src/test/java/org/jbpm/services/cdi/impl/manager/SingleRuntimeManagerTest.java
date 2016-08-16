@@ -52,11 +52,11 @@ import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 
 @RunWith(Arquillian.class)
 public class SingleRuntimeManagerTest extends AbstractKieServicesBaseTest {
-    
+
     @Deployment()
     public static Archive<?> createDeployment() {
         return ShrinkWrap.create(JavaArchive.class, "jbpm-runtime-manager.jar")
-        		.addPackage("org.jbpm.services.task")
+                .addPackage("org.jbpm.services.task")
                 .addPackage("org.jbpm.services.task.wih") // work items org.jbpm.services.task.wih
                 .addPackage("org.jbpm.services.task.annotations")
                 .addPackage("org.jbpm.services.task.api")
@@ -81,32 +81,32 @@ public class SingleRuntimeManagerTest extends AbstractKieServicesBaseTest {
                 .addPackage("org.kie.internal.runtime.manager")
                 .addPackage("org.kie.internal.runtime.manager.context")
                 .addPackage("org.kie.internal.runtime.manager.cdi.qualifier")
-                
+
                 .addPackage("org.jbpm.runtime.manager.impl")
-                .addPackage("org.jbpm.runtime.manager.impl.cdi")                               
+                .addPackage("org.jbpm.runtime.manager.impl.cdi")
                 .addPackage("org.jbpm.runtime.manager.impl.factory")
                 .addPackage("org.jbpm.runtime.manager.impl.jpa")
                 .addPackage("org.jbpm.runtime.manager.impl.manager")
                 .addPackage("org.jbpm.runtime.manager.impl.task")
                 .addPackage("org.jbpm.runtime.manager.impl.tx")
-                
+
                 .addPackage("org.jbpm.shared.services.api")
                 .addPackage("org.jbpm.shared.services.impl")
                 .addPackage("org.jbpm.shared.services.impl.tx")
-                
+
                 .addPackage("org.jbpm.kie.services.api")
-                .addPackage("org.jbpm.kie.services.impl")                
+                .addPackage("org.jbpm.kie.services.impl")
                 .addPackage("org.jbpm.kie.services.api.bpmn2")
                 .addPackage("org.jbpm.kie.services.impl.bpmn2")
                 .addPackage("org.jbpm.kie.services.impl.event.listeners")
                 .addPackage("org.jbpm.kie.services.impl.audit")
                 .addPackage("org.jbpm.kie.services.impl.form")
                 .addPackage("org.jbpm.kie.services.impl.form.provider")
-                .addPackage("org.jbpm.kie.services.impl.query")  
-                .addPackage("org.jbpm.kie.services.impl.query.mapper")  
-                .addPackage("org.jbpm.kie.services.impl.query.persistence")  
-                .addPackage("org.jbpm.kie.services.impl.query.preprocessor")  
-                
+                .addPackage("org.jbpm.kie.services.impl.query")
+                .addPackage("org.jbpm.kie.services.impl.query.mapper")
+                .addPackage("org.jbpm.kie.services.impl.query.persistence")
+                .addPackage("org.jbpm.kie.services.impl.query.preprocessor")
+
                 .addPackage("org.jbpm.services.cdi")
                 .addPackage("org.jbpm.services.cdi.impl")
                 .addPackage("org.jbpm.services.cdi.impl.form")
@@ -114,7 +114,7 @@ public class SingleRuntimeManagerTest extends AbstractKieServicesBaseTest {
                 .addPackage("org.jbpm.services.cdi.producer")
                 .addPackage("org.jbpm.services.cdi.impl.security")
                 .addPackage("org.jbpm.services.cdi.impl.query")
-                
+
                 .addPackage("org.jbpm.kie.services.test")
                 .addPackage("org.jbpm.services.cdi.test") // Identity Provider Test Impl here
                 .addClass("org.jbpm.services.cdi.test.util.CDITestHelperNoTaskService")
@@ -126,13 +126,13 @@ public class SingleRuntimeManagerTest extends AbstractKieServicesBaseTest {
                 .addAsManifestResource("META-INF/beans.xml", ArchivePaths.create("beans.xml"));
 
     }
-    
+
     @BeforeClass
     public static void setup() {
         TestUtil.cleanupSingletonSessionId();
         Properties props = new Properties();
         props.setProperty("john", "user");
-        
+
     }
 
     @After
@@ -142,10 +142,10 @@ public class SingleRuntimeManagerTest extends AbstractKieServicesBaseTest {
         perProcessInstanceManager.close();
     }
 
-	@Override
-	protected void configureServices() {
-		// do nothing here and let CDI configure services 
-	}
+    @Override
+    protected void configureServices() {
+        // do nothing here and let CDI configure services
+    }
     /*
      * end of initialization code, tests start here
      */
@@ -153,68 +153,68 @@ public class SingleRuntimeManagerTest extends AbstractKieServicesBaseTest {
     @Inject
     @Singleton
     private RuntimeManager singletonManager;
-    
+
     @Inject
     @PerRequest
     private RuntimeManager perRequestManager;
-    
+
     @Inject
     @PerProcessInstance
     private RuntimeManager perProcessInstanceManager;
-    
+
     @Test
     public void testSingleSingletonManager() {
         assertNotNull(singletonManager);
-        
+
         RuntimeEngine runtime = singletonManager.getRuntimeEngine(EmptyContext.get());
         assertNotNull(runtime);
         testProcessStartOnManager(runtime);
-        
-        singletonManager.disposeRuntimeEngine(runtime);     
+
+        singletonManager.disposeRuntimeEngine(runtime);
     }
-    
+
     @Test
     public void testSinglePerRequestManager() {
         assertNotNull(perRequestManager);
-        
+
         RuntimeEngine runtime = perRequestManager.getRuntimeEngine(EmptyContext.get());
         assertNotNull(runtime);
-        testProcessStartOnManager(runtime);   
+        testProcessStartOnManager(runtime);
         perRequestManager.disposeRuntimeEngine(runtime);
     }
-    
+
     @Test
     public void testSinglePerProcessInstanceManager() {
         assertNotNull(perProcessInstanceManager);
-        
+
         RuntimeEngine runtime = perProcessInstanceManager.getRuntimeEngine(ProcessInstanceIdContext.get());
         assertNotNull(runtime);
-        testProcessStartOnManager(runtime);  
+        testProcessStartOnManager(runtime);
         perProcessInstanceManager.disposeRuntimeEngine(runtime);
     }
-    
-    
+
+
     private void testProcessStartOnManager(RuntimeEngine runtime) {
-        
-        
+
+
         KieSession ksession = runtime.getKieSession();
         assertNotNull(ksession);
-        
+
         ProcessInstance processInstance = ksession.startProcess("UserTask");
         assertNotNull(processInstance);
-        
+
         List<Status> statuses = new ArrayList<Status>();
         statuses.add(Status.Reserved);
         List<TaskSummary> tasks = runtime.getTaskService().getTasksOwnedByStatus("john", statuses, "en-UK");
         assertNotNull(tasks);
         assertEquals(1, tasks.size());
-        
+
         runtime.getTaskService().start(tasks.get(0).getId(), "john");
-        
+
         runtime.getTaskService().complete(tasks.get(0).getId(), "john", null);
-        
+
         processInstance = ksession.getProcessInstance(processInstance.getId());
         assertNull(processInstance);
     }
-    
+
 }

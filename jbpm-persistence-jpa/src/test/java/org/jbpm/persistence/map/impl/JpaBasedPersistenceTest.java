@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -45,23 +45,23 @@ public class JpaBasedPersistenceTest extends MapPersistenceTest {
     private EntityManagerFactory emf;
     private JtaTransactionManager txm;
     private boolean useTransactions = false;
-    
-    public JpaBasedPersistenceTest(boolean locking) { 
-       this.useLocking = locking; 
+
+    public JpaBasedPersistenceTest(boolean locking) {
+       this.useLocking = locking;
     }
-    
+
     @Parameters
     public static Collection<Object[]> persistence() {
         Object[][] data = new Object[][] { { false }, { true } };
         return Arrays.asList(data);
     };
-    
+
     @Before
     public void setUp() throws Exception {
         context = PersistenceUtil.setupWithPoolingDataSource(JBPM_PERSISTENCE_UNIT_NAME);
         emf = (EntityManagerFactory) context.get(ENTITY_MANAGER_FACTORY);
-        
-        if( useTransactions() ) { 
+
+        if( useTransactions() ) {
             useTransactions = true;
             Environment env = createEnvironment(context);
             Object tm = env.get( EnvironmentName.TRANSACTION_MANAGER );
@@ -70,16 +70,16 @@ public class JpaBasedPersistenceTest extends MapPersistenceTest {
                 tm );
         }
     }
-    
+
     @After
     public void tearDown() throws Exception {
-       cleanUp(context); 
+       cleanUp(context);
     }
-    
+
     @Override
     protected StatefulKnowledgeSession createSession(KieBase kbase) {
         Environment env = createEnvironment(context);
-        if( this.useLocking ) { 
+        if( this.useLocking ) {
             env.set(USE_PESSIMISTIC_LOCKING, true);
         }
         return JPAKnowledgeService.newStatefulKnowledgeSession( kbase, null, env);
@@ -95,11 +95,11 @@ public class JpaBasedPersistenceTest extends MapPersistenceTest {
     @Override
     protected int getProcessInstancesCount() {
         boolean txOwner = false;
-        if( useTransactions ) { 
+        if( useTransactions ) {
             txOwner = txm.begin();
         }
         int size =  emf.createEntityManager().createQuery( "FROM ProcessInstanceInfo" ).getResultList().size();
-        if( useTransactions ) { 
+        if( useTransactions ) {
             txm.commit(txOwner);
         }
         return size;
@@ -108,11 +108,11 @@ public class JpaBasedPersistenceTest extends MapPersistenceTest {
     @Override
     protected int getKnowledgeSessionsCount() {
         boolean transactionOwner = false;
-        if( useTransactions ) { 
+        if( useTransactions ) {
             transactionOwner = txm.begin();
         }
         int size = emf.createEntityManager().createQuery( "FROM SessionInfo" ).getResultList().size();
-        if( useTransactions ) { 
+        if( useTransactions ) {
             txm.commit(transactionOwner);
         }
         return size;

@@ -38,15 +38,15 @@ import org.slf4j.LoggerFactory;
 /**
  * Extension to the regular <code>JpaTimerJobInstance</code> that makes use of
  * GlobalTimerService to allow auto reactivate session.
- * 
+ *
  * Important to note is that when timer service created session this job instance
  * will dispose that session to leave it in the same state it was before job was executed
  * to avoid concurrent usage of the same session by different threads
  *
  */
 public class GlobalJpaTimerJobInstance extends JpaTimerJobInstance {
-	
-	private static final Logger logger = LoggerFactory.getLogger(GlobalJpaTimerJobInstance.class);
+
+    private static final Logger logger = LoggerFactory.getLogger(GlobalJpaTimerJobInstance.class);
 
     private static final long serialVersionUID = -5383556604449217342L;
     private String timerServiceId;
@@ -62,103 +62,103 @@ public class GlobalJpaTimerJobInstance extends JpaTimerJobInstance {
         CommandService commandService = null;
         TransactionManager jtaTm = null;
         boolean success = false;
-        try { 
+        try {
             JDKCallableJobCommand command = new JDKCallableJobCommand( this );
             if (scheduler == null) {
                 scheduler = (InternalSchedulerService) TimerServiceRegistry.getInstance().get(timerServiceId);
             }
             if (scheduler == null) {
-            	throw new RuntimeException("No scheduler found for " + timerServiceId);
+                throw new RuntimeException("No scheduler found for " + timerServiceId);
             }
             jtaTm = startTxIfNeeded(((GlobalTimerService) scheduler).getRuntimeManager().getEnvironment().getEnvironment());
-            
+
             commandService = ((GlobalTimerService) scheduler).getCommandService(getJobContext());
-            
+
             commandService.execute( command );
             GlobalJPATimerJobFactoryManager timerService = ((GlobalJPATimerJobFactoryManager)((GlobalTimerService) scheduler).getTimerJobFactoryManager());
             timerService.removeTimerJobInstance(((DefaultJobHandle)getJobHandle()).getTimerJobInstance());
             success = true;
             return null;
-        } catch( Exception e ) { 
-        	e.printStackTrace();
-        	success = false;
+        } catch( Exception e ) {
+            e.printStackTrace();
+            success = false;
             throw e;
         } finally {
             if (commandService != null && commandService instanceof DisposableCommandService) {
-            	if (allowedToDispose(((DisposableCommandService) commandService).getEnvironment())) {
-            		logger.debug("Allowed to dispose command service from global timer job instance");
-            		((DisposableCommandService) commandService).dispose();
-            	}
+                if (allowedToDispose(((DisposableCommandService) commandService).getEnvironment())) {
+                    logger.debug("Allowed to dispose command service from global timer job instance");
+                    ((DisposableCommandService) commandService).dispose();
+                }
             }
             closeTansactionIfNeeded(jtaTm, success);
         }
     }
-    
+
     @Override
-	public String toString() {
-		return "GlobalJpaTimerJobInstance [timerServiceId=" + timerServiceId
-				+ ", getJobHandle()=" + getJobHandle() + "]";
-	}
+    public String toString() {
+        return "GlobalJpaTimerJobInstance [timerServiceId=" + timerServiceId
+                + ", getJobHandle()=" + getJobHandle() + "]";
+    }
 
-	protected boolean allowedToDispose(Environment environment) {
-    	if (hasEnvironmentEntry(environment, "IS_JTA_TRANSACTION", false)) {
-    		return true;
-    	}
-    	TransactionManager transactionManager = null;
-    	Object txm = environment.get(EnvironmentName.TRANSACTION_MANAGER);
-    	if (txm != null && txm instanceof TransactionManager) {
-    		transactionManager = (TransactionManager) txm;
-    	} else {    	
-    		transactionManager = TransactionManagerFactory.get().newTransactionManager();
-    	}
-    	int status = transactionManager.getStatus();
+    protected boolean allowedToDispose(Environment environment) {
+        if (hasEnvironmentEntry(environment, "IS_JTA_TRANSACTION", false)) {
+            return true;
+        }
+        TransactionManager transactionManager = null;
+        Object txm = environment.get(EnvironmentName.TRANSACTION_MANAGER);
+        if (txm != null && txm instanceof TransactionManager) {
+            transactionManager = (TransactionManager) txm;
+        } else {
+            transactionManager = TransactionManagerFactory.get().newTransactionManager();
+        }
+        int status = transactionManager.getStatus();
 
-    	if (status != TransactionManager.STATUS_NO_TRANSACTION
+        if (status != TransactionManager.STATUS_NO_TRANSACTION
                 && status != TransactionManager.STATUS_ROLLEDBACK
                 && status != TransactionManager.STATUS_COMMITTED) {
-    		return false;
-    	}
-    	
-    	return true;
+            return false;
+        }
+
+        return true;
     }
-    
+
     protected boolean hasEnvironmentEntry(Environment environment, String name, Object value) {
-    	Object envEntry = environment.get(name);
-    	if (value == null) {
-    		return envEntry == null;
-    	}
-    	return value.equals(envEntry);
+        Object envEntry = environment.get(name);
+        if (value == null) {
+            return envEntry == null;
+        }
+        return value.equals(envEntry);
     }
-    
+
     protected TransactionManager startTxIfNeeded(Environment environment) {
 
-    	try {	    	
-	    	if (hasEnvironmentEntry(environment, "IS_TIMER_CMT", true)) {
-        		return null;
-        	}
-    		if (environment.get(EnvironmentName.TRANSACTION_MANAGER) instanceof ContainerManagedTransactionManager) {
-    			TransactionManager tm = TransactionManagerFactory.get().newTransactionManager();
-    			
-    			if (tm.begin()) {    			
-    				return tm;
-    			}
-    		}
-	    	
-    	} catch (Exception e) {
-    		logger.debug("Unable to optionally start transaction due to {}", e.getMessage(), e);
-    	}
-    	
-    	return null;
+        try {
+            if (hasEnvironmentEntry(environment, "IS_TIMER_CMT", true)) {
+                return null;
+            }
+            if (environment.get(EnvironmentName.TRANSACTION_MANAGER) instanceof ContainerManagedTransactionManager) {
+                TransactionManager tm = TransactionManagerFactory.get().newTransactionManager();
+
+                if (tm.begin()) {
+                    return tm;
+                }
+            }
+
+        } catch (Exception e) {
+            logger.debug("Unable to optionally start transaction due to {}", e.getMessage(), e);
+        }
+
+        return null;
     }
-    
+
     protected void closeTansactionIfNeeded(TransactionManager jtaTm, boolean commit) {
-    	if (jtaTm != null) {
-    		if (commit) {
-    			jtaTm.commit(true);
-    		} else {
-    			jtaTm.rollback(true);
-    		}
-    	}
+        if (jtaTm != null) {
+            if (commit) {
+                jtaTm.commit(true);
+            } else {
+                jtaTm.rollback(true);
+            }
+        }
     }
 
 }

@@ -27,31 +27,31 @@ import bitronix.tm.resource.jdbc.PoolingDataSource;
 
 public class SubTasksLocalTest extends SubTasksBaseTest {
 
-	private PoolingDataSource pds;
-	private EntityManagerFactory emf;
-	
-	@Before
-	public void setup() {
-		pds = setupPoolingDataSource();
-		emf = Persistence.createEntityManagerFactory( "org.jbpm.services.task" );
+    private PoolingDataSource pds;
+    private EntityManagerFactory emf;
 
-		this.taskService = (InternalTaskService) HumanTaskServiceFactory.newTaskServiceConfigurator()
-												.entityManagerFactory(emf)
-												.getTaskService();
-	}
-	
-	@After
-	public void clean() {
-		super.tearDown();
-		if (emf != null) {
-			emf.close();
-		}
-		if (pds != null) {
-			pds.close();
-		}
-	}
+    @Before
+    public void setup() {
+        pds = setupPoolingDataSource();
+        emf = Persistence.createEntityManagerFactory( "org.jbpm.services.task" );
 
-	public EntityManagerFactory getEmf() { 
-	    return emf;
-	}
+        this.taskService = (InternalTaskService) HumanTaskServiceFactory.newTaskServiceConfigurator()
+                                                .entityManagerFactory(emf)
+                                                .getTaskService();
+    }
+
+    @After
+    public void clean() {
+        super.tearDown();
+        if (emf != null) {
+            emf.close();
+        }
+        if (pds != null) {
+            pds.close();
+        }
+    }
+
+    public EntityManagerFactory getEmf() {
+        return emf;
+    }
 }

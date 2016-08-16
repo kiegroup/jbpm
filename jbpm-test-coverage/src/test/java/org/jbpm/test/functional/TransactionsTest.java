@@ -175,7 +175,7 @@ public class TransactionsTest extends JbpmTestCase {
 
         Assertions.assertThat(process.wasNodeLeft(scriptNodeName)).isTrue();
         ksession.signalEvent("finish", null, processId);
-        
+
         assertTrue( "Process was not completed on time!", process.waitForProcessToComplete(1000));
         assertProcessInstanceCompleted(processId);
     }
@@ -272,10 +272,10 @@ public class TransactionsTest extends JbpmTestCase {
         String timerNodeName = "timer";
         assertTrue( "Node '" + timerNodeName + "' was not left on time!", process.waitForNodeToBeLeft(timerNodeName, 1500));
         Assertions.assertThat(process.wasNodeLeft(timerNodeName)).isTrue();
-       
+
         String finishScriptNodeName = "Finish-Script";
         assertTrue( "Node '" + finishScriptNodeName + "' was not triggered on time!", process.waitForNodeTobeTriggered(finishScriptNodeName, 1500));
-        
+
         ksession.signalEvent("finish", null, processId);
 
         assertTrue( "Process did not complete on time!", process.waitForProcessToComplete(1500));
@@ -322,11 +322,11 @@ public class TransactionsTest extends JbpmTestCase {
 
         String lastUserTaskNodeName = "User Task";
         assertTrue( "Node '" + lastUserTaskNodeName + "' was not left on time!", process.waitForNodeTobeTriggered(lastUserTaskNodeName, 1000));
-        
+
         Assertions.assertThat(handler.getWorkItems()).hasSize(2);
         Assertions.assertThat(process.wasNodeLeft("usertask")).isTrue();
         Assertions.assertThat(process.wasNodeTriggered(lastUserTaskNodeName)).isTrue();
-        
+
         Assertions.assertThat(process.wasNodeLeft(lastUserTaskNodeName)).isFalse();
         Assertions.assertThat(process.wasProcessCompleted("transactions")).isFalse();
     }
@@ -370,7 +370,7 @@ public class TransactionsTest extends JbpmTestCase {
 
         String multipleInstancesNode = "Multiple Instances";
         assertTrue( "Process did not complete on time!", process.waitForNodeToBeLeft(multipleInstancesNode, 1000));
-        
+
         Assertions.assertThat(process.wasNodeLeft(forLoopNodeName)).isTrue();
         Assertions.assertThat(process.wasNodeLeft(multipleInstancesNode)).isTrue();
         Assertions.assertThat(process.wasProcessCompleted("transactions")).isFalse();

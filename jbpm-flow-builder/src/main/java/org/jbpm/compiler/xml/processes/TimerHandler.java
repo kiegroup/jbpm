@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -28,27 +28,27 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
 public class TimerHandler extends BaseAbstractHandler implements Handler {
-	
+
     public TimerHandler() {
         if ( (this.validParents == null) && (this.validPeers == null) ) {
             this.validParents = new HashSet<Class<?>>();
             this.validParents.add( StateBasedNode.class );
 
-            this.validPeers = new HashSet<Class<?>>();         
+            this.validPeers = new HashSet<Class<?>>();
             this.validPeers.add( null );
 
             this.allowNesting = false;
         }
     }
-    
+
     public Object start(final String uri,
                         final String localName,
                         final Attributes attrs,
                         final ExtensibleXmlParser parser) throws SAXException {
         parser.startElementBuilder( localName, attrs );
         return null;
-    }    
-    
+    }
+
     public Object end(final String uri,
                       final String localName,
                       final ExtensibleXmlParser parser) throws SAXException {
@@ -69,16 +69,16 @@ public class TimerHandler extends BaseAbstractHandler implements Handler {
         org.w3c.dom.Node xmlNode = element.getFirstChild();
         DroolsAction action = null;
         if (xmlNode instanceof Element) {
-    		Element actionXml = (Element) xmlNode;
-    		action = AbstractNodeHandler.extractAction(actionXml);
+            Element actionXml = (Element) xmlNode;
+            action = AbstractNodeHandler.extractAction(actionXml);
         }
         parent.addTimer(timer, action);
         return null;
     }
 
     @SuppressWarnings("unchecked")
-	public Class generateNodeFor() {
+    public Class generateNodeFor() {
         return null;
-    }    
+    }
 
 }

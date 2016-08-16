@@ -18,14 +18,14 @@ package org.jbpm.services.api.query;
 
 public class QueryNotFoundException extends RuntimeException {
 
-	private static final long serialVersionUID = 4139469799335666639L;
-	
-	public QueryNotFoundException(String message) {
-		super(message);
-	}
+    private static final long serialVersionUID = 4139469799335666639L;
 
-	public QueryNotFoundException(String message, Throwable t) {
-		super(message, t);
-	}
+    public QueryNotFoundException(String message) {
+        super(message);
+    }
+
+    public QueryNotFoundException(String message, Throwable t) {
+        super(message, t);
+    }
 
 }

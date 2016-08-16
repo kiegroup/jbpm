@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -27,22 +27,22 @@ import org.kie.internal.command.Context;
 @XmlAccessorType(XmlAccessType.NONE)
 public class GetContentMapForUserCommand extends UserGroupCallbackTaskCommand<Map<String,Object>> {
 
-	private static final long serialVersionUID = 5911387213149078240L;
+    private static final long serialVersionUID = 5911387213149078240L;
 
-	public GetContentMapForUserCommand() {
-	}
-	
-	public GetContentMapForUserCommand(Long taskId, String userId) {
-		this.taskId = taskId;
-		this.userId = userId;
+    public GetContentMapForUserCommand() {
     }
 
-	public Map<String, Object> execute(Context cntxt) {
+    public GetContentMapForUserCommand(Long taskId, String userId) {
+        this.taskId = taskId;
+        this.userId = userId;
+    }
+
+    public Map<String, Object> execute(Context cntxt) {
         TaskContext context = (TaskContext) cntxt;
         doCallbackUserOperation(userId, context);
         groupIds = doUserGroupCallbackOperation(userId, null, context);
         context.set("local:groups", groupIds);
-        
+
         return context.getTaskInstanceService().getContentMapForUser(taskId, userId);
     }
 

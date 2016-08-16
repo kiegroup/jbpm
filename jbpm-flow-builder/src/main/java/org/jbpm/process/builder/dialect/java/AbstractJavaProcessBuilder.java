@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -100,23 +100,23 @@ public class AbstractJavaProcessBuilder {
 
         return map;
     }
-    
+
     public Map createVariableContext(
-    		final String className,
+            final String className,
             final String text,
             final ProcessBuildContext context,
             final String[] globals,
             final Set<String> unboundIdentifiers,
             final ContextResolver contextResolver) {
-    	Map map = createVariableContext(className, text, context, globals);
-    	List<String> variables = new ArrayList<String>();
-    	final List variableTypes = new ArrayList(globals.length);
+        Map map = createVariableContext(className, text, context, globals);
+        List<String> variables = new ArrayList<String>();
+        final List variableTypes = new ArrayList(globals.length);
         for (String variableName: unboundIdentifiers) {
-        	VariableScope variableScope = (VariableScope) contextResolver.resolveContext(VariableScope.VARIABLE_SCOPE, variableName);
-        	if (variableScope != null) {
-        		variables.add(variableName);
-        		variableTypes.add(variableScope.findVariable(variableName).getType().getStringType());
-        	}
+            VariableScope variableScope = (VariableScope) contextResolver.resolveContext(VariableScope.VARIABLE_SCOPE, variableName);
+            if (variableScope != null) {
+                variables.add(variableName);
+                variableTypes.add(variableScope.findVariable(variableName).getType().getStringType());
+            }
         }
 
         map.put("variables",
@@ -124,7 +124,7 @@ public class AbstractJavaProcessBuilder {
 
         map.put("variableTypes",
                 variableTypes);
-    	return map;
+        return map;
     }
 
     public void generateTemplates(final String ruleTemplate,
@@ -152,29 +152,29 @@ public class AbstractJavaProcessBuilder {
         context.getDescrLookups().put(invokerClassName,
                 descrLookup);
     }
-    
+
     protected void collectTypes(String key, AnalysisResult analysis, ProcessBuildContext context) {
         if (context.getProcess() != null) {
             Set<String> referencedTypes = new HashSet<String>();
             Set<String> unqualifiedClasses = new HashSet<String>();
-            
+
             JavaAnalysisResult javaAnalysis = (JavaAnalysisResult) analysis;
-            LOCAL_VAR: for( JavaLocalDeclarationDescr localDeclDescr : javaAnalysis.getLocalVariablesMap().values() ) { 
+            LOCAL_VAR: for( JavaLocalDeclarationDescr localDeclDescr : javaAnalysis.getLocalVariablesMap().values() ) {
                 String type = localDeclDescr.getRawType();
-                 
-                if( type.contains(".") ) { 
+
+                if( type.contains(".") ) {
                     referencedTypes.add(type);
-                } else { 
-                    for( String alreadyRefdType : referencedTypes ) { 
+                } else {
+                    for( String alreadyRefdType : referencedTypes ) {
                         String alreadyRefdSimpleName = alreadyRefdType.substring(alreadyRefdType.lastIndexOf(".") + 1);
-                       if( type.equals(alreadyRefdSimpleName) ) { 
+                       if( type.equals(alreadyRefdSimpleName) ) {
                            continue LOCAL_VAR;
                        }
                     }
                     unqualifiedClasses.add(type);
                 }
             }
-        
+
             context.getProcess().getMetaData().put(key + "ReferencedTypes", referencedTypes);
             context.getProcess().getMetaData().put(key + "UnqualifiedTypes", unqualifiedClasses);
         }

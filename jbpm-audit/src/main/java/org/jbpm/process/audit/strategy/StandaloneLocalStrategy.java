@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -37,11 +37,11 @@ import org.slf4j.LoggerFactory;
 public class StandaloneLocalStrategy implements PersistenceStrategy {
 
     protected EntityManagerFactory emf;
-    
-    public StandaloneLocalStrategy(EntityManagerFactory emf) { 
+
+    public StandaloneLocalStrategy(EntityManagerFactory emf) {
         this.emf = emf;
     }
-    
+
     @Override
     public EntityManager getEntityManager() {
         return emf.createEntityManager();
@@ -49,7 +49,7 @@ public class StandaloneLocalStrategy implements PersistenceStrategy {
 
     @Override
     public Object joinTransaction(EntityManager em) {
-       em.getTransaction().begin(); 
+       em.getTransaction().begin();
        return true;
     }
 

@@ -32,13 +32,13 @@ import org.kie.api.runtime.KieSession;
  *  <li>match is created</li>
  *  <li>after rule flow group is activated</li>
  * </ul>
- * This listener should be used to automatically fire rules as soon as they get activated. 
+ * This listener should be used to automatically fire rules as soon as they get activated.
  * Especially useful for executing business rule tasks as part of the process.
  */
 public class TriggerRulesEventListener implements AgendaEventListener {
-    
+
     private KieSession ksession;
-    
+
     public TriggerRulesEventListener(KieSession ksession) {
 
         this.ksession = ksession;
@@ -50,47 +50,47 @@ public class TriggerRulesEventListener implements AgendaEventListener {
 
     @Override
     public void matchCancelled(MatchCancelledEvent event) {
-        
+
     }
 
     @Override
     public void beforeMatchFired(BeforeMatchFiredEvent event) {
-        
+
     }
 
     @Override
     public void afterMatchFired(AfterMatchFiredEvent event) {
-          
+
     }
 
     @Override
     public void agendaGroupPopped(AgendaGroupPoppedEvent event) {
-          
+
     }
 
     @Override
     public void agendaGroupPushed(AgendaGroupPushedEvent event) {
-          
+
     }
 
     @Override
     public void beforeRuleFlowGroupActivated(RuleFlowGroupActivatedEvent event) {
-       
+
     }
 
     @Override
     public void afterRuleFlowGroupActivated(RuleFlowGroupActivatedEvent event) {
         ksession.fireAllRules();
-        
+
     }
 
     @Override
     public void beforeRuleFlowGroupDeactivated(RuleFlowGroupDeactivatedEvent event) {
-        
+
     }
 
     @Override
     public void afterRuleFlowGroupDeactivated(RuleFlowGroupDeactivatedEvent event) {
-       
+
     }
 }

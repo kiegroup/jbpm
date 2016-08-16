@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -27,27 +27,27 @@ import org.kie.internal.command.Context;
 @XmlAccessorType(XmlAccessType.NONE)
 public class GetOrgEntityCommand extends TaskCommand<OrganizationalEntity> {
 
-	private static final long serialVersionUID = -836520791223188840L;
+    private static final long serialVersionUID = -836520791223188840L;
 
     @XmlElement
-	private String id;
-	
-	public GetOrgEntityCommand() {
-	}
-	
-	public GetOrgEntityCommand(String id) {
-		this.id = id;
+    private String id;
+
+    public GetOrgEntityCommand() {
+    }
+
+    public GetOrgEntityCommand(String id) {
+        this.id = id;
     }
 
     public String getId() {
-		return id;
-	}
+        return id;
+    }
 
-	public void setId(String id) {
-		this.id = id;
-	}
+    public void setId(String id) {
+        this.id = id;
+    }
 
-	public OrganizationalEntity execute(Context cntxt) {
+    public OrganizationalEntity execute(Context cntxt) {
         TaskContext context = (TaskContext) cntxt;
 
         return context.getTaskIdentityService().getOrganizationalEntityById(id);

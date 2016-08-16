@@ -36,8 +36,8 @@ public class AvailableJobsExecutorCDIImpl extends AvailableJobsExecutor {
     @Override
     public void setQueryService(ExecutorQueryService queryService) {
         super.setQueryService(queryService);
-    }    
-    
+    }
+
     @Inject
     @Override
     public void setClassCacheManager(ClassCacheManager classCacheManager) {
@@ -46,12 +46,12 @@ public class AvailableJobsExecutorCDIImpl extends AvailableJobsExecutor {
 
     @Inject
     @Override
-	public void setExecutorStoreService(ExecutorStoreService executorStoreService) {
-		super.setExecutorStoreService(executorStoreService);
-	}
+    public void setExecutorStoreService(ExecutorStoreService executorStoreService) {
+        super.setExecutorStoreService(executorStoreService);
+    }
 
     @Override
-    @Asynchronous    
+    @Asynchronous
     public void executeJob() {
         super.executeJob();
     }

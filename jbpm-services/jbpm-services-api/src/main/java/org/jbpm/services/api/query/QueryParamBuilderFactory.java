@@ -33,7 +33,7 @@ public interface QueryParamBuilderFactory {
      * @return returns true if is capable of building instances with given identifier otherwise false
      */
     boolean accept(String identifier);
-    
+
     /**
      * Returns new QueryParamBuilder instance constructed with given parameters
      * @param parameters parameters to be used to construct query param builder instance

@@ -33,21 +33,21 @@ import org.jbpm.workflow.core.node.CompositeContextNode;
  */
 public class CompositeNodeFactory extends RuleFlowNodeContainerFactory {
 
-	private RuleFlowNodeContainerFactory nodeContainerFactory;
-	private NodeContainer nodeContainer;
-	private long linkedIncomingNodeId = -1;
-	private long linkedOutgoingNodeId = -1;
-	
+    private RuleFlowNodeContainerFactory nodeContainerFactory;
+    private NodeContainer nodeContainer;
+    private long linkedIncomingNodeId = -1;
+    private long linkedOutgoingNodeId = -1;
+
     public CompositeNodeFactory(RuleFlowNodeContainerFactory nodeContainerFactory, NodeContainer nodeContainer, long id) {
-    	this.nodeContainerFactory = nodeContainerFactory;
-    	this.nodeContainer = nodeContainer;
-    	CompositeContextNode compositeNode = new CompositeContextNode();
+        this.nodeContainerFactory = nodeContainerFactory;
+        this.nodeContainer = nodeContainer;
+        CompositeContextNode compositeNode = new CompositeContextNode();
         compositeNode.setId(id);
         setNodeContainer(compositeNode);
     }
-    
+
     protected CompositeContextNode getCompositeNode() {
-    	return (CompositeContextNode) getNodeContainer();
+        return (CompositeContextNode) getNodeContainer();
     }
 
     public CompositeNodeFactory name(String name) {
@@ -56,64 +56,64 @@ public class CompositeNodeFactory extends RuleFlowNodeContainerFactory {
     }
 
     public CompositeNodeFactory variable(String name, DataType type) {
-    	return variable(name, type, null);
+        return variable(name, type, null);
     }
-    
+
     public CompositeNodeFactory variable(String name, DataType type, Object value) {
-    	Variable variable = new Variable();
-    	variable.setName(name);
-    	variable.setType(type);
-    	variable.setValue(value);
-    	VariableScope variableScope = (VariableScope)
-			getCompositeNode().getDefaultContext(VariableScope.VARIABLE_SCOPE);
-		if (variableScope == null) {
-			variableScope = new VariableScope();
-			getCompositeNode().addContext(variableScope);
-			getCompositeNode().setDefaultContext(variableScope);
-		}
-		variableScope.getVariables().add(variable);
+        Variable variable = new Variable();
+        variable.setName(name);
+        variable.setType(type);
+        variable.setValue(value);
+        VariableScope variableScope = (VariableScope)
+            getCompositeNode().getDefaultContext(VariableScope.VARIABLE_SCOPE);
+        if (variableScope == null) {
+            variableScope = new VariableScope();
+            getCompositeNode().addContext(variableScope);
+            getCompositeNode().setDefaultContext(variableScope);
+        }
+        variableScope.getVariables().add(variable);
         return this;
     }
-    
+
     public CompositeNodeFactory exceptionHandler(String exception, ExceptionHandler exceptionHandler) {
-    	ExceptionScope exceptionScope = (ExceptionScope)
-			getCompositeNode().getDefaultContext(ExceptionScope.EXCEPTION_SCOPE);
-		if (exceptionScope == null) {
-			exceptionScope = new ExceptionScope();
-			getCompositeNode().addContext(exceptionScope);
-			getCompositeNode().setDefaultContext(exceptionScope);
-		}
-		exceptionScope.setExceptionHandler(exception, exceptionHandler);
-    	return this;
+        ExceptionScope exceptionScope = (ExceptionScope)
+            getCompositeNode().getDefaultContext(ExceptionScope.EXCEPTION_SCOPE);
+        if (exceptionScope == null) {
+            exceptionScope = new ExceptionScope();
+            getCompositeNode().addContext(exceptionScope);
+            getCompositeNode().setDefaultContext(exceptionScope);
+        }
+        exceptionScope.setExceptionHandler(exception, exceptionHandler);
+        return this;
     }
-    
+
     public CompositeNodeFactory exceptionHandler(String exception, String dialect, String action) {
-    	ActionExceptionHandler exceptionHandler = new ActionExceptionHandler();
-    	exceptionHandler.setAction(new DroolsConsequenceAction(dialect, action));
-    	return exceptionHandler(exception, exceptionHandler);
+        ActionExceptionHandler exceptionHandler = new ActionExceptionHandler();
+        exceptionHandler.setAction(new DroolsConsequenceAction(dialect, action));
+        return exceptionHandler(exception, exceptionHandler);
     }
-    
+
     public CompositeNodeFactory linkIncomingConnections(long nodeId) {
-    	this.linkedIncomingNodeId = nodeId;
+        this.linkedIncomingNodeId = nodeId;
         return this;
     }
 
     public CompositeNodeFactory linkOutgoingConnections(long nodeId) {
-    	this.linkedOutgoingNodeId = nodeId;
-    	return this;
+        this.linkedOutgoingNodeId = nodeId;
+        return this;
     }
 
     public RuleFlowNodeContainerFactory done() {
-    	if (linkedIncomingNodeId != -1) {
-    		getCompositeNode().linkIncomingConnections(
-				Node.CONNECTION_DEFAULT_TYPE,
-		        linkedIncomingNodeId, Node.CONNECTION_DEFAULT_TYPE);
-    	}
-    	if (linkedOutgoingNodeId != -1) {
-    		getCompositeNode().linkOutgoingConnections(
-				linkedOutgoingNodeId, Node.CONNECTION_DEFAULT_TYPE,
-	            Node.CONNECTION_DEFAULT_TYPE);
-    	}
+        if (linkedIncomingNodeId != -1) {
+            getCompositeNode().linkIncomingConnections(
+                Node.CONNECTION_DEFAULT_TYPE,
+                linkedIncomingNodeId, Node.CONNECTION_DEFAULT_TYPE);
+        }
+        if (linkedOutgoingNodeId != -1) {
+            getCompositeNode().linkOutgoingConnections(
+                linkedOutgoingNodeId, Node.CONNECTION_DEFAULT_TYPE,
+                Node.CONNECTION_DEFAULT_TYPE);
+        }
         nodeContainer.addNode(getCompositeNode());
         return nodeContainerFactory;
     }

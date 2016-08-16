@@ -34,42 +34,42 @@ public interface GlobalSchedulerService extends SchedulerService, InternalSchedu
      * @param timerService owner of this scheduler service
      */
     void initScheduler(TimerService timerService);
-    
+
     /**
      * Allows to shutdown the scheduler service
      */
     void shutdown();
-    
+
     /**
      * Builds JobHandle based on NamedJobContext
      * @param ctx
      * @return
      */
     JobHandle buildJobHandleForContext(NamedJobContext ctx);
-    
+
     /**
-     * Indicates if given implementation of scheduler service supports 
+     * Indicates if given implementation of scheduler service supports
      * transactional timer store.
      * @return
      */
     boolean isTransactional();
-    
+
     /**
      * Indicates if given implementation of scheduler service supports
      * retries of failed timer jobs
      * @return
      */
     boolean retryEnabled();
-    
+
     /**
      * Allows to set interceptor that will be used to schedule timer instances
      * @param interceptor
      */
     void setInterceptor(SchedulerServiceInterceptor interceptor);
-    
+
     /**
      * Verifies if given job is still valid or it was already executed/vetoed.
-     * Especially important in multi node environments - cluster. 
+     * Especially important in multi node environments - cluster.
      * @param jobHandle
      * @return
      */

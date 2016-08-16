@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -35,43 +35,43 @@ import org.kie.internal.command.ProcessInstanceIdCommand;
 public class GetCurrentTxTasksCommand extends TaskCommand<List<TaskSummary>> implements ProcessInstanceIdCommand {
 
     /** Generated serial version UID */
-	private static final long serialVersionUID = 6474368266134150938L;
+    private static final long serialVersionUID = 6474368266134150938L;
 
-	@XmlElement(required=true)
-	@XmlSchemaType(name="long")
-	private Long processInstanceId;
-	
-	public GetCurrentTxTasksCommand() {
-	   // default constructor 
-	}
-	
-	public GetCurrentTxTasksCommand(Long processInstanceId) {
-		this.processInstanceId = processInstanceId;
-	}
+    @XmlElement(required=true)
+    @XmlSchemaType(name="long")
+    private Long processInstanceId;
 
-	@Override
-	public Long getProcessInstanceId() {
+    public GetCurrentTxTasksCommand() {
+       // default constructor
+    }
+
+    public GetCurrentTxTasksCommand(Long processInstanceId) {
+        this.processInstanceId = processInstanceId;
+    }
+
+    @Override
+    public Long getProcessInstanceId() {
         return processInstanceId;
     }
 
-	@Override
+    @Override
     public void setProcessInstanceId( Long processInstanceId ) {
         this.processInstanceId = processInstanceId;
     }
 
     @SuppressWarnings("unchecked")
-	@Override
-	public List<TaskSummary> execute(Context context) {
-		List<TaskSummary> tasks = new ArrayList<TaskSummary>();
-		Set<TaskSummary> tasksToRemove = (Set<TaskSummary>) context.get("local:current-tasks");
+    @Override
+    public List<TaskSummary> execute(Context context) {
+        List<TaskSummary> tasks = new ArrayList<TaskSummary>();
+        Set<TaskSummary> tasksToRemove = (Set<TaskSummary>) context.get("local:current-tasks");
         if (tasksToRemove != null) {
-        	for (TaskSummary task : tasksToRemove) {
-        		if (task.getProcessInstanceId() == processInstanceId) {
-        			tasks.add(task);
-        		}
-        	}
+            for (TaskSummary task : tasksToRemove) {
+                if (task.getProcessInstanceId() == processInstanceId) {
+                    tasks.add(task);
+                }
+            }
         }
         return tasks;
-	}
-	
+    }
+
 }

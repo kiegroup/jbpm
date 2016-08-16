@@ -47,12 +47,12 @@ import org.kie.api.runtime.process.ProcessInstance;
 import org.slf4j.LoggerFactory;
 
 public class EventTest extends AbstractBaseTest  {
-    
-    public void addLogger() { 
+
+    public void addLogger() {
         logger = LoggerFactory.getLogger(this.getClass());
     }
-    
-    String [] test1EventOrder = { 
+
+    String [] test1EventOrder = {
             "bps",
             "bnt-0", "bnl-0",
             "bnt-1", "ant-1",
@@ -71,14 +71,14 @@ public class EventTest extends AbstractBaseTest  {
             "anl-3", "ant-3",
             "anl-2"
     };
-    
-	@Test
+
+    @Test
     public void testEvent1() {
-	    
+
         RuleFlowProcess process = new RuleFlowProcess();
         process.setId("org.drools.core.process.event");
         process.setName("Event Process");
-        
+
         List<Variable> variables = new ArrayList<Variable>();
         Variable variable = new Variable();
         variable.setName("event");
@@ -92,7 +92,7 @@ public class EventTest extends AbstractBaseTest  {
         startNode.setName("Start");
         startNode.setId(1);
         process.addNode(startNode);
-        
+
         MilestoneNode milestoneNode = new MilestoneNode();
         milestoneNode.setName("Milestone");
         milestoneNode.setConstraint("eval(false)");
@@ -102,7 +102,7 @@ public class EventTest extends AbstractBaseTest  {
             startNode, Node.CONNECTION_DEFAULT_TYPE,
             milestoneNode, Node.CONNECTION_DEFAULT_TYPE
         );
-        
+
         EventNode eventNode = new EventNode();
         EventTypeFilter eventFilter = new EventTypeFilter();
         eventFilter.setType("myEvent");
@@ -110,7 +110,7 @@ public class EventTest extends AbstractBaseTest  {
         eventNode.setVariableName("event");
         eventNode.setId(3);
         process.addNode(eventNode);
-        
+
         final List<String> myList = new ArrayList<String>();
         ActionNode actionNode = new ActionNode();
         actionNode.setName("Print");
@@ -128,7 +128,7 @@ public class EventTest extends AbstractBaseTest  {
             eventNode, Node.CONNECTION_DEFAULT_TYPE,
             actionNode, Node.CONNECTION_DEFAULT_TYPE
         );
-        
+
         Join join = new Join();
         join.setName("XOR Join");
         join.setType(Join.TYPE_XOR);
@@ -142,7 +142,7 @@ public class EventTest extends AbstractBaseTest  {
             actionNode, Node.CONNECTION_DEFAULT_TYPE,
             join, Node.CONNECTION_DEFAULT_TYPE
         );
-    
+
         EndNode endNode = new EndNode();
         endNode.setName("EndNode");
         endNode.setId(6);
@@ -151,11 +151,11 @@ public class EventTest extends AbstractBaseTest  {
             join, Node.CONNECTION_DEFAULT_TYPE,
             endNode, Node.CONNECTION_DEFAULT_TYPE
         );
-        
-        KieSession ksession = createKieSession(process); 
+
+        KieSession ksession = createKieSession(process);
         TestProcessEventListener procEventListener = new TestProcessEventListener();
         ksession.addEventListener(procEventListener);
-        
+
         ProcessInstance processInstance = ksession.startProcess("org.drools.core.process.event");
         assertEquals(0, myList.size());
         Person jack = new Person();
@@ -163,11 +163,11 @@ public class EventTest extends AbstractBaseTest  {
         processInstance.signalEvent("myEvent", jack);
         assertEquals(1, myList.size());
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
-        
+
         verifyEventHistory(test1EventOrder, procEventListener.getEventHistory());
     }
-	
-    String [] test2EventOrder = { 
+
+    String [] test2EventOrder = {
             "bps",
             "bnt-0", "bnl-0",
             "bnt-1", "ant-1",
@@ -186,13 +186,13 @@ public class EventTest extends AbstractBaseTest  {
             "anl-6", "ant-6",
             "anl-5"
     };
-    
+
     @Test
     public void testEvent2() {
         RuleFlowProcess process = new RuleFlowProcess();
         process.setId("org.drools.core.process.event");
         process.setName("Event Process");
-        
+
         List<Variable> variables = new ArrayList<Variable>();
         Variable variable = new Variable();
         variable.setName("event");
@@ -206,7 +206,7 @@ public class EventTest extends AbstractBaseTest  {
         startNode.setName("Start");
         startNode.setId(1);
         process.addNode(startNode);
-        
+
         MilestoneNode milestoneNode = new MilestoneNode();
         milestoneNode.setName("Milestone");
         milestoneNode.setConstraint("eval(false)");
@@ -216,7 +216,7 @@ public class EventTest extends AbstractBaseTest  {
             startNode, Node.CONNECTION_DEFAULT_TYPE,
             milestoneNode, Node.CONNECTION_DEFAULT_TYPE
         );
-        
+
         EndNode endNode = new EndNode();
         endNode.setName("EndNode");
         endNode.setId(3);
@@ -225,7 +225,7 @@ public class EventTest extends AbstractBaseTest  {
             milestoneNode, Node.CONNECTION_DEFAULT_TYPE,
             endNode, Node.CONNECTION_DEFAULT_TYPE
         );
-        
+
         EventNode eventNode = new EventNode();
         EventTypeFilter eventFilter = new EventTypeFilter();
         eventFilter.setType("myEvent");
@@ -233,7 +233,7 @@ public class EventTest extends AbstractBaseTest  {
         eventNode.setVariableName("event");
         eventNode.setId(4);
         process.addNode(eventNode);
-        
+
         final List<String> myList = new ArrayList<String>();
         ActionNode actionNode = new ActionNode();
         actionNode.setName("Print");
@@ -251,7 +251,7 @@ public class EventTest extends AbstractBaseTest  {
             eventNode, Node.CONNECTION_DEFAULT_TYPE,
             actionNode, Node.CONNECTION_DEFAULT_TYPE
         );
-        
+
         EndNode endNode2 = new EndNode();
         endNode2.setName("EndNode");
         endNode2.setTerminate(false);
@@ -261,11 +261,11 @@ public class EventTest extends AbstractBaseTest  {
             actionNode, Node.CONNECTION_DEFAULT_TYPE,
             endNode2, Node.CONNECTION_DEFAULT_TYPE
         );
-        
-        KieSession ksession = createKieSession(process); 
+
+        KieSession ksession = createKieSession(process);
         TestProcessEventListener procEventListener = new TestProcessEventListener();
         ksession.addEventListener(procEventListener);
-        
+
         ProcessInstance processInstance = ksession.startProcess("org.drools.core.process.event");
         assertEquals(0, myList.size());
         Person jack = new Person();
@@ -276,11 +276,11 @@ public class EventTest extends AbstractBaseTest  {
         john.setName("John");
         processInstance.signalEvent("myEvent", john);
         assertEquals(2, myList.size());
-       
+
         verifyEventHistory(test2EventOrder, procEventListener.getEventHistory());
     }
 
-    String [] test3EventOrder = { 
+    String [] test3EventOrder = {
             "bps",
             "bnt-0", "bnl-0",
             "bnt-1", "ant-1",
@@ -303,13 +303,13 @@ public class EventTest extends AbstractBaseTest  {
             "anl-5", "ant-5",
             "anl-4",
     };
-    
+
     @Test
     public void testEvent3() {
         RuleFlowProcess process = new RuleFlowProcess();
         process.setId("org.drools.core.process.event");
         process.setName("Event Process");
-        
+
         List<Variable> variables = new ArrayList<Variable>();
         Variable variable = new Variable();
         variable.setName("event");
@@ -323,7 +323,7 @@ public class EventTest extends AbstractBaseTest  {
         startNode.setName("Start");
         startNode.setId(1);
         process.addNode(startNode);
-        
+
         EventNode eventNode = new EventNode();
         EventTypeFilter eventFilter = new EventTypeFilter();
         eventFilter.setType("myEvent");
@@ -331,7 +331,7 @@ public class EventTest extends AbstractBaseTest  {
         eventNode.setVariableName("event");
         eventNode.setId(3);
         process.addNode(eventNode);
-        
+
         final List<String> myList = new ArrayList<String>();
         ActionNode actionNode = new ActionNode();
         actionNode.setName("Print");
@@ -349,7 +349,7 @@ public class EventTest extends AbstractBaseTest  {
             eventNode, Node.CONNECTION_DEFAULT_TYPE,
             actionNode, Node.CONNECTION_DEFAULT_TYPE
         );
-        
+
         EventNode eventNode2 = new EventNode();
         eventFilter = new EventTypeFilter();
         eventFilter.setType("myOtherEvent");
@@ -357,7 +357,7 @@ public class EventTest extends AbstractBaseTest  {
         eventNode2.setVariableName("event");
         eventNode2.setId(5);
         process.addNode(eventNode2);
-        
+
         ActionNode actionNode2 = new ActionNode();
         actionNode2.setName("Print");
         action = new DroolsConsequenceAction("java", null);
@@ -374,7 +374,7 @@ public class EventTest extends AbstractBaseTest  {
             eventNode2, Node.CONNECTION_DEFAULT_TYPE,
             actionNode2, Node.CONNECTION_DEFAULT_TYPE
         );
-        
+
         Join join = new Join();
         join.setName("AND Join");
         join.setType(Join.TYPE_AND);
@@ -392,7 +392,7 @@ public class EventTest extends AbstractBaseTest  {
             actionNode2, Node.CONNECTION_DEFAULT_TYPE,
             join, Node.CONNECTION_DEFAULT_TYPE
         );
-    
+
         EndNode endNode = new EndNode();
         endNode.setName("EndNode");
         endNode.setId(8);
@@ -401,11 +401,11 @@ public class EventTest extends AbstractBaseTest  {
             join, Node.CONNECTION_DEFAULT_TYPE,
             endNode, Node.CONNECTION_DEFAULT_TYPE
         );
-        
-        KieSession ksession = createKieSession(process); 
+
+        KieSession ksession = createKieSession(process);
         TestProcessEventListener procEventListener = new TestProcessEventListener();
         ksession.addEventListener(procEventListener);
-        
+
         ProcessInstance processInstance = ksession.startProcess("org.drools.core.process.event");
         assertEquals(0, myList.size());
         Person jack = new Person();
@@ -418,11 +418,11 @@ public class EventTest extends AbstractBaseTest  {
         processInstance.signalEvent("myOtherEvent", john);
         assertEquals(2, myList.size());
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
-       
+
         verifyEventHistory(test3EventOrder, procEventListener.getEventHistory());
     }
-   
-    String [] test3aEventOrder = { 
+
+    String [] test3aEventOrder = {
             "bps",
             "bnt-0", "bnl-0",
             "bnt-1", "ant-1",
@@ -453,13 +453,13 @@ public class EventTest extends AbstractBaseTest  {
             "anl-7", "ant-7",
             "anl-6",
     };
-    
+
     @Test
     public void testEvent3a() {
         RuleFlowProcess process = new RuleFlowProcess();
         process.setId("org.drools.core.process.event");
         process.setName("Event Process");
-        
+
         List<Variable> variables = new ArrayList<Variable>();
         Variable variable = new Variable();
         variable.setName("event");
@@ -473,7 +473,7 @@ public class EventTest extends AbstractBaseTest  {
         startNode.setName("Start");
         startNode.setId(1);
         process.addNode(startNode);
-        
+
         EventNode eventNode = new EventNode();
         EventTypeFilter eventFilter = new EventTypeFilter();
         eventFilter.setType("myEvent");
@@ -481,7 +481,7 @@ public class EventTest extends AbstractBaseTest  {
         eventNode.setVariableName("event");
         eventNode.setId(3);
         process.addNode(eventNode);
-        
+
         final List<String> myList = new ArrayList<String>();
         ActionNode actionNode = new ActionNode();
         actionNode.setName("Print");
@@ -499,7 +499,7 @@ public class EventTest extends AbstractBaseTest  {
             eventNode, Node.CONNECTION_DEFAULT_TYPE,
             actionNode, Node.CONNECTION_DEFAULT_TYPE
         );
-        
+
         EventNode eventNode2 = new EventNode();
         eventFilter = new EventTypeFilter();
         eventFilter.setType("myOtherEvent");
@@ -507,7 +507,7 @@ public class EventTest extends AbstractBaseTest  {
         eventNode2.setVariableName("event");
         eventNode2.setId(5);
         process.addNode(eventNode2);
-        
+
         ActionNode actionNode2 = new ActionNode();
         actionNode2.setName("Print");
         action = new DroolsConsequenceAction("java", null);
@@ -524,7 +524,7 @@ public class EventTest extends AbstractBaseTest  {
             eventNode2, Node.CONNECTION_DEFAULT_TYPE,
             actionNode2, Node.CONNECTION_DEFAULT_TYPE
         );
-        
+
         Join join = new Join();
         join.setName("AND Join");
         join.setType(Join.TYPE_AND);
@@ -542,7 +542,7 @@ public class EventTest extends AbstractBaseTest  {
             actionNode2, Node.CONNECTION_DEFAULT_TYPE,
             join, Node.CONNECTION_DEFAULT_TYPE
         );
-    
+
         EndNode endNode = new EndNode();
         endNode.setName("EndNode");
         endNode.setId(8);
@@ -551,11 +551,11 @@ public class EventTest extends AbstractBaseTest  {
             join, Node.CONNECTION_DEFAULT_TYPE,
             endNode, Node.CONNECTION_DEFAULT_TYPE
         );
-        
-        KieSession ksession = createKieSession(process); 
+
+        KieSession ksession = createKieSession(process);
         TestProcessEventListener procEventListener = new TestProcessEventListener();
         ksession.addEventListener(procEventListener);
-        
+
         System.setProperty("jbpm.loop.level.disabled", "true");
         ProcessInstance processInstance = ksession.startProcess("org.drools.core.process.event");
         assertEquals(0, myList.size());
@@ -573,11 +573,11 @@ public class EventTest extends AbstractBaseTest  {
         assertEquals(3, myList.size());
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
         System.clearProperty("jbpm.loop.level.disabled");
-       
+
         verifyEventHistory(test3aEventOrder, procEventListener.getEventHistory());
     }
-   
-    String [] test4EventOrder = { 
+
+    String [] test4EventOrder = {
             "bps",
             "bnt-0", "bnl-0",
             "bnt-1", "ant-1",
@@ -599,13 +599,13 @@ public class EventTest extends AbstractBaseTest  {
             "anl-5", "ant-5",
             "anl-4",
     };
-    
+
     @Test
     public void testEvent4() {
         RuleFlowProcess process = new RuleFlowProcess();
         process.setId("org.drools.core.process.event");
         process.setName("Event Process");
-        
+
         List<Variable> variables = new ArrayList<Variable>();
         Variable variable = new Variable();
         variable.setName("event");
@@ -619,14 +619,14 @@ public class EventTest extends AbstractBaseTest  {
         startNode.setName("Start");
         startNode.setId(1);
         process.addNode(startNode);
-        
+
         EventNode eventNode = new EventNode();
         EventTypeFilter eventFilter = new EventTypeFilter();
         eventFilter.setType("myEvent");
         eventNode.addEventFilter(eventFilter);
         eventNode.setId(3);
         process.addNode(eventNode);
-        
+
         final List<String> myList = new ArrayList<String>();
         ActionNode actionNode = new ActionNode();
         actionNode.setName("Print");
@@ -643,14 +643,14 @@ public class EventTest extends AbstractBaseTest  {
             eventNode, Node.CONNECTION_DEFAULT_TYPE,
             actionNode, Node.CONNECTION_DEFAULT_TYPE
         );
-        
+
         EventNode eventNode2 = new EventNode();
         eventFilter = new EventTypeFilter();
         eventFilter.setType("myEvent");
         eventNode2.addEventFilter(eventFilter);
         eventNode2.setId(5);
         process.addNode(eventNode2);
-        
+
         ActionNode actionNode2 = new ActionNode();
         actionNode2.setName("Print");
         action = new DroolsConsequenceAction("java", null);
@@ -666,7 +666,7 @@ public class EventTest extends AbstractBaseTest  {
             eventNode2, Node.CONNECTION_DEFAULT_TYPE,
             actionNode2, Node.CONNECTION_DEFAULT_TYPE
         );
-        
+
         Join join = new Join();
         join.setName("AND Join");
         join.setType(Join.TYPE_AND);
@@ -684,7 +684,7 @@ public class EventTest extends AbstractBaseTest  {
             actionNode2, Node.CONNECTION_DEFAULT_TYPE,
             join, Node.CONNECTION_DEFAULT_TYPE
         );
-    
+
         EndNode endNode = new EndNode();
         endNode.setName("EndNode");
         endNode.setId(8);
@@ -693,21 +693,21 @@ public class EventTest extends AbstractBaseTest  {
             join, Node.CONNECTION_DEFAULT_TYPE,
             endNode, Node.CONNECTION_DEFAULT_TYPE
         );
-        
-        KieSession ksession = createKieSession(process);      
+
+        KieSession ksession = createKieSession(process);
         TestProcessEventListener procEventListener = new TestProcessEventListener();
         ksession.addEventListener(procEventListener);
-        
+
         ProcessInstance processInstance = ksession.startProcess("org.drools.core.process.event");
         assertEquals(0, myList.size());
         processInstance.signalEvent("myEvent", null);
         assertEquals(2, myList.size());
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
-       
+
         verifyEventHistory(test4EventOrder, procEventListener.getEventHistory());
     }
-   
-    String [] test5EventOrder = { 
+
+    String [] test5EventOrder = {
             "bps",
             "bnt-0", "bnl-0",
             "bnt-1",
@@ -730,13 +730,13 @@ public class EventTest extends AbstractBaseTest  {
             "anl-1:6", "ant-1:6",
             "anl-1:5"
     };
-    
+
     @Test
     public void testEvent5() {
         RuleFlowProcess process = new RuleFlowProcess();
         process.setId("org.drools.core.process.event");
         process.setName("Event Process");
-        
+
         List<Variable> variables = new ArrayList<Variable>();
         Variable variable = new Variable();
         variable.setName("event");
@@ -750,7 +750,7 @@ public class EventTest extends AbstractBaseTest  {
         startNode.setName("Start");
         startNode.setId(1);
         process.addNode(startNode);
-        
+
         CompositeNode compositeNode = new CompositeNode();
         compositeNode.setName("CompositeNode");
         compositeNode.setId(2);
@@ -759,20 +759,20 @@ public class EventTest extends AbstractBaseTest  {
             startNode, Node.CONNECTION_DEFAULT_TYPE,
             compositeNode, Node.CONNECTION_DEFAULT_TYPE
         );
-        
+
         MilestoneNode milestoneNode = new MilestoneNode();
         milestoneNode.setName("Milestone");
         milestoneNode.setConstraint("eval(false)");
         compositeNode.addNode(milestoneNode);
         compositeNode.linkIncomingConnections(Node.CONNECTION_DEFAULT_TYPE, milestoneNode.getId(), Node.CONNECTION_DEFAULT_TYPE);
-        
+
         EventNode eventNode = new EventNode();
         EventTypeFilter eventFilter = new EventTypeFilter();
         eventFilter.setType("myEvent");
         eventNode.addEventFilter(eventFilter);
         eventNode.setVariableName("event");
         compositeNode.addNode(eventNode);
-        
+
         final List<String> myList = new ArrayList<String>();
         ActionNode actionNode = new ActionNode();
         actionNode.setName("Print");
@@ -789,7 +789,7 @@ public class EventTest extends AbstractBaseTest  {
             eventNode, Node.CONNECTION_DEFAULT_TYPE,
             actionNode, Node.CONNECTION_DEFAULT_TYPE
         );
-        
+
         Join join = new Join();
         join.setName("XOR Join");
         join.setType(Join.TYPE_XOR);
@@ -803,7 +803,7 @@ public class EventTest extends AbstractBaseTest  {
             join, Node.CONNECTION_DEFAULT_TYPE
         );
         compositeNode.linkOutgoingConnections(join.getId(), Node.CONNECTION_DEFAULT_TYPE, Node.CONNECTION_DEFAULT_TYPE);
-    
+
         EndNode endNode = new EndNode();
         endNode.setName("EndNode");
         endNode.setId(3);
@@ -812,11 +812,11 @@ public class EventTest extends AbstractBaseTest  {
             compositeNode, Node.CONNECTION_DEFAULT_TYPE,
             endNode, Node.CONNECTION_DEFAULT_TYPE
         );
-        
-        KieSession ksession = createKieSession(process); 
+
+        KieSession ksession = createKieSession(process);
         TestProcessEventListener procEventListener = new TestProcessEventListener();
         ksession.addEventListener(procEventListener);
-        
+
         ProcessInstance processInstance = ksession.startProcess("org.drools.core.process.event");
         assertEquals(0, myList.size());
         Person jack = new Person();
@@ -827,5 +827,5 @@ public class EventTest extends AbstractBaseTest  {
 
         verifyEventHistory(test5EventOrder, procEventListener.getEventHistory());
     }
-    
+
 }

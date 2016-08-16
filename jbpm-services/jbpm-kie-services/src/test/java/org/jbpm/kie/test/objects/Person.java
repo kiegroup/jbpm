@@ -22,14 +22,14 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class Person extends Thing implements Serializable {
-    
-	/** generated serial version UID  */
+
+    /** generated serial version UID  */
     private static final long serialVersionUID = -3979024949150763676L;
-    
+
     protected Long id;
-	protected long time = 0;
-	protected String name;
-	protected String log = null;
+    protected long time = 0;
+    protected String name;
+    protected String log = null;
 
     public String getName() {
         return name;
@@ -60,9 +60,9 @@ public class Person extends Thing implements Serializable {
     }
 
     public void addLog(String msg) {
-        if( log == null ) { 
+        if( log == null ) {
             log = msg;
-        } else { 
+        } else {
             log = log.concat(":" +msg );
         }
     }

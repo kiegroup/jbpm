@@ -21,41 +21,41 @@ import org.kie.api.definition.process.Node;
 
 public class DynamicNode extends CompositeContextNode {
 
-	private static final long serialVersionUID = 510l;
-	
-	private boolean autoComplete = false;
-	private String completionExpression;
-		
-	public boolean isAutoComplete() {
-		return autoComplete;
-	}
+    private static final long serialVersionUID = 510l;
 
-	public void setAutoComplete(boolean autoComplete) {
-		this.autoComplete = autoComplete;
-	}
+    private boolean autoComplete = false;
+    private String completionExpression;
 
-	public boolean acceptsEvent(String type, Object event) {
-		for (Node node: getNodes()) {
-			if (type.equals(node.getName()) && node.getIncomingConnections().isEmpty()) {
-				return true;
-			}
-		}
-		return super.acceptsEvent(type, event);
-	}
-	
-    public Node internalGetNode(long id) {
-    	try {
-    		return getNode(id);
-    	} catch (IllegalArgumentException e) {
-    		return null;
-    	}
+    public boolean isAutoComplete() {
+        return autoComplete;
     }
 
-	public String getCompletionExpression() {
-		return completionExpression;
-	}
+    public void setAutoComplete(boolean autoComplete) {
+        this.autoComplete = autoComplete;
+    }
 
-	public void setCompletionExpression(String expression) {
-		this.completionExpression = expression;
-	}
+    public boolean acceptsEvent(String type, Object event) {
+        for (Node node: getNodes()) {
+            if (type.equals(node.getName()) && node.getIncomingConnections().isEmpty()) {
+                return true;
+            }
+        }
+        return super.acceptsEvent(type, event);
+    }
+
+    public Node internalGetNode(long id) {
+        try {
+            return getNode(id);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
+
+    public String getCompletionExpression() {
+        return completionExpression;
+    }
+
+    public void setCompletionExpression(String expression) {
+        this.completionExpression = expression;
+    }
 }

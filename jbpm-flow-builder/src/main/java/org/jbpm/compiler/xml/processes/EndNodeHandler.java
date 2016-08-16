@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -42,20 +42,20 @@ public class EndNodeHandler extends AbstractNodeHandler {
         return EndNode.class;
     }
 
-	public void writeNode(Node node, StringBuilder xmlDump, boolean includeMeta) {
-		EndNode endNode = (EndNode) node;
-		writeNode("end", endNode, xmlDump, includeMeta);
-		boolean terminate = endNode.isTerminate();
+    public void writeNode(Node node, StringBuilder xmlDump, boolean includeMeta) {
+        EndNode endNode = (EndNode) node;
+        writeNode("end", endNode, xmlDump, includeMeta);
+        boolean terminate = endNode.isTerminate();
         if (!terminate) {
             xmlDump.append("terminate=\"false\" ");
         }
         if (includeMeta && containsMetaData(endNode)) {
-        	xmlDump.append(">" + EOL);
-        	writeMetaData(endNode, xmlDump);
-        	endNode("end", xmlDump);
+            xmlDump.append(">" + EOL);
+            writeMetaData(endNode, xmlDump);
+            endNode("end", xmlDump);
         } else {
             endNode(xmlDump);
         }
-	}
+    }
 
 }

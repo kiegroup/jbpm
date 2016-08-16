@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -40,65 +40,65 @@ import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 import bitronix.tm.resource.jdbc.PoolingDataSource;
 
 public class MvelResolverDeploymentDescriptorManagerTest extends AbstractDeploymentDescriptorTest {
-	protected static final String ARTIFACT_ID = "test-module";
-	protected static final String GROUP_ID = "org.jbpm.test";
-	protected static final String VERSION = "1.0.0-SNAPSHOT";
+    protected static final String ARTIFACT_ID = "test-module";
+    protected static final String GROUP_ID = "org.jbpm.test";
+    protected static final String VERSION = "1.0.0-SNAPSHOT";
 
-	private PoolingDataSource pds;
-	private RuntimeManager manager;
+    private PoolingDataSource pds;
+    private RuntimeManager manager;
 
-	@Before
-	public void setup() {
-		TestUtil.cleanupSingletonSessionId();
-		pds = TestUtil.setupPoolingDataSource();
-		Properties properties = new Properties();
-		properties.setProperty("mary", "HR");
-		properties.setProperty("john", "HR");
-	}
+    @Before
+    public void setup() {
+        TestUtil.cleanupSingletonSessionId();
+        pds = TestUtil.setupPoolingDataSource();
+        Properties properties = new Properties();
+        properties.setProperty("mary", "HR");
+        properties.setProperty("john", "HR");
+    }
 
-	@After
-	public void teardown() {
-		if (manager != null) {
-			manager.close();
-		}
-		EntityManagerFactoryManager.get().clear();
-		pds.close();
-	}
+    @After
+    public void teardown() {
+        if (manager != null) {
+            manager.close();
+        }
+        EntityManagerFactoryManager.get().clear();
+        pds.close();
+    }
 
-	@Test
-	public void testDeploymentDescriptorFromKieContainer() throws IOException {
+    @Test
+    public void testDeploymentDescriptorFromKieContainer() throws IOException {
 
-		Map<String, String> resources = new HashMap<String, String>();
+        Map<String, String> resources = new HashMap<String, String>();
 
-		KieServices ks = KieServices.Factory.get();
-		ReleaseId releaseId = ks.newReleaseId(GROUP_ID, ARTIFACT_ID, VERSION);
+        KieServices ks = KieServices.Factory.get();
+        ReleaseId releaseId = ks.newReleaseId(GROUP_ID, ARTIFACT_ID, VERSION);
 
-		String kmoduleString = IOUtils.toString(this.getClass()
-				.getResourceAsStream("/kmodule-custom-wih.xml"), "UTF-8");
+        String kmoduleString = IOUtils.toString(this.getClass()
+                .getResourceAsStream("/kmodule-custom-wih.xml"), "UTF-8");
 
-		resources.put("src/main/resources/META-INF/kmodule.xml", kmoduleString);
-		String processString = IOUtils.toString(this.getClass()
-				.getResourceAsStream("/BPMN2-CustomTask.bpmn2"), "UTF-8");
-		resources.put("src/main/resources/BPMN2-CustomTask.bpmn2",
-				processString);
+        resources.put("src/main/resources/META-INF/kmodule.xml", kmoduleString);
+        String processString = IOUtils.toString(this.getClass()
+                .getResourceAsStream("/BPMN2-CustomTask.bpmn2"), "UTF-8");
+        resources.put("src/main/resources/BPMN2-CustomTask.bpmn2",
+                processString);
 
-		InternalKieModule kJar1 = createKieJar(ks, releaseId, resources);
-		installKjar(releaseId, kJar1);
+        InternalKieModule kJar1 = createKieJar(ks, releaseId, resources);
+        installKjar(releaseId, kJar1);
 
-		Properties properties = new Properties();
-		UserGroupCallback userGroupCallback = new JBossUserGroupCallbackImpl(
-				properties);
+        Properties properties = new Properties();
+        UserGroupCallback userGroupCallback = new JBossUserGroupCallbackImpl(
+                properties);
 
-		RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory
-				.get().newDefaultBuilder(releaseId)
-				.userGroupCallback(userGroupCallback).get();
+        RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory
+                .get().newDefaultBuilder(releaseId)
+                .userGroupCallback(userGroupCallback).get();
 
-		manager = RuntimeManagerFactory.Factory.get()
-				.newPerProcessInstanceRuntimeManager(environment);
+        manager = RuntimeManagerFactory.Factory.get()
+                .newPerProcessInstanceRuntimeManager(environment);
 
-		manager.getRuntimeEngine(ProcessInstanceIdContext.get())
-				.getKieSession().startProcess("customtask");
+        manager.getRuntimeEngine(ProcessInstanceIdContext.get())
+                .getKieSession().startProcess("customtask");
 
-	}
+    }
 
 }

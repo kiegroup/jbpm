@@ -43,8 +43,8 @@ public class DeploymentIdsPreprocessor implements DataSetPreprocessor {
             return;
         }
         List<String> deploymentIds = deploymentRolesManager.getDeploymentsForUser(identityProvider);
-                
-        
+
+
         if (lookup.getFirstFilterOp() != null) {
             lookup.getFirstFilterOp().addFilterColumn(in(columnId, deploymentIds));
         } else {

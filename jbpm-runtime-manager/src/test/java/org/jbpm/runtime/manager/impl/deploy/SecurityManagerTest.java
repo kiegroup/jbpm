@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -40,9 +40,9 @@ import org.kie.internal.task.api.UserGroupCallback;
 import bitronix.tm.resource.jdbc.PoolingDataSource;
 
 public class SecurityManagerTest extends AbstractBaseTest {
-	
+
     private PoolingDataSource pds;
-    private UserGroupCallback userGroupCallback;  
+    private UserGroupCallback userGroupCallback;
     private RuntimeManager manager;
     @Before
     public void setup() {
@@ -53,7 +53,7 @@ public class SecurityManagerTest extends AbstractBaseTest {
         properties.setProperty("john", "HR");
         userGroupCallback = new JBossUserGroupCallbackImpl(properties);
     }
-    
+
     @After
     public void teardown() {
         if (manager != null) {
@@ -63,86 +63,86 @@ public class SecurityManagerTest extends AbstractBaseTest {
     }
 
     @Test
-	public void testNoSecurityManager() {
-		RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
-    			.newEmptyBuilder()
-    			.userGroupCallback(userGroupCallback)
+    public void testNoSecurityManager() {
+        RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
+                .newEmptyBuilder()
+                .userGroupCallback(userGroupCallback)
                 .addAsset(ResourceFactory.newClassPathResource("BPMN2-ScriptTask.bpmn2"), ResourceType.BPMN2)
                 .get();
-        
-        manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);        
+
+        manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);
         assertNotNull(manager);
-        
+
         RuntimeEngine runtime = manager.getRuntimeEngine(EmptyContext.get());
         assertNotNull(runtime);
-        
+
         manager.disposeRuntimeEngine(runtime);
-	}
-    
+    }
+
     @Test(expected=SecurityException.class)
-  	public void testDenyAllSecurityManager() {
-  		RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
-      			.newEmptyBuilder()
-      			.userGroupCallback(userGroupCallback)
+    public void testDenyAllSecurityManager() {
+        RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
+                .newEmptyBuilder()
+                .userGroupCallback(userGroupCallback)
                   .addAsset(ResourceFactory.newClassPathResource("BPMN2-ScriptTask.bpmn2"), ResourceType.BPMN2)
                   .get();
-          
-          manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);        
+
+          manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);
           assertNotNull(manager);
           ((InternalRuntimeManager) manager).setSecurityManager(new SecurityManager() {
-			
-			@Override
-			public void checkPermission() throws SecurityException {
-				throw new SecurityException("Deny all on purpose");
-			}
+
+            @Override
+            public void checkPermission() throws SecurityException {
+                throw new SecurityException("Deny all on purpose");
+            }
           });
-          manager.getRuntimeEngine(EmptyContext.get());        
-  	}
-    
+          manager.getRuntimeEngine(EmptyContext.get());
+    }
+
     @Test(expected=SecurityException.class)
-	public void testCustomSecurityManager() {
-		RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
-    			.newEmptyBuilder()
-    			.userGroupCallback(userGroupCallback)
+    public void testCustomSecurityManager() {
+        RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
+                .newEmptyBuilder()
+                .userGroupCallback(userGroupCallback)
                 .addAsset(ResourceFactory.newClassPathResource("BPMN2-ScriptTask.bpmn2"), ResourceType.BPMN2)
                 .get();
-        
-        manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);        
+
+        manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);
         assertNotNull(manager);
         final User user = new User("john");
         ((InternalRuntimeManager) manager).setSecurityManager(new SecurityManager() {
 
-			@Override
-			public void checkPermission() throws SecurityException {
-				if ("mary".equals(user.getName())) {
-					throw new SecurityException("Mary is not allowed to use runtime manager");
-				}
-			}
-        	
+            @Override
+            public void checkPermission() throws SecurityException {
+                if ("mary".equals(user.getName())) {
+                    throw new SecurityException("Mary is not allowed to use runtime manager");
+                }
+            }
+
         });
-        
+
         RuntimeEngine runtime = manager.getRuntimeEngine(EmptyContext.get());
         assertNotNull(runtime);
-        
+
         manager.disposeRuntimeEngine(runtime);
-        
+
         user.setName("mary");
         manager.getRuntimeEngine(EmptyContext.get());
-	}
-    
+    }
+
     private class User {
-    	private String name;
+        private String name;
 
-    	User(String name) {
-    		this.name = name;
-    	}
-    	
-		public String getName() {
-			return name;
-		}
+        User(String name) {
+            this.name = name;
+        }
 
-		public void setName(String name) {
-			this.name = name;
-		}
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
     }
 }

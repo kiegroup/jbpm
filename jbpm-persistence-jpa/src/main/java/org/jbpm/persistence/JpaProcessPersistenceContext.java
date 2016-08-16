@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -39,7 +39,7 @@ import org.kie.internal.process.CorrelationProperty;
 public class JpaProcessPersistenceContext extends JpaPersistenceContext
     implements
     ProcessPersistenceContext {
-    
+
     public JpaProcessPersistenceContext(EntityManager em, TransactionManager txm) {
         super( em, txm );
     }
@@ -52,16 +52,16 @@ public class JpaProcessPersistenceContext extends JpaPersistenceContext
         EntityManager em = getEntityManager();
         em.persist(processInstanceInfo);
         TransactionManagerHelper.addToUpdatableSet(txm, processInstanceInfo);
-        if( this.pessimisticLocking ) { 
-        	em.flush();
+        if( this.pessimisticLocking ) {
+            em.flush();
             return em.find(ProcessInstanceInfo.class, processInstanceInfo.getId(), LockModeType.PESSIMISTIC_FORCE_INCREMENT );
         }
         return processInstanceInfo;
     }
 
     public ProcessInstanceInfo findProcessInstanceInfo(Long processId) {
-    	EntityManager em = getEntityManager();       
-    	if( this.pessimisticLocking ) { 
+        EntityManager em = getEntityManager();
+        if( this.pessimisticLocking ) {
             return em.find( ProcessInstanceInfo.class, processId, LockModeType.PESSIMISTIC_FORCE_INCREMENT );
         }
         return em.find( ProcessInstanceInfo.class, processId );
@@ -81,34 +81,34 @@ public class JpaProcessPersistenceContext extends JpaPersistenceContext
 
     /**
      * This method is used by the {@link JPASignalManager} in order to load {@link ProcessInstance} instances
-     * into the {@link ProcessInstanceManager} cache so that they can then be signalled. 
+     * into the {@link ProcessInstanceManager} cache so that they can then be signalled.
      * </p>
-     * Unfortunately, with regards to locking, the method is not always called during a transaction, which means 
-     * that including logic to lock the query will cause exceptions and is not feasible. 
+     * Unfortunately, with regards to locking, the method is not always called during a transaction, which means
+     * that including logic to lock the query will cause exceptions and is not feasible.
      * </p>
-     * Because the {@link SingleSessionCommandService} design is based around a synchronized execute(...) method, 
-     * it's not possible for one thread to create a process instance while another thread simultaneously tries to 
-     * signal it. That means that a 
-     * <a href="http://en.wikipedia.org/wiki/Isolation_%28database_systems%29#Phantom_reads">phantom read</a> 
-     * race condition, that might be caused by a lack of pessimistic locking on this query, isn't possible. 
+     * Because the {@link SingleSessionCommandService} design is based around a synchronized execute(...) method,
+     * it's not possible for one thread to create a process instance while another thread simultaneously tries to
+     * signal it. That means that a
+     * <a href="http://en.wikipedia.org/wiki/Isolation_%28database_systems%29#Phantom_reads">phantom read</a>
+     * race condition, that might be caused by a lack of pessimistic locking on this query, isn't possible.
      * </p>
-     * Of course, if you're using multiple ksessions to simultaneoulsy interact with the same process instance, 
-     * all bets are off. This however is true for almost everything involving process instances, so that it's not 
-     * worth discussing. 
+     * Of course, if you're using multiple ksessions to simultaneoulsy interact with the same process instance,
+     * all bets are off. This however is true for almost everything involving process instances, so that it's not
+     * worth discussing.
      * </p>
      */
     public List<Long> getProcessInstancesWaitingForEvent(String type) {
-    	EntityManager entityManager = getEntityManager();
-    	if (entityManager != null) {
-	        Query processInstancesForEvent = getEntityManager().createNamedQuery( "ProcessInstancesWaitingForEvent" );
-	        processInstancesForEvent.setParameter( "type",
-	                                               type );
-	        return (List<Long>) processInstancesForEvent.getResultList();
-    	} else {
-    		// entity manager can be null when fireActivationCreated is
-    		// called on session unmarshalling
-    		return new ArrayList<Long>();
-    	}
+        EntityManager entityManager = getEntityManager();
+        if (entityManager != null) {
+            Query processInstancesForEvent = getEntityManager().createNamedQuery( "ProcessInstancesWaitingForEvent" );
+            processInstancesForEvent.setParameter( "type",
+                                                   type );
+            return (List<Long>) processInstancesForEvent.getResultList();
+        } else {
+            // entity manager can be null when fireActivationCreated is
+            // called on session unmarshalling
+            return new ArrayList<Long>();
+        }
     }
 
     public CorrelationKeyInfo persist(CorrelationKeyInfo correlationKeyInfo) {
@@ -119,19 +119,19 @@ public class JpaProcessPersistenceContext extends JpaPersistenceContext
         EntityManager em = getEntityManager();
         em.persist( correlationKeyInfo );
         if( this.pessimisticLocking) {
-        	em.flush();
+            em.flush();
             return em.find(CorrelationKeyInfo.class, correlationKeyInfo.getId(), LockModeType.PESSIMISTIC_FORCE_INCREMENT);
         }
         return correlationKeyInfo;
-        
+
     }
 
     /**
-     * With regards to locking, the method is not always called during a transaction, which means 
-     * that including logic to lock the query will cause exceptions and is not feasible. 
+     * With regards to locking, the method is not always called during a transaction, which means
+     * that including logic to lock the query will cause exceptions and is not feasible.
      * </p>
      * However, this is not an issue: see the {@link #getProcessInstancesWaitingForEvent(String)} documentation
-     * for more information. The same logic applies to this method. 
+     * for more information. The same logic applies to this method.
      * </p>
      */
     public Long getProcessInstanceByCorrelationKey(CorrelationKey correlationKey) {
@@ -150,5 +150,5 @@ public class JpaProcessPersistenceContext extends JpaPersistenceContext
             return null;
         }
     }
-    
+
 }

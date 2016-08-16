@@ -25,9 +25,9 @@ import org.jbpm.services.cdi.Deploy;
 @ApplicationScoped
 public class ThrowExceptionOnDeploymentEvent {
 
-	public void checkAndThrow(@Observes @Deploy DeploymentEvent event) {
-		if (event.getDeploymentId().endsWith("ksession-test")) {
-			throw new IllegalStateException("Thrown on purpose to rollback deployment");
-		}
-	}
+    public void checkAndThrow(@Observes @Deploy DeploymentEvent event) {
+        if (event.getDeploymentId().endsWith("ksession-test")) {
+            throw new IllegalStateException("Thrown on purpose to rollback deployment");
+        }
+    }
 }

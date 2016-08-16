@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -36,23 +36,23 @@ public class JaxbI18NText extends AbstractJaxbTaskObject<I18NText> implements I1
     @XmlElement
     @XmlSchemaType(name="long")
     private Long id;
- 
+
     @XmlElement
     @XmlSchemaType(name="string")
     private String text;
- 
+
     @XmlElement
     @XmlSchemaType(name="string")
     private String language;
- 
-    public JaxbI18NText() { 
+
+    public JaxbI18NText() {
        super(I18NText.class);
     }
-    
-    public JaxbI18NText(I18NText text) { 
+
+    public JaxbI18NText(I18NText text) {
        super(text, I18NText.class);
     }
-    
+
     public Long getId() {
         return id;
     }
@@ -77,20 +77,20 @@ public class JaxbI18NText extends AbstractJaxbTaskObject<I18NText> implements I1
         this.language = lang;
     }
 
-    public static List<I18NText> convertListFromJaxbImplToInterface(List<JaxbI18NText> jaxbList) { 
+    public static List<I18NText> convertListFromJaxbImplToInterface(List<JaxbI18NText> jaxbList) {
         List<I18NText> list;
-        if( jaxbList != null ) { 
+        if( jaxbList != null ) {
             list = new ArrayList<I18NText>(jaxbList.size());
-            for( JaxbI18NText jaxb : jaxbList ) { 
+            for( JaxbI18NText jaxb : jaxbList ) {
                 list.add(jaxb.createImplInstance());
             }
-        } else { 
+        } else {
             list = new ArrayList<I18NText>();
         }
         return list;
     }
-    
-    private I18NText createImplInstance() { 
+
+    private I18NText createImplInstance() {
        return new GetterI18NText(this.id, this.language, this.text);
     }
 

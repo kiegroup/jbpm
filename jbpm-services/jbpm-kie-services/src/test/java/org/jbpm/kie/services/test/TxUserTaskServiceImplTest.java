@@ -48,17 +48,17 @@ import org.slf4j.LoggerFactory;
 
 public class TxUserTaskServiceImplTest extends AbstractKieServicesBaseTest {
 
-private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentServiceTest.class);   
-    
+private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentServiceTest.class);
+
     private List<DeploymentUnit> units = new ArrayList<DeploymentUnit>();
-    
+
     private Long processInstanceId = null;
     private KModuleDeploymentUnit deploymentUnit = null;
-       
+
     @Before
     public void prepare() {
-    	configureServices();
-    	logger.debug("Preparing kjar");
+        configureServices();
+        logger.debug("Preparing kjar");
         KieServices ks = KieServices.Factory.get();
         ReleaseId releaseId = ks.newReleaseId(GROUP_ID, ARTIFACT_ID, VERSION);
         List<String> processes = new ArrayList<String>();
@@ -72,48 +72,48 @@ private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentSe
             fs.write(getPom(releaseId).getBytes());
             fs.close();
         } catch (Exception e) {
-            
+
         }
         MavenRepository repository = getMavenRepository();
         repository.installArtifact(releaseId, kJar1, pom);
-        
+
         assertNotNull(deploymentService);
-        
+
         deploymentUnit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
-        
+
         deploymentService.deploy(deploymentUnit);
         units.add(deploymentUnit);
-    	assertNotNull(processService);
+        assertNotNull(processService);
 
     }
-    
+
     @After
     public void cleanup() {
-    	if (processInstanceId != null) {
-    		try {
-		    	// let's abort process instance to leave the system in clear state
-		    	processService.abortProcessInstance(processInstanceId);
-		    	
-		    	ProcessInstance pi = processService.getProcessInstance(processInstanceId);    	
-		    	assertNull(pi);
-    		} catch (ProcessInstanceNotFoundException e) {
-    			// ignore it as it might already be completed/aborted
-    		}
-    	}
+        if (processInstanceId != null) {
+            try {
+                // let's abort process instance to leave the system in clear state
+                processService.abortProcessInstance(processInstanceId);
+
+                ProcessInstance pi = processService.getProcessInstance(processInstanceId);
+                assertNull(pi);
+            } catch (ProcessInstanceNotFoundException e) {
+                // ignore it as it might already be completed/aborted
+            }
+        }
         cleanupSingletonSessionId();
         if (units != null && !units.isEmpty()) {
             for (DeploymentUnit unit : units) {
-            	try {
+                try {
                 deploymentService.undeploy(unit);
-            	} catch (Exception e) {
-            		// do nothing in case of some failed tests to avoid next test to fail as well
-            	}
+                } catch (Exception e) {
+                    // do nothing in case of some failed tests to avoid next test to fail as well
+                }
             }
             units.clear();
         }
         close();
-    }       
-    
+    }
+
     @Test
     public void testStartCompleteWithSignalInTransactions() throws Exception {
         UserTransaction ut = InitialContext.doLookup("java:comp/UserTransaction");
@@ -123,20 +123,20 @@ private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentSe
         List<Long> taskIds = runtimeDataService.getTasksByProcessInstanceId(processInstanceId);
         assertNotNull(taskIds);
         assertEquals(1, taskIds.size());
-        
+
         Long taskId = taskIds.get(0);
-        
+
         userTaskService.start(taskId, "john");
         ut.commit();
-        
+
         ut.begin();
         Map<String, Object> results = new HashMap<String, Object>();
         results.put("Result", "some document data");
         userTaskService.complete(taskId, "john", results);
-   
+
         Long childProcessInstanceId = (Long) processService.getProcessInstanceVariable(processInstanceId, "childProcessInstanceId");
         processService.signalProcessInstance(childProcessInstanceId, "EVENT", null);
-        
+
         ut.commit();
     }
 }

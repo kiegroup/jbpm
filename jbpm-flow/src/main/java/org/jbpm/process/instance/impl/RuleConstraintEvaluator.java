@@ -28,7 +28,7 @@ import org.kie.api.runtime.process.WorkflowProcessInstance;
 
 /**
  * Default implementation of a constraint.
- * 
+ *
  */
 public class RuleConstraintEvaluator implements Constraint,
         ConstraintEvaluator, Serializable {
@@ -41,7 +41,7 @@ public class RuleConstraintEvaluator implements Constraint,
     private String             dialect;
     private String             type;
     private boolean            isDefault;
-    
+
     public String getConstraint() {
         return this.constraint;
     }
@@ -85,33 +85,33 @@ public class RuleConstraintEvaluator implements Constraint,
     public void setType(String type) {
         this.type = type;
     }
-    
+
     public boolean isDefault() {
-		return isDefault;
-	}
+        return isDefault;
+    }
 
-	public void setDefault(boolean isDefault) {
-		this.isDefault = isDefault;
-	}
+    public void setDefault(boolean isDefault) {
+        this.isDefault = isDefault;
+    }
 
-	public boolean evaluate(NodeInstance instance,
+    public boolean evaluate(NodeInstance instance,
                             Connection connection,
                             Constraint constraint) {
         WorkflowProcessInstance processInstance = instance.getProcessInstance();
         InternalAgenda agenda = (InternalAgenda) ((ProcessInstance) processInstance).getKnowledgeRuntime().getAgenda();
-        String rule = "RuleFlow-Split-" + processInstance.getProcessId() + "-" + 
-        	((Node) instance.getNode()).getUniqueId() + "-" + 
-        	((Node) connection.getTo()).getUniqueId() + "-" + connection.getToType();
+        String rule = "RuleFlow-Split-" + processInstance.getProcessId() + "-" +
+            ((Node) instance.getNode()).getUniqueId() + "-" +
+            ((Node) connection.getTo()).getUniqueId() + "-" + connection.getToType();
 
         return agenda.isRuleActiveInRuleFlowGroup( "DROOLS_SYSTEM", rule, processInstance.getId() );
     }
 
-	public Object getMetaData(String name) {
-		return null;
-	}
+    public Object getMetaData(String name) {
+        return null;
+    }
 
-	public void setMetaData(String name, Object value) {
-		// Do nothing
-	}    
+    public void setMetaData(String name, Object value) {
+        // Do nothing
+    }
 
 }

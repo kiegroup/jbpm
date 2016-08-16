@@ -23,35 +23,35 @@ import org.jbpm.process.core.timer.impl.GlobalTimerService;
 /**
  * Simple TimerService registry used for single point registration of <code>TimerService</code>
  * instances used by sessions.
- * Registry is intended to be used at the application startup to register all required TimerServices 
- * so it can start operate as soon as it is active even if the session are not yet active. 
+ * Registry is intended to be used at the application startup to register all required TimerServices
+ * so it can start operate as soon as it is active even if the session are not yet active.
  *
  */
 public class TimerServiceRegistry {
 
     public static final String TIMER_SERVICE_SUFFIX = "-timerServiceId";
     private ConcurrentHashMap<String, TimerService> registeredServices = new ConcurrentHashMap<String, TimerService>();
-    
+
     private static TimerServiceRegistry instance = new TimerServiceRegistry();
-    
+
     public static TimerServiceRegistry getInstance() {
 
         return instance;
     }
-    
+
     /**
-     * Registers timerServie under given id. In case timer service is already registered  
+     * Registers timerServie under given id. In case timer service is already registered
      * with this id it will be overridden.
      * @param id key used to get hold of the timer service instance
      * @param timerService fully initialized TimerService instance
      */
-    public void registerTimerService(String id, TimerService timerService) {   
+    public void registerTimerService(String id, TimerService timerService) {
         if (timerService instanceof GlobalTimerService) {
             ((GlobalTimerService) timerService).setTimerServiceId(id);
         }
         this.registeredServices.put(id, timerService);
     }
-    
+
     /**
      * Returns TimerService instance registered under given key
      * @param id timer service identifier
@@ -63,7 +63,7 @@ public class TimerServiceRegistry {
         }
         return this.registeredServices.get(id);
     }
-    
+
     /**
      * Removes TimerService from the registry.
      * @param id timer service identifier

@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -68,7 +68,7 @@ public class MVELActionBuilder extends AbstractMVELBuilder implements ActionBuil
 //                        }
 //                    } );;
     }
-    
+
     public MVELActionBuilder() {
 
     }
@@ -79,7 +79,7 @@ public class MVELActionBuilder extends AbstractMVELBuilder implements ActionBuil
         return macroProcessor.parse( delimitExpressions( consequence ) );
     }
 
- 
+
     public void build(final PackageBuildContext context,
                       final DroolsAction action,
                       final ActionDescr actionDescr,
@@ -87,7 +87,7 @@ public class MVELActionBuilder extends AbstractMVELBuilder implements ActionBuil
 
         String text = processMacros( actionDescr.getText() );
         Map<String, Class<?>> variables = new HashMap<String,Class<?>>();
-        
+
         try {
             MVELDialect dialect = (MVELDialect) context.getDialect( "mvel" );
             MVELAnalysisResult analysis = getAnalysis(context, actionDescr, dialect, text, variables);
@@ -96,12 +96,12 @@ public class MVELActionBuilder extends AbstractMVELBuilder implements ActionBuil
                 // not possible to get the analysis results
                 return;
             }
-            
+
             buildAction(context,
                         action,
                         actionDescr,
                         contextResolver,
-                        dialect, 
+                        dialect,
                         analysis,
                         text,
                         variables);
@@ -113,25 +113,25 @@ public class MVELActionBuilder extends AbstractMVELBuilder implements ActionBuil
         }
     }
 
- 
+
     protected void buildAction(final PackageBuildContext context,
             final DroolsAction action,
             final ActionDescr actionDescr,
-            final ContextResolver contextResolver, 
+            final ContextResolver contextResolver,
             final MVELDialect dialect,
-            final MVELAnalysisResult analysis, 
-            final String text, 
+            final MVELAnalysisResult analysis,
+            final String text,
             Map<String, Class<?>> variables) throws Exception {
-       
+
         Set<String> variableNames = analysis.getNotBoundedIdentifiers();
         if (contextResolver != null) {
             for (String variableName: variableNames) {
-                if ( analysis.getMvelVariables().keySet().contains( variableName ) 
-                     ||  variableName.equals( "kcontext" ) 
+                if ( analysis.getMvelVariables().keySet().contains( variableName )
+                     ||  variableName.equals( "kcontext" )
                      || variableName.equals( "context" ) ) {
                     continue;
                 }
-                VariableScope variableScope 
+                VariableScope variableScope
                     = (VariableScope) contextResolver.resolveContext(VariableScope.VARIABLE_SCOPE, variableName);
                 if (variableScope == null) {
                     context.getErrors().add(
@@ -147,8 +147,8 @@ public class MVELActionBuilder extends AbstractMVELBuilder implements ActionBuil
                 }
             }
         }
-        
-        
+
+
 
         MVELCompilationUnit unit = dialect.getMVELCompilationUnit( text,
                                                                    analysis,
@@ -163,13 +163,13 @@ public class MVELActionBuilder extends AbstractMVELBuilder implements ActionBuil
         MVELAction expr = new MVELAction( unit, context.getDialect().getId() );
         action.setMetaData("Action",  expr );
 
-        MVELDialectRuntimeData data 
-            = (MVELDialectRuntimeData) context.getPkg().getDialectRuntimeRegistry().getDialectData( dialect.getId() );            
-        data.addCompileable( action, expr );  
+        MVELDialectRuntimeData data
+            = (MVELDialectRuntimeData) context.getPkg().getDialectRuntimeRegistry().getDialectData( dialect.getId() );
+        data.addCompileable( action, expr );
 
         expr.compile( data );
-        
+
         collectTypes("MVELDialect", analysis, (ProcessBuildContext) context);
     }
-    
+
 }

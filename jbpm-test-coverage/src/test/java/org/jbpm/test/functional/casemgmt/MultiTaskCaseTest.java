@@ -32,7 +32,7 @@ import org.kie.api.runtime.manager.audit.NodeInstanceLog;
 import org.kie.api.runtime.process.ProcessInstance;
 
 public class MultiTaskCaseTest extends JbpmTestCase {
-    
+
     protected static final String MULTI_TASK_CASE = "org/jbpm/test/functional/casemgmt/MultiTaskCase.bpmn2";
 
     @Test(timeout = 30000)
@@ -51,7 +51,7 @@ public class MultiTaskCaseTest extends JbpmTestCase {
         caseMgmtService.triggerAdHocFragment(pid, "T1");
         caseMgmtService.triggerAdHocFragment(pid, "T1");
         caseMgmtService.triggerAdHocFragment(pid, "T1");
-        
+
         AuditService auditService = getLogService();
         List<? extends NodeInstanceLog> nodes = auditService.findNodeInstances(pid, "_4");
         List<String> passedNodes = new ArrayList<String>();
@@ -61,11 +61,11 @@ public class MultiTaskCaseTest extends JbpmTestCase {
                 passedNodes.add(nil.getNodeName());
             }
         }
-        
+
         Assertions.assertThat(passedNodes).hasSize(3);
         Assertions.assertThat(passedNodes).containsOnly("T1");
-        
-        
+
+
         caseMgmtService.triggerAdHocFragment(pid, "Terminate");
 
     }

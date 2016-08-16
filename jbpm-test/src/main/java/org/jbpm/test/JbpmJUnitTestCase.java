@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -85,7 +85,7 @@ import bitronix.tm.resource.jdbc.PoolingDataSource;
  */
 @Deprecated
 public abstract class JbpmJUnitTestCase extends AbstractBaseTest {
-    
+
     private static final Logger testLogger = LoggerFactory.getLogger(JbpmJUnitTestCase.class);
 
     protected final static String EOL = System.getProperty("line.separator");
@@ -96,19 +96,19 @@ public abstract class JbpmJUnitTestCase extends AbstractBaseTest {
     private H2Server server = new H2Server();
     private TaskService taskService;
     private TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
-    private WorkingMemoryInMemoryLogger logger;    
-    
+    private WorkingMemoryInMemoryLogger logger;
+
     private RuntimeManager manager;
     private RuntimeEnvironment environment;
     private AuditLogService logService;
 
 //    @Rule
-//    public KnowledgeSessionCleanup ksessionCleanupRule = new KnowledgeSessionCleanup();	
-//	protected static ThreadLocal<Set<StatefulKnowledgeSession>> knowledgeSessionSetLocal 
-//	    = KnowledgeSessionCleanup.knowledgeSessionSetLocal;
+//    public KnowledgeSessionCleanup ksessionCleanupRule = new KnowledgeSessionCleanup();
+//  protected static ThreadLocal<Set<StatefulKnowledgeSession>> knowledgeSessionSetLocal
+//      = KnowledgeSessionCleanup.knowledgeSessionSetLocal;
 //    @Rule
 //    public TestName testName = new TestName();
-    
+
     public JbpmJUnitTestCase() {
         this(false);
     }
@@ -149,7 +149,7 @@ public abstract class JbpmJUnitTestCase extends AbstractBaseTest {
             ds = setupPoolingDataSource();
             emf = Persistence.createEntityManagerFactory("org.jbpm.persistence.jpa");
         }
-        cleanupSingletonSessionId();        
+        cleanupSingletonSessionId();
     }
 
     @After
@@ -200,19 +200,19 @@ public abstract class JbpmJUnitTestCase extends AbstractBaseTest {
         RuntimeEnvironmentBuilder builder = null;
         if (!setupDataSource){
             builder = RuntimeEnvironmentBuilder.Factory.get()
-        			.newEmptyBuilder()
+                    .newEmptyBuilder()
             .addConfiguration("drools.processSignalManagerFactory", DefaultSignalManagerFactory.class.getName())
             .addConfiguration("drools.processInstanceManagerFactory", DefaultProcessInstanceManagerFactory.class.getName());
         } else if (sessionPersistence) {
             builder = RuntimeEnvironmentBuilder.Factory.get()
-        			.newDefaultBuilder();
+                    .newDefaultBuilder();
         } else {
             builder = RuntimeEnvironmentBuilder.Factory.get()
-        			.newDefaultInMemoryBuilder();       
+                    .newDefaultInMemoryBuilder();
         }
         builder.userGroupCallback(new JBossUserGroupCallbackImpl("classpath:/usergroups.properties"));
         for (Map.Entry<String, ResourceType> entry : resources.entrySet()) {
-            
+
             builder.addAsset(ResourceFactory.newClassPathResource(entry.getKey()), entry.getValue());
         }
         environment = builder.get();
@@ -269,14 +269,14 @@ public abstract class JbpmJUnitTestCase extends AbstractBaseTest {
     protected KieSession createKnowledgeSession() {
         manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);
         RuntimeEngine runtime = manager.getRuntimeEngine(EmptyContext.get());
-                
+
         KieSession result = runtime.getKieSession();
         if (sessionPersistence) {
-            
-            logService = new JPAAuditLogService(environment.getEnvironment());               
-            
+
+            logService = new JPAAuditLogService(environment.getEnvironment());
+
         } else {
-            
+
             logger = new WorkingMemoryInMemoryLogger((StatefulKnowledgeSession) result);
         }
         //knowledgeSessionSetLocal.get().add(result);
@@ -291,7 +291,7 @@ public abstract class JbpmJUnitTestCase extends AbstractBaseTest {
     protected KieSession restoreSession(KieSession ksession, boolean noCache) throws SystemException {
         if (sessionPersistence) {
             manager.close();
-            
+
             return createKnowledgeSession();
         } else {
             return ksession;
@@ -302,7 +302,7 @@ public abstract class JbpmJUnitTestCase extends AbstractBaseTest {
 //        KnowledgeBase kbase = createKnowledgeBase(process);
 //
 //        final KieSessionConfiguration config = KnowledgeBaseFactory.newKnowledgeSessionConfiguration();
-//        // Do NOT use the Pseudo clock yet.. 
+//        // Do NOT use the Pseudo clock yet..
 //        // config.setOption(ClockTypeOption.get(ClockType.PSEUDO_CLOCK.getId()));
 //
 //        StatefulKnowledgeSession ksession = JPAKnowledgeService.loadStatefulKnowledgeSession(id, kbase, config, createEnvironment(emf));
@@ -536,7 +536,7 @@ public abstract class JbpmJUnitTestCase extends AbstractBaseTest {
 
     public TaskService getService() {
         return (InternalTaskService) HumanTaskServiceFactory.newTaskServiceConfigurator()
-        		.userGroupCallback(new MvelUserGroupCallbackImpl(true))
+                .userGroupCallback(new MvelUserGroupCallbackImpl(true))
                 .entityManagerFactory(emf)
                 .getTaskService();
     }
@@ -573,22 +573,22 @@ public abstract class JbpmJUnitTestCase extends AbstractBaseTest {
     public EntityManagerFactory getEmf() {
         return emf;
     }
-    
+
 
     public static void cleanupSingletonSessionId() {
         File tempDir = new File(System.getProperty("java.io.tmpdir"));
         if (tempDir.exists()) {
-            
+
             String[] jbpmSerFiles = tempDir.list(new FilenameFilter() {
-                
+
                 @Override
                 public boolean accept(File dir, String name) {
-                    
+
                     return name.endsWith("-jbpmSessionId.ser");
                 }
             });
             for (String file : jbpmSerFiles) {
-                
+
                 new File(tempDir, file).delete();
             }
         }

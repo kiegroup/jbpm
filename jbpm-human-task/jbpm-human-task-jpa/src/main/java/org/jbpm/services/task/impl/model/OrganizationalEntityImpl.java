@@ -29,31 +29,31 @@ import org.kie.internal.task.api.model.InternalOrganizationalEntity;
 @Entity
 @Table(name="OrganizationalEntity")
 public abstract class OrganizationalEntityImpl implements InternalOrganizationalEntity {
-    
+
     @Id
-    private String id;   
-    
+    private String id;
+
     public OrganizationalEntityImpl() {
     }
-        
-    
+
+
     public OrganizationalEntityImpl(String id ) {
         this.id = id;
     }
-    
+
     public void writeExternal(ObjectOutput out) throws IOException {
         // id should never be "", given that it's the only field here!
-        if( id == null ) { 
+        if( id == null ) {
             id = "";
         }
         out.writeUTF( id );
-    } 
-    
+    }
+
     public void readExternal(ObjectInput in) throws IOException,
                                             ClassNotFoundException {
         id = in.readUTF();
-    }      
-    
+    }
+
     public String getId() {
         return id;
     }
@@ -82,8 +82,8 @@ public abstract class OrganizationalEntityImpl implements InternalOrganizational
             if ( other.id != null ) return false;
         } else if ( !id.equals( other.id ) ) return false;
         return true;
-    }     
-    
+    }
+
     public String toString() {
         return "[" + getClass().getSimpleName() + ":'" + id + "']";
     }

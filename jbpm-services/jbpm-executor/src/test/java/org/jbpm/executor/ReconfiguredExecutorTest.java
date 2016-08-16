@@ -41,13 +41,13 @@ import bitronix.tm.resource.jdbc.PoolingDataSource;
 
 
 public class ReconfiguredExecutorTest {
-    
-	protected ExecutorService executorService;
+
+    protected ExecutorService executorService;
     public static final Map<String, Object> cachedEntities = new HashMap<String, Object>();
-    
-	private PoolingDataSource pds;
-	private EntityManagerFactory emf = null;
-    
+
+    private PoolingDataSource pds;
+    private EntityManagerFactory emf = null;
+
     @Before
     public void setUp() {
         pds = ExecutorTestUtil.setupPoolingDataSource();
@@ -57,31 +57,31 @@ public class ReconfiguredExecutorTest {
         executorService.setThreadPoolSize(2);
         executorService.setInterval(3000);
         executorService.setTimeunit(TimeUnit.MILLISECONDS);
-        
+
         executorService.init();
     }
-    
+
     @After
     public void tearDown() {
-    	executorService.clearAllRequests();
+        executorService.clearAllRequests();
         executorService.clearAllErrors();
-        
+
         System.clearProperty("org.kie.executor.msg.length");
-    	System.clearProperty("org.kie.executor.stacktrace.length");
+        System.clearProperty("org.kie.executor.stacktrace.length");
         executorService.destroy();
         if (emf != null) {
-        	emf.close();
+            emf.close();
         }
         pds.close();
     }
-    
+
     protected CountDownAsyncJobListener configureListener(int threads) {
         CountDownAsyncJobListener countDownListener = new CountDownAsyncJobListener(threads);
         ((ExecutorServiceImpl) executorService).addAsyncJobListener(countDownListener);
-        
+
         return countDownListener;
     }
-   
+
     @Test
     public void simpleExcecutionTest() throws InterruptedException {
         CountDownAsyncJobListener countDownListener = configureListener(1);
@@ -100,5 +100,5 @@ public class ReconfiguredExecutorTest {
         assertEquals(1, executedRequests.size());
 
 
-    }   
+    }
 }

@@ -33,23 +33,23 @@ public abstract class AuditCommand<T> implements GenericCommand<T> {
 
     @XmlTransient
     protected AuditLogService auditLogService = null;
-    
+
     public AuditCommand() {
-	}
-   
-    public void setAuditLogService(AuditLogService auditLogService) { 
+    }
+
+    public void setAuditLogService(AuditLogService auditLogService) {
         this.auditLogService = auditLogService;
     }
-    
-    protected void setLogEnvironment(Context cntxt) { 
-        if( auditLogService != null ) { 
+
+    protected void setLogEnvironment(Context cntxt) {
+        if( auditLogService != null ) {
             return;
         }
-        if( ! (cntxt instanceof KnowledgeCommandContext) ) { 
+        if( ! (cntxt instanceof KnowledgeCommandContext) ) {
             throw new UnsupportedOperationException("This command must be executed by a " + KieSession.class.getSimpleName() + " instance!");
         }
         KnowledgeCommandContext realContext = (FixedKnowledgeCommandContext) cntxt;
         this.auditLogService = new JPAAuditLogService(realContext.getKieSession().getEnvironment(), PersistenceStrategyType.KIE_SESSION);
     }
-    
+
 }

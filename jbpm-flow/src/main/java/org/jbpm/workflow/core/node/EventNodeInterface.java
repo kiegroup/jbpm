@@ -17,7 +17,7 @@
 package org.jbpm.workflow.core.node;
 
 public interface EventNodeInterface {
-	
-	boolean acceptsEvent(String type, Object event);
+
+    boolean acceptsEvent(String type, Object event);
 
 }

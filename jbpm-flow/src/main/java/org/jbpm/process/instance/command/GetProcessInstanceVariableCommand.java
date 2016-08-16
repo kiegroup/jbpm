@@ -33,7 +33,7 @@ import org.kie.internal.command.ProcessInstanceIdCommand;
 public class GetProcessInstanceVariableCommand implements GenericCommand<Object>, ProcessInstanceIdCommand {
 
     private static final long serialVersionUID = 6L;
-	
+
     @XmlAttribute(required=true)
     @XmlSchemaType(name="long")
     private Long processInstanceId;
@@ -69,10 +69,10 @@ public class GetProcessInstanceVariableCommand implements GenericCommand<Object>
         if ( processInstance == null ) {
             throw new IllegalArgumentException( "Could not find process instance for id " + processInstanceId );
         }
-        if ( processInstance instanceof WorkflowProcessInstance ) { 
-        	return ((WorkflowProcessInstance) processInstance).getVariable(variableId);
-        } else { 
-            throw new IllegalStateException("Could not retrieve variable " + variableId 
+        if ( processInstance instanceof WorkflowProcessInstance ) {
+            return ((WorkflowProcessInstance) processInstance).getVariable(variableId);
+        } else {
+            throw new IllegalStateException("Could not retrieve variable " + variableId
                     + " because process instance " + processInstanceId + " was inaccessible!");
         }
     }

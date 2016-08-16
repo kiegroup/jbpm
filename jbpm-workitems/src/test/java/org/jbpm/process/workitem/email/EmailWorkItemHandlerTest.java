@@ -41,7 +41,7 @@ import org.subethamail.wiser.Wiser;
 import org.subethamail.wiser.WiserMessage;
 
 public class EmailWorkItemHandlerTest extends AbstractBaseTest {
-    private Wiser wiser;    
+    private Wiser wiser;
 
     private String emailHost;
     private String emailPort;
@@ -58,36 +58,36 @@ public class EmailWorkItemHandlerTest extends AbstractBaseTest {
         wiser.start();
         Thread.sleep(200);
     }
-    
+
     @After
     public void tearDown() throws Exception {
-        if( wiser != null ) { 
+        if( wiser != null ) {
             wiser.getMessages().clear();
             wiser.stop();
             wiser = null;
             Thread.sleep(1000);
         }
     }
-   
+
     @Test
     public void testSingleTo() throws Exception {
         EmailWorkItemHandler handler = new EmailWorkItemHandler();
         handler.setConnection( emailHost, emailPort, null, null );
-        
+
         WorkItemImpl workItem = new WorkItemImpl();
         workItem.setParameter( "To", "person1@domain.com" );
         workItem.setParameter( "From", "person2@domain.com" );
         workItem.setParameter( "Reply-To", "person3@domain.com" );
         workItem.setParameter( "Subject", "Subject 1" );
         workItem.setParameter( "Body", "Body 1" );
-        
+
         WorkItemManager manager = new DefaultWorkItemManager(null);
         handler.executeWorkItem( workItem, manager );
-        
+
         assertEquals( 1, wiser.getMessages().size() );
-        
+
         MimeMessage msg = (( WiserMessage  ) wiser.getMessages().get( 0 )).getMimeMessage();
-        // Side effect of MIME encoding (I think.. ): \r\n.. 
+        // Side effect of MIME encoding (I think.. ): \r\n..
         String content = ((String) msg.getContent()).replace("\r\n", "");
         assertEquals( workItem.getParameter( "Body" ), content );
         assertEquals( workItem.getParameter( "Subject" ), msg.getSubject() );
@@ -97,12 +97,12 @@ public class EmailWorkItemHandlerTest extends AbstractBaseTest {
         assertNull( msg.getRecipients( RecipientType.CC ) );
         assertNull( msg.getRecipients( RecipientType.BCC ) );
     }
-    
+
     @Test
     public void testSingleToWithSingleCCAndBCC() throws Exception {
         EmailWorkItemHandler handler = new EmailWorkItemHandler();
         handler.setConnection( emailHost, emailPort, null, null );
-        
+
         WorkItemImpl workItem = new WorkItemImpl();
         workItem.setParameter( "To", "person1@domain.com" );
         workItem.setParameter( "Cc", "person2@domain.com" );
@@ -111,22 +111,22 @@ public class EmailWorkItemHandlerTest extends AbstractBaseTest {
         workItem.setParameter( "Reply-To", "person5@domain.com" );
         workItem.setParameter( "Subject", "Subject 1" );
         workItem.setParameter( "Body", "Body 1" );
-        
+
         WorkItemManager manager = new DefaultWorkItemManager(null);
         handler.executeWorkItem( workItem, manager );
-        
+
         assertEquals( 3, wiser.getMessages().size() );
-        
+
         List<String> list = new ArrayList<String>(3);
         list.add( wiser.getMessages().get( 0 ).getEnvelopeReceiver() );
         list.add( wiser.getMessages().get( 1 ).getEnvelopeReceiver() );
         list.add( wiser.getMessages().get( 2 ).getEnvelopeReceiver() );
-        
+
         assertTrue( list.contains("person1@domain.com"));
         assertTrue( list.contains("person2@domain.com"));
         assertTrue( list.contains("person3@domain.com"));
-        
-        for( int i = 0; i < wiser.getMessages().size(); ++i ) { 
+
+        for( int i = 0; i < wiser.getMessages().size(); ++i ) {
             MimeMessage msg = (( WiserMessage  ) wiser.getMessages().get( i )).getMimeMessage();
             assertEquals( workItem.getParameter( "From" ), wiser.getMessages().get( i ).getEnvelopeSender() );
             String content = ((String) msg.getContent()).replace("\r\n", "");
@@ -137,13 +137,13 @@ public class EmailWorkItemHandlerTest extends AbstractBaseTest {
             assertEquals( workItem.getParameter( "To" ), ((InternetAddress)msg.getRecipients( RecipientType.TO )[0]).getAddress() );
             assertEquals( workItem.getParameter( "Cc" ),((InternetAddress)msg.getRecipients( RecipientType.CC )[0]).getAddress()  );
         }
-    }    
-    
+    }
+
     @Test
     public void testMultipleToWithSingleCCAndBCC() throws Exception {
         EmailWorkItemHandler handler = new EmailWorkItemHandler();
         handler.setConnection( emailHost, emailPort, null, null );
-        
+
         WorkItemImpl workItem = new WorkItemImpl();
         workItem.setParameter( "To", "person1@domain.com; person2@domain.com" );
         workItem.setParameter( "Cc", "person3@domain.com; person4@domain.com"  );
@@ -152,21 +152,21 @@ public class EmailWorkItemHandlerTest extends AbstractBaseTest {
         workItem.setParameter( "Reply-To", "person5@domain.com" );
         workItem.setParameter( "Subject", "Subject 1" );
         workItem.setParameter( "Body", "Body 1" );
-        
+
         WorkItemManager manager = new DefaultWorkItemManager(null);
         handler.executeWorkItem( workItem, manager );
-        
+
         assertEquals( 6, wiser.getMessages().size() );
-        
+
         List<String> list = new ArrayList<String>(6);
-        for( int i = 0; i < 6; ++i ) { 
+        for( int i = 0; i < 6; ++i ) {
             list.add( wiser.getMessages().get( i ).getEnvelopeReceiver() );
         }
-       
-        for( int i = 1; i < 7; ++i ) { 
+
+        for( int i = 1; i < 7; ++i ) {
             assertTrue( list.contains("person" + i + "@domain.com"));
         }
-                
+
         // We know from previous test that all MimeMessages will be identical
         MimeMessage msg = (( WiserMessage  ) wiser.getMessages().get( 0 )).getMimeMessage();
         assertEquals( workItem.getParameter( "From" ), wiser.getMessages().get( 0 ).getEnvelopeSender() );
@@ -176,21 +176,21 @@ public class EmailWorkItemHandlerTest extends AbstractBaseTest {
         assertEquals( workItem.getParameter( "From" ), ((InternetAddress)msg.getFrom()[0]).getAddress() );
         assertEquals( workItem.getParameter( "Reply-To" ), ((InternetAddress)msg.getReplyTo()[0]).getAddress() );
         assertEquals( workItem.getParameter( "To" ), ((InternetAddress)msg.getRecipients( RecipientType.TO )[0]).getAddress() + "; " + ((InternetAddress)msg.getRecipients( RecipientType.TO )[1]).getAddress() );
-        assertEquals( workItem.getParameter( "Cc" ),((InternetAddress)msg.getRecipients( RecipientType.CC )[0]).getAddress()  + "; " +  ((InternetAddress)msg.getRecipients( RecipientType.CC )[1]).getAddress() );       
-    }  
-    
+        assertEquals( workItem.getParameter( "Cc" ),((InternetAddress)msg.getRecipients( RecipientType.CC )[0]).getAddress()  + "; " +  ((InternetAddress)msg.getRecipients( RecipientType.CC )[1]).getAddress() );
+    }
+
     @Test(expected=WorkItemHandlerRuntimeException.class)
     public void testFailedExecuteToHandleException() throws Exception {
         EmailWorkItemHandler handler = new EmailWorkItemHandler();
         handler.setConnection( emailHost, "123", null, null );
-        
+
         WorkItemImpl workItem = new WorkItemImpl();
         workItem.setParameter( "To", "person1@domain.com" );
         workItem.setParameter( "From", "person2@domain.com" );
         workItem.setParameter( "Reply-To", "person3@domain.com" );
         workItem.setParameter( "Subject", "Subject 1" );
         workItem.setParameter( "Body", "Body 1" );
-        
+
         WorkItemManager manager = new DefaultWorkItemManager(null);
         handler.executeWorkItem( workItem, manager );
     }

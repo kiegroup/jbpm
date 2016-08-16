@@ -21,7 +21,7 @@ import org.kie.internal.task.api.UserInfo;
 
 public interface UserGroupInfoProducer {
 
-	UserGroupCallback produceCallback();
-	
-	UserInfo produceUserInfo();
+    UserGroupCallback produceCallback();
+
+    UserInfo produceUserInfo();
 }

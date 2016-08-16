@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -62,14 +62,14 @@ public class JaxbPeopleAssignments implements InternalPeopleAssignments {
 
     @XmlElement
     private List<JaxbOrganizationalEntity> recipients;
-    
-    public JaxbPeopleAssignments() { 
+
+    public JaxbPeopleAssignments() {
        // Default constructor for JAXB
     }
-    
-    public JaxbPeopleAssignments(PeopleAssignments peopleAssignments) { 
+
+    public JaxbPeopleAssignments(PeopleAssignments peopleAssignments) {
         User taskInitiatorUser = peopleAssignments.getTaskInitiator();
-        if( taskInitiatorUser != null ) { 
+        if( taskInitiatorUser != null ) {
             this.taskInitiatorId = taskInitiatorUser.getId();
         }
         this.businessAdministrators = convertListFromInterfaceToJaxbImpl(((InternalPeopleAssignments) peopleAssignments).getBusinessAdministrators(), OrganizationalEntity.class, JaxbOrganizationalEntity.class);
@@ -78,17 +78,17 @@ public class JaxbPeopleAssignments implements InternalPeopleAssignments {
         this.recipients = convertListFromInterfaceToJaxbImpl(((InternalPeopleAssignments) peopleAssignments).getRecipients(), OrganizationalEntity.class, JaxbOrganizationalEntity.class);
         this.taskStakeholders = convertListFromInterfaceToJaxbImpl(((InternalPeopleAssignments) peopleAssignments).getTaskStakeholders(), OrganizationalEntity.class, JaxbOrganizationalEntity.class);
     }
-    
+
     @Override
     public User getTaskInitiator() {
-        if( this.taskInitiatorId != null ) { 
+        if( this.taskInitiatorId != null ) {
             return new GetterUser(this.taskInitiatorId);
-        } 
+        }
         return null;
     }
 
     public void setTaskInitiator(User taskInitiatorUser) {
-        if( taskInitiatorUser != null ) { 
+        if( taskInitiatorUser != null ) {
             this.taskInitiatorId = taskInitiatorUser.getId();
         }
     }
@@ -103,7 +103,7 @@ public class JaxbPeopleAssignments implements InternalPeopleAssignments {
 
     @Override
     public List<OrganizationalEntity> getPotentialOwners() {
-        if( potentialOwners == null ) { 
+        if( potentialOwners == null ) {
             return Collections.emptyList();
         }
         return Collections.unmodifiableList(convertListFromJaxbImplToInterface(potentialOwners));
@@ -115,7 +115,7 @@ public class JaxbPeopleAssignments implements InternalPeopleAssignments {
 
     @Override
     public List<OrganizationalEntity> getBusinessAdministrators() {
-        if( businessAdministrators == null ) { 
+        if( businessAdministrators == null ) {
             return Collections.emptyList();
         }
         return Collections.unmodifiableList(convertListFromJaxbImplToInterface(businessAdministrators));
@@ -127,10 +127,10 @@ public class JaxbPeopleAssignments implements InternalPeopleAssignments {
 
     @Override
     public List<OrganizationalEntity> getExcludedOwners() {
-        if( excludedOwners == null ) { 
+        if( excludedOwners == null ) {
             return Collections.emptyList();
         }
-        return Collections.unmodifiableList(convertListFromJaxbImplToInterface(excludedOwners)); 
+        return Collections.unmodifiableList(convertListFromJaxbImplToInterface(excludedOwners));
     }
 
     @Override
@@ -140,10 +140,10 @@ public class JaxbPeopleAssignments implements InternalPeopleAssignments {
 
     @Override
     public List<OrganizationalEntity> getTaskStakeholders() {
-        if( taskStakeholders == null ) { 
+        if( taskStakeholders == null ) {
             return Collections.emptyList();
         }
-        return Collections.unmodifiableList(convertListFromJaxbImplToInterface(taskStakeholders)); 
+        return Collections.unmodifiableList(convertListFromJaxbImplToInterface(taskStakeholders));
     }
 
     @Override
@@ -153,10 +153,10 @@ public class JaxbPeopleAssignments implements InternalPeopleAssignments {
 
     @Override
     public List<OrganizationalEntity> getRecipients() {
-        if( recipients == null ) { 
+        if( recipients == null ) {
             return Collections.emptyList();
         }
-        return Collections.unmodifiableList(convertListFromJaxbImplToInterface(recipients)); 
+        return Collections.unmodifiableList(convertListFromJaxbImplToInterface(recipients));
     }
 
     @Override
@@ -167,7 +167,7 @@ public class JaxbPeopleAssignments implements InternalPeopleAssignments {
     @Override
     public void writeExternal( ObjectOutput out ) throws IOException {
         unsupported(PeopleAssignments.class);
-        
+
     }
 
     @Override

@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -135,7 +135,7 @@ public class JaxbTaskData extends AbstractJaxbTaskObject<TaskData> implements Ta
 
     @XmlElement
     private List<JaxbAttachment> attachments;
-    
+
     @XmlElement(name = "deployment-id")
     @XmlSchemaType(name = "string")
     private String deploymentId;
@@ -146,15 +146,15 @@ public class JaxbTaskData extends AbstractJaxbTaskObject<TaskData> implements Ta
 
     public JaxbTaskData(TaskData taskData) {
         super(TaskData.class);
-       
+
         this.status = taskData.getStatus();
         this.previousStatus = taskData.getPreviousStatus();
         User actualOwnerUser = taskData.getActualOwner();
-        if( actualOwnerUser != null ) { 
+        if( actualOwnerUser != null ) {
             this.actualOwner = actualOwnerUser.getId();
         }
         User createdByUser = taskData.getCreatedBy();
-        if( createdByUser != null ) { 
+        if( createdByUser != null ) {
             this.createdBy = createdByUser.getId();
         }
         this.createdOn = taskData.getCreatedOn();
@@ -164,14 +164,14 @@ public class JaxbTaskData extends AbstractJaxbTaskObject<TaskData> implements Ta
         this.workItemId = taskData.getWorkItemId();
         this.processInstanceId = taskData.getProcessInstanceId();
         this.documentType = taskData.getDocumentType();
-        if( taskData instanceof JaxbTaskData ) { 
+        if( taskData instanceof JaxbTaskData ) {
             JaxbTaskData jaxbTaskData = (JaxbTaskData) taskData;
-            this.documentAccessType = jaxbTaskData.getDocumentAccessType(); 
+            this.documentAccessType = jaxbTaskData.getDocumentAccessType();
             this.outputAccessType = jaxbTaskData.getOutputAccessType();
             this.faultAccessType = jaxbTaskData.getFaultAccessType();
-        } else if( taskData instanceof InternalTaskData ) { 
+        } else if( taskData instanceof InternalTaskData ) {
             InternalTaskData internalTaskData = (InternalTaskData) taskData;
-            this.documentAccessType = internalTaskData.getDocumentAccessType(); 
+            this.documentAccessType = internalTaskData.getDocumentAccessType();
             this.outputAccessType = internalTaskData.getOutputAccessType();
             this.faultAccessType = internalTaskData.getFaultAccessType();
         }
@@ -184,7 +184,7 @@ public class JaxbTaskData extends AbstractJaxbTaskObject<TaskData> implements Ta
         this.parentId = taskData.getParentId();
         this.processId = taskData.getProcessId();
         this.processSessionId = taskData.getProcessSessionId();
-        if( taskData.getComments() != null ) { 
+        if( taskData.getComments() != null ) {
             List<JaxbComment> commentList = new ArrayList<JaxbComment>();
             for (Object comment : taskData.getComments() ) {
                 commentList.add(new JaxbComment((Comment) comment));
@@ -192,7 +192,7 @@ public class JaxbTaskData extends AbstractJaxbTaskObject<TaskData> implements Ta
             this.comments = commentList;
         }
         List<JaxbAttachment> attachList = new ArrayList<JaxbAttachment>();
-        for (Object attach : taskData.getAttachments() ) { 
+        for (Object attach : taskData.getAttachments() ) {
             attachList.add(new JaxbAttachment((Attachment) attach));
         }
         this.attachments = attachList;

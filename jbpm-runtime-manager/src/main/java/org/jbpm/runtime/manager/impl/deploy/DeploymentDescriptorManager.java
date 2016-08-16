@@ -34,105 +34,105 @@ import org.slf4j.LoggerFactory;
 
 public class DeploymentDescriptorManager {
 
-	private static final Logger logger = LoggerFactory.getLogger(DeploymentDescriptorManager.class);	
-	
-	
-	private String defaultPU = "org.jbpm.persistence.jpa";
-	
-	public DeploymentDescriptorManager() {
-		
-	}
-	
-	public DeploymentDescriptorManager(String defaultPU) {
-		this.defaultPU = defaultPU;
-	}
-	
-	public DeploymentDescriptor getDefaultDescriptor() {		
-		DeploymentDescriptor defaultDesc = null;
-		URL defaultDescriptorLocation = getDefaultdescriptorlocation();
-		
-		if (defaultDescriptorLocation != null) {
-			try {
-				logger.debug("Reading default descriptor from " + defaultDescriptorLocation);
-				defaultDesc = DeploymentDescriptorIO.fromXml(defaultDescriptorLocation.openStream());
-			} catch (IOException e) {
-				throw new RuntimeException("Unable to read default deployment descriptor from " + defaultDescriptorLocation, e);
-			}
-		} else {
-			logger.debug("No descriptor found returning default instance");
-			defaultDesc = new DeploymentDescriptorImpl(defaultPU);
-		}
-		
-		return defaultDesc;
-	}
-	
-	public List<DeploymentDescriptor> getDeploymentDescriptorHierarchy(KieContainer kieContainer) {
-		List<DeploymentDescriptor> descriptorHierarchy = new ArrayList<DeploymentDescriptor>();
+    private static final Logger logger = LoggerFactory.getLogger(DeploymentDescriptorManager.class);
 
-		InternalKieModule module = ((KieModuleKieProject) ((KieContainerImpl)kieContainer).getKieProject()).getInternalKieModule();
-		collectDeploymentDescriptors(module, descriptorHierarchy);
 
-		// last is the default descriptor
-		descriptorHierarchy.add(getDefaultDescriptor());	
-		
-		return descriptorHierarchy;
-	}
-	
-	protected URL getDefaultdescriptorlocation() {
-		String defaultDescriptorLocation = System.getProperty("org.kie.deployment.desc.location");
-		URL locationUrl = null;
-		if (defaultDescriptorLocation != null) {
-	        if (defaultDescriptorLocation.startsWith("classpath:")) {
-				String stripedLocation = defaultDescriptorLocation.replaceFirst("classpath:", "");
-				locationUrl = this.getClass().getResource(stripedLocation);
-		        if (locationUrl == null) {
-		        	locationUrl = Thread.currentThread().getContextClassLoader().getResource(stripedLocation);
-		        }
-			} else {
-				try {
-					locationUrl = new URL(defaultDescriptorLocation);
-				} catch (MalformedURLException e) {
-					locationUrl = this.getClass().getResource(defaultDescriptorLocation);
-			        if (locationUrl == null) {
-			        	locationUrl = Thread.currentThread().getContextClassLoader().getResource(defaultDescriptorLocation);
-			        }
-				}
-			}
-		}
-        
+    private String defaultPU = "org.jbpm.persistence.jpa";
+
+    public DeploymentDescriptorManager() {
+
+    }
+
+    public DeploymentDescriptorManager(String defaultPU) {
+        this.defaultPU = defaultPU;
+    }
+
+    public DeploymentDescriptor getDefaultDescriptor() {
+        DeploymentDescriptor defaultDesc = null;
+        URL defaultDescriptorLocation = getDefaultdescriptorlocation();
+
+        if (defaultDescriptorLocation != null) {
+            try {
+                logger.debug("Reading default descriptor from " + defaultDescriptorLocation);
+                defaultDesc = DeploymentDescriptorIO.fromXml(defaultDescriptorLocation.openStream());
+            } catch (IOException e) {
+                throw new RuntimeException("Unable to read default deployment descriptor from " + defaultDescriptorLocation, e);
+            }
+        } else {
+            logger.debug("No descriptor found returning default instance");
+            defaultDesc = new DeploymentDescriptorImpl(defaultPU);
+        }
+
+        return defaultDesc;
+    }
+
+    public List<DeploymentDescriptor> getDeploymentDescriptorHierarchy(KieContainer kieContainer) {
+        List<DeploymentDescriptor> descriptorHierarchy = new ArrayList<DeploymentDescriptor>();
+
+        InternalKieModule module = ((KieModuleKieProject) ((KieContainerImpl)kieContainer).getKieProject()).getInternalKieModule();
+        collectDeploymentDescriptors(module, descriptorHierarchy);
+
+        // last is the default descriptor
+        descriptorHierarchy.add(getDefaultDescriptor());
+
+        return descriptorHierarchy;
+    }
+
+    protected URL getDefaultdescriptorlocation() {
+        String defaultDescriptorLocation = System.getProperty("org.kie.deployment.desc.location");
+        URL locationUrl = null;
+        if (defaultDescriptorLocation != null) {
+            if (defaultDescriptorLocation.startsWith("classpath:")) {
+                String stripedLocation = defaultDescriptorLocation.replaceFirst("classpath:", "");
+                locationUrl = this.getClass().getResource(stripedLocation);
+                if (locationUrl == null) {
+                    locationUrl = Thread.currentThread().getContextClassLoader().getResource(stripedLocation);
+                }
+            } else {
+                try {
+                    locationUrl = new URL(defaultDescriptorLocation);
+                } catch (MalformedURLException e) {
+                    locationUrl = this.getClass().getResource(defaultDescriptorLocation);
+                    if (locationUrl == null) {
+                        locationUrl = Thread.currentThread().getContextClassLoader().getResource(defaultDescriptorLocation);
+                    }
+                }
+            }
+        }
+
         return locationUrl;
-	}
-	
-	protected void collectDeploymentDescriptors(InternalKieModule kmodule, List<DeploymentDescriptor> descriptorHierarchy) {
-		DeploymentDescriptor descriptor = getDescriptorFromKModule(kmodule);
-		if (descriptor != null) {
-			descriptorHierarchy.add(descriptor);
-		}
-		
-		if (kmodule.getKieDependencies() != null) {
-			Collection<InternalKieModule> depModules = kmodule.getKieDependencies().values();
-			for (InternalKieModule depModule : depModules) {
-				collectDeploymentDescriptors(depModule, descriptorHierarchy);
-			}
-		}
-	}
-	
-	protected DeploymentDescriptor getDescriptorFromKModule(InternalKieModule kmodule) {
-		DeploymentDescriptor desc = null;
-		if (kmodule.isAvailable(DeploymentDescriptor.META_INF_LOCATION)) {
-			byte[] content = kmodule.getBytes(DeploymentDescriptor.META_INF_LOCATION);
-			ByteArrayInputStream input = new ByteArrayInputStream(content);
-			try {
-				desc = DeploymentDescriptorIO.fromXml(input);
-			} finally {
-				try {
-					input.close();
-				} catch (IOException e) {
-					logger.debug("Error when closing stream of kie-deployment-descriptor.xml");
-				}
-			}		
-		}
-		
-		return desc;
-	}
+    }
+
+    protected void collectDeploymentDescriptors(InternalKieModule kmodule, List<DeploymentDescriptor> descriptorHierarchy) {
+        DeploymentDescriptor descriptor = getDescriptorFromKModule(kmodule);
+        if (descriptor != null) {
+            descriptorHierarchy.add(descriptor);
+        }
+
+        if (kmodule.getKieDependencies() != null) {
+            Collection<InternalKieModule> depModules = kmodule.getKieDependencies().values();
+            for (InternalKieModule depModule : depModules) {
+                collectDeploymentDescriptors(depModule, descriptorHierarchy);
+            }
+        }
+    }
+
+    protected DeploymentDescriptor getDescriptorFromKModule(InternalKieModule kmodule) {
+        DeploymentDescriptor desc = null;
+        if (kmodule.isAvailable(DeploymentDescriptor.META_INF_LOCATION)) {
+            byte[] content = kmodule.getBytes(DeploymentDescriptor.META_INF_LOCATION);
+            ByteArrayInputStream input = new ByteArrayInputStream(content);
+            try {
+                desc = DeploymentDescriptorIO.fromXml(input);
+            } finally {
+                try {
+                    input.close();
+                } catch (IOException e) {
+                    logger.debug("Error when closing stream of kie-deployment-descriptor.xml");
+                }
+            }
+        }
+
+        return desc;
+    }
 }

@@ -32,8 +32,8 @@ public class MockNotificationListener implements NotificationListener{
     public MockNotificationListener() {
         eventsRecieved = new ArrayList<NotificationEvent>();
     }
-    
-    
+
+
     public void onNotification(NotificationEvent event, UserInfo userInfo) {
         eventsRecieved.add(event);
     }
@@ -41,11 +41,11 @@ public class MockNotificationListener implements NotificationListener{
     public  List<NotificationEvent> getEventsRecieved() {
         return eventsRecieved;
     }
-    
+
     public void reset(){
         eventsRecieved = new ArrayList<NotificationEvent>();
     }
-    
-    
-    
+
+
+
 }

@@ -27,12 +27,12 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Dispose command that is dedicated to be used in container managed environments instead of
- * default way of disposing ksession 
+ * default way of disposing ksession
  * <br/>
  * <code>ksession.dispose()</code>.
  * <br/>
  * If transaction is active it will delegate the actual disposal to afterCompletion
- * phase of transaction instead of executing it directly. Although when there is no active 
+ * phase of transaction instead of executing it directly. Although when there is no active
  * transaction or no transaction at all it will dispose ksession immediately.
  *  <br/>
  * It relies on <code>TransactionManager</code> being available in ksession's environment:

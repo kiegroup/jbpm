@@ -21,19 +21,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Interface implements Serializable {
-    
-	private static final long serialVersionUID = 510l;
-	
+
+    private static final long serialVersionUID = 510l;
+
     private String id;
     private String name;
     private String implementationRef;
     private Map<String, Operation> operations = new HashMap<String, Operation>();
-    
+
     public Interface(String id, String name) {
         this.id = id;
         this.name = name;
     }
-    
+
     public String getId() {
         return id;
     }
@@ -47,11 +47,11 @@ public class Interface implements Serializable {
         operations.put(id, operation);
         return operation;
     }
-    
+
     public Operation getOperation(String name) {
         return operations.get(name);
     }
-    
+
     public void setImplementationRef(String implementationRef) {
         this.implementationRef = implementationRef;
     }

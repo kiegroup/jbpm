@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -154,37 +154,37 @@ public class TaskEventImpl implements TaskEvent, Externalizable {
   @Override
   public void readExternal(ObjectInput in) throws IOException,
           ClassNotFoundException {
-	  id = in.readLong();
-	  
-	  processInstanceId = in.readLong();
-	  
-	  taskId = in.readLong();
-	  
-	  type = TaskEventType.valueOf(in.readUTF());
+      id = in.readLong();
+
+      processInstanceId = in.readLong();
+
+      taskId = in.readLong();
+
+      type = TaskEventType.valueOf(in.readUTF());
 
       message = in.readUTF();
 
-	  userId = in.readUTF();
-	  
-	  workItemId = in.readLong();
-	  
-	  if (in.readBoolean()) {
+      userId = in.readUTF();
+
+      workItemId = in.readLong();
+
+      if (in.readBoolean()) {
           logTime = new Date(in.readLong());
       }
   }
 
   @Override
   public void writeExternal(ObjectOutput out) throws IOException {
-	  out.writeLong( id );
-	  
-	  out.writeLong( processInstanceId );
-	  
-	  out.writeLong( taskId );
-	  
-	  if (type != null) {
-      	out.writeUTF(type.name());
+      out.writeLong( id );
+
+      out.writeLong( processInstanceId );
+
+      out.writeLong( taskId );
+
+      if (type != null) {
+        out.writeUTF(type.name());
       } else {
-      	out.writeUTF("");
+        out.writeUTF("");
       }
 
       if (message != null) {
@@ -194,15 +194,15 @@ public class TaskEventImpl implements TaskEvent, Externalizable {
       }
 
 
-	  if (userId != null) {
-      	out.writeUTF(userId);
+      if (userId != null) {
+        out.writeUTF(userId);
       } else {
-      	out.writeUTF("");
+        out.writeUTF("");
       }
-	  
-	  out.writeLong( workItemId );
-	  
-	  if (logTime != null) {
+
+      out.writeLong( workItemId );
+
+      if (logTime != null) {
           out.writeBoolean(true);
           out.writeLong(logTime.getTime());
       } else {

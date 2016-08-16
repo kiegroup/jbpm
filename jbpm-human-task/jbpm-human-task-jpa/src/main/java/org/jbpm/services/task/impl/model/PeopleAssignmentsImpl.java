@@ -40,7 +40,7 @@ import org.kie.internal.task.api.model.InternalPeopleAssignments;
 
 @Embeddable
 public class PeopleAssignmentsImpl implements InternalPeopleAssignments {
-	
+
     @ManyToOne()
     private UserImpl                       taskInitiator;
 
@@ -181,22 +181,22 @@ public class PeopleAssignmentsImpl implements InternalPeopleAssignments {
                                           other.taskStakeholders );
     }
 
-    static List<OrganizationalEntity> convertToPersistentOrganizationalEntity(List<OrganizationalEntity> orgEntList) { 
+    static List<OrganizationalEntity> convertToPersistentOrganizationalEntity(List<OrganizationalEntity> orgEntList) {
         List<OrganizationalEntity> persistentOrgEnts = orgEntList;
         if( persistentOrgEnts != null && ! persistentOrgEnts.isEmpty() ) {
             persistentOrgEnts = new ArrayList<OrganizationalEntity>(orgEntList.size());
-            for( OrganizationalEntity orgEnt : orgEntList ) { 
+            for( OrganizationalEntity orgEnt : orgEntList ) {
                 if( orgEnt instanceof UserImpl || orgEnt instanceof GroupImpl ) {
                     persistentOrgEnts.add(orgEnt);
-                } else if( orgEnt instanceof User ) { 
-                    persistentOrgEnts.add(new UserImpl(orgEnt.getId())); 
-                } else if( orgEnt instanceof Group ) { 
-                    persistentOrgEnts.add(new GroupImpl(orgEnt.getId())); 
-                } else { 
+                } else if( orgEnt instanceof User ) {
+                    persistentOrgEnts.add(new UserImpl(orgEnt.getId()));
+                } else if( orgEnt instanceof Group ) {
+                    persistentOrgEnts.add(new GroupImpl(orgEnt.getId()));
+                } else {
                     throw new IllegalStateException("Unknown user or group object: " + orgEnt.getClass().getName() );
                 }
             }
-        } 
+        }
         return persistentOrgEnts;
     }
 }

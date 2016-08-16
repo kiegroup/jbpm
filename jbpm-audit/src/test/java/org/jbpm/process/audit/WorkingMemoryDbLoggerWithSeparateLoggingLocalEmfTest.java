@@ -36,7 +36,7 @@ import java.util.Properties;
 import static org.jbpm.persistence.util.PersistenceUtil.createEnvironment;
 
 /**
- * This class tests the following classes: 
+ * This class tests the following classes:
  * <ul>
  * <li>WorkingMemoryDbLogger</li>
  * </ul>
@@ -45,28 +45,28 @@ import static org.jbpm.persistence.util.PersistenceUtil.createEnvironment;
 public class WorkingMemoryDbLoggerWithSeparateLoggingLocalEmfTest extends AbstractWorkingMemoryDbLoggerTest {
 
     private KieSession ksession = null;
-   
+
     private EntityManagerFactory emf;
-    
+
     @Before
-    public void beforeThis() { 
+    public void beforeThis() {
         emf = Persistence.createEntityManagerFactory("org.jbpm.logging.local");
         logService = new JPAAuditLogService(emf, PersistenceStrategyType.STANDALONE_LOCAL);
     }
-   
+
     @After
-    public void afterThis() { 
-       if( emf != null && emf.isOpen() ) { 
+    public void afterThis() {
+       if( emf != null && emf.isOpen() ) {
            emf.close();
        }
        emf = null;
     }
-    
+
     @Override
     public ProcessInstance startProcess(String processName) {
-        if( ksession == null ) { 
+        if( ksession == null ) {
             KieBase kbase = createKnowledgeBase();
-            
+
             Properties properties = new Properties();
             properties.put("drools.processInstanceManagerFactory", "org.jbpm.persistence.processinstance.JPAProcessInstanceManagerFactory");
             properties.put("drools.processSignalManagerFactory", "org.jbpm.persistence.processinstance.JPASignalManagerFactory");
@@ -75,11 +75,11 @@ public class WorkingMemoryDbLoggerWithSeparateLoggingLocalEmfTest extends Abstra
             Environment env = createEnvironment(context);
             env.set("IS_JTA_TRANSACTION", false);
             ksession = JPAKnowledgeService.newStatefulKnowledgeSession(kbase, conf, env);
-            
+
             ksession.addEventListener(new JPAWorkingMemoryDbLogger(emf, env));
             ksession.getWorkItemManager().registerWorkItemHandler("Human Task", new SystemOutWorkItemHandler());
         }
         return ksession.startProcess(processName);
     }
-    
+
 }

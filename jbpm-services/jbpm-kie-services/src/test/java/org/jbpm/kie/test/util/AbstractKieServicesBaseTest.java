@@ -71,23 +71,23 @@ import bitronix.tm.resource.jdbc.PoolingDataSource;
 
 public abstract class AbstractKieServicesBaseTest {
 
-	private static final Logger logger = LoggerFactory.getLogger(AbstractKieServicesBaseTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(AbstractKieServicesBaseTest.class);
 
-	protected static final String ARTIFACT_ID = "test-module";
-	protected static final String GROUP_ID = "org.jbpm.test";
-	protected static final String VERSION = "1.0.0-SNAPSHOT";
+    protected static final String ARTIFACT_ID = "test-module";
+    protected static final String GROUP_ID = "org.jbpm.test";
+    protected static final String VERSION = "1.0.0-SNAPSHOT";
 
-	protected PoolingDataSource ds;
+    protected PoolingDataSource ds;
 
-	protected EntityManagerFactory emf;
-	protected DeploymentService deploymentService;
-	protected DefinitionService bpmn2Service;
-	protected RuntimeDataService runtimeDataService;
-	protected ProcessService processService;
-	protected UserTaskService userTaskService;
-	protected QueryService queryService;
+    protected EntityManagerFactory emf;
+    protected DeploymentService deploymentService;
+    protected DefinitionService bpmn2Service;
+    protected RuntimeDataService runtimeDataService;
+    protected ProcessService processService;
+    protected UserTaskService userTaskService;
+    protected QueryService queryService;
 
-	protected TestIdentityProvider identityProvider;
+    protected TestIdentityProvider identityProvider;
 
     @BeforeClass
     public static void configure() {
@@ -97,65 +97,65 @@ public abstract class AbstractKieServicesBaseTest {
 
     @AfterClass
     public static void reset() {
-    	LoggingPrintStream.resetInterceptSysOutSysErr();
+        LoggingPrintStream.resetInterceptSysOutSysErr();
 
     }
 
     protected void close() {
         DataSetCore.set(null);
-    	if (emf != null) {
-    		emf.close();
-    	}
-    	EntityManagerFactoryManager.get().clear();
-    	closeDataSource();
+        if (emf != null) {
+            emf.close();
+        }
+        EntityManagerFactoryManager.get().clear();
+        closeDataSource();
     }
 
-	protected void configureServices() {
-		buildDatasource();
-		emf = EntityManagerFactoryManager.get().getOrCreate("org.jbpm.domain");
-		identityProvider = new TestIdentityProvider();
+    protected void configureServices() {
+        buildDatasource();
+        emf = EntityManagerFactoryManager.get().getOrCreate("org.jbpm.domain");
+        identityProvider = new TestIdentityProvider();
 
-		// build definition service
-		bpmn2Service = new BPMN2DataServiceImpl();
+        // build definition service
+        bpmn2Service = new BPMN2DataServiceImpl();
 
-		queryService = new QueryServiceImpl();
-		((QueryServiceImpl)queryService).setIdentityProvider(identityProvider);
-		((QueryServiceImpl)queryService).setCommandService(new TransactionalCommandService(emf));
-		((QueryServiceImpl)queryService).init();
+        queryService = new QueryServiceImpl();
+        ((QueryServiceImpl)queryService).setIdentityProvider(identityProvider);
+        ((QueryServiceImpl)queryService).setCommandService(new TransactionalCommandService(emf));
+        ((QueryServiceImpl)queryService).init();
 
-		// build deployment service
-		deploymentService = new KModuleDeploymentService();
-		((KModuleDeploymentService)deploymentService).setBpmn2Service(bpmn2Service);
-		((KModuleDeploymentService)deploymentService).setEmf(emf);
-		((KModuleDeploymentService)deploymentService).setIdentityProvider(identityProvider);
-		((KModuleDeploymentService)deploymentService).setManagerFactory(new RuntimeManagerFactoryImpl());
-		((KModuleDeploymentService)deploymentService).setFormManagerService(new FormManagerServiceImpl());
+        // build deployment service
+        deploymentService = new KModuleDeploymentService();
+        ((KModuleDeploymentService)deploymentService).setBpmn2Service(bpmn2Service);
+        ((KModuleDeploymentService)deploymentService).setEmf(emf);
+        ((KModuleDeploymentService)deploymentService).setIdentityProvider(identityProvider);
+        ((KModuleDeploymentService)deploymentService).setManagerFactory(new RuntimeManagerFactoryImpl());
+        ((KModuleDeploymentService)deploymentService).setFormManagerService(new FormManagerServiceImpl());
 
-		TaskService taskService = HumanTaskServiceFactory.newTaskServiceConfigurator().entityManagerFactory(emf).getTaskService();
-		
-		// build runtime data service
-		runtimeDataService = new RuntimeDataServiceImpl();
-		((RuntimeDataServiceImpl) runtimeDataService).setCommandService(new TransactionalCommandService(emf));
-		((RuntimeDataServiceImpl) runtimeDataService).setIdentityProvider(identityProvider);
-		((RuntimeDataServiceImpl) runtimeDataService).setTaskService(taskService);
-		((RuntimeDataServiceImpl) runtimeDataService).setTaskAuditService(TaskAuditServiceFactory.newTaskAuditServiceConfigurator().setTaskService(taskService).getTaskAuditService());
-		((KModuleDeploymentService)deploymentService).setRuntimeDataService(runtimeDataService);
+        TaskService taskService = HumanTaskServiceFactory.newTaskServiceConfigurator().entityManagerFactory(emf).getTaskService();
 
-		// set runtime data service as listener on deployment service
-		((KModuleDeploymentService)deploymentService).addListener(((RuntimeDataServiceImpl) runtimeDataService));
-		((KModuleDeploymentService)deploymentService).addListener(((BPMN2DataServiceImpl) bpmn2Service));
-		((KModuleDeploymentService)deploymentService).addListener(((QueryServiceImpl) queryService));
+        // build runtime data service
+        runtimeDataService = new RuntimeDataServiceImpl();
+        ((RuntimeDataServiceImpl) runtimeDataService).setCommandService(new TransactionalCommandService(emf));
+        ((RuntimeDataServiceImpl) runtimeDataService).setIdentityProvider(identityProvider);
+        ((RuntimeDataServiceImpl) runtimeDataService).setTaskService(taskService);
+        ((RuntimeDataServiceImpl) runtimeDataService).setTaskAuditService(TaskAuditServiceFactory.newTaskAuditServiceConfigurator().setTaskService(taskService).getTaskAuditService());
+        ((KModuleDeploymentService)deploymentService).setRuntimeDataService(runtimeDataService);
 
-		// build process service
-		processService = new ProcessServiceImpl();
-		((ProcessServiceImpl) processService).setDataService(runtimeDataService);
-		((ProcessServiceImpl) processService).setDeploymentService(deploymentService);
+        // set runtime data service as listener on deployment service
+        ((KModuleDeploymentService)deploymentService).addListener(((RuntimeDataServiceImpl) runtimeDataService));
+        ((KModuleDeploymentService)deploymentService).addListener(((BPMN2DataServiceImpl) bpmn2Service));
+        ((KModuleDeploymentService)deploymentService).addListener(((QueryServiceImpl) queryService));
 
-		// build user task service
-		userTaskService = new UserTaskServiceImpl();
-		((UserTaskServiceImpl) userTaskService).setDataService(runtimeDataService);
-		((UserTaskServiceImpl) userTaskService).setDeploymentService(deploymentService);
-	}
+        // build process service
+        processService = new ProcessServiceImpl();
+        ((ProcessServiceImpl) processService).setDataService(runtimeDataService);
+        ((ProcessServiceImpl) processService).setDeploymentService(deploymentService);
+
+        // build user task service
+        userTaskService = new UserTaskServiceImpl();
+        ((UserTaskServiceImpl) userTaskService).setDataService(runtimeDataService);
+        ((UserTaskServiceImpl) userTaskService).setDeploymentService(deploymentService);
+    }
 
     protected String getPom(ReleaseId releaseId, ReleaseId... dependencies) {
         String pom =
@@ -184,7 +184,7 @@ public abstract class AbstractKieServicesBaseTest {
     }
 
     protected InternalKieModule createKieJar(KieServices ks, ReleaseId releaseId, List<String> resources) {
-    	return createKieJar(ks, releaseId, resources, null);
+        return createKieJar(ks, releaseId, resources, null);
     }
 
    protected InternalKieModule createKieJar(KieServices ks, ReleaseId releaseId, List<String> resources, Map<String, String> extraResources ) {
@@ -198,9 +198,9 @@ public abstract class AbstractKieServicesBaseTest {
             kfs.write("src/main/resources/KBase-test/" + resource, ResourceFactory.newClassPathResource(resource));
         }
         if (extraResources != null) {
-	        for (Map.Entry<String, String> entry : extraResources.entrySet()) {
-				kfs.write(entry.getKey(), ResourceFactory.newByteArrayResource(entry.getValue().getBytes()));
-			}
+            for (Map.Entry<String, String> entry : extraResources.entrySet()) {
+                kfs.write(entry.getKey(), ResourceFactory.newByteArrayResource(entry.getValue().getBytes()));
+            }
         }
 
         kfs.write("src/main/resources/forms/DefaultProcess.ftl", ResourceFactory.newClassPathResource("repo/globals/forms/DefaultProcess.ftl"));
@@ -247,7 +247,7 @@ public abstract class AbstractKieServicesBaseTest {
     }
 
     protected void buildDatasource() {
-    	ds = new PoolingDataSource();
+        ds = new PoolingDataSource();
         ds.setUniqueName("jdbc/testDS1");
 
 
@@ -258,14 +258,14 @@ public abstract class AbstractKieServicesBaseTest {
         ds.getDriverProperties().put("user", "sa");
         ds.getDriverProperties().put("password", "sasa");
         ds.getDriverProperties().put("URL", "jdbc:h2:mem:mydb");
-        
+
         ds.init();
     }
 
     protected void closeDataSource() {
-    	if (ds != null) {
-    		ds.close();
-    	}
+        if (ds != null) {
+            ds.close();
+        }
     }
 
     public static void cleanupSingletonSessionId() {
@@ -287,30 +287,30 @@ public abstract class AbstractKieServicesBaseTest {
         }
     }
 
-	public void setDeploymentService(DeploymentService deploymentService) {
-		this.deploymentService = deploymentService;
-	}
+    public void setDeploymentService(DeploymentService deploymentService) {
+        this.deploymentService = deploymentService;
+    }
 
-	public void setBpmn2Service(DefinitionService bpmn2Service) {
-		this.bpmn2Service = bpmn2Service;
-	}
+    public void setBpmn2Service(DefinitionService bpmn2Service) {
+        this.bpmn2Service = bpmn2Service;
+    }
 
-	public void setRuntimeDataService(RuntimeDataService runtimeDataService) {
-		this.runtimeDataService = runtimeDataService;
-	}
+    public void setRuntimeDataService(RuntimeDataService runtimeDataService) {
+        this.runtimeDataService = runtimeDataService;
+    }
 
-	public void setProcessService(ProcessService processService) {
-		this.processService = processService;
-	}
+    public void setProcessService(ProcessService processService) {
+        this.processService = processService;
+    }
 
-	public void setUserTaskService(UserTaskService userTaskService) {
-		this.userTaskService = userTaskService;
-	}
-    
+    public void setUserTaskService(UserTaskService userTaskService) {
+        this.userTaskService = userTaskService;
+    }
+
     public void setQueryService(QueryService queryService) {
         this.queryService = queryService;
     }
-    
+
     public void setIdentityProvider(TestIdentityProvider identityProvider) {
         this.identityProvider = identityProvider;
     }

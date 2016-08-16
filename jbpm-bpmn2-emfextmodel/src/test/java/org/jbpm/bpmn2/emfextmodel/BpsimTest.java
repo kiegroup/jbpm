@@ -45,32 +45,32 @@ import junit.framework.TestCase;
 
 public class BpsimTest extends TestCase {
 private ResourceSet resourceSet;
-    
+
     @Override
     protected void setUp() throws Exception {
         resourceSet = new ResourceSetImpl();
-        
+
         resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put
-            (Resource.Factory.Registry.DEFAULT_EXTENSION, 
+            (Resource.Factory.Registry.DEFAULT_EXTENSION,
              new BpsimResourceFactoryImpl());
         resourceSet.getPackageRegistry().put
-            (BpsimPackage.eNS_URI, 
-            		BpsimPackage.eINSTANCE);
+            (BpsimPackage.eNS_URI,
+                    BpsimPackage.eINSTANCE);
     }
-    
+
     @Override
     protected void tearDown() throws Exception {
     }
-    
+
     @SuppressWarnings("unchecked")
     public void testBpsimData() throws Exception {
-    	//write
-    	XMLResource inResource = (XMLResource) resourceSet.createResource(URI.createURI("inputStream://dummyUriWithValidSuffix.xml"));
+        //write
+        XMLResource inResource = (XMLResource) resourceSet.createResource(URI.createURI("inputStream://dummyUriWithValidSuffix.xml"));
         inResource.getDefaultLoadOptions().put(XMLResource.OPTION_ENCODING, "UTF-8");
         inResource.setEncoding("UTF-8");
-        
+
         DocumentRoot documentRoot = BpsimFactory.eINSTANCE.createDocumentRoot();
-        
+
         BPSimDataType bpsimData = BpsimFactory.eINSTANCE.createBPSimDataType();
         Scenario defaultScenario = BpsimFactory.eINSTANCE.createScenario();
         defaultScenario.setId("default");
@@ -80,7 +80,7 @@ private ResourceSet resourceSet;
         defaultScenario.setScenarioParameters(scenarioParams);
         ElementParameters elementParams = BpsimFactory.eINSTANCE.createElementParameters();
         TimeParameters elementTimeParams = BpsimFactory.eINSTANCE.createTimeParameters();
-        
+
         Parameter processingTimeParameter = BpsimFactory.eINSTANCE.createParameter();
         UniformDistributionType uniformDistrobutionType = BpsimFactory.eINSTANCE.createUniformDistributionType();
         uniformDistrobutionType.setMin(180.0);
@@ -90,7 +90,7 @@ private ResourceSet resourceSet;
         elementParams.setTimeParameters(elementTimeParams);
         defaultScenario.getElementParameters().add(elementParams);
         bpsimData.getScenario().add(defaultScenario);
-        
+
         documentRoot.setBPSimData(bpsimData);
         inResource.getContents().add(documentRoot);
         StringWriter stringWriter = new StringWriter();
@@ -99,9 +99,9 @@ private ResourceSet resourceSet;
         if(stringWriter.getBuffer().toString().length() < 1) {
             fail("generated xml is empty");
         }
-        
-    	
-    	//read
+
+
+        //read
         XMLResource outResource = (XMLResource) resourceSet.createResource(URI.createURI("inputStream://dummyUriWithValidSuffix.xml"));
         outResource.getDefaultLoadOptions().put(XMLResource.OPTION_ENCODING, "UTF-8");
         outResource.setEncoding("UTF-8");
@@ -109,10 +109,10 @@ private ResourceSet resourceSet;
         options.put( XMLResource.OPTION_ENCODING, "UTF-8" );
         InputStream is = new ByteArrayInputStream(stringWriter.getBuffer().toString().getBytes("UTF-8"));
         outResource.load(is, options);
-        
+
         DocumentRoot outRoot = (DocumentRoot) outResource.getContents().get(0);
         assertNotNull(outRoot.getBPSimData());
-        
+
         BPSimDataType outAnalysisData = outRoot.getBPSimData();
         assertEquals(outAnalysisData.getScenario().size(), 1);
         Scenario outScenario = outAnalysisData.getScenario().get(0);

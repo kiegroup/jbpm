@@ -24,25 +24,25 @@ import org.jbpm.services.ejb.remote.api.RemoteObject;
 
 public class RemoteObjectProcessor {
 
-	@SuppressWarnings("unchecked")
-	public static <T> T processRemoteObjects(T variables, ClassLoader cl) {
-		if (variables instanceof RemoteMap) {
-			RemoteMap remoteMap = ((RemoteMap) variables);
-			remoteMap.setClassLoader(cl);
-			
-			Map<String, Object> data = new HashMap<String, Object>();
-			
-			for (String key : remoteMap.keySet()) {
-				data.put(key, remoteMap.get(key));
-			}
-			
-			return (T) data;
-		} else if (variables instanceof RemoteObject) {
-			((RemoteObject) variables).setClassLoader(cl);
-			
-			return (T) ((RemoteObject) variables).get();
-		}
-		
-		return null;
-	}
+    @SuppressWarnings("unchecked")
+    public static <T> T processRemoteObjects(T variables, ClassLoader cl) {
+        if (variables instanceof RemoteMap) {
+            RemoteMap remoteMap = ((RemoteMap) variables);
+            remoteMap.setClassLoader(cl);
+
+            Map<String, Object> data = new HashMap<String, Object>();
+
+            for (String key : remoteMap.keySet()) {
+                data.put(key, remoteMap.get(key));
+            }
+
+            return (T) data;
+        } else if (variables instanceof RemoteObject) {
+            ((RemoteObject) variables).setClassLoader(cl);
+
+            return (T) ((RemoteObject) variables).get();
+        }
+
+        return null;
+    }
 }

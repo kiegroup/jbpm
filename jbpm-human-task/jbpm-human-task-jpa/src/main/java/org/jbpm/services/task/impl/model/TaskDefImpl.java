@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -38,22 +38,22 @@ import javax.persistence.Table;
 @Table(name="TaskDef")
 @SequenceGenerator(name="taskDefIdSeq", sequenceName="TASK_DEF_ID_SEQ")
 public class TaskDefImpl implements org.kie.internal.task.api.model.TaskDef {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator="taskDefIdSeq")
     @Column(name = "id")
     private long id;
-    
+
     private String name;
-    
+
     private int priority;
 
 
     public TaskDefImpl() {
-        
+
     }
 
-    
+
     public TaskDefImpl(String name) {
         this.name = name;
     }
@@ -65,7 +65,7 @@ public class TaskDefImpl implements org.kie.internal.task.api.model.TaskDef {
     public void setId(long id) {
         this.id = id;
     }
-    
+
     public String getName() {
         return name;
     }
@@ -85,19 +85,19 @@ public class TaskDefImpl implements org.kie.internal.task.api.model.TaskDef {
 
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeLong( id );
-        if( name == null ) { 
+        if( name == null ) {
             name = "";
         }
         out.writeUTF( name );
-        
-        out.writeInt( priority );        
+
+        out.writeInt( priority );
     }
-    
+
     public void readExternal(ObjectInput in) throws IOException,
                                             ClassNotFoundException {
         id = in.readLong();
         name = in.readUTF();
-        priority = in.readInt();       
+        priority = in.readInt();
     }
-    
+
 }

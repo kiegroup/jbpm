@@ -37,12 +37,12 @@ import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.runtime.process.ProcessInstance;
 
 public class AsyncCaseTest extends JbpmTestCase {
-    
+
     protected static final String TERMINATE_CASE = "org/jbpm/test/functional/casemgmt/TerminateMilestone.bpmn2";
 
     @Test(timeout = 30000)
     public void testAsyncWorkItem() throws Exception {
-        
+
         ExecutorService executorService = ExecutorServiceFactory.newExecutorService();
         executorService.setThreadPoolSize(1);
         executorService.setInterval(1);
@@ -50,7 +50,7 @@ public class AsyncCaseTest extends JbpmTestCase {
         executorService.init();
 
         addWorkItemHandler("async", new AsyncWorkItemHandler(executorService));
-        
+
         addWorkItemHandler("Milestone", new SystemOutWorkItemHandler());
         KieSession ksession = createKSession(TERMINATE_CASE);
         RuntimeEngine runtimeEngine = getRuntimeEngine();
@@ -61,16 +61,16 @@ public class AsyncCaseTest extends JbpmTestCase {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("CommandClass", CheckCallCommand.class.getCanonicalName());
         caseMgmtService.createDynamicWorkTask(pid, "async", params);
-       
+
         // This will time out if the barrier waits for longer than 5 seconds.
-        // The .await(..) call will only timeout (throw an exception) if the 
-        //   other party (that is calling .execute(CommandContext)) has *not* also 
+        // The .await(..) call will only timeout (throw an exception) if the
+        //   other party (that is calling .execute(CommandContext)) has *not* also
         //   called await (in CheckCallCommand.execute(CommandContext)
         // In this way, it's also a check to see if the command has executed
         CheckCallCommand.getBarrier().await(5, TimeUnit.SECONDS);
 
         caseMgmtService.triggerAdHocFragment(pid, "Terminate");
-        
+
 
     }
 

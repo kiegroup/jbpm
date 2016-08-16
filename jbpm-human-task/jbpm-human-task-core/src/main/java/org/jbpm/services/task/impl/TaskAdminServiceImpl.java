@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -41,16 +41,16 @@ import org.slf4j.LoggerFactory;
 public class TaskAdminServiceImpl implements TaskAdminService {
 
     private static final Logger logger = LoggerFactory.getLogger(TaskAdminServiceImpl.class);
-    
+
     private TaskPersistenceContext persistenceContext;
 
     public TaskAdminServiceImpl() {
     }
 
     public TaskAdminServiceImpl(TaskPersistenceContext persistenceContext) {
-    	this.persistenceContext = persistenceContext;
+        this.persistenceContext = persistenceContext;
     }
-    
+
     public void setPersistenceContext(TaskPersistenceContext persistenceContext) {
         this.persistenceContext = persistenceContext;
     }
@@ -104,9 +104,9 @@ public class TaskAdminServiceImpl implements TaskAdminService {
             long taskId = sum.getId();
             Task task = persistenceContext.findTask(taskId);
             if (task != null) {
-	            ((InternalTask) task).setArchived(true);
-	            persistenceContext.merge(task);
-	            archivedTasks++;
+                ((InternalTask) task).setArchived(true);
+                persistenceContext.merge(task);
+                archivedTasks++;
             }
         }
         return archivedTasks;
@@ -125,22 +125,22 @@ public class TaskAdminServiceImpl implements TaskAdminService {
             long taskId = sum.getId();
             // Only remove archived tasks
             Task task = persistenceContext.findTask(taskId);
-        	if (task != null) {
-	            Content content = persistenceContext.findContent(task.getTaskData().getDocumentContentId());
-	            Content outputContent = persistenceContext.findContent(task.getTaskData().getOutputContentId());
-	            if (((InternalTask) task).isArchived()) {
-	                persistenceContext.remove(task);
-	                if (content != null) {
-	                    persistenceContext.remove(content);
-	                }
-	                if (outputContent != null) {
-	                	persistenceContext.remove(outputContent);
-	                }
-	                removedTasks++;
-	            } else {
-	                logger.warn(" The Task cannot be removed if it wasn't archived first !!");
-	            }
-            } 
+            if (task != null) {
+                Content content = persistenceContext.findContent(task.getTaskData().getDocumentContentId());
+                Content outputContent = persistenceContext.findContent(task.getTaskData().getOutputContentId());
+                if (((InternalTask) task).isArchived()) {
+                    persistenceContext.remove(task);
+                    if (content != null) {
+                        persistenceContext.remove(content);
+                    }
+                    if (outputContent != null) {
+                        persistenceContext.remove(outputContent);
+                    }
+                    removedTasks++;
+                } else {
+                    logger.warn(" The Task cannot be removed if it wasn't archived first !!");
+                }
+            }
         }
 
         return removedTasks;

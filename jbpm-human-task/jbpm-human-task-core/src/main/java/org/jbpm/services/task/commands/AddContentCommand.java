@@ -34,59 +34,59 @@ import org.kie.internal.command.Context;
 @XmlAccessorType(XmlAccessType.NONE)
 public class AddContentCommand extends TaskCommand<Long> {
 
-	private static final long serialVersionUID = -1295175858745522756L;
+    private static final long serialVersionUID = -1295175858745522756L;
 
-	@XmlElement
+    @XmlElement
     private JaxbContent jaxbContent;
 
-	@XmlTransient
-	private Content content;
-	
+    @XmlTransient
+    private Content content;
+
     @XmlJavaTypeAdapter(JaxbMapAdapter.class)
     @XmlElement(name="parameter")
     private Map<String, Object> params;
-    
+
     public AddContentCommand() {
     }
 
     public AddContentCommand(Long taskId, Content content) {
-    	this.taskId = taskId;
-    	setContent(content);
+        this.taskId = taskId;
+        setContent(content);
     }
 
     public AddContentCommand(Long taskId, Map<String, Object> params) {
-    	this.taskId = taskId;
-    	this.params = params;
+        this.taskId = taskId;
+        this.params = params;
     }
 
     public Long execute(Context cntxt) {
         TaskContext context = (TaskContext) cntxt;
-        
+
         if (params != null) {
-        	return context.getTaskContentService().addOutputContent(taskId, params);
-        } else {        
-	        Content comentImpl = content;
-	        if (comentImpl == null) {
-	        	comentImpl = jaxbContent;
-	    	}
-	        
-	        return context.getTaskContentService().setDocumentContent(taskId, comentImpl);
+            return context.getTaskContentService().addOutputContent(taskId, params);
+        } else {
+            Content comentImpl = content;
+            if (comentImpl == null) {
+                comentImpl = jaxbContent;
+            }
+
+            return context.getTaskContentService().setDocumentContent(taskId, comentImpl);
         }
     }
 
-	public Content getContent() {
-		return content;
-	}
+    public Content getContent() {
+        return content;
+    }
 
-	public void setContent(Content content) {
-		this.content = content;
-	}
-    
+    public void setContent(Content content) {
+        this.content = content;
+    }
+
     public JaxbContent getJaxbContent() {
-		return jaxbContent;
-	}
+        return jaxbContent;
+    }
 
-	public void setJaxbContent(JaxbContent jaxbContent) {
-		this.jaxbContent = jaxbContent;
-	}
+    public void setJaxbContent(JaxbContent jaxbContent) {
+        this.jaxbContent = jaxbContent;
+    }
 }

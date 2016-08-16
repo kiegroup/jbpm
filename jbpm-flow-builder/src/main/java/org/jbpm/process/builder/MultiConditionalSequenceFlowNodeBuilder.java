@@ -36,17 +36,17 @@ import org.jbpm.workflow.core.node.Split;
 
 public class MultiConditionalSequenceFlowNodeBuilder implements ProcessNodeBuilder {
 
-	public void build(Process process, ProcessDescr processDescr,
-			ProcessBuildContext context, Node node) {
+    public void build(Process process, ProcessDescr processDescr,
+            ProcessBuildContext context, Node node) {
 
-		Map<ConnectionRef, Constraint> constraints = ((NodeImpl) node).getConstraints();
+        Map<ConnectionRef, Constraint> constraints = ((NodeImpl) node).getConstraints();
 
-		// exclude split as it is handled with separate builder and nodes with non conditional sequence flows
-		if (node instanceof Split || constraints.size() == 0) {
-			return;
-		}
+        // exclude split as it is handled with separate builder and nodes with non conditional sequence flows
+        if (node instanceof Split || constraints.size() == 0) {
+            return;
+        }
 
-		// we need to clone the map, so we can update the original while iterating.
+        // we need to clone the map, so we can update the original while iterating.
         Map<ConnectionRef, Constraint> map = new HashMap<ConnectionRef, Constraint>( constraints );
         for ( Iterator<Map.Entry<ConnectionRef, Constraint>> it = map.entrySet().iterator(); it.hasNext(); ) {
             Map.Entry<ConnectionRef, Constraint> entry = it.next();
@@ -82,10 +82,10 @@ public class MultiConditionalSequenceFlowNodeBuilder implements ProcessNodeBuild
                 returnValueDescr.setResource(processDescr.getResource());
 
                 ProcessDialect dialect = ProcessDialectRegistry.getDialect( constraint.getDialect() );
-            	dialect.getReturnValueEvaluatorBuilder().build( context, returnValueConstraint, returnValueDescr, (NodeImpl) node );
+                dialect.getReturnValueEvaluatorBuilder().build( context, returnValueConstraint, returnValueDescr, (NodeImpl) node );
             }
         }
 
-	}
+    }
 
 }

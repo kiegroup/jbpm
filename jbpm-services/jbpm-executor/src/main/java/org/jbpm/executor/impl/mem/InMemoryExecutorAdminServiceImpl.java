@@ -26,33 +26,33 @@ import org.kie.api.executor.RequestInfo;
 
 public class InMemoryExecutorAdminServiceImpl implements ExecutorAdminService {
 
-	private InMemoryExecutorStoreService storeService;
-	
-	public void setStoreService(InMemoryExecutorStoreService storeService) {
-		this.storeService = storeService;
-	}
-	
-	public InMemoryExecutorAdminServiceImpl(boolean active) {
-		
-	}
+    private InMemoryExecutorStoreService storeService;
 
-	@Override
-	public int clearAllRequests() {
-		Map<Long, RequestInfo> requests = storeService.getRequests();
-		int size = requests.size();
-		requests.clear();
-		Map<Long, RequestInfo> processedRequests = storeService.getProcessedRequests();
-		size += processedRequests.size();
-		processedRequests.clear();
-		return size;
-	}
+    public void setStoreService(InMemoryExecutorStoreService storeService) {
+        this.storeService = storeService;
+    }
 
-	@Override
-	public int clearAllErrors() {
-		Map<Long, ErrorInfo> errors = storeService.getErrors();
-		int size = errors.size();
-		errors.clear();
-		return size;
-	}
+    public InMemoryExecutorAdminServiceImpl(boolean active) {
+
+    }
+
+    @Override
+    public int clearAllRequests() {
+        Map<Long, RequestInfo> requests = storeService.getRequests();
+        int size = requests.size();
+        requests.clear();
+        Map<Long, RequestInfo> processedRequests = storeService.getProcessedRequests();
+        size += processedRequests.size();
+        processedRequests.clear();
+        return size;
+    }
+
+    @Override
+    public int clearAllErrors() {
+        Map<Long, ErrorInfo> errors = storeService.getErrors();
+        int size = errors.size();
+        errors.clear();
+        return size;
+    }
 
 }

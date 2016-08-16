@@ -28,7 +28,7 @@ public abstract class NodeFactory {
     private Node node;
     private NodeContainer nodeContainer;
     protected RuleFlowNodeContainerFactory nodeContainerFactory;
-    
+
     protected NodeFactory(RuleFlowNodeContainerFactory nodeContainerFactory, NodeContainer nodeContainer, long id) {
         this.nodeContainerFactory = nodeContainerFactory;
         this.nodeContainer = nodeContainer;
@@ -49,4 +49,3 @@ public abstract class NodeFactory {
 }
 
 
-    

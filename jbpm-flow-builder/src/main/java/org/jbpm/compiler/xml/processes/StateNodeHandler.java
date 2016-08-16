@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -33,7 +33,7 @@ public class StateNodeHandler extends AbstractNodeHandler {
     }
 
     @SuppressWarnings("unchecked")
-	public Class generateNodeFor() {
+    public Class generateNodeFor() {
         return StateNode.class;
     }
 
@@ -43,46 +43,46 @@ public class StateNodeHandler extends AbstractNodeHandler {
         super.handleNode(node, element, uri, localName, parser);
         StateNode stateNode = (StateNode) node;
         for (String eventType: stateNode.getActionTypes()) {
-        	handleAction(stateNode, element, eventType);
+            handleAction(stateNode, element, eventType);
         }
     }
-    
+
     public void writeNode(Node node, StringBuilder xmlDump, boolean includeMeta) {
-		StateNode stateNode = (StateNode) node;
-		writeNode("state", stateNode, xmlDump, includeMeta);
+        StateNode stateNode = (StateNode) node;
+        writeNode("state", stateNode, xmlDump, includeMeta);
         xmlDump.append(">\n");
         if (includeMeta) {
-        	writeMetaData(stateNode, xmlDump);
+            writeMetaData(stateNode, xmlDump);
         }
-    	for (String eventType: stateNode.getActionTypes()) {
-        	writeActions(eventType, stateNode.getActions(eventType), xmlDump);
+        for (String eventType: stateNode.getActionTypes()) {
+            writeActions(eventType, stateNode.getActions(eventType), xmlDump);
         }
         writeTimers(stateNode.getTimers(), xmlDump);
         if (!stateNode.getConstraints().isEmpty()) {
-	        xmlDump.append("      <constraints>" + EOL);
-	        for (Map.Entry<ConnectionRef, Constraint> entry: stateNode.getConstraints().entrySet()) {
-	            ConnectionRef connection = entry.getKey();
-	            Constraint constraint = entry.getValue();
-	            xmlDump.append("        <constraint "
-	                + "toNodeId=\"" + connection.getNodeId() + "\" ");
-	            String name = constraint.getName();
-	            if (name != null && !"".equals(name)) {
-	                xmlDump.append("name=\"" + XmlDumper.replaceIllegalChars(constraint.getName()) + "\" ");
-	            }
-	            int priority = constraint.getPriority();
-	            if (priority != 0) {
-	                xmlDump.append("priority=\"" + constraint.getPriority() + "\" ");
-	            }
-	            String constraintString = constraint.getConstraint();
-	            if (constraintString != null) {
-	                xmlDump.append(">" + XmlDumper.replaceIllegalChars(constraintString) + "</constraint>" + EOL);
-	            } else {
-	                xmlDump.append("/>" + EOL);
-	            }
-	        }
-	        xmlDump.append("      </constraints>" + EOL);
+            xmlDump.append("      <constraints>" + EOL);
+            for (Map.Entry<ConnectionRef, Constraint> entry: stateNode.getConstraints().entrySet()) {
+                ConnectionRef connection = entry.getKey();
+                Constraint constraint = entry.getValue();
+                xmlDump.append("        <constraint "
+                    + "toNodeId=\"" + connection.getNodeId() + "\" ");
+                String name = constraint.getName();
+                if (name != null && !"".equals(name)) {
+                    xmlDump.append("name=\"" + XmlDumper.replaceIllegalChars(constraint.getName()) + "\" ");
+                }
+                int priority = constraint.getPriority();
+                if (priority != 0) {
+                    xmlDump.append("priority=\"" + constraint.getPriority() + "\" ");
+                }
+                String constraintString = constraint.getConstraint();
+                if (constraintString != null) {
+                    xmlDump.append(">" + XmlDumper.replaceIllegalChars(constraintString) + "</constraint>" + EOL);
+                } else {
+                    xmlDump.append("/>" + EOL);
+                }
+            }
+            xmlDump.append("      </constraints>" + EOL);
         }
         endNode("state", xmlDump);
-	}
+    }
 
 }

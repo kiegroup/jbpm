@@ -26,20 +26,20 @@ import org.jbpm.services.api.query.model.QueryDefinition;
 public class SqlQueryDefinition implements QueryDefinition, Serializable {
 
     private static final long serialVersionUID = 1L;
-    
+
     private String name;
     private String source;
     private String expression;
-    
+
     private Target target = Target.CUSTOM;
-    
+
     private Map<String, String> columnsMapping = new HashMap<String, String>();
 
     public SqlQueryDefinition(String name, String source) {
         this.name = name;
         this.source = source;
     }
-    
+
     public SqlQueryDefinition(String name, String source, Target target) {
         this.name = name;
         this.source = source;
@@ -48,37 +48,37 @@ public class SqlQueryDefinition implements QueryDefinition, Serializable {
 
     @Override
     public String getName() {
-        
+
         return this.name;
     }
 
     @Override
     public void setName(String name) {
-        
+
         this.name = name;
     }
 
     @Override
     public String getSource() {
-        
+
         return this.source;
     }
 
     @Override
     public void setSource(String source) {
-        
+
         this.source = source;
     }
 
     @Override
     public String getExpression() {
-        
+
         return this.expression;
     }
 
     @Override
     public void setExpression(String expression) {
-        
+
         this.expression = expression;
     }
 
@@ -86,14 +86,14 @@ public class SqlQueryDefinition implements QueryDefinition, Serializable {
     public Target getTarget() {
         return this.target;
     }
-    
+
     public void setTarget(Target target) {
         this.target = target;
     }
 
     @Override
     public String toString() {
-        return "SqlQueryDefinition [name=" + name + ", source=" + source  + ", target=" + target + ", "+ 
+        return "SqlQueryDefinition [name=" + name + ", source=" + source  + ", target=" + target + ", "+
                 "{ expression=" + expression + "}]";
     }
 

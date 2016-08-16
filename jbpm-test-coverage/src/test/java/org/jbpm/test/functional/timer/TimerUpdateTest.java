@@ -160,7 +160,7 @@ public class TimerUpdateTest extends JbpmTestCase {
 
         Assertions.assertThat(kieSession.getProcessInstance(id)).isNull();
     }
-    
+
     @Test(timeout = 30000)
     public void updateBoundaryTimerTest() {
         CountDownProcessEventListener countDownListener = new CountDownProcessEventListener(BOUNDARY_TIMER_NAME, 1);

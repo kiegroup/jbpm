@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -25,7 +25,7 @@ import javax.ws.rs.core.Application;
 public class SimpleRESTApplication extends Application {
 
     @Override
-    public Set<Class<?>> getClasses() 
+    public Set<Class<?>> getClasses()
     {
         return new HashSet<Class<?>>();
     }

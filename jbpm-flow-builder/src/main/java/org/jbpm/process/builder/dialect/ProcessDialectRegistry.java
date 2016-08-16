@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -23,22 +23,22 @@ import org.jbpm.process.builder.dialect.javascript.JavaScriptProcessDialect;
 import org.jbpm.process.builder.dialect.mvel.MVELProcessDialect;
 
 public class ProcessDialectRegistry {
-	
-	private static ConcurrentMap<String, ProcessDialect> dialects;
-	
-	static {
-		 dialects = new ConcurrentHashMap<String, ProcessDialect>();
-		 dialects.put("java", new JavaProcessDialect());
-		 dialects.put("mvel", new MVELProcessDialect());
+
+    private static ConcurrentMap<String, ProcessDialect> dialects;
+
+    static {
+         dialects = new ConcurrentHashMap<String, ProcessDialect>();
+         dialects.put("java", new JavaProcessDialect());
+         dialects.put("mvel", new MVELProcessDialect());
          dialects.put("JavaScript", new JavaScriptProcessDialect());
-	}
-	
-	public static ProcessDialect getDialect(String dialect) {
-		return dialects.get(dialect);
-	}
-	
-	public static void setDialect(String dialectName, ProcessDialect dialect) {
-		dialects.put(dialectName, dialect);
-	}
-	
+    }
+
+    public static ProcessDialect getDialect(String dialect) {
+        return dialects.get(dialect);
+    }
+
+    public static void setDialect(String dialectName, ProcessDialect dialect) {
+        dialects.put(dialectName, dialect);
+    }
+
 }

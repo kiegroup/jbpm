@@ -30,7 +30,7 @@ public class HumanTaskNode extends WorkItemNode {
     private static final long serialVersionUID = 510l;
 
     private String swimlane;
-    
+
     public HumanTaskNode() {
         Work work = new WorkImpl();
         work.setName("Human Task");

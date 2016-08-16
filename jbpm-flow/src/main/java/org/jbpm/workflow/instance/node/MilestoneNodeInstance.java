@@ -34,7 +34,7 @@ import org.kie.api.runtime.process.NodeInstance;
 
 /**
  * Runtime counterpart of a milestone node.
- * 
+ *
  */
 public class MilestoneNodeInstance extends StateBasedNodeInstance implements AgendaEventListener {
 
@@ -45,33 +45,33 @@ public class MilestoneNodeInstance extends StateBasedNodeInstance implements Age
     }
 
     public void internalTrigger(final NodeInstance from, String type) {
-    	super.internalTrigger(from, type);
-    	// if node instance was cancelled, abort
-		if (getNodeInstanceContainer().getNodeInstance(getId()) == null) {
-			return;
-		}
-		if (!org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE.equals(type)) {
+        super.internalTrigger(from, type);
+        // if node instance was cancelled, abort
+        if (getNodeInstanceContainer().getNodeInstance(getId()) == null) {
+            return;
+        }
+        if (!org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE.equals(type)) {
             throw new IllegalArgumentException(
                 "A MilestoneNode only accepts default incoming connections!");
         }
         String rule = "RuleFlow-Milestone-" + getProcessInstance().getProcessId()
-        	+ "-" + getMilestoneNode().getUniqueId();
+            + "-" + getMilestoneNode().getUniqueId();
         boolean isActive = ((InternalAgenda) getProcessInstance().getKnowledgeRuntime().getAgenda())
-			.isRuleActiveInRuleFlowGroup("DROOLS_SYSTEM", rule, getProcessInstance().getId());
+            .isRuleActiveInRuleFlowGroup("DROOLS_SYSTEM", rule, getProcessInstance().getId());
         if (isActive) {
-        	triggerCompleted();
+            triggerCompleted();
         } else {
             addActivationListener();
         }
     }
-    
+
     public void addEventListeners() {
         super.addEventListeners();
         addActivationListener();
     }
-    
+
     private void addActivationListener() {
-    	getProcessInstance().getKnowledgeRuntime().addEventListener(this);
+        getProcessInstance().getKnowledgeRuntime().addEventListener(this);
     }
 
     public void removeEventListeners() {
@@ -89,10 +89,10 @@ public class MilestoneNodeInstance extends StateBasedNodeInstance implements Age
             String milestoneName = "RuleFlow-Milestone-" + getProcessInstance().getProcessId() + "-" + getNodeId();
             if (milestoneName.equals(ruleName) && checkProcessInstance((Activation) event.getMatch())) {
                 ((InternalKnowledgeRuntime) getProcessInstance().getKnowledgeRuntime()).executeQueuedActions();
-            	synchronized(getProcessInstance()) {
-	                removeEventListeners();
-	                triggerCompleted();
-            	}
+                synchronized(getProcessInstance()) {
+                    removeEventListeners();
+                    triggerCompleted();
+                }
             }
         }
     }
@@ -117,16 +117,16 @@ public class MilestoneNodeInstance extends StateBasedNodeInstance implements Age
         // Do nothing
     }
 
-	public void afterRuleFlowGroupActivated(RuleFlowGroupActivatedEvent event) {
-	}
+    public void afterRuleFlowGroupActivated(RuleFlowGroupActivatedEvent event) {
+    }
 
-	public void afterRuleFlowGroupDeactivated(RuleFlowGroupDeactivatedEvent event) {
-	}
+    public void afterRuleFlowGroupDeactivated(RuleFlowGroupDeactivatedEvent event) {
+    }
 
-	public void beforeRuleFlowGroupActivated(RuleFlowGroupActivatedEvent event) {
-	}
+    public void beforeRuleFlowGroupActivated(RuleFlowGroupActivatedEvent event) {
+    }
 
-	public void beforeRuleFlowGroupDeactivated(RuleFlowGroupDeactivatedEvent event) {
-	}
+    public void beforeRuleFlowGroupDeactivated(RuleFlowGroupDeactivatedEvent event) {
+    }
 
 }

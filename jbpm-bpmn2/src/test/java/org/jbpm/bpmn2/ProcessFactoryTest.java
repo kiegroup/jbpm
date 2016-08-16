@@ -29,33 +29,33 @@ import org.kie.api.io.Resource;
 import org.kie.api.runtime.process.ProcessInstance;
 
 public class ProcessFactoryTest extends JbpmBpmn2TestCase {
-    
+
     public ProcessFactoryTest() {
         super(false);
     }
 
     @Test
-	public void testProcessFactory() throws Exception {
-		RuleFlowProcessFactory factory = RuleFlowProcessFactory.createProcess("org.jbpm.process");
-		factory
-			// header
-			.name("My process").packageName("org.jbpm")
-			// nodes
-			.startNode(1).name("Start").done()
-			.actionNode(2).name("Action")
-				.action("java", "System.out.println(\"Action\");").done()
-			.endNode(3).name("End").done()
-			// connections
-			.connection(1, 2)
-			.connection(2, 3);
-		RuleFlowProcess process = factory.validate().getProcess();
-		Resource res = ResourceFactory.newByteArrayResource(XmlBPMNProcessDumper.INSTANCE.dump(process).getBytes());
-		res.setSourcePath("/tmp/processFactory.bpmn2"); // source path or target path must be set to be added into kbase
-		KieBase kbase = createKnowledgeBaseFromResources(res);
-		StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
-		ksession.startProcess("org.jbpm.process");
-		ksession.dispose();
-	}
+    public void testProcessFactory() throws Exception {
+        RuleFlowProcessFactory factory = RuleFlowProcessFactory.createProcess("org.jbpm.process");
+        factory
+            // header
+            .name("My process").packageName("org.jbpm")
+            // nodes
+            .startNode(1).name("Start").done()
+            .actionNode(2).name("Action")
+                .action("java", "System.out.println(\"Action\");").done()
+            .endNode(3).name("End").done()
+            // connections
+            .connection(1, 2)
+            .connection(2, 3);
+        RuleFlowProcess process = factory.validate().getProcess();
+        Resource res = ResourceFactory.newByteArrayResource(XmlBPMNProcessDumper.INSTANCE.dump(process).getBytes());
+        res.setSourcePath("/tmp/processFactory.bpmn2"); // source path or target path must be set to be added into kbase
+        KieBase kbase = createKnowledgeBaseFromResources(res);
+        StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
+        ksession.startProcess("org.jbpm.process");
+        ksession.dispose();
+    }
 
     @Test
     public void testCompositeNode() throws Exception {

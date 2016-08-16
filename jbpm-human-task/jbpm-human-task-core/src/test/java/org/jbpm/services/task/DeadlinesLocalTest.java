@@ -33,29 +33,29 @@ import bitronix.tm.resource.jdbc.PoolingDataSource;
 
 public class DeadlinesLocalTest extends DeadlinesBaseTest {
 
-	private PoolingDataSource pds;
-	private EntityManagerFactory emf;
-	
-	@Before
-	public void setup() {
-		this.notificationListener = new MockNotificationListener();
-		pds = setupPoolingDataSource();
-		emf = Persistence.createEntityManagerFactory( "org.jbpm.services.task" );
-		this.taskService = (InternalTaskService) HumanTaskServiceFactory.newTaskServiceConfigurator()
-												.entityManagerFactory(emf)
-												.getTaskService();
-	}
-	
-	@After
-	public void clean() {
-		TaskDeadlinesServiceImpl.reset();
-		super.tearDown();
-		if (emf != null) {
-			emf.close();
-		}
-		if (pds != null) {
-			pds.close();
-		}
-	}
+    private PoolingDataSource pds;
+    private EntityManagerFactory emf;
+
+    @Before
+    public void setup() {
+        this.notificationListener = new MockNotificationListener();
+        pds = setupPoolingDataSource();
+        emf = Persistence.createEntityManagerFactory( "org.jbpm.services.task" );
+        this.taskService = (InternalTaskService) HumanTaskServiceFactory.newTaskServiceConfigurator()
+                                                .entityManagerFactory(emf)
+                                                .getTaskService();
+    }
+
+    @After
+    public void clean() {
+        TaskDeadlinesServiceImpl.reset();
+        super.tearDown();
+        if (emf != null) {
+            emf.close();
+        }
+        if (pds != null) {
+            pds.close();
+        }
+    }
 
 }

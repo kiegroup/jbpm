@@ -180,7 +180,7 @@ public class StartEventTest extends JbpmTestCase {
         TrackingProcessEventListener process = new TrackingProcessEventListener();
         ksession.addEventListener(process);
         ksession.fireAllRules();
-        
+
         assertTrue( "The process did not start on time!", process.waitForProcessToStart(1000) );
         assertTrue( "The process did not complete on time!", process.waitForProcessToComplete(1000) );
         ksession.fireAllRules();

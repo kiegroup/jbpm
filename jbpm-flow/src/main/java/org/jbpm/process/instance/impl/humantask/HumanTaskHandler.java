@@ -47,30 +47,30 @@ import org.kie.api.runtime.process.WorkItemHandler;
 import org.kie.api.runtime.process.WorkItemManager;
 
 /**
- * 
+ *
  */
 public class HumanTaskHandler extends JFrame implements WorkItemHandler {
 
     private static final long serialVersionUID = 510l;
-    
+
     private Map<WorkItem, WorkItemManager> workItems = new HashMap<WorkItem, WorkItemManager>();
-    private JTextField actorTextField; 
+    private JTextField actorTextField;
     private JList workItemsList;
     private JButton selectButton;
-    
+
     public HumanTaskHandler() {
         setSize(new Dimension(400, 300));
         setTitle("Work Items");
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         initializeComponent();
     }
-    
+
     private void initializeComponent() {
         JPanel panel = new JPanel();
         panel.setLayout(new GridBagLayout());
         getRootPane().setLayout(new BorderLayout());
         getRootPane().add(panel, BorderLayout.CENTER);
-        
+
         JLabel label = new JLabel("Actor");
         GridBagConstraints c = new GridBagConstraints();
         c.insets = new Insets(5, 5, 5, 5);
@@ -90,7 +90,7 @@ public class HumanTaskHandler extends JFrame implements WorkItemHandler {
         c = new GridBagConstraints();
         c.insets = new Insets(5, 5, 5, 5);
         panel.add(updateButton, c);
-        
+
         workItemsList = new JList();
         workItemsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         workItemsList.addMouseListener(new MouseAdapter() {
@@ -113,7 +113,7 @@ public class HumanTaskHandler extends JFrame implements WorkItemHandler {
         c.fill = GridBagConstraints.BOTH;
         c.insets = new Insets(5, 5, 5, 5);
         panel.add(workItemsList, c);
-        
+
         selectButton = new JButton("Select");
         selectButton.setEnabled(false);
         selectButton.addActionListener(new ActionListener() {
@@ -129,7 +129,7 @@ public class HumanTaskHandler extends JFrame implements WorkItemHandler {
         c.insets = new Insets(5, 5, 5, 5);
         panel.add(selectButton, c);
     }
-    
+
     private void update() {
         String actor = actorTextField.getText();
         if ("".equals(actor)) {
@@ -137,7 +137,7 @@ public class HumanTaskHandler extends JFrame implements WorkItemHandler {
         }
         reloadWorkItemsList(actor);
     }
-    
+
     private void select() {
         WorkItem workItem = getSelectedWorkItem();
         if (workItem != null) {
@@ -145,7 +145,7 @@ public class HumanTaskHandler extends JFrame implements WorkItemHandler {
             dialog.setVisible(true);
         }
     }
-    
+
     public WorkItem getSelectedWorkItem() {
         int index = workItemsList.getSelectedIndex();
         if (index != -1) {
@@ -156,20 +156,20 @@ public class HumanTaskHandler extends JFrame implements WorkItemHandler {
         }
         return null;
     }
-    
+
     private void reloadWorkItemsList(String actor) {
         List<WorkItemWrapper> result = new ArrayList<WorkItemWrapper>();
         for (Iterator<WorkItem> iterator = workItems.keySet().iterator(); iterator.hasNext(); ) {
             WorkItem workItem = iterator.next();
             if (actor == null
-                    || workItem.getParameter("ActorId") == null 
+                    || workItem.getParameter("ActorId") == null
                     || actor.equals(workItem.getParameter("ActorId"))) {
                 result.add(new WorkItemWrapper(workItem));
             }
         }
         workItemsList.setListData(result.toArray());
     }
-    
+
     public void complete(WorkItem workItem, Map<String, Object> results) {
         WorkItemManager manager = workItems.get(workItem);
         if (manager != null) {
@@ -179,7 +179,7 @@ public class HumanTaskHandler extends JFrame implements WorkItemHandler {
         update();
         selectButton.setEnabled(getSelectedWorkItem() != null);
     }
-    
+
     public void abort(WorkItem workItem) {
         WorkItemManager manager = workItems.get(workItem);
         if (manager != null) {
@@ -189,7 +189,7 @@ public class HumanTaskHandler extends JFrame implements WorkItemHandler {
         update();
         selectButton.setEnabled(getSelectedWorkItem() != null);
     }
-    
+
     public void abortWorkItem(WorkItem workItem, WorkItemManager manager) {
         workItems.remove(workItem);
     }
@@ -199,17 +199,17 @@ public class HumanTaskHandler extends JFrame implements WorkItemHandler {
     }
 
     private class WorkItemWrapper {
-        
+
         private WorkItem workItem;
-        
+
         public WorkItemWrapper(WorkItem workItem) {
             this.workItem = workItem;
         }
-        
+
         public WorkItem getWorkItem() {
             return workItem;
         }
-        
+
         public String toString() {
             return "[" + workItem.getId() + "] " + workItem.getParameter("TaskName");
         }

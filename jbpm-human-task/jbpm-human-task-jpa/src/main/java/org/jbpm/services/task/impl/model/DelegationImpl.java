@@ -35,13 +35,13 @@ import org.kie.internal.task.api.model.AllowedToDelegate;
 
 @Embeddable
 public class DelegationImpl  implements org.kie.internal.task.api.model.Delegation {
-    @Enumerated(EnumType.STRING)      
+    @Enumerated(EnumType.STRING)
     private AllowedToDelegate                    allowedToDelegate;
-    
+
     @ManyToMany(targetEntity=OrganizationalEntityImpl.class)
-    @JoinTable(name = "Delegation_delegates", joinColumns = @JoinColumn(name = "task_id"), inverseJoinColumns = @JoinColumn(name = "entity_id"))    
+    @JoinTable(name = "Delegation_delegates", joinColumns = @JoinColumn(name = "task_id"), inverseJoinColumns = @JoinColumn(name = "entity_id"))
     private List<OrganizationalEntity> delegates = Collections.emptyList();
-    
+
     public void writeExternal(ObjectOutput out) throws IOException {
         if ( allowedToDelegate != null ) {
             out.writeBoolean( true );
@@ -49,21 +49,21 @@ public class DelegationImpl  implements org.kie.internal.task.api.model.Delegati
         } else {
             out.writeBoolean( false );
         }
-        CollectionUtils.writeOrganizationalEntityList( delegates, out );       
-    } 
-    
+        CollectionUtils.writeOrganizationalEntityList( delegates, out );
+    }
+
     public void readExternal(ObjectInput in) throws IOException,
                                             ClassNotFoundException {
         if ( in.readBoolean() ) {
             allowedToDelegate = AllowedToDelegate.valueOf( in.readUTF() );
         }
         delegates = CollectionUtils.readOrganizationalEntityList( in );
-    }       
+    }
 
     public AllowedToDelegate getAllowed() {
         return allowedToDelegate;
-    }    
-    
+    }
+
     public void setAllowed(AllowedToDelegate allowedToDelegate) {
         this.allowedToDelegate = allowedToDelegate;
     }
@@ -71,13 +71,13 @@ public class DelegationImpl  implements org.kie.internal.task.api.model.Delegati
     public List<OrganizationalEntity> getDelegates() {
         return delegates;
     }
-    
+
 
     public void setDelegates(List<OrganizationalEntity> delegates) {
         this.delegates = delegates;
-    }    
-    
-    
+    }
+
+
 
     @Override
     public int hashCode() {
@@ -97,7 +97,7 @@ public class DelegationImpl  implements org.kie.internal.task.api.model.Delegati
         if ( allowedToDelegate == null ) {
             if ( other.allowedToDelegate != null ) return false;
         } else if ( !allowedToDelegate.equals( other.allowedToDelegate ) ) return false;
-        
+
         return CollectionUtils.equals( delegates, other.delegates );
     }
 }

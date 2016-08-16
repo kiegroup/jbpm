@@ -38,10 +38,10 @@ import org.junit.runner.RunWith;
 
 @RunWith(Arquillian.class)
 public class DeploymentServiceCDIImplWithSyncTest extends DeploymentServiceWithSyncTest {
-   
-	@Deployment()
+
+    @Deployment()
     public static Archive<?> createDeployment() {
-        return ShrinkWrap.create(JavaArchive.class, "domain-services.jar")                
+        return ShrinkWrap.create(JavaArchive.class, "domain-services.jar")
                 .addPackage("org.jbpm.services.task")
                 .addPackage("org.jbpm.services.task.wih") // work items org.jbpm.services.task.wih
                 .addPackage("org.jbpm.services.task.annotations")
@@ -67,21 +67,21 @@ public class DeploymentServiceCDIImplWithSyncTest extends DeploymentServiceWithS
                 .addPackage("org.kie.internal.runtime.manager")
                 .addPackage("org.kie.internal.runtime.manager.context")
                 .addPackage("org.kie.internal.runtime.manager.cdi.qualifier")
-                
+
                 .addPackage("org.jbpm.runtime.manager.impl")
-                .addPackage("org.jbpm.runtime.manager.impl.cdi")                               
+                .addPackage("org.jbpm.runtime.manager.impl.cdi")
                 .addPackage("org.jbpm.runtime.manager.impl.factory")
                 .addPackage("org.jbpm.runtime.manager.impl.jpa")
                 .addPackage("org.jbpm.runtime.manager.impl.manager")
                 .addPackage("org.jbpm.runtime.manager.impl.task")
                 .addPackage("org.jbpm.runtime.manager.impl.tx")
-                
+
                 .addPackage("org.jbpm.shared.services.api")
                 .addPackage("org.jbpm.shared.services.impl")
                 .addPackage("org.jbpm.shared.services.impl.tx")
-                
+
                 .addPackage("org.jbpm.kie.services.api")
-                .addPackage("org.jbpm.kie.services.impl")                
+                .addPackage("org.jbpm.kie.services.impl")
                 .addPackage("org.jbpm.kie.services.api.bpmn2")
                 .addPackage("org.jbpm.kie.services.impl.bpmn2")
                 .addPackage("org.jbpm.kie.services.impl.event.listeners")
@@ -89,11 +89,11 @@ public class DeploymentServiceCDIImplWithSyncTest extends DeploymentServiceWithS
                 .addPackage("org.jbpm.kie.services.impl.form")
                 .addPackage("org.jbpm.kie.services.impl.store")
                 .addPackage("org.jbpm.kie.services.impl.form.provider")
-                .addPackage("org.jbpm.kie.services.impl.query")  
-                .addPackage("org.jbpm.kie.services.impl.query.mapper")  
-                .addPackage("org.jbpm.kie.services.impl.query.persistence")  
-                .addPackage("org.jbpm.kie.services.impl.query.preprocessor")  
-                
+                .addPackage("org.jbpm.kie.services.impl.query")
+                .addPackage("org.jbpm.kie.services.impl.query.mapper")
+                .addPackage("org.jbpm.kie.services.impl.query.persistence")
+                .addPackage("org.jbpm.kie.services.impl.query.preprocessor")
+
                 .addPackage("org.jbpm.services.cdi")
                 .addPackage("org.jbpm.services.cdi.impl")
                 .addPackage("org.jbpm.services.cdi.impl.form")
@@ -102,7 +102,7 @@ public class DeploymentServiceCDIImplWithSyncTest extends DeploymentServiceWithS
                 .addPackage("org.jbpm.services.cdi.impl.security")
                 .addPackage("org.jbpm.services.cdi.impl.store")
                 .addPackage("org.jbpm.services.cdi.impl.query")
-                
+
                 .addPackage("org.jbpm.test.util")
                 .addPackage("org.jbpm.kie.services.test")
                 .addPackage("org.jbpm.services.cdi.test") // Identity Provider Test Impl here
@@ -114,78 +114,78 @@ public class DeploymentServiceCDIImplWithSyncTest extends DeploymentServiceWithS
                 .addAsManifestResource("META-INF/beans.xml", ArchivePaths.create("beans.xml"));
 
     }
-    
+
     @Override
-	protected void close() {
-		// do nothing here and let CDI close resources
-	}
+    protected void close() {
+        // do nothing here and let CDI close resources
+    }
 
-	@Override
-	protected void configureServices() {
-		// do nothing here and let CDI configure services 
-	}
+    @Override
+    protected void configureServices() {
+        // do nothing here and let CDI configure services
+    }
 
-	@Override
+    @Override
     protected CoundDownDeploymentListener configureListener(int threads, boolean deploy, boolean undeploy, boolean activate, boolean deactivate) {
         countDownListner.reset(threads);
         countDownListner.setDeploy(deploy);
         countDownListner.setUndeploy(undeploy);
         countDownListner.setActivate(activate);
         countDownListner.setDeactivate(deactivate);
-	    
+
         return countDownListner;
     }
 
     @Override
-	protected void configureDeploymentSync() {
-		store = new DeploymentStore();
-		store.setCommandService(commandService);
-	}
+    protected void configureDeploymentSync() {
+        store = new DeploymentStore();
+        store.setCommandService(commandService);
+    }
 
-    
+
     @Inject
     private CountDownDeploymentListenerCDIImpl countDownListner;
-    
-    
-	@Inject	
-	@Override
-	public void setDeploymentService(DeploymentService deploymentService) {
-		
-		super.setDeploymentService(deploymentService);
-	}
 
-	@Inject
-	@Override
-	public void setBpmn2Service(DefinitionService bpmn2Service) {
-		
-		super.setBpmn2Service(bpmn2Service);
-	}
 
-	@Inject
-	@Override
-	public void setRuntimeDataService(RuntimeDataService runtimeDataService) {
-		
-		super.setRuntimeDataService(runtimeDataService);
-	}
+    @Inject
+    @Override
+    public void setDeploymentService(DeploymentService deploymentService) {
 
-	@Inject
-	@Override
-	public void setProcessService(ProcessService processService) {
-		
-		super.setProcessService(processService);
-	}
+        super.setDeploymentService(deploymentService);
+    }
 
-	@Inject
-	@Override
-	public void setUserTaskService(UserTaskService userTaskService) {
-		
-		super.setUserTaskService(userTaskService);
-	}
+    @Inject
+    @Override
+    public void setBpmn2Service(DefinitionService bpmn2Service) {
 
-	@Inject
-	@Override
-	public void setCommandService(TransactionalCommandService commandService) {
-		super.setCommandService(commandService);
-	}
-	
+        super.setBpmn2Service(bpmn2Service);
+    }
+
+    @Inject
+    @Override
+    public void setRuntimeDataService(RuntimeDataService runtimeDataService) {
+
+        super.setRuntimeDataService(runtimeDataService);
+    }
+
+    @Inject
+    @Override
+    public void setProcessService(ProcessService processService) {
+
+        super.setProcessService(processService);
+    }
+
+    @Inject
+    @Override
+    public void setUserTaskService(UserTaskService userTaskService) {
+
+        super.setUserTaskService(userTaskService);
+    }
+
+    @Inject
+    @Override
+    public void setCommandService(TransactionalCommandService commandService) {
+        super.setCommandService(commandService);
+    }
+
 }

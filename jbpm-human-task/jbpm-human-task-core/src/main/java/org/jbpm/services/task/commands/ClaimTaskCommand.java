@@ -22,11 +22,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.kie.internal.command.Context;
 
 /**
- * Operation.Claim 
-        : [ new OperationCommand().{ 
+ * Operation.Claim
+        : [ new OperationCommand().{
                 status = [ Status.Ready ],
-                allowed = [ Allowed.PotentialOwner, Allowed.BusinessAdministrator ],    
-                setNewOwnerToUser = true,           
+                allowed = [ Allowed.PotentialOwner, Allowed.BusinessAdministrator ],
+                setNewOwnerToUser = true,
                 newStatus = Status.Reserved
             } ],
  */
@@ -34,12 +34,12 @@ import org.kie.internal.command.Context;
 @XmlAccessorType(XmlAccessType.NONE)
 public class ClaimTaskCommand extends UserGroupCallbackTaskCommand<Void> {
 
-	private static final long serialVersionUID = 3457622878127569389L;
+    private static final long serialVersionUID = 3457622878127569389L;
 
-	public ClaimTaskCommand() {
-	}
-	
-	public ClaimTaskCommand(long taskId, String userId) {
+    public ClaimTaskCommand() {
+    }
+
+    public ClaimTaskCommand(long taskId, String userId) {
         this.taskId = taskId;
         this.userId = userId;
     }
@@ -49,10 +49,10 @@ public class ClaimTaskCommand extends UserGroupCallbackTaskCommand<Void> {
         doCallbackUserOperation(userId, context);
         groupIds = doUserGroupCallbackOperation(userId, null, context);
         context.set("local:groups", groupIds);
-    	context.getTaskInstanceService().claim(taskId, userId);
-    	return null;
-        
+        context.getTaskInstanceService().claim(taskId, userId);
+        return null;
+
     }
 
-   
+
 }

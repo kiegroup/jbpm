@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -32,20 +32,20 @@ import org.jbpm.runtime.manager.impl.deploy.DeploymentDescriptorIO;
  */
 public class GenerateDeployemntDescriptorSchema {
 
-	public static void main(String[] args) throws Exception {
-		JAXBContext jaxbContext = DeploymentDescriptorIO.getContext();
-		SchemaOutputResolver sor = new FileSchemaOutputResolver();
-		jaxbContext.generateSchema(sor);
-	}
-	
-	private static class FileSchemaOutputResolver extends SchemaOutputResolver {
+    public static void main(String[] args) throws Exception {
+        JAXBContext jaxbContext = DeploymentDescriptorIO.getContext();
+        SchemaOutputResolver sor = new FileSchemaOutputResolver();
+        jaxbContext.generateSchema(sor);
+    }
 
-	    public Result createOutput(String namespaceURI, String suggestedFileName) throws IOException {
-	        File file = new File("src/main/resources/" + suggestedFileName);
-	        StreamResult result = new StreamResult(file);
-	        result.setSystemId(file.toURI().toURL().toString());
-	        return result;
-	    }
+    private static class FileSchemaOutputResolver extends SchemaOutputResolver {
 
-	}
+        public Result createOutput(String namespaceURI, String suggestedFileName) throws IOException {
+            File file = new File("src/main/resources/" + suggestedFileName);
+            StreamResult result = new StreamResult(file);
+            result.setSystemId(file.toURI().toURL().toString());
+            return result;
+        }
+
+    }
 }

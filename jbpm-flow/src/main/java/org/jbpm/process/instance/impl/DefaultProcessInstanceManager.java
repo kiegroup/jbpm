@@ -36,17 +36,17 @@ public class DefaultProcessInstanceManager implements ProcessInstanceManager {
     public void addProcessInstance(ProcessInstance processInstance, CorrelationKey correlationKey) {
         ((org.jbpm.process.instance.ProcessInstance) processInstance).setId(processCounter.incrementAndGet());
         internalAddProcessInstance(processInstance);
- 
-        if (correlationKey != null) {  
+
+        if (correlationKey != null) {
             if (processInstancesByCorrelationKey.containsKey(correlationKey)) {
                 throw new RuntimeException(correlationKey + " already exists");
             }
             processInstancesByCorrelationKey.put(correlationKey, processInstance);
         }
     }
-    
+
     public void internalAddProcessInstance(ProcessInstance processInstance) {
-    	processInstances.put(((ProcessInstance)processInstance).getId(), processInstance);
+        processInstances.put(((ProcessInstance)processInstance).getId(), processInstance);
     }
 
     public Collection<ProcessInstance> getProcessInstances() {
@@ -73,13 +73,13 @@ public class DefaultProcessInstanceManager implements ProcessInstanceManager {
             }
         }
     }
-    
+
     public void clearProcessInstances() {
-    	processInstances.clear();
+        processInstances.clear();
     }
 
     public void clearProcessInstancesState() {
-        
+
     }
 
     @Override

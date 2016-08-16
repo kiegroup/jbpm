@@ -19,7 +19,7 @@ package org.jbpm.services.api.query;
 import java.util.Map;
 
 /**
- * A delegate mapper that will delay look up of actual mapper to the time its 
+ * A delegate mapper that will delay look up of actual mapper to the time its
  * <code>map</code> method is invoked. Especially useful for EJB remote usage when dependency
  * to api only is preferred and the actual implementations will be found on server side.
  *
@@ -29,7 +29,7 @@ public class NamedQueryMapper<T> implements QueryResultMapper<T> {
 
     private static final long serialVersionUID = -5975192042647431269L;
     private String mapperName;
-    
+
     /**
      * Creates new instance with actual mapper name
      * @param mapperName unique name of the mapper that will be used to produce results.
@@ -37,12 +37,12 @@ public class NamedQueryMapper<T> implements QueryResultMapper<T> {
     public NamedQueryMapper(String mapperName) {
         this.mapperName = mapperName;
     }
-    
+
     @SuppressWarnings("unchecked")
     @Override
     public T map(Object result) {
         QueryResultMapper<T> actualMapper = (QueryResultMapper<T>) QueryMapperRegistry.get().mapperFor(mapperName, null);
-        
+
         return actualMapper.map(result);
     }
 

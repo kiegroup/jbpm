@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -61,18 +61,18 @@ public class JaxbAttachment extends AbstractJaxbTaskObject<Attachment> implement
     @XmlSchemaType(name = "long")
     private Long attachmentContentId;
 
-    public JaxbAttachment() { 
+    public JaxbAttachment() {
         super(Attachment.class);
     }
-    
-    public JaxbAttachment(Attachment attachment) { 
+
+    public JaxbAttachment(Attachment attachment) {
         super(attachment, Attachment.class);
         User attacher = attachment.getAttachedBy();
-        if( attacher != null ) { 
+        if( attacher != null ) {
             this.attachedBy = attacher.getId();
         }
     }
-        
+
     @Override
     public Long getId() {
         return id;
@@ -101,7 +101,7 @@ public class JaxbAttachment extends AbstractJaxbTaskObject<Attachment> implement
     public String getAttachedById() {
         return this.attachedBy;
     }
-    
+
     @Override
     public int getSize() {
         return whenNull(size, -1);

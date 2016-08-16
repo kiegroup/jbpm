@@ -32,7 +32,7 @@ public class DestroySessionTransactionSynchronization extends OrderedTransaction
 
     private KieSession ksession;
     public DestroySessionTransactionSynchronization(KieSession ksession) {
-    	super(5, "DestroySessionTransactionSynchronization"+ksession.getIdentifier());
+        super(5, "DestroySessionTransactionSynchronization"+ksession.getIdentifier());
         this.ksession = ksession;
     }
 

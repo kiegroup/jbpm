@@ -36,45 +36,45 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class AsyncEventNodeInstance extends EventNodeInstance {
-    
+
     private static final long serialVersionUID = 1L;
     private static final Logger logger = LoggerFactory.getLogger(AsyncEventNodeInstance.class);
-    
+
     private String eventType = UUID.randomUUID().toString();
-    
+
     private EventListener listener = new AsyncExternalEventListener();
 
     public void internalTrigger(final NodeInstance from, String type) {
 
         super.internalTrigger(from, type);
-    	
-    	ExecutorService executorService = (ExecutorService) getProcessInstance().getKnowledgeRuntime().getEnvironment().get("ExecutorService");
-    	if (executorService != null) {
-    	    RuntimeManager runtimeManager = ((RuntimeManager)getProcessInstance().getKnowledgeRuntime().getEnvironment().get("RuntimeManager"));
-    	    
-    	    CommandContext ctx = new CommandContext();
+
+        ExecutorService executorService = (ExecutorService) getProcessInstance().getKnowledgeRuntime().getEnvironment().get("ExecutorService");
+        if (executorService != null) {
+            RuntimeManager runtimeManager = ((RuntimeManager)getProcessInstance().getKnowledgeRuntime().getEnvironment().get("RuntimeManager"));
+
+            CommandContext ctx = new CommandContext();
             ctx.setData("DeploymentId", runtimeManager.getIdentifier());
             ctx.setData("ProcessInstanceId", getProcessInstance().getId());
             ctx.setData("Signal", getEventType());
             ctx.setData("Event", null);
-            
+
             executorService.scheduleRequest(AsyncSignalEventCommand.class.getName(), ctx);
-    	} else {
-    	    logger.warn("No async executor service found continuing as sync operation...");
-    	    // if there is no executor service available move as sync node
-    	    triggerCompleted();
-    	}
+        } else {
+            logger.warn("No async executor service found continuing as sync operation...");
+            // if there is no executor service available move as sync node
+            triggerCompleted();
+        }
     }
 
     @Override
     public String getEventType() {
         return eventType;
     }
-    
+
     public void setEventType(String eventType) {
         this.eventType = eventType;
     }
- 
+
     @Override
     public Node getNode() {
         return new AsyncEventNode(super.getNode());
@@ -85,9 +85,9 @@ public class AsyncEventNodeInstance extends EventNodeInstance {
         getProcessInstance().removeEventListener(getEventType(), getEventListener(), true);
         ((org.jbpm.workflow.instance.NodeInstanceContainer)getNodeInstanceContainer()).setCurrentLevel(getLevel());
         ((org.jbpm.workflow.instance.NodeInstanceContainer) getNodeInstanceContainer()).removeNodeInstance(this);
-        
+
         NodeInstance instance = ((org.jbpm.workflow.instance.NodeInstanceContainer) getNodeInstanceContainer()).getNodeInstance(getNode());
-        
+
         triggerNodeInstance((org.jbpm.workflow.instance.NodeInstance) instance, NodeImpl.CONNECTION_DEFAULT_TYPE);
     }
 
@@ -104,6 +104,6 @@ public class AsyncEventNodeInstance extends EventNodeInstance {
         public void signalEvent(String type,
                 Object event) {
             triggerCompleted();
-        }       
+        }
     }
 }

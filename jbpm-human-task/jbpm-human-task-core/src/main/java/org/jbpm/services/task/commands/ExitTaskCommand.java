@@ -33,10 +33,10 @@ import org.kie.internal.command.Context;
 @XmlAccessorType(XmlAccessType.NONE)
 public class ExitTaskCommand extends UserGroupCallbackTaskCommand<Void> {
 
-	private static final long serialVersionUID = 6514448276718693595L;
+    private static final long serialVersionUID = 6514448276718693595L;
 
-	public ExitTaskCommand() {
-	}
+    public ExitTaskCommand() {
+    }
 
     public ExitTaskCommand(long taskId, String userId) {
         this.taskId = taskId;
@@ -48,8 +48,8 @@ public class ExitTaskCommand extends UserGroupCallbackTaskCommand<Void> {
         doCallbackUserOperation(userId, context);
         groupIds = doUserGroupCallbackOperation(userId, null, context);
         context.set("local:groups", groupIds);
-    	context.getTaskInstanceService().exit(taskId, userId);
-    	return null;
-        
+        context.getTaskInstanceService().exit(taskId, userId);
+        return null;
+
     }
 }

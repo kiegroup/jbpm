@@ -48,27 +48,27 @@ import org.slf4j.LoggerFactory;
  * <ul>
  *  <li>businessKey - generated from process instance id and work item id in following format: [processInstanceId]:[workItemId]</li>
  *  <li>workItem - actual work item instance that is being executed (including all parameters)</li>
- *  <li>processInstanceId - id of the process instance that triggered this work item execution</li>  
+ *  <li>processInstanceId - id of the process instance that triggered this work item execution</li>
  * </ul>
- * 
+ *
  * In case work item shall be aborted handler will attempt to cancel active requests based on business key (process instance id and work item id)
  */
 public class AsyncWorkItemHandler implements WorkItemHandler {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(AsyncWorkItemHandler.class);
-    
+
     private ExecutorService executorService;
     private String commandClass;
-    
+
     public AsyncWorkItemHandler(ExecutorService executorService) {
         this.executorService = executorService;
     }
-    
+
     public AsyncWorkItemHandler(ExecutorService executorService, String commandClass) {
         this(executorService);
         this.commandClass = commandClass;
     }
-    
+
     public AsyncWorkItemHandler(Object executorService, String commandClass) {
         this((ExecutorService) executorService);
         this.commandClass = commandClass;
@@ -83,7 +83,7 @@ public class AsyncWorkItemHandler implements WorkItemHandler {
         if (workItem.getParameter("AutoComplete") != null) {
             autoComplete = Boolean.parseBoolean(workItem.getParameter("AutoComplete").toString());
         }
-        
+
         String businessKey = buildBusinessKey(workItem);
         logger.debug("Executing work item {} with built business key {}", workItem, businessKey);
         String cmdClass = (String) workItem.getParameter("CommandClass");
@@ -100,35 +100,35 @@ public class AsyncWorkItemHandler implements WorkItemHandler {
         if (!autoComplete) {
             ctxCMD.setData("callbacks", AsyncWorkItemHandlerCmdCallback.class.getName());
         }
-        
+
         if (workItem.getParameter("Retries") != null) {
             ctxCMD.setData("retries", Integer.parseInt(workItem.getParameter("Retries").toString()));
         }
         if (workItem.getParameter("Owner") != null) {
             ctxCMD.setData("owner", workItem.getParameter("Owner"));
         }
-        
+
         if (workItem.getParameter("RetryDelay") != null) {
-     
+
             ctxCMD.setData("retryDelay", workItem.getParameter("RetryDelay"));
         }
-        
+
         if (workItem.getParameter("Priority") != null) {
-            
+
             ctxCMD.setData("priority", Integer.parseInt(workItem.getParameter("Priority").toString()));
         }
-        
+
         Date scheduleDate = new Date();
         if (workItem.getParameter("Delay") != null) {
             long delayInMillis = TimeUtils.parseTimeString((String)workItem.getParameter("Delay"));
             scheduleDate = new Date(System.currentTimeMillis() + delayInMillis);
         }
-        
+
 
         logger.trace("Command context {}", ctxCMD);
         Long requestId = executorService.scheduleRequest(cmdClass, scheduleDate, ctxCMD);
         logger.debug("Request scheduled successfully with id {}", requestId);
-        
+
         if (autoComplete) {
             logger.debug("Auto completing work item with id {}", workItem.getId());
             manager.completeWorkItem(workItem.getId(), null);
@@ -151,24 +151,24 @@ public class AsyncWorkItemHandler implements WorkItemHandler {
             }
         }
     }
-    
+
     protected String buildBusinessKey(WorkItem workItem) {
         String businessKeyIn = (String) workItem.getParameter("BusinessKey");
         if (businessKeyIn != null && !businessKeyIn.isEmpty()) {
             return businessKeyIn;
         }
-        
+
         StringBuffer businessKey = new StringBuffer();
         businessKey.append(getProcessInstanceId(workItem));
         businessKey.append(":");
         businessKey.append(workItem.getId());
         return businessKey.toString();
     }
-    
+
     protected long getProcessInstanceId(WorkItem workItem) {
         return ((WorkItemImpl) workItem).getProcessInstanceId();
     }
-    
-    
+
+
 
 }

@@ -35,7 +35,7 @@ public class ResumeProcessInstanceCommand implements GenericCommand<Object>, Pro
 
     /** Generated serial version UID */
     private static final long serialVersionUID = 3153292964867981793L;
-    
+
     @XmlAttribute
     @XmlSchemaType(name="long")
     private Long processInstanceId;
@@ -60,7 +60,7 @@ public class ResumeProcessInstanceCommand implements GenericCommand<Object>, Pro
             throw new IllegalArgumentException( "Could not find process instance for id " + processInstanceId );
         }
         if ( processInstance.getState() != ProcessInstance.STATE_SUSPENDED ) {
-        	throw new IllegalArgumentException( "Process instance with id " + processInstanceId + " in state " + processInstance.getState());
+            throw new IllegalArgumentException( "Process instance with id " + processInstanceId + " in state " + processInstance.getState());
         }
         ((org.jbpm.process.instance.ProcessInstance) processInstance).setState( ProcessInstance.STATE_ACTIVE );
         return null;

@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -48,43 +48,43 @@ import org.slf4j.LoggerFactory;
 @TransactionManagement(TransactionManagementType.BEAN)
 @AccessTimeout(value=1, unit=TimeUnit.MINUTES)
 public class DeploymentSynchronizerCDInvoker {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(DeploymentSynchronizerCDInvoker.class);
-	
-	private Timer timer;
-	@Resource
+
+    private Timer timer;
+    @Resource
     private TimerService timerService;
-	@Inject
-	private DeploymentSynchronizer deploymentSynchronizer;
-	
-	@PostConstruct
-	public void configure() {
-		if (DeploymentSynchronizer.DEPLOY_SYNC_ENABLED) {
-			ScheduleExpression schedule = new ScheduleExpression();
-			
-			schedule.hour("*");
-			schedule.minute("*");
-			schedule.second("*/" + DeploymentSynchronizer.DEPLOY_SYNC_INTERVAL);
-			timer = timerService.createCalendarTimer(schedule, new TimerConfig(null, false));
-		
-		}
-	}
-	
-	@PreDestroy
-	public void shutdown() {
-		if (timer != null) {
-		    try {
-		        timer.cancel();
-		    } catch (NoSuchObjectLocalException e) {
-		        logger.debug("Timer {} is already canceled or expired", timer);
-		    }
-		}
-	}
+    @Inject
+    private DeploymentSynchronizer deploymentSynchronizer;
 
-	@Timeout
-	public void synchronize() {
-		deploymentSynchronizer.synchronize();
-	}
+    @PostConstruct
+    public void configure() {
+        if (DeploymentSynchronizer.DEPLOY_SYNC_ENABLED) {
+            ScheduleExpression schedule = new ScheduleExpression();
 
-	
+            schedule.hour("*");
+            schedule.minute("*");
+            schedule.second("*/" + DeploymentSynchronizer.DEPLOY_SYNC_INTERVAL);
+            timer = timerService.createCalendarTimer(schedule, new TimerConfig(null, false));
+
+        }
+    }
+
+    @PreDestroy
+    public void shutdown() {
+        if (timer != null) {
+            try {
+                timer.cancel();
+            } catch (NoSuchObjectLocalException e) {
+                logger.debug("Timer {} is already canceled or expired", timer);
+            }
+        }
+    }
+
+    @Timeout
+    public void synchronize() {
+        deploymentSynchronizer.synchronize();
+    }
+
+
 }

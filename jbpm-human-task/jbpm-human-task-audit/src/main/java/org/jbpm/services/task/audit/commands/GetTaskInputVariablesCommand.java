@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -33,24 +33,24 @@ import org.kie.internal.task.api.TaskVariable;
 @XmlAccessorType(XmlAccessType.NONE)
 public class GetTaskInputVariablesCommand extends TaskCommand<List<TaskVariable>> {
 
-	private static final long serialVersionUID = -7929370526623674312L;
+    private static final long serialVersionUID = -7929370526623674312L;
     private QueryFilter filter;
-	
+
     public GetTaskInputVariablesCommand() {
 
-	}
-	
-	public GetTaskInputVariablesCommand(long taskId, QueryFilter filter) {
-		this.taskId = taskId;
+    }
+
+    public GetTaskInputVariablesCommand(long taskId, QueryFilter filter) {
+        this.taskId = taskId;
         this.filter = filter;
-	}
-       
-	@Override
-	public List<TaskVariable> execute(Context context) {
-		TaskPersistenceContext persistenceContext = ((TaskContext) context).getPersistenceContext();
-	    return persistenceContext.queryWithParametersInTransaction("getTaskInputVariables", 
-	            persistenceContext.addParametersToMap("taskId", taskId, "firstResult", filter.getOffset(), "maxResults", filter.getCount()),
-	            ClassUtil.<List<TaskVariable>>castClass(List.class));
-	}
+    }
+
+    @Override
+    public List<TaskVariable> execute(Context context) {
+        TaskPersistenceContext persistenceContext = ((TaskContext) context).getPersistenceContext();
+        return persistenceContext.queryWithParametersInTransaction("getTaskInputVariables",
+                persistenceContext.addParametersToMap("taskId", taskId, "firstResult", filter.getOffset(), "maxResults", filter.getCount()),
+                ClassUtil.<List<TaskVariable>>castClass(List.class));
+    }
 
 }

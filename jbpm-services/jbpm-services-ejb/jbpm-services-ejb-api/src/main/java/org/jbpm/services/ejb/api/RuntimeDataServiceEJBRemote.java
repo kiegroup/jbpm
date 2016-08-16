@@ -27,7 +27,7 @@ public interface RuntimeDataServiceEJBRemote extends RuntimeDataService, Deploym
 
     /**
      * This method is not supported in EJB remote api as <code>TaskSummaryQueryBuilder<code> is not remote capable object
-     */    
-    @Override    
+     */
+    @Override
     TaskSummaryQueryBuilder taskSummaryQuery(String userId);
 }

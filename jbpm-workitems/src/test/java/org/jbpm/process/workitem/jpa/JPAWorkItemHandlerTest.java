@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -52,7 +52,7 @@ import org.kie.internal.runtime.manager.context.EmptyContext;
 import bitronix.tm.resource.jdbc.PoolingDataSource;
 
 public class JPAWorkItemHandlerTest {
-    
+
     private static final String P_UNIT = "org.jbpm.test.jpaWIH";
     private static EntityManagerFactory emf;
     private static WorkItemHandler handler;
@@ -89,7 +89,7 @@ public class JPAWorkItemHandlerTest {
         em.close();
         ut.commit();
     }
-    
+
     @Test
     public void removeOnProcessTest() throws Exception {
         Product p = new Product("A Product", 10f);
@@ -106,7 +106,7 @@ public class JPAWorkItemHandlerTest {
         assertNull(p);
         ut.commit();
     }
-    
+
     @Test
     public void updateOnProcessTest() throws Exception {
         String DESC = "Table";
@@ -127,7 +127,7 @@ public class JPAWorkItemHandlerTest {
         ut.commit();
         removeProduct(p);
     }
-    
+
     @Test
     public void getActionTest() throws Exception {
         Product newProd = create(new Product("some product", 0.1f));
@@ -147,7 +147,7 @@ public class JPAWorkItemHandlerTest {
         removeProduct(p1);
         removeProduct(p2);
     }
-    
+
     @Test
     public void queryWithParameterActionTest() throws Exception {
         String DESC = "Cheese";
@@ -157,7 +157,7 @@ public class JPAWorkItemHandlerTest {
         create(p1);
         create(p2);
         create(p3);
-        
+
         WorkItemImpl workItem = new WorkItemImpl();
         workItem.setParameter(JPAWorkItemHandler.P_ACTION,
                 JPAWorkItemHandler.QUERY_ACTION);
@@ -182,7 +182,7 @@ public class JPAWorkItemHandlerTest {
         products = getAllProducts();
         assertEquals(0, products.size());
     }
-    
+
     private void removeProduct(Product prod) throws Exception {
         ut.begin();
         EntityManager em = emf.createEntityManager();
@@ -191,7 +191,7 @@ public class JPAWorkItemHandlerTest {
         em.close();
         ut.commit();
     }
-    
+
     private Product create(Product newProd) throws Exception {
         ut.begin();
         EntityManager em = emf.createEntityManager();
@@ -216,7 +216,7 @@ public class JPAWorkItemHandlerTest {
         .getResult(JPAWorkItemHandler.P_QUERY_RESULTS);
         return products;
     }
-    
+
     private Product getProduct(String id) throws Exception {
         WorkItemImpl workItem = new WorkItemImpl();
         workItem.setParameter(JPAWorkItemHandler.P_ACTION,
@@ -232,22 +232,22 @@ public class JPAWorkItemHandlerTest {
                 .getResult(JPAWorkItemHandler.P_RESULT);
         return product;
     }
-    
-    
+
+
     private void startJPAWIHProcess(String action, Product prod) throws Exception {
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("org.jbpm.persistence.jpa");
-        RuntimeEnvironment env = 
+        RuntimeEnvironment env =
              RuntimeEnvironmentBuilder.Factory.get().newDefaultBuilder()
-             .entityManagerFactory(emf) 
+             .entityManagerFactory(emf)
              .addAsset(ResourceFactory.newClassPathResource("JPAWIH.bpmn2"),ResourceType.BPMN2)
-             .get();        
+             .get();
         RuntimeManager manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(env);
         RuntimeEngine engine = manager.getRuntimeEngine(EmptyContext.get());
         KieSession kSession = engine.getKieSession();
 
         JPAWorkItemHandler jpaWih = new JPAWorkItemHandler(P_UNIT, this.getClass().getClassLoader());
         kSession.getWorkItemManager().registerWorkItemHandler("JPAWIH", jpaWih);
-        
+
         HashMap<String, Object> params = new HashMap<>();
         params.put("action", action);
         params.put("obj", prod);

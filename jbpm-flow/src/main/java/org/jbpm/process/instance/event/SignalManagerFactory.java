@@ -19,7 +19,7 @@ package org.jbpm.process.instance.event;
 import org.drools.core.common.InternalKnowledgeRuntime;
 
 public interface SignalManagerFactory {
-	
-	SignalManager createSignalManager(InternalKnowledgeRuntime kruntime);
+
+    SignalManager createSignalManager(InternalKnowledgeRuntime kruntime);
 
 }

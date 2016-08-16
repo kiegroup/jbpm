@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -39,11 +39,11 @@ public class VarInstLogQueryBuilderImpl extends AbstractAuditQueryBuilderImpl<Va
     public VarInstLogQueryBuilderImpl(CommandExecutor cmdExecutor ) {
         super(cmdExecutor);
     }
-  
-    public VarInstLogQueryBuilderImpl(JPAAuditLogService jpaAuditService) { 
+
+    public VarInstLogQueryBuilderImpl(JPAAuditLogService jpaAuditService) {
        super(jpaAuditService);
     }
-    
+
     @Override
     public VariableInstanceLogQueryBuilder variableInstanceId( String... variableInstanceId ) {
         addObjectParameter(VARIABLE_INSTANCE_ID_LIST, "variable instance id", variableInstanceId);
@@ -70,20 +70,20 @@ public class VarInstLogQueryBuilderImpl extends AbstractAuditQueryBuilderImpl<Va
 
     @Override
     public VariableInstanceLogQueryBuilder variableValue( String variableId, String value ) {
-        if( queryWhere.isRange() ) { 
+        if( queryWhere.isRange() ) {
             throw new IllegalArgumentException("Range values are not supported for the .variableValue(..) method");
         }
-        if( variableId == null ) { 
+        if( variableId == null ) {
             throw new IllegalArgumentException("A null variable Id criteria is invalid." );
         }
-        if( value == null ) { 
+        if( value == null ) {
             throw new IllegalArgumentException("A null variable value criteria is invalid." );
         }
         String varValStr = variableId.length() + VAR_VAL_SEPARATOR + variableId + VAR_VAL_SEPARATOR + value;
         addObjectParameter(VAR_VALUE_ID_LIST, "value for variable", varValStr);
         return this;
     }
-    
+
     @Override
     public VariableInstanceLogQueryBuilder externalId( String... externalId ) {
         addObjectParameter(EXTERNAL_ID_LIST, "external id", externalId);
@@ -94,18 +94,18 @@ public class VarInstLogQueryBuilderImpl extends AbstractAuditQueryBuilderImpl<Va
     public VariableInstanceLogQueryBuilder last() {
         List<QueryCriteria> criteriaList = queryWhere.getCriteria();
         QueryCriteria lastVariableInstanceLogCriteria = null;
-        for( QueryCriteria criteria : criteriaList ) { 
-            if( LAST_VARIABLE_LIST.equals(criteria.getListId()) ) { 
+        for( QueryCriteria criteria : criteriaList ) {
+            if( LAST_VARIABLE_LIST.equals(criteria.getListId()) ) {
                lastVariableInstanceLogCriteria = criteria;
                break;
             }
         }
-        if( lastVariableInstanceLogCriteria == null ) { 
+        if( lastVariableInstanceLogCriteria == null ) {
             queryWhere.addParameter(LAST_VARIABLE_LIST, true);
         }
         return this;
     }
-    
+
     @Override
     protected Class<VariableInstanceLog> getResultType() {
         return VariableInstanceLog.class;

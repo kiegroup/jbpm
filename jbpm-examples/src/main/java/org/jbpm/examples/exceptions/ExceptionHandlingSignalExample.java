@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -37,7 +37,7 @@ public class ExceptionHandlingSignalExample {
 
     public static void runExample() {
         // load up the knowledge base
-    	RuntimeManager manager = createManager();
+        RuntimeManager manager = createManager();
         KieSession ksession = manager.getRuntimeEngine(null).getKieSession();
 
         String eventType = "exception-signal";
@@ -48,14 +48,14 @@ public class ExceptionHandlingSignalExample {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("serviceInputItem", "Input to Original Service");
         ksession.startProcess("ProcessWithExceptionHandlingSignal", params);
-        
+
         manager.close();
     }
 
     private static RuntimeManager createManager() {
-    	RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get().newEmptyBuilder()
+        RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get().newEmptyBuilder()
             .addAsset(KieServices.Factory.get().getResources()
-        		.newClassPathResource("exceptions/ExceptionHandlingWithSignal.bpmn2"), ResourceType.BPMN2)
+                .newClassPathResource("exceptions/ExceptionHandlingWithSignal.bpmn2"), ResourceType.BPMN2)
             .get();
         return RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);
     }

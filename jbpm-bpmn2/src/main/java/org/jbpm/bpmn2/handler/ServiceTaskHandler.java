@@ -30,17 +30,17 @@ import org.slf4j.LoggerFactory;
 public class ServiceTaskHandler implements WorkItemHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceTaskHandler.class);
-    
+
     public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
         String service = (String) workItem.getParameter("Interface");
-        String interfaceImplementationRef = (String) workItem.getParameter("interfaceImplementationRef"); 
+        String interfaceImplementationRef = (String) workItem.getParameter("interfaceImplementationRef");
         String operation = (String) workItem.getParameter("Operation");
         String parameterType = (String) workItem.getParameter("ParameterType");
         Object parameter = workItem.getParameter("Parameter");
-        
+
         String[] services = {service, interfaceImplementationRef};
         Class<?> c = null;
-        
+
         for(String serv : services) {
             try {
                 c = Class.forName(serv);
@@ -51,7 +51,7 @@ public class ServiceTaskHandler implements WorkItemHandler {
                 }
             }
         }
-        
+
         try {
             Object instance = c.newInstance();
             Class<?>[] classes = null;
@@ -79,20 +79,20 @@ public class ServiceTaskHandler implements WorkItemHandler {
             handleException(nsme, service, interfaceImplementationRef, operation, parameterType, parameter);
         } catch (InvocationTargetException ite) {
             handleException(ite, service, interfaceImplementationRef, operation, parameterType, parameter);
-        } catch( Throwable cause ) { 
+        } catch( Throwable cause ) {
             handleException(cause, service, interfaceImplementationRef, operation, parameterType, parameter);
         }
     }
 
-    private void handleException(Throwable cause, String service, String interfaceImplementationRef, String operation, String paramType, Object param) { 
+    private void handleException(Throwable cause, String service, String interfaceImplementationRef, String operation, String paramType, Object param) {
         logger.debug("Handling exception {} inside service {} or {} and operation {} with param type {} and value {}",
                 cause.getMessage(), service, operation, paramType, param);
         WorkItemHandlerRuntimeException wihRe;
-        if( cause instanceof InvocationTargetException ) { 
+        if( cause instanceof InvocationTargetException ) {
             Throwable realCause = cause.getCause();
             wihRe = new WorkItemHandlerRuntimeException(realCause);
             wihRe.setStackTrace(realCause.getStackTrace());
-        } else { 
+        } else {
             wihRe = new WorkItemHandlerRuntimeException(cause);
             wihRe.setStackTrace(cause.getStackTrace());
         }
@@ -103,9 +103,9 @@ public class ServiceTaskHandler implements WorkItemHandler {
         wihRe.setInformation("Parameter", param);
         wihRe.setInformation(WorkItemHandlerRuntimeException.WORKITEMHANDLERTYPE, this.getClass().getSimpleName());
         throw wihRe;
-        
+
     }
-    
+
     public void abortWorkItem(WorkItem workItem, WorkItemManager manager) {
         // Do nothing, cannot be aborted
     }

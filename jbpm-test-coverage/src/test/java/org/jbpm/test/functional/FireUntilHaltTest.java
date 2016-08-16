@@ -42,7 +42,7 @@ public class FireUntilHaltTest extends JbpmTestCase {
         super(false);
     }
 
-    
+
     @Test(timeout = 30000)
     public void testFireUntilHaltWithProcess() throws Exception {
         Map<String, ResourceType> res = new HashMap<String, ResourceType>();

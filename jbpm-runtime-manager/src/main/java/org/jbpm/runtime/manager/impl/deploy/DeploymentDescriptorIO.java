@@ -38,64 +38,64 @@ import org.xml.sax.SAXException;
  *
  */
 public class DeploymentDescriptorIO {
-		
-	private static JAXBContext context = null;
-	private static Schema schema = null;
 
-	/**
-	 * Reads XML data from given input stream and produces valid instance of 
-	 * <code>DeploymentDescriptor</code>
-	 * @param inputStream input stream that comes with xml data of the descriptor
-	 * @return instance of the descriptor after deserialization
-	 */
-	public static DeploymentDescriptor fromXml(InputStream inputStream) {
-		try {
-			Unmarshaller unmarshaller = getContext().createUnmarshaller();
-			unmarshaller.setSchema(schema);
-			DeploymentDescriptor descriptor = (DeploymentDescriptor) unmarshaller.unmarshal(inputStream);
-			
-			return descriptor;
-		} catch (Exception e) {
-			throw new RuntimeException("Unable to read deployment descriptor from xml", e);
-		}
-	}
-	
-	/**
-	 * Serializes descriptor instance to XML
-	 * @param descriptor descriptor to be serialized
-	 * @return xml representation of descriptor as string
-	 */
-	public static String toXml(DeploymentDescriptor descriptor) {
-		try {
-			
-			Marshaller marshaller = getContext().createMarshaller();
-	        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-	        marshaller.setProperty(Marshaller.JAXB_SCHEMA_LOCATION, "http://www.jboss.org/jbpm deployment-descriptor.xsd");
-	        marshaller.setSchema(schema);
-	        StringWriter stringWriter = new StringWriter();
-	        
-	        // clone the object and cleanup transients
-	        DeploymentDescriptor clone = ((DeploymentDescriptorImpl)descriptor).clearClone();
-	
-	        marshaller.marshal(clone, stringWriter);
-	        String output = stringWriter.toString();
-	        
-	        return output;
-		} catch (Exception e) {
-			throw new RuntimeException("Unable to generate xml from deployment descriptor", e);
-		}
-	}
+    private static JAXBContext context = null;
+    private static Schema schema = null;
 
-	
-	public static JAXBContext getContext() throws JAXBException, SAXException {
-		if (context == null) {
-			Class<?>[] jaxbClasses = { DeploymentDescriptorImpl.class};
-			context = JAXBContext.newInstance(jaxbClasses);
-			// load schema for validation
-			URL schemaLocation = DeploymentDescriptorIO.class.getResource("/deployment-descriptor.xsd");
-			schema = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI).newSchema(schemaLocation);
-		} 
-		
-		return context;
-	}
+    /**
+     * Reads XML data from given input stream and produces valid instance of
+     * <code>DeploymentDescriptor</code>
+     * @param inputStream input stream that comes with xml data of the descriptor
+     * @return instance of the descriptor after deserialization
+     */
+    public static DeploymentDescriptor fromXml(InputStream inputStream) {
+        try {
+            Unmarshaller unmarshaller = getContext().createUnmarshaller();
+            unmarshaller.setSchema(schema);
+            DeploymentDescriptor descriptor = (DeploymentDescriptor) unmarshaller.unmarshal(inputStream);
+
+            return descriptor;
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to read deployment descriptor from xml", e);
+        }
+    }
+
+    /**
+     * Serializes descriptor instance to XML
+     * @param descriptor descriptor to be serialized
+     * @return xml representation of descriptor as string
+     */
+    public static String toXml(DeploymentDescriptor descriptor) {
+        try {
+
+            Marshaller marshaller = getContext().createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+            marshaller.setProperty(Marshaller.JAXB_SCHEMA_LOCATION, "http://www.jboss.org/jbpm deployment-descriptor.xsd");
+            marshaller.setSchema(schema);
+            StringWriter stringWriter = new StringWriter();
+
+            // clone the object and cleanup transients
+            DeploymentDescriptor clone = ((DeploymentDescriptorImpl)descriptor).clearClone();
+
+            marshaller.marshal(clone, stringWriter);
+            String output = stringWriter.toString();
+
+            return output;
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to generate xml from deployment descriptor", e);
+        }
+    }
+
+
+    public static JAXBContext getContext() throws JAXBException, SAXException {
+        if (context == null) {
+            Class<?>[] jaxbClasses = { DeploymentDescriptorImpl.class};
+            context = JAXBContext.newInstance(jaxbClasses);
+            // load schema for validation
+            URL schemaLocation = DeploymentDescriptorIO.class.getResource("/deployment-descriptor.xsd");
+            schema = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI).newSchema(schemaLocation);
+        }
+
+        return context;
+    }
 }

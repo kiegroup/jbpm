@@ -41,9 +41,9 @@ public class MVELAction
     MVELCompileable,
     Externalizable {
     private static final long       serialVersionUID = 510l;
-    
+
     private MVELCompilationUnit unit;
-    private String id;        
+    private String id;
 
     private Serializable      expr;
 
@@ -65,10 +65,10 @@ public class MVELAction
         out.writeUTF( id );
         out.writeObject( unit );
     }
-    
+
     public void compile(MVELDialectRuntimeData data) {
         expr = unit.getCompiledExpression( data );
-    } 
+    }
 
     public void compile(MVELDialectRuntimeData data, RuleImpl rule) {
         expr = unit.getCompiledExpression( data );
@@ -77,7 +77,7 @@ public class MVELAction
     public String getDialect() {
         return id;
     }
-    
+
     public void execute(ProcessContext context) throws Exception {
         int length = unit.getOtherIdentifiers().length;
         Object[] vars = new Object[ length ];
@@ -93,24 +93,24 @@ public class MVELAction
         } else if( context.getKieRuntime() instanceof StatelessKnowledgeSessionImpl ) {
             StatefulKnowledgeSession statefulKnowledgeSession = ((StatelessKnowledgeSessionImpl) context.getKieRuntime()).newWorkingMemory();
             internalWorkingMemory = ((StatefulKnowledgeSessionImpl) statefulKnowledgeSession).getInternalWorkingMemory();
-        } 
-        
-        VariableResolverFactory factory 
-            = unit.getFactory( context, 
+        }
+
+        VariableResolverFactory factory
+            = unit.getFactory( context,
                                null, // No previous declarations
                                null, // No rule
-                               null, // No "right object" 
+                               null, // No "right object"
                                null, // No (left) tuples
-                               vars, 
+                               vars,
                                internalWorkingMemory,
                                (GlobalResolver) context.getKieRuntime().getGlobals() );
-        
+
 //        KnowledgePackage pkg = context.getKnowledgeRuntime().getKnowledgeBase().getKnowledgePackage( "MAIN" );
 //        if ( pkg != null && pkg instanceof KnowledgePackageImp) {
 //            MVELDialectRuntimeData data = ( MVELDialectRuntimeData ) ((KnowledgePackageImp) pkg).pkg.getDialectRuntimeRegistry().getDialectData( id );
 //            factory.setNextFactory( data.getFunctionFactory() );
 //        }
-//        
+//
         MVELSafeHelper.getEvaluator().executeExpression( this.expr,
                                 null,
                                 factory );

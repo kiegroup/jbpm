@@ -17,9 +17,9 @@ package org.jbpm.test.functional.correlation;
 
 
 public class StartProcessWithCorrelationKeyPersistenceTest extends AbstractStartProcessWithCorrelationKeyTest {
-    
+
     public StartProcessWithCorrelationKeyPersistenceTest() {
         super(true);
     }
-    
+
 }

@@ -20,8 +20,8 @@ import org.drools.core.common.InternalKnowledgeRuntime;
 
 public class DefaultSignalManagerFactory implements SignalManagerFactory {
 
-	public SignalManager createSignalManager(InternalKnowledgeRuntime kruntime) {
-		return new DefaultSignalManager(kruntime);
-	}
+    public SignalManager createSignalManager(InternalKnowledgeRuntime kruntime) {
+        return new DefaultSignalManager(kruntime);
+    }
 
 }

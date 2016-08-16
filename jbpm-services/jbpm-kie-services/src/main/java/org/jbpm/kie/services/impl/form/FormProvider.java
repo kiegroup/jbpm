@@ -29,6 +29,6 @@ public interface FormProvider {
     String render(String name, ProcessDefinition process, Map<String, Object> renderContext);
 
     String render(String name, Task task, ProcessDefinition process, Map<String, Object> renderContext);
-    
+
     void setFormManagerService(FormManagerService formManagerService);
 }

@@ -38,9 +38,9 @@ import org.slf4j.LoggerFactory;
  * @author salaboy
  */
 public class JabberWorkItemHandler extends AbstractLogOrThrowWorkItemHandler {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(JabberWorkItemHandler.class);
-    
+
     private String user;
     private String password;
     private String server;
@@ -49,7 +49,7 @@ public class JabberWorkItemHandler extends AbstractLogOrThrowWorkItemHandler {
     private String text;
 
     private List<String> toUsers = new ArrayList<String>();
-    
+
 
     public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
 
@@ -65,14 +65,14 @@ public class JabberWorkItemHandler extends AbstractLogOrThrowWorkItemHandler {
 
 
         String to = (String) workItem.getParameter("To");
-		if ( to == null || to.trim().length() == 0 ) {
-		    throw new RuntimeException( "IM must have one or more to adresses" );
-		}
-		for (String s: to.split(";")) {
-			if (s != null && !"".equals(s)) {
-				this.toUsers.add(s);
-			}
-		}
+        if ( to == null || to.trim().length() == 0 ) {
+            throw new RuntimeException( "IM must have one or more to adresses" );
+        }
+        for (String s: to.split(";")) {
+            if (s != null && !"".equals(s)) {
+                this.toUsers.add(s);
+            }
+        }
         ConnectionConfiguration conf = new ConnectionConfiguration(server, port , service);
         XMPPConnection connection = null;
         try {
@@ -94,15 +94,15 @@ public class JabberWorkItemHandler extends AbstractLogOrThrowWorkItemHandler {
 
 
             for(String toUser : toUsers){
-    
+
                 ChatManager chatmanager = connection.getChatManager();
                 Chat chat = chatmanager.createChat(toUser, null);
-    
+
                 // google bounces back the default message types, you must use chat
                 Message msg = new Message(toUser, Message.Type.chat);
                 msg.setBody(text);
                 chat.sendMessage(msg);
-                logger.info("Message Sent {}", msg);   
+                logger.info("Message Sent {}", msg);
             }
 
 
@@ -112,7 +112,7 @@ public class JabberWorkItemHandler extends AbstractLogOrThrowWorkItemHandler {
         } catch (Exception e) {
             handleException(e);
         }
-         
+
     }
 
     public void abortWorkItem(WorkItem workItem, WorkItemManager manager) {

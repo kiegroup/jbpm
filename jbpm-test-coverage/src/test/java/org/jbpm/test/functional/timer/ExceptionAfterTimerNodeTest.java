@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -33,52 +33,52 @@ import org.kie.api.runtime.process.ProcessInstance;
 @RunWith(Parameterized.class)
 public class ExceptionAfterTimerNodeTest extends JbpmTestCase {
 
-	private final boolean useQuartz;
-	
-	@Parameters(name="Use quartz scheduler={0}")
+    private final boolean useQuartz;
+
+    @Parameters(name="Use quartz scheduler={0}")
     public static Collection<Object[]> parameters() {
-        Object[][] locking = new Object[][] { 
-                { true }, 
+        Object[][] locking = new Object[][] {
+                { true },
                 { false }
                 };
         return Arrays.asList(locking);
-    };    
-	
-	public ExceptionAfterTimerNodeTest(boolean useQuartz) {
-		super(true, true);
-		this.useQuartz = useQuartz;
-	}
-	
-	@Before
-	public void setup() {
-		if (useQuartz) {
-			System.setProperty("org.quartz.properties", "quartz-ram.properties");
-		}
-	}
-	
-	@After
-	public void cleanup() {
-		System.clearProperty("org.quartz.properties");
-	}
-	
-	@Test(timeout=10000)
+    };
+
+    public ExceptionAfterTimerNodeTest(boolean useQuartz) {
+        super(true, true);
+        this.useQuartz = useQuartz;
+    }
+
+    @Before
+    public void setup() {
+        if (useQuartz) {
+            System.setProperty("org.quartz.properties", "quartz-ram.properties");
+        }
+    }
+
+    @After
+    public void cleanup() {
+        System.clearProperty("org.quartz.properties");
+    }
+
+    @Test(timeout=10000)
     public void testExceptionAfterTimer() {
-	    final CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("TimerEvent", 1, true);        
+        final CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("TimerEvent", 1, true);
         createRuntimeManager("org/jbpm/test/functional/timer/ExceptionAfterTimer.bpmn2");
         RuntimeEngine runtimeEngine = getRuntimeEngine();
         KieSession ksession = runtimeEngine.getKieSession();
         ksession.addEventListener(countDownListener);
-        
+
         ProcessInstance pi = ksession.startProcess("com.bpms.customer.RuntimeExceptionAfterTimer");
-        
+
         countDownListener.waitTillCompleted();
-        
+
         pi = ksession.getProcessInstance(pi.getId());
         assertNotNull(pi);
-        
+
         ksession.abortProcessInstance(pi.getId());
 
         pi = ksession.getProcessInstance(pi.getId());
         assertNull(pi);
-	}
+    }
 }

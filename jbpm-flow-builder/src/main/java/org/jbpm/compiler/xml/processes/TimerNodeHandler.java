@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -51,13 +51,13 @@ public class TimerNodeHandler extends AbstractNodeHandler {
     }
 
     @SuppressWarnings("unchecked")
-	public Class generateNodeFor() {
+    public Class generateNodeFor() {
         return TimerNode.class;
     }
 
-	public void writeNode(Node node, StringBuilder xmlDump, boolean includeMeta) {
-		TimerNode timerNode = (TimerNode) node;
-		writeNode("timerNode", timerNode, xmlDump, includeMeta);
+    public void writeNode(Node node, StringBuilder xmlDump, boolean includeMeta) {
+        TimerNode timerNode = (TimerNode) node;
+        writeNode("timerNode", timerNode, xmlDump, includeMeta);
         Timer timer = timerNode.getTimer();
         if (timer != null) {
             xmlDump.append("delay=\"" + timer.getDelay() + "\" ");
@@ -66,12 +66,12 @@ public class TimerNodeHandler extends AbstractNodeHandler {
             }
         }
         if (includeMeta && containsMetaData(timerNode)) {
-        	xmlDump.append(">" + EOL);
-        	writeMetaData(timerNode, xmlDump);
-        	endNode("timerNode", xmlDump);
+            xmlDump.append(">" + EOL);
+            writeMetaData(timerNode, xmlDump);
+            endNode("timerNode", xmlDump);
         } else {
             endNode(xmlDump);
         }
-	}
+    }
 
 }

@@ -66,72 +66,72 @@ public class TaskFluent {
         task.setName(name);
         return this;
     }
-    
+
     public TaskFluent setDescription(String description) {
         task.setDescription(description);
         return this;
     }
-    
+
     public TaskFluent setSubject(String subject) {
         task.setSubject(subject);
         return this;
     }
-    
+
     public TaskFluent setWorkItemId(long workItemId){
         ((TaskDataImpl)task.getTaskData()).setWorkItemId(workItemId);
         return this;
     }
-    
+
     public TaskFluent setWorkItemId(String deploymentId){
         ((TaskDataImpl)task.getTaskData()).setDeploymentId(deploymentId);
         return this;
     }
-    
+
     public TaskFluent setProcessId(String processId){
         ((TaskDataImpl)task.getTaskData()).setProcessId(processId);
         return this;
     }
-    
+
     public TaskFluent setProcessInstanceId(long processInstanceId){
         ((TaskDataImpl)task.getTaskData()).setProcessInstanceId(processInstanceId);
         return this;
     }
-    
+
     public TaskFluent setProcessSessionId(int processSessionId){
         ((TaskDataImpl)task.getTaskData()).setProcessSessionId(processSessionId);
         return this;
     }
-    
+
     public TaskFluent setParentId(long parentId){
         ((TaskDataImpl)task.getTaskData()).setParentId(parentId);
         return this;
     }
-    
+
     public TaskFluent setCreatedBy(String userId){
         ((TaskDataImpl)task.getTaskData()).setCreatedBy(new UserImpl(userId));
         return this;
     }
-    
+
     public TaskFluent setCreatedOn(Date createdOn){
         ((TaskDataImpl)task.getTaskData()).setCreatedOn(createdOn);
         return this;
     }
-    
+
     public TaskFluent setDueDate(Date dueDate){
         ((TaskDataImpl)task.getTaskData()).setExpirationTime(dueDate);
         return this;
     }
-    
+
     public TaskFluent addI18NName(String language, String name){
         task.getNames().add(new I18NTextImpl(language, name));
         return this;
     }
-    
+
     public TaskFluent addI18NDescription(String language, String description){
         task.getDescriptions().add(new I18NTextImpl(language, description));
         return this;
     }
-    
+
     public TaskFluent addI18NSubject(String language, String subject){
         task.getSubjects().add(new I18NTextImpl(language, subject));
         return this;
@@ -145,48 +145,48 @@ public class TaskFluent {
     public TaskFluent addPotentialUser(String userId) {
         if(assignments.getPotentialOwners().isEmpty()){
             List<OrganizationalEntity> potentialOwners = new ArrayList<OrganizationalEntity>();
-            assignments.setPotentialOwners(potentialOwners);    
+            assignments.setPotentialOwners(potentialOwners);
         }
         assignments.getPotentialOwners().add(new UserImpl(userId));
-        
+
         return this;
     }
-    
+
     public TaskFluent addPotentialGroup(String groupId) {
         if(assignments.getPotentialOwners().isEmpty()){
             List<OrganizationalEntity> potentialOwners = new ArrayList<OrganizationalEntity>();
-            assignments.setPotentialOwners(potentialOwners);    
+            assignments.setPotentialOwners(potentialOwners);
         }
         assignments.getPotentialOwners().add(new GroupImpl(groupId));
-        
+
         return this;
     }
-    
+
     public TaskFluent setAdminUser(String userId) {
         if(assignments.getBusinessAdministrators().isEmpty()){
             List<OrganizationalEntity> businessAdmins = new ArrayList<OrganizationalEntity>();
-            assignments.setBusinessAdministrators(businessAdmins);    
+            assignments.setBusinessAdministrators(businessAdmins);
         }
         assignments.getBusinessAdministrators().add(new UserImpl(userId));
-        
+
         return this;
     }
-    
+
      public TaskFluent setAdminGroup(String groupId) {
         if(assignments.getBusinessAdministrators().isEmpty()){
             List<OrganizationalEntity> businessAdmins = new ArrayList<OrganizationalEntity>();
-            assignments.setBusinessAdministrators(businessAdmins);    
+            assignments.setBusinessAdministrators(businessAdmins);
         }
         assignments.getBusinessAdministrators().add(new GroupImpl(groupId));
-        
+
         return this;
     }
-     
+
     public TaskFluent setFormName(String formName){
         task.setFormName(formName);
         return this;
     }
-    
+
     public TaskFluent setDeploymentID(String deploymentId){
         ((TaskDataImpl)task.getTaskData()).setDeploymentId(deploymentId);
         return this;

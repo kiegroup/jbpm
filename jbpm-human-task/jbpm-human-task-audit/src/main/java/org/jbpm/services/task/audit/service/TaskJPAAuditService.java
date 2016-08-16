@@ -40,9 +40,9 @@ import org.slf4j.LoggerFactory;
 
 public class TaskJPAAuditService extends JPAAuditLogService {
 
-	private static final Logger logger = LoggerFactory.getLogger(TaskJPAAuditService.class);
+    private static final Logger logger = LoggerFactory.getLogger(TaskJPAAuditService.class);
 
-	static {
+    static {
         addCriteria(CREATED_ON_LIST, "l.createdOn", Date.class);
         addCriteria(DEPLOYMENT_ID_LIST, "l.deploymentId", String.class);
         addCriteria(TASK_EVENT_DATE_ID_LIST, "l.logTime", Date.class);
@@ -50,70 +50,70 @@ public class TaskJPAAuditService extends JPAAuditLogService {
         addCriteria(TASK_NAME_LIST, "l.name", String.class);
         addCriteria(TASK_DESCRIPTION_LIST, "l.description", String.class);
         addCriteria(TASK_STATUS_LIST, "l.status", String.class);
-	}
-
-	public TaskJPAAuditService() {
-		super();
-	}
-
-	public TaskJPAAuditService(EntityManagerFactory emf) {
-		super(emf);
-	}
-
-	// Methods needed by the TaskAuditQueryCriteriaUtil
-	protected EntityManager getEntityManager() {
-	    return super.getEntityManager();
-	}
-
-	protected Object joinTransaction(EntityManager em) {
-	    return super.joinTransaction(em);
-	}
-
-	protected void closeEntityManager(EntityManager em, Object transaction) {
-	    super.closeEntityManager(em, transaction);
-	}
-
-	// Query API Delete methods ---------------------------------------------------------------------------------------------------
-
-	public AuditTaskDeleteBuilder auditTaskDelete() {
-		return new AuditTaskDeleteBuilderImpl(this);
-	}
-
-	public TaskEventDeleteBuilder taskEventInstanceLogDelete(){
-		return new TaskEventDeleteBuilderImpl(this);
-	}
-
-	@Override
-    public void clear() {
-    	try {
-    		super.clear();
-    	} catch (Exception e) {
-    		logger.warn("Unable to clear using {} due to {}", super.getClass().getName(), e.getMessage());
-    	}
-    	auditTaskDelete().build().execute();
-
-    	taskEventInstanceLogDelete().build().execute();
     }
 
-	// Query API Query methods ---------------------------------------------------------------------------------------------------
+    public TaskJPAAuditService() {
+        super();
+    }
+
+    public TaskJPAAuditService(EntityManagerFactory emf) {
+        super(emf);
+    }
+
+    // Methods needed by the TaskAuditQueryCriteriaUtil
+    protected EntityManager getEntityManager() {
+        return super.getEntityManager();
+    }
+
+    protected Object joinTransaction(EntityManager em) {
+        return super.joinTransaction(em);
+    }
+
+    protected void closeEntityManager(EntityManager em, Object transaction) {
+        super.closeEntityManager(em, transaction);
+    }
+
+    // Query API Delete methods ---------------------------------------------------------------------------------------------------
+
+    public AuditTaskDeleteBuilder auditTaskDelete() {
+        return new AuditTaskDeleteBuilderImpl(this);
+    }
+
+    public TaskEventDeleteBuilder taskEventInstanceLogDelete(){
+        return new TaskEventDeleteBuilderImpl(this);
+    }
+
+    @Override
+    public void clear() {
+        try {
+            super.clear();
+        } catch (Exception e) {
+            logger.warn("Unable to clear using {} due to {}", super.getClass().getName(), e.getMessage());
+        }
+        auditTaskDelete().build().execute();
+
+        taskEventInstanceLogDelete().build().execute();
+    }
+
+    // Query API Query methods ---------------------------------------------------------------------------------------------------
 
     public AuditTaskQueryBuilder auditTaskQuery() {
-		return new AuditTaskQueryBuilderImpl(this);
-	}
+        return new AuditTaskQueryBuilderImpl(this);
+    }
 
-	public BAMTaskSummaryQueryBuilder bamTaskSummaryQuery() {
-		return new BAMTaskSummaryQueryBuilderImpl(this);
-	}
+    public BAMTaskSummaryQueryBuilder bamTaskSummaryQuery() {
+        return new BAMTaskSummaryQueryBuilderImpl(this);
+    }
 
-	public TaskEventQueryBuilder taskEventQuery() {
-		return new TaskEventQueryBuilderImpl(this);
-	}
+    public TaskEventQueryBuilder taskEventQuery() {
+        return new TaskEventQueryBuilderImpl(this);
+    }
 
-	public TaskVariableQueryBuilder taskVariableQuery() {
-	    return new TaskVariableQueryBuilderImpl(this);
-	}
+    public TaskVariableQueryBuilder taskVariableQuery() {
+        return new TaskVariableQueryBuilderImpl(this);
+    }
 
-	private final TaskAuditQueryCriteriaUtil queryCriteriaUtil = new TaskAuditQueryCriteriaUtil(this);
+    private final TaskAuditQueryCriteriaUtil queryCriteriaUtil = new TaskAuditQueryCriteriaUtil(this);
 
     @Override
     protected QueryCriteriaUtil getQueryCriteriaUtil(Class queryType) {

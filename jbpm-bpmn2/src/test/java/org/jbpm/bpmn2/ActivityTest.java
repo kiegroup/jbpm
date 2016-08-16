@@ -156,50 +156,50 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         final List<String> list3 = new ArrayList<String>();
         final List<String> list4 = new ArrayList<String>();
         ksession.addEventListener(new DefaultProcessEventListener() {
-			public void beforeNodeTriggered(ProcessNodeTriggeredEvent event) {
-				logger.debug("before node");
-				Map<String, Object> metaData = event.getNodeInstance().getNode().getMetaData();
-				for (Map.Entry<String, Object> entry: metaData.entrySet()) {
-					logger.debug(entry.getKey() + " " + entry.getValue());
-				}
-				String customTag = (String) metaData.get("customTag");
-				if (customTag != null) {
-					list1.add(customTag);
-				}
-				String customTag2 = (String) metaData.get("customTag2");
-				if (customTag2 != null) {
-					list2.add(customTag2);
-				}
-			}
-			public void afterVariableChanged(ProcessVariableChangedEvent event) {
-				logger.debug("after variable");
-				VariableScope variableScope = (VariableScope)
-					((org.jbpm.process.core.impl.ProcessImpl) event.getProcessInstance().getProcess())
-						.resolveContext(VariableScope.VARIABLE_SCOPE, event.getVariableId());
-	        	if (variableScope == null) {
-	        		return;
-	        	}
-	        	Map<String, Object> metaData = variableScope.findVariable(event.getVariableId()).getMetaData();
-	        	for (Map.Entry<String, Object> entry: metaData.entrySet()) {
-					logger.debug(entry.getKey() + " " + entry.getValue());
-				}
-				String customTag = (String) metaData.get("customTagVar");
-				if (customTag != null) {
-					list3.add(customTag);
-				}
-			}
-			public void afterProcessStarted(ProcessStartedEvent event) {
-				logger.debug("after process");
-	        	Map<String, Object> metaData = event.getProcessInstance().getProcess().getMetaData();
-	        	for (Map.Entry<String, Object> entry: metaData.entrySet()) {
-					logger.debug(entry.getKey() + " " + entry.getValue());
-				}
-				String customTag = (String) metaData.get("customTagProcess");
-				if (customTag != null) {
-					list4.add(customTag);
-				}
-			}
-		});
+            public void beforeNodeTriggered(ProcessNodeTriggeredEvent event) {
+                logger.debug("before node");
+                Map<String, Object> metaData = event.getNodeInstance().getNode().getMetaData();
+                for (Map.Entry<String, Object> entry: metaData.entrySet()) {
+                    logger.debug(entry.getKey() + " " + entry.getValue());
+                }
+                String customTag = (String) metaData.get("customTag");
+                if (customTag != null) {
+                    list1.add(customTag);
+                }
+                String customTag2 = (String) metaData.get("customTag2");
+                if (customTag2 != null) {
+                    list2.add(customTag2);
+                }
+            }
+            public void afterVariableChanged(ProcessVariableChangedEvent event) {
+                logger.debug("after variable");
+                VariableScope variableScope = (VariableScope)
+                    ((org.jbpm.process.core.impl.ProcessImpl) event.getProcessInstance().getProcess())
+                        .resolveContext(VariableScope.VARIABLE_SCOPE, event.getVariableId());
+                if (variableScope == null) {
+                    return;
+                }
+                Map<String, Object> metaData = variableScope.findVariable(event.getVariableId()).getMetaData();
+                for (Map.Entry<String, Object> entry: metaData.entrySet()) {
+                    logger.debug(entry.getKey() + " " + entry.getValue());
+                }
+                String customTag = (String) metaData.get("customTagVar");
+                if (customTag != null) {
+                    list3.add(customTag);
+                }
+            }
+            public void afterProcessStarted(ProcessStartedEvent event) {
+                logger.debug("after process");
+                Map<String, Object> metaData = event.getProcessInstance().getProcess().getMetaData();
+                for (Map.Entry<String, Object> entry: metaData.entrySet()) {
+                    logger.debug(entry.getKey() + " " + entry.getValue());
+                }
+                String customTag = (String) metaData.get("customTagProcess");
+                if (customTag != null) {
+                    list4.add(customTag);
+                }
+            }
+        });
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("x", "krisv");
         ProcessInstance processInstance = ksession.startProcess("Minimal", params);
@@ -701,30 +701,30 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         assertEquals("new value", listOut.get(1));
     }
 
-	@Test
-	public void testCallActivity2() throws Exception {
-		KieBase kbase = createKnowledgeBase("BPMN2-CallActivity2.bpmn2",
-				"BPMN2-CallActivitySubProcess.bpmn2");
-		ksession = createKnowledgeSession(kbase);
-		TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
-		ksession.getWorkItemManager().registerWorkItemHandler("Human Task",
+    @Test
+    public void testCallActivity2() throws Exception {
+        KieBase kbase = createKnowledgeBase("BPMN2-CallActivity2.bpmn2",
+                "BPMN2-CallActivitySubProcess.bpmn2");
+        ksession = createKnowledgeSession(kbase);
+        TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task",
                 workItemHandler);
-		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("x", "oldValue");
-		ProcessInstance processInstance = ksession.startProcess(
-				"ParentProcess", params);
-		assertProcessInstanceActive(processInstance);
-		assertEquals("new value",
-				((WorkflowProcessInstance) processInstance).getVariable("y"));
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("x", "oldValue");
+        ProcessInstance processInstance = ksession.startProcess(
+                "ParentProcess", params);
+        assertProcessInstanceActive(processInstance);
+        assertEquals("new value",
+                ((WorkflowProcessInstance) processInstance).getVariable("y"));
 
-		ksession = restoreSession(ksession, true);
-		WorkItem workItem = workItemHandler.getWorkItem();
-		assertNotNull(workItem);
-		assertEquals("krisv", workItem.getParameter("ActorId"));
-		ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
+        ksession = restoreSession(ksession, true);
+        WorkItem workItem = workItemHandler.getWorkItem();
+        assertNotNull(workItem);
+        assertEquals("krisv", workItem.getParameter("ActorId"));
+        ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
 
-		assertProcessInstanceFinished(processInstance, ksession);
-	}
+        assertProcessInstanceFinished(processInstance, ksession);
+    }
 
     @Test
     public void testCallActivityByName() throws Exception {
@@ -824,13 +824,13 @@ public class ActivityTest extends JbpmBpmn2TestCase {
 
     @Test
     public void testInvalidSubProcess() throws Exception {
-    	try {
-    		KieBase kbase = createKnowledgeBase("BPMN2-SubProcessInvalid.bpmn2");
-    		ksession = createKnowledgeSession(kbase);
-    		fail("Process should be invalid, there should be build errors");
-    	} catch (RuntimeException e) {
-    		// there should be build errors
-    	}
+        try {
+            KieBase kbase = createKnowledgeBase("BPMN2-SubProcessInvalid.bpmn2");
+            ksession = createKnowledgeSession(kbase);
+            fail("Process should be invalid, there should be build errors");
+        } catch (RuntimeException e) {
+            // there should be build errors
+        }
     }
 
     @Test
@@ -1180,35 +1180,35 @@ public class ActivityTest extends JbpmBpmn2TestCase {
 
     @Test
     public void testServiceTaskWithCustomTransformation() throws Exception {
-    	DataTransformerRegistry.get().register("http://custom/transformer", new DataTransformer() {
+        DataTransformerRegistry.get().register("http://custom/transformer", new DataTransformer() {
 
-			@Override
-			public Object transform(Object expression, Map<String, Object> parameters) {
-				// support only single object
-				String value = parameters.values().iterator().next().toString();
-				Object result = null;
-				if ("caplitalizeFirst".equals(expression)) {
-					String first = value.substring(0, 1);
-					String main = value.substring(1, value.length());
+            @Override
+            public Object transform(Object expression, Map<String, Object> parameters) {
+                // support only single object
+                String value = parameters.values().iterator().next().toString();
+                Object result = null;
+                if ("caplitalizeFirst".equals(expression)) {
+                    String first = value.substring(0, 1);
+                    String main = value.substring(1, value.length());
 
-					result = first.toUpperCase() + main;
-				} else if ("caplitalizeLast".equals(expression)) {
-					String last = value.substring(value.length()-1);
-					String main = value.substring(0, value.length()-1);
+                    result = first.toUpperCase() + main;
+                } else if ("caplitalizeLast".equals(expression)) {
+                    String last = value.substring(value.length()-1);
+                    String main = value.substring(0, value.length()-1);
 
-					result = main + last.toUpperCase();
-				} else {
-					throw new IllegalArgumentException("Unknown expression " + expression);
-				}
-				return result;
-			}
+                    result = main + last.toUpperCase();
+                } else {
+                    throw new IllegalArgumentException("Unknown expression " + expression);
+                }
+                return result;
+            }
 
-			@Override
-			public Object compile(String expression, Map<String, Object> parameters) {
-				// compilation not supported
-				return expression;
-			}
-		});
+            @Override
+            public Object compile(String expression, Map<String, Object> parameters) {
+                // compilation not supported
+                return expression;
+            }
+        });
         KieBase kbase = createKnowledgeBaseWithoutDumper("BPMN2-ServiceProcessWithCustomTransformation.bpmn2");
         ksession = createKnowledgeSession(kbase);
         ksession.getWorkItemManager().registerWorkItemHandler("Service Task",
@@ -1568,7 +1568,7 @@ public class ActivityTest extends JbpmBpmn2TestCase {
     }
 
     @SuppressWarnings("unchecked")
-	@Test
+    @Test
     public void testBusinessRuleTaskWithTransformation() throws Exception {
         KieBase kbase = createKnowledgeBaseWithoutDumper("BPMN2-RuleTaskWithTransformation.bpmn2",
                 "BPMN2-RuleTaskWithTransformation.drl");
@@ -1637,7 +1637,7 @@ public class ActivityTest extends JbpmBpmn2TestCase {
                 .startProcess("ServiceProcess", params);
         assertProcessInstanceFinished(processInstance, ksession);
         @SuppressWarnings("unchecked")
-		List<String> result = (List<String>)processInstance.getVariable("list");
+        List<String> result = (List<String>)processInstance.getVariable("list");
         assertEquals(3, result.size());
     }
 
@@ -1664,7 +1664,7 @@ public class ActivityTest extends JbpmBpmn2TestCase {
     @Test
     public void testErrorBetweenProcessesProcess() throws Exception {
         KieBase kbase = createKnowledgeBaseWithoutDumper("subprocess/ErrorsBetweenProcess-Process.bpmn2",
-        		"subprocess/ErrorsBetweenProcess-SubProcess.bpmn2");
+                "subprocess/ErrorsBetweenProcess-SubProcess.bpmn2");
         ksession = createKnowledgeSession(kbase);
 
         Map<String, Object> variables = new HashMap<String, Object>();
@@ -1711,23 +1711,23 @@ public class ActivityTest extends JbpmBpmn2TestCase {
 
     @Test
     public void testInvalidSubProcessNoOutgoingSF() throws Exception {
-    	try {
-    		KieBase kbase = createKnowledgeBase("subprocess/BPMN2-InvalidEmdeddedSubProcess.bpmn2");
-    		ksession = createKnowledgeSession(kbase);
-    		fail("Process should be invalid, there should be build errors");
-    	} catch (RuntimeException e) {
-    		// there should be build errors
-    	}
+        try {
+            KieBase kbase = createKnowledgeBase("subprocess/BPMN2-InvalidEmdeddedSubProcess.bpmn2");
+            ksession = createKnowledgeSession(kbase);
+            fail("Process should be invalid, there should be build errors");
+        } catch (RuntimeException e) {
+            // there should be build errors
+        }
     }
 
     @Test
     public void testAdHocSubProcessEmptyCompleteExpression() throws Exception {
         try {
-        	createKnowledgeBaseWithoutDumper("BPMN2-AdHocSubProcessEmptyCompleteExpression.bpmn2");
-        	fail("Process should be invalid, there should be build errors");
-    	} catch (RuntimeException e) {
-    		// there should be build errors
-    	}
+            createKnowledgeBaseWithoutDumper("BPMN2-AdHocSubProcessEmptyCompleteExpression.bpmn2");
+            fail("Process should be invalid, there should be build errors");
+        } catch (RuntimeException e) {
+            // there should be build errors
+        }
     }
 
     @Test

@@ -33,199 +33,199 @@ import org.jbpm.process.audit.event.AuditEvent;
 @Entity
 @SequenceGenerator(name="nodeInstanceLogIdSeq", sequenceName="NODE_INST_LOG_ID_SEQ", allocationSize=1)
 public class NodeInstanceLog implements Serializable, AuditEvent, org.kie.api.runtime.manager.audit.NodeInstanceLog {
-   
-	
-	private static final long serialVersionUID = 510l;
-	
+
+
+    private static final long serialVersionUID = 510l;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator="nodeInstanceLogIdSeq")
-	private long id;
-    
+    private long id;
+
     private long processInstanceId;
     private String processId;
-    
+
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "log_date")
     private Date date;
-    
+
     private int type;
     private String nodeInstanceId;
     private String nodeId;
     private String nodeName;
     private String nodeType;
-    private Long workItemId;    
+    private Long workItemId;
     private String connection;
-    
+
     private String externalId;
-    
+
     public NodeInstanceLog() {
     }
-    
-	public NodeInstanceLog(int type, long processInstanceId, String processId,
-			               String nodeInstanceId, String nodeId, String nodeName) {
-		this.type = type;
+
+    public NodeInstanceLog(int type, long processInstanceId, String processId,
+                           String nodeInstanceId, String nodeId, String nodeName) {
+        this.type = type;
         this.processInstanceId = processInstanceId;
         this.processId = processId;
-		this.nodeInstanceId = nodeInstanceId;
-		this.nodeId = nodeId;
-		this.nodeName = nodeName;
+        this.nodeInstanceId = nodeInstanceId;
+        this.nodeId = nodeId;
+        this.nodeName = nodeName;
         this.date = new Date();
     }
-	
-	public Integer getType() {
-		return type;
-	}
-	
-	public void setType(int type) {
-		this.type = type;
-	}
-    
-    public long getId() {
-    	return id;
+
+    public Integer getType() {
+        return type;
     }
-    
+
+    public void setType(int type) {
+        this.type = type;
+    }
+
+    public long getId() {
+        return id;
+    }
+
     void setId(long id) {
-		this.id = id;
-	}
+        this.id = id;
+    }
 
     public Long getProcessInstanceId() {
         return processInstanceId;
     }
-    
-	public void setProcessInstanceId(long processInstanceId) {
-		this.processInstanceId = processInstanceId;
-	}
+
+    public void setProcessInstanceId(long processInstanceId) {
+        this.processInstanceId = processInstanceId;
+    }
 
     public String getProcessId() {
         return processId;
     }
-    
-	public void setProcessId(String processId) {
-		this.processId = processId;
-	}
+
+    public void setProcessId(String processId) {
+        this.processId = processId;
+    }
 
     public String getNodeInstanceId() {
-		return nodeInstanceId;
-	}
+        return nodeInstanceId;
+    }
 
-	public void setNodeInstanceId(String nodeInstanceId) {
-		this.nodeInstanceId = nodeInstanceId;
-	}
+    public void setNodeInstanceId(String nodeInstanceId) {
+        this.nodeInstanceId = nodeInstanceId;
+    }
 
-	public String getNodeId() {
-		return nodeId;
-	}
+    public String getNodeId() {
+        return nodeId;
+    }
 
-	public void setNodeId(String nodeId) {
-		this.nodeId = nodeId;
-	}
-	
-	public String getNodeName() {
-		return nodeName;
-	}
-	
-	public void setNodeName(String nodeName) {
-		this.nodeName = nodeName;
-	}
+    public void setNodeId(String nodeId) {
+        this.nodeId = nodeId;
+    }
 
-	public Date getDate() {
+    public String getNodeName() {
+        return nodeName;
+    }
+
+    public void setNodeName(String nodeName) {
+        this.nodeName = nodeName;
+    }
+
+    public Date getDate() {
         return date;
     }
-    
-	public void setDate(Date date) {
-		this.date = date;
-	}
+
+    public void setDate(Date date) {
+        this.date = date;
+    }
 
     public String toString() {
-        return (type == 0 ? "Triggered " : "Left ") + "Node Instance '" + 
-        	processId + "#" + nodeId + "' (" + nodeName + ") [" + processInstanceId + "#" + nodeInstanceId + "]";
+        return (type == 0 ? "Triggered " : "Left ") + "Node Instance '" +
+            processId + "#" + nodeId + "' (" + nodeName + ") [" + processInstanceId + "#" + nodeInstanceId + "]";
     }
-    
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((date == null) ? 0 : date.hashCode());
-		result = prime * result + (int) id;
-		result = prime * result + ((nodeId == null) ? 0 : nodeId.hashCode());
-		result = prime * result
-				+ ((nodeInstanceId == null) ? 0 : nodeInstanceId.hashCode());
-		result = prime * result
-				+ ((processId == null) ? 0 : processId.hashCode());
-		result = prime * result	+ (int) processInstanceId;
-		result = prime * result + type;
-		result = prime * result
-                + ((nodeType == null) ? 0 : nodeType.hashCode());
-		result = prime * result
-                + ((workItemId == null) ? 0 : workItemId.hashCode());
-		result = prime * result
-                + ((connection == null) ? 0 : connection.hashCode());
-		result = prime * result
-                + ((externalId == null) ? 0 : externalId.hashCode());
-		return result;
-	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		NodeInstanceLog other = (NodeInstanceLog) obj;
-		if (date == null) {
-			if (other.date != null)
-				return false;
-		} else if (!date.equals(other.date))
-			return false;
-		if (id != other.id)
-			return false;
-		if (nodeId == null) {
-			if (other.nodeId != null)
-				return false;
-		} else if (!nodeId.equals(other.nodeId))
-			return false;
-		if (nodeInstanceId == null) {
-			if (other.nodeInstanceId != null)
-				return false;
-		} else if (!nodeInstanceId.equals(other.nodeInstanceId))
-			return false;
-		if (processId == null) {
-			if (other.processId != null)
-				return false;
-		} else if (!processId.equals(other.processId))
-			return false;
-		if (processInstanceId != other.processInstanceId)
-			return false;
-		if (type != other.type)
-			return false;
-		
-		if (nodeType == null) {
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((date == null) ? 0 : date.hashCode());
+        result = prime * result + (int) id;
+        result = prime * result + ((nodeId == null) ? 0 : nodeId.hashCode());
+        result = prime * result
+                + ((nodeInstanceId == null) ? 0 : nodeInstanceId.hashCode());
+        result = prime * result
+                + ((processId == null) ? 0 : processId.hashCode());
+        result = prime * result + (int) processInstanceId;
+        result = prime * result + type;
+        result = prime * result
+                + ((nodeType == null) ? 0 : nodeType.hashCode());
+        result = prime * result
+                + ((workItemId == null) ? 0 : workItemId.hashCode());
+        result = prime * result
+                + ((connection == null) ? 0 : connection.hashCode());
+        result = prime * result
+                + ((externalId == null) ? 0 : externalId.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        NodeInstanceLog other = (NodeInstanceLog) obj;
+        if (date == null) {
+            if (other.date != null)
+                return false;
+        } else if (!date.equals(other.date))
+            return false;
+        if (id != other.id)
+            return false;
+        if (nodeId == null) {
+            if (other.nodeId != null)
+                return false;
+        } else if (!nodeId.equals(other.nodeId))
+            return false;
+        if (nodeInstanceId == null) {
+            if (other.nodeInstanceId != null)
+                return false;
+        } else if (!nodeInstanceId.equals(other.nodeInstanceId))
+            return false;
+        if (processId == null) {
+            if (other.processId != null)
+                return false;
+        } else if (!processId.equals(other.processId))
+            return false;
+        if (processInstanceId != other.processInstanceId)
+            return false;
+        if (type != other.type)
+            return false;
+
+        if (nodeType == null) {
             if (other.nodeType != null)
                 return false;
         } else if (!nodeType.equals(other.nodeType))
             return false;
-		
-		if (workItemId == null) {
+
+        if (workItemId == null) {
             if (other.workItemId != null)
                 return false;
         } else if (!workItemId.equals(other.workItemId))
             return false;
-		
-		if (connection == null) {
+
+        if (connection == null) {
             if (other.connection != null)
                 return false;
         } else if (!connection.equals(other.connection))
             return false;
-		
-		if (externalId == null) {
+
+        if (externalId == null) {
             if (other.externalId != null)
                 return false;
         } else if (!externalId.equals(other.externalId))
             return false;
-		return true;
-	}
+        return true;
+    }
 
     public Long getWorkItemId() {
         return workItemId;
@@ -258,5 +258,5 @@ public class NodeInstanceLog implements Serializable, AuditEvent, org.kie.api.ru
     public void setNodeType(String nodeType) {
         this.nodeType = nodeType;
     }
-  	
+
 }

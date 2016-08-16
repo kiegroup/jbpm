@@ -44,7 +44,7 @@ import org.xml.sax.SAXException;
 public class RestGeoCodeApiCallWorkItemHandler extends AbstractLogOrThrowWorkItemHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(RestGeoCodeApiCallWorkItemHandler.class);
-    
+
     private List<ResultGeoCodeApi> results;
     private int httpResponseCode;
     public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
@@ -64,7 +64,7 @@ public class RestGeoCodeApiCallWorkItemHandler extends AbstractLogOrThrowWorkIte
 
 
             HttpURLConnection connection;
-            
+
             URL getUrl = new URL(URL);
             connection = (HttpURLConnection) getUrl.openConnection();
             connection.setRequestMethod("GET");
@@ -74,15 +74,15 @@ public class RestGeoCodeApiCallWorkItemHandler extends AbstractLogOrThrowWorkIte
 
             String line = reader.readLine();
             String response = "";
-            while ((line = reader.readLine()) != null) { 
+            while ((line = reader.readLine()) != null) {
                 response +=line;
-            } 
+            }
 
             setHttpResponseCode(connection.getResponseCode());
 
-            
+
             this.results = parseResults(response);
-            
+
             logger.info("{}" + response);
             connection.disconnect();
 
@@ -94,7 +94,7 @@ public class RestGeoCodeApiCallWorkItemHandler extends AbstractLogOrThrowWorkIte
     private List<ResultGeoCodeApi> parseResults(String xml){
         List<ResultGeoCodeApi> results = new ArrayList<ResultGeoCodeApi>();
         try {
-            
+
             DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
             Document doc = docBuilder.parse(new ByteArrayInputStream(xml.getBytes()));
@@ -108,7 +108,7 @@ public class RestGeoCodeApiCallWorkItemHandler extends AbstractLogOrThrowWorkIte
                     Element elementResult = (Element)nodeResult;
                     result.setPrecision(elementResult.getAttribute("precision"));
 
-                    
+
                     NodeList latitudes = elementResult.getElementsByTagName("Latitude");
                     Element latitudeElement = (Element)latitudes.item(0);
                     NodeList latitudeNodes = latitudeElement.getChildNodes();
@@ -125,7 +125,7 @@ public class RestGeoCodeApiCallWorkItemHandler extends AbstractLogOrThrowWorkIte
                     result.setAddress(((Node)addressNodes.item(0)).getNodeValue().trim());
 
 
-                    
+
                     NodeList cities = elementResult.getElementsByTagName("City");
                     Element cityElement = (Element)cities.item(0);
                     NodeList cityNodes = cityElement.getChildNodes();

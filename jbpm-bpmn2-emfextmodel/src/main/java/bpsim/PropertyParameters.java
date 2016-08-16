@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -38,21 +38,21 @@ import org.eclipse.emf.ecore.EObject;
  * @generated
  */
 public interface PropertyParameters extends EObject {
-	/**
-	 * Returns the value of the '<em><b>Property</b></em>' containment reference list.
-	 * The list contents are of type {@link bpsim.PropertyType}.
-	 * <!-- begin-user-doc -->
-	 * <p>
-	 * If the meaning of the '<em>Property</em>' containment reference list isn't clear,
-	 * there really should be more of a description here...
-	 * </p>
-	 * <!-- end-user-doc -->
-	 * @return the value of the '<em>Property</em>' containment reference list.
-	 * @see bpsim.BpsimPackage#getPropertyParameters_Property()
-	 * @model containment="true"
-	 *        extendedMetaData="kind='element' name='Property' namespace='##targetNamespace'"
-	 * @generated
-	 */
-	EList<PropertyType> getProperty();
+    /**
+     * Returns the value of the '<em><b>Property</b></em>' containment reference list.
+     * The list contents are of type {@link bpsim.PropertyType}.
+     * <!-- begin-user-doc -->
+     * <p>
+     * If the meaning of the '<em>Property</em>' containment reference list isn't clear,
+     * there really should be more of a description here...
+     * </p>
+     * <!-- end-user-doc -->
+     * @return the value of the '<em>Property</em>' containment reference list.
+     * @see bpsim.BpsimPackage#getPropertyParameters_Property()
+     * @model containment="true"
+     *        extendedMetaData="kind='element' name='Property' namespace='##targetNamespace'"
+     * @generated
+     */
+    EList<PropertyType> getProperty();
 
 } // PropertyParameters

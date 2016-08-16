@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -30,7 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ProcessMultiThreadTest extends AbstractBaseTest {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(ProcessMultiThreadTest.class);
 
     @Test
@@ -39,17 +39,17 @@ public class ProcessMultiThreadTest extends AbstractBaseTest {
         try {
             boolean success = true;
             final Thread[] t = new Thread[THREAD_COUNT];
-            
+
             builder.addProcessFromXml(new InputStreamReader( getClass().getResourceAsStream( "test_ProcessMultithreadEvent.rf" ) ) );
             if (builder.getErrors().getErrors().length > 0) {
-            	for (DroolsError error: builder.getErrors().getErrors()) {
-            	    logger.error(error.toString());
-            	}
-            	fail("Could not parse process");
+                for (DroolsError error: builder.getErrors().getErrors()) {
+                    logger.error(error.toString());
+                }
+                fail("Could not parse process");
             }
 
             StatefulKnowledgeSession session = createKieSession(true, builder.getPackage());
-            
+
             session = JbpmSerializationHelper.getSerialisedStatefulKnowledgeSession(session);
             List<String> list = new ArrayList<String>();
             session.setGlobal("list", list);
@@ -76,43 +76,43 @@ public class ProcessMultiThreadTest extends AbstractBaseTest {
             e.printStackTrace();
             fail( "Should not raise any exception: " + e.getMessage() );
         }
-	}
-	
+    }
+
     public static class ProcessInstanceSignalRunner implements Runnable {
 
-	    private ProcessInstance processInstance;
-	    private String type;
+        private ProcessInstance processInstance;
+        private String type;
         private Status status;
         private int id;
-	
-	    public ProcessInstanceSignalRunner(int id, ProcessInstance processInstance, String type) {
-	        this.id = id;
-	    	this.processInstance = processInstance;
-	    	this.type = type;
-	        this.status = Status.SUCCESS;
-	    }
-	
-	    public void run() {
-	        try {
-	        	processInstance.signalEvent(type, null);
-	        } catch ( Exception e ) {
-	            this.status = Status.FAIL;
-	            logger.warn("{} failed: {}",Thread.currentThread().getName(), e.getMessage());
-	        }
-	    }
-	
-	    public static enum Status {
-	        SUCCESS, FAIL
-	    }
-	
-	    public int getId() {
-	        return id;
-	    }
-	
-	    public Status getStatus() {
-	        return status;
-	    }
-	
-	}
-    
+
+        public ProcessInstanceSignalRunner(int id, ProcessInstance processInstance, String type) {
+            this.id = id;
+            this.processInstance = processInstance;
+            this.type = type;
+            this.status = Status.SUCCESS;
+        }
+
+        public void run() {
+            try {
+                processInstance.signalEvent(type, null);
+            } catch ( Exception e ) {
+                this.status = Status.FAIL;
+                logger.warn("{} failed: {}",Thread.currentThread().getName(), e.getMessage());
+            }
+        }
+
+        public static enum Status {
+            SUCCESS, FAIL
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public Status getStatus() {
+            return status;
+        }
+
+    }
+
 }

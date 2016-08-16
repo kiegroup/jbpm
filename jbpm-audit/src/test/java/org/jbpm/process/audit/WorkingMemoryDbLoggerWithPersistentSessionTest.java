@@ -26,7 +26,7 @@ import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessInstance;
 
 /**
- * This class tests the following classes: 
+ * This class tests the following classes:
  * <ul>
  * <li>WorkingMemoryDbLogger</li>
  * </ul>
@@ -34,19 +34,19 @@ import org.kie.api.runtime.process.ProcessInstance;
 public class WorkingMemoryDbLoggerWithPersistentSessionTest extends AbstractWorkingMemoryDbLoggerTest {
 
     private KieSession ksession = null;
-    
+
     @Override
     public ProcessInstance startProcess(String processName) {
-        if( ksession == null ) { 
+        if( ksession == null ) {
             KieBase kbase = createKnowledgeBase();
-            
+
             Environment env = createEnvironment(context);
             ksession = createKieSession(kbase, env);
-            
+
             new JPAWorkingMemoryDbLogger(ksession);
             ksession.getWorkItemManager().registerWorkItemHandler("Human Task", new SystemOutWorkItemHandler());
         }
         return ksession.startProcess(processName);
     }
-    
+
 }

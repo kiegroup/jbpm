@@ -455,10 +455,10 @@
         NodeInstanceLog log
       where
         log.nodeInstanceId in (select nodeInstanceId from NodeInstanceLog nid where nid.processInstanceId=:processId AND nid.type = 1 
-        						GROUP BY nid.nodeInstanceId
-                    			HAVING sum(nid.type) &gt;= 1) 
-       	and log.type = 1 
-       	and log.processInstanceId=:processId  
+                    GROUP BY nid.nodeInstanceId
+                          HAVING sum(nid.type) &gt;= 1) 
+        and log.type = 1 
+        and log.processInstanceId=:processId  
       ORDER BY 
         log.date ASC
     </query>
@@ -484,7 +484,7 @@
         NodeInstanceLog log
       where
         log.workItemId=:workItemId
-       	and log.type = 0   
+        and log.type = 0   
       ORDER BY 
         log.nodeInstanceId, log.id ASC
     </query>
@@ -540,25 +540,25 @@
   <named-query name="getTaskInstanceById">
     <query>
         select 
-	      new org.jbpm.kie.services.impl.model.UserTaskInstanceDesc(
-	      a.taskId,
-	      a.status,
-	      a.activationTime,
-	      a.name,
-	      a.description,
-	      a.priority,
-	      a.actualOwner,
-	      a.createdBy,
-	      a.deploymentId,
-	      a.processId,
-	      a.processInstanceId,
-	      a.createdOn,
-	      a.dueDate
-	      )
+        new org.jbpm.kie.services.impl.model.UserTaskInstanceDesc(
+        a.taskId,
+        a.status,
+        a.activationTime,
+        a.name,
+        a.description,
+        a.priority,
+        a.actualOwner,
+        a.createdBy,
+        a.deploymentId,
+        a.processId,
+        a.processInstanceId,
+        a.createdOn,
+        a.dueDate
+        )
         from 
-        	AuditTaskImpl a 
+          AuditTaskImpl a 
         where 
-        	a.taskId = :taskId 
+          a.taskId = :taskId 
     </query>
     <!-- hint name="org.hibernate.timeout" value="200"/ -->
   </named-query>
@@ -566,26 +566,26 @@
   <named-query name="getTaskInstanceByWorkItemId">
     <query>
         select 
-	      new org.jbpm.kie.services.impl.model.UserTaskInstanceDesc(
-	      a.taskId,
-	      a.status,
-	      a.activationTime,
-	      a.name,
-	      a.description,
-	      a.priority,
-	      a.actualOwner,
-	      a.createdBy,
-	      a.deploymentId,
-	      a.processId,
-	      a.processInstanceId,
-	      a.createdOn,
-	      a.dueDate
-	      )
+        new org.jbpm.kie.services.impl.model.UserTaskInstanceDesc(
+        a.taskId,
+        a.status,
+        a.activationTime,
+        a.name,
+        a.description,
+        a.priority,
+        a.actualOwner,
+        a.createdBy,
+        a.deploymentId,
+        a.processId,
+        a.processInstanceId,
+        a.createdOn,
+        a.dueDate
+        )
         from 
-        	AuditTaskImpl a
+          AuditTaskImpl a
         where 
-        	a.workItemId = :workItemId 
-        	
+          a.workItemId = :workItemId 
+          
     </query>
     <!-- hint name="org.hibernate.timeout" value="200"/ -->
   </named-query>

@@ -23,20 +23,20 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
 public abstract class AbstractExecutorBaseTest {
-    
+
 
     @After
     public void cleanup() {
-    	EntityManagerFactoryManager.get().clear();
+        EntityManagerFactoryManager.get().clear();
     }
-    
+
     @BeforeClass
-    public static void configure() { 
+    public static void configure() {
         LoggingPrintStream.interceptSysOutSysErr();
     }
-    
+
     @AfterClass
-    public static void reset() { 
+    public static void reset() {
         LoggingPrintStream.resetInterceptSysOutSysErr();
     }
 }

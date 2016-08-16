@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -20,16 +20,16 @@ import org.jbpm.workflow.instance.impl.NodeInstanceImpl;
 
 public class ThrowLinkNodeInstance extends NodeInstanceImpl {
 
-	private static final long serialVersionUID = 20110505L;
+    private static final long serialVersionUID = 20110505L;
 
-	@Override
-	public void internalTrigger(NodeInstance from, String type) {
-		this.triggerCompleted();
-	}
+    @Override
+    public void internalTrigger(NodeInstance from, String type) {
+        this.triggerCompleted();
+    }
 
-	public void triggerCompleted() {
-		this.triggerCompleted(
-				org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE, true);
-	}
+    public void triggerCompleted() {
+        this.triggerCompleted(
+                org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE, true);
+    }
 
 }

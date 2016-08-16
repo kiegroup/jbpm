@@ -27,14 +27,14 @@ import org.kie.internal.command.Context;
 @XmlAccessorType(XmlAccessType.NONE)
 public class DeleteAttachmentCommand extends TaskCommand<Void> {
 
-	private static final long serialVersionUID = 5656199063761548979L;
+    private static final long serialVersionUID = 5656199063761548979L;
 
-	@XmlElement
-	private Long attachmentId;
-	
-	public DeleteAttachmentCommand() {
-	}
-	
+    @XmlElement
+    private Long attachmentId;
+
+    public DeleteAttachmentCommand() {
+    }
+
     public DeleteAttachmentCommand(long taskId, Long attachmentId) {
         this.taskId = taskId;
         this.attachmentId = attachmentId;
@@ -43,15 +43,15 @@ public class DeleteAttachmentCommand extends TaskCommand<Void> {
     public Void execute(Context cntxt) {
         TaskContext context = (TaskContext) cntxt;
         context.getTaskAttachmentService().deleteAttachment(taskId, attachmentId);
-    	return null;
-           
+        return null;
+
     }
 
-	public Long getAttachmentId() {
-		return attachmentId;
-	}
+    public Long getAttachmentId() {
+        return attachmentId;
+    }
 
-	public void setAttachmentId(Long contentId) {
-		this.attachmentId = contentId;
-	}
+    public void setAttachmentId(Long contentId) {
+        this.attachmentId = contentId;
+    }
 }

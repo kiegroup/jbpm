@@ -33,48 +33,48 @@ public class UserTaskInstanceWithVarsQueryMapper extends AbstractQueryMapper<Use
 
     private static final long serialVersionUID = 5935133069234696719L;
     /**
-     * Dedicated for ServiceLoader to create instance, use <code>get()</code> method instead 
+     * Dedicated for ServiceLoader to create instance, use <code>get()</code> method instead
      */
     public UserTaskInstanceWithVarsQueryMapper() {
         super();
     }
-    
+
     public static UserTaskInstanceWithVarsQueryMapper get() {
         return new UserTaskInstanceWithVarsQueryMapper();
     }
-    
+
     @Override
     public List<UserTaskInstanceWithVarsDesc> map(Object result) {
         if (result instanceof DataSet) {
             DataSet dataSetResult = (DataSet) result;
             List<UserTaskInstanceWithVarsDesc> mappedResult = new ArrayList<UserTaskInstanceWithVarsDesc>();
-            
+
             if (dataSetResult != null) {
                 Map<Long, UserTaskInstanceWithVarsDesc> tmp = new HashMap<Long, UserTaskInstanceWithVarsDesc>();
-                
+
                 for (int i = 0; i < dataSetResult.getRowCount(); i++) {
-                    
+
                     Long taskId = getColumnLongValue(dataSetResult, COLUMN_TASKID, i);
                     UserTaskInstanceWithVarsDesc ut = tmp.get(taskId);
                     if (ut == null) {
 
                         ut = buildInstance(dataSetResult, i);
-                        mappedResult.add(ut);    
-                        
+                        mappedResult.add(ut);
+
                         tmp.put(taskId, ut);
                     }
                     // now add variable
                     String varName = getColumnStringValue(dataSetResult, COLUMN_TASK_VAR_NAME, i);
                     String varValue = getColumnStringValue(dataSetResult, COLUMN_TASK_VAR_VALUE, i);
-                    
+
                     ((org.jbpm.kie.services.impl.model.UserTaskInstanceWithVarsDesc)ut).addVariable(varName, varValue);
-                                    
+
                 }
             }
-            
+
             return mappedResult;
         }
-        
+
         throw new IllegalArgumentException("Unsupported result for mapping " + result);
     }
 
@@ -97,7 +97,7 @@ public class UserTaskInstanceWithVarsQueryMapper extends AbstractQueryMapper<Use
                 );
         return userTask;
     }
-    
+
     @Override
     public String getName() {
         return "UserTasksWithVariables";

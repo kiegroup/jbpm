@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -32,19 +32,19 @@ public class AsyncSignalEventCommand implements Command {
         Long processInstanceId = (Long) ctx.getData("ProcessInstanceId");
         String signal = (String) ctx.getData("Signal");
         Object event = ctx.getData("Event");
-        
+
         if (deploymentId == null || signal == null) {
             throw new IllegalArgumentException("Deployment id and signal name is required");
         }
-        
+
         RuntimeManager runtimeManager = RuntimeManagerRegistry.get().getManager(deploymentId);
         if (runtimeManager == null) {
-            throw new IllegalArgumentException("No runtime manager found for deployment id " + deploymentId);  
+            throw new IllegalArgumentException("No runtime manager found for deployment id " + deploymentId);
         }
-        RuntimeEngine engine = runtimeManager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstanceId));        
+        RuntimeEngine engine = runtimeManager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstanceId));
         try {
             engine.getKieSession().signalEvent(signal, event, processInstanceId);
-            
+
             return new ExecutionResults();
         } finally {
             runtimeManager.disposeRuntimeEngine(engine);

@@ -32,7 +32,7 @@ public class CountDownDeploymentListenerCDIImpl extends CoundDownDeploymentListe
     public CountDownDeploymentListenerCDIImpl() {
         super();
     }
-    
+
     public CountDownDeploymentListenerCDIImpl(int threads) {
         super(threads);
     }
@@ -56,5 +56,5 @@ public class CountDownDeploymentListenerCDIImpl extends CoundDownDeploymentListe
     public void onDeactivate(@Observes@Deactivate DeploymentEvent event) {
         super.onDeactivate(event);
     }
-    
+
 }

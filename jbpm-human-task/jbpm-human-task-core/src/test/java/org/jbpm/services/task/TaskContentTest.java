@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 Red Hat, Inc. and/or its affiliates.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -62,7 +62,7 @@ public class TaskContentTest extends HumanTaskServicesBaseTest {
     @Test
     public void testTaskContent() throws Exception {
         String userId = "Bobba Fet";
-        
+
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { businessAdministrators = [new User('" + userId + "')], }),";
         str += "name =  'This is my task name' })";
@@ -73,29 +73,29 @@ public class TaskContentTest extends HumanTaskServicesBaseTest {
         Map<String, Object> outputParams = new HashMap<String, Object>();
         outputParams.put("str", "str");
         outputParams.put("int", new Integer(23));
-        try { 
+        try {
             taskService.addOutputContentFromUser(task.getId(), "Jabba Hutt", outputParams);
             fail( "This should not have succeeded (Jabba doesn't have permissions)");
-        } catch( Exception e ) { 
+        } catch( Exception e ) {
             // do nothing
         }
-        
+
         long contentId = taskService.addOutputContentFromUser(task.getId(), userId, outputParams);
-        
+
         Map<String, Object> gotOutputParams = taskService.getOutputContentMapForUser(taskId, userId);
-        
-        for( Entry<String, Object> origEntry : outputParams.entrySet() ) { 
+
+        for( Entry<String, Object> origEntry : outputParams.entrySet() ) {
             String key = origEntry.getKey();
            assertEquals( "Entry: " + key, origEntry.getValue(), gotOutputParams.get(key));
         }
-        
-        try { 
+
+        try {
             taskService.getOutputContentMapForUser(taskId, "Jabba Hutt");
             fail( "This should not have succeeded (Jabba doesn't have permissions)");
-        } catch( Exception e ) { 
+        } catch( Exception e ) {
             // do nothing
         }
-        
+
     }
 
 }

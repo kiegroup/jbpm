@@ -31,7 +31,7 @@ import org.jbpm.workflow.instance.NodeInstance;
 
 /**
  * Default implementation of a constraint.
- * 
+ *
  */
 public class ReturnValueConstraintEvaluator
     implements
@@ -99,14 +99,14 @@ public class ReturnValueConstraintEvaluator
     }
 
     public boolean isDefault() {
-		return isDefault;
-	}
+        return isDefault;
+    }
 
-	public void setDefault(boolean isDefault) {
-		this.isDefault = isDefault;
-	}
+    public void setDefault(boolean isDefault) {
+        this.isDefault = isDefault;
+    }
 
-	public void wire(Object object) {
+    public void wire(Object object) {
         setEvaluator( (ReturnValueEvaluator) object );
     }
 
@@ -161,11 +161,11 @@ public class ReturnValueConstraintEvaluator
     }
 
     public void setMetaData(String name, Object value) {
-    	// Do nothing
+        // Do nothing
     }
-    
+
     public Object getMetaData(String name) {
         return null;
     }
-    
+
 }

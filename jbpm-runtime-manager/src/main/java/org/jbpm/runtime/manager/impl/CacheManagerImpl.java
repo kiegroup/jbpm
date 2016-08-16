@@ -27,32 +27,32 @@ import org.kie.internal.runtime.manager.CacheManager;
  * Allows to close <code>Cacheable</code> items from cache upon dispose.
  */
 public class CacheManagerImpl implements CacheManager {
-	
-	private ConcurrentHashMap<String, Object> cache = new ConcurrentHashMap<String, Object>();
 
-	@Override
-	public void add(String key, Object value) {
-		cache.put(key, value);
-	}
+    private ConcurrentHashMap<String, Object> cache = new ConcurrentHashMap<String, Object>();
 
-	@Override
-	public Object get(String key) {		
-		return cache.get(key);
-	}
+    @Override
+    public void add(String key, Object value) {
+        cache.put(key, value);
+    }
 
-	@Override
-	public Object remove(String key) {
-		return cache.remove(key);
-	}
+    @Override
+    public Object get(String key) {
+        return cache.get(key);
+    }
 
-	@Override
-	public void dispose() {
-		for (Map.Entry<String, Object> entry : cache.entrySet()) {
-			if (entry.getValue() instanceof Cacheable) {
-				((Cacheable) entry.getValue()).close();
-			}
-		}
-		cache.clear();
-	}
+    @Override
+    public Object remove(String key) {
+        return cache.remove(key);
+    }
+
+    @Override
+    public void dispose() {
+        for (Map.Entry<String, Object> entry : cache.entrySet()) {
+            if (entry.getValue() instanceof Cacheable) {
+                ((Cacheable) entry.getValue()).close();
+            }
+        }
+        cache.clear();
+    }
 
 }

@@ -32,82 +32,82 @@ import org.kie.api.KieServices;
 import org.kie.scanner.MavenRepository;
 
 public class ClientQueryServiceEJBTest extends QueryServiceImplTest {
-	
-	private static final String application = "sample-war-ejb-app";
-	
-	@Before
-    public void prepare() {
-		super.prepare(); 
-		userTaskService.execute(GROUP_ID +":" + ARTIFACT_ID +":" + VERSION, new CleanUpCommand());
-		 
-    }
-	@Override
-	protected void close() {
-		// do nothing
-		
-	}
 
-	@Override
-	protected void configureServices() {
-		correctUser = "anonymous";
-		try {
-			ClientServiceFactory factory = ServiceFactoryProvider.getProvider("JBoss");
-			DeploymentServiceEJBRemote deploymentService = factory.getService(application, DeploymentServiceEJBRemote.class);
-			ProcessServiceEJBRemote processService = factory.getService(application, ProcessServiceEJBRemote.class);
-			RuntimeDataServiceEJBRemote runtimeDataService = factory.getService(application, RuntimeDataServiceEJBRemote.class);
-			DefinitionServiceEJBRemote definitionService = factory.getService(application, DefinitionServiceEJBRemote.class);
-			UserTaskServiceEJBRemote userTaskService = factory.getService(application, UserTaskServiceEJBRemote.class);
-			QueryServiceEJBRemote queryService = factory.getService(application, QueryServiceEJBRemote.class);
-			
-			setBpmn2Service(definitionService);
-			setProcessService(processService);
-			setRuntimeDataService(runtimeDataService);
-			setUserTaskService(userTaskService);
-			setQueryService(queryService);
-			setDeploymentService(new DeploymentServiceWrapper(deploymentService));
-			
-			setIdentityProvider(identityProvider);
-		} catch (Exception e) {
-			throw new RuntimeException("Unable to configure services", e);
-		}
-	}
-	
-	@Override
+    private static final String application = "sample-war-ejb-app";
+
+    @Before
+    public void prepare() {
+        super.prepare();
+        userTaskService.execute(GROUP_ID +":" + ARTIFACT_ID +":" + VERSION, new CleanUpCommand());
+
+    }
+    @Override
+    protected void close() {
+        // do nothing
+
+    }
+
+    @Override
+    protected void configureServices() {
+        correctUser = "anonymous";
+        try {
+            ClientServiceFactory factory = ServiceFactoryProvider.getProvider("JBoss");
+            DeploymentServiceEJBRemote deploymentService = factory.getService(application, DeploymentServiceEJBRemote.class);
+            ProcessServiceEJBRemote processService = factory.getService(application, ProcessServiceEJBRemote.class);
+            RuntimeDataServiceEJBRemote runtimeDataService = factory.getService(application, RuntimeDataServiceEJBRemote.class);
+            DefinitionServiceEJBRemote definitionService = factory.getService(application, DefinitionServiceEJBRemote.class);
+            UserTaskServiceEJBRemote userTaskService = factory.getService(application, UserTaskServiceEJBRemote.class);
+            QueryServiceEJBRemote queryService = factory.getService(application, QueryServiceEJBRemote.class);
+
+            setBpmn2Service(definitionService);
+            setProcessService(processService);
+            setRuntimeDataService(runtimeDataService);
+            setUserTaskService(userTaskService);
+            setQueryService(queryService);
+            setDeploymentService(new DeploymentServiceWrapper(deploymentService));
+
+            setIdentityProvider(identityProvider);
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to configure services", e);
+        }
+    }
+
+    @Override
     protected void prepareJPAModule(KieServices ks, MavenRepository repository) {
         // no op here
     }
     @Override
-	protected String getDataSourceJNDI() {
+    protected String getDataSourceJNDI() {
         return "java:jboss/datasources/ExampleDS";
     }
-	
-	@Ignore("not supported for remote ejb")
-	@Test
+
+    @Ignore("not supported for remote ejb")
+    @Test
     @Override
     public void testGetTaskInstancesWithCustomVariables() throws Exception {
-        
+
     }
-    
-	@Ignore("not supported for remote ejb")
+
+    @Ignore("not supported for remote ejb")
     @Test
     @Override
     public void testGetProcessInstancesWithQueryParamBuilder() {
-       
+
     }
-	
-	@Ignore("Requires actual authentication and users to be configured on remote server")
+
+    @Ignore("Requires actual authentication and users to be configured on remote server")
     @Test
     @Override
     public void testGetTaskInstancesAsPotOwners() {
-        
+
     }
-	
-	@Ignore("Requires actual authentication and users to be configured on remote server")
+
+    @Ignore("Requires actual authentication and users to be configured on remote server")
     @Test
     @Override
     public void testGetTaskInstancesAsBA() {
-        
+
     }
-	
+
 
 }

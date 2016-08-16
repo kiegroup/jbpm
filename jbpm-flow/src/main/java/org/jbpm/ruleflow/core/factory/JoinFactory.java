@@ -33,9 +33,9 @@ public class JoinFactory extends NodeFactory {
     protected Node createNode() {
         return new Join();
     }
-    
+
     protected Join getJoin() {
-    	return (Join) getNode();
+        return (Join) getNode();
     }
 
     public JoinFactory name(String name) {
@@ -44,12 +44,12 @@ public class JoinFactory extends NodeFactory {
     }
 
     public JoinFactory type(int type) {
-    	getJoin().setType(type);
+        getJoin().setType(type);
         return this;
     }
-    
+
     public JoinFactory type(String n) {
-    	getJoin().setN(n);
+        getJoin().setN(n);
         return this;
     }
 

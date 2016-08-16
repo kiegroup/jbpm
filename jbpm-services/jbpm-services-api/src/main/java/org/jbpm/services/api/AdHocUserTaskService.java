@@ -27,11 +27,11 @@ import org.kie.api.task.model.Task;
 public interface AdHocUserTaskService {
 
     long addTask(Task task, Map<String, Object> params);
-    
+
     long addTask(
             final String taskName, int priority,
             Date dueDate, final List<String> users, List<String> groups, String identity,
-            String taskformName, String deploymentId, Long processInstanceId, Map<String, Object> params, 
+            String taskformName, String deploymentId, Long processInstanceId, Map<String, Object> params,
             boolean autoStart,
             boolean autoClaim);
 

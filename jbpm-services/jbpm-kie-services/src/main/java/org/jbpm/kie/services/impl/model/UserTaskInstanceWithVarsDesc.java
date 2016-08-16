@@ -26,8 +26,8 @@ public class UserTaskInstanceWithVarsDesc extends UserTaskInstanceDesc implement
 
     private static final long serialVersionUID = -4594921035584546643L;
 
-	private Map<String, Object> variables;
-	
+    private Map<String, Object> variables;
+
     public UserTaskInstanceWithVarsDesc(Long taskId, String status, Date activationTime, String name, String description, Integer priority, String actualOwner, String createdBy, String deploymentId, String processId, Long processInstanceId, Date createdOn, Date dueDate) {
         super(taskId, status, activationTime, name, description, priority, actualOwner, createdBy, deploymentId, processId, processInstanceId, createdOn, dueDate);
     }
@@ -36,11 +36,11 @@ public class UserTaskInstanceWithVarsDesc extends UserTaskInstanceDesc implement
     public Map<String, Object> getVariables() {
         return variables;
     }
-    
+
     public void setVariables(Map<String, Object> variables) {
         this.variables = variables;
     }
-    
+
     public void addVariable(String variable, Object variableValue) {
         if (this.variables == null) {
             this.variables = new HashMap<String, Object>();

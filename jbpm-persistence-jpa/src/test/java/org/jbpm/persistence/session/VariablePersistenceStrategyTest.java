@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -98,20 +98,20 @@ import org.slf4j.LoggerFactory;
 public class VariablePersistenceStrategyTest extends AbstractBaseTest {
 
     private static final Logger logger = LoggerFactory.getLogger( VariablePersistenceStrategyTest.class );
-    
+
     private HashMap<String, Object> context;
     private EntityManagerFactory emf;
-    
-    public VariablePersistenceStrategyTest(boolean locking) { 
-       this.useLocking = locking; 
+
+    public VariablePersistenceStrategyTest(boolean locking) {
+       this.useLocking = locking;
     }
-    
+
     @Parameters
     public static Collection<Object[]> persistence() {
         Object[][] data = new Object[][] { { false }, { true } };
         return Arrays.asList(data);
     };
-    
+
     @Before
     public void setUp() throws Exception {
         context = setupWithPoolingDataSource(JBPM_PERSISTENCE_UNIT_NAME);
@@ -134,15 +134,15 @@ public class VariablePersistenceStrategyTest extends AbstractBaseTest {
         StatefulKnowledgeSession ksession = createSession( kbase , env );
         Map<String, Object> initialParams = new HashMap<String, Object>();
         initialParams.put( "x", new MyVariableExtendingSerializable( variableText ) );
-        
+
         // Start process and execute workItem
         long processInstanceId = ksession.startProcess( processId, initialParams ).getId();
-        
+
         ksession = reloadSession( ksession, kbase, env );
-        
+
         long workItemId = TestWorkItemHandler.getInstance().getWorkItem().getId();
         ksession.getWorkItemManager().completeWorkItem( workItemId, null );
-        
+
         // Test
         Assert.assertNull( ksession.getProcessInstance( processInstanceId ) );
     }
@@ -150,7 +150,7 @@ public class VariablePersistenceStrategyTest extends AbstractBaseTest {
     private KnowledgeBase getKnowledgeBaseForExtendingInterfaceVariablePersistence(String processId, final String variableText) {
         RuleFlowProcess process = new RuleFlowProcess();
         process.setId( processId );
-        
+
         List<Variable> variables = new ArrayList<Variable>();
         Variable variable = new Variable();
         variable.setName("x");
@@ -170,7 +170,7 @@ public class VariablePersistenceStrategyTest extends AbstractBaseTest {
         Work work = new WorkImpl();
         work.setName( "MyWork" );
         workItemNode.setWork( work );
-        
+
         ActionNode actionNode = new ActionNode();
         actionNode.setName( "Print" );
         DroolsAction action = new DroolsConsequenceAction( "java" , null);
@@ -181,11 +181,11 @@ public class VariablePersistenceStrategyTest extends AbstractBaseTest {
         });
         actionNode.setAction(action);
         actionNode.setId( 3 );
-        
+
         EndNode endNode = new EndNode();
         endNode.setName("EndNode");
         endNode.setId(4);
-        
+
         connect( startNode, workItemNode );
         connect( workItemNode, actionNode );
         connect( actionNode, endNode );
@@ -194,27 +194,27 @@ public class VariablePersistenceStrategyTest extends AbstractBaseTest {
         process.addNode( workItemNode );
         process.addNode( actionNode );
         process.addNode( endNode );
-        
+
         KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
         ((KnowledgeBaseImpl) kbase).addProcess(process);
         return kbase;
     }
-    
+
     @Test
     public void testPersistenceVariables() throws NamingException, NotSupportedException, SystemException, RollbackException, HeuristicMixedException, HeuristicRollbackException {
         EntityManager em = emf.createEntityManager();
         UserTransaction utx = (UserTransaction) new InitialContext().lookup( "java:comp/UserTransaction" );
-        if( utx.getStatus() == Status.STATUS_NO_TRANSACTION ) { 
+        if( utx.getStatus() == Status.STATUS_NO_TRANSACTION ) {
             utx.begin();
             em.joinTransaction();
         }
         int origNumMyEntities = em.createQuery("select i from MyEntity i").getResultList().size();
         int origNumMyEntityMethods = em.createQuery("select i from MyEntityMethods i").getResultList().size();
         int origNumMyEntityOnlyFields = em.createQuery("select i from MyEntityOnlyFields i").getResultList().size();
-        if( utx.getStatus() == Status.STATUS_ACTIVE ) { 
+        if( utx.getStatus() == Status.STATUS_ACTIVE ) {
             utx.commit();
         }
-       
+
         // Setup entities
         MyEntity myEntity = new MyEntity("This is a test Entity with annotation in fields");
         MyEntityMethods myEntityMethods = new MyEntityMethods("This is a test Entity with annotations in methods");
@@ -230,7 +230,7 @@ public class VariablePersistenceStrategyTest extends AbstractBaseTest {
         em.persist(myEntityOnlyFields);
         utx.commit();
         em.close();
-        
+
         // More setup
         Environment env =  createEnvironment();
         KnowledgeBase kbase = createKnowledgeBase( "VariablePersistenceStrategyProcess.rf" );
@@ -243,14 +243,14 @@ public class VariablePersistenceStrategyTest extends AbstractBaseTest {
         parameters.put("m", myEntityMethods);
         parameters.put("f", myEntityOnlyFields);
         parameters.put("z", myVariableSerializable);
-        
+
         // Start process
         long processInstanceId = ksession.startProcess( "com.sample.ruleflow", parameters ).getId();
 
         TestWorkItemHandler handler = TestWorkItemHandler.getInstance();
         WorkItem workItem = handler.getWorkItem();
         assertNotNull( workItem );
-        
+
         // Test results
         List<?> result = emf.createEntityManager().createQuery("select i from MyEntity i").getResultList();
         assertEquals(origNumMyEntities + 1, result.size());
@@ -262,7 +262,7 @@ public class VariablePersistenceStrategyTest extends AbstractBaseTest {
         logger.debug("### Retrieving process instance ###");
         ksession = reloadSession( ksession, kbase, env );
         WorkflowProcessInstance processInstance = (WorkflowProcessInstance)
-        	ksession.getProcessInstance( processInstanceId );
+            ksession.getProcessInstance( processInstanceId );
         assertNotNull( processInstance );
         assertEquals("SomeString", processInstance.getVariable("x"));
         assertEquals("This is a test Entity with annotation in fields", ((MyEntity) processInstance.getVariable("y")).getTest());
@@ -277,14 +277,14 @@ public class VariablePersistenceStrategyTest extends AbstractBaseTest {
 
         workItem = handler.getWorkItem();
         assertNotNull( workItem );
-        
 
-        
+
+
         logger.debug("### Retrieving process instance ###");
         ksession = reloadSession( ksession, kbase , env );
-		processInstance = (WorkflowProcessInstance)
-			ksession.getProcessInstance(processInstanceId);
-		assertNotNull(processInstance);
+        processInstance = (WorkflowProcessInstance)
+            ksession.getProcessInstance(processInstanceId);
+        assertNotNull(processInstance);
         assertEquals("SomeString", processInstance.getVariable("x"));
         assertEquals("This is a test Entity with annotation in fields", ((MyEntity) processInstance.getVariable("y")).getTest());
         assertEquals("This is a test Entity with annotations in methods", ((MyEntityMethods) processInstance.getVariable("m")).getTest());
@@ -294,16 +294,16 @@ public class VariablePersistenceStrategyTest extends AbstractBaseTest {
         assertEquals("This is a new test Entity", ((MyEntity) processInstance.getVariable("b")).getTest());
         assertEquals("This is a new test SerializableObject", ((MyVariableSerializable) processInstance.getVariable("c")).getText());
         logger.debug("### Completing second work item ###");
-		ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
+        ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
 
         workItem = handler.getWorkItem();
         assertNotNull(workItem);
-        
+
 
         logger.debug("### Retrieving process instance ###");
         ksession = reloadSession( ksession, kbase, env);
         processInstance = (WorkflowProcessInstance)
-        	ksession.getProcessInstance(processInstanceId);
+            ksession.getProcessInstance(processInstanceId);
         assertNotNull(processInstance);
         assertEquals("SomeString", processInstance.getVariable("x"));
         assertEquals("This is a test Entity with annotation in fields", ((MyEntity) processInstance.getVariable("y")).getTest());
@@ -318,14 +318,14 @@ public class VariablePersistenceStrategyTest extends AbstractBaseTest {
 
         workItem = handler.getWorkItem();
         assertNull(workItem);
-        
+
 
         ksession = reloadSession( ksession, kbase, env );
         processInstance = (WorkflowProcessInstance)
-			ksession.getProcessInstance(processInstanceId);
+            ksession.getProcessInstance(processInstanceId);
         assertNull(processInstance);
     }
-    
+
     @Test
     public void testPersistenceVariablesWithTypeChange() throws NamingException, NotSupportedException, SystemException, RollbackException, HeuristicMixedException, HeuristicRollbackException {
 
@@ -337,24 +337,24 @@ public class VariablePersistenceStrategyTest extends AbstractBaseTest {
         EntityManager em = emf.createEntityManager();
         UserTransaction utx = (UserTransaction) new InitialContext().lookup( "java:comp/UserTransaction" );
         int s = utx.getStatus();
-        if( utx.getStatus() == Status.STATUS_NO_TRANSACTION ) { 
+        if( utx.getStatus() == Status.STATUS_NO_TRANSACTION ) {
             utx.begin();
         }
         em.joinTransaction();
         em.persist(myEntity);
         em.persist(myEntityMethods);
         em.persist(myEntityOnlyFields);
-        if( utx.getStatus() == Status.STATUS_ACTIVE ) { 
+        if( utx.getStatus() == Status.STATUS_ACTIVE ) {
             utx.commit();
         }
         em.close();
         Environment env = createEnvironment();
         KnowledgeBase kbase = createKnowledgeBase( "VariablePersistenceStrategyProcessTypeChange.rf" );
         StatefulKnowledgeSession ksession = createSession( kbase, env );
-        
-        
-        
-        
+
+
+
+
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("x", "SomeString");
         parameters.put("y", myEntity);
@@ -387,10 +387,10 @@ public class VariablePersistenceStrategyTest extends AbstractBaseTest {
         processInstance = ksession.getProcessInstance( processInstanceId );
         assertNull( processInstance );
     }
-    
+
     @Test
     public void testPersistenceVariablesSubProcess() throws NamingException, NotSupportedException, SystemException, RollbackException, HeuristicMixedException, HeuristicRollbackException {
-        
+
         MyEntity myEntity = new MyEntity("This is a test Entity with annotation in fields");
         MyEntityMethods myEntityMethods = new MyEntityMethods("This is a test Entity with annotations in methods");
         MyEntityOnlyFields myEntityOnlyFields = new MyEntityOnlyFields("This is a test Entity with annotations in fields and without accesors methods");
@@ -407,10 +407,10 @@ public class VariablePersistenceStrategyTest extends AbstractBaseTest {
         Environment env = createEnvironment();
         KnowledgeBase kbase = createKnowledgeBase( "VariablePersistenceStrategySubProcess.rf" );
         StatefulKnowledgeSession ksession = createSession( kbase, env );
-       
-        
-        
-        
+
+
+
+
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("x", "SomeString");
         parameters.put("y", myEntity);
@@ -451,7 +451,7 @@ public class VariablePersistenceStrategyTest extends AbstractBaseTest {
         processInstance = ksession.getProcessInstance( processInstanceId );
         assertNull( processInstance );
     }
-    
+
     @Test
     public void testWorkItemWithVariablePersistence() throws Exception{
         MyEntity myEntity = new MyEntity("This is a test Entity");
@@ -459,7 +459,7 @@ public class VariablePersistenceStrategyTest extends AbstractBaseTest {
         EntityManager em = emf.createEntityManager();
         UserTransaction utx = (UserTransaction) new InitialContext().lookup( "java:comp/UserTransaction" );
         utx.begin();
-        
+
         em.joinTransaction();
         em.persist(myEntity);
         utx.commit();
@@ -467,11 +467,11 @@ public class VariablePersistenceStrategyTest extends AbstractBaseTest {
         Environment env = createEnvironment();
         KnowledgeBase kbase = createKnowledgeBase( "VPSProcessWithWorkItems.rf" );
         StatefulKnowledgeSession ksession = createSession( kbase , env);
-        
-        
-       
-       
-        
+
+
+
+
+
         logger.debug("### Starting process ###");
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("x", "SomeString");
@@ -486,7 +486,7 @@ public class VariablePersistenceStrategyTest extends AbstractBaseTest {
         logger.debug("### Retrieving process instance ###");
         ksession = reloadSession( ksession, kbase , env);
         WorkflowProcessInstance processInstance = (WorkflowProcessInstance)
-        	ksession.getProcessInstance( processInstanceId );
+            ksession.getProcessInstance( processInstanceId );
         assertNotNull( processInstance );
         assertEquals("SomeString", processInstance.getVariable("x"));
         assertEquals("This is a test Entity", ((MyEntity) processInstance.getVariable("y")).getTest());
@@ -507,9 +507,9 @@ public class VariablePersistenceStrategyTest extends AbstractBaseTest {
 
         logger.debug("### Retrieving process instance ###");
         ksession = reloadSession( ksession, kbase, env );
-		processInstance = (WorkflowProcessInstance)
-			ksession.getProcessInstance(processInstanceId);
-		assertNotNull(processInstance);
+        processInstance = (WorkflowProcessInstance)
+            ksession.getProcessInstance(processInstanceId);
+        assertNotNull(processInstance);
         logger.debug("######## Getting the already Persisted Variables #########");
         assertEquals("SomeString->modifiedResult", processInstance.getVariable("x"));
         assertEquals("This is a test Entity", ((MyEntity) processInstance.getVariable("y")).getTest());
@@ -530,7 +530,7 @@ public class VariablePersistenceStrategyTest extends AbstractBaseTest {
         logger.debug("### Retrieving process instance ###");
         ksession = reloadSession( ksession, kbase, env );
         processInstance = (WorkflowProcessInstance)
-        	ksession.getProcessInstance(processInstanceId);
+            ksession.getProcessInstance(processInstanceId);
         assertNotNull(processInstance);
         assertEquals("SomeString->modifiedResult", processInstance.getVariable("x"));
         assertEquals("This is a test Entity", ((MyEntity) processInstance.getVariable("y")).getTest());
@@ -550,24 +550,24 @@ public class VariablePersistenceStrategyTest extends AbstractBaseTest {
 
         ksession = reloadSession( ksession, kbase, env );
         processInstance = (WorkflowProcessInstance)
-			ksession.getProcessInstance(processInstanceId);
+            ksession.getProcessInstance(processInstanceId);
         assertNull(processInstance);
     }
 
     @Test
     public void testEntityWithSuperClassAnnotationField() throws Exception {
-    	MySubEntity subEntity = new MySubEntity();
-    	subEntity.setId(3L);
-    	assertEquals(3L, JPAPlaceholderResolverStrategy.getClassIdValue(subEntity));
+        MySubEntity subEntity = new MySubEntity();
+        subEntity.setId(3L);
+        assertEquals(3L, JPAPlaceholderResolverStrategy.getClassIdValue(subEntity));
     }
-    
+
     @Test
     public void testEntityWithSuperClassAnnotationMethod() throws Exception {
-    	MySubEntityMethods subEntity = new MySubEntityMethods();
-    	subEntity.setId(3L);
-    	assertEquals(3L, JPAPlaceholderResolverStrategy.getClassIdValue(subEntity));
+        MySubEntityMethods subEntity = new MySubEntityMethods();
+        subEntity.setId(3L);
+        assertEquals(3L, JPAPlaceholderResolverStrategy.getClassIdValue(subEntity));
     }
-    
+
     @Test
     public void testAbortWorkItemWithVariablePersistence() throws Exception{
         MyEntity myEntity = new MyEntity("This is a test Entity");
@@ -575,7 +575,7 @@ public class VariablePersistenceStrategyTest extends AbstractBaseTest {
         EntityManager em = emf.createEntityManager();
         UserTransaction utx = (UserTransaction) new InitialContext().lookup( "java:comp/UserTransaction" );
         utx.begin();
-        
+
         em.joinTransaction();
         em.persist(myEntity);
         utx.commit();
@@ -583,18 +583,18 @@ public class VariablePersistenceStrategyTest extends AbstractBaseTest {
         Environment env = createEnvironment();
         KnowledgeBase kbase = createKnowledgeBase( "VPSProcessWithWorkItems.rf" );
         StatefulKnowledgeSession ksession = createSession( kbase , env);
-        
+
         logger.debug("### Starting process ###");
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("x", "SomeString");
         parameters.put("y", myEntity);
         parameters.put("z", myVariableSerializable);
         long processInstanceId = ksession.startProcess( "com.sample.ruleflow", parameters ).getId();
-    
+
         TestWorkItemHandler handler = TestWorkItemHandler.getInstance();
         WorkItem workItem = handler.getWorkItem();
         assertNotNull( workItem );
-    
+
         logger.debug("### Retrieving process instance ###");
         ksession = reloadSession( ksession, kbase , env);
         WorkflowProcessInstance processInstance = (WorkflowProcessInstance)
@@ -606,18 +606,18 @@ public class VariablePersistenceStrategyTest extends AbstractBaseTest {
         assertNull(processInstance.getVariable("a"));
         assertNull(processInstance.getVariable("b"));
         assertNull(processInstance.getVariable("c"));
-    
+
         logger.debug("### Completing first work item ###");
         Map<String, Object> results = new HashMap<String, Object>();
         results.put("zeta", processInstance.getVariable("z"));
         results.put("equis", processInstance.getVariable("x")+"->modifiedResult");
-    
+
         // we simulate a failure here, aborting the work item
         ksession.getWorkItemManager().abortWorkItem( workItem.getId() );
-    
+
         workItem = handler.getWorkItem();
         assertNotNull( workItem );
-    
+
         logger.debug("### Retrieving process instance ###");
         ksession = reloadSession( ksession, kbase, env );
                processInstance = (WorkflowProcessInstance)
@@ -631,12 +631,12 @@ public class VariablePersistenceStrategyTest extends AbstractBaseTest {
         assertEquals("Some new String", processInstance.getVariable("a"));
         assertEquals("This is a new test Entity", ((MyEntity) processInstance.getVariable("b")).getTest());
         assertEquals("This is a new test SerializableObject", ((MyVariableSerializable) processInstance.getVariable("c")).getText());
-    }    
-    
+    }
+
     private StatefulKnowledgeSession createSession(KnowledgeBase kbase, Environment env){
         return JPAKnowledgeService.newStatefulKnowledgeSession( kbase, null, env );
     }
-    
+
     private StatefulKnowledgeSession reloadSession(StatefulKnowledgeSession ksession, KnowledgeBase kbase, Environment env){
         long sessionId = ksession.getIdentifier();
         ksession.dispose();
@@ -656,7 +656,7 @@ public class VariablePersistenceStrategyTest extends AbstractBaseTest {
             }
             fail( errorMessage.toString());
         }
-        
+
         KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
         kbase.addKnowledgePackages( kbuilder.getKnowledgePackages() );
         return kbase;
@@ -670,7 +670,7 @@ public class VariablePersistenceStrategyTest extends AbstractBaseTest {
                                      });
         return env;
     }
-    
+
     private void connect(Node sourceNode,
                          Node targetNode) {
         new ConnectionImpl (sourceNode, Node.CONNECTION_DEFAULT_TYPE,

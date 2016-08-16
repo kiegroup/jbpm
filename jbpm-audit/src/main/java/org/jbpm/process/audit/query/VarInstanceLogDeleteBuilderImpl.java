@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -24,29 +24,29 @@ import org.kie.internal.runtime.manager.audit.query.VariableInstanceLogDeleteBui
 
 public class VarInstanceLogDeleteBuilderImpl extends AbstractAuditDeleteBuilderImpl<VariableInstanceLogDeleteBuilder> implements VariableInstanceLogDeleteBuilder {
 
-    private static String VARIABLE_INSTANCE_LOG_DELETE = 
+    private static String VARIABLE_INSTANCE_LOG_DELETE =
             "DELETE\n"
             + "FROM VariableInstanceLog l\n";
-    
-    
+
+
     public VarInstanceLogDeleteBuilderImpl(CommandExecutor cmdExecutor ) {
         super(cmdExecutor);
         intersect();
     }
-  
-    public VarInstanceLogDeleteBuilderImpl(JPAAuditLogService jpaAuditService) { 
+
+    public VarInstanceLogDeleteBuilderImpl(JPAAuditLogService jpaAuditService) {
        super(jpaAuditService);
        intersect();
     }
 
-	@Override
-	public VariableInstanceLogDeleteBuilder externalId(String... externalId) {
-		if (checkIfNull(externalId) ) { 
-			return this;
-		}
-		addObjectParameter(EXTERNAL_ID_LIST, "external id", externalId);
+    @Override
+    public VariableInstanceLogDeleteBuilder externalId(String... externalId) {
+        if (checkIfNull(externalId) ) {
+            return this;
+        }
+        addObjectParameter(EXTERNAL_ID_LIST, "external id", externalId);
         return this;
-	}
+    }
 
     @Override
     protected Class getQueryType() {

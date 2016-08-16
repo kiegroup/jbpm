@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 
 @WebService(serviceName="SimpleService")
 public class SimpleService {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(SimpleService.class);
 
     @WebMethod(operationName = "hello")
@@ -37,25 +37,25 @@ public class SimpleService {
         logger.info("Hello {}", name);
         return "Hello " + name;
     }
-    
+
     @WebMethod(operationName = "helloException")
     public String helloException(@WebParam(name = "name") String name) {
         logger.info("Throwing error for {}", name);
         throw new RuntimeException("Hello exception " + name);
     }
-    
+
     @WebMethod(operationName = "helloMulti")
     public String helloMulitpleParams(@WebParam(name = "name") String name, @WebParam(name = "lastname") String lastname) {
 
         logger.info("Hello first name {} and last name {}", name, lastname);
         return "Hello " + lastname + ", " + name;
     }
-    
+
     @WebMethod(operationName = "helloMultiInt")
     public String helloMulitpleIntParams(@WebParam(name = "name") int first, @WebParam(name = "lastname") int second) {
 
         logger.info("Got numbers first {} and last {}", first, second);
         return "Hello " + first + ", " + second;
     }
-    
+
 }

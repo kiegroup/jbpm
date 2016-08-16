@@ -26,21 +26,21 @@ import org.kie.internal.command.Context;
 @XmlAccessorType(XmlAccessType.NONE)
 public class RemoveUserCommand extends TaskCommand<Void> {
 
-	private static final long serialVersionUID = 7393379209067431866L;
-	
+    private static final long serialVersionUID = 7393379209067431866L;
+
     public RemoveUserCommand() {
     }
 
     public RemoveUserCommand(String userId) {
-    	this.userId = userId;
+        this.userId = userId;
     }
 
 
     public Void execute(Context cntxt) {
         TaskContext context = (TaskContext) cntxt;
-                
+
         context.getTaskIdentityService().removeUser(userId);
         return null;
-    	 
+
     }
 }

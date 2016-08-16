@@ -24,16 +24,16 @@ import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 public class RuleFlowProcessInstance extends WorkflowProcessInstanceImpl {
 
     private static final long serialVersionUID = 510l;
-    
+
     public RuleFlowProcess getRuleFlowProcess() {
         return (RuleFlowProcess) getProcess();
     }
 
     public void internalStart(String trigger) {
-    	StartNode startNode = getRuleFlowProcess().getStart(trigger);
-    	if (startNode != null) {
-    		((NodeInstance) getNodeInstance(startNode)).trigger(null, null);
-    	}
+        StartNode startNode = getRuleFlowProcess().getStart(trigger);
+        if (startNode != null) {
+            ((NodeInstance) getNodeInstance(startNode)).trigger(null, null);
+        }
     }
 
 }

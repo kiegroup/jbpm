@@ -30,31 +30,31 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Default implementation of the RuntimeEnvironment that aims at providing all 
+ * Default implementation of the RuntimeEnvironment that aims at providing all
  * common settings with a minimum need for configuration.
- * 
+ *
  * It automatically configures the following components:
  * <ul>
  *  <li>uses <code>DefaultRegisterableItemsFactory</code> to provide work item handlers and event listeners instances</li>
  *  <li>EntityManagerFactory - if non given uses persistence unit with "org.jbpm.persistence.jpa" name</li>
- *  <li>SchedulerService - if non given tries to discover if Quartz based scheduler shall be used by checking if 
+ *  <li>SchedulerService - if non given tries to discover if Quartz based scheduler shall be used by checking if
  *  "org.quartz.properties" system property is given, if not uses ThreadPool based scheduler with thread pool size set to 3</li>
  *  <li>uses simple MVEL based UserGroupCallback that requires mvel files for users and groups to be present on classpath</li>
  * </ul>
  *
  */
 public class DefaultRuntimeEnvironment extends SimpleRuntimeEnvironment {
-	
-	private static final Logger logger = LoggerFactory.getLogger(DefaultRuntimeEnvironment.class);
+
+    private static final Logger logger = LoggerFactory.getLogger(DefaultRuntimeEnvironment.class);
 
     public DefaultRuntimeEnvironment() {
         this(null, discoverSchedulerService());
     }
-    
+
     public DefaultRuntimeEnvironment(EntityManagerFactory emf) {
         this(emf, discoverSchedulerService());
     }
-    
+
     public DefaultRuntimeEnvironment(EntityManagerFactory emf, GlobalSchedulerService globalSchedulerService) {
         super(new DefaultRegisterableItemsFactory());
         this.emf = emf;
@@ -62,18 +62,18 @@ public class DefaultRuntimeEnvironment extends SimpleRuntimeEnvironment {
         this.usePersistence = true;
         this.userGroupCallback = UserDataServiceProvider.getUserGroupCallback();
     }
-    
+
     public DefaultRuntimeEnvironment(EntityManagerFactory emf, boolean usePersistence) {
         this(emf, null);
         this.usePersistence = usePersistence;
         this.emf = emf;
         this.userGroupCallback = UserDataServiceProvider.getUserGroupCallback();
     }
-    
+
     public void init() {
         if (usePersistence && emf == null && getEnvironmentTemplate().get(EnvironmentName.CMD_SCOPED_ENTITY_MANAGER) == null) {
             emf = EntityManagerFactoryManager.get().getOrCreate("org.jbpm.persistence.jpa");
-        }   
+        }
         addToEnvironment(EnvironmentName.ENTITY_MANAGER_FACTORY, emf);
         if (this.mapper == null) {
             if (this.usePersistence) {
@@ -83,25 +83,25 @@ public class DefaultRuntimeEnvironment extends SimpleRuntimeEnvironment {
             }
         }
     }
-    
+
     protected static GlobalSchedulerService discoverSchedulerService() {
         if (System.getProperty("org.quartz.properties") != null) {
             return new QuartzSchedulerService();
         } else {
-        	// if there is ejb scheduler service available make use of it unless it's disabled
-        	if (!"true".equalsIgnoreCase(System.getProperty("org.kie.timer.ejb.disabled"))) {
-	        	try {
-	        		Class<?> clazz = Class.forName("org.jbpm.services.ejb.timer.EjbSchedulerService");
-	        		// to ensure ejb timer service is actually available let's jndi look up
-	        		InitialContext.doLookup("java:module/EJBTimerScheduler");
-	        		return (GlobalSchedulerService) clazz.newInstance();
-	        	} catch (Exception e) {
-	        		logger.debug("Unable to find on initialize ejb schduler service due to {}", e.getMessage());
-	        	}
-        	}
+            // if there is ejb scheduler service available make use of it unless it's disabled
+            if (!"true".equalsIgnoreCase(System.getProperty("org.kie.timer.ejb.disabled"))) {
+                try {
+                    Class<?> clazz = Class.forName("org.jbpm.services.ejb.timer.EjbSchedulerService");
+                    // to ensure ejb timer service is actually available let's jndi look up
+                    InitialContext.doLookup("java:module/EJBTimerScheduler");
+                    return (GlobalSchedulerService) clazz.newInstance();
+                } catch (Exception e) {
+                    logger.debug("Unable to find on initialize ejb schduler service due to {}", e.getMessage());
+                }
+            }
         }
         return new ThreadPoolSchedulerService(3);
-        
+
     }
 
 }

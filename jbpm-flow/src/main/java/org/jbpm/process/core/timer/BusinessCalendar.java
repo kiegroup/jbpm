@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -24,12 +24,12 @@ public interface BusinessCalendar {
 
     /**
      * Calculates given time expression into duration in milliseconds based on calendar configuration.
-     * 
+     *
      * @param timeExpression time expression that is supported by business calendar implementation.
      * @return duration expressed in milliseconds
      */
     public long calculateBusinessTimeAsDuration(String timeExpression);
-    
+
     /**
      * Calculates given time expression into target date based on calendar configuration.
      * @param timeExpression time expression that is supported by business calendar implementation.

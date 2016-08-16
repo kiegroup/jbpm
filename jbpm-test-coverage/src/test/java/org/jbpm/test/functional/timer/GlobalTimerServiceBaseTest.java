@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -75,19 +75,19 @@ import org.slf4j.LoggerFactory;
 
 
 public abstract class GlobalTimerServiceBaseTest extends TimerBaseTest{
-    
+
     protected static final Logger logger = LoggerFactory.getLogger(GlobalTimerServiceBaseTest.class);
-    
+
     protected GlobalSchedulerService globalScheduler;
     protected RuntimeManager manager;
     protected RuntimeEnvironment environment;
-    
+
     protected EntityManagerFactory emf;
-   
+
     protected abstract RuntimeManager getManager(RuntimeEnvironment environment, boolean waitOnStart);
-      
-    
-    
+
+
+
     public void cleanup() {
         if (manager != null) {
             manager.close();
@@ -116,12 +116,12 @@ public abstract class GlobalTimerServiceBaseTest extends TimerBaseTest{
                     timerExporations.add(event.getProcessInstance().getId());
                 }
             }
-            
+
         };
-        
+
         environment = RuntimeEnvironmentBuilder.Factory.get()
-    			.newDefaultBuilder()
-    			.entityManagerFactory(emf)
+                .newDefaultBuilder()
+                .entityManagerFactory(emf)
                 .addAsset(ResourceFactory.newClassPathResource("org/jbpm/test/functional/timer/IntermediateCatchEventTimerCycle3.bpmn2"), ResourceType.BPMN2)
                 .schedulerService(globalScheduler)
                 .registerableItemsFactory(new TestRegisterableItemsFactory(listener, countDownListener))
@@ -132,8 +132,8 @@ public abstract class GlobalTimerServiceBaseTest extends TimerBaseTest{
 
         RuntimeEngine runtime = manager.getRuntimeEngine(ProcessInstanceIdContext.get());
         KieSession ksession = runtime.getKieSession();
-        
-        
+
+
         ProcessInstance processInstance = ksession.startProcess("IntermediateCatchEvent");
         assertTrue(processInstance.getState() == ProcessInstance.STATE_ACTIVE);
         // now wait for 1 second for first timer to trigger
@@ -141,24 +141,24 @@ public abstract class GlobalTimerServiceBaseTest extends TimerBaseTest{
         // dispose session to force session to be reloaded on timer expiration
         manager.disposeRuntimeEngine(runtime);
         Thread.sleep(2000);
-        
+
         try {
             runtime = manager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstance.getId()));
             ksession = runtime.getKieSession();
-    
-            
-            processInstance = ksession.getProcessInstance(processInstance.getId());        
+
+
+            processInstance = ksession.getProcessInstance(processInstance.getId());
             assertNull(processInstance);
         } catch (SessionNotFoundException e) {
             // expected for PerProcessInstanceManagers since process instance is completed
         }
         // let's wait to ensure no more timers are expired and triggered
         countDownListener.waitTillCompleted();
-        
+
         assertEquals(3, timerExporations.size());
         manager.disposeRuntimeEngine(runtime);
     }
-    
+
     @Test(timeout=20000)
     public void testTimerStart() throws Exception {
         CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("StartProcess", 5);
@@ -172,23 +172,23 @@ public abstract class GlobalTimerServiceBaseTest extends TimerBaseTest{
             }
 
         };
-        
+
         environment = RuntimeEnvironmentBuilder.Factory.get()
-    			.newDefaultBuilder()
-    			.entityManagerFactory(emf)
+                .newDefaultBuilder()
+                .entityManagerFactory(emf)
                 .addAsset(ResourceFactory.newClassPathResource("org/jbpm/test/functional/timer/TimerStart2.bpmn2"), ResourceType.BPMN2)
                 .schedulerService(globalScheduler)
                 .registerableItemsFactory(new TestRegisterableItemsFactory(listener, countDownListener))
                 .get();
-        
+
         manager = getManager(environment, false);
         RuntimeEngine runtime = manager.getRuntimeEngine(ProcessInstanceIdContext.get());
         KieSession ksession = runtime.getKieSession();
-        
+
         assertEquals(0, timerExporations.size());
-       
+
         countDownListener.waitTillCompleted();
-        
+
         manager.disposeRuntimeEngine(runtime);
         assertEquals(5, timerExporations.size());
 
@@ -209,26 +209,26 @@ public abstract class GlobalTimerServiceBaseTest extends TimerBaseTest{
             }
 
         };
-        
+
         environment = RuntimeEnvironmentBuilder.Factory.get()
-    			.newDefaultBuilder()
-    			.entityManagerFactory(emf)
+                .newDefaultBuilder()
+                .entityManagerFactory(emf)
                 .addAsset(ResourceFactory.newClassPathResource("org/jbpm/test/functional/timer/timer-rules.drl"), ResourceType.DRL)
                 .schedulerService(globalScheduler)
                 .registerableItemsFactory(new TestRegisterableItemsFactory(listener))
                 .get();
-        
+
         manager = getManager(environment, true);
         RuntimeEngine runtime = manager.getRuntimeEngine(ProcessInstanceIdContext.get());
-        
+
         assertEquals(0, timerExporations.size());
         boolean didNotWait = timerCompleted.await(6, TimeUnit.SECONDS);
         assertTrue("Too many timers elapsed: " + (badNumTimers - timerCompleted.getCount()), ! didNotWait );
-        
+
         manager.disposeRuntimeEngine(runtime);
         assertEquals(5, timerExporations.size());
     }
-    
+
     @Test(timeout=20000)
     public void testInterediateTimerWithHTAfterWithGlobalTestService() throws Exception {
         CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("timer", 3);
@@ -242,7 +242,7 @@ public abstract class GlobalTimerServiceBaseTest extends TimerBaseTest{
                     timerExpirations.add(event.getProcessInstance().getId());
                 }
             }
-            
+
         };
         Properties properties= new Properties();
         properties.setProperty("mary", "HR");
@@ -250,18 +250,18 @@ public abstract class GlobalTimerServiceBaseTest extends TimerBaseTest{
         UserGroupCallback userGroupCallback = new JBossUserGroupCallbackImpl(properties);
 
         environment = RuntimeEnvironmentBuilder.Factory.get()
-    			.newDefaultBuilder()
-    			.entityManagerFactory(emf)
+                .newDefaultBuilder()
+                .entityManagerFactory(emf)
                 .addAsset(ResourceFactory.newClassPathResource("org/jbpm/test/functional/timer/IntermediateCatchEventTimerCycleWithHT.bpmn2"), ResourceType.BPMN2)
                 .schedulerService(globalScheduler)
                 .registerableItemsFactory(new TestRegisterableItemsFactory(listener, countDownListener))
                 .userGroupCallback(userGroupCallback)
                 .get();
-       
+
         manager = getManager(environment, true);
         RuntimeEngine runtime = manager.getRuntimeEngine(ProcessInstanceIdContext.get());
         KieSession ksession = runtime.getKieSession();
-        
+
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("x", "R3/PT1S");
         ProcessInstance processInstance = ksession.startProcess("IntermediateCatchEvent", params);
@@ -269,36 +269,36 @@ public abstract class GlobalTimerServiceBaseTest extends TimerBaseTest{
         logger.debug("Disposed after start");
         // dispose session to force session to be reloaded on timer expiration
         manager.disposeRuntimeEngine(runtime);
-        
+
         countDownListener.waitTillCompleted();
         countDownListener.reset(1);
-        
+
         runtime = manager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstance.getId()));
         ksession = runtime.getKieSession();
-        
+
         // get tasks
         List<Status> statuses = new ArrayList<Status>();
         statuses.add(Status.Reserved);
         List<TaskSummary> tasks = runtime.getTaskService().getTasksAssignedAsPotentialOwnerByStatus("john", statuses, "en-UK");
         assertNotNull(tasks);
         assertEquals(3, tasks.size());
-        
+
         for (TaskSummary task : tasks) {
             runtime.getTaskService().start(task.getId(), "john");
             runtime.getTaskService().complete(task.getId(), "john", null);
         }
-        
-        
-        processInstance = ksession.getProcessInstance(processInstance.getId());        
+
+
+        processInstance = ksession.getProcessInstance(processInstance.getId());
         assertNull(processInstance);
         // let's wait to ensure no more timers are expired and triggered
         countDownListener.waitTillCompleted(3000);
-        
+
         manager.disposeRuntimeEngine(runtime);
 
         assertEquals(3, timerExpirations.size());
     }
-    
+
     @Test(timeout=20000)
     public void testInterediateTimerWithHTBeforeWithGlobalTestService() throws Exception {
         CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("timer", 3);
@@ -310,41 +310,41 @@ public abstract class GlobalTimerServiceBaseTest extends TimerBaseTest{
             public void afterNodeLeft(ProcessNodeLeftEvent event) {
                 if (event.getNodeInstance().getNodeName().equals("timer")) {
                     timerExporations.add(event.getProcessInstance().getId());
-                    
+
                 }
             }
-            
+
         };
         Properties properties= new Properties();
         properties.setProperty("mary", "HR");
         properties.setProperty("john", "HR");
         UserGroupCallback userGroupCallback = new JBossUserGroupCallbackImpl(properties);
         environment = RuntimeEnvironmentBuilder.Factory.get()
-    			.newDefaultBuilder()
-    			.entityManagerFactory(emf)
+                .newDefaultBuilder()
+                .entityManagerFactory(emf)
                 .addAsset(ResourceFactory.newClassPathResource("org/jbpm/test/functional/timer/IntermediateCatchEventTimerCycleWithHT2.bpmn2"), ResourceType.BPMN2)
                 .schedulerService(globalScheduler)
                 .registerableItemsFactory(new TestRegisterableItemsFactory(listener, countDownListener))
                 .userGroupCallback(userGroupCallback)
                 .get();
-                
+
         manager = getManager(environment, true);
         RuntimeEngine runtime = manager.getRuntimeEngine(ProcessInstanceIdContext.get());
         KieSession ksession = runtime.getKieSession();
-        
-        
+
+
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("x", "R3/PT1S");
         ProcessInstance processInstance = ksession.startProcess("IntermediateCatchEvent", params);
         assertTrue(processInstance.getState() == ProcessInstance.STATE_ACTIVE);
-        
+
         // get tasks
         List<Status> statuses = new ArrayList<Status>();
         statuses.add(Status.Reserved);
         List<TaskSummary> tasks = runtime.getTaskService().getTasksAssignedAsPotentialOwnerByStatus("john", statuses, "en-UK");
         assertNotNull(tasks);
         assertEquals(1, tasks.size());
-        
+
         for (TaskSummary task : tasks) {
             runtime.getTaskService().start(task.getId(), "john");
             runtime.getTaskService().complete(task.getId(), "john", null);
@@ -358,27 +358,27 @@ public abstract class GlobalTimerServiceBaseTest extends TimerBaseTest{
         try {
             runtime = manager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstance.getId()));
             ksession = runtime.getKieSession();
-    
-            
-            processInstance = ksession.getProcessInstance(processInstance.getId());        
+
+
+            processInstance = ksession.getProcessInstance(processInstance.getId());
             assertNull(processInstance);
         } catch (SessionNotFoundException e) {
             // expected for PerProcessInstanceManagers since process instance is completed
         }
         // let's wait to ensure no more timers are expired and triggered
         countDownListener.waitTillCompleted(3000);
-   
+
         manager.disposeRuntimeEngine(runtime);
 
         assertEquals(3, timerExporations.size());
     }
-    
+
     @Test(timeout=20000)
     public void testInterediateTimerWithGlobalTestServiceRollback() throws Exception {
-        
+
         environment = RuntimeEnvironmentBuilder.Factory.get()
-    			.newDefaultBuilder()
-    			.entityManagerFactory(emf)
+                .newDefaultBuilder()
+                .entityManagerFactory(emf)
                 .addAsset(ResourceFactory.newClassPathResource("org/jbpm/test/functional/timer/IntermediateCatchEventTimerCycle3.bpmn2"), ResourceType.BPMN2)
                 .schedulerService(globalScheduler)
                 .get();
@@ -406,54 +406,54 @@ public abstract class GlobalTimerServiceBaseTest extends TimerBaseTest{
             processInstance = runtime.getKieSession().getProcessInstance(processInstance.getId());
             assertNull(processInstance);
         } catch (SessionNotFoundException e) {
-            
+
         }
 
         TimerService timerService = TimerServiceRegistry.getInstance().get(manager.getIdentifier()+TimerServiceRegistry.TIMER_SERVICE_SUFFIX);
         Collection<TimerJobInstance> timerInstances = timerService.getTimerJobInstances(ksessionId);
         assertNotNull(timerInstances);
         assertEquals(0, timerInstances.size());
-        
+
         if (runtime != null) {
             manager.disposeRuntimeEngine(runtime);
         }
     }
-    
+
     @Test(timeout=20000)
     public void testInterediateTimerWithHTBeforeWithGlobalTestServiceRollback() throws Exception {
-        
+
         // prepare listener to assert results
         Properties properties= new Properties();
         properties.setProperty("mary", "HR");
         properties.setProperty("john", "HR");
         UserGroupCallback userGroupCallback = new JBossUserGroupCallbackImpl(properties);
         environment = RuntimeEnvironmentBuilder.Factory.get()
-    			.newDefaultBuilder()
-    			.entityManagerFactory(emf)
+                .newDefaultBuilder()
+                .entityManagerFactory(emf)
                 .addAsset(ResourceFactory.newClassPathResource("org/jbpm/test/functional/timer/IntermediateCatchEventTimerCycleWithHT2.bpmn2"), ResourceType.BPMN2)
                 .schedulerService(globalScheduler)
                 .userGroupCallback(userGroupCallback)
                 .get();
-        
+
         manager = getManager(environment, true);
         RuntimeEngine runtime = manager.getRuntimeEngine(ProcessInstanceIdContext.get());
         KieSession ksession = runtime.getKieSession();
-        
-        
+
+
         long ksessionId = ksession.getIdentifier();
-        
+
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("x", "R3/PT1S");
         ProcessInstance processInstance = ksession.startProcess("IntermediateCatchEvent", params);
         assertTrue(processInstance.getState() == ProcessInstance.STATE_ACTIVE);
-        
+
         // get tasks
         List<Status> statuses = new ArrayList<Status>();
         statuses.add(Status.Reserved);
         List<TaskSummary> tasks = runtime.getTaskService().getTasksAssignedAsPotentialOwnerByStatus("john", statuses, "en-UK");
         assertNotNull(tasks);
         assertEquals(1, tasks.size());
-        
+
         TaskSummary task = tasks.get(0);
         runtime.getTaskService().start(task.getId(), "john");
         UserTransaction ut = InitialContext.doLookup("java:comp/UserTransaction");
@@ -463,7 +463,7 @@ public abstract class GlobalTimerServiceBaseTest extends TimerBaseTest{
         } finally {
             ut.rollback();
         }
-        
+
         processInstance = ksession.getProcessInstance(processInstance.getId());
         Collection<NodeInstance> activeNodes = ((WorkflowProcessInstance)processInstance).getNodeInstances();
         assertNotNull(activeNodes);
@@ -474,14 +474,14 @@ public abstract class GlobalTimerServiceBaseTest extends TimerBaseTest{
         Collection<TimerJobInstance> timerInstances = timerService.getTimerJobInstances(ksessionId);
         assertNotNull(timerInstances);
         assertEquals(0, timerInstances.size());
-        
+
         // clean up
         ksession.abortProcessInstance(processInstance.getId());
-        
+
         manager.disposeRuntimeEngine(runtime);
 
     }
-    
+
     @Test(timeout=20000)
     public void testInterediateBoundaryTimerWithGlobalTestServiceRollback() throws Exception {
         Properties properties= new Properties();
@@ -489,8 +489,8 @@ public abstract class GlobalTimerServiceBaseTest extends TimerBaseTest{
         properties.setProperty("john", "HR");
         UserGroupCallback userGroupCallback = new JBossUserGroupCallbackImpl(properties);
         environment = RuntimeEnvironmentBuilder.Factory.get()
-    			.newDefaultBuilder()
-    			.entityManagerFactory(emf)
+                .newDefaultBuilder()
+                .entityManagerFactory(emf)
                 .addAsset(ResourceFactory.newClassPathResource("org/jbpm/test/functional/timer/HumanTaskWithBoundaryTimer.bpmn"), ResourceType.BPMN2)
                 .schedulerService(globalScheduler)
                 .userGroupCallback(userGroupCallback)
@@ -521,25 +521,25 @@ public abstract class GlobalTimerServiceBaseTest extends TimerBaseTest{
             processInstance = runtime.getKieSession().getProcessInstance(processInstance.getId());
             assertNull(processInstance);
         } catch (SessionNotFoundException e) {
-            
+
         }
 
         TimerService timerService = TimerServiceRegistry.getInstance().get(manager.getIdentifier()+TimerServiceRegistry.TIMER_SERVICE_SUFFIX);
         Collection<TimerJobInstance> timerInstances = timerService.getTimerJobInstances(ksessionId);
         assertNotNull(timerInstances);
         assertEquals(0, timerInstances.size());
-        
+
         if (runtime != null) {
             manager.disposeRuntimeEngine(runtime);
         }
     }
-    
+
     @Test
     public void testHumanTaskDeadlineWithGlobalTimerService() throws Exception {
-        
+
         environment = RuntimeEnvironmentBuilder.Factory.get()
-    			.newDefaultBuilder()
-    			.entityManagerFactory(emf)
+                .newDefaultBuilder()
+                .entityManagerFactory(emf)
                 .addAsset(ResourceFactory.newClassPathResource("org/jbpm/test/functional/timer/HumanTaskWithDeadlines.bpmn"), ResourceType.BPMN2)
                 .schedulerService(globalScheduler)
                 .get();
@@ -549,30 +549,30 @@ public abstract class GlobalTimerServiceBaseTest extends TimerBaseTest{
 
         RuntimeEngine runtime = manager.getRuntimeEngine(ProcessInstanceIdContext.get());
         KieSession ksession = runtime.getKieSession();
-        
-        
+
+
         ProcessInstance processInstance = ksession.startProcess("htdeadlinetest");
         assertTrue(processInstance.getState() == ProcessInstance.STATE_ACTIVE);
-        
+
         List<TaskSummary> krisTasks = runtime.getTaskService().getTasksAssignedAsPotentialOwner("krisv", "en-UK");
         assertEquals(1, krisTasks.size());
         List<TaskSummary> johnTasks = runtime.getTaskService().getTasksAssignedAsPotentialOwner("john", "en-UK");
         assertEquals(0, johnTasks.size());
         List<TaskSummary> maryTasks = runtime.getTaskService().getTasksAssignedAsPotentialOwner("mary", "en-UK");
         assertEquals(0, maryTasks.size());
-        
+
         // now wait for 2 seconds for first reassignment
         Thread.sleep(3000);
-        
+
         krisTasks = runtime.getTaskService().getTasksAssignedAsPotentialOwner("krisv", "en-UK");
         assertEquals(0, krisTasks.size());
         johnTasks = runtime.getTaskService().getTasksAssignedAsPotentialOwner("john", "en-UK");
         assertEquals(1, johnTasks.size());
         maryTasks = runtime.getTaskService().getTasksAssignedAsPotentialOwner("mary", "en-UK");
         assertEquals(0, maryTasks.size());
-        
+
         runtime.getTaskService().start(johnTasks.get(0).getId(), "john");
-        
+
         // now wait for 2 more seconds for second reassignment
         Thread.sleep(2000);
         krisTasks = runtime.getTaskService().getTasksAssignedAsPotentialOwner("krisv", "en-UK");
@@ -581,10 +581,10 @@ public abstract class GlobalTimerServiceBaseTest extends TimerBaseTest{
         assertEquals(1, johnTasks.size());
         maryTasks = runtime.getTaskService().getTasksAssignedAsPotentialOwner("mary", "en-UK");
         assertEquals(0, maryTasks.size());
-        
+
         // now wait for 1 seconds to make sure that reassignment did not happen any more since task was already started
         Thread.sleep(3000);
-        
+
         krisTasks = runtime.getTaskService().getTasksAssignedAsPotentialOwner("krisv", "en-UK");
         assertEquals(0, krisTasks.size());
         johnTasks = runtime.getTaskService().getTasksAssignedAsPotentialOwner("john", "en-UK");
@@ -593,23 +593,23 @@ public abstract class GlobalTimerServiceBaseTest extends TimerBaseTest{
         assertEquals(1, maryTasks.size());
         runtime.getTaskService().start(maryTasks.get(0).getId(), "mary");
         runtime.getTaskService().complete(maryTasks.get(0).getId(), "mary", null);
-        
+
         // now wait for 2 seconds to make sure that reassignment did not happen any more since task was completed
         Thread.sleep(2000);
-        
-        processInstance = ksession.getProcessInstance(processInstance.getId());        
+
+        processInstance = ksession.getProcessInstance(processInstance.getId());
         assertNull(processInstance);
 
         manager.disposeRuntimeEngine(runtime);
-        
+
     }
-    
+
     @Test
     public void testHumanTaskDeadlineWithGlobalTimerServiceMultipleInstances() throws Exception {
-        
+
         environment = RuntimeEnvironmentBuilder.Factory.get()
-    			.newDefaultBuilder()
-    			.entityManagerFactory(emf)
+                .newDefaultBuilder()
+                .entityManagerFactory(emf)
                 .addAsset(ResourceFactory.newClassPathResource("org/jbpm/test/functional/timer/HumanTaskWithDeadlines.bpmn"), ResourceType.BPMN2)
                 .schedulerService(globalScheduler)
                 .get();
@@ -619,39 +619,39 @@ public abstract class GlobalTimerServiceBaseTest extends TimerBaseTest{
 
         RuntimeEngine runtime = manager.getRuntimeEngine(ProcessInstanceIdContext.get());
         KieSession ksession = runtime.getKieSession();
-        
-        
+
+
         ProcessInstance processInstance = ksession.startProcess("htdeadlinetest");
-        
+
         RuntimeEngine runtime2 = manager.getRuntimeEngine(ProcessInstanceIdContext.get());
         KieSession ksession2 = runtime2.getKieSession();
         ProcessInstance processInstance2 = ksession2.startProcess("htdeadlinetest");
-        
+
         // abort second instance to trigger unschedule of deadlines
         ksession2.abortProcessInstance(processInstance2.getId());
         manager.disposeRuntimeEngine(runtime2);
-        
+
         assertTrue(processInstance.getState() == ProcessInstance.STATE_ACTIVE);
-        
+
         List<TaskSummary> krisTasks = runtime.getTaskService().getTasksAssignedAsPotentialOwner("krisv", "en-UK");
         assertEquals(1, krisTasks.size());
         List<TaskSummary> johnTasks = runtime.getTaskService().getTasksAssignedAsPotentialOwner("john", "en-UK");
         assertEquals(0, johnTasks.size());
         List<TaskSummary> maryTasks = runtime.getTaskService().getTasksAssignedAsPotentialOwner("mary", "en-UK");
         assertEquals(0, maryTasks.size());
-        
+
         // now wait for 2 seconds for first reassignment
         Thread.sleep(3000);
-        
+
         krisTasks = runtime.getTaskService().getTasksAssignedAsPotentialOwner("krisv", "en-UK");
         assertEquals(0, krisTasks.size());
         johnTasks = runtime.getTaskService().getTasksAssignedAsPotentialOwner("john", "en-UK");
         assertEquals(1, johnTasks.size());
         maryTasks = runtime.getTaskService().getTasksAssignedAsPotentialOwner("mary", "en-UK");
         assertEquals(0, maryTasks.size());
-        
+
         runtime.getTaskService().start(johnTasks.get(0).getId(), "john");
-        
+
         // now wait for 2 more seconds for second reassignment
         Thread.sleep(2000);
         krisTasks = runtime.getTaskService().getTasksAssignedAsPotentialOwner("krisv", "en-UK");
@@ -660,10 +660,10 @@ public abstract class GlobalTimerServiceBaseTest extends TimerBaseTest{
         assertEquals(1, johnTasks.size());
         maryTasks = runtime.getTaskService().getTasksAssignedAsPotentialOwner("mary", "en-UK");
         assertEquals(0, maryTasks.size());
-        
+
         // now wait for 1 seconds to make sure that reassignment did not happen any more since task was already started
         Thread.sleep(3000);
-        
+
         krisTasks = runtime.getTaskService().getTasksAssignedAsPotentialOwner("krisv", "en-UK");
         assertEquals(0, krisTasks.size());
         johnTasks = runtime.getTaskService().getTasksAssignedAsPotentialOwner("john", "en-UK");
@@ -672,23 +672,23 @@ public abstract class GlobalTimerServiceBaseTest extends TimerBaseTest{
         assertEquals(1, maryTasks.size());
         runtime.getTaskService().start(maryTasks.get(0).getId(), "mary");
         runtime.getTaskService().complete(maryTasks.get(0).getId(), "mary", null);
-        
+
         // now wait for 2 seconds to make sure that reassignment did not happen any more since task was completed
         Thread.sleep(2000);
         try {
-	        runtime = manager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstance.getId()));
-	        ksession = runtime.getKieSession();
-	        
-	        processInstance = ksession.getProcessInstance(processInstance.getId());        
-	        assertNull(processInstance);
+            runtime = manager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstance.getId()));
+            ksession = runtime.getKieSession();
+
+            processInstance = ksession.getProcessInstance(processInstance.getId());
+            assertNull(processInstance);
         } catch (SessionNotFoundException e) {
-        	// this can be thrown for per process instance strategy as instance has already been completed
+            // this can be thrown for per process instance strategy as instance has already been completed
         }
 
         manager.disposeRuntimeEngine(runtime);
-        
+
     }
-    
+
     @Test(timeout=20000)
     public void testInterediateTimerWithGlobalTestServiceSimulateCMT() throws Exception {
         CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("timer", 3);
@@ -702,9 +702,9 @@ public abstract class GlobalTimerServiceBaseTest extends TimerBaseTest{
                     timerExporations.add(event.getProcessInstance().getId());
                 }
             }
-            
+
         };
-        
+
         Properties properties= new Properties();
         properties.setProperty("mary", "HR");
         properties.setProperty("john", "HR");
@@ -715,12 +715,12 @@ public abstract class GlobalTimerServiceBaseTest extends TimerBaseTest{
         env.set(EnvironmentName.ENTITY_MANAGER_FACTORY, emf);
         env.set(EnvironmentName.TRANSACTION_MANAGER, tm);
         environment = RuntimeEnvironmentBuilder.Factory.get()
-    			.newDefaultBuilder()
-    			.entityManagerFactory(emf)
+                .newDefaultBuilder()
+                .entityManagerFactory(emf)
                 .addAsset(ResourceFactory.newClassPathResource("org/jbpm/test/functional/timer/IntermediateCatchEventTimerCycleWithHT2.bpmn2"), ResourceType.BPMN2)
                 .addEnvironmentEntry(EnvironmentName.TRANSACTION_MANAGER, tm)
                 .addEnvironmentEntry(EnvironmentName.PERSISTENCE_CONTEXT_MANAGER, new JpaProcessPersistenceContextManager(env))
-        		.addEnvironmentEntry(EnvironmentName.TASK_PERSISTENCE_CONTEXT_MANAGER, new JPATaskPersistenceContextManager(env))                
+                .addEnvironmentEntry(EnvironmentName.TASK_PERSISTENCE_CONTEXT_MANAGER, new JPATaskPersistenceContextManager(env))
                 .schedulerService(globalScheduler)
                 .registerableItemsFactory(new TestRegisterableItemsFactory(listener, countDownListener))
                 .userGroupCallback(userGroupCallback)
@@ -747,9 +747,9 @@ public abstract class GlobalTimerServiceBaseTest extends TimerBaseTest{
         }
 
         assertTrue(processInstance.getState() == ProcessInstance.STATE_ACTIVE);
-        
-        
-        
+
+
+
         ut = InitialContext.doLookup("java:comp/UserTransaction");
         try {
             ut.begin();
@@ -778,7 +778,7 @@ public abstract class GlobalTimerServiceBaseTest extends TimerBaseTest{
         // now wait for 1 second for first timer to trigger
         countDownListener.waitTillCompleted();
         countDownListener.reset(1);
-        
+
         ut = InitialContext.doLookup("java:comp/UserTransaction");
         try {
             ut.begin();
@@ -800,25 +800,25 @@ public abstract class GlobalTimerServiceBaseTest extends TimerBaseTest{
 
         // let's wait to ensure no more timers are expired and triggered
         countDownListener.waitTillCompleted(3000);
-        
+
         assertEquals(3, timerExporations.size());
     }
-    
-    
+
+
     public static void cleanupSingletonSessionId() {
         File tempDir = new File(System.getProperty("java.io.tmpdir"));
         if (tempDir.exists()) {
-            
+
             String[] jbpmSerFiles = tempDir.list(new FilenameFilter() {
-                
+
                 @Override
                 public boolean accept(File dir, String name) {
-                    
+
                     return name.endsWith("-jbpmSessionId.ser");
                 }
             });
             for (String file : jbpmSerFiles) {
-                
+
                 new File(tempDir, file).delete();
             }
         }

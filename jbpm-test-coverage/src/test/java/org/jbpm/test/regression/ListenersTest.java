@@ -65,7 +65,7 @@ public class ListenersTest extends JbpmTestCase {
         Properties properties = new Properties();
         properties.setProperty("drools.processSignalManagerFactory", DefaultSignalManagerFactory.class.getName());
         properties.setProperty("drools.processInstanceManagerFactory", DefaultProcessInstanceManagerFactory.class.getName());
-        
+
         this.kieSession = kieContainer.newKieSession((Environment) null, ks.newKieSessionConfiguration(properties));
     }
 

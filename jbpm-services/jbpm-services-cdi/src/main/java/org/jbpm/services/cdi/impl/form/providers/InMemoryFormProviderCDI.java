@@ -20,7 +20,7 @@ import org.jbpm.kie.services.impl.FormManagerService;
 import org.jbpm.kie.services.impl.form.provider.InMemoryFormProvider;
 
 public class InMemoryFormProviderCDI extends InMemoryFormProvider {
-    
+
     @Inject
     @Override
     public void setFormManagerService(FormManagerService formManagerService){

@@ -63,7 +63,7 @@ public class XPATHActionBuilder
 //                        }
 //                    } );;
     }
-    
+
     public XPATHActionBuilder() {
 
     }
@@ -86,26 +86,26 @@ public class XPATHActionBuilder
 //                                                                    dialect.getInterceptors(),
 //                                                                    text,
 //                                                                    new Map[]{variables, context.getPackageBuilder().getGlobals()},
-//                                                                    null );                       
+//                                                                    null );
 //
 //
 //            List<String> variableNames = analysis.getNotBoundedIdentifiers();
 //            if (contextResolver != null) {
-//	            for (String variableName: variableNames) {
-//	            	VariableScope variableScope = (VariableScope) contextResolver.resolveContext(VariableScope.VARIABLE_SCOPE, variableName);
-//	            	if (variableScope == null) {
-//	            		context.getErrors().add(
-//	        				new DescrBuildError(
-//	    						context.getParentDescr(),
-//	                            actionDescr,
-//	                            null,
-//	                            "Could not find variable '" + variableName + "' for action '" + actionDescr.getText() + "'" ) );            		
-//	            	} else {
-//	            		variables.put(variableName,
-//            				context.getDialect().getTypeResolver().resolveType(
-//        						variableScope.findVariable(variableName).getType().getStringType()));
-//	            	}
-//	            }
+//              for (String variableName: variableNames) {
+//                  VariableScope variableScope = (VariableScope) contextResolver.resolveContext(VariableScope.VARIABLE_SCOPE, variableName);
+//                  if (variableScope == null) {
+//                      context.getErrors().add(
+//                          new DescrBuildError(
+//                              context.getParentDescr(),
+//                              actionDescr,
+//                              null,
+//                              "Could not find variable '" + variableName + "' for action '" + actionDescr.getText() + "'" ) );
+//                  } else {
+//                      variables.put(variableName,
+//                          context.getDialect().getTypeResolver().resolveType(
+//                              variableScope.findVariable(variableName).getType().getStringType()));
+//                  }
+//              }
 //            }
 //
 //            MVELCompilationUnit unit = dialect.getMVELCompilationUnit( text,
@@ -113,17 +113,17 @@ public class XPATHActionBuilder
 //                                                                       null,
 //                                                                       null,
 //                                                                       variables,
-//                                                                       context );              
+//                                                                       context );
 //            MVELAction expr = new MVELAction( unit, context.getDialect().getId() );
 //            expr.setVariableNames(variableNames);
-//            
-//            
+//
+//
 //            action.setMetaData("Action",  expr );
-//            
-//            MVELDialectRuntimeData data = (MVELDialectRuntimeData) context.getPkg().getDialectRuntimeRegistry().getDialectData( dialect.getId() );            
+//
+//            MVELDialectRuntimeData data = (MVELDialectRuntimeData) context.getPkg().getDialectRuntimeRegistry().getDialectData( dialect.getId() );
 //            data.addCompileable( action,
-//                                  expr );  
-//            
+//                                  expr );
+//
 //            expr.compile( context.getPackageBuilder().getRootClassLoader() );
         } catch ( final Exception e ) {
             context.getErrors().add( new DescrBuildError( context.getParentDescr(),

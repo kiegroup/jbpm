@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -16,25 +16,25 @@
 package org.jbpm.process.workitem.handler;
 
 public class Employee {
-	
-	private String id;
-	private String name;
-	
-	public Employee() {
-		
-	}
-	
-	public Employee(String id, String name) {
-		this.id = id;
-		this.name = name;
-	}
 
-	public String getId() {
-		return id;
-	}
+    private String id;
+    private String name;
 
-	public String getName() {
-		return name;
-	}
+    public Employee() {
+
+    }
+
+    public Employee(String id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
 
 }

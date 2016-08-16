@@ -29,7 +29,7 @@ import org.kie.internal.KnowledgeBaseFactory;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
 
 public class ProcessInstanceExecutor {
-    
+
     public static final void main(String[] args) {
         try {
             //load the process
@@ -59,11 +59,11 @@ public class ProcessInstanceExecutor {
         source = new InputStreamReader(
             ProcessInstanceExecutor.class.getResourceAsStream("/ruleflow2.rf"));
         builder.addProcessFromXml(source);
-       // create the knowledge base 
+       // create the knowledge base
         InternalKnowledgePackage pkg = builder.getPackage();
         KnowledgeBase ruleBase = KnowledgeBaseFactory.newKnowledgeBase();
         ruleBase.addKnowledgePackages((Collection) Arrays.asList(pkg));
         return ruleBase;
     }
-    
+
 }

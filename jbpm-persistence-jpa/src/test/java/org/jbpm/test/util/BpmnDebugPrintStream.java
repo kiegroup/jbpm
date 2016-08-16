@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -25,21 +25,21 @@ public class BpmnDebugPrintStream extends LoggingPrintStream {
         super(outputStream, isError);
     }
 
-    protected void log(String s) { 
+    protected void log(String s) {
         StackTraceElement [] trace = Thread.currentThread().getStackTrace();
         boolean debug = trace[4].getMethodName().matches("(action|invoke)\\d+");
         if (isError) {
             logger.error(s);
         } else {
-            if( debug ) { 
+            if( debug ) {
                 logger.debug(s);
-            } else { 
+            } else {
                 logger.info(s);
             }
-                
+
         }
     }
-    
+
     public static void interceptSysOutSysErr() {
         System.setOut(new BpmnDebugPrintStream(System.out, false));
         System.setErr(new BpmnDebugPrintStream(System.err, true));

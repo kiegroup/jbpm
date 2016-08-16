@@ -47,10 +47,10 @@ public class SubprocessCaseTest extends JbpmTestCase {
     private CaseMgmtService caseMgmtService;
     private TaskService taskService;
     private ProcessInstance casePi;
-    
+
     @Before
     public void setup() {
-        
+
         addProcessEventListener(new DefaultProcessEventListener() {
             @Override
             public void afterProcessCompleted(ProcessCompletedEvent event) {
@@ -63,7 +63,7 @@ public class SubprocessCaseTest extends JbpmTestCase {
                 }
             }
         });
-        
+
         kieSession = createKSession(EMPTY_CASE, HUMAN_TASK);
         runtimeEngine = getRuntimeEngine();
         caseMgmtService = new CaseMgmtUtil(runtimeEngine);
@@ -77,12 +77,12 @@ public class SubprocessCaseTest extends JbpmTestCase {
 
         Person john = new Person("John", 30);
         caseMgmtService.setCaseData(pid, "person", john);
-        
+
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("description", "subprocess");
 
         caseMgmtService.createDynamicProcess(pid, HUMAN_TASK_ID, params);
-        
+
         ProcessInstance[] activeSubProcesses = caseMgmtService.getActiveSubProcesses(pid);
         Assertions.assertThat(activeSubProcesses).hasSize(1);
 
@@ -91,10 +91,10 @@ public class SubprocessCaseTest extends JbpmTestCase {
         TaskSummary task = list.get(0);
         taskService.start(task.getId(), "john");
         taskService.complete(task.getId(), "john", null);
-        
+
         activeSubProcesses = caseMgmtService.getActiveSubProcesses(pid);
         Assertions.assertThat(activeSubProcesses).hasSize(0);
-        
+
         Map<String, Object> caseData = caseMgmtService.getCaseData(pid);
         System.out.println(" ### CASE DATA ### ");
         for (Entry<String, Object> e : caseData.entrySet()) {

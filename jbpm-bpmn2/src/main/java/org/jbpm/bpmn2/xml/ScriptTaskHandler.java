@@ -26,54 +26,54 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
 public class ScriptTaskHandler extends AbstractNodeHandler {
-    
+
     protected Node createNode(Attributes attrs) {
         ActionNode result = new ActionNode();
         result.setAction(new DroolsConsequenceAction());
         return result;
     }
-    
+
     @SuppressWarnings("unchecked")
-	public Class generateNodeFor() {
+    public Class generateNodeFor() {
         return Node.class;
     }
 
-    protected void handleNode(final Node node, final Element element, final String uri, 
+    protected void handleNode(final Node node, final Element element, final String uri,
             final String localName, final ExtensibleXmlParser parser) throws SAXException {
-    	super.handleNode(node, element, uri, localName, parser);
+        super.handleNode(node, element, uri, localName, parser);
         ActionNode actionNode = (ActionNode) node;
         node.setMetaData("NodeType", "ScriptTask");
         DroolsConsequenceAction action = (DroolsConsequenceAction) actionNode.getAction();
         if (action == null) {
-        	action = new DroolsConsequenceAction();
-        	actionNode.setAction(action);
+            action = new DroolsConsequenceAction();
+            actionNode.setAction(action);
         }
-		String language = element.getAttribute("scriptFormat");
-		if (XmlBPMNProcessDumper.JAVA_LANGUAGE.equals(language)) {
-			action.setDialect(JavaDialect.ID);
-		} else if (XmlBPMNProcessDumper.JAVASCRIPT_LANGUAGE.equals(language)) {
-		    action.setDialect("JavaScript");
-		}
-		action.setConsequence("");
+        String language = element.getAttribute("scriptFormat");
+        if (XmlBPMNProcessDumper.JAVA_LANGUAGE.equals(language)) {
+            action.setDialect(JavaDialect.ID);
+        } else if (XmlBPMNProcessDumper.JAVASCRIPT_LANGUAGE.equals(language)) {
+            action.setDialect("JavaScript");
+        }
+        action.setConsequence("");
         org.w3c.dom.Node xmlNode = element.getFirstChild();
         while (xmlNode != null) {
-        	if (xmlNode instanceof Element && "script".equals(xmlNode.getNodeName())) {
-        		action.setConsequence(xmlNode.getTextContent());
-        	}
-        	xmlNode = xmlNode.getNextSibling();
+            if (xmlNode instanceof Element && "script".equals(xmlNode.getNodeName())) {
+                action.setConsequence(xmlNode.getTextContent());
+            }
+            xmlNode = xmlNode.getNextSibling();
         }
-        
+
         String compensation = element.getAttribute("isForCompensation");
         if( compensation != null ) {
             boolean isForCompensation = Boolean.parseBoolean(compensation);
-            if( isForCompensation ) { 
+            if( isForCompensation ) {
                 actionNode.setMetaData("isForCompensation", isForCompensation );
             }
         }
-	}
+    }
 
-	public void writeNode(Node node, StringBuilder xmlDump, int metaDataType) {
-	    throw new IllegalArgumentException("Writing out should be handled by action node handler");
-	}
+    public void writeNode(Node node, StringBuilder xmlDump, int metaDataType) {
+        throw new IllegalArgumentException("Writing out should be handled by action node handler");
+    }
 
 }

@@ -19,7 +19,7 @@ package org.jbpm.process.core.timer;
 import org.drools.core.time.impl.TimerJobInstance;
 
 /**
- * Interceptor dedicated to <code>GlobalSchedulerService</code> to be able to react and 
+ * Interceptor dedicated to <code>GlobalSchedulerService</code> to be able to react and
  * optionally alter default behavior. Common case is to make a timer job scheduling transactional
  * but that's not the only possible case.
  */

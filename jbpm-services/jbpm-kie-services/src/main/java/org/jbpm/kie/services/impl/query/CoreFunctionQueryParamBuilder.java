@@ -27,7 +27,7 @@ public class CoreFunctionQueryParamBuilder implements QueryParamBuilder<Object> 
 
     private QueryParam[] filterParams;
     private int index = 0;
-    
+
     public CoreFunctionQueryParamBuilder(QueryParam...filterParams) {
         this.filterParams = filterParams;
     }
@@ -49,9 +49,9 @@ public class CoreFunctionQueryParamBuilder implements QueryParamBuilder<Object> 
         }
         // check aggregate functions
         AggregateFunctionType aggregationType = AggregateFunctionType.getByName(param.getOperator());
-        
+
         if (aggregationType != null) {
-            
+
             return new AggregateColumnFilter(aggregationType, param.getColumn(), (String)param.getValue().get(0));
         }
 

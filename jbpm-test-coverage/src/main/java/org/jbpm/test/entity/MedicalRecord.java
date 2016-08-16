@@ -34,9 +34,9 @@ public class MedicalRecord implements Serializable{
     private String description;
     @OneToOne(optional=false,cascade= CascadeType.ALL)
     @JoinColumn(
-    	name="PATIENT_ID", unique=true)
+        name="PATIENT_ID", unique=true)
     private Patient patient;
-    
+
     @OneToMany(cascade= CascadeType.ALL, mappedBy="medicalRecord")
     private List<RecordRow> rows;
     private int priority;
@@ -44,7 +44,7 @@ public class MedicalRecord implements Serializable{
     public MedicalRecord() {
     }
 
-    
+
     public MedicalRecord(String desc, Patient patient) {
         this.description = desc;
         this.patient = patient;
@@ -132,7 +132,7 @@ public class MedicalRecord implements Serializable{
         hash = 67 * hash + this.priority;
         return hash;
     }
-    
-    
-    
+
+
+
 }

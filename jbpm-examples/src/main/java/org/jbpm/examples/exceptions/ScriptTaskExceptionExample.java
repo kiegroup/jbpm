@@ -34,33 +34,33 @@ public class ScriptTaskExceptionExample {
     }
 
     public static void runExample() {
-    	RuntimeManager manager = createManager();
+        RuntimeManager manager = createManager();
         KieSession ksession = manager.getRuntimeEngine(null).getKieSession();
         Map<String, Object> params = new HashMap<String, Object>();
         String varName = "var1";
         params.put( varName , "valueOne" );
-        try { 
+        try {
             ksession.startProcess("ExceptionScriptTask", params);
-        } catch( WorkflowRuntimeException wfre ) { 
+        } catch( WorkflowRuntimeException wfre ) {
             String msg = "An exception happened in "
                     + "process instance [" + wfre.getProcessInstanceId()
                     + "] of process [" + wfre.getProcessId()
-                    + "] in node [id: " + wfre.getNodeId() 
+                    + "] in node [id: " + wfre.getNodeId()
                     + ", name: " + wfre.getNodeName()
                     + "] and variable " + varName + " had the value [" + wfre.getVariables().get(varName)
                     + "]";
             System.out.println(msg);
         }
-        
+
         manager.close();
     }
-    
+
     private static RuntimeManager createManager() {
-    	RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get().newEmptyBuilder()
+        RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get().newEmptyBuilder()
             .addAsset(KieServices.Factory.get().getResources()
-        		.newClassPathResource("exceptions/ScriptTaskException.bpmn2"), ResourceType.BPMN2)
+                .newClassPathResource("exceptions/ScriptTaskException.bpmn2"), ResourceType.BPMN2)
             .get();
         return RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);
     }
- 
+
 }

@@ -34,15 +34,15 @@ import org.kie.internal.command.Context;
 @XmlAccessorType(XmlAccessType.NONE)
 public class FailTaskCommand extends UserGroupCallbackTaskCommand<Void> {
 
-	private static final long serialVersionUID = -1749562224208571352L;
+    private static final long serialVersionUID = -1749562224208571352L;
 
     @XmlJavaTypeAdapter(JaxbMapAdapter.class)
     @XmlElement
-	private Map<String, Object> data;
+    private Map<String, Object> data;
 
     public FailTaskCommand() {
     }
-    
+
     public FailTaskCommand(long taskId, String userId, Map<String, Object> data) {
         this.taskId = taskId;
         this.userId = userId;
@@ -50,20 +50,20 @@ public class FailTaskCommand extends UserGroupCallbackTaskCommand<Void> {
     }
 
     public Map<String, Object> getData() {
-		return data;
-	}
+        return data;
+    }
 
-	public void setData(Map<String, Object> data) {
-		this.data = data;
-	}
+    public void setData(Map<String, Object> data) {
+        this.data = data;
+    }
 
-	public Void execute(Context cntxt) {
+    public Void execute(Context cntxt) {
         TaskContext context = (TaskContext) cntxt;
         doCallbackUserOperation(userId, context);
         groupIds = doUserGroupCallbackOperation(userId, null, context);
         context.set("local:groups", groupIds);
-    	context.getTaskInstanceService().fail(taskId, userId, data);
-    	return null;
+        context.getTaskInstanceService().fail(taskId, userId, data);
+        return null;
 
     }
 }

@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -34,22 +34,22 @@ import org.kie.internal.task.api.TaskPersistenceContext;
 public class GetAllHistoryAuditTasksByUserCommand extends TaskCommand<List<AuditTask>> {
         private QueryFilter filter;
         private String owner;
-	public GetAllHistoryAuditTasksByUserCommand() {
+    public GetAllHistoryAuditTasksByUserCommand() {
             this.filter =  new QueryFilter(0,0);
-	}
+    }
 
         public GetAllHistoryAuditTasksByUserCommand(String owner, QueryFilter filter) {
             this.owner = owner;
             this.filter = filter;
         }
-        
-	@Override
-	public List<AuditTask> execute(Context context) {
-		TaskPersistenceContext persistenceContext = ((TaskContext) context).getPersistenceContext();
-		return persistenceContext.queryWithParametersInTransaction("getAllAuditTasksByUser", 
-                                persistenceContext.addParametersToMap("owner", owner, "firstResult", filter.getOffset(), 
+
+    @Override
+    public List<AuditTask> execute(Context context) {
+        TaskPersistenceContext persistenceContext = ((TaskContext) context).getPersistenceContext();
+        return persistenceContext.queryWithParametersInTransaction("getAllAuditTasksByUser",
+                                persistenceContext.addParametersToMap("owner", owner, "firstResult", filter.getOffset(),
                                         "maxResults", filter.getCount()),
-				ClassUtil.<List<AuditTask>>castClass(List.class));
-	}
+                ClassUtil.<List<AuditTask>>castClass(List.class));
+    }
 
 }
