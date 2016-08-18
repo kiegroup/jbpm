@@ -15,9 +15,13 @@ import org.jbpm.kie.services.impl.jaxb.GrandChild;
 import org.jbpm.kie.services.impl.jaxb.GreatGrandChild;
 import org.jbpm.kie.services.impl.jaxb.Parent;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class FilterClassesAddedToDeployedUnitTest {
+
+    private static final Logger logger = LoggerFactory.getLogger(FilterClassesAddedToDeployedUnitTest.class);
 
     @Test
     public void jaxbContextAndTheClasspathTest() throws Exception {
@@ -25,7 +29,7 @@ public class FilterClassesAddedToDeployedUnitTest {
                 Parent.class
         };
         JAXBContext ctx = JAXBContext.newInstance(boundClasses);
-        System.out.println(ctx.toString());
+        logger.debug(ctx.toString());
 
         Parent parent = new Parent();
         parent.child = new Child();
@@ -41,7 +45,7 @@ public class FilterClassesAddedToDeployedUnitTest {
 
         ByteArrayInputStream xmlStrInputStream = new ByteArrayInputStream(xmlStr.getBytes(Charset.forName("UTF-8")));
 
-        System.out.println(ctx.toString());
+        logger.debug(ctx.toString());
 
         Parent copyParent = (Parent) ctx.createUnmarshaller().unmarshal(xmlStrInputStream);
 

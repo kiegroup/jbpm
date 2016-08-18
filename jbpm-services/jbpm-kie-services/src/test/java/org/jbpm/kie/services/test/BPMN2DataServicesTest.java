@@ -31,8 +31,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.drools.compiler.kie.builder.impl.InternalKieModule;
+import org.jbpm.bpmn2.services.model.ProcessAssetDesc;
 import org.jbpm.kie.services.impl.KModuleDeploymentUnit;
-import org.jbpm.kie.services.impl.model.ProcessAssetDesc;
 import org.jbpm.kie.test.util.AbstractKieServicesBaseTest;
 import org.jbpm.services.api.model.DeploymentUnit;
 import org.jbpm.services.api.model.ProcessDefinition;

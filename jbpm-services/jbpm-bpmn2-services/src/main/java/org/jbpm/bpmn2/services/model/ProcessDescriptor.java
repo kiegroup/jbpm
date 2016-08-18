@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jbpm.kie.services.impl.bpmn2;
+package org.jbpm.bpmn2.services.model;
 
 import java.io.Serializable;
 import java.util.ArrayDeque;
@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
-import org.jbpm.kie.services.impl.model.ProcessAssetDesc;
 import org.jbpm.process.instance.StartProcessHelper;
 import org.jbpm.services.api.model.UserTaskDefinition;
 import org.kie.api.definition.process.Process;
