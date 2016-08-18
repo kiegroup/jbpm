@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.jbpm.kie.services.impl.bpmn2;
+package org.jbpm.bpmn2.services.model;
 
 import java.io.Serializable;
 import java.util.Collection;

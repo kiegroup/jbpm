@@ -15,6 +15,7 @@
 
   <modules>
     <module>jbpm-shared-services</module>
+    <module>jbpm-bpmn2-services</module>
     <module>jbpm-kie-services</module>
     <module>jbpm-services-api</module>
     <module>jbpm-services-cdi</module>

@@ -36,7 +36,7 @@ import org.dashbuilder.dataset.def.DataSetDefFactory;
 import org.dashbuilder.dataset.def.DataSetDefRegistry;
 import org.dashbuilder.dataset.def.SQLDataSetDefBuilder;
 import org.dashbuilder.dataset.filter.ColumnFilter;
-import org.jbpm.kie.services.impl.model.ProcessAssetDesc;
+import org.jbpm.bpmn2.services.model.ProcessAssetDesc;
 import org.jbpm.kie.services.impl.query.persistence.PersistDataSetListener;
 import org.jbpm.kie.services.impl.query.persistence.QueryDefinitionEntity;
 import org.jbpm.kie.services.impl.query.preprocessor.BusinessAdminTasksPreprocessor;

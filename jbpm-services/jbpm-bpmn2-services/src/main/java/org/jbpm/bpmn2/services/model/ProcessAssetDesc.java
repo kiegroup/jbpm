@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jbpm.kie.services.impl.model;
+package org.jbpm.bpmn2.services.model;
 
 import java.util.ArrayList;
 import java.util.Collection;

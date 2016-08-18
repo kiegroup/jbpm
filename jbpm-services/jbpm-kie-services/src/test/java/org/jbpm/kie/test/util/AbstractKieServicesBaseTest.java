@@ -34,7 +34,7 @@ import org.jbpm.kie.services.impl.KModuleDeploymentService;
 import org.jbpm.kie.services.impl.ProcessServiceImpl;
 import org.jbpm.kie.services.impl.RuntimeDataServiceImpl;
 import org.jbpm.kie.services.impl.UserTaskServiceImpl;
-import org.jbpm.kie.services.impl.bpmn2.BPMN2DataServiceImpl;
+import org.jbpm.kie.services.impl.bpmn2.BPMN2DeploymentDataServiceImpl;
 import org.jbpm.kie.services.impl.query.QueryServiceImpl;
 import org.jbpm.kie.services.test.TestIdentityProvider;
 import org.jbpm.process.instance.impl.util.LoggingPrintStream;
@@ -116,7 +116,7 @@ public abstract class AbstractKieServicesBaseTest {
 		identityProvider = new TestIdentityProvider();
 
 		// build definition service
-		bpmn2Service = new BPMN2DataServiceImpl();
+		bpmn2Service = new BPMN2DeploymentDataServiceImpl();
 
 		queryService = new QueryServiceImpl();
 		((QueryServiceImpl)queryService).setIdentityProvider(identityProvider);
@@ -143,7 +143,7 @@ public abstract class AbstractKieServicesBaseTest {
 
 		// set runtime data service as listener on deployment service
 		((KModuleDeploymentService)deploymentService).addListener(((RuntimeDataServiceImpl) runtimeDataService));
-		((KModuleDeploymentService)deploymentService).addListener(((BPMN2DataServiceImpl) bpmn2Service));
+		((KModuleDeploymentService)deploymentService).addListener(((BPMN2DeploymentDataServiceImpl) bpmn2Service));
 		((KModuleDeploymentService)deploymentService).addListener(((QueryServiceImpl) queryService));
 
 		// build process service

@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import org.jbpm.kie.services.impl.model.ProcessAssetDesc;
+import org.jbpm.bpmn2.services.model.ProcessAssetDesc;
 import org.jbpm.services.api.model.DeployedAsset;
 import org.jbpm.services.api.model.DeployedUnit;
 import org.jbpm.services.api.model.DeploymentUnit;

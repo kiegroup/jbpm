@@ -31,7 +31,7 @@ import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
-import org.jbpm.kie.services.impl.model.ProcessAssetDesc;
+import org.jbpm.bpmn2.services.model.ProcessAssetDesc;
 import org.jbpm.kie.services.impl.security.DeploymentRolesManager;
 import org.jbpm.services.api.DeploymentEvent;
 import org.jbpm.services.api.DeploymentEventListener;

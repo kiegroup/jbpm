@@ -13,7 +13,7 @@
  * limitations under the License.
 */
 
-package org.jbpm.kie.services.impl.xml;
+package org.jbpm.bpmn2.services.listener;
 
 import org.jbpm.compiler.xml.ProcessDataEventListener;
 import org.jbpm.compiler.xml.ProcessDataEventListenerProvider;

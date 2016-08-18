@@ -13,9 +13,8 @@
  * limitations under the License.
 */
 
-package org.jbpm.kie.services.impl.xml;
+package org.jbpm.bpmn2.services.listener;
 
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -27,12 +26,11 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.jbpm.bpmn2.core.ItemDefinition;
+import org.jbpm.bpmn2.services.model.ProcessAssetDesc;
+import org.jbpm.bpmn2.services.model.ProcessDescriptor;
+import org.jbpm.bpmn2.services.model.UserTaskDefinitionImpl;
 import org.jbpm.compiler.xml.ProcessDataEventListener;
-import org.jbpm.kie.services.impl.bpmn2.ProcessDescriptor;
-import org.jbpm.kie.services.impl.bpmn2.UserTaskDefinitionImpl;
-import org.jbpm.kie.services.impl.model.ProcessAssetDesc;
 import org.jbpm.process.core.context.variable.Variable;
-import org.jbpm.process.core.impl.ProcessImpl;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
 import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.core.node.HumanTaskNode;

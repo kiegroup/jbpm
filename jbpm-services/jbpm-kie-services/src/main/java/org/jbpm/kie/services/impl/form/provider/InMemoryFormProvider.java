@@ -18,7 +18,7 @@ package org.jbpm.kie.services.impl.form.provider;
 import java.io.ByteArrayInputStream;
 import java.util.Map;
 
-import org.jbpm.kie.services.impl.model.ProcessAssetDesc;
+import org.jbpm.bpmn2.services.model.ProcessAssetDesc;
 import org.jbpm.services.api.model.ProcessDefinition;
 import org.kie.api.task.model.Task;
 

@@ -22,7 +22,7 @@ import javax.ejb.Lock;
 import javax.ejb.LockType;
 import javax.ejb.Singleton;
 
-import org.jbpm.kie.services.impl.bpmn2.BPMN2DataServiceImpl;
+import org.jbpm.kie.services.impl.bpmn2.BPMN2DeploymentDataServiceImpl;
 import org.jbpm.services.api.DefinitionService;
 import org.jbpm.services.api.DeploymentEvent;
 import org.jbpm.services.api.DeploymentEventListener;
@@ -34,14 +34,14 @@ import org.kie.api.runtime.KieContainer;
 @Singleton
 @ConcurrencyManagement(ConcurrencyManagementType.CONTAINER)
 @Lock(LockType.READ)
-public class DefinitionServiceEJBImpl extends BPMN2DataServiceImpl implements DeploymentEventListener, DefinitionService, DefinitionServiceEJBLocal, DefinitionServiceEJBRemote {
+public class DefinitionServiceEJBImpl extends BPMN2DeploymentDataServiceImpl implements DeploymentEventListener, DefinitionService, DefinitionServiceEJBLocal, DefinitionServiceEJBRemote {
 
 	@Lock(LockType.WRITE)
 	@Override
 	public ProcessDefinition buildProcessDefinition(String deploymentId, String bpmn2Content, KieContainer kieContainer, boolean cache) throws IllegalArgumentException {
 		return super.buildProcessDefinition(deploymentId, bpmn2Content, kieContainer, cache);
 	}
-	
+
 	@Lock(LockType.WRITE)
 	@Override
 	public void onDeploy(DeploymentEvent event) {
