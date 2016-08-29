@@ -81,6 +81,7 @@ import org.jbpm.services.task.commands.GetTaskContentCommand;
 import org.jbpm.services.task.commands.GetTaskDefinitionCommand;
 import org.jbpm.services.task.commands.GetTaskOwnedByExpDateBeforeDateCommand;
 import org.jbpm.services.task.commands.GetTaskPropertyCommand;
+import org.jbpm.services.task.commands.GetTasksByGroupCommand;
 import org.jbpm.services.task.commands.GetTasksByProcessInstanceIdCommand;
 import org.jbpm.services.task.commands.GetTasksByStatusByProcessInstanceIdCommand;
 import org.jbpm.services.task.commands.GetTasksByVariousFieldsCommand;
@@ -107,7 +108,6 @@ import org.jbpm.services.task.events.TaskEventSupport;
 import org.jbpm.services.task.impl.TaskContentRegistry;
 import org.jbpm.services.task.impl.TaskSummaryQueryBuilderImpl;
 import org.kie.api.command.Command;
-import org.kie.api.runtime.CommandExecutor;
 import org.kie.api.task.TaskLifeCycleEventListener;
 import org.kie.api.task.model.Attachment;
 import org.kie.api.task.model.Comment;
@@ -384,18 +384,6 @@ public class CommandBasedTaskService implements InternalTaskService, EventServic
 	@Override
 	public int archiveTasks(List<TaskSummary> tasks) {
 		return executor.execute(new ArchiveTasksCommand(tasks));
-	}
-
-	@Override
-	// TODO: groupIds argument is not processed!
-	public void claim(long taskId, String userId, List<String> groupIds) {
-		executor.execute(new ClaimTaskCommand(taskId, userId));
-	}
-
-	@Override
-	// TODO: groupIds argument is not processed!
-	public void claimNextAvailable(String userId, List<String> groupIds) {
-		executor.execute(new ClaimNextAvailableTaskCommand(userId));
 	}
 
 	@Override
@@ -760,7 +748,12 @@ public class CommandBasedTaskService implements InternalTaskService, EventServic
 		return executor.execute(new GetTaskAssignedByGroupsCommand(groupIds));
 	}
 
-	@Override
+    @Override
+    public List<TaskSummary> getTasksByGroup(List<String> groupIds) {
+        return executor.execute(new GetTasksByGroupCommand(groupIds));
+    }
+
+    @Override
 	public Long addComment(long taskId, Comment comment) {
 		return executor.execute(new AddCommentCommand(taskId, comment));
 	}

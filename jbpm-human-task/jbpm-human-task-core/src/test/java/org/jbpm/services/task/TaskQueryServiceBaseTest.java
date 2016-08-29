@@ -26,12 +26,16 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
+import java.util.UUID;
 
 import javax.naming.InitialContext;
 import javax.transaction.UserTransaction;
 
 import org.jbpm.services.task.impl.factories.TaskFactory;
+import org.jbpm.services.task.impl.model.GroupImpl;
 import org.jbpm.services.task.impl.model.TaskDataImpl;
+import org.jbpm.services.task.impl.model.UserImpl;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.kie.api.task.model.I18NText;
@@ -930,4 +934,50 @@ public abstract class TaskQueryServiceBaseTest extends HumanTaskServicesBaseTest
         assertEquals("Bobba Fet", tasks.get(0).getActualOwnerId());
         assertEquals(true, tasks.get(0).isSkipable());
     }
+
+    private static List<String> toList(String... strings) {
+       return Arrays.asList(strings);
+    }
+
+    private static final Random random = new Random();
+
+    @Test
+    public void testGetTasksByGroups() {
+        int nameInt = 0;
+
+        String userId = "Hideo";
+        String groupId = "Ninja";
+        int procInstId = random.nextInt(Integer.MAX_VALUE-1000);
+
+        List<TaskSummary> tasks = taskService.getTasksAssignedAsPotentialOwner(groupId, "en-UK");
+
+        // Query on user: should NOT be found
+        String str = "(with (new Task()) { priority = 55, taskData = "
+                + "(with( new TaskData()) {processInstanceId = " + procInstId + "} ), "
+                + "peopleAssignments = (with ( new PeopleAssignments() ) { "
+                + "potentialOwners = [new User('" + userId + "')],"
+                + "businessAdministrators = [new User('Administrator')] }),"
+                + "name = 'task" + ++nameInt + "' })";
+        Task task = TaskFactory.evalTask(new StringReader(str));
+        taskService.addTask(task, new HashMap<String, Object>());
+        tasks = taskService.getTasksByGroup(toList(userId));
+        assertEquals(0, tasks.size());
+
+        List<Long> taskIds = taskService.getTasksByProcessInstanceId(procInstId);
+        task = taskService.getTaskById(taskIds.get(0));
+        assertEquals( "Potential owner not saved,", 1, task.getPeopleAssignments().getPotentialOwners().size());
+
+        // Query on group: SHOULD be found
+        str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) {skipable=true } ), ";
+        str += "peopleAssignments = (with ( new PeopleAssignments() ) { "
+                + "potentialOwners = [new Group('" + groupId + "')],"
+                + "businessAdministrators = [new User('Administrator')] }),"
+                + "name = 'task" + ++nameInt + "' })";
+        task = TaskFactory.evalTask(new StringReader(str));
+        taskService.addTask(task, new HashMap<String, Object>());
+        tasks = taskService.getTasksByGroup(toList(groupId));
+        assertEquals(1, tasks.size());
+        assertEquals("Incorrect task retrieved", "task2", tasks.get(0).getName());
+    }
+
 }
