@@ -2148,35 +2148,9 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
         assertEquals(0, salaboyTasks.size());
 
     }
-    
-    @Test
-    public void testClaimNextAvailableWithGroups() {
-        
-        // Create a local instance of the TaskService
 
-        String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
-        str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [new User('salaboy'), new User('Bobba Fet') ],businessAdministrators = [ new User('Administrator') ], }),";
-        str += "name =  'This is my task name' })";
-
-        // Deploy the Task Definition to the Task Component
-        taskService.addTask(TaskFactory.evalTask(new StringReader(str)), new HashMap<String, Object>());
-
-        // we don't need to query for our task to see what we will claim, just claim the next one available for us
-        List<String> groups = new ArrayList<String>();
-        groups.add("HR");
-        taskService.claimNextAvailable("Bobba Fet", groups);
-
-
-        List<Status> status = new ArrayList<Status>();
-        status.add(Status.Ready);
-        List<TaskSummary> salaboyTasks = taskService.getTasksAssignedAsPotentialOwnerByStatus("salaboy", status, "en-UK");
-        assertEquals(0, salaboyTasks.size());
-
-    }
-    
     @Test
     public void testCompleteWithRestrictedGroups() {
-        
 
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";

@@ -19,7 +19,6 @@ package org.jbpm.test.functional.task;
 import java.util.List;
 
 import org.assertj.core.api.Assertions;
-import org.jbpm.runtime.manager.impl.task.SynchronizedTaskService;
 import org.jbpm.test.JbpmTestCase;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,12 +26,12 @@ import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.runtime.manager.audit.ProcessInstanceLog;
 import org.kie.api.runtime.process.ProcessInstance;
-import org.kie.api.task.TaskService;
 import org.kie.api.task.model.Task;
 import org.kie.api.task.model.TaskSummary;
+import org.kie.internal.task.api.InternalTaskService;
 
 public class TaskSubjectAndDescriptionTest extends JbpmTestCase {
-    
+
     private static final String EXPECTED_SUBJECT = "Bake a cake";
 
     private static final String HUMAN_TASK = "org/jbpm/test/functional/task/TaskSubjectAndDescription.bpmn2";
@@ -41,7 +40,7 @@ public class TaskSubjectAndDescriptionTest extends JbpmTestCase {
     private static final String HUMAN_TASK2_ID = "org.jbpm.test.functional.task.TaskSubject";
 
     private KieSession kieSession;
-    private TaskService taskService;
+    private InternalTaskService taskService;
 
     public TaskSubjectAndDescriptionTest() {
         super(true, true);
@@ -52,7 +51,7 @@ public class TaskSubjectAndDescriptionTest extends JbpmTestCase {
         createRuntimeManager(HUMAN_TASK, HUMAN_TASK2);
         RuntimeEngine runtimeEngine = getRuntimeEngine();
         kieSession = runtimeEngine.getKieSession();
-        taskService = (SynchronizedTaskService) runtimeEngine.getTaskService();
+        taskService = (InternalTaskService) runtimeEngine.getTaskService();
     }
 
     @Test

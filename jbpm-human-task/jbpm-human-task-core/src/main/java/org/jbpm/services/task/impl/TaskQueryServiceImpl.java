@@ -629,6 +629,16 @@ public class TaskQueryServiceImpl implements TaskQueryService {
     }
 
     @Override
+    public List<TaskSummary> getTasksByGroup(List<String> groupIds) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("groupIds", groupIds);
+        return (List<TaskSummary>) persistenceContext.queryWithParametersInTransaction(
+                "TasksByPotentialOwnerGroups",
+                params,
+                ClassUtil.<List<TaskSummary>>castClass(List.class));
+    }
+
+    @Override
     public List<TaskSummary> query( String userId, Object queryObj ) {
         QueryWhere queryWhere = (QueryWhere) queryObj;
         return persistenceContext.doTaskSummaryCriteriaQuery(userId, userGroupCallback, (QueryWhere) queryWhere);

@@ -107,20 +107,6 @@ public class SynchronizedTaskService
     }
 
     @Override
-    public void claim(long taskId, String userId, List<String> groupIds) {
-        synchronized (ksession) {
-            taskService.claim(taskId, userId, groupIds);
-        }
-    }
-
-    @Override
-    public void claimNextAvailable(String userId, List<String> groupIds) {
-        synchronized (ksession) {
-            taskService.claimNextAvailable(userId, groupIds);
-        }
-    }
-
-    @Override
     public void claimNextAvailable(String userId, String language) {
         synchronized (ksession) {
             taskService.claimNextAvailable(userId, language);
@@ -1002,6 +988,11 @@ public class SynchronizedTaskService
         synchronized( ksession ) {
             return taskService.getOutputContentMapForUser(taskId, userId);
         }
+    }
+
+    @Override
+    public List<TaskSummary> getTasksByGroup(List<String> groupIds) {
+        return taskService.getTasksByGroup(groupIds);
     }
 
 
