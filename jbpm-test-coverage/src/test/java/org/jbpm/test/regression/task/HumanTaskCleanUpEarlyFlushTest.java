@@ -27,6 +27,7 @@ import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.task.TaskService;
 import org.kie.api.task.model.TaskSummary;
+
 import qa.tools.ikeeper.annotation.BZ;
 
 public class HumanTaskCleanUpEarlyFlushTest extends JbpmTestCase {
