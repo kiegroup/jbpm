@@ -62,6 +62,7 @@ import org.kie.internal.task.api.model.TaskEvent;
 import org.kie.internal.task.query.TaskSummaryQueryBuilder;
 
 @Stateless
+@SuppressWarnings("unchecked")
 public class TaskServiceEJBImpl implements InternalTaskService, TaskService, TaskServiceEJBLocal {
 
 
@@ -70,7 +71,13 @@ public class TaskServiceEJBImpl implements InternalTaskService, TaskService, Tas
 	@PersistenceUnit(unitName="org.jbpm.domain")
 	private EntityManagerFactory emf;
 
-	@PostConstruct
+	private static <T> T unsupported(Class<T> returnType) {
+        String methodName = (new Throwable()).getStackTrace()[1].getMethodName();
+        throw new UnsupportedOperationException(methodName + " is not supported on the TaskService EJB implementation, "
+                + "please use the " + UserTaskService.class + " implementation instead!");
+    }
+
+    @PostConstruct
 	public void configureDelegate() {
 		UserGroupCallback callback = UserDataServiceProvider.getUserGroupCallback();
 
@@ -124,7 +131,7 @@ public class TaskServiceEJBImpl implements InternalTaskService, TaskService, Tas
 		return delegate.getTasksOwned(userId, language);
 	}
 
-	@Override
+    @Override
 	public List<TaskSummary> getTasksOwnedByStatus(String userId, List<Status> status, String language) {
 		return delegate.getTasksOwnedByStatus(userId, status, language);
 	}
@@ -428,16 +435,6 @@ public class TaskServiceEJBImpl implements InternalTaskService, TaskService, Tas
 	}
 
 	@Override
-	public void claim(long taskId, String userId, List<String> groupIds) {
-		unsupported(Void.class);
-	}
-
-	@Override
-	public void claimNextAvailable(String userId, List<String> groupIds) {
-		unsupported(Void.class);
-	}
-
-	@Override
 	public void deleteFault(long taskId, String userId) {
 		unsupported(Void.class);
 	}
@@ -712,12 +709,6 @@ public class TaskServiceEJBImpl implements InternalTaskService, TaskService, Tas
         return unsupported(Long.class);
     }
 
-    private static <T> T unsupported(Class<T> returnType) {
-        String methodName = (new Throwable()).getStackTrace()[1].getMethodName();
-        throw new UnsupportedOperationException(methodName + " is not supported on the TaskService EJB implementation, "
-                + "please use the " + UserTaskService.class + " implementation instead!");
-    }
-
     @Override
     public long setDocumentContentFromUser( long taskId, String userId, byte[] byteContent ) {
         return unsupported(long.class);
@@ -737,4 +728,10 @@ public class TaskServiceEJBImpl implements InternalTaskService, TaskService, Tas
     public Map<String, Object> getOutputContentMapForUser( long taskId, String userId ) {
         return unsupported(Map.class);
     }
+
+    @Override
+    public List<TaskSummary> getTasksByGroup(List<String> groupIds) {
+        return delegate.getTasksByGroup(groupIds);
+    }
+
 }
