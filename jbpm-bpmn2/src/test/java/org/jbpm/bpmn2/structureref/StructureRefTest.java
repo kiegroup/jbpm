@@ -15,7 +15,6 @@
  */
 package org.jbpm.bpmn2.structureref;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,6 +24,7 @@ import org.jbpm.bpmn2.StartEventTest;
 import org.jbpm.bpmn2.objects.Person;
 import org.jbpm.bpmn2.objects.TestWorkItemHandler;
 import org.jbpm.process.core.context.variable.VariableScope;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -38,16 +38,22 @@ import org.slf4j.LoggerFactory;
 @RunWith(Parameterized.class)
 public class StructureRefTest extends JbpmBpmn2TestCase {
 
-    @Parameters
+    @Parameters(name="{3}")
     public static Collection<Object[]> persistence() {
-        Object[][] data = new Object[][] { { false } };
-        return Arrays.asList(data);
+        return getTestOptions(TestOption.NO_PERSISTENCE);
     };
 
     private static final Logger logger = LoggerFactory.getLogger(StartEventTest.class);
 
-    public StructureRefTest(boolean persistence) {
-        super(persistence);
+    public StructureRefTest(boolean persistence, boolean locking, boolean queueBased, String name) {
+        super(persistence, locking, queueBased, name);
+    }
+
+    @Before
+    public void setStrictVariableChecking() {
+        // because when running the test in Eclipse,
+        // it won't always pickup the surefire settings in the pom.xml
+        System.setProperty("org.jbpm.variable.strict", "true");
     }
 
     @Test
@@ -273,6 +279,10 @@ public class StructureRefTest extends JbpmBpmn2TestCase {
 
     }
 
+    /**
+     * This test is dependent on the "org.jbpm.variable.strict" property being set to "true"
+     * @throws Exception
+     */
     @Test
     public void testNotExistingBooleanStructureRefOnWIComplete() throws Exception {
         KieBase kbase = createKnowledgeBaseWithoutDumper("BPMN2-IntegerStructureRef.bpmn2");
@@ -291,7 +301,7 @@ public class StructureRefTest extends JbpmBpmn2TestCase {
 
         try {
             ksession.getWorkItemManager().completeWorkItem(workItemHandler.getWorkItem().getId(), res);
-            fail();
+            fail(" Workt item completion should have thrown an " + IllegalArgumentException.class.getSimpleName());
         }  catch (IllegalArgumentException iae) {
             System.out.println("Expected IllegalArgumentException catched: " + iae);
             assertEquals("Data output '"+ wrongDataOutput +"' is not defined in process 'StructureRef' for task 'User Task'", iae.getMessage());

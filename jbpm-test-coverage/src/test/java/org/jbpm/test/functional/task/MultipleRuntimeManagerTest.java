@@ -24,7 +24,7 @@ import org.jbpm.runtime.manager.impl.DefaultRegisterableItemsFactory;
 import org.jbpm.runtime.manager.impl.RuntimeEnvironmentBuilder;
 import org.jbpm.services.task.audit.JPATaskLifeCycleEventListener;
 import org.jbpm.services.task.identity.JBossUserGroupCallbackImpl;
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.junit.Test;
 import org.kie.api.io.ResourceType;
 import org.kie.api.runtime.manager.RuntimeEnvironment;
@@ -36,7 +36,7 @@ import org.kie.internal.builder.KnowledgeBuilderFactory;
 import org.kie.internal.io.ResourceFactory;
 import org.kie.internal.task.api.UserGroupCallback;
 
-public class MultipleRuntimeManagerTest extends JbpmTestCase  {
+public class MultipleRuntimeManagerTest extends JbpmCoverageTestCase  {
 
 	public MultipleRuntimeManagerTest() {
 		super(true, true);

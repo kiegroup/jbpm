@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.RuntimeEngine;
@@ -29,7 +29,7 @@ import org.kie.api.task.model.TaskSummary;
 import org.kie.internal.task.api.InternalTaskService;
 
 
-public class SupportProcessTest extends JbpmTestCase{
+public class SupportProcessTest extends JbpmCoverageTestCase{
     
     public SupportProcessTest() {
         super(true, true);

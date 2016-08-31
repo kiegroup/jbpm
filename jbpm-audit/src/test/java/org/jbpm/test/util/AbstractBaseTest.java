@@ -17,11 +17,10 @@ package org.jbpm.test.util;
 
 import java.lang.reflect.Field;
 
-import org.hibernate.internal.CoreMessageLogger;
 import org.hibernate.tool.hbm2ddl.DatabaseMetadata;
-import org.jbpm.process.instance.impl.util.LoggingPrintStream;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.kie.test.util.logging.LoggingPrintStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +58,7 @@ public abstract class AbstractBaseTest {
     }
     
     @AfterClass
-    public static void reset() { 
-        LoggingPrintStream.resetInterceptSysOutSysErr();
+    public static void reset() {
+        LoggingPrintStream.restoreSysOutAndSysErr();
     }
 }

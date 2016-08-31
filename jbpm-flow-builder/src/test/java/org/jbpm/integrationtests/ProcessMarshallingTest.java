@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -15,6 +15,19 @@
 
 package org.jbpm.integrationtests;
 
+import static org.jbpm.integrationtests.JbpmSerializationHelper.getSerialisedStatefulKnowledgeSession;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.jbpm.integrationtests.handler.TestWorkItemHandler;
 import org.jbpm.integrationtests.test.Person;
 import org.jbpm.process.core.context.variable.VariableScope;
@@ -23,8 +36,12 @@ import org.jbpm.process.instance.context.variable.VariableScopeInstance;
 import org.jbpm.test.util.AbstractBaseTest;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 import org.kie.api.io.ResourceType;
 import org.kie.api.marshalling.Marshaller;
+import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.WorkItem;
 import org.kie.api.runtime.process.WorkItemHandler;
 import org.kie.api.runtime.process.WorkItemManager;
@@ -37,21 +54,20 @@ import org.kie.internal.runtime.StatefulKnowledgeSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.jbpm.integrationtests.JbpmSerializationHelper.getSerialisedStatefulKnowledgeSession;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
+@RunWith(Parameterized.class)
 public class ProcessMarshallingTest extends AbstractBaseTest {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(ProcessMarshallingTest.class);
+
+    @Parameters(name="{0}")
+    public static Collection<Object[]> parameters() {
+        return getQueueBasedTestOptions();
+    };
+
+    public ProcessMarshallingTest(String execModel) {
+        super(execModel);
+    }
+
 
     @Test
     @SuppressWarnings("unchecked")
@@ -67,7 +83,7 @@ public class ProcessMarshallingTest extends AbstractBaseTest {
         rule += "    list.add( $p );\n";
         rule += "end";
 
-        String process = 
+        String process =
     		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
     		"<process xmlns=\"http://drools.org/drools-5.0/process\"\n" +
     		"    xmlns:xs=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
@@ -85,12 +101,12 @@ public class ProcessMarshallingTest extends AbstractBaseTest {
 			"    <connection from=\"2\" to=\"3\"/>\n" +
 			"  </connections>\n" +
 			"</process>";
-        
+
         KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
         kbuilder.add( ResourceFactory.newReaderResource(new StringReader(rule)), ResourceType.DRL );
         kbuilder.add( ResourceFactory.newReaderResource( new StringReader( process ) ), ResourceType.DRF );
 
-        StatefulKnowledgeSession ksession = createKieSession(kbuilder.getKnowledgePackages().toArray(new KnowledgePackage[0]));
+        KieSession ksession = createKieSession(kbuilder.getKnowledgePackages().toArray(new KnowledgePackage[0]));
 
         List<Object> list = new ArrayList<Object>();
         ksession.setGlobal( "list", list );
@@ -98,22 +114,22 @@ public class ProcessMarshallingTest extends AbstractBaseTest {
         Person p = new Person( "bobba fet", 32);
         ksession.insert( p );
         ksession.startProcess("org.test.ruleflow");
-        
+
         assertEquals(1, ksession.getProcessInstances().size());
-        
+
         ksession = JbpmSerializationHelper.getSerialisedStatefulKnowledgeSession( ksession, true );
         assertEquals(1, ksession.getProcessInstances().size());
-        
+
         ksession.fireAllRules();
 
         assertEquals( 1, ((List<Object>) ksession.getGlobal("list")).size());
         assertEquals( p, ((List<Object>) ksession.getGlobal("list")).get(0));
         assertEquals(0, ksession.getProcessInstances().size());
     }
-    
+
     @Test
     public void testMarshallingProcessInstanceWithWorkItem() throws Exception {
-        String process = 
+        String process =
     		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
     		"<process xmlns=\"http://drools.org/drools-5.0/process\"\n" +
     		"    xmlns:xs=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
@@ -158,8 +174,8 @@ public class ProcessMarshallingTest extends AbstractBaseTest {
 			"</process>";
         builder.addProcessFromXml( new StringReader( process ));
 
-        StatefulKnowledgeSession session = createKieSession(builder.getPackage());
-        
+        KieSession session = createKieSession(builder.getPackage());
+
         TestWorkItemHandler handler = new TestWorkItemHandler();
         session.getWorkItemManager().registerWorkItemHandler("Email", handler);
         Map<String, Object> variables = new HashMap<String, Object>();
@@ -168,21 +184,21 @@ public class ProcessMarshallingTest extends AbstractBaseTest {
 
         assertEquals(1, session.getProcessInstances().size());
         assertTrue(handler.getWorkItem() != null);
-        
+
         session = getSerialisedStatefulKnowledgeSession(session);
         assertEquals(1, session.getProcessInstances().size());
         VariableScopeInstance variableScopeInstance = (VariableScopeInstance)
         	(( ProcessInstance )session.getProcessInstances().iterator().next()).getContextInstance(VariableScope.VARIABLE_SCOPE);
         assertEquals("ThisIsMyValue", variableScopeInstance.getVariable("myVariable"));
-        
+
         session.getWorkItemManager().completeWorkItem(handler.getWorkItem().getId(), null);
-        
+
         assertEquals(0, session.getProcessInstances().size());
     }
-    
+
     @Test
     public void testMarshallingWithHumanTaskAndRule() throws Exception {
-        String process1 = 
+        String process1 =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
         	"<process xmlns=\"http://drools.org/drools-5.0/process\"\n" +
             "  xmlns:xs=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
@@ -299,7 +315,7 @@ public class ProcessMarshallingTest extends AbstractBaseTest {
             "\n" +
             "</process>\n";
         builder.addProcessFromXml( new StringReader( process1 ));
-        
+
         String process2 =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "<process xmlns=\"http://drools.org/drools-5.0/process\"\n" +
@@ -328,8 +344,8 @@ public class ProcessMarshallingTest extends AbstractBaseTest {
             "\n" +
             "</process>\n";
         builder.addProcessFromXml( new StringReader( process2 ));
-        
-        String rule = 
+
+        String rule =
             "package com.sample\n" +
             "import org.jbpm.integrationtests.test.Person;\n" +
             "rule \"Hello\" ruleflow-group \"flowgroup\"\n" +
@@ -338,9 +354,9 @@ public class ProcessMarshallingTest extends AbstractBaseTest {
             "        System.out.println( \"Hello\" );\n" +
             "end";
         builder.addPackageFromDrl( new StringReader( rule ));
-        
-        StatefulKnowledgeSession session = createKieSession(builder.getPackage());
-        
+
+        KieSession session = createKieSession(builder.getPackage());
+
         TestWorkItemHandler handler1 = new TestWorkItemHandler();
         session.getWorkItemManager().registerWorkItemHandler("Log", handler1);
         TestWorkItemHandler handler2 = new TestWorkItemHandler();
@@ -349,9 +365,9 @@ public class ProcessMarshallingTest extends AbstractBaseTest {
 
         assertEquals(2, session.getProcessInstances().size());
         assertTrue(handler1.getWorkItem() != null);
-        long workItemId = handler2.getWorkItem().getId(); 
+        long workItemId = handler2.getWorkItem().getId();
         assertTrue(workItemId != -1);
-        
+
         session = getSerialisedStatefulKnowledgeSession(session);
         session.getWorkItemManager().registerWorkItemHandler("Human Task", handler2);
         assertEquals(2, session.getProcessInstances().size());
@@ -361,18 +377,18 @@ public class ProcessMarshallingTest extends AbstractBaseTest {
         assertTrue(handler2.getWorkItem() != null);
         assertEquals("John Doe", handler2.getWorkItem().getParameter("SwimlaneActorId"));
         assertEquals("x-value", handler2.getWorkItem().getParameter("Priority"));
-        
+
         session.getWorkItemManager().completeWorkItem(handler1.getWorkItem().getId(), null);
         session.getWorkItemManager().completeWorkItem(handler2.getWorkItem().getId(), null);
         session.insert(new Person());
         session.fireAllRules();
-        
+
         assertEquals(0, session.getProcessInstances().size());
     }
-    
+
     @Test
     public void testMarshallingWithMultipleHumanTasks() throws Exception {
-        String process = 
+        String process =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
         	"<process xmlns=\"http://drools.org/drools-5.0/process\"\n" +
             "  xmlns:xs=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
@@ -447,8 +463,8 @@ public class ProcessMarshallingTest extends AbstractBaseTest {
             "</process>\n";
         builder.addProcessFromXml( new StringReader( process ));
 
-        StatefulKnowledgeSession session = createKieSession(builder.getPackage());
-        
+        KieSession session = createKieSession(builder.getPackage());
+
         TestListWorkItemHandler handler = new TestListWorkItemHandler();
         session.getWorkItemManager().registerWorkItemHandler("Human Task", handler);
         List<String> list = new ArrayList<String>();
@@ -461,7 +477,7 @@ public class ProcessMarshallingTest extends AbstractBaseTest {
 
         assertEquals(1, session.getProcessInstances().size());
         assertEquals(3, handler.getWorkItems().size());
-        
+
 //        session = getSerialisedStatefulSession( session );
 //        session.getWorkItemManager().registerWorkItemHandler("Human Task", handler);
 
@@ -472,7 +488,7 @@ public class ProcessMarshallingTest extends AbstractBaseTest {
         }
         assertEquals(1, session.getProcessInstances().size());
         assertEquals(3, handler.getWorkItems().size());
-        
+
         session = getSerialisedStatefulKnowledgeSession(session);
 
         for (WorkItem workItem: handler.getWorkItems()) {
@@ -480,10 +496,10 @@ public class ProcessMarshallingTest extends AbstractBaseTest {
         }
         assertEquals(0, session.getProcessInstances().size());
     }
-    
+
     @Test @Ignore
     public void testMarshallingProcessInstanceWithTimer() throws Exception {
-        String process = 
+        String process =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
         	"<process xmlns=\"http://drools.org/drools-5.0/process\"\n" +
             "  xmlns:xs=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
@@ -507,29 +523,29 @@ public class ProcessMarshallingTest extends AbstractBaseTest {
             "</process>\n";
         builder.addProcessFromXml( new StringReader( process ));
 
-        final StatefulKnowledgeSession session = createKieSession(builder.getPackage());
-        
+        final KieSession session = createKieSession(builder.getPackage());
+
         session.startProcess("com.sample.ruleflow", null);
         assertEquals(1, session.getProcessInstances().size());
         session.halt();
-        
-        final StatefulKnowledgeSession session2 = getSerialisedStatefulKnowledgeSession(session);
-       
+
+        final KieSession session2 = getSerialisedStatefulKnowledgeSession(session);
+
         int sleeps = 3;
         int procInstsAlive = session2.getProcessInstances().size();
-        while( procInstsAlive > 0 && sleeps > 0 ) { 
+        while( procInstsAlive > 0 && sleeps > 0 ) {
             Thread.sleep(1000);
             --sleeps;
             procInstsAlive = session2.getProcessInstances().size();
         }
         assertEquals(0, session2.getProcessInstances().size());
-        
+
         session2.halt();
     }
-    
+
     @Test
     public void testTimerOnUnmarshalledSession() throws Exception {
-        String process = 
+        String process =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
         	"<process xmlns=\"http://drools.org/drools-5.0/process\"\n" +
             "  xmlns:xs=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
@@ -553,41 +569,41 @@ public class ProcessMarshallingTest extends AbstractBaseTest {
             "</process>\n";
         builder.addProcessFromXml( new StringReader( process ));
 
-        StatefulKnowledgeSession session = createKieSession(builder.getPackage());
-        
+        KieSession session = createKieSession(builder.getPackage());
+
         session.startProcess("com.sample.ruleflow", null);
-        
+
         // serialize session
         Marshaller marshaller = MarshallerFactory.newMarshaller( session.getKieBase() );
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         marshaller.marshall( baos, session );
         byte[] b1 = baos.toByteArray();
         baos.close();
-       
+
         // hope that timer hasn't fired yet?
         assertEquals(1, session.getProcessInstances().size());
-       
+
         // dispose of session
         session.dispose();
-        
+
         // deserialize session
-        ByteArrayInputStream bais = new ByteArrayInputStream( b1 );        
-        StatefulKnowledgeSession session2 = (StatefulKnowledgeSession) marshaller.unmarshall( bais );
+        ByteArrayInputStream bais = new ByteArrayInputStream( b1 );
+        KieSession session2 = (StatefulKnowledgeSession) marshaller.unmarshall( bais );
 
         // make sure time job runs
         int sleeps = 3;
         int procInstsAlive = session2.getProcessInstances().size();
-        while( procInstsAlive > 0 && sleeps > 0 ) { 
+        while( procInstsAlive > 0 && sleeps > 0 ) {
             Thread.yield();
             Thread.sleep(1000);
             --sleeps;
             procInstsAlive = session2.getProcessInstances().size();
         }
-       
+
         // verify
         assertEquals(0, session2.getProcessInstances().size());
     }
-  
+
     private static class TestListWorkItemHandler implements WorkItemHandler {
     	private List<WorkItem> workItems = new ArrayList<WorkItem>();
     	public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
@@ -604,10 +620,10 @@ public class ProcessMarshallingTest extends AbstractBaseTest {
 			workItems.clear();
 		}
     }
-    
+
     @Test
     public void testVariablePersistenceMarshallingStrategies() throws Exception {
-        String process = 
+        String process =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "<process xmlns=\"http://drools.org/drools-5.0/process\"\n" +
             "    xmlns:xs=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
@@ -647,8 +663,8 @@ public class ProcessMarshallingTest extends AbstractBaseTest {
             "</process>";
         builder.addProcessFromXml( new StringReader( process ));
 
-        StatefulKnowledgeSession session = createKieSession(builder.getPackage());
-        
+        KieSession session = createKieSession(builder.getPackage());
+
         TestWorkItemHandler handler = new TestWorkItemHandler();
         session.getWorkItemManager().registerWorkItemHandler("Report", handler);
         Map<String, Object> variables = new HashMap<String, Object>();
@@ -659,16 +675,16 @@ public class ProcessMarshallingTest extends AbstractBaseTest {
 
         assertEquals(1, session.getProcessInstances().size());
         assertTrue(handler.getWorkItem() != null);
-        
+
         session = getSerialisedStatefulKnowledgeSession(session);
         assertEquals(1, session.getProcessInstances().size());
         VariableScopeInstance variableScopeInstance = (VariableScopeInstance)
             (( ProcessInstance )session.getProcessInstances().iterator().next()).getContextInstance(VariableScope.VARIABLE_SCOPE);
         assertEquals("ThisIsMyValue", variableScopeInstance.getVariable("myVariable"));
         assertEquals(myPerson, variableScopeInstance.getVariable("myPerson"));
-        
+
         session.getWorkItemManager().completeWorkItem(handler.getWorkItem().getId(), null);
-        
+
         assertEquals(0, session.getProcessInstances().size());
     }
 }

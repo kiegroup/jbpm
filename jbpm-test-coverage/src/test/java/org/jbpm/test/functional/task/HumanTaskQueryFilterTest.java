@@ -23,7 +23,7 @@ import java.util.Map;
 
 import org.assertj.core.api.Assertions;
 import org.jbpm.runtime.manager.impl.task.SynchronizedTaskService;
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.RuntimeEngine;
@@ -32,7 +32,7 @@ import org.kie.api.task.model.TaskSummary;
 import org.kie.internal.query.QueryFilter;
 import qa.tools.ikeeper.annotation.BZ;
 
-public class HumanTaskQueryFilterTest extends JbpmTestCase {
+public class HumanTaskQueryFilterTest extends JbpmCoverageTestCase {
 
     private static final String CONF_HUMAN_TASK =
             "org/jbpm/test/functional/task/HumanTaskQueryFilter-configurableHumanTask.bpmn2";

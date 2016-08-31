@@ -16,11 +16,18 @@
 
 package org.jbpm.test.functional.subprocess;
 
+import static org.jbpm.test.tools.IterableListenerAssert.assertChangedVariable;
+import static org.jbpm.test.tools.IterableListenerAssert.assertLeft;
+import static org.jbpm.test.tools.IterableListenerAssert.assertNextNode;
+import static org.jbpm.test.tools.IterableListenerAssert.assertProcessCompleted;
+import static org.jbpm.test.tools.IterableListenerAssert.assertProcessStarted;
+import static org.jbpm.test.tools.IterableListenerAssert.assertTriggered;
+
 import java.util.HashMap;
 import java.util.Map;
 
 import org.assertj.core.api.Assertions;
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.jbpm.test.listener.IterableProcessEventListener;
 import org.jbpm.test.listener.IterableProcessEventListener.CachedProcessStartedEvent;
 import org.jbpm.test.listener.TrackingProcessEventListener;
@@ -31,9 +38,7 @@ import org.kie.api.command.Command;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessInstance;
 
-import static org.jbpm.test.tools.IterableListenerAssert.*;
-
-public class SubprocessesTest extends JbpmTestCase {
+public class SubprocessesTest extends JbpmCoverageTestCase {
 
     private static final String P2_START = "Start";
     private static final String P2_GATEWAY_START = "Gateway";

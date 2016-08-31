@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.RuntimeEngine;
@@ -28,7 +28,7 @@ import org.kie.api.task.TaskService;
 import org.kie.api.task.model.TaskSummary;
 
 
-public class InclusiveGatewayWithHumanTasksProcessTest extends JbpmTestCase{
+public class InclusiveGatewayWithHumanTasksProcessTest extends JbpmCoverageTestCase{
     
     public InclusiveGatewayWithHumanTasksProcessTest() {
         super(true, true);

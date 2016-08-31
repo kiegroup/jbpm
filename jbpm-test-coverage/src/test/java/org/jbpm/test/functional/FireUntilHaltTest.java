@@ -22,7 +22,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.assertj.core.api.Assertions;
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.jbpm.test.domain.Person;
 import org.jbpm.test.listener.TrackingAgendaEventListener;
 import org.junit.Test;
@@ -32,7 +32,7 @@ import org.kie.api.runtime.KieSession;
 /**
  * Tests fireUntilHalt with jBPM process - this test makes sense only with singleton strategy
  */
-public class FireUntilHaltTest extends JbpmTestCase {
+public class FireUntilHaltTest extends JbpmCoverageTestCase {
 
     private static final String PROCESS = "org/jbpm/test/functional/FireUntilHalt.bpmn";
     private static final String PROCESS_ID = "org.jbpm.test.functional.FireUntilHalt";

@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -23,30 +23,31 @@ import org.kie.api.definition.process.Process;
 import org.kie.api.runtime.KieSession;
 import org.kie.internal.KnowledgeBase;
 import org.kie.internal.KnowledgeBaseFactory;
+import org.kie.test.util.logging.LoggingPrintStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbstractBaseTest {
-    
+
     private static final Logger log = LoggerFactory.getLogger(AbstractBaseTest.class);
 
     protected boolean useLocking;
-   
-    public KieBase createKieBase(Process... process) { 
+
+    public KieBase createKieBase(Process... process) {
         KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
         for( Process processToAdd : process ) {
             ((KnowledgeBaseImpl) kbase).addProcess(processToAdd);
         }
         return kbase;
     }
-    
+
     @BeforeClass
-    public static void configure() { 
-        BpmnDebugPrintStream.interceptSysOutSysErr();
+    public static void configure() {
+        LoggingPrintStream.interceptSysOutSysErr();
     }
-    
+
     @AfterClass
-    public static void reset() { 
-        BpmnDebugPrintStream.resetInterceptSysOutSysErr();
+    public static void reset() {
+        LoggingPrintStream.restoreSysOutAndSysErr();
     }
 }

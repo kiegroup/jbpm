@@ -15,7 +15,9 @@
 
 package org.jbpm.process.builder;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -37,10 +39,10 @@ import org.jbpm.test.util.AbstractBaseTest;
 import org.jbpm.workflow.core.impl.WorkflowProcessImpl;
 import org.jbpm.workflow.instance.node.SplitInstance;
 import org.junit.Test;
+import org.kie.api.runtime.KieSession;
 import org.kie.internal.KnowledgeBase;
 import org.kie.internal.KnowledgeBaseFactory;
 import org.kie.internal.definition.KnowledgePackage;
-import org.kie.internal.runtime.StatefulKnowledgeSession;
 
 public class JavaReturnValueConstraintEvaluatorBuilderTest extends AbstractBaseTest {
 
@@ -88,7 +90,7 @@ public class JavaReturnValueConstraintEvaluatorBuilderTest extends AbstractBaseT
         List<KnowledgePackage> packages = new ArrayList<KnowledgePackage>();
         packages.add( pkgBuilder.getPackage() );
         kbase.addKnowledgePackages( packages );
-        final StatefulKnowledgeSession ksession = kbase.newStatefulKnowledgeSession();
+        final KieSession ksession = kbase.newStatefulKnowledgeSession();
 
         ksession.setGlobal( "value", true );
 

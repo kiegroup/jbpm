@@ -24,7 +24,7 @@ import java.util.Map;
 import javax.persistence.EntityManagerFactory;
 
 import org.drools.core.process.instance.WorkItemHandler;
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 /**
  * See JBPM-3170/JBPM-3391
  */
-public class TimerPersistenceTest extends JbpmTestCase {
+public class TimerPersistenceTest extends JbpmCoverageTestCase {
 
     // General setup
     private static final Logger logger = LoggerFactory.getLogger(TimerPersistenceTest.class);

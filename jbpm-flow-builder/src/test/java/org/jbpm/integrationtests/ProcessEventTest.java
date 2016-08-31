@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -19,17 +19,31 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.Collection;
 
 import org.drools.core.common.InternalWorkingMemory;
 import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
 import org.jbpm.test.util.AbstractBaseTest;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessInstance;
 
+@RunWith(Parameterized.class)
 public class ProcessEventTest extends AbstractBaseTest {
-  
+
+    @Parameters(name="{0}")
+    public static Collection<Object[]> parameters() {
+        return getQueueBasedTestOptions();
+    };
+
+    public ProcessEventTest(String execModel) {
+        super(execModel);
+    }
+
     @Test
     public void testInternalNodeSignalEvent() {
         Reader source = new StringReader(
@@ -72,14 +86,14 @@ public class ProcessEventTest extends AbstractBaseTest {
             "</process>");
         builder.addRuleFlow(source);
         KieSession session = createKieSession(builder.getPackage());
-        
+
         ProcessInstance processInstance = session.startProcess("org.drools.core.event");
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
-        assertEquals("MyValue", ((VariableScopeInstance) 
+        assertEquals("MyValue", ((VariableScopeInstance)
     		((org.jbpm.process.instance.ProcessInstance) processInstance).getContextInstance(
 				VariableScope.VARIABLE_SCOPE)).getVariable("MyVar"));
     }
-    
+
     @Test
     public void testProcessInstanceSignalEvent() throws Exception {
         Reader source = new StringReader(
@@ -120,16 +134,16 @@ public class ProcessEventTest extends AbstractBaseTest {
         KieSession session = createKieSession(builder.getPackage());
         ProcessInstance processInstance = session.startProcess("org.drools.core.event");
         assertEquals(ProcessInstance.STATE_ACTIVE, processInstance.getState());
-        
+
         session = JbpmSerializationHelper.getSerialisedStatefulKnowledgeSession(session);
         processInstance = session.getProcessInstance(processInstance.getId());
         processInstance.signalEvent("MyEvent", "MyValue");
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
-        assertEquals("MyValue", ((VariableScopeInstance) 
+        assertEquals("MyValue", ((VariableScopeInstance)
     		((org.jbpm.process.instance.ProcessInstance) processInstance).getContextInstance(
 				VariableScope.VARIABLE_SCOPE)).getVariable("MyVar"));
     }
-    
+
     @Test
     public void testExternalEventCorrelation() throws Exception {
         Reader source = new StringReader(
@@ -168,18 +182,18 @@ public class ProcessEventTest extends AbstractBaseTest {
             "</process>");
         builder.addRuleFlow(source);
         KieSession session = createKieSession(builder.getPackage());
-                
+
         ProcessInstance processInstance = session.startProcess("org.drools.core.event");
         assertEquals(ProcessInstance.STATE_ACTIVE, processInstance.getState());
-        assertEquals("SomeText", ((VariableScopeInstance) 
+        assertEquals("SomeText", ((VariableScopeInstance)
     		((org.jbpm.process.instance.ProcessInstance) processInstance).getContextInstance(
 				VariableScope.VARIABLE_SCOPE)).getVariable("MyVar"));
-        
+
         session = JbpmSerializationHelper.getSerialisedStatefulKnowledgeSession(session);
         processInstance = session.getProcessInstance(processInstance.getId());
         ((InternalWorkingMemory) session).getProcessRuntime().signalEvent("MyEvent", "MyValue");
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
-        assertEquals("MyValue", ((VariableScopeInstance) 
+        assertEquals("MyValue", ((VariableScopeInstance)
     		((org.jbpm.process.instance.ProcessInstance) processInstance).getContextInstance(
 				VariableScope.VARIABLE_SCOPE)).getVariable("MyVar"));
     }
@@ -222,10 +236,10 @@ public class ProcessEventTest extends AbstractBaseTest {
             "</process>");
         builder.addRuleFlow(source);
         KieSession session = createKieSession(builder.getPackage());
-        
+
         ProcessInstance processInstance = session.startProcess("org.drools.core.event");
         assertEquals(ProcessInstance.STATE_ACTIVE, processInstance.getState());
-        assertEquals("SomeText", ((VariableScopeInstance) 
+        assertEquals("SomeText", ((VariableScopeInstance)
     		((org.jbpm.process.instance.ProcessInstance) processInstance).getContextInstance(
 				VariableScope.VARIABLE_SCOPE)).getVariable("MyVar"));
 
@@ -234,7 +248,7 @@ public class ProcessEventTest extends AbstractBaseTest {
         ((InternalWorkingMemory) session).getProcessRuntime().signalEvent("MyEvent", "MyValue");
         assertEquals(ProcessInstance.STATE_ACTIVE, processInstance.getState());
     }
-    
+
     @Test
     public void testInternalNodeSignalCompositeEvent() {
         Reader source = new StringReader(
@@ -289,7 +303,7 @@ public class ProcessEventTest extends AbstractBaseTest {
             "</process>");
         builder.addRuleFlow(source);
         KieSession ksession = createKieSession(builder.getPackage());
-        
+
         ProcessInstance processInstance =
             ksession.startProcess("org.drools.core.event");
         assertEquals("Process did not complete!", ProcessInstance.STATE_COMPLETED, processInstance.getState());
@@ -297,7 +311,7 @@ public class ProcessEventTest extends AbstractBaseTest {
     		((org.jbpm.process.instance.ProcessInstance) processInstance).getContextInstance(
 				VariableScope.VARIABLE_SCOPE)).getVariable("MyVar"));
     }
-    
+
     @Test
     public void testProcessInstanceSignalCompositeEvent() throws Exception {
         Reader source = new StringReader(
@@ -348,19 +362,19 @@ public class ProcessEventTest extends AbstractBaseTest {
             "</process>");
         builder.addRuleFlow(source);
         KieSession session = createKieSession(builder.getPackage());
-        
+
         ProcessInstance processInstance = session.startProcess("org.drools.core.event");
         assertEquals(ProcessInstance.STATE_ACTIVE, processInstance.getState());
-        
+
         session = JbpmSerializationHelper.getSerialisedStatefulKnowledgeSession(session);
         processInstance = session.getProcessInstance(processInstance.getId());
         processInstance.signalEvent("MyEvent", "MyValue");
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
-        assertEquals("MyValue", ((VariableScopeInstance) 
+        assertEquals("MyValue", ((VariableScopeInstance)
     		((org.jbpm.process.instance.ProcessInstance) processInstance).getContextInstance(
 				VariableScope.VARIABLE_SCOPE)).getVariable("MyVar"));
     }
-    
+
     @Test
     public void testExternalCompositeEventCorrelation() throws Exception {
         Reader source = new StringReader(
@@ -411,7 +425,7 @@ public class ProcessEventTest extends AbstractBaseTest {
             "</process>");
         builder.addRuleFlow(source);
         KieSession session = createKieSession(builder.getPackage());
-        
+
         ProcessInstance processInstance = session.startProcess("org.drools.core.event");
         assertEquals(ProcessInstance.STATE_ACTIVE, processInstance.getState());
 
@@ -419,11 +433,11 @@ public class ProcessEventTest extends AbstractBaseTest {
         processInstance = session.getProcessInstance(processInstance.getId());
         ((InternalWorkingMemory) session).getProcessRuntime().signalEvent("MyEvent", "MyValue");
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
-        assertEquals("MyValue", ((VariableScopeInstance) 
+        assertEquals("MyValue", ((VariableScopeInstance)
     		((org.jbpm.process.instance.ProcessInstance) processInstance).getContextInstance(
 				VariableScope.VARIABLE_SCOPE)).getVariable("MyVar"));
     }
-    
+
     @Test
     public void testInternalCompositeEventCorrelation() throws Exception {
         Reader source = new StringReader(
@@ -482,5 +496,5 @@ public class ProcessEventTest extends AbstractBaseTest {
         ((InternalWorkingMemory) session).getProcessRuntime().signalEvent("MyEvent", "MyValue");
         assertEquals(ProcessInstance.STATE_ACTIVE, processInstance.getState());
     }
-    
+
 }

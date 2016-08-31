@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.jbpm.test.domain.Person;
 import org.jbpm.test.listener.IterableProcessEventListener;
 import org.junit.Test;
@@ -33,7 +33,7 @@ import static org.jbpm.test.tools.IterableListenerAssert.*;
 /**
  * Testing script task - both Java and MVEL language.
  */
-public class ScriptTaskTest extends JbpmTestCase {
+public class ScriptTaskTest extends JbpmCoverageTestCase {
 
     private static final String SCRIPT_TASK =
             "org/jbpm/test/functional/task/ScriptTask.bpmn";

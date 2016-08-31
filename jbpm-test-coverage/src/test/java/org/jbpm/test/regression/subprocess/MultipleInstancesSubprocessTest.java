@@ -17,14 +17,19 @@
 package org.jbpm.test.regression.subprocess;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.assertj.core.api.Assertions;
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
+import org.jbpm.test.ParameterizedPlusQueueBased.ExecutionType;
 import org.jbpm.test.listener.TrackingProcessEventListener;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import org.kie.api.command.Command;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.audit.ProcessInstanceLog;
@@ -33,7 +38,8 @@ import org.kie.api.runtime.process.ProcessInstance;
 
 import qa.tools.ikeeper.annotation.BZ;
 
-public class MultipleInstancesSubprocessTest extends JbpmTestCase {
+@RunWith(Parameterized.class)
+public class MultipleInstancesSubprocessTest extends JbpmCoverageTestCase {
 
     private static final String TIMER_EVENT_PARENT =
             "org/jbpm/test/regression/subprocess/MultipleInstancesSubprocess-timerEvent-parent.bpmn2";
@@ -53,6 +59,19 @@ public class MultipleInstancesSubprocessTest extends JbpmTestCase {
     private static final String ENTRY_AND_EXIT_SCRIPT_SUBPROCESS_ID =
             "org.jbpm.test.regression.subprocess.MultipleInstancesSubprocess-entryAndExitScript-subprocess";
 
+    @Parameterized.Parameters(name = "{0}")
+    public static Collection<Object[]> parameters() {
+        Object[][] combinations = new Object[][]{
+                {ExecutionType.RECURSIVE},
+                {ExecutionType.QUEUE_BASED}
+        };
+        return Arrays.asList(combinations);
+    }
+
+    public MultipleInstancesSubprocessTest(ExecutionType executionType) {
+        this.queueBasedExecution = (executionType.equals(ExecutionType.QUEUE_BASED));
+    }
+
     @Test
     @BZ("958390")
     public void testTimerEvent() throws Exception {
@@ -71,7 +90,7 @@ public class MultipleInstancesSubprocessTest extends JbpmTestCase {
         ksession.execute(getCommands().newBatchExecution(commands, null));
        
         String lastNodeName = "main-end";
-        assertTrue( "Node '" + lastNodeName + "' was not triggered on time!", 
+        assertTrue( "Node '" + lastNodeName + "' was not triggered on time!",
                 processEvents.waitForNodeTobeTriggered(lastNodeName, 4000));
 
         Assertions.assertThat(processEvents.wasNodeTriggered("main-script1")).isTrue();

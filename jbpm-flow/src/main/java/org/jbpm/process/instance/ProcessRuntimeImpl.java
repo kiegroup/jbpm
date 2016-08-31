@@ -50,10 +50,13 @@ import org.jbpm.process.instance.event.SignalManagerFactory;
 import org.jbpm.process.instance.timer.TimerInstance;
 import org.jbpm.process.instance.timer.TimerManager;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
+import org.jbpm.workflow.core.impl.NodeImpl;
+import org.jbpm.workflow.core.node.DynamicNode;
 import org.jbpm.workflow.core.node.EventTrigger;
 import org.jbpm.workflow.core.node.StartNode;
 import org.jbpm.workflow.core.node.Trigger;
 import org.kie.api.KieBase;
+import org.kie.api.definition.process.Connection;
 import org.kie.api.definition.process.Node;
 import org.kie.api.definition.process.Process;
 import org.kie.api.event.kiebase.AfterProcessAddedEvent;
@@ -100,7 +103,7 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
 		timerManager = new TimerManager(kruntime, kruntime.getTimerService());
         processEventSupport = new ProcessEventSupport();
         initProcessEventListeners();
-        initProcessActivationListener();        
+        initProcessActivationListener();
         initStartTimers();
 	}
 	
@@ -184,7 +187,7 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
                                         Map<String, Object> parameters) {
     	return startProcess(processId, parameters, null);
     }
-    
+
     public ProcessInstance startProcess(String processId,
             Map<String, Object> parameters, String trigger) {
     	ProcessInstance processInstance = createProcessInstance(processId, parameters);
@@ -230,8 +233,8 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
     }
 
     @Override
-    public ProcessInstance createProcessInstance(String processId,
-            CorrelationKey correlationKey, Map<String, Object> parameters) {
+    public ProcessInstance createProcessInstance(String processId, CorrelationKey correlationKey, Map<String, Object> parameters) {
+        ProcessInstance processInstance = null;
         try {
             kruntime.startOperation();
             kruntime.executeQueuedActions();
@@ -240,10 +243,12 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
             if ( process == null ) {
                 throw new IllegalArgumentException( "Unknown process ID: " + processId );
             }
-            return startProcess( process, correlationKey, parameters );
+            // doing a return statement here means that the return statement executes AFTER the finally clause
+            processInstance = startProcess( process, correlationKey, parameters );
         } finally {
             kruntime.endOperation();
         }
+         return processInstance;
     }
 
     @Override

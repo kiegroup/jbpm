@@ -16,7 +16,7 @@
 
 package org.jbpm.test.functional.subprocess;
 
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.jbpm.test.listener.IterableProcessEventListener;
 import org.junit.Test;
 import org.kie.api.command.Command;
@@ -24,7 +24,7 @@ import org.kie.api.runtime.KieSession;
 
 import static org.jbpm.test.tools.IterableListenerAssert.*;
 
-public class EmbeddedSubProcessTest extends JbpmTestCase {
+public class EmbeddedSubProcessTest extends JbpmCoverageTestCase {
 
     private static final String EMBEDDED = "org/jbpm/test/functional/subprocess/EmbeddedSubProcess.bpmn";
     private static final String EMBEDDED_ID = "org.jbpm.test.functional.subprocess.EmbeddedSubProcess";

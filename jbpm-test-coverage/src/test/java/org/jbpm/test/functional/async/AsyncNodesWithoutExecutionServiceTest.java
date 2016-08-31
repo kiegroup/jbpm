@@ -19,7 +19,7 @@ package org.jbpm.test.functional.async;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.jbpm.test.wih.FirstErrorWorkItemHandler;
 import org.jbpm.workflow.instance.WorkflowRuntimeException;
 import org.junit.After;
@@ -27,7 +27,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
 
-public class AsyncNodesWithoutExecutionServiceTest extends JbpmTestCase {
+public class AsyncNodesWithoutExecutionServiceTest extends JbpmCoverageTestCase {
 
     private static final String PROCESS_ATC = "org.jbpm.test.functional.async.AsyncThreadContinuation";
     private static final String BPMN_ATC = "org/jbpm/test/functional/async/AsyncThreadContinuation.bpmn2";

@@ -43,7 +43,12 @@ public class EndEventTest extends JbpmBpmn2TestCase {
 
     @Parameters
     public static Collection<Object[]> persistence() {
-        Object[][] data = new Object[][] { { false }, { true } };
+        Object[][] data = new Object[][] {
+            { false, false },
+            { false, true },
+            { true, false },
+            { true, true }
+            };
         return Arrays.asList(data);
     };
 
@@ -51,9 +56,9 @@ public class EndEventTest extends JbpmBpmn2TestCase {
             .getLogger(EndEventTest.class);
 
     private StatefulKnowledgeSession ksession;
-    
-    public EndEventTest(boolean persistence) {
-        super(persistence);
+
+    public EndEventTest(boolean persistence, boolean queueBased) {
+        super(persistence, false, queueBased);
     }
 
     @BeforeClass

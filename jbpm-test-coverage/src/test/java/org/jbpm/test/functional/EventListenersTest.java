@@ -19,7 +19,7 @@ package org.jbpm.test.functional;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.jbpm.test.listener.TrackingProcessEventListener;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,7 +29,7 @@ import org.kie.api.runtime.KieSession;
 /**
  * Test to ensure event listeners for processes work properly BRMS 5.3 PRD: BRMS-BPM-10
  */
-public class EventListenersTest extends JbpmTestCase {
+public class EventListenersTest extends JbpmCoverageTestCase {
 
     private static final String PROCESS = "org/jbpm/test/functional/EventListeners.bpmn";
     private static final String PROCESS_ID = "org.jbpm.test.functional.EventListeners";

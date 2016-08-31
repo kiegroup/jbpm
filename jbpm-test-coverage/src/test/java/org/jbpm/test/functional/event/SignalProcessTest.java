@@ -18,7 +18,7 @@ package org.jbpm.test.functional.event;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -28,7 +28,7 @@ import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.runtime.process.ProcessInstance;
 
 @RunWith(Parameterized.class)
-public class SignalProcessTest extends JbpmTestCase {
+public class SignalProcessTest extends JbpmCoverageTestCase {
 	
 	@Parameters(name="Persistence={1} - data source={0}")
     public static Collection<Object[]> parameters() {

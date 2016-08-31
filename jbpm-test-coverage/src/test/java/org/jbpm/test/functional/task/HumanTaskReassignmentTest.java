@@ -24,7 +24,7 @@ import java.util.Properties;
 
 import org.jbpm.process.core.timer.BusinessCalendar;
 import org.jbpm.process.core.timer.BusinessCalendarImpl;
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,7 +35,7 @@ import org.kie.api.task.TaskService;
 import org.kie.api.task.model.OrganizationalEntity;
 import org.kie.api.task.model.Task;
 
-public class HumanTaskReassignmentTest extends JbpmTestCase {
+public class HumanTaskReassignmentTest extends JbpmCoverageTestCase {
 
     private static final String PROCESS_FILE = "org/jbpm/test/functional/task/TaskReassignmentTimeout.bpmn2";
     private static final String PROCESS_ID = "com.bpms.functional.bpmn2.task.TaskReassignmentTimeout";

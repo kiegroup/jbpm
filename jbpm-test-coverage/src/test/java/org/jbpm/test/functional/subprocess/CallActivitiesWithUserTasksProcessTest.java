@@ -27,7 +27,7 @@ import javax.transaction.UserTransaction;
 import org.drools.persistence.jta.JtaTransactionManager;
 import org.jbpm.process.instance.impl.demo.SystemOutWorkItemHandler;
 import org.jbpm.services.task.admin.listener.TaskCleanUpProcessEventListener;
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -43,7 +43,7 @@ import org.kie.internal.task.api.InternalTaskService;
 
 
 @RunWith(Parameterized.class)
-public class CallActivitiesWithUserTasksProcessTest extends JbpmTestCase {
+public class CallActivitiesWithUserTasksProcessTest extends JbpmCoverageTestCase {
   
     @Parameters(name="{1} | user managed={0}")
     public static Collection<Object[]> parameters() {

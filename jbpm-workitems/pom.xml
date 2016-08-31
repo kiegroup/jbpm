@@ -265,7 +265,12 @@
       <groupId>org.jbpm</groupId>
       <artifactId>jbpm-runtime-manager</artifactId>
       <scope>test</scope>
-    </dependency>       
+    </dependency>
+    <dependency>
+      <groupId>org.kie</groupId>
+      <artifactId>kie-test-util</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
 </project>

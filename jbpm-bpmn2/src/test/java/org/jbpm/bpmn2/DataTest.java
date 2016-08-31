@@ -16,7 +16,6 @@ limitations under the License.*/
 package org.jbpm.bpmn2;
 
 import java.io.ByteArrayInputStream;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -54,17 +53,16 @@ import org.w3c.dom.Element;
 public class DataTest extends JbpmBpmn2TestCase {
 
     @Parameters
-    public static Collection<Object[]> persistence() {
-        Object[][] data = new Object[][] { { false }, { true } };
-        return Arrays.asList(data);
+    public static Collection<Object[]> parameters() {
+        return getTestOptions(TestOption.EXCEPT_FOR_LOCKING);
     };
 
     private static final Logger logger = LoggerFactory.getLogger(DataTest.class);
 
     private StatefulKnowledgeSession ksession;
-    
-    public DataTest(boolean persistence) {
-        super(persistence);
+
+    public DataTest(boolean persistence, boolean locking, boolean queueBased, String name) {
+        super(persistence, locking, queueBased, name);
     }
 
     @BeforeClass

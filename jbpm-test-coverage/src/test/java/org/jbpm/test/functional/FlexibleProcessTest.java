@@ -24,7 +24,7 @@ package org.jbpm.test.functional;
 import java.util.Collections;
 
 import org.assertj.core.api.Assertions;
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.jbpm.test.listener.TrackingProcessEventListener;
 import org.jbpm.workflow.instance.node.DynamicUtils;
 import org.junit.Ignore;
@@ -43,7 +43,7 @@ import static org.jbpm.test.tools.TrackingListenerAssert.*;
  * https://bugzilla.redhat.com/show_bug.cgi?id=826578
  * https://bugzilla.redhat.com/show_bug.cgi?id=826952
  */
-public class FlexibleProcessTest extends JbpmTestCase {
+public class FlexibleProcessTest extends JbpmCoverageTestCase {
 
     public static final String PROCESS = "org/jbpm/test/functional/FlexibleProcess.bpmn";
     public static final String PROCESS_ID = "org.jbpm.test.functional.FlexibleProcess";

@@ -28,7 +28,6 @@ import org.drools.compiler.compiler.PackageRegistry;
 import org.drools.compiler.lang.descr.ActionDescr;
 import org.drools.compiler.rule.builder.PackageBuildContext;
 import org.drools.compiler.rule.builder.dialect.mvel.MVELDialect;
-import org.drools.core.WorkingMemory;
 import org.drools.core.common.InternalWorkingMemory;
 import org.drools.core.definitions.InternalKnowledgePackage;
 import org.drools.core.definitions.impl.KnowledgePackageImpl;
@@ -42,9 +41,9 @@ import org.jbpm.workflow.core.DroolsAction;
 import org.jbpm.workflow.core.impl.DroolsConsequenceAction;
 import org.jbpm.workflow.core.node.ActionNode;
 import org.junit.Test;
+import org.kie.api.runtime.KieSession;
 import org.kie.internal.KnowledgeBase;
 import org.kie.internal.KnowledgeBaseFactory;
-import org.kie.internal.runtime.StatefulKnowledgeSession;
 
 public class MVELDecisionBuilderTest extends AbstractBaseTest {
 
@@ -77,7 +76,7 @@ public class MVELDecisionBuilderTest extends AbstractBaseTest {
 
         final KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
         kbase.addKnowledgePackages((Collection) Arrays.asList(pkgBuilder.getPackage()) );
-        final StatefulKnowledgeSession wm = kbase.newStatefulKnowledgeSession();
+        final KieSession wm = kbase.newStatefulKnowledgeSession();
 
         List<String> list = new ArrayList<String>();
         wm.setGlobal( "list", list );        

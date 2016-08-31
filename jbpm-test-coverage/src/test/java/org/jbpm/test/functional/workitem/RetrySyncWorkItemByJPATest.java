@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.drools.core.process.instance.WorkItemManager;
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.RuntimeEngine;
@@ -31,7 +31,7 @@ import org.kie.api.task.TaskService;
 import org.kie.api.task.model.TaskSummary;
 import org.kie.internal.runtime.manager.context.EmptyContext;
 
-public class RetrySyncWorkItemByJPATest extends JbpmTestCase {
+public class RetrySyncWorkItemByJPATest extends JbpmCoverageTestCase {
 
     private static final String RETRY_WORKITEM_JPA_PROCESS_ID = "org.jbpm.test.retryWorkitem-jpa";
 

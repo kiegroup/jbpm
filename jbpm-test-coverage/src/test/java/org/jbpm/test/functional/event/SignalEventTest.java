@@ -23,7 +23,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.assertj.core.api.Assertions;
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
+import org.jbpm.test.ParameterizedPlusQueueBased;
+import org.jbpm.test.ParameterizedPlusQueueBased.ExecutionType;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -34,8 +36,8 @@ import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.internal.runtime.manager.context.EmptyContext;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 
-@RunWith(Parameterized.class)
-public class SignalEventTest extends JbpmTestCase {
+@RunWith(ParameterizedPlusQueueBased.class)
+public class SignalEventTest extends JbpmCoverageTestCase {
 
     private static final String END_THROW_DEFAULT = "org/jbpm/test/functional/event/Signal-endThrow-default.bpmn2";
     private static final String END_THROW_DEFAULT_ID = "org.jbpm.test.functional.event.Signal-endThrow-default";
@@ -77,9 +79,10 @@ public class SignalEventTest extends JbpmTestCase {
     private final Strategy strategy;
     private final Scope scope;
 
-    public SignalEventTest(Strategy strategy, Scope scope) {
+    public SignalEventTest(Strategy strategy, Scope scope, ExecutionType executionType) {
         this.strategy = strategy;
         this.scope = scope;
+        this.queueBasedExecution = (executionType.equals(ExecutionType.QUEUE_BASED));
     }
 
     @Parameterized.Parameters(name = "{0} strategy, {1} scope")
@@ -207,7 +210,7 @@ public class SignalEventTest extends JbpmTestCase {
         getKieSession().startProcess(throwingProcessId);
 
         boolean run = (strategy == Strategy.SINGLETON && scope != Scope.PROCESS_INSTANCE) ||
-                (strategy == Strategy.PROCESS_INSTANCE && scope == Scope.PROJECT) || 
+                (strategy == Strategy.PROCESS_INSTANCE && scope == Scope.PROJECT) ||
                 (strategy == Strategy.PROCESS_INSTANCE && scope == Scope.DEFAULT);
 
         List<? extends ProcessInstanceLog> instances = getRuntimeEngine().getAuditService().findProcessInstances();

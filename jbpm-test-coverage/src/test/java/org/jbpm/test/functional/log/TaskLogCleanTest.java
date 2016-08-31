@@ -23,7 +23,7 @@ import java.util.List;
 
 import org.assertj.core.api.Assertions;
 import org.jbpm.services.task.audit.service.TaskJPAAuditService;
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessInstance;
@@ -39,7 +39,7 @@ import qa.tools.ikeeper.annotation.BZ;
  * - TaskEventInstanceLogDeleteBuilder
  * - TaskJPAAuditService.clear()
  */
-public class TaskLogCleanTest extends JbpmTestCase {
+public class TaskLogCleanTest extends JbpmCoverageTestCase {
 
     private static final String HUMAN_TASK =
             "org/jbpm/test/functional/common/HumanTask.bpmn2";

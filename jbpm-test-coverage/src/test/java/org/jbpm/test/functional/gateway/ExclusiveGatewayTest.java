@@ -16,17 +16,24 @@
 
 package org.jbpm.test.functional.gateway;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.drools.core.command.runtime.process.StartProcessCommand;
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.process.test.TestProcessEventListener;
+import org.jbpm.test.JbpmCoverageTestCase;
+import org.jbpm.test.ParameterizedPlusQueueBased.ExecutionType;
 import org.jbpm.test.listener.IterableProcessEventListener;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 import org.kie.api.runtime.KieSession;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
@@ -37,7 +44,8 @@ import static org.jbpm.test.tools.IterableListenerAssert.*;
 /**
  * Exclusive gateway test. priorities, default gate, conditions (XPath, Java, MVEL)
  */
-public class ExclusiveGatewayTest extends JbpmTestCase {
+@RunWith(Parameterized.class)
+public class ExclusiveGatewayTest extends JbpmCoverageTestCase {
 
     private static final String EXCLUSIVE_GATEWAY = "org/jbpm/test/functional/gateway/ExclusiveGateway.bpmn";
     private static final String EXCLUSIVE_GATEWAY_ID = "org.jbpm.test.functional.gateway.ExclusiveGateway";
@@ -45,8 +53,19 @@ public class ExclusiveGatewayTest extends JbpmTestCase {
     private KieSession ksession;
     private IterableProcessEventListener iterableListener;
 
-    public ExclusiveGatewayTest() {
+
+    @Parameters(name="{0}")
+    public static Collection<Object[]> parameters() {
+        return new ArrayList<Object[]>() { {
+                add(new Object[] { ExecutionType.RECURSIVE });
+                add(new Object[] { ExecutionType.QUEUE_BASED });
+            }
+        };
+    };
+
+    public ExclusiveGatewayTest(ExecutionType executionType) {
         super(false);
+        this.queueBasedExecution = executionType.equals(ExecutionType.QUEUE_BASED);
     }
 
     @Override
@@ -66,6 +85,7 @@ public class ExclusiveGatewayTest extends JbpmTestCase {
     public void testExclusive1() {
         Assume.assumeFalse(EXCLUSIVE_GATEWAY_ID.contains("ExclusiveGateway-eclipse"));
         ksession.addEventListener(iterableListener);
+        ksession.addEventListener(new TestProcessEventListener());
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("x", 5);
         Element el = createTestElement("sample", "value", "test");

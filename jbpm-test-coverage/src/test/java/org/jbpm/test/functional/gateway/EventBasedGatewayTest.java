@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.drools.core.time.SessionPseudoClock;
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.jbpm.test.listener.TrackingProcessEventListener;
 import org.jbpm.test.tools.TrackingListenerAssert;
 import org.junit.Assume;
@@ -35,7 +35,7 @@ import org.kie.internal.command.CommandFactory;
  * Event-based gateway execution test. branches: condition event, signal event, message event, timer event
  * (default after 1 sec)
  */
-public class EventBasedGatewayTest extends JbpmTestCase {
+public class EventBasedGatewayTest extends JbpmCoverageTestCase {
 
     private static final String EVENT_BASED_GATEWAY = "org/jbpm/test/functional/gateway/EventBasedGateway.bpmn";
     private static final String EVENT_BASED_GATEWAY_ID = "org.jbpm.test.functional.gateway.EventBasedGateway";

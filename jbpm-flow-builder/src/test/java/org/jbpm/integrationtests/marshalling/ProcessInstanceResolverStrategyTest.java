@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -42,24 +42,24 @@ import org.jbpm.ruleflow.instance.RuleFlowProcessInstance;
 import org.jbpm.test.util.AbstractBaseTest;
 import org.jbpm.workflow.core.impl.WorkflowProcessImpl;
 import org.junit.Test;
+import org.kie.api.KieBase;
 import org.kie.api.io.ResourceType;
 import org.kie.api.marshalling.ObjectMarshallingStrategy;
+import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessInstance;
-import org.kie.internal.KnowledgeBase;
 import org.kie.internal.KnowledgeBaseFactory;
 import org.kie.internal.builder.KnowledgeBuilder;
 import org.kie.internal.builder.KnowledgeBuilderFactory;
 import org.kie.internal.marshalling.MarshallerFactory;
-import org.kie.internal.runtime.StatefulKnowledgeSession;
 
 public class ProcessInstanceResolverStrategyTest extends AbstractBaseTest {
 
     private final static String PROCESS_NAME = "simpleProcess.xml";
-    
+
     @Test
     public void testAccept() {
-        KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
-        StatefulKnowledgeSession ksession = kbase.newStatefulKnowledgeSession();
+        KieBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
+        KieSession ksession = kbase.newKieSession();
         WorkflowProcessImpl process = new WorkflowProcessImpl();
 
         RuleFlowProcessInstance processInstance = new RuleFlowProcessInstance();
@@ -68,40 +68,40 @@ public class ProcessInstanceResolverStrategyTest extends AbstractBaseTest {
         processInstance.setKnowledgeRuntime((InternalKnowledgeRuntime) ksession);
 
         ProcessInstanceResolverStrategy strategy = new ProcessInstanceResolverStrategy();
-        
+
         assertTrue( strategy.accept(processInstance) );
         Object object = new Object();
         assertTrue( ! strategy.accept(object) );
     }
-    
+
 
     @Test
     public void testProcessInstanceResolverStrategy() throws Exception {
         // Setup
         KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
         kbuilder.add(new ClassPathResource(PROCESS_NAME, this.getClass()), ResourceType.DRF);
-        KnowledgeBase kbase = kbuilder.newKnowledgeBase();
-        StatefulKnowledgeSession ksession = kbase.newStatefulKnowledgeSession();
+        KieBase kbase = kbuilder.newKnowledgeBase();
+        KieSession ksession = kbase.newKieSession();
         ProcessInstance processInstance = ksession.createProcessInstance("process name", new HashMap<String, Object>());
         ksession.insert(processInstance);
 
         // strategy setup
         ProcessInstanceResolverStrategy strategy = new ProcessInstanceResolverStrategy();
-        ObjectMarshallingStrategy[] strategies = { 
+        ObjectMarshallingStrategy[] strategies = {
                 strategy,
-                MarshallerFactory.newSerializeMarshallingStrategy() 
+                MarshallerFactory.newSerializeMarshallingStrategy()
         };
 
-        
+
         // Test strategy.write
         org.kie.api.marshalling.MarshallingConfiguration marshallingConfig = new MarshallingConfigurationImpl(strategies, true, true);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        MarshallerWriteContext writerContext 
+        MarshallerWriteContext writerContext
             = new MarshallerWriteContext(baos,
                                          ((InternalKnowledgeBase) kbase),
 										 (InternalWorkingMemory) ((StatefulKnowledgeSessionImpl) ksession),
 										 RuleBaseNodes.getNodeMap(((InternalKnowledgeBase) kbase)),
-										 marshallingConfig.getObjectMarshallingStrategyStore(), 
+										 marshallingConfig.getObjectMarshallingStrategyStore(),
 										 marshallingConfig.isMarshallProcessInstances(),
 										 marshallingConfig.isMarshallWorkItems(), ksession.getEnvironment());
 
@@ -123,7 +123,7 @@ public class ProcessInstanceResolverStrategyTest extends AbstractBaseTest {
         assertNotNull(pim);
         assertNotNull(ProcessInstanceResolverStrategy.retrieveKnowledgeRuntime(writerContext));
         assertTrue(processInstance == pim.getProcessInstance(serializedProcessInstanceId));
-        
+
         // Test strategy.read
         bais = new ByteArrayInputStream(bytes);
         MarshallerReaderContext readerContext = new MarshallerReaderContext(bais,
@@ -135,7 +135,7 @@ public class ProcessInstanceResolverStrategyTest extends AbstractBaseTest {
                                                                             marshallingConfig.isMarshallWorkItems() ,
                                                                             EnvironmentFactory.newEnvironment());
         readerContext.wm = ((StatefulKnowledgeSessionImpl) ksession).getInternalWorkingMemory();
-        Object procInstObject = strategy.read(readerContext); 
+        Object procInstObject = strategy.read(readerContext);
         assertTrue(procInstObject != null && procInstObject instanceof ProcessInstance );
         assertTrue(processInstance == procInstObject);
     }

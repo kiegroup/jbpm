@@ -28,7 +28,7 @@ import org.kie.api.executor.ExecutorService;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessInstance;
 
-public class JbpmAsyncJobTestCase extends JbpmTestCase {
+public class JbpmAsyncJobTestCase extends JbpmCoverageTestCase {
 
     private static final int EXECUTOR_THREADS = 4;
     private static final int EXECUTOR_RETRIES = 3;

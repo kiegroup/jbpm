@@ -20,7 +20,7 @@ import java.util.*;
 
 import org.assertj.core.api.Assertions;
 import org.jbpm.process.audit.JPAAuditLogService;
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.jbpm.test.domain.Person;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -28,7 +28,7 @@ import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.audit.VariableInstanceLog;
 import org.kie.api.runtime.process.ProcessInstance;
 
-public class VariableInstanceLogCleanTest extends JbpmTestCase {
+public class VariableInstanceLogCleanTest extends JbpmCoverageTestCase {
 
     private static final String DATA_OBJECT = "org/jbpm/test/functional/log/VariableInstanceLogClean-dataObject.bpmn";
     private static final String DATA_OBJECT_ID = "org.jbpm.test.functional.log.VariableInstanceLogClean-dataObject";

@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -19,6 +19,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,14 +31,28 @@ import org.jbpm.process.instance.context.variable.VariableScopeInstance;
 import org.jbpm.ruleflow.instance.RuleFlowProcessInstance;
 import org.jbpm.test.util.AbstractBaseTest;
 import org.junit.Test;
-import org.kie.internal.runtime.StatefulKnowledgeSession;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
+import org.kie.api.runtime.KieSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@RunWith(Parameterized.class)
 public class ProcessMilestoneTest extends AbstractBaseTest {
-    
+
+    @Parameters(name="{0}")
+    public static Collection<Object[]> parameters() {
+        return getQueueBasedTestOptions();
+    };
+
+    public ProcessMilestoneTest(String execModel) {
+        super(execModel);
+    }
+
+
     private static final Logger logger = LoggerFactory.getLogger(ProcessMilestoneTest.class);
-    
+
     @Test
     public void testMilestone() {
         Reader source = new StringReader(
@@ -69,8 +84,8 @@ public class ProcessMilestoneTest extends AbstractBaseTest {
             "</process>");
         builder.addRuleFlow(source);
 
-        StatefulKnowledgeSession workingMemory = createKieSession(builder.getPackage());
-        
+        KieSession workingMemory = createKieSession(builder.getPackage());
+
         ProcessInstance processInstance = ( ProcessInstance ) workingMemory.startProcess("org.drools.milestone");
         assertEquals(ProcessInstance.STATE_ACTIVE, processInstance.getState());
         workingMemory.insert(new Person("Jane Doe", 20));
@@ -79,7 +94,7 @@ public class ProcessMilestoneTest extends AbstractBaseTest {
         workingMemory.fireAllRules();
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
     }
-    
+
     @Test
     public void testMilestoneWithProcessInstanceConstraint() {
         Reader source = new StringReader(
@@ -121,11 +136,11 @@ public class ProcessMilestoneTest extends AbstractBaseTest {
         	logger.error(error.toString());
         }
 
-        StatefulKnowledgeSession workingMemory = createKieSession(builder.getPackage());
-        
+        KieSession workingMemory = createKieSession(builder.getPackage());
+
         Person john = new Person("John Doe", 20);
         Person jane = new Person("Jane Doe", 20);
-        
+
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("name", john.getName());
         ProcessInstance processInstanceJohn = ( ProcessInstance )
@@ -139,25 +154,25 @@ public class ProcessMilestoneTest extends AbstractBaseTest {
             workingMemory.startProcess("org.drools.milestone", params);
         workingMemory.insert(processInstanceJane);
         assertEquals(ProcessInstance.STATE_ACTIVE, processInstanceJane.getState());
-        
+
         workingMemory.insert(jane);
         workingMemory.fireAllRules();
         assertEquals(ProcessInstance.STATE_ACTIVE, processInstanceJohn.getState());
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstanceJane.getState());
-        
+
         workingMemory.insert(john);
         workingMemory.fireAllRules();
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstanceJohn.getState());
     }
-    
+
     public static class ProcessUtils {
-    	
+
     	public static Object getValue(RuleFlowProcessInstance processInstance, String name) {
     		VariableScopeInstance scope = (VariableScopeInstance)
     			processInstance.getContextInstance(VariableScope.VARIABLE_SCOPE);
     		return scope.getVariable(name);
     	}
-    	
+
     }
 
 }

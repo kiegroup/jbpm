@@ -16,13 +16,13 @@
 
 package org.jbpm.test.regression.event;
 
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessInstance;
 import qa.tools.ikeeper.annotation.BZ;
 
-public class MessageEventTest extends JbpmTestCase {
+public class MessageEventTest extends JbpmCoverageTestCase {
 
     private static final String MULTIPLE_SIMPLE =
             "org/jbpm/test/regression/event/MessageEvent-multipleSimple.bpmn2";

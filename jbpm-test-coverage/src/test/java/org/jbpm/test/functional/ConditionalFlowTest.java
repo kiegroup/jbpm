@@ -21,30 +21,53 @@
 
 package org.jbpm.test.functional;
 
-import org.jbpm.test.JbpmTestCase;
+import static org.jbpm.test.tools.IterableListenerAssert.assertChangedVariable;
+import static org.jbpm.test.tools.IterableListenerAssert.assertLeft;
+import static org.jbpm.test.tools.IterableListenerAssert.assertNextNode;
+import static org.jbpm.test.tools.IterableListenerAssert.assertProcessCompleted;
+import static org.jbpm.test.tools.IterableListenerAssert.assertProcessStarted;
+import static org.jbpm.test.tools.IterableListenerAssert.assertTriggered;
+
+import java.util.ArrayList;
+import java.util.Collection;
+
+import org.jbpm.test.JbpmCoverageTestCase;
+import org.jbpm.test.ParameterizedPlusQueueBased.ExecutionType;
 import org.jbpm.test.listener.IterableProcessEventListener;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 import org.kie.api.command.Command;
 import org.kie.api.runtime.KieSession;
-
-import static org.jbpm.test.tools.IterableListenerAssert.*;
 
 /**
  * Testing conditional sequence flow without gateway.
  *
  * https://bugzilla.redhat.com/show_bug.cgi?id=807640
  */
-public class ConditionalFlowTest extends JbpmTestCase {
+@RunWith(Parameterized.class)
+public class ConditionalFlowTest extends JbpmCoverageTestCase {
+
+    @Parameters(name="{0}")
+    public static Collection<Object[]> parameters() {
+        return new ArrayList<Object[]>() { {
+                add(new Object[] { ExecutionType.RECURSIVE });
+                add(new Object[] { ExecutionType.QUEUE_BASED });
+            }
+        };
+    };
+
+    public ConditionalFlowTest(ExecutionType executionType) {
+        super(false);
+        this.queueBasedExecution = executionType.equals(ExecutionType.QUEUE_BASED);
+    }
 
     private static final String PROCESS = "org/jbpm/test/functional/ConditionalFlow.bpmn";
     private static final String PROCESS_ID = "org.jbpm.test.functional.ConditionalFlow";
 
     static {
         System.setProperty("jbpm.enable.multi.con", "true");
-    }
-
-    public ConditionalFlowTest() {
-        super(false);
     }
 
     @Test(timeout = 30000)

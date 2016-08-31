@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -40,14 +40,13 @@ import org.kie.internal.builder.KnowledgeBuilderFactory;
 import org.kie.internal.command.CommandFactory;
 import org.kie.internal.definition.KnowledgePackage;
 import org.kie.internal.io.ResourceFactory;
-import org.kie.internal.runtime.StatefulKnowledgeSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AgendaFilterTest extends AbstractBaseTest {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(AgendaFilterTest.class);
-    
+
     @Test
     public void testAgendaFilter() {
         // JBRULES-3374
@@ -259,7 +258,7 @@ public class AgendaFilterTest extends AbstractBaseTest {
 
         KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
         kbase.addKnowledgePackages( kbuilder.getKnowledgePackages() );
-        StatefulKnowledgeSession ksession = kbase.newStatefulKnowledgeSession();
+        KieSession ksession = kbase.newKieSession();
 
         ksession.addEventListener(new DebugAgendaEventListener());
         ksession.addEventListener(new DebugProcessEventListener());
@@ -275,7 +274,7 @@ public class AgendaFilterTest extends AbstractBaseTest {
         ksession.execute(CommandFactory.newBatchExecution(commands));
     }
 
-    private Object newCancelFact(StatefulKnowledgeSession ksession, boolean cancel) {
+    private Object newCancelFact(KieSession ksession, boolean cancel) {
         FactType type = ksession.getKieBase().getFactType("org.jboss.qa.brms.agendafilter", "CancelFact");
         Object instance = null;
         try {
@@ -306,7 +305,7 @@ public class AgendaFilterTest extends AbstractBaseTest {
             throw new RuntimeException(kbuilder.getErrors().toString());
         }
 
-        StatefulKnowledgeSession ksession = kbuilder.newKnowledgeBase().newStatefulKnowledgeSession();
+        KieSession ksession = kbuilder.newKnowledgeBase().newStatefulKnowledgeSession();
 
         ksession.getAgendaEventListeners();
         ksession.getProcessEventListeners();

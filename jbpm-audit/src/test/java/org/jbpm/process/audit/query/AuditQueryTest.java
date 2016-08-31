@@ -47,7 +47,6 @@ import org.jbpm.process.audit.NodeInstanceLog;
 import org.jbpm.process.audit.ProcessInstanceLog;
 import org.jbpm.process.audit.VariableInstanceLog;
 import org.jbpm.process.audit.strategy.StandaloneJtaStrategy;
-import org.jbpm.process.instance.impl.util.LoggingPrintStream;
 import org.jbpm.test.util.AbstractBaseTest;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -60,6 +59,7 @@ import org.kie.internal.runtime.manager.audit.query.AuditLogQueryBuilder.OrderBy
 import org.kie.internal.runtime.manager.audit.query.NodeInstanceLogQueryBuilder;
 import org.kie.internal.runtime.manager.audit.query.ProcessInstanceLogQueryBuilder;
 import org.kie.internal.runtime.manager.audit.query.VariableInstanceLogQueryBuilder;
+import org.kie.test.util.logging.LoggingPrintStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,7 +90,7 @@ public class AuditQueryTest extends JPAAuditLogService {
     
     @AfterClass
     public static void reset() { 
-        LoggingPrintStream.resetInterceptSysOutSysErr();
+        LoggingPrintStream.restoreSysOutAndSysErr();
         cleanUp(context);
     }
 

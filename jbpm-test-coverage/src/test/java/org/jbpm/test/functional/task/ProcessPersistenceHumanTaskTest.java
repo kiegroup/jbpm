@@ -20,7 +20,7 @@ import java.util.List;
 import javax.naming.InitialContext;
 import javax.transaction.UserTransaction;
 
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.RuntimeEngine;
@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 /**
  * This is a sample file to test a process.
  */
-public class ProcessPersistenceHumanTaskTest extends JbpmTestCase {
+public class ProcessPersistenceHumanTaskTest extends JbpmCoverageTestCase {
 
     private static final Logger logger = LoggerFactory.getLogger(ProcessPersistenceHumanTaskTest.class);
 

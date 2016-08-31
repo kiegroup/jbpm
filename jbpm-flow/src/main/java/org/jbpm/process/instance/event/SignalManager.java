@@ -17,12 +17,11 @@
 package org.jbpm.process.instance.event;
 
 import org.kie.api.runtime.process.EventListener;
+import org.kie.api.runtime.process.EventSignallable;
 
 
-public interface SignalManager {
-	
-	void signalEvent(String type, Object event);
-	
+public interface SignalManager extends EventSignallable {
+
 	void signalEvent(long processInstanceId, String type, Object event);
 	
 	void addEventListener(String type, EventListener eventListener);

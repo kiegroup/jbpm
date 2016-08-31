@@ -35,6 +35,7 @@ import org.jbpm.process.instance.impl.ProcessInstanceImpl;
 import org.jbpm.workflow.instance.WorkflowProcessInstance;
 import org.jbpm.workflow.instance.impl.NodeInstanceImpl;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
+import org.jbpm.workflow.instance.impl.queue.TriggerCompletedAction;
 import org.kie.api.definition.process.Process;
 import org.kie.api.runtime.EnvironmentName;
 import org.kie.api.runtime.KieRuntime;
@@ -50,24 +51,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DynamicUtils {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(DynamicUtils.class);
-	
+
 	public static void addDynamicWorkItem(
 			final DynamicNodeInstance dynamicContext, KieRuntime ksession,
 			String workItemName, Map<String, Object> parameters) {
 		final WorkflowProcessInstance processInstance = dynamicContext.getProcessInstance();
 		internalAddDynamicWorkItem(processInstance, dynamicContext, ksession, workItemName, parameters);
 	}
-	
+
 	public static void addDynamicWorkItem(
 			final org.kie.api.runtime.process.ProcessInstance dynamicProcessInstance, KieRuntime ksession,
 			String workItemName, Map<String, Object> parameters) {
 		internalAddDynamicWorkItem((WorkflowProcessInstance) dynamicProcessInstance, null, ksession, workItemName, parameters);
 	}
-	
+
 	private static void internalAddDynamicWorkItem(
-			final WorkflowProcessInstance processInstance, final DynamicNodeInstance dynamicContext, 
+			final WorkflowProcessInstance processInstance, final DynamicNodeInstance dynamicContext,
 			KieRuntime ksession, String workItemName, Map<String, Object> parameters) {
 		final WorkItemImpl workItem = new WorkItemImpl();
 		workItem.setState(WorkItem.ACTIVE);
@@ -75,9 +76,10 @@ public class DynamicUtils {
 		workItem.setDeploymentId( (String) ksession.getEnvironment().get(EnvironmentName.DEPLOYMENT_ID));
 		workItem.setName(workItemName);
 		workItem.setParameters(parameters);
-		final WorkItemNodeInstance workItemNodeInstance = new WorkItemNodeInstance();	    
+		final WorkItemNodeInstance workItemNodeInstance = new WorkItemNodeInstance();
 		workItemNodeInstance.internalSetWorkItem(workItem);
     	workItemNodeInstance.setMetaData("NodeType", workItemName);
+
         workItem.setNodeInstanceId(workItemNodeInstance.getId());
     	if (ksession instanceof StatefulKnowledgeSessionImpl) {
     	    workItemNodeInstance.setProcessInstance(processInstance);
@@ -107,7 +109,7 @@ public class DynamicUtils {
     		throw new IllegalArgumentException("Unsupported ksession: " + ksession == null ? "null" : ksession.getClass().getName());
     	}
 	}
-	
+
 	private static void executeWorkItem(StatefulKnowledgeSessionImpl ksession, WorkItemImpl workItem, WorkItemNodeInstance workItemNodeInstance) {
 		ProcessEventSupport eventSupport = ((InternalProcessRuntime)
 			ksession.getProcessRuntime()).getProcessEventSupport();
@@ -116,7 +118,7 @@ public class DynamicUtils {
 		workItemNodeInstance.internalSetWorkItemId(workItem.getId());
 		eventSupport.fireAfterNodeTriggered(workItemNodeInstance, ksession);
 	}
-	
+
 	private static DynamicNodeInstance findDynamicContext(WorkflowProcessInstance processInstance, String uniqueId) {
 		for (NodeInstance nodeInstance: ((WorkflowProcessInstanceImpl) processInstance).getNodeInstances(true)) {
 			if (uniqueId.equals(((NodeInstanceImpl) nodeInstance).getUniqueId())) {
@@ -201,8 +203,16 @@ public class DynamicUtils {
             subProcessInstance = (ProcessInstance) ksession.startProcessInstance(subProcessInstance.getId());
     		
     		eventSupport.fireAfterNodeTriggered(subProcessNodeInstance, ksession);
+
     		if (subProcessInstance.getState() == ProcessInstance.STATE_COMPLETED) {
-	    		subProcessNodeInstance.triggerCompleted();
+    		    ProcessInstance ownerProcessInstance = subProcessNodeInstance.getProcessInstance();
+    		    if( ownerProcessInstance.isQueueBased() ) {
+    		        ownerProcessInstance.addNewExecutionQueueToStack(false);
+    		        ownerProcessInstance.addProcessInstanceAction(new TriggerCompletedAction(subProcessNodeInstance));
+    		        ownerProcessInstance.executeQueue();
+    		    } else {
+    		        subProcessNodeInstance.triggerCompleted();
+    		    }
 	    	} else {
 	    		subProcessNodeInstance.internalSetProcessInstanceId(subProcessInstance.getId());
 	    	    subProcessNodeInstance.addEventListeners();

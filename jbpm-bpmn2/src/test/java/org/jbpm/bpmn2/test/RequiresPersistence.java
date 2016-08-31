@@ -22,7 +22,7 @@ import java.lang.annotation.Target;
 
 @Target(value = ElementType.METHOD)
 @Retention(value = RetentionPolicy.RUNTIME)
-public @interface RequireLocking {
+public @interface RequiresPersistence {
 	
     boolean value() default true;
     String comment() default "";

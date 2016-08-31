@@ -20,7 +20,7 @@ import java.util.List;
 
 import org.assertj.core.api.Assertions;
 import org.jbpm.process.instance.command.UpdateTimerCommand;
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.jbpm.test.listener.CountDownProcessEventListener;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Test for UpdateTimmerCommand
  */
-public class TimerUpdateTest extends JbpmTestCase {
+public class TimerUpdateTest extends JbpmCoverageTestCase {
 
     private static final Logger logger = LoggerFactory.getLogger(TimerPersistenceTest.class);
 

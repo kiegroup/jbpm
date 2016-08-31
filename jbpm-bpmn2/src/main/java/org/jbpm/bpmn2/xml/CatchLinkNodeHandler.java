@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -20,6 +20,8 @@ import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.core.node.CatchLinkNode;
 import org.xml.sax.Attributes;
 
+// TODO: it would be way easier (better?) to just have a "LinkNode"
+//       instead of having both a ThrowLinkNode and a CatchLinkNode"...
 public class CatchLinkNodeHandler extends AbstractNodeHandler implements
 		Handler {
 

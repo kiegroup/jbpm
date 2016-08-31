@@ -155,11 +155,12 @@ public class WorkflowRuntimeException extends RuntimeException {
 
     @Override
     public String getMessage() {
+        Throwable cause = getCause();
         return MessageFormat.format("[{0}:{4} - {1}:{2}] -- {3}", 
                 getProcessId(),
                 (getNodeName() == null ? "?" : getNodeName()), 
                 (getNodeId() == 0 ? "?" : getNodeId()), 
-                (getCause() == null ? getMessage() : getCause().getMessage()), 
+                (cause != this && cause != null ? cause.getMessage() : super.getMessage() ), 
                 getProcessInstanceId());
     }
 

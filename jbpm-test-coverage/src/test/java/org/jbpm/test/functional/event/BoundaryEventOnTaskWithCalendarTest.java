@@ -20,7 +20,7 @@ import java.util.HashMap;
 
 import org.drools.core.time.TimeUtils;
 import org.jbpm.process.core.timer.BusinessCalendarImpl;
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.jbpm.test.listener.CountDownProcessEventListener;
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -31,7 +31,7 @@ import org.kie.api.runtime.process.ProcessInstance;
 /**
  * This is a sample file to test a process.
  */
-public class BoundaryEventOnTaskWithCalendarTest extends JbpmTestCase {
+public class BoundaryEventOnTaskWithCalendarTest extends JbpmCoverageTestCase {
 
     public BoundaryEventOnTaskWithCalendarTest() {
         super(true, true);

@@ -85,7 +85,7 @@ public class AsyncTaskCallbackTest extends JbpmAsyncJobTestCase {
         ProcessInstance pi = ksession.startProcess(ASYNC_EXECUTOR_CALLBACK_ID, pm);
 
         // Wait for the job to be picked up and processed. The job will send
-        // the 'Continue' signal on OK or Fail. We expect OK. 
+        // the 'Continue' signal on OK or Fail. We expect OK.
         countDownListener.waitTillCompleted();
         
         ProcessInstance processInstance = ksession.getProcessInstance(pi.getId());

@@ -22,7 +22,7 @@ import java.util.List;
 import org.assertj.core.api.Assertions;
 import org.drools.core.command.runtime.process.RegisterWorkItemHandlerCommand;
 import org.drools.core.process.instance.WorkItemHandler;
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.jbpm.test.listener.IterableProcessEventListener;
 import org.jbpm.test.listener.TrackingProcessEventListener;
 import org.junit.Test;
@@ -36,7 +36,7 @@ import qa.tools.ikeeper.annotation.BZ;
 
 import static org.jbpm.test.tools.IterableListenerAssert.*;
 
-public class EndEventTest extends JbpmTestCase {
+public class EndEventTest extends JbpmCoverageTestCase {
 
     private static final String COMPENSATE = "org/jbpm/test/functional/event/EndEvent-compensate.bpmn2";
     private static final String COMPENSATE_ID = "org.jbpm.test.functional.event.EndEvent-compensate";

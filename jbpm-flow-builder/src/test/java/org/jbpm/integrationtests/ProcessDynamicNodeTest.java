@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -15,11 +15,14 @@
 
 package org.jbpm.integrationtests;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +36,11 @@ import org.jbpm.workflow.instance.node.DynamicNodeInstance;
 import org.jbpm.workflow.instance.node.DynamicUtils;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 import org.kie.api.io.ResourceType;
+import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.WorkItem;
 import org.kie.api.runtime.process.WorkflowProcessInstance;
 import org.kie.internal.KnowledgeBase;
@@ -46,10 +53,21 @@ import org.kie.internal.runtime.StatefulKnowledgeSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@RunWith(Parameterized.class)
 public class ProcessDynamicNodeTest extends AbstractBaseTest {
-    
+
+    @Parameters(name="{0}")
+    public static Collection<Object[]> parameters() {
+        return getQueueBasedTestOptions();
+    };
+
+    public ProcessDynamicNodeTest(String execModel) {
+        super(execModel);
+    }
+
+
     private static final Logger logger = LoggerFactory.getLogger(ProcessDynamicNodeTest.class);
-    
+
     @Test
     @Ignore
     public void TODOtestDynamicActions() {
@@ -67,7 +85,7 @@ public class ProcessDynamicNodeTest extends AbstractBaseTest {
             "  </header>\n" +
             "\n" +
             "  <nodes>\n" +
-            "    <start id=\"1\" name=\"Start\" />\n" + 
+            "    <start id=\"1\" name=\"Start\" />\n" +
             "    <dynamic id=\"2\" name=\"DynamicNode\" >\n" +
             "      <nodes>\n" +
             "        <actionNode id=\"1\" name=\"Action1\" >\n" +
@@ -107,9 +125,9 @@ public class ProcessDynamicNodeTest extends AbstractBaseTest {
         for (DroolsError error: builder.getErrors().getErrors()) {
             logger.error(error.toString());
         }
-        
-        StatefulKnowledgeSession ksession = createKieSession(pkg);
-        
+
+        KieSession ksession = createKieSession(pkg);
+
         List<String> list = new ArrayList<String>();
         ksession.setGlobal("list", list);
         ProcessInstance processInstance = ( ProcessInstance ) ksession.startProcess("org.drools.dynamic");
@@ -134,7 +152,7 @@ public class ProcessDynamicNodeTest extends AbstractBaseTest {
             "  </header>\n" +
             "\n" +
             "  <nodes>\n" +
-            "    <start id=\"1\" name=\"Start\" />\n" + 
+            "    <start id=\"1\" name=\"Start\" />\n" +
             "    <dynamic id=\"2\" name=\"DynamicNode\" >\n" +
             "      <nodes>\n" +
             "        <workItem id=\"1\" name=\"Work\" >\n" +
@@ -173,9 +191,9 @@ public class ProcessDynamicNodeTest extends AbstractBaseTest {
         for (DroolsError error: builder.getErrors().getErrors()) {
             logger.error(error.toString());
         }
-        
-        StatefulKnowledgeSession ksession = createKieSession(pkg);
-        
+
+        KieSession ksession = createKieSession(pkg);
+
         List<String> list = new ArrayList<String>();
         ksession.setGlobal("list", list);
         TestWorkItemHandler testHandler = new TestWorkItemHandler();
@@ -183,13 +201,13 @@ public class ProcessDynamicNodeTest extends AbstractBaseTest {
         ProcessInstance processInstance = ( ProcessInstance ) ksession.startProcess("org.drools.dynamic");
         assertEquals(ProcessInstance.STATE_ACTIVE, processInstance.getState());
         assertEquals(1, list.size());
-        WorkItem workItem = testHandler.getWorkItem(); 
+        WorkItem workItem = testHandler.getWorkItem();
         assertNotNull(workItem);
         ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
         assertEquals(3, list.size());
     }
-    
+
     @Test
     public void testAddDynamicWorkItem() {
     	Reader source = new StringReader(
@@ -203,7 +221,7 @@ public class ProcessDynamicNodeTest extends AbstractBaseTest {
                 "  </header>\n" +
                 "\n" +
                 "  <nodes>\n" +
-                "    <start id=\"1\" name=\"Start\" />\n" + 
+                "    <start id=\"1\" name=\"Start\" />\n" +
                 "    <dynamic id=\"2\" name=\"DynamicNode\" >\n" +
                 "      <nodes>\n" +
                 "        <actionNode id=\"1\" name=\"Action\" >\n" +
@@ -232,7 +250,7 @@ public class ProcessDynamicNodeTest extends AbstractBaseTest {
 		ksession.getWorkItemManager().registerWorkItemHandler("Human Task", handler);
 		// start a new process instance
 		ProcessInstance processInstance = (ProcessInstance) ksession.startProcess("org.drools.dynamic");
-		DynamicNodeInstance dynamicContext = (DynamicNodeInstance) 
+		DynamicNodeInstance dynamicContext = (DynamicNodeInstance)
 			((WorkflowProcessInstance) processInstance).getNodeInstances().iterator().next();
 		Map<String, Object> parameters = new HashMap<String, Object>();
 		parameters.put("TaskName", "Dynamic Task");
@@ -257,7 +275,7 @@ public class ProcessDynamicNodeTest extends AbstractBaseTest {
                 "  </header>\n" +
                 "\n" +
                 "  <nodes>\n" +
-                "    <start id=\"1\" name=\"Start\" />\n" + 
+                "    <start id=\"1\" name=\"Start\" />\n" +
                 "    <dynamic id=\"2\" name=\"DynamicNode\" >\n" +
                 "      <nodes>\n" +
                 "        <actionNode id=\"1\" name=\"Action\" >\n" +
@@ -294,7 +312,7 @@ public class ProcessDynamicNodeTest extends AbstractBaseTest {
                 "  </header>\n" +
                 "\n" +
                 "  <nodes>\n" +
-                "    <start id=\"1\" name=\"Start\" />\n" + 
+                "    <start id=\"1\" name=\"Start\" />\n" +
                 "    <actionNode id=\"2\" name=\"Action\" >\n" +
                 "      <action type=\"expression\" dialect=\"mvel\" >System.out.println(x);</action>\n" +
                 "    </actionNode>\n" +
@@ -320,7 +338,7 @@ public class ProcessDynamicNodeTest extends AbstractBaseTest {
 		ksession.getWorkItemManager().registerWorkItemHandler("Human Task", handler);
 		// start a new process instance
 		ProcessInstance processInstance = (ProcessInstance) ksession.startProcess("org.drools.dynamic");
-		DynamicNodeInstance dynamicContext = (DynamicNodeInstance) 
+		DynamicNodeInstance dynamicContext = (DynamicNodeInstance)
 			((WorkflowProcessInstance) processInstance).getNodeInstances().iterator().next();
 		Map<String, Object> parameters = new HashMap<String, Object>();
 		parameters.put("x", "NewValue");

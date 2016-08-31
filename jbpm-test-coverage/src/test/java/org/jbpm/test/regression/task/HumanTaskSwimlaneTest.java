@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.assertj.core.api.Assertions;
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.jbpm.workflow.instance.node.HumanTaskNodeInstance;
 import org.junit.Test;
 import org.kie.api.event.process.DefaultProcessEventListener;
@@ -37,7 +37,7 @@ import org.kie.api.task.model.TaskSummary;
 
 import qa.tools.ikeeper.annotation.BZ;
 
-public class HumanTaskSwimlaneTest extends JbpmTestCase {
+public class HumanTaskSwimlaneTest extends JbpmCoverageTestCase {
 
     private static final String SWIMLANE_SAME_GROUPS =
             "org/jbpm/test/regression/task/HumanTaskSwimlane-sameGroups.bpmn2";

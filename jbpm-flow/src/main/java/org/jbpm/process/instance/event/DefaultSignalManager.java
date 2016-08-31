@@ -24,6 +24,7 @@ import org.drools.core.marshalling.impl.MarshallerWriteContext;
 import org.drools.core.marshalling.impl.ProtobufMessages.ActionQueue.Action;
 import org.drools.core.phreak.PropagationEntry;
 import org.jbpm.process.instance.InternalProcessRuntime;
+import org.jbpm.workflow.instance.WorkflowProcessInstance;
 import org.kie.api.runtime.process.EventListener;
 import org.kie.api.runtime.process.ProcessInstance;
 
@@ -114,16 +115,13 @@ public class DefaultSignalManager implements SignalManager {
 		}
 		
 		public void execute(InternalWorkingMemory workingMemory) {
-			ProcessInstance processInstance = workingMemory.getProcessInstance(processInstanceId);
-			if (processInstance != null) {
-				processInstance.signalEvent(type, event);
-			}
+		    execute(workingMemory.getKnowledgeRuntime());
 		}
 
 		public void execute(InternalKnowledgeRuntime kruntime) {
 			ProcessInstance processInstance = kruntime.getProcessInstance(processInstanceId);
 			if (processInstance != null) {
-				processInstance.signalEvent(type, event);
+			    processInstance.signalEvent(type, event);
 			}
 		}
 
@@ -155,8 +153,7 @@ public class DefaultSignalManager implements SignalManager {
 		}
 
         public Action serialize(MarshallerWriteContext context) throws IOException {
-            // TODO Auto-generated method stub
-            return null;
+            throw new UnsupportedOperationException("This has not yet been implemented.");
         }
 	}
 	
@@ -178,12 +175,13 @@ public class DefaultSignalManager implements SignalManager {
 		}
 		
 		public void execute(InternalWorkingMemory workingMemory) {
-			((DefaultSignalManager) ((InternalProcessRuntime) workingMemory.getProcessRuntime()).getSignalManager()).internalSignalEvent(type, event);
+		    execute(workingMemory.getKnowledgeRuntime());
 		}
 
         public void execute(InternalKnowledgeRuntime kruntime) {
         	((DefaultSignalManager) ((InternalProcessRuntime) kruntime.getProcessRuntime()).getSignalManager()).internalSignalEvent(type, event);
         }
+        
 		public void write(MarshallerWriteContext context) throws IOException {
 			context.writeInt( WorkingMemoryAction.SignalAction );
 			context.writeUTF(type);
@@ -209,10 +207,9 @@ public class DefaultSignalManager implements SignalManager {
 		}
 
         public Action serialize(MarshallerWriteContext context) throws IOException {
-            // TODO Auto-generated method stub
-            return null;
+            throw new UnsupportedOperationException("This has not yet been implemented.");
         }
-		
+
 	}
-	
+
 }

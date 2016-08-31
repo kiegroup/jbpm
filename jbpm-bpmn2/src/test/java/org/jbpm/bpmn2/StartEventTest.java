@@ -17,7 +17,6 @@ package org.jbpm.bpmn2;
 
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -55,18 +54,17 @@ import org.slf4j.LoggerFactory;
 @RunWith(Parameterized.class)
 public class StartEventTest extends JbpmBpmn2TestCase {
 
-    @Parameters
+    @Parameters(name="{3}")
     public static Collection<Object[]> persistence() {
-        Object[][] data = new Object[][] { { false }, { true } };
-        return Arrays.asList(data);
+        return getTestOptions(TestOption.EXCEPT_FOR_LOCKING);
     };
 
     private static final Logger logger = LoggerFactory.getLogger(StartEventTest.class);
 
     private KieSession ksession;
 
-    public StartEventTest(boolean persistence) {
-        super(persistence);
+    public StartEventTest(boolean persistence, boolean locking, boolean queueBased, String name) {
+        super(persistence, locking, queueBased, name);
     }
 
     @BeforeClass

@@ -24,7 +24,7 @@ import javax.transaction.Status;
 import javax.transaction.UserTransaction;
 
 import org.assertj.core.api.Assertions;
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.jbpm.test.listener.TrackingAgendaEventListener;
 import org.jbpm.test.listener.TrackingProcessEventListener;
 import org.jbpm.test.wih.ListWorkItemHandler;
@@ -34,7 +34,7 @@ import org.kie.api.io.ResourceType;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessInstance;
 
-public class TransactionsTest extends JbpmTestCase {
+public class TransactionsTest extends JbpmCoverageTestCase {
 
     private static final String TRANSACTIONS = "org/jbpm/test/functional/Transactions.bpmn";
     private static final String TRANSACTIONS_ID = "org.jbpm.test.functional.Transactions";

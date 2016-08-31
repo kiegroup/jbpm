@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -31,7 +31,11 @@ import org.jbpm.process.instance.context.variable.VariableScopeInstance;
 import org.jbpm.ruleflow.instance.RuleFlowProcessInstance;
 import org.jbpm.test.util.AbstractBaseTest;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 import org.kie.api.io.ResourceType;
+import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.internal.KnowledgeBase;
 import org.kie.internal.KnowledgeBaseFactory;
@@ -40,14 +44,23 @@ import org.kie.internal.builder.KnowledgeBuilderError;
 import org.kie.internal.builder.KnowledgeBuilderFactory;
 import org.kie.internal.definition.KnowledgePackage;
 import org.kie.internal.io.ResourceFactory;
-import org.kie.internal.runtime.StatefulKnowledgeSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@RunWith(Parameterized.class)
 public class ProcessSplitTest extends AbstractBaseTest {
-    
+
+    @Parameters(name="{0}")
+    public static Collection<Object[]> parameters() {
+        return getQueueBasedTestOptions();
+    };
+
+    public ProcessSplitTest(String execModel) {
+        super(execModel);
+    }
+
     private static final Logger logger = LoggerFactory.getLogger(ProcessSplitTest.class);
-    
+
     @Test
     public void testSplitWithProcessInstanceConstraint() {
         Reader source = new StringReader(
@@ -100,8 +113,8 @@ public class ProcessSplitTest extends AbstractBaseTest {
             "</process>");
         builder.addRuleFlow(source);
 
-        StatefulKnowledgeSession workingMemory = createKieSession(builder.getPackage());
-        
+        KieSession workingMemory = createKieSession(builder.getPackage());
+
         List<Long> list = new ArrayList<Long>();
         workingMemory.setGlobal("list", list);
 
@@ -110,22 +123,22 @@ public class ProcessSplitTest extends AbstractBaseTest {
         Person julie = new Person("Julie Doe", 20);
         workingMemory.insert(john);
         workingMemory.insert(jane);
-        
+
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("name", john.getName());
         ProcessInstance processInstance1 = ( ProcessInstance )
             workingMemory.startProcess("org.jbpm.process-split", params);
-        
+
         params = new HashMap<String, Object>();
         params.put("name", jane.getName());
         ProcessInstance processInstance2 = ( ProcessInstance )
             workingMemory.startProcess("org.jbpm.process-split", params);
-        
+
         params = new HashMap<String, Object>();
         params.put("name", julie.getName());
         ProcessInstance processInstance3 = ( ProcessInstance )
             workingMemory.startProcess("org.jbpm.process-split", params);
-        
+
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance1.getState());
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance2.getState());
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance3.getState());
@@ -187,11 +200,11 @@ public class ProcessSplitTest extends AbstractBaseTest {
         for (KnowledgeBuilderError error: kbuilder.getErrors()) {
             logger.error(error.toString());
         }
-        
+
         Collection<KnowledgePackage> kpkgs = kbuilder.getKnowledgePackages();
         KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
-        kbase.addKnowledgePackages( kpkgs );        
-        StatefulKnowledgeSession ksession = kbase.newStatefulKnowledgeSession();
+        kbase.addKnowledgePackages( kpkgs );
+        KieSession ksession = kbase.newStatefulKnowledgeSession();
         List<Long> list = new ArrayList<Long>();
         ksession.setGlobal("list", list);
 
@@ -200,22 +213,22 @@ public class ProcessSplitTest extends AbstractBaseTest {
         Person julie = new Person("Julie Doe", 20);
         ksession.insert(john);
         ksession.insert(jane);
-        
+
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("name", john.getName());
         ProcessInstance processInstance1 =
             ksession.startProcess("org.jbpm.process-split", params);
-        
+
         params = new HashMap<String, Object>();
         params.put("name", jane.getName());
         ProcessInstance processInstance2 =
         	ksession.startProcess("org.jbpm.process-split", params);
-        
+
         params = new HashMap<String, Object>();
         params.put("name", julie.getName());
         ProcessInstance processInstance3 =
             ksession.startProcess("org.jbpm.process-split", params);
-        
+
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance1.getState());
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance2.getState());
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance3.getState());
@@ -273,8 +286,8 @@ public class ProcessSplitTest extends AbstractBaseTest {
             "</process>");
         builder.addRuleFlow(source);
 
-        StatefulKnowledgeSession workingMemory = createKieSession(builder.getPackage());
-        
+        KieSession workingMemory = createKieSession(builder.getPackage());
+
         List<Long> list = new ArrayList<Long>();
         workingMemory.setGlobal("list", list);
 
@@ -282,11 +295,11 @@ public class ProcessSplitTest extends AbstractBaseTest {
         params.put("person", new Person("John Doe"));
         ProcessInstance processInstance = ( ProcessInstance )
             workingMemory.startProcess("org.jbpm.process-split", params);
-        
+
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
         assertEquals(1, list.size());
     }
-    
+
     @Test
     public void testSplitWithJavaContextConstraint() {
         Reader source = new StringReader(
@@ -338,8 +351,8 @@ public class ProcessSplitTest extends AbstractBaseTest {
             "</process>");
         builder.addRuleFlow(source);
 
-        StatefulKnowledgeSession workingMemory = createKieSession(builder.getPackage());
-        
+        KieSession workingMemory = createKieSession(builder.getPackage());
+
         List<Long> list = new ArrayList<Long>();
         workingMemory.setGlobal("list", list);
 
@@ -347,11 +360,11 @@ public class ProcessSplitTest extends AbstractBaseTest {
         params.put("name", "John Doe");
         ProcessInstance processInstance = ( ProcessInstance )
             workingMemory.startProcess("org.jbpm.process-split", params);
-        
+
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
         assertEquals(1, list.size());
     }
-    
+
     @Test
     public void testSplitWithMVELkContextConstraint() {
         Reader source = new StringReader(
@@ -403,8 +416,8 @@ public class ProcessSplitTest extends AbstractBaseTest {
             "</process>");
         builder.addRuleFlow(source);
 
-        StatefulKnowledgeSession workingMemory = createKieSession(builder.getPackage());
-        
+        KieSession workingMemory = createKieSession(builder.getPackage());
+
         List<Long> list = new ArrayList<Long>();
         workingMemory.setGlobal("list", list);
 
@@ -412,11 +425,11 @@ public class ProcessSplitTest extends AbstractBaseTest {
         params.put("person", new Person("John Doe"));
         ProcessInstance processInstance = ( ProcessInstance )
             workingMemory.startProcess("org.jbpm.process-split", params);
-        
+
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
         assertEquals(1, list.size());
     }
-    
+
     @Test
     public void testSplitWithJavakContextConstraint() {
         Reader source = new StringReader(
@@ -468,8 +481,8 @@ public class ProcessSplitTest extends AbstractBaseTest {
             "</process>");
         builder.addRuleFlow(source);
 
-        StatefulKnowledgeSession workingMemory = createKieSession(builder.getPackage());
-        
+        KieSession workingMemory = createKieSession(builder.getPackage());
+
         List<Long> list = new ArrayList<Long>();
         workingMemory.setGlobal("list", list);
 
@@ -477,11 +490,11 @@ public class ProcessSplitTest extends AbstractBaseTest {
         params.put("name", "John Doe");
         ProcessInstance processInstance = ( ProcessInstance )
             workingMemory.startProcess("org.jbpm.process-split", params);
-        
+
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
         assertEquals(1, list.size());
     }
-    
+
     @Test
     public void testSplitWithMVELVariableConstraint() {
         Reader source = new StringReader(
@@ -533,8 +546,8 @@ public class ProcessSplitTest extends AbstractBaseTest {
             "</process>");
         builder.addRuleFlow(source);
 
-        StatefulKnowledgeSession workingMemory = createKieSession(builder.getPackage());
-        
+        KieSession workingMemory = createKieSession(builder.getPackage());
+
         List<Long> list = new ArrayList<Long>();
         workingMemory.setGlobal("list", list);
 
@@ -542,11 +555,11 @@ public class ProcessSplitTest extends AbstractBaseTest {
         params.put("name", "John Doe");
         ProcessInstance processInstance = ( ProcessInstance )
             workingMemory.startProcess("org.jbpm.process-split", params);
-        
+
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
         assertEquals(1, list.size());
     }
-    
+
     @Test
     public void testSplitWithJavaVariableConstraint() {
         Reader source = new StringReader(
@@ -598,8 +611,8 @@ public class ProcessSplitTest extends AbstractBaseTest {
             "</process>");
         builder.addRuleFlow(source);
 
-        StatefulKnowledgeSession workingMemory = createKieSession(builder.getPackage());
-        
+        KieSession workingMemory = createKieSession(builder.getPackage());
+
         List<Long> list = new ArrayList<Long>();
         workingMemory.setGlobal("list", list);
 
@@ -607,7 +620,7 @@ public class ProcessSplitTest extends AbstractBaseTest {
         params.put("name", "John Doe");
         ProcessInstance processInstance = ( ProcessInstance )
             workingMemory.startProcess("org.jbpm.process-split", params);
-        
+
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
         assertEquals(1, list.size());
     }
@@ -663,8 +676,8 @@ public class ProcessSplitTest extends AbstractBaseTest {
             "</process>");
         builder.addRuleFlow(source);
 
-        StatefulKnowledgeSession workingMemory = createKieSession(builder.getPackage());
-        
+        KieSession workingMemory = createKieSession(builder.getPackage());
+
         List<Long> list = new ArrayList<Long>();
         workingMemory.setGlobal("list", list);
 
@@ -672,11 +685,11 @@ public class ProcessSplitTest extends AbstractBaseTest {
         params.put("name", "John Doe");
         ProcessInstance processInstance = ( ProcessInstance )
             workingMemory.startProcess("org.jbpm.process-split", params);
-        
+
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
         assertEquals(1, list.size());
     }
-    
+
     @Test
     public void testSplitWithJavaGlobalConstraint() {
         Reader source = new StringReader(
@@ -723,26 +736,26 @@ public class ProcessSplitTest extends AbstractBaseTest {
             "</process>");
         builder.addRuleFlow(source);
 
-        StatefulKnowledgeSession workingMemory = createKieSession(builder.getPackage());
-        
+        KieSession workingMemory = createKieSession(builder.getPackage());
+
         List<Long> list = new ArrayList<Long>();
         workingMemory.setGlobal("list", list);
 
         ProcessInstance processInstance = ( ProcessInstance )
             workingMemory.startProcess("org.jbpm.process-split");
-        
+
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
         assertEquals(1, list.size());
     }
-    
+
     public static class ProcessUtils {
-    	
+
     	public static Object getValue(RuleFlowProcessInstance processInstance, String name) {
     		VariableScopeInstance scope = (VariableScopeInstance)
     			processInstance.getContextInstance(VariableScope.VARIABLE_SCOPE);
     		return scope.getVariable(name);
     	}
-    	
+
     }
 
 }

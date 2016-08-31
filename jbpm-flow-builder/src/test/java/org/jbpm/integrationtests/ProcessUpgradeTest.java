@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -31,14 +31,14 @@ import org.jbpm.test.util.AbstractBaseTest;
 import org.jbpm.workflow.instance.WorkflowProcessInstanceUpgrader;
 import org.junit.Test;
 import org.kie.api.io.ResourceType;
+import org.kie.api.runtime.KieSession;
 import org.kie.internal.KnowledgeBase;
 import org.kie.internal.KnowledgeBaseFactory;
 import org.kie.internal.builder.KnowledgeBuilder;
 import org.kie.internal.builder.KnowledgeBuilderFactory;
-import org.kie.internal.runtime.StatefulKnowledgeSession;
 
 public class ProcessUpgradeTest extends AbstractBaseTest {
-    
+
     @Test
     public void testDefaultUpgrade() throws Exception {
         String rule = "package org.test;\n";
@@ -54,8 +54,8 @@ public class ProcessUpgradeTest extends AbstractBaseTest {
 
         KnowledgeBuilder builder = KnowledgeBuilderFactory.newKnowledgeBuilder();
         builder.add( new ReaderResource( new StringReader( rule )), ResourceType.DRL );
-        
-        String process = 
+
+        String process =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "<process xmlns=\"http://drools.org/drools-5.0/process\"\n" +
             "    xmlns:xs=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
@@ -74,13 +74,13 @@ public class ProcessUpgradeTest extends AbstractBaseTest {
             "  </connections>\n" +
             "</process>";
         builder.add( new ReaderResource( new StringReader( process )), ResourceType.DRF );
-        
+
 //        RuleBaseConfiguration config = new RuleBaseConfiguration();
 //        config.setRuleBaseUpdateHandler(null);
 
         KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
         kbase.addKnowledgePackages( builder.getKnowledgePackages() );
-        StatefulKnowledgeSession session = kbase.newStatefulKnowledgeSession();
+        KieSession session = kbase.newKieSession();
 
         List<String> list = new ArrayList<String>();
         session.setGlobal( "list", list );
@@ -88,10 +88,10 @@ public class ProcessUpgradeTest extends AbstractBaseTest {
         Person p = new Person( "bobba fet", 32);
         session.insert( p );
         ProcessInstance processInstance = ( ProcessInstance ) session.startProcess("org.test.ruleflow");
-        
+
         assertEquals(1, session.getProcessInstances().size());
-        
-        String process2 = 
+
+        String process2 =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "<process xmlns=\"http://drools.org/drools-5.0/process\"\n" +
             "    xmlns:xs=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
@@ -108,7 +108,7 @@ public class ProcessUpgradeTest extends AbstractBaseTest {
             "    <actionNode id=\"4\" name=\"Action\" >" +
             "      <action type=\"expression\" dialect=\"java\">System.out.println();\n" +
             "list.add(\"Executed\");</action>\n" +
-            "    </actionNode>\n" + 
+            "    </actionNode>\n" +
             "    <end id=\"3\" name=\"End\" />\n" +
             "  </nodes>\n" +
             "  <connections>\n" +
@@ -120,13 +120,13 @@ public class ProcessUpgradeTest extends AbstractBaseTest {
         builder = KnowledgeBuilderFactory.newKnowledgeBuilder();
         builder.add( new ReaderResource( new StringReader( process2 )), ResourceType.DRF );
         kbase.addKnowledgePackages( builder.getKnowledgePackages() );
-        
+
         WorkflowProcessInstanceUpgrader.upgradeProcessInstance(
             session, processInstance.getId(), "org.test.ruleflow2", new HashMap<String, Long>());
         assertEquals("org.test.ruleflow2", processInstance.getProcessId());
-        
+
         session.fireAllRules();
-        
+
         assertEquals(2, list.size());
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
     }
@@ -146,8 +146,8 @@ public class ProcessUpgradeTest extends AbstractBaseTest {
 
         KnowledgeBuilder builder = KnowledgeBuilderFactory.newKnowledgeBuilder();
         builder.add( new ReaderResource( new StringReader( rule )), ResourceType.DRL );
-        
-        String process = 
+
+        String process =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "<process xmlns=\"http://drools.org/drools-5.0/process\"\n" +
             "    xmlns:xs=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
@@ -166,13 +166,13 @@ public class ProcessUpgradeTest extends AbstractBaseTest {
             "  </connections>\n" +
             "</process>";
         builder.add( new ReaderResource( new StringReader( process )), ResourceType.DRF );
-        
+
 //      RuleBaseConfiguration config = new RuleBaseConfiguration();
 //      config.setRuleBaseUpdateHandler(null);
 
         KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
         kbase.addKnowledgePackages( builder.getKnowledgePackages() );
-        StatefulKnowledgeSession session = kbase.newStatefulKnowledgeSession();
+        KieSession session = kbase.newKieSession();
 
         List<String> list = new ArrayList<String>();
         session.setGlobal( "list", list );
@@ -180,10 +180,10 @@ public class ProcessUpgradeTest extends AbstractBaseTest {
         Person p = new Person( "bobba fet", 32);
         session.insert( p );
         ProcessInstance processInstance = ( ProcessInstance ) session.startProcess("org.test.ruleflow");
-        
+
         assertEquals(1, session.getProcessInstances().size());
-        
-        String process2 = 
+
+        String process2 =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "<process xmlns=\"http://drools.org/drools-5.0/process\"\n" +
             "    xmlns:xs=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
@@ -200,7 +200,7 @@ public class ProcessUpgradeTest extends AbstractBaseTest {
             "    <actionNode id=\"4\" name=\"Action\" >" +
             "      <action type=\"expression\" dialect=\"java\">System.out.println();\n" +
             "list.add(\"Executed\");</action>\n" +
-            "    </actionNode>\n" + 
+            "    </actionNode>\n" +
             "    <end id=\"3\" name=\"End\" />\n" +
             "  </nodes>\n" +
             "  <connections>\n" +
@@ -212,20 +212,20 @@ public class ProcessUpgradeTest extends AbstractBaseTest {
         builder = KnowledgeBuilderFactory.newKnowledgeBuilder();
         builder.add( new ReaderResource( new StringReader( process2 )), ResourceType.DRF );
         kbase.addKnowledgePackages( builder.getKnowledgePackages() );
-        
+
         Map<String, Long> mapping = new HashMap<String, Long>();
         mapping.put("2", 102L);
-        
+
         WorkflowProcessInstanceUpgrader.upgradeProcessInstance(
             session, processInstance.getId(), "org.test.ruleflow2", mapping);
         assertEquals("org.test.ruleflow2", processInstance.getProcessId());
-        
+
         session.fireAllRules();
-        
+
         assertEquals(2, list.size());
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
     }
-    
+
     @Test
     public void testCompositeMappingUpgrade() throws Exception {
         String rule = "package org.test;\n";
@@ -241,8 +241,8 @@ public class ProcessUpgradeTest extends AbstractBaseTest {
 
         KnowledgeBuilder builder = KnowledgeBuilderFactory.newKnowledgeBuilder();
         builder.add(new ByteArrayResource(rule.getBytes()), ResourceType.DRL);
-        
-        String process = 
+
+        String process =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "<process xmlns=\"http://drools.org/drools-5.0/process\"\n" +
             "    xmlns:xs=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
@@ -273,13 +273,13 @@ public class ProcessUpgradeTest extends AbstractBaseTest {
             "  </connections>\n" +
             "</process>";
         builder.add( new ReaderResource( new StringReader( process )), ResourceType.DRF );
-        
+
 //      RuleBaseConfiguration config = new RuleBaseConfiguration();
 //      config.setRuleBaseUpdateHandler(null);
 
         KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
         kbase.addKnowledgePackages( builder.getKnowledgePackages() );
-        StatefulKnowledgeSession session = kbase.newStatefulKnowledgeSession();
+        KieSession session = kbase.newKieSession();
 
         List<String> list = new ArrayList<String>();
         session.setGlobal( "list", list );
@@ -287,10 +287,10 @@ public class ProcessUpgradeTest extends AbstractBaseTest {
         Person p = new Person( "bobba fet", 32);
         session.insert( p );
         ProcessInstance processInstance = ( ProcessInstance ) session.startProcess("org.test.ruleflow");
-        
+
         assertEquals(1, session.getProcessInstances().size());
-        
-        String process2 = 
+
+        String process2 =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "<process xmlns=\"http://drools.org/drools-5.0/process\"\n" +
             "    xmlns:xs=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
@@ -309,7 +309,7 @@ public class ProcessUpgradeTest extends AbstractBaseTest {
             "        <actionNode id=\"2\" name=\"Action\" >" +
             "          <action type=\"expression\" dialect=\"java\">System.out.println();\n" +
             "list.add(\"Executed\");</action>\n" +
-            "        </actionNode>\n" + 
+            "        </actionNode>\n" +
             "      </nodes>\n" +
             "      <connections>\n" +
             "        <connection from=\"101\" to=\"2\"/>\n" +
@@ -331,18 +331,18 @@ public class ProcessUpgradeTest extends AbstractBaseTest {
         builder = KnowledgeBuilderFactory.newKnowledgeBuilder();
         builder.add( new ReaderResource( new StringReader( process2 )), ResourceType.DRF );
         kbase.addKnowledgePackages( builder.getKnowledgePackages() );
-        
+
         Map<String, Long> mapping = new HashMap<String, Long>();
         mapping.put("2:1", 101L);
-        
+
         WorkflowProcessInstanceUpgrader.upgradeProcessInstance(
             session, processInstance.getId(), "org.test.ruleflow2", mapping);
         assertEquals("org.test.ruleflow2", processInstance.getProcessId());
-        
+
         session.fireAllRules();
-        
+
         assertEquals(2, list.size());
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
     }
-    
+
 }

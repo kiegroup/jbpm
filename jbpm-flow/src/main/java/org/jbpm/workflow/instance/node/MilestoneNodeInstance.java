@@ -20,7 +20,9 @@ import org.drools.core.common.InternalAgenda;
 import org.drools.core.common.InternalKnowledgeRuntime;
 import org.drools.core.definitions.rule.impl.RuleImpl;
 import org.drools.core.spi.Activation;
+import org.jbpm.process.instance.ProcessInstance;
 import org.jbpm.workflow.core.node.MilestoneNode;
+import org.jbpm.workflow.instance.impl.queue.TriggerCompletedAction;
 import org.kie.api.event.rule.AfterMatchFiredEvent;
 import org.kie.api.event.rule.AgendaEventListener;
 import org.kie.api.event.rule.AgendaGroupPoppedEvent;
@@ -34,7 +36,7 @@ import org.kie.api.runtime.process.NodeInstance;
 
 /**
  * Runtime counterpart of a milestone node.
- * 
+ *
  */
 public class MilestoneNodeInstance extends StateBasedNodeInstance implements AgendaEventListener {
 
@@ -44,8 +46,9 @@ public class MilestoneNodeInstance extends StateBasedNodeInstance implements Age
         return (MilestoneNode) getNode();
     }
 
-    public void internalTrigger(final NodeInstance from, String type) {
-    	super.internalTrigger(from, type);
+    @Override
+    public void afterEntryActions(NodeInstance from, String type) {
+    	super.afterEntryActions(from, type);
     	// if node instance was cancelled, abort
 		if (getNodeInstanceContainer().getNodeInstance(getId()) == null) {
 			return;
@@ -64,12 +67,12 @@ public class MilestoneNodeInstance extends StateBasedNodeInstance implements Age
             addActivationListener();
         }
     }
-    
+
     public void addEventListeners() {
         super.addEventListeners();
         addActivationListener();
     }
-    
+
     private void addActivationListener() {
     	getProcessInstance().getKnowledgeRuntime().addEventListener(this);
     	getProcessInstance().addEventListener(getActivationEventType(), this, true);
@@ -107,9 +110,16 @@ public class MilestoneNodeInstance extends StateBasedNodeInstance implements Age
             String milestoneName = "RuleFlow-Milestone-" + getProcessInstance().getProcessId() + "-" + getNodeId();
             if (milestoneName.equals(ruleName) && checkProcessInstance((Activation) event.getMatch())) {
                 ((InternalKnowledgeRuntime) getProcessInstance().getKnowledgeRuntime()).executeQueuedActions();
-            	synchronized(getProcessInstance()) {
+                ProcessInstance processInstance = getProcessInstance();
+            	synchronized(processInstance) {
 	                removeEventListeners();
-	                triggerCompleted();
+	                if( processInstance.isQueueBased() ) {
+	                    processInstance.addNewExecutionQueueToStack(false);
+	                    processInstance.addProcessInstanceAction(new TriggerCompletedAction(this));
+	                    processInstance.executeQueue();
+	                } else {
+	                    triggerCompleted();
+	                }
             	}
             }
         }

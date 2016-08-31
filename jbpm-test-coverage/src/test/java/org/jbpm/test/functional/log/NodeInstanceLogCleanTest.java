@@ -21,7 +21,7 @@ import java.util.List;
 
 import org.assertj.core.api.Assertions;
 import org.jbpm.process.audit.JPAAuditLogService;
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.audit.NodeInstanceLog;
@@ -30,7 +30,7 @@ import org.kie.api.runtime.process.ProcessInstance;
 /**
  * TODO: Add deleteLogsByDate, deleteLogsByDateRange (however it is a bit redundant).
  */
-public class NodeInstanceLogCleanTest extends JbpmTestCase {
+public class NodeInstanceLogCleanTest extends JbpmCoverageTestCase {
 
     private static final String HELLO_WORLD_PROCESS =
             "org/jbpm/test/functional/common/HelloWorldProcess1.bpmn";

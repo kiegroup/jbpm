@@ -36,7 +36,7 @@ import org.drools.core.marshalling.impl.ProtobufMarshaller;
 import org.jbpm.process.instance.InternalProcessRuntime;
 import org.jbpm.process.instance.timer.TimerInstance;
 import org.jbpm.process.instance.timer.TimerManager;
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.junit.Before;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
@@ -52,7 +52,7 @@ import org.slf4j.LoggerFactory;
 
 import bitronix.tm.TransactionManagerServices;
 
-public class SerializedTimerRollbackTest extends JbpmTestCase {
+public class SerializedTimerRollbackTest extends JbpmCoverageTestCase {
 
     private static final Logger logger = LoggerFactory.getLogger(SerializedTimerRollbackTest.class);
     

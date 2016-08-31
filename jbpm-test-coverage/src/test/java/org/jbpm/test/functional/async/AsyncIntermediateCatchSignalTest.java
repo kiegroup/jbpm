@@ -19,7 +19,7 @@ package org.jbpm.test.functional.async;
 import org.assertj.core.api.Assertions;
 import org.jbpm.executor.ExecutorServiceFactory;
 import org.jbpm.process.core.async.AsyncSignalEventCommand;
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.jbpm.test.wih.FirstErrorWorkItemHandler;
 import org.junit.After;
 import org.junit.Before;
@@ -36,7 +36,7 @@ import org.kie.api.runtime.process.ProcessInstance;
  * process1: start -> catch signal -> first time exception -> end
  * AsyncSignalEventCommand should be repeated when fails
  */
-public class AsyncIntermediateCatchSignalTest extends JbpmTestCase {
+public class AsyncIntermediateCatchSignalTest extends JbpmCoverageTestCase {
 
     private static Object LOCK = new Object();
 

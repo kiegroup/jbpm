@@ -23,7 +23,7 @@ import java.util.List;
 
 import org.assertj.core.api.Assertions;
 import org.jbpm.process.audit.JPAAuditLogService;
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.audit.ProcessInstanceLog;
@@ -37,7 +37,7 @@ import qa.tools.ikeeper.annotation.BZ;
  * - try end dates.
  * - try initiator
  */
-public class ProcessInstanceLogCleanTest extends JbpmTestCase {
+public class ProcessInstanceLogCleanTest extends JbpmCoverageTestCase {
 
     private static final String HELLO_WORLD_PROCESS =
             "org/jbpm/test/functional/common/HelloWorldProcess1.bpmn";

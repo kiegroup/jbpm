@@ -22,7 +22,7 @@ import java.util.List;
 import org.drools.core.command.runtime.process.CompleteWorkItemCommand;
 import org.drools.core.command.runtime.process.RegisterWorkItemHandlerCommand;
 import org.jbpm.test.JbpmJUnitBaseTestCase;
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.jbpm.test.listener.TrackingProcessEventListener;
 import org.jbpm.workflow.instance.node.DynamicNodeInstance;
 import org.jbpm.workflow.instance.node.DynamicUtils;
@@ -35,7 +35,7 @@ import qa.tools.ikeeper.annotation.BZ;
 
 import static org.jbpm.test.tools.TrackingListenerAssert.*;
 
-public class AdHocSubProcessTest extends JbpmTestCase {
+public class AdHocSubProcessTest extends JbpmCoverageTestCase {
 
     private static final String ADHOC = "org/jbpm/test/functional/subprocess/AdHocSubProcess.bpmn";
     private static final String ADHOC_ID = "org.jbpm.test.functional.subprocess.AdHocSubProcess";
