@@ -405,4 +405,9 @@ public class StatefulProcessSession extends AbstractRuntime implements StatefulK
     public void destroy() {
         dispose();
     }
+
+	@Override
+	public void submit(AtomicAction atomicAction) {
+		throw new UnsupportedOperationException("Drools session operation only");
+	}
 }
