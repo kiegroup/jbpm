@@ -18,6 +18,9 @@ package org.jbpm.runtime.manager.impl;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.drools.core.command.CommandService;
 import org.drools.core.command.SingleSessionCommandService;
@@ -78,11 +81,15 @@ import org.slf4j.LoggerFactory;
 public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
 	
 	private static final Logger logger = LoggerFactory.getLogger(PerProcessInstanceRuntimeManager.class);
+	
+	private boolean useLocking = Boolean.parseBoolean(System.getProperty("org.jbpm.runtime.manager.ppi.lock", "true"));
     
     private SessionFactory factory;
     private TaskServiceFactory taskServiceFactory;
     
     private static ThreadLocal<Map<Object, RuntimeEngine>> local = new ThreadLocal<Map<Object, RuntimeEngine>>();
+    
+    private ConcurrentMap<Long, ReentrantLock> engineLocks = new ConcurrentHashMap<Long, ReentrantLock>(); 
     
     private Mapper mapper;
     
@@ -142,8 +149,9 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
 	    	
 	    	runtime = new RuntimeEngineImpl(context, new PerProcessInstanceInitializer());
 	        ((RuntimeEngineImpl) runtime).setManager(this);
+            	        
     	}
-
+    	createLockOnGetEngine(context, runtime);
         saveLocalRuntime(contextId, runtime);
         
         return runtime;
@@ -222,13 +230,17 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
             	}
                 ((Disposable) runtime).dispose();
             }
+            
+        	releaseAndCleanLock(runtime);
     	}
     }
-    
+
+
     @Override
     public void softDispose(RuntimeEngine runtimeEngine) {        
         super.softDispose(runtimeEngine);
         removeLocalRuntime(runtimeEngine);
+
     }
 
     @Override
@@ -285,6 +297,8 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
             		event.getProcessInstance().getId()), ksessionId, managerId);  
             saveLocalRuntime(event.getProcessInstance().getId(), runtime);
             ((RuntimeEngineImpl)runtime).setContext(ProcessInstanceIdContext.get(event.getProcessInstance().getId()));
+            
+            createLockOnNewProcessInstance(event.getProcessInstance().getId(), runtime);
         }
         
     }
@@ -527,4 +541,67 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
 
     }
 
+    
+    /*
+     * locking support for same context - runtime engine that deals with exact same process instance context
+     */
+    
+    protected void createLockOnGetEngine(Context<?> context, RuntimeEngine runtime) {
+        if (!useLocking) {
+            logger.debug("Locking on runtime manager disabled");
+            return;
+        }
+        
+        if (context instanceof ProcessInstanceIdContext) {
+            Long piId = ((ProcessInstanceIdContext) context).getContextId();
+            if (piId != null) {
+                ReentrantLock newLock = new ReentrantLock();
+                ReentrantLock lock = engineLocks.putIfAbsent(piId, newLock);
+                if (lock == null) {
+                    lock = newLock;
+                }                       
+                logger.debug("Trying to get a lock {} for {} by {}", lock, context, runtime);
+                lock.lock();
+                logger.debug("Lock {} taken for {} by {} for waiting threads by {}", lock, context, runtime, lock.hasQueuedThreads());
+                
+            }
+        }
+    }
+    
+    protected void createLockOnNewProcessInstance(Long processInstanceId, RuntimeEngine runtime) {
+        if (!useLocking) {
+            logger.debug("Locking on runtime manager disabled");
+            return;
+        }
+        ReentrantLock newLock = new ReentrantLock();
+        ReentrantLock lock = engineLocks.putIfAbsent(processInstanceId, newLock);
+        if (lock == null) {
+            lock = newLock;
+        }
+        lock.lock();
+        logger.debug("[MaintainMappingListener] Lock {} created and stored in list by {}", lock, runtime);
+    }
+    
+    
+    protected void releaseAndCleanLock(RuntimeEngine runtime) {
+        if (!useLocking) {
+            logger.debug("Locking on runtime manager disabled");
+            return;
+        }
+        if (((RuntimeEngineImpl)runtime).getContext() instanceof ProcessInstanceIdContext) {
+            Long piId = ((ProcessInstanceIdContext) ((RuntimeEngineImpl)runtime).getContext()).getContextId();
+            if (piId != null) {
+                ReentrantLock lock = engineLocks.get(piId);
+                
+                if (!lock.hasQueuedThreads()) {
+                    logger.debug("Removing lock {} from list as non is waiting for it by {}", lock, runtime);
+                    engineLocks.remove(piId);
+                }
+                if (lock.isHeldByCurrentThread()) {
+                    lock.unlock();
+                    logger.debug("{} unlocked by {}", lock, runtime);
+                }
+            }
+        }
+    }
 }
