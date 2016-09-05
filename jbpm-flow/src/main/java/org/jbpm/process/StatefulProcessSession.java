@@ -354,6 +354,10 @@ public class StatefulProcessSession extends AbstractRuntime implements StatefulK
 		throw new UnsupportedOperationException();
 	}
 
+	public void update(FactHandle handle, Object object, String... modifiedProperties) {
+		throw new UnsupportedOperationException();
+	}
+
 	public void addEventListener(RuleRuntimeEventListener listener) {
 		// Do nothing
 	}
