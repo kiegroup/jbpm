@@ -16,8 +16,6 @@
 
 package org.jbpm.workflow.instance.node;
 
-import static org.jbpm.workflow.instance.impl.DummyEventListener.EMPTY_EVENT_LISTENER;
-
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,6 +26,7 @@ import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.core.event.EventTransformer;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
 import org.jbpm.workflow.core.node.EventNode;
+import org.jbpm.workflow.instance.impl.DummyEventListener;
 import org.jbpm.workflow.instance.impl.ExtendedNodeInstanceImpl;
 import org.kie.api.runtime.process.EventListener;
 import org.kie.api.runtime.process.NodeInstance;
@@ -122,8 +121,8 @@ public class EventNodeInstance extends ExtendedNodeInstanceImpl implements Event
 	    return resolveVariable(getEventNode().getType());
 	}
 
-	protected EventListener getEventListener() {
-	    return EMPTY_EVENT_LISTENER;
+	protected EventListener getEventListener() {	    
+	    return DummyEventListener.EMPTY_EVENT_LISTENER;
 	}
 
 	private boolean isVariableExpression(String eventType) {

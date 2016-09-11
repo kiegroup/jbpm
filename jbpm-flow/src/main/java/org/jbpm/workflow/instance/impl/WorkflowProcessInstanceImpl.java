@@ -517,6 +517,33 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 			                        }
 			                    }
 			                }
+			            } else if (node instanceof EventSubProcessNode) {
+			                // handling of event subprocess child nodes as they cannot signal 
+			                // EventSubProcessNode itself as that will create new instance of event subprocess
+			                for (Node childNode : ((EventSubProcessNode) node).getNodes()) {
+			                    if (childNode instanceof EventNodeInterface) {
+			                        if (((EventNodeInterface) childNode).acceptsEvent(type, event)) {
+			                            if (childNode instanceof EventNode && ((EventNode) childNode).getFrom() == null) {
+			                                EventNodeInstance eventNodeInstance = (EventNodeInstance) getNodeInstance(childNode);
+			                                eventNodeInstance.signalEvent(type, event);
+			                            } else {
+			                                // get event subprocess node instances
+			                                List<NodeInstance> nodeInstances = getNodeInstances(node.getId(), currentView);
+			                                if (nodeInstances != null && !nodeInstances.isEmpty()) {
+			                                    for (NodeInstance nodeInstance : nodeInstances) {
+			                                        // get child instances that are waiting on the event
+			                                        List<NodeInstance> childNodeInstances = ((EventSubProcessNodeInstance) nodeInstance).getNodeInstances(childNode.getId());
+			                                        // signal all found instances that wait on the event
+			                                        for (NodeInstance childNodeInstance : childNodeInstances) {
+			                                            ((EventNodeInstanceInterface) childNodeInstance).signalEvent(type, event);
+			                                        }
+			                                    }
+			                                }
+			                            }
+			                          
+			                        }
+			                    }
+			                }
 			            }
 			        }
 				}
@@ -704,4 +731,5 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
     public void setCorrelationKey(String correlationKey) {
         this.correlationKey = correlationKey;
     }
+    
 }
