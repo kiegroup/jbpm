@@ -303,7 +303,7 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
     		return (TransactionManager) txm;
     	}
     	
-    	return TransactionManagerFactory.get().newTransactionManager();
+    	return TransactionManagerFactory.get().newTransactionManager(env);
     }
     
     @Override
