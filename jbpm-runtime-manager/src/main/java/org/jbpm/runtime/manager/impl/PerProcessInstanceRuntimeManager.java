@@ -27,6 +27,7 @@ import org.drools.core.command.SingleSessionCommandService;
 import org.drools.core.command.impl.CommandBasedStatefulKnowledgeSession;
 import org.drools.core.command.impl.GenericCommand;
 import org.drools.core.command.impl.KnowledgeCommandContext;
+import org.drools.core.common.InternalKnowledgeRuntime;
 import org.drools.persistence.OrderedTransactionSynchronization;
 import org.drools.persistence.TransactionManager;
 import org.drools.persistence.TransactionManagerHelper;
@@ -62,7 +63,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A RuntimeManager implementation that is backed by the "Per Process Instance" strategy. This means that every 
+ * A RuntimeManager implementation that is backed by the "Per Process Instance" strategy. This means that every
  * process instance will be bound to a ksession for it's entire life time.  Once started, whenever other operations are invoked,
  * this manager will ensure that the correct ksession will be provided.
  * <br/>
@@ -79,20 +80,20 @@ import org.slf4j.LoggerFactory;
  * </ul>
  */
 public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(PerProcessInstanceRuntimeManager.class);
-	
+
 	private boolean useLocking = Boolean.parseBoolean(System.getProperty("org.jbpm.runtime.manager.ppi.lock", "true"));
-    
+
     private SessionFactory factory;
     private TaskServiceFactory taskServiceFactory;
-    
+
     private static ThreadLocal<Map<Object, RuntimeEngine>> local = new ThreadLocal<Map<Object, RuntimeEngine>>();
-    
-    private ConcurrentMap<Long, ReentrantLock> engineLocks = new ConcurrentHashMap<Long, ReentrantLock>(); 
-    
+
+    private ConcurrentMap<Long, ReentrantLock> engineLocks = new ConcurrentHashMap<Long, ReentrantLock>();
+
     private Mapper mapper;
-    
+
     public PerProcessInstanceRuntimeManager(RuntimeEnvironment environment, SessionFactory factory, TaskServiceFactory taskServiceFactory, String identifier) {
         super(environment, identifier);
         this.factory = factory;
@@ -100,7 +101,7 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
         this.mapper = ((org.kie.internal.runtime.manager.RuntimeEnvironment)environment).getMapper();
         this.registry.register(this);
     }
-    
+
     @Override
     public RuntimeEngine getRuntimeEngine(Context<?> context) {
     	if (isClosed()) {
@@ -109,11 +110,11 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
     	checkPermission();
     	RuntimeEngine runtime = null;
     	Object contextId = context.getContextId();
-    	
+
     	if (!(context instanceof ProcessInstanceIdContext || context instanceof CorrelationKeyContext)) {
     		logger.warn("ProcessInstanceIdContext or CorrelationKeyContext shall be used when interacting with PerProcessInstance runtime manager");
     	}
-    	
+
     	if (engineInitEager) {
 			KieSession ksession = null;
 			Long ksessionId = null;
@@ -131,7 +132,7 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
 				}
 				ksession = factory.findKieSessionById(ksessionId);
 			}
-			InternalTaskService internalTaskService = (InternalTaskService) taskServiceFactory.newTaskService();			
+			InternalTaskService internalTaskService = (InternalTaskService) taskServiceFactory.newTaskService();
 			runtime = new RuntimeEngineImpl(ksession, internalTaskService);
 			((RuntimeEngineImpl) runtime).setManager(this);
 			((RuntimeEngineImpl) runtime).setContext(context);
@@ -146,50 +147,50 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
 				return localRuntime;
 			}
     		// lazy initialization of ksession and task service
-	    	
+
 	    	runtime = new RuntimeEngineImpl(context, new PerProcessInstanceInitializer());
 	        ((RuntimeEngineImpl) runtime).setManager(this);
-            	        
+
     	}
     	createLockOnGetEngine(context, runtime);
         saveLocalRuntime(contextId, runtime);
-        
+
         return runtime;
     }
-    
+
     @Override
     public void signalEvent(String type, Object event) {
-        
+
         // first signal with new context in case there are start event with signal
-        RuntimeEngine runtimeEngine = getRuntimeEngine(ProcessInstanceIdContext.get());        
-        runtimeEngine.getKieSession().signalEvent(type, event);  
-        
+        RuntimeEngine runtimeEngine = getRuntimeEngine(ProcessInstanceIdContext.get());
+        runtimeEngine.getKieSession().signalEvent(type, event);
+
         disposeRuntimeEngine(runtimeEngine);
-    
+
         // next find out all instances waiting for given event type
         List<String> processInstances = ((InternalMapper) mapper).findContextIdForEvent(type, getIdentifier());
         for (String piId : processInstances) {
-            runtimeEngine = getRuntimeEngine(ProcessInstanceIdContext.get(Long.parseLong(piId)));        
-            runtimeEngine.getKieSession().signalEvent(type, event);        
-            
+            runtimeEngine = getRuntimeEngine(ProcessInstanceIdContext.get(Long.parseLong(piId)));
+            runtimeEngine.getKieSession().signalEvent(type, event);
+
             disposeRuntimeEngine(runtimeEngine);
-            
+
         }
-        
+
         // process currently active runtime engines
         Map<Object, RuntimeEngine> currentlyActive = local.get();
         if (currentlyActive != null && !currentlyActive.isEmpty()) {
             RuntimeEngine[] activeEngines = currentlyActive.values().toArray(new RuntimeEngine[currentlyActive.size()]);
             for (RuntimeEngine engine : activeEngines) {
                 Context<?> context = ((RuntimeEngineImpl) engine).getContext();
-                if (context != null && context instanceof ProcessInstanceIdContext 
+                if (context != null && context instanceof ProcessInstanceIdContext
                         && ((ProcessInstanceIdContext) context).getContextId() != null) {
                     engine.getKieSession().signalEvent(type, event, ((ProcessInstanceIdContext) context).getContextId());
                 }
             }
         }
     }
-    
+
 
     @Override
     public void validate(KieSession ksession, Context<?> context) throws IllegalStateException {
@@ -200,7 +201,7 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
             return;
         }
         Long ksessionId = mapper.findMapping(context, this.identifier);
-                
+
         if (ksessionId == null) {
             // make sure ksession is not use by any other context
             Object contextId = mapper.findContextId(ksession.getIdentifier(), this.identifier);
@@ -212,7 +213,7 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
         if (ksession.getIdentifier() != ksessionId) {
             throw new IllegalStateException("Invalid session was used for this context " + context);
         }
-        
+
     }
 
     @Override
@@ -220,7 +221,7 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
     	if (isClosed()) {
     		throw new IllegalStateException("Runtime manager " + identifier + " is already closed");
     	}
-    	
+
     	if (canDispose(runtime)) {
         	removeLocalRuntime(runtime);
         	if (runtime instanceof Disposable) {
@@ -230,14 +231,14 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
             	}
                 ((Disposable) runtime).dispose();
             }
-            
+
         	releaseAndCleanLock(runtime);
     	}
     }
 
 
     @Override
-    public void softDispose(RuntimeEngine runtimeEngine) {        
+    public void softDispose(RuntimeEngine runtimeEngine) {
         super.softDispose(runtimeEngine);
         removeLocalRuntime(runtimeEngine);
 
@@ -251,19 +252,19 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
                 removeRuntimeFromTaskService();
             }
         } catch(Exception e) {
-           // do nothing 
+           // do nothing
         }
         super.close();
         factory.close();
     }
 
-    
+
     public boolean validate(Long ksessionId, Long processInstanceId) {
     	Long mapped = this.mapper.findMapping(ProcessInstanceIdContext.get(processInstanceId), this.identifier);
         if (mapped == ksessionId) {
             return true;
         }
-        
+
         return false;
     }
 
@@ -273,7 +274,7 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
         private Long ksessionId;
         private RuntimeEngine runtime;
         private String managerId;
-        
+
         MaintainMappingListener(Long ksessionId, RuntimeEngine runtime, String managerId) {
         	this.ksessionId = ksessionId;
             this.runtime = runtime;
@@ -285,22 +286,22 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
             		event.getKieRuntime().getEnvironment(),
             		event.getProcessInstance().getId()), managerId);
             removeLocalRuntime(runtime);
-            
-            registerDisposeCallback(runtime, 
-                        new DestroySessionTransactionSynchronization(runtime.getKieSession()));            
+
+            registerDisposeCallback(runtime,
+                        new DestroySessionTransactionSynchronization(runtime.getKieSession()));
         }
 
         @Override
         public void beforeProcessStarted(ProcessStartedEvent event) {
             mapper.saveMapping(new EnvironmentAwareProcessInstanceContext(
             		event.getKieRuntime().getEnvironment(),
-            		event.getProcessInstance().getId()), ksessionId, managerId);  
+            		event.getProcessInstance().getId()), ksessionId, managerId);
             saveLocalRuntime(event.getProcessInstance().getId(), runtime);
             ((RuntimeEngineImpl)runtime).setContext(ProcessInstanceIdContext.get(event.getProcessInstance().getId()));
-            
+
             createLockOnNewProcessInstance(event.getProcessInstance().getId(), runtime);
         }
-        
+
     }
 
 
@@ -327,7 +328,7 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
     public void setMapper(Mapper mapper) {
         this.mapper = mapper;
     }
-    
+
     protected RuntimeEngine findLocalRuntime(Object processInstanceId) {
         if (processInstanceId == null) {
             return null;
@@ -342,13 +343,13 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
         		map.remove(processInstanceId);
         		return null;
         	}
-        	
+
         	return engine;
         }
     }
-    
+
     protected void saveLocalRuntime(Object processInstanceId, RuntimeEngine runtime) {
-        // since this manager is strictly for process instance ids it should only store 
+        // since this manager is strictly for process instance ids it should only store
         // process instance ids as local cache keys
         if (processInstanceId == null || !(processInstanceId instanceof Long)) {
             return;
@@ -357,12 +358,12 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
         if (map == null) {
             map = new HashMap<Object, RuntimeEngine>();
             local.set(map);
-        } 
-        
+        }
+
         map.put(processInstanceId, runtime);
-        
+
     }
-    
+
     protected void removeLocalRuntime(RuntimeEngine runtime) {
         Map<Object, RuntimeEngine> map = local.get();
         Object keyToRemove = -1l;
@@ -373,44 +374,71 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
                     break;
                 }
             }
-            
+
             map.remove(keyToRemove);
         }
     }
-    
+
     @Override
     public void init() {
-    	
-    	TaskContentRegistry.get().addMarshallerContext(getIdentifier(), 
+
+    	TaskContentRegistry.get().addMarshallerContext(getIdentifier(),
     			new ContentMarshallerContext(environment.getEnvironment(), environment.getClassLoader()));
-    	
-        // need to init one session to bootstrap all case - such as start timers
-        KieSession initialKsession = factory.newKieSession();
-        initialKsession.execute(new DestroyKSessionCommand(initialKsession, this));
-        
-        if (!"false".equalsIgnoreCase(System.getProperty("org.jbpm.rm.init.timer"))) {
-        	if (mapper instanceof JPAMapper) {
-        		List<Long> ksessionsToInit = ((JPAMapper) mapper).findKSessionToInit(this.identifier);
-        		for (Long id : ksessionsToInit) {
-        			initialKsession = factory.findKieSessionById(id);
-        			initialKsession.execute(new DisposeKSessionCommand(initialKsession, this));
-        		}
-        	}
+
+    	boolean owner = false;
+    	TransactionManager tm = null;
+    	if (environment.usePersistence()){
+        	tm = getTransactionManagerInternal(environment.getEnvironment());
+        	owner = tm.begin();
+    	}
+        try {
+        	// need to init one session to bootstrap all case - such as start timers
+            KieSession initialKsession = factory.newKieSession();
+            // there is a need to call getProcessRuntime otherwise the start listeners are not registered
+            initialKsession.execute(new GenericCommand<Void>() {
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                public Void execute(org.kie.internal.command.Context context) {
+                    KieSession ksession = ((KnowledgeCommandContext) context).getKieSession();
+                    ((InternalKnowledgeRuntime) ksession).getProcessRuntime();
+                    return null;
+                }
+            });
+            initialKsession.execute(new DestroyKSessionCommand(initialKsession, this));
+
+            if (!"false".equalsIgnoreCase(System.getProperty("org.jbpm.rm.init.timer"))) {
+            	if (mapper instanceof JPAMapper) {
+            		List<Long> ksessionsToInit = ((JPAMapper) mapper).findKSessionToInit(this.identifier);
+            		for (Long id : ksessionsToInit) {
+            			initialKsession = factory.findKieSessionById(id);
+            			initialKsession.execute(new DisposeKSessionCommand(initialKsession, this));
+            		}
+            	}
+            }
+            if (tm != null) {
+                tm.commit(owner);
+            }
+        } catch (Exception e) {
+            if (tm != null) {
+                tm.rollback(owner);
+            }
+            throw new RuntimeException("Exception while initializing runtime manager " + this.identifier, e);
         }
     }
 
-    
-    private static class DestroyKSessionCommand implements GenericCommand<Void> {            
+
+    private static class DestroyKSessionCommand implements GenericCommand<Void> {
         private static final long serialVersionUID = 1L;
 
         private KieSession initialKsession;
         private AbstractRuntimeManager manager;
-        
+
         public DestroyKSessionCommand(KieSession initialKsession, AbstractRuntimeManager manager) {
         	this.initialKsession = initialKsession;
         	this.manager = manager;
         }
-        
+
         @Override
         public Void execute(org.kie.internal.command.Context context) {
         	TransactionManager tm = (TransactionManager) initialKsession.getEnvironment().get(EnvironmentName.TRANSACTION_MANAGER);
@@ -423,24 +451,24 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
             	}
             	return null;
         	}
-            
+
             if (tm != null && tm.getStatus() != TransactionManager.STATUS_NO_TRANSACTION
                     && tm.getStatus() != TransactionManager.STATUS_ROLLEDBACK
                     && tm.getStatus() != TransactionManager.STATUS_COMMITTED) {
             	TransactionManagerHelper.registerTransactionSyncInContainer(tm, new OrderedTransactionSynchronization(5, "PPIRM-"+initialKsession.getIdentifier()) {
-					
+
                     @Override
                     public void beforeCompletion() {
                         if (initialKsession instanceof CommandBasedStatefulKnowledgeSession) {
                             CommandService commandService = ((CommandBasedStatefulKnowledgeSession) initialKsession).getCommandService();
                             ((SingleSessionCommandService) commandService).destroy();
-                         }                            
+                         }
                     }
-                    
+
                     @Override
                     public void afterCompletion(int arg0) {
                     	initialKsession.dispose();
-                        
+
                     }
 				});
             } else {
@@ -449,21 +477,21 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
             return null;
         }
     }
-    
-    private static class DisposeKSessionCommand implements GenericCommand<Void> {            
+
+    private static class DisposeKSessionCommand implements GenericCommand<Void> {
         private static final long serialVersionUID = 1L;
 
         private KieSession initialKsession;
         private AbstractRuntimeManager manager;
-        
+
         public DisposeKSessionCommand(KieSession initialKsession, AbstractRuntimeManager manager) {
         	this.initialKsession = initialKsession;
         	this.manager = manager;
         }
-        
+
         @Override
         public Void execute(org.kie.internal.command.Context context) {
-            
+
             if (manager.hasEnvironmentEntry("IS_JTA_TRANSACTION", false)) {
             	initialKsession.dispose();
             	return null;
@@ -473,15 +501,15 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
                     && tm.getStatus() != TransactionManager.STATUS_ROLLEDBACK
                     && tm.getStatus() != TransactionManager.STATUS_COMMITTED) {
             	TransactionManagerHelper.registerTransactionSyncInContainer(tm, new OrderedTransactionSynchronization(5, "PPIRM-"+initialKsession.getIdentifier()) {
-					
+
                     @Override
-                    public void beforeCompletion() {                           
+                    public void beforeCompletion() {
                     }
-                    
+
                     @Override
                     public void afterCompletion(int arg0) {
                     	initialKsession.dispose();
-                        
+
                     }
 				});
             } else {
@@ -490,16 +518,16 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
             return null;
         }
     }
-    
+
     private class PerProcessInstanceInitializer implements RuntimeEngineInitlializer {
 
-    	
+
     	@Override
     	public KieSession initKieSession(Context<?> context, InternalRuntimeManager manager, RuntimeEngine engine) {
-    		
-    		
+
+
     		Object contextId = context.getContextId();
-    		
+
     		if (contextId != null && !(context instanceof EmptyContext)) {
 	    		Long found = mapper.findMapping(context, manager.getIdentifier());
 			    if (found == null) {
@@ -507,12 +535,12 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
 			        throw new SessionNotFoundException("No session found for context " + context.getContextId());
 			    }
 	    	}
-    		
+
     		KieSession ksession = null;
     		Long ksessionId = null;
-            if (contextId == null || context instanceof EmptyContext ) { 
+            if (contextId == null || context instanceof EmptyContext ) {
                 ksession = factory.newKieSession();
-                ksessionId = ksession.getIdentifier();                 
+                ksessionId = ksession.getIdentifier();
             } else {
                 RuntimeEngine localRuntime = ((PerProcessInstanceRuntimeManager)manager).findLocalRuntime(contextId);
                 if (localRuntime != null && ((RuntimeEngineImpl)engine).internalGetKieSession() != null) {
@@ -541,17 +569,17 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
 
     }
 
-    
+
     /*
      * locking support for same context - runtime engine that deals with exact same process instance context
      */
-    
+
     protected void createLockOnGetEngine(Context<?> context, RuntimeEngine runtime) {
         if (!useLocking) {
             logger.debug("Locking on runtime manager disabled");
             return;
         }
-        
+
         if (context instanceof ProcessInstanceIdContext) {
             Long piId = ((ProcessInstanceIdContext) context).getContextId();
             if (piId != null) {
@@ -559,15 +587,15 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
                 ReentrantLock lock = engineLocks.putIfAbsent(piId, newLock);
                 if (lock == null) {
                     lock = newLock;
-                }                       
+                }
                 logger.debug("Trying to get a lock {} for {} by {}", lock, context, runtime);
                 lock.lock();
                 logger.debug("Lock {} taken for {} by {} for waiting threads by {}", lock, context, runtime, lock.hasQueuedThreads());
-                
+
             }
         }
     }
-    
+
     protected void createLockOnNewProcessInstance(Long processInstanceId, RuntimeEngine runtime) {
         if (!useLocking) {
             logger.debug("Locking on runtime manager disabled");
@@ -581,8 +609,8 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
         lock.lock();
         logger.debug("[MaintainMappingListener] Lock {} created and stored in list by {}", lock, runtime);
     }
-    
-    
+
+
     protected void releaseAndCleanLock(RuntimeEngine runtime) {
         if (!useLocking) {
             logger.debug("Locking on runtime manager disabled");
@@ -592,7 +620,7 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
             Long piId = ((ProcessInstanceIdContext) ((RuntimeEngineImpl)runtime).getContext()).getContextId();
             if (piId != null) {
                 ReentrantLock lock = engineLocks.get(piId);
-                
+
                 if (!lock.hasQueuedThreads()) {
                     logger.debug("Removing lock {} from list as non is waiting for it by {}", lock, runtime);
                     engineLocks.remove(piId);
