@@ -50,9 +50,6 @@ import org.jbpm.workflow.core.node.Trigger;
 import org.kie.api.KieBase;
 import org.kie.api.definition.process.Node;
 import org.kie.api.definition.process.Process;
-import org.kie.api.event.kiebase.AfterProcessAddedEvent;
-import org.kie.api.event.kiebase.AfterProcessRemovedEvent;
-import org.kie.api.event.kiebase.DefaultKieBaseEventListener;
 import org.kie.api.event.process.ProcessEventListener;
 import org.kie.api.event.rule.DefaultAgendaEventListener;
 import org.kie.api.event.rule.MatchCreatedEvent;
@@ -83,7 +80,6 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
 	private SignalManager signalManager;
 	private TimerManager timerManager;
 	private ProcessEventSupport processEventSupport;
-	private DefaultKieBaseEventListener knowledgeBaseListener;
 
 	public ProcessRuntimeImpl(InternalKnowledgeRuntime kruntime) {
 		this.kruntime = kruntime;
@@ -294,25 +290,6 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
         for ( Process process : kruntime.getKieBase().getProcesses() ) {
             initProcessEventListener(process);
         }
-        knowledgeBaseListener = new DefaultKieBaseEventListener() {
-        	@Override
-        	public void afterProcessAdded(AfterProcessAddedEvent event) {
-        		initProcessEventListener(event.getProcess());
-        	}
-        	@Override
-        	public void afterProcessRemoved(AfterProcessRemovedEvent event) {
-        		if (event.getProcess() instanceof RuleFlowProcess) {
-        			String type = (String)
-    				    ((RuleFlowProcess) event.getProcess()).getRuntimeMetaData().get("StartProcessEventType");
-        			StartProcessEventListener listener = (StartProcessEventListener)
-        				((RuleFlowProcess) event.getProcess()).getRuntimeMetaData().get("StartProcessEventListener");
-        			if (type != null && listener != null) {
-        				signalManager.removeEventListener(type, listener);
-        			}
-        		}
-        	}
-		};
-        kruntime.getKieBase().addEventListener(knowledgeBaseListener);
     }
     
     private void initProcessEventListener(Process process) {
@@ -515,10 +492,8 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
 	public void dispose() {
         this.processEventSupport.reset();
         this.timerManager.dispose();
-        if( kruntime != null ) { 
-            kruntime.getKieBase().removeEventListener(knowledgeBaseListener);
-            kruntime = null;
-        }
+        kruntime = null;
+        
 	}
 
 	public void clearProcessInstances() {
