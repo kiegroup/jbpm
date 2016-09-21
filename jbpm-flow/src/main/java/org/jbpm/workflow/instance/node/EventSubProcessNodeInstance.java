@@ -15,6 +15,8 @@
  */
 package org.jbpm.workflow.instance.node;
 
+
+
 import org.jbpm.process.instance.ProcessInstance;
 import org.jbpm.workflow.core.node.EventSubProcessNode;
 import org.jbpm.workflow.core.node.StartNode;
@@ -78,7 +80,5 @@ public class EventSubProcessNodeInstance extends CompositeContextNodeInstance {
             throw new IllegalArgumentException(
                 "Completing a node instance that has no outgoing connection not supported.");
         }
-    }
-    
-    
+    }   
 }

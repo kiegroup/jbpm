@@ -2642,4 +2642,28 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
             System.clearProperty("jbpm.enable.multi.con");
         }
     }
+    
+    @Test
+    public void testEventSubprocessWithEmbeddedSignals() throws Exception {
+        KieBase kbase = createKnowledgeBase("BPMN2-EventSubprocessErrorSignalEmbedded.bpmn2");
+        ksession = createKnowledgeSession(kbase);
+               
+        ProcessInstance processInstance = ksession.startProcess("project2.myerrorprocess");
+        
+        assertProcessInstanceActive(processInstance.getId(), ksession);
+        assertProcessInstanceActive(processInstance);
+        ksession = restoreSession(ksession, true);
+        
+
+        ksession.signalEvent("signal1", null, processInstance.getId());        
+        assertProcessInstanceActive(processInstance.getId(), ksession);
+        
+        ksession.signalEvent("signal2", null, processInstance.getId());
+        assertProcessInstanceActive(processInstance.getId(), ksession);
+        
+        ksession.signalEvent("signal3", null, processInstance.getId());
+
+        assertProcessInstanceFinished(processInstance, ksession);
+
+    }
 }

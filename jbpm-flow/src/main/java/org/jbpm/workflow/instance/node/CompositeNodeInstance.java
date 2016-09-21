@@ -425,6 +425,4 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
         return iterationLevels;
     }
 
-
-
 }
