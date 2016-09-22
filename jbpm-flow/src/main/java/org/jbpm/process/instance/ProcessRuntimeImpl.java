@@ -106,7 +106,6 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
             List<StartNode> startNodes = p.getTimerStart();
             if (startNodes != null && !startNodes.isEmpty()) {
                 kruntime.queueWorkingMemoryAction(new RegisterStartTimerAction(p.getId(), startNodes, this.timerManager));
-                kruntime.executeQueuedActions();
             }
         }
     }
@@ -228,7 +227,6 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
             CorrelationKey correlationKey, Map<String, Object> parameters) {
         try {
             kruntime.startOperation();
-            kruntime.executeQueuedActions();
 
             final Process process = kruntime.getKieBase().getProcess( processId );
             if ( process == null ) {
