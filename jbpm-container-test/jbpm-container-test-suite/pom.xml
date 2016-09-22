@@ -669,6 +669,17 @@
             <artifactId>jboss-logging</artifactId>
             <version>3.2.1.Final</version>
           </dependency>
+          <!-- xnio has to be overridden because productization kie-platform-bom uses an older version of it which is incompatible -->
+          <dependency>
+            <groupId>org.jboss.xnio</groupId>
+            <artifactId>xnio-api</artifactId>
+            <version>${version.org.jboss.xnio.wildfly10}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.jboss.xnio</groupId>
+            <artifactId>xnio-nio</artifactId>
+            <version>${version.org.jboss.xnio.wildfly10}</version>
+          </dependency>
         </dependencies>
       </dependencyManagement>
       <dependencies>
