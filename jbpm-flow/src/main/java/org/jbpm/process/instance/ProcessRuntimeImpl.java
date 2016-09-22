@@ -15,12 +15,6 @@
 
 package org.jbpm.process.instance;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.drools.core.SessionConfiguration;
 import org.drools.core.command.impl.GenericCommand;
 import org.drools.core.command.impl.KnowledgeCommandContext;
@@ -74,6 +68,12 @@ import org.kie.internal.runtime.manager.context.CaseContext;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 import org.kie.internal.utils.CompositeClassLoader;
 
+import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class ProcessRuntimeImpl implements InternalProcessRuntime {
 	
 	private InternalKnowledgeRuntime kruntime;
@@ -108,7 +108,6 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
             List<StartNode> startNodes = p.getTimerStart();
             if (startNodes != null && !startNodes.isEmpty()) {
                 kruntime.queueWorkingMemoryAction(new RegisterStartTimerAction(p.getId(), startNodes, this.timerManager));
-                kruntime.executeQueuedActions();
             }
         }
     }
@@ -230,7 +229,6 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
             CorrelationKey correlationKey, Map<String, Object> parameters) {
         try {
             kruntime.startOperation();
-            kruntime.executeQueuedActions();
 
             final Process process = kruntime.getKieBase().getProcess( processId );
             if ( process == null ) {
