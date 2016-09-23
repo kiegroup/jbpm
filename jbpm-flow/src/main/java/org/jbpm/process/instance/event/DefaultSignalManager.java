@@ -71,8 +71,7 @@ public class DefaultSignalManager implements SignalManager {
 	}
 	
 	public void signalEvent(String type, Object event) {
-		kruntime.queueWorkingMemoryAction(new SignalAction(type, event));
-		((KieSession)kruntime).fireAllRules();
+	    ((DefaultSignalManager) ((InternalProcessRuntime) kruntime.getProcessRuntime()).getSignalManager()).internalSignalEvent(type, event);
 	}
 	
 	public void internalSignalEvent(String type, Object event) {
@@ -88,8 +87,7 @@ public class DefaultSignalManager implements SignalManager {
 	public void signalEvent(long processInstanceId, String type, Object event) {
 		ProcessInstance processInstance = kruntime.getProcessInstance(processInstanceId);
 		if (processInstance != null) {
-			kruntime.queueWorkingMemoryAction(new SignalProcessInstanceAction(processInstanceId, type, event));
-			((KieSession)kruntime).fireAllRules();
+		    processInstance.signalEvent(type, event);
 		}
 	}
 	
@@ -214,6 +212,5 @@ public class DefaultSignalManager implements SignalManager {
             return null;
         }
 		
-	}
-	
+	}	
 }
