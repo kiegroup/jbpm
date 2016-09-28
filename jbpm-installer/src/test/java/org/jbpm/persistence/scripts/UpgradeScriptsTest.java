@@ -46,7 +46,7 @@ public class UpgradeScriptsTest {
         }
 
         final TestPersistenceContext dbTestingContext = new TestPersistenceContext();
-        dbTestingContext.init(PersistenceUnit.DB_TESTING);
+        dbTestingContext.init(PersistenceUnit.DB_TESTING_VALIDATE);
         try {
             dbTestingContext.startAndPersistSomeProcess(TEST_PROCESS_ID);
             Assert.assertTrue(dbTestingContext.getStoredProcessesCount() == 1);
@@ -86,7 +86,7 @@ public class UpgradeScriptsTest {
         }
 
         final TestPersistenceContext dbTestingContext = new TestPersistenceContext();
-        dbTestingContext.init(PersistenceUnit.DB_TESTING);
+        dbTestingContext.init(PersistenceUnit.DB_TESTING_VALIDATE);
         try {
             Assert.assertTrue(dbTestingContext.getStoredProcessesCount() == 1);
             Assert.assertTrue(dbTestingContext.getStoredSessionsCount() == 1);
