@@ -58,6 +58,7 @@ import org.kie.api.runtime.process.DataTransformer;
 import org.kie.api.runtime.process.EventListener;
 import org.kie.api.runtime.process.NodeInstance;
 import org.kie.internal.runtime.KnowledgeRuntime;
+import org.kie.internal.runtime.manager.SessionNotFoundException;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -219,9 +220,13 @@ public class SubProcessNodeInstance extends StateBasedNodeInstance implements Ev
         	InternalKnowledgeRuntime kruntime = ((ProcessInstance) getProcessInstance()).getKnowledgeRuntime();
         	RuntimeManager manager = (RuntimeManager) kruntime.getEnvironment().get("RuntimeManager");
         	if (manager != null) {
+        	    try {
         		RuntimeEngine runtime = manager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstanceId));
                 KnowledgeRuntime managedkruntime = (KnowledgeRuntime) runtime.getKieSession();
         		processInstance = (ProcessInstance) managedkruntime.getProcessInstance(processInstanceId);
+        	    } catch (SessionNotFoundException e) {
+        	        // in case no session is found for parent process let's skip signal for process instance completion
+        	    }
         	} else {
         		processInstance = (ProcessInstance) kruntime.getProcessInstance(processInstanceId);	
         	}
