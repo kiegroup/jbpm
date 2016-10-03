@@ -31,7 +31,7 @@ import org.kie.api.runtime.EnvironmentName;
 import org.kie.api.task.UserGroupCallback;
 import org.kie.api.task.model.Task;
 import org.kie.internal.command.Context;
-import org.kie.internal.command.World;
+import org.kie.internal.command.ContextManager;
 import org.kie.internal.task.api.TaskContext;
 import org.kie.internal.task.api.TaskPersistenceContext;
 import org.kie.internal.task.api.TaskPersistenceContextManager;
@@ -131,7 +131,7 @@ public class TaskTransactionInterceptor extends AbstractInterceptor {
 			}
 			
 			@Override
-			public World getContextManager() {
+			public ContextManager getContextManager() {
 				return null;
 			}
 			

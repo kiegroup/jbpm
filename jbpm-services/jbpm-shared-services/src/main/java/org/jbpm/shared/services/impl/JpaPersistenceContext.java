@@ -23,7 +23,7 @@ import javax.persistence.LockModeType;
 import javax.persistence.Query;
 
 import org.kie.internal.command.Context;
-import org.kie.internal.command.World;
+import org.kie.internal.command.ContextManager;
 
 public class JpaPersistenceContext implements Context {
 
@@ -226,12 +226,10 @@ public class JpaPersistenceContext implements Context {
 		}
 	}
 
-
 	@Override
-	public World getContextManager() {
+	public ContextManager getContextManager() {
 		return null;
 	}
-
 
 	@Override
 	public String getName() {
