@@ -16,13 +16,6 @@
 
 package org.jbpm.process.instance.timer;
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.drools.core.common.InternalKnowledgeRuntime;
 import org.drools.core.common.InternalWorkingMemory;
 import org.drools.core.marshalling.impl.MarshallerReaderContext;
@@ -52,6 +45,13 @@ import org.kie.internal.runtime.StatefulKnowledgeSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * 
  * @author <a href="mailto:kris_verlaenen@hotmail.com">Kris Verlaenen</a>
@@ -76,7 +76,6 @@ public class TimerManager {
     public void registerTimer(final TimerInstance timer, ProcessInstance processInstance) {
         try {
             kruntime.startOperation();
-            kruntime.executeQueuedActions();
 
             timer.setId(++timerId);
             timer.setProcessInstanceId(processInstance.getId());
@@ -108,7 +107,6 @@ public class TimerManager {
     public void registerTimer(final TimerInstance timer, String processId, Map<String, Object> params) {
         try {
             kruntime.startOperation();
-            kruntime.executeQueuedActions();
 
             timer.setId(++timerId);
             timer.setProcessInstanceId(-1l);
@@ -167,7 +165,6 @@ public class TimerManager {
     public void cancelTimer(long timerId) {
 		try {
 			kruntime.startOperation();
-            kruntime.executeQueuedActions();
 
 			TimerInstance timer = timers.remove(timerId);
 			if (timer != null) {
