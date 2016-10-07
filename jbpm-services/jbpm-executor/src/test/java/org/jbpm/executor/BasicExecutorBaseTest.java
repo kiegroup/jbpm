@@ -16,15 +16,10 @@
 
 package org.jbpm.executor;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.util.ArrayList;
+
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -49,6 +44,8 @@ import org.kie.api.executor.STATUS;
 import org.kie.api.runtime.query.QueryContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.Assert.*;
 
 public abstract class BasicExecutorBaseTest {
     
@@ -698,6 +695,31 @@ public abstract class BasicExecutorBaseTest {
         assertNotNull(firstRequest);
         assertNotNull(secondRequest);
         assertNotEquals("Requests are same!", firstRequest.getId(), secondRequest.getId());
+    }
+
+    @Test
+    public void testScheduleRequestWithInvalidClass() throws Exception {
+        String invalidClass="InvalidClass";
+
+        CommandContext ctxCMD = new CommandContext();
+        ctxCMD.setData("businessKey", UUID.randomUUID().toString());
+
+        Exception expectedException =null;
+        try {
+            executorService.scheduleRequest(invalidClass, ctxCMD);
+        }catch (Exception e){
+            expectedException = e;
+        }
+        assertNotNull(expectedException);
+        assertTrue(expectedException instanceof IllegalArgumentException);
+        assertEquals("Invalid command type",expectedException.getMessage());
+
+        List<RequestInfo> inErrorRequests = executorService.getInErrorRequests(new QueryContext());
+        assertEquals(0, inErrorRequests.size());
+        List<RequestInfo> queuedRequests = executorService.getQueuedRequests(new QueryContext());
+        assertEquals(0, queuedRequests.size());
+        List<RequestInfo> executedRequests = executorService.getCompletedRequests(new QueryContext());
+        assertEquals(0, executedRequests.size());
     }
 
     

@@ -306,6 +306,10 @@ public class ExecutorImpl implements Executor {
         if (ctx == null) {
             throw new IllegalStateException("A Context Must Be Provided! ");
         }
+        if(!validateCommand(commandId)){
+            throw new IllegalArgumentException("Invalid command type");
+        }
+
         String businessKey = (String) ctx.getData("businessKey");
         RequestInfo requestInfo = new RequestInfo();
         requestInfo.setCommandName(commandId);
@@ -446,5 +450,13 @@ public class ExecutorImpl implements Executor {
         }
     }
 
+    protected boolean validateCommand(String command) {
+        try {
+            Class.forName(command);
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
 
 }
