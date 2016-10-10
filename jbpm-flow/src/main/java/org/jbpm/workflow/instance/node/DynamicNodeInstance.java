@@ -17,6 +17,7 @@
 package org.jbpm.workflow.instance.node;
 
 import org.drools.core.common.InternalAgenda;
+
 import org.drools.core.util.MVELSafeHelper;
 import org.jbpm.workflow.core.impl.ExtendedNodeImpl;
 import org.jbpm.workflow.core.impl.NodeImpl;
@@ -29,15 +30,15 @@ import org.kie.api.runtime.process.NodeInstance;
 public class DynamicNodeInstance extends CompositeContextNodeInstance {
 
 	private static final long serialVersionUID = 510l;
-	
+
 	private String getRuleFlowGroupName() {
 		return getNodeName();
 	}
-	
+
 	protected DynamicNode getDynamicNode() {
 		return (DynamicNode) getNode();
 	}
-	
+
     public void internalTrigger(NodeInstance from, String type) {
     	triggerEvent(ExtendedNodeImpl.EVENT_NODE_ENTER);
     	// if node instance was cancelled, abort
@@ -55,10 +56,10 @@ public class DynamicNodeInstance extends CompositeContextNodeInstance {
 
 	public void nodeInstanceCompleted(org.jbpm.workflow.instance.NodeInstance nodeInstance, String outType) {
 	    Node nodeInstanceNode = nodeInstance.getNode();
-	    if( nodeInstanceNode != null ) { 
+	    if( nodeInstanceNode != null ) {
 	        Object compensationBoolObj =  nodeInstanceNode.getMetaData().get("isForCompensation");
 	        boolean isForCompensation = compensationBoolObj == null ? false : ((Boolean) compensationBoolObj);
-	        if( isForCompensation ) { 
+	        if( isForCompensation ) {
 	            return;
 	        }
 	    }
@@ -70,15 +71,15 @@ public class DynamicNodeInstance extends CompositeContextNodeInstance {
     	} else if (completionCondition != null) {
     		Object value = MVELSafeHelper.getEvaluator().eval(completionCondition, new NodeInstanceResolverFactory(this));
     		if ( !(value instanceof Boolean) ) {
-                throw new RuntimeException( "Completion condition expression must return boolean values: " + value 
+                throw new RuntimeException( "Completion condition expression must return boolean values: " + value
                 		+ " for expression " + completionCondition);
             }
             if (((Boolean) value).booleanValue()) {
-            	triggerCompleted(NodeImpl.CONNECTION_DEFAULT_TYPE);	
+            	triggerCompleted(NodeImpl.CONNECTION_DEFAULT_TYPE);
             }
     	}
 	}
-	
+
     public void triggerCompleted(String outType) {
     	((InternalAgenda) getProcessInstance().getKnowledgeRuntime().getAgenda())
     		.deactivateRuleFlowGroup(getRuleFlowGroupName());
@@ -95,5 +96,4 @@ public class DynamicNodeInstance extends CompositeContextNodeInstance {
     		}
 		}
 	}
-	
 }
