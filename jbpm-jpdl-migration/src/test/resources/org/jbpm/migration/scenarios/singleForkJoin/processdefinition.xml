@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process-definition  xmlns="urn:jbpm.org:jpdl-3.2"  name="singleForkJoin">
+
+
+	<start-state name="start-state">
+		<transition to="fork1"></transition>
+	</start-state>
+
+
+	<fork name="fork1">
+		<description>
+			Split up here.
+		</description>
+		<transition to="node1"></transition>
+		<transition to="node2" name="to_node2"></transition>
+	</fork>
+
+	<node name="node1">
+        <event type="node-enter">
+            <action class="org.jbpm.migration.tools.jpdl.handlers.DefaultActionHandler" />
+        </event>
+		<transition to="join1"></transition>
+	</node>
+
+	<node name="node2">
+        <event type="node-enter">
+            <action class="org.jbpm.migration.tools.jpdl.handlers.DefaultActionHandler" />
+        </event>
+		<transition to="join1"></transition>
+	</node>
+
+	<join name="join1">
+		<description>
+			Come back together.
+		</description>
+		<transition to="end-state"></transition>
+	</join>
+
+	<end-state name="end-state"/>
+
+</process-definition>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<root-container name="glassDamageFinanceProcess" width="1072" height="542">
+  <node name="start" x="643" y="25" width="132" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node name="endInvoiceMailed" x="780" y="267" width="132" height="36"/>
+  <node name="endClaimBrokenOff" x="192" y="505" width="162" height="36"/>
+  <node name="endFinancialsCreated" x="395" y="433" width="173" height="36"/>
+  <node name="endOverdueInvoiceMailed" x="617" y="431" width="194" height="36"/>
+  <node name="isInvoicePresent" x="643" y="105" width="132" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node name="repairGlassDamage" x="475" y="186" width="155" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node name="mailInvoice" x="776" y="181" width="132" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node name="isInvoicePresentAfterOverdue" x="446" y="271" width="218" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+    <edge>
+      <label x="-15" y="-25"/>
+    </edge>
+  </node>
+  <node name="areFinancialActionsCreated" x="262" y="361" width="203" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+    <edge>
+      <label x="-12" y="-22"/>
+    </edge>
+  </node>
+  <node name="breakOffClaim" x="204" y="434" width="132" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node name="mailOverdueInvoice" x="625" y="364" width="173" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+</root-container>

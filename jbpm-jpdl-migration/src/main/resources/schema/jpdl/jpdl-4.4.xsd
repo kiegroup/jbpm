@@ -1,0 +1,1776 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://jbpm.org/4.4/jpdl"
+  xmlns:tns="http://jbpm.org/4.4/jpdl" elementFormDefault="qualified">
+  <annotation>
+    <documentation>Schema for jPDL 4 process descriptions;
+      the top level element is process.</documentation>
+  </annotation>
+
+  <!-- ### PROCESS DEFINITION ############################################# -->
+
+  <element name="process">
+    <annotation>
+      <documentation>jBPM Process Definition Language definition.
+        This is the top level element in a process definition file.</documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element name="description" minOccurs="0" type="string" />
+        <choice minOccurs="0" maxOccurs="unbounded">
+          <element ref="tns:swimlane" />
+          <element ref="tns:on" />
+          <element ref="tns:timer" />
+          <element ref="tns:variable" />
+          <group ref="tns:activityGroup" />
+        </choice>
+        <element ref="tns:migrate-instances" minOccurs="0" />
+      </sequence>
+      <attribute name="name" use="required" type="string">
+        <annotation>
+          <documentation>The process name. Multiple processes can be deployed with the same
+            name, as long as they have a different version.</documentation>
+        </annotation>
+      </attribute>
+      <attribute name="key" type="string">
+        <annotation>
+          <documentation>The key can be used to provide a short acronym that replaces the name
+            as the basis for the generated process definition id.</documentation>
+        </annotation>
+      </attribute>
+      <attribute name="version" type="int">
+        <annotation>
+          <documentation>Indicates the version number of this process definition among its
+            homonyms. By specifying a version, automatic deployment can tell whether this
+            process is already deployed.</documentation>
+        </annotation>
+      </attribute>
+    </complexType>
+  </element>
+
+  <!-- ### ACTIVITIES ##################################################### -->
+
+  <group name="activityGroup">
+    <choice>
+      <!-- ~~~ START ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+      <element name="start">
+        <annotation>
+          <documentation>Start event.</documentation>
+        </annotation>
+        <complexType>
+          <sequence>
+            <element name="description" minOccurs="0" type="string" />
+            <choice minOccurs="0" maxOccurs="unbounded">
+              <element ref="tns:on" />
+              <element ref="tns:transition" />
+            </choice>
+          </sequence>
+          <attributeGroup ref="tns:activityAttributes" />
+          <attribute name="form" type="string">
+            <annotation>
+              <documentation>Resource name of the form in the deployment.</documentation>
+            </annotation>
+          </attribute>
+        </complexType>
+      </element>
+
+      <!-- ~~~ END ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+      <element name="end">
+        <annotation>
+          <documentation>End event.</documentation>
+        </annotation>
+        <complexType>
+          <sequence>
+            <element name="description" minOccurs="0" type="string" />
+            <element ref="tns:on" minOccurs="0" maxOccurs="unbounded" />
+          </sequence>
+          <attributeGroup ref="tns:activityAttributes" />
+          <attribute name="ends" default="process-instance">
+            <simpleType>
+              <restriction base="string">
+                <enumeration value="execution" />
+                <enumeration value="process-instance" />
+              </restriction>
+            </simpleType>
+          </attribute>
+          <attribute name="state" default="ended" type="string">
+            <annotation>
+              <documentation>Specify the end state of the execution explicitly.</documentation>
+            </annotation>
+          </attribute>
+        </complexType>
+      </element>
+
+      <element name="end-cancel">
+        <annotation>
+          <documentation>End cancel event.</documentation>
+        </annotation>
+        <complexType>
+          <sequence>
+            <element name="description" minOccurs="0" type="string" />
+            <element ref="tns:on" minOccurs="0" maxOccurs="unbounded" />
+          </sequence>
+          <attributeGroup ref="tns:activityAttributes" />
+          <attribute name="ends" default="process-instance">
+            <simpleType>
+              <restriction base="string">
+                <enumeration value="execution" />
+                <enumeration value="process-instance" />
+              </restriction>
+            </simpleType>
+          </attribute>
+        </complexType>
+      </element>
+
+      <element name="end-error">
+        <annotation>
+          <documentation>End cancel event.</documentation>
+        </annotation>
+        <complexType>
+          <sequence>
+            <element name="description" minOccurs="0" type="string" />
+            <element ref="tns:on" minOccurs="0" maxOccurs="unbounded" />
+          </sequence>
+          <attributeGroup ref="tns:activityAttributes" />
+          <attribute name="ends" default="process-instance">
+            <simpleType>
+              <restriction base="string">
+                <enumeration value="execution" />
+                <enumeration value="process-instance" />
+              </restriction>
+            </simpleType>
+          </attribute>
+        </complexType>
+      </element>
+
+      <!-- ~~~ STATE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+      <element name="state">
+        <annotation>
+          <documentation>Wait state. When an execution arrives in this activity,
+            the execution stops until an external trigger is delivered through
+            execution.signal() or execution.getActivityInstance().signal()</documentation>
+        </annotation>
+        <complexType>
+          <sequence>
+            <element name="description" minOccurs="0" type="string" />
+            <choice minOccurs="0" maxOccurs="unbounded">
+              <element ref="tns:on" />
+              <element name="transition">
+                <complexType>
+                  <complexContent>
+                    <extension base="tns:transitionType">
+                      <sequence>
+                        <element ref="tns:timer" minOccurs="0" />
+                      </sequence>
+                    </extension>
+                  </complexContent>
+                </complexType>
+              </element>
+            </choice>
+          </sequence>
+          <attributeGroup ref="tns:activityAttributes" />
+        </complexType>
+      </element>
+
+      <!-- ~~~ DECISION ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+      <element name="decision">
+        <annotation>
+          <documentation>Decision gateway: selects one path out of many alternatives.
+            When an execution arrives, it takes exactly one outgoing transition.</documentation>
+        </annotation>
+        <complexType>
+          <sequence>
+            <element name="description" minOccurs="0" type="string" />
+            <element name="handler" minOccurs="0" type="tns:wireObjectType" />
+            <choice minOccurs="0" maxOccurs="unbounded">
+              <element ref="tns:on" minOccurs="0" maxOccurs="unbounded" />
+              <element name="transition" minOccurs="0" maxOccurs="unbounded">
+                <complexType>
+                  <complexContent>
+                    <extension base="tns:transitionType">
+                      <sequence>
+                        <element name="condition" minOccurs="0" maxOccurs="unbounded">
+                          <complexType>
+                            <attribute name="expr" type="string">
+                              <annotation>
+                                <documentation>Expression to evaluate.</documentation>
+                              </annotation>
+                            </attribute>
+                            <attribute name="lang" type="string">
+                              <annotation>
+                                <documentation>Scripting language to interpret.</documentation>
+                              </annotation>
+                            </attribute>
+                          </complexType>
+                        </element>
+                      </sequence>
+                    </extension>
+                  </complexContent>
+                </complexType>
+              </element>
+            </choice>
+          </sequence>
+          <attributeGroup ref="tns:activityAttributes" />
+          <attribute name="expr" type="string">
+            <annotation>
+              <documentation>The script that will be evaluated and resolve to
+                the name of the outgoing transition.</documentation>
+            </annotation>
+          </attribute>
+          <attribute name="lang" type="string">
+            <annotation>
+              <documentation>Identification of the scripting language
+                to use for the expr attribute.</documentation>
+            </annotation>
+          </attribute>
+        </complexType>
+      </element>
+
+      <!-- ~~~ FOREACH ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+      <element name="foreach">
+        <annotation>
+          <documentation>Spawns concurrent paths of execution
+            over each element of a collection.</documentation>
+        </annotation>
+        <complexType>
+          <sequence>
+            <element name="description" minOccurs="0" type="string" />
+            <choice minOccurs="0" maxOccurs="unbounded">
+              <element ref="tns:on" />
+              <element ref="tns:transition" />
+            </choice>
+          </sequence>
+          <attributeGroup ref="tns:activityAttributes" />
+          <attribute name="var" type="string" use="required" />
+          <attribute name="in" type="string" use="required" />
+        </complexType>
+      </element>
+
+      <!-- ~~~ FORK ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+      <element name="fork">
+        <annotation>
+          <documentation>Spawns multiple concurrent paths of
+            execution.</documentation>
+        </annotation>
+        <complexType>
+          <sequence>
+            <element name="description" minOccurs="0" type="string" />
+            <choice minOccurs="0" maxOccurs="unbounded">
+              <element ref="tns:on" />
+              <element ref="tns:transition" />
+            </choice>
+          </sequence>
+          <attributeGroup ref="tns:activityAttributes" />
+        </complexType>
+      </element>
+
+      <!-- ~~~ JOIN ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+      <element name="join">
+        <annotation>
+          <documentation>Spawns multiple concurrent paths of
+            execution.</documentation>
+        </annotation>
+        <complexType>
+          <sequence>
+            <element name="description" minOccurs="0" type="string" />
+            <choice minOccurs="0" maxOccurs="unbounded">
+              <element ref="tns:on" />
+              <element ref="tns:transition" />
+            </choice>
+          </sequence>
+          <attributeGroup ref="tns:activityAttributes" />
+          <attribute name="multiplicity" type="string" />
+          <attribute name="lockmode" default="upgrade">
+            <simpleType>
+              <restriction base="string">
+                <enumeration value="none" />
+                <enumeration value="read" />
+                <enumeration value="upgrade" />
+                <enumeration value="upgrade_nowait" />
+                <enumeration value="write" />
+              </restriction>
+            </simpleType>
+          </attribute>
+        </complexType>
+      </element>
+
+      <!-- ~~~ SCRIPT ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+      <element name="script">
+        <annotation>
+          <documentation>Evaluates a piece of text as a script.</documentation>
+        </annotation>
+        <complexType>
+          <complexContent>
+            <extension base="tns:scriptType">
+              <choice minOccurs="0" maxOccurs="unbounded">
+                <element ref="tns:on" />
+                <element ref="tns:transition" />
+              </choice>
+              <attributeGroup ref="tns:activityAttributes" />
+            </extension>
+          </complexContent>
+        </complexType>
+      </element>
+
+      <!-- ~~~ HQL ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+      <element name="hql">
+        <annotation>
+          <documentation>Performs a Hibernate query.</documentation>
+        </annotation>
+        <complexType>
+          <complexContent>
+            <extension base="tns:qlType">
+              <choice minOccurs="0" maxOccurs="unbounded">
+                <element ref="tns:on" />
+                <element ref="tns:transition" />
+              </choice>
+              <attributeGroup ref="tns:activityAttributes" />
+            </extension>
+          </complexContent>
+        </complexType>
+      </element>
+
+      <!-- ~~~ SQL ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+      <element name="sql">
+        <annotation>
+          <documentation>Performs a Hibernate SQL query.</documentation>
+        </annotation>
+        <complexType>
+          <complexContent>
+            <extension base="tns:qlType">
+              <choice minOccurs="0" maxOccurs="unbounded">
+                <element ref="tns:on" />
+                <element ref="tns:transition" />
+              </choice>
+              <attributeGroup ref="tns:activityAttributes" />
+            </extension>
+          </complexContent>
+        </complexType>
+      </element>
+
+      <!-- ~~~ MAIL ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+      <element name="mail">
+        <annotation>
+          <documentation>Sends an email.</documentation>
+        </annotation>
+        <complexType>
+          <complexContent>
+            <extension base="tns:mailType">
+              <choice minOccurs="0" maxOccurs="unbounded">
+                <element ref="tns:on" />
+                <element ref="tns:transition" />
+              </choice>
+              <attributeGroup ref="tns:activityAttributes" />
+            </extension>
+          </complexContent>
+        </complexType>
+      </element>
+
+      <!-- ~~~ JMS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+      <element name="jms">
+        <annotation>
+          <documentation>Sends an email.</documentation>
+        </annotation>
+        <complexType>
+          <complexContent>
+            <extension base="tns:jmsType">
+              <choice minOccurs="0" maxOccurs="unbounded">
+                <element ref="tns:on" />
+                <element ref="tns:transition" />
+              </choice>
+              <attributeGroup ref="tns:activityAttributes" />
+            </extension>
+          </complexContent>
+        </complexType>
+      </element>
+
+      <!-- ~~~ JAVA ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+      <element name="java">
+        <annotation>
+          <documentation>Invokes a method on a java object.
+            Either the java class is instantiated with reflection,
+            or the java object is fetched from the environment.
+            Values are then injected into the fields and.
+            Finally a method is invoked.</documentation>
+        </annotation>
+        <complexType>
+          <complexContent>
+            <extension base="tns:javaType">
+              <choice minOccurs="0" maxOccurs="unbounded">
+                <element ref="tns:on" />
+                <element ref="tns:transition" />
+              </choice>
+              <attributeGroup ref="tns:activityAttributes" />
+            </extension>
+          </complexContent>
+        </complexType>
+      </element>
+
+      <!-- ~~~ ASSIGN ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+      <element name="assign">
+        <annotation>
+          <documentation>Assigns a source value to a target location.</documentation>
+        </annotation>
+        <complexType>
+          <complexContent>
+            <extension base="tns:assignType">
+              <choice minOccurs="0" maxOccurs="unbounded">
+                <element ref="tns:on" />
+                <element ref="tns:transition" />
+              </choice>
+              <attributeGroup ref="tns:activityAttributes" />
+            </extension>
+          </complexContent>
+        </complexType>
+      </element>
+
+      <!-- ~~~ CUSTOM ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+      <element name="custom">
+        <annotation>
+          <documentation>Calls a user defined, custom implementation of
+            ActivityBehaviour.</documentation>
+        </annotation>
+        <complexType>
+          <complexContent>
+            <extension base="tns:wireObjectType">
+              <choice minOccurs="0" maxOccurs="unbounded">
+                <element ref="tns:on" />
+                <element name="transition">
+                  <complexType>
+                    <complexContent>
+                      <extension base="tns:transitionType">
+                        <sequence>
+                          <element ref="tns:timer" minOccurs="0" />
+                        </sequence>
+                      </extension>
+                    </complexContent>
+                  </complexType>
+                </element>
+              </choice>
+              <attributeGroup ref="tns:activityAttributes" />
+            </extension>
+          </complexContent>
+        </complexType>
+      </element>
+
+      <!-- ~~~ TASK ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+      <element name="task">
+        <annotation>
+          <documentation>Creates a task in the task component.</documentation>
+        </annotation>
+        <complexType>
+          <sequence>
+            <element name="description" minOccurs="0" type="string" />
+            <element name="assignment-handler" minOccurs="0" type="tns:wireObjectType" />
+            <element name="notification" minOccurs="0">
+              <complexType>
+                <attribute name="continue" type="tns:continueType" default="sync" />
+                <attribute name="template" type="tns:templateType" use="optional" />
+              </complexType>
+            </element>
+            <element name="reminder" minOccurs="0">
+              <complexType>
+                <attribute name="duedate" type="string" />
+                <attribute name="repeat" type="string" />
+                <attribute name="continue" type="tns:continueType" default="sync" />
+                <attribute name="template" type="tns:templateType" use="optional" />
+              </complexType>
+            </element>
+            <choice minOccurs="0" maxOccurs="unbounded">
+              <element ref="tns:on" />
+              <element ref="tns:timer" />
+              <element name="transition">
+                <complexType>
+                  <complexContent>
+                    <extension base="tns:transitionType">
+                      <sequence>
+                        <element ref="tns:timer" minOccurs="0" />
+                      </sequence>
+                    </extension>
+                  </complexContent>
+                </complexType>
+              </element>
+            </choice>
+          </sequence>
+          <attributeGroup ref="tns:activityAttributes" />
+          <attributeGroup ref="tns:assignmentAttributes" />
+          <attribute name="swimlane" type="string" />
+          <attribute name="form" type="string">
+            <annotation>
+              <documentation>Resource name of the form in the deployment.</documentation>
+            </annotation>
+          </attribute>
+          <attribute name="duedate" type="string" />
+          <attribute name="on-transition" default="cancel">
+            <simpleType>
+              <restriction base="string">
+                <enumeration value="keep" />
+                <enumeration value="cancel" />
+              </restriction>
+            </simpleType>
+          </attribute>
+          <attribute name="completion" type="string" default="complete" />
+        </complexType>
+      </element>
+
+      <!-- ~~~ SUB-PROCESS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+      <element name="sub-process">
+        <annotation>
+          <documentation>Waits while a sub process instance is being executed
+            and continues when the sub process instance ends.</documentation>
+        </annotation>
+        <complexType>
+          <sequence>
+            <element name="description" minOccurs="0" type="string" />
+            <choice minOccurs="0" maxOccurs="unbounded">
+              <element name="parameter-in" type="tns:parameterType" />
+              <element name="parameter-out" type="tns:parameterType" />
+              <element ref="tns:timer" />
+              <element ref="tns:on">
+                <annotation>
+                  <documentation>Events on which listeners can be registered.</documentation>
+                </annotation>
+              </element>
+              <element name="swimlane-mapping">
+                <complexType>
+                  <attribute name="swimlane" type="string" use="required" />
+                  <attribute name="sub-swimlane" type="string" use="required" />
+                </complexType>
+              </element>
+              <element name="transition">
+                <complexType>
+                  <complexContent>
+                    <extension base="tns:transitionType">
+                      <sequence>
+                        <element name="outcome-value" minOccurs="0" maxOccurs="unbounded">
+                          <complexType>
+                            <group ref="tns:wireObjectGroup" />
+                          </complexType>
+                        </element>
+                      </sequence>
+                    </extension>
+                  </complexContent>
+                </complexType>
+              </element>
+            </choice>
+          </sequence>
+          <attribute name="sub-process-id" type="string">
+            <annotation>
+              <documentation>References a sub-process by id. This means that a specific
+                version of a process definition is referenced.</documentation>
+            </annotation>
+          </attribute>
+          <attribute name="sub-process-key" type="string">
+            <annotation>
+              <documentation>References a sub-process by key. Therefore, the latest
+                version of the process definition with the given key is referenced.
+                The latest version is resolved in each execution.</documentation>
+            </annotation>
+          </attribute>
+          <attribute name="outcome" type="string">
+            <annotation>
+              <documentation>Expression that is evaluated when the sub process instance ends.
+                The value is then used for outcome transition mapping.</documentation>
+            </annotation>
+          </attribute>
+          <attributeGroup ref="tns:activityAttributes" />
+        </complexType>
+      </element>
+
+      <!-- ~~~ GROUP ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+      <element name="group">
+        <annotation>
+          <documentation>Scope enclosing a number of activities.</documentation>
+        </annotation>
+        <complexType>
+          <sequence>
+            <element name="description" minOccurs="0" type="string" />
+            <choice minOccurs="0" maxOccurs="unbounded">
+              <group ref="tns:activityGroup" />
+              <element ref="tns:transition" />
+              <element ref="tns:on">
+                <annotation>
+                  <documentation>Events on which listeners can be registered.</documentation>
+                </annotation>
+              </element>
+              <element ref="tns:timer" />
+            </choice>
+          </sequence>
+          <attributeGroup ref="tns:activityAttributes" />
+        </complexType>
+      </element>
+
+      <!-- ~~~ RULES DECISION ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+      <element name="rules-decision">
+        <annotation>
+          <documentation>Selects one outgoing transition based on evaluation
+            of rules.</documentation>
+        </annotation>
+        <complexType>
+          <sequence>
+            <element name="description" minOccurs="0" type="string" />
+            <choice  minOccurs="0" maxOccurs="unbounded">
+              <element ref="tns:transition" />
+              <element ref="tns:on">
+                <annotation>
+                  <documentation>Events on which listeners can be registered.</documentation>
+                </annotation>
+              </element>
+            </choice>
+          </sequence>
+          <attributeGroup ref="tns:activityAttributes" />
+        </complexType>
+      </element>
+
+      <!-- ~~~ RULES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+      <element name="rules">
+        <annotation>
+          <documentation>Evaluates rules after feeding in some facts in a stateful
+            knowledge session.</documentation>
+        </annotation>
+        <complexType>
+          <sequence>
+            <element name="description" minOccurs="0" type="string" />
+            <choice minOccurs="0" maxOccurs="unbounded">
+              <element name="fact">
+                <complexType>
+                  <attribute name="var" type="string" />
+                  <attribute name="expr" type="string" />
+                </complexType>
+              </element>
+              <element name="transition">
+                <complexType>
+                  <complexContent>
+                    <extension base="tns:transitionType">
+                      <sequence>
+                        <element name="condition" minOccurs="0" maxOccurs="unbounded">
+                          <complexType>
+                            <sequence>
+                              <element name="handler" minOccurs="0" type="tns:wireObjectType" />
+                            </sequence>
+                            <attribute name="expr" type="string">
+                              <annotation>
+                                <documentation>Expression to evaluate.</documentation>
+                              </annotation>
+                            </attribute>
+                            <attribute name="lang" type="string">
+                              <annotation>
+                                <documentation>Script language to interpret.</documentation>
+                              </annotation>
+                            </attribute>
+                          </complexType>
+                        </element>
+                      </sequence>
+                    </extension>
+                  </complexContent>
+                </complexType>
+              </element>
+              <element ref="tns:on">
+                <annotation>
+                  <documentation>Events on which listeners can be registered.</documentation>
+                </annotation>
+              </element>
+            </choice>
+          </sequence>
+          <attributeGroup ref="tns:activityAttributes" />
+        </complexType>
+      </element>
+    </choice>
+  </group>
+
+  <group name="wireObjectGroup">
+    <choice>
+
+      <!-- SPECIAL OBJECTS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+      <element name="null">
+        <annotation>
+          <documentation>The null value.</documentation>
+        </annotation>
+      </element>
+      <element name="ref">
+        <annotation>
+          <documentation>Reference to an object in the current environment.</documentation>
+        </annotation>
+        <complexType>
+          <attribute name="object" type="string" use="required">
+            <annotation>
+              <documentation>The name of the referred object.</documentation>
+            </annotation>
+          </attribute>
+        </complexType>
+      </element>
+      <element name="env-ref">
+        <annotation>
+          <documentation>The current environment.</documentation>
+        </annotation>
+      </element>
+      <element name="jndi">
+        <annotation>
+          <documentation>JNDI lookup based off the initial context.</documentation>
+        </annotation>
+        <complexType>
+          <attribute name="jndi-name" type="string" use="required" />
+        </complexType>
+      </element>
+
+      <!-- COLLECTIONS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+      <element name="list">
+        <annotation>
+          <documentation>java.util.List instance.</documentation>
+        </annotation>
+        <complexType>
+          <choice minOccurs="0" maxOccurs="unbounded">
+            <group ref="tns:wireObjectGroup" />
+          </choice>
+          <attribute name="name" type="string">
+            <annotation>
+              <documentation>The name of the object. Optional, serves as an identifier
+                to refer to this object from other object descriptions.
+                Also used to fetch the object programmatically.</documentation>
+            </annotation>
+          </attribute>
+          <attribute name="class" type="string" default="java.util.ArrayList">
+            <annotation>
+              <documentation>List implementation class.</documentation>
+            </annotation>
+          </attribute>
+          <attribute name="synchronized" type="tns:booleanValueType" default="false">
+            <annotation>
+              <documentation>Indicates if this collection should be synchronized
+                with Collections.synchronizedList()</documentation>
+            </annotation>
+          </attribute>
+        </complexType>
+      </element>
+
+      <element name="map" type="tns:mapType" />
+
+      <element name="set">
+        <annotation>
+          <documentation>java.util.Set instance.</documentation>
+        </annotation>
+        <complexType>
+          <choice minOccurs="0" maxOccurs="unbounded">
+            <group ref="tns:wireObjectGroup" />
+          </choice>
+          <attribute name="name" type="string">
+            <annotation>
+              <documentation>The name of the object. Optional, serves as an identifier
+                to refer to this object from other object descriptions.
+                Also used to fetch the object programmatically.</documentation>
+            </annotation>
+          </attribute>
+          <attribute name="class" type="string" default="java.util.HashList">
+            <annotation>
+              <documentation>Set implementation class.</documentation>
+            </annotation>
+          </attribute>
+          <attribute name="synchronized" type="tns:booleanValueType" default="false">
+            <annotation>
+              <documentation>Indicates if this collection should be synchronized
+                with Collections.synchronizedSet()</documentation>
+            </annotation>
+          </attribute>
+        </complexType>
+      </element>
+
+      <element name="properties">
+        <annotation>
+          <documentation>java.util.Properties instance.</documentation>
+        </annotation>
+        <complexType>
+          <choice minOccurs="0" maxOccurs="unbounded">
+            <element name="property">
+              <complexType>
+                <attribute name="name" type="string" use="required" />
+                <attribute name="value" type="string" use="required" />
+              </complexType>
+            </element>
+          </choice>
+          <attribute name="name" type="string">
+            <annotation>
+              <documentation>The name of the object. Optional, serves as an identifier
+                to refer to this object from other object descriptions.
+                Also used to fetch the object programmatically.</documentation>
+            </annotation>
+          </attribute>
+          <attribute name="file" type="string">
+            <annotation>
+              <documentation>File in the file system.</documentation>
+            </annotation>
+          </attribute>
+          <attribute name="resource" type="string">
+            <annotation>
+              <documentation>Resource in the classpath.</documentation>
+            </annotation>
+          </attribute>
+          <attribute name="url" type="string">
+            <annotation>
+              <documentation>Resource in the web.</documentation>
+            </annotation>
+          </attribute>
+          <attribute name="is-xml" type="tns:booleanValueType">
+            <annotation>
+              <documentation>tells whether the resource referenced by
+                attributes 'file', 'resource' or 'url' is XML. The default is the
+                plain properties format, where a space or '=' separates the key
+                from the value in each line.</documentation>
+            </annotation>
+          </attribute>
+        </complexType>
+      </element>
+
+      <!-- OBJECT ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+      <element name="object" type="tns:wireObjectType" />
+
+      <!-- BASIC TYPES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+      <element name="string">
+        <complexType>
+          <attribute name="name" type="string">
+            <annotation>
+              <documentation>The name of the object. Optional, serves as an identifier
+                to refer to this object from other object descriptions.
+                Also used to fetch the object programmatically.</documentation>
+            </annotation>
+          </attribute>
+          <attribute name="value" />
+        </complexType>
+      </element>
+
+      <element name="byte">
+        <annotation>
+          <documentation>8-bit signed integer.</documentation>
+        </annotation>
+        <complexType>
+          <attribute name="name" type="string">
+            <annotation>
+              <documentation>The name of the object. Optional, serves as an identifier
+                to refer to this object from other object descriptions.
+                Also used to fetch the object programmatically.</documentation>
+            </annotation>
+          </attribute>
+          <attribute name="value" type="byte" use="required" />
+        </complexType>
+      </element>
+      <element name="char">
+        <annotation>
+          <documentation>16-bit Unicode character.</documentation>
+        </annotation>
+        <complexType>
+          <attribute name="name" type="string">
+            <annotation>
+              <documentation>The name of the object. Optional, serves as an identifier
+                to refer to this object from other object descriptions.
+                Also used to fetch the object programmatically.</documentation>
+            </annotation>
+          </attribute>
+          <attribute name="value" use="required">
+            <simpleType>
+              <restriction base="string">
+                <maxLength value="1" />
+              </restriction>
+            </simpleType>
+          </attribute>
+        </complexType>
+      </element>
+      <element name="double">
+        <annotation>
+          <documentation>64-bit floating point number.</documentation>
+        </annotation>
+        <complexType>
+          <attribute name="name" type="string">
+            <annotation>
+              <documentation>The name of the object. Optional, serves as an identifier
+                to refer to this object from other object descriptions.
+                Also used to fetch the object programmatically.</documentation>
+            </annotation>
+          </attribute>
+          <attribute name="value" type="double" use="required" />
+        </complexType>
+      </element>
+      <element name="false">
+        <annotation>
+          <documentation>Boolean false value</documentation>
+        </annotation>
+        <complexType>
+          <attribute name="name" type="string">
+            <annotation>
+              <documentation>The name of the object. Optional, serves as an identifier
+                to refer to this object from other object descriptions.
+                Also used to fetch the object programmatically.</documentation>
+            </annotation>
+          </attribute>
+        </complexType>
+      </element>
+      <element name="float">
+        <annotation>
+          <documentation>32-bit floating point number.</documentation>
+        </annotation>
+        <complexType>
+          <attribute name="name" type="string">
+            <annotation>
+              <documentation>The name of the object. Optional, serves as an identifier
+                to refer to this object from other object descriptions.
+                Also used to fetch the object programmatically.</documentation>
+            </annotation>
+          </attribute>
+          <attribute name="value" type="float" use="required" />
+        </complexType>
+      </element>
+      <element name="int">
+        <annotation>
+          <documentation>32-bit signed integer.</documentation>
+        </annotation>
+        <complexType>
+          <attribute name="name" type="string">
+            <annotation>
+              <documentation>The name of the object. Optional, serves as an identifier
+                to refer to this object from other object descriptions.
+                Also used to fetch the object programmatically.</documentation>
+            </annotation>
+          </attribute>
+          <attribute name="value" type="int" use="required" />
+        </complexType>
+      </element>
+      <element name="long">
+        <annotation>
+          <documentation>64-bit signed integer.</documentation>
+        </annotation>
+        <complexType>
+          <attribute name="name" type="string">
+            <annotation>
+              <documentation>The name of the object. Optional, serves as an identifier
+                to refer to this object from other object descriptions.
+                Also used to fetch the object programmatically.</documentation>
+            </annotation>
+          </attribute>
+          <attribute name="value" type="long" use="required" />
+        </complexType>
+      </element>
+      <element name="short">
+        <annotation>
+          <documentation>16-bit signed integer.</documentation>
+        </annotation>
+        <complexType>
+          <attribute name="name" type="string">
+            <annotation>
+              <documentation>The name of the object. Optional, serves as an identifier
+                to refer to this object from other object descriptions.
+                Also used to fetch the object programmatically.</documentation>
+            </annotation>
+          </attribute>
+          <attribute name="value" type="short" use="required" />
+        </complexType>
+      </element>
+      <element name="true">
+        <annotation>
+          <documentation>Boolean true value.</documentation>
+        </annotation>
+        <complexType>
+          <attribute name="name" type="string">
+            <annotation>
+              <documentation>The name of the object. Optional, serves as an identifier
+                to refer to this object from other object descriptions.
+                Also used to fetch the object programmatically.</documentation>
+            </annotation>
+          </attribute>
+        </complexType>
+      </element>
+    </choice>
+  </group>
+
+  <complexType name="wireObjectType">
+    <annotation>
+      <documentation>Any java object that will be created by reflection.
+        <p>There are three main ways to create an object: by constructor or by a factory
+          object or a static factory method.</p>
+        <p><b>Using the constructor</b>: the <code>class</code> attribute must provide
+          the fully qualified class name. In case a constructor other than the default
+          should be invoked, a <code>constructor</code> child element can be provided.
+          The <code>factory</code> attribute should be absent when using a constructor.</p>
+        <p><b>Using a factory</b>: the <code>factory</code> attribute or one
+          <code>factory</code> element must be provided along with the attribute
+          <code>method</code>.</p>
+        <p><b>Using a static factory method</b>: the <code>class</code> and <code>method</code>
+          attributes should be specified. There should not be a <code>factory</code>
+          attribute or element.</p>
+        <p><b>Construction and initialization</b>: all objects (constructor and factory)
+          are build in two phases: construction and initialisation phase. During construction
+          all is done until a pointer is obtained to the object. In initialisation, operations
+          are applied to the object until it is ready to be used. The separation between
+          construction and initialisation is made to allow for bidirectional references.</p>
+        <p><b>Operations</b>: after construction, various operations can be applied to objects
+          like e.g. direct field injection, injection through setters, method invocation,
+          enlist with the standard transaction, subscribe the object to an observable.</p>
+        <p><b>Arguments</b>: there are two different places for arguments. The <code>arg</code>
+          elements for the factory method invocation should be placed as child elements under
+          the <code>object</code> element. The <code>arg</code> elements for the constructor
+          should be placed as child elements of the <code>constructor</code> element.</p>
+      </documentation>
+    </annotation>
+    <choice minOccurs="0" maxOccurs="unbounded">
+      <element name="description" minOccurs="0" maxOccurs="unbounded" type="string" />
+      <element name="factory">
+        <annotation>
+          <documentation>Contains one element that describes the factory object.</documentation>
+        </annotation>
+        <complexType>
+          <group ref="tns:wireObjectGroup" />
+        </complexType>
+      </element>
+      <element name="constructor">
+        <annotation>
+          <documentation>Specifies the arguments for a non-default constructor.</documentation>
+        </annotation>
+        <complexType>
+          <choice maxOccurs="unbounded">
+            <element name="arg" type="tns:argType" />
+          </choice>
+        </complexType>
+      </element>
+      <element name="arg" type="tns:argType">
+        <annotation>
+          <documentation>The factory method arguments.</documentation>
+        </annotation>
+      </element>
+      <element name="field">
+        <annotation>
+          <documentation>Injects a value into a member field of this object.
+            Exactly one child element must specify the value.</documentation>
+        </annotation>
+        <complexType>
+          <group ref="tns:wireObjectGroup" />
+          <attribute name="name">
+            <annotation>
+              <documentation>Member field name.</documentation>
+            </annotation>
+          </attribute>
+        </complexType>
+      </element>
+      <element name="property">
+        <annotation>
+          <documentation>Injects a value through a setter method.
+            Exactly one child element must specify the value.</documentation>
+        </annotation>
+        <complexType>
+          <group ref="tns:wireObjectGroup" />
+          <attribute name="name">
+            <annotation>
+              <documentation>Name of the property (without the 'set' prefix).</documentation>
+            </annotation>
+          </attribute>
+        </complexType>
+      </element>
+      <element name="invoke">
+        <annotation>
+          <documentation>Invokes a method.</documentation>
+        </annotation>
+        <complexType>
+          <choice minOccurs="0" maxOccurs="unbounded">
+            <element name="arg" type="tns:argType" />
+          </choice>
+          <attribute name="method" type="string" use="required">
+            <annotation>
+              <documentation>Method name.</documentation>
+            </annotation>
+          </attribute>
+        </complexType>
+      </element>
+    </choice>
+    <attribute name="class" type="string">
+      <annotation>
+        <documentation>Fully qualified class name</documentation>
+      </annotation>
+    </attribute>
+    <attribute name="expr" type="string">
+      <annotation>
+        <documentation>Expression that provides the object.</documentation>
+      </annotation>
+    </attribute>
+    <attribute name="lang" type="string">
+      <annotation>
+        <documentation>Script language to interpret.</documentation>
+      </annotation>
+    </attribute>
+    <attribute name="factory" type="string">
+      <annotation>
+        <documentation>Name of the factory object.</documentation>
+      </annotation>
+    </attribute>
+    <attribute name="method" type="string">
+      <annotation>
+        <documentation>Factory method name</documentation>
+      </annotation>
+    </attribute>
+    <attribute name="auto-wire" type="string">
+      <annotation>
+        <documentation>Indicates if the member fields and setter properties
+          should be wired automatically based on matching the property names and types
+          with the object names and types.</documentation>
+      </annotation>
+    </attribute>
+    <attribute name="cache" type="tns:booleanValueType">
+      <annotation>
+        <documentation>Indicates if the user code should be cached.</documentation>
+      </annotation>
+    </attribute>
+  </complexType>
+
+  <complexType name="argType">
+    <annotation>
+      <documentation>The method arguments.
+        Each 'arg' element should have exactly one child
+        element that represents the value of the argument.</documentation>
+    </annotation>
+    <group ref="tns:wireObjectGroup" />
+    <attribute name="type" type="string">
+      <annotation>
+        <documentation>Class name representing the method type.
+          Optional, helps resolve the appropriate method in case of overloading.</documentation>
+      </annotation>
+    </attribute>
+  </complexType>
+
+  <complexType name="mapType">
+    <annotation>
+      <documentation>java.util.Map instance.</documentation>
+    </annotation>
+    <sequence>
+      <element name="entry" minOccurs="0" maxOccurs="unbounded">
+        <complexType>
+          <sequence>
+            <element name="key" minOccurs="0">
+              <complexType>
+                <group ref="tns:wireObjectGroup" />
+              </complexType>
+            </element>
+            <element name="value" minOccurs="0">
+              <complexType>
+                <group ref="tns:wireObjectGroup" />
+              </complexType>
+            </element>
+          </sequence>
+        </complexType>
+      </element>
+    </sequence>
+    <attribute name="class" type="string" default="java.util.HashMap">
+      <annotation>
+        <documentation>Map implementation class.</documentation>
+      </annotation>
+    </attribute>
+    <attribute name="synchronized" type="tns:booleanValueType" default="false">
+      <annotation>
+        <documentation>Indicates if this collection should be synchronized
+          with Collections.synchronizedCollection()</documentation>
+      </annotation>
+    </attribute>
+  </complexType>
+
+  <complexType name="javaType">
+    <sequence>
+      <element name="description" minOccurs="0" type="string" />
+      <choice minOccurs="0" maxOccurs="unbounded">
+        <element name="field">
+          <annotation>
+            <documentation>Field injections from the environment invocation.</documentation>
+          </annotation>
+        </element>
+        <element name="arg">
+          <annotation>
+            <documentation>Method arguments.</documentation>
+          </annotation>
+        </element>
+      </choice>
+    </sequence>
+    <attribute name="method" type="string" use="required">
+      <annotation>
+        <documentation>The name of the method to invoke.</documentation>
+      </annotation>
+    </attribute>
+    <attribute name="ejb-jndi-name" type="string">
+      <annotation>
+        <documentation>The jndi name of the ejb that needs to be invoked.</documentation>
+      </annotation>
+    </attribute>
+    <attribute name="class" type="string">
+      <annotation>
+        <documentation>The class to instantiate.</documentation>
+      </annotation>
+    </attribute>
+    <attribute name="expr" type="string">
+      <annotation>
+        <documentation>Expression that resolves to the target object
+          on which the method should be invoked.</documentation>
+      </annotation>
+    </attribute>
+    <attribute name="lang" type="string">
+      <annotation>
+        <documentation>The language in which attribute 'expr' is to be
+          resolved.</documentation>
+      </annotation>
+    </attribute>
+    <attribute name="var" type="string">
+      <annotation>
+        <documentation>The variable name to store the return value.</documentation>
+      </annotation>
+    </attribute>
+  </complexType>
+
+  <complexType name="scriptType">
+    <sequence>
+      <element name="description" minOccurs="0" type="string" />
+      <element name="text" type="string" minOccurs="0">
+        <annotation>
+          <documentation>The text content of this element is the script to evaluate.
+            This element and the expression attribute are mutually exclusive.</documentation>
+        </annotation>
+      </element>
+    </sequence>
+    <attribute name="expr" type="string">
+      <annotation>
+        <documentation>The value of this attribute is the script to evaluate.
+          This attribute and the text element are mutually exclusive.</documentation>
+      </annotation>
+    </attribute>
+    <attribute name="lang" type="string">
+      <annotation>
+        <documentation>Identifies the scripting language in use.</documentation>
+      </annotation>
+    </attribute>
+    <attribute name="var" type="string">
+      <annotation>
+        <documentation>Name of the variable in which the result
+          of the script evaluation will be stored.</documentation>
+      </annotation>
+    </attribute>
+  </complexType>
+
+  <complexType name="assignType">
+    <sequence>
+      <element name="description" minOccurs="0" type="string" />
+      <element name="from" minOccurs="0">
+        <annotation>
+          <documentation>Descriptor that constructs the source value.</documentation>
+        </annotation>
+        <complexType>
+          <group ref="tns:wireObjectGroup" />
+        </complexType>
+      </element>
+    </sequence>
+    <attribute name="from-expr" type="string">
+      <annotation>
+        <documentation>Expression that resolves the source value.</documentation>
+      </annotation>
+    </attribute>
+    <attribute name="lang" type="string">
+      <annotation>
+        <documentation>Language in which from-expr is written.</documentation>
+      </annotation>
+    </attribute>
+    <attribute name="from-var" type="string">
+      <annotation>
+        <documentation>Variable that provides the source value.</documentation>
+      </annotation>
+    </attribute>
+    <attribute name="to-expr" type="string">
+      <annotation>
+        <documentation>Expression that resolves the target location.</documentation>
+      </annotation>
+    </attribute>
+    <attribute name="to-var" type="string">
+      <annotation>
+        <documentation>Variable that provides the target location.</documentation>
+      </annotation>
+    </attribute>
+  </complexType>
+
+  <complexType name="qlType">
+    <sequence>
+      <element name="description" minOccurs="0" type="string" />
+      <element name="query" type="string">
+        <annotation>
+          <documentation>Query text.</documentation>
+        </annotation>
+      </element>
+      <element name="parameters" minOccurs="0">
+        <annotation>
+          <documentation>Query parameters.</documentation>
+        </annotation>
+        <complexType>
+          <sequence>
+            <group ref="tns:wireObjectGroup" maxOccurs="unbounded" />
+          </sequence>
+        </complexType>
+      </element>
+    </sequence>
+    <attribute name="var" type="string">
+      <annotation>
+        <documentation>Name of the variable in which the result
+          of the script evaluation will be stored.</documentation>
+      </annotation>
+    </attribute>
+    <attribute name="unique" type="string">
+      <annotation>
+        <documentation>Tells whether the query returns a unique result.</documentation>
+      </annotation>
+    </attribute>
+  </complexType>
+
+  <attributeGroup name="activityAttributes">
+    <attribute name="name" type="string">
+      <annotation>
+        <documentation>Name of this activity. The name should be unique
+          in the complete scope of the process.</documentation>
+      </annotation>
+    </attribute>
+    <attribute name="g" type="string">
+      <annotation>
+        <documentation>Graphical information used by process designer tool.</documentation>
+      </annotation>
+    </attribute>
+    <attribute name="continue" default="sync" type="tns:continueType">
+      <annotation>
+        <documentation>Specifies async continuation.</documentation>
+      </annotation>
+    </attribute>
+  </attributeGroup>
+
+  <simpleType name="continueType">
+    <restriction base="string">
+      <enumeration value="async" />
+      <enumeration value="sync" />
+      <enumeration value="exclusive" />
+    </restriction>
+  </simpleType>
+
+  <attributeGroup name="assignmentAttributes">
+    <annotation>
+      <documentation>The assignment attributes are used in
+        tasks and swimlanes to specify who is the assignee.
+    </documentation>
+    </annotation>
+    <attribute name="assignee" type="string">
+      <annotation>
+        <documentation>Expression that resolves to a userId referencing
+          the person to whom the task or swimlane will be assigned.</documentation>
+      </annotation>
+    </attribute>
+    <attribute name="assignee-lang" type="string">
+      <annotation>
+        <documentation>Expression language for the assignee attribute.</documentation>
+      </annotation>
+    </attribute>
+    <attribute name="candidate-users" type="string">
+      <annotation>
+        <documentation>Expression that resolves to a comma separated
+          list of userIds. All the referred people will be candidates for
+          take the task or swimlane.</documentation>
+      </annotation>
+    </attribute>
+    <attribute name="candidate-users-lang" type="string">
+      <annotation>
+        <documentation>Expression language for the
+          candidate-users attribute.</documentation>
+      </annotation>
+    </attribute>
+    <attribute name="candidate-groups" type="string">
+      <annotation>
+        <documentation>Resolves to a comma separated list of groupIds.
+          All the referred people will be candidates to
+          take the task or swimlane.</documentation>
+      </annotation>
+    </attribute>
+    <attribute name="candidate-groups-lang" type="string">
+      <annotation>
+        <documentation>Expression language for the
+          candidate-groups attribute.</documentation>
+      </annotation>
+    </attribute>
+  </attributeGroup>
+
+  <element name="swimlane">
+    <annotation>
+      <documentation>Process role.</documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element name="description" minOccurs="0" type="string" />
+      </sequence>
+      <attribute name="name" type="string" use="required" />
+      <attributeGroup ref="tns:assignmentAttributes" />
+    </complexType>
+  </element>
+
+  <complexType name="transitionType">
+    <annotation>
+      <documentation>The outgoing transitions. The first in the list
+        will be the default outgoing transition.</documentation>
+    </annotation>
+    <sequence>
+      <element name="description" minOccurs="0" type="string" />
+      <group ref="tns:eventListenerGroup" minOccurs="0" maxOccurs="unbounded" />
+    </sequence>
+    <attribute name="name" type="string">
+      <annotation>
+        <documentation>Name of this outgoing transition</documentation>
+      </annotation>
+    </attribute>
+    <attribute name="to" type="string">
+      <annotation>
+        <documentation>Name of the destination activity of this transition.</documentation>
+      </annotation>
+    </attribute>
+    <attribute name="g" type="string">
+      <annotation>
+        <documentation>Graphical information used by process designer tool.</documentation>
+      </annotation>
+    </attribute>
+  </complexType>
+
+  <element name="transition" type="tns:transitionType">
+    <annotation>
+      <documentation>Link from one activity to another.</documentation>
+    </annotation>
+  </element>
+
+  <element name="on">
+    <complexType>
+      <sequence>
+        <element ref="tns:timer" minOccurs="0" />
+        <group ref="tns:eventListenerGroup" minOccurs="0" maxOccurs="unbounded">
+          <annotation>
+            <documentation>List of event listeners that will
+              be notified when the event is fired</documentation>
+          </annotation>
+        </group>
+      </sequence>
+      <attribute name="event" type="string">
+        <annotation>
+          <documentation>Event identification. start, end, take or
+            any other custom event.</documentation>
+        </annotation>
+      </attribute>
+      <attribute name="continue" type="tns:continueType" default="sync" />
+    </complexType>
+  </element>
+
+  <complexType name="parameterType">
+    <attribute name="subvar" type="string">
+      <annotation>
+        <documentation>Name of the sub process variable.</documentation>
+      </annotation>
+    </attribute>
+    <attribute name="expr" type="string">
+      <annotation>
+        <documentation>Expression that provides the variable value.</documentation>
+      </annotation>
+    </attribute>
+    <attribute name="lang" type="string">
+      <annotation>
+        <documentation>Language of the expression.</documentation>
+      </annotation>
+    </attribute>
+    <attribute name="var" type="string">
+      <annotation>
+        <documentation>Name of the process variable
+          in the super process.</documentation>
+      </annotation>
+    </attribute>
+  </complexType>
+
+  <element name="timer">
+    <complexType>
+      <sequence>
+        <annotation>
+          <documentation>List of event listeners that will
+            be notified when the timer fires.</documentation>
+        </annotation>
+        <element name="description" minOccurs="0" type="string" />
+        <group ref="tns:eventListenerGroup" minOccurs="0" maxOccurs="unbounded" />
+      </sequence>
+      <attribute name="duedate" type="string">
+        <annotation>
+          <documentation>Timer duedate expression that defines the duedate of this
+            timer relative to the creation time of the timer.
+            E.g. '2 hours' or '4 business days'.</documentation>
+        </annotation>
+      </attribute>
+      <attribute name="repeat" type="string">
+        <annotation>
+          <documentation>Timer duedate expression that defines repeated scheduling
+            relative to the last timer fire event.
+            E.g. '2 hours' or '4 business days'</documentation>
+        </annotation>
+      </attribute>
+      <attribute name="duedatetime" type="string">
+        <annotation>
+          <documentation>Absolute time in the format <code>HH:mm dd/MM/yyyy</code>.
+            The format can be customized in the configuration.</documentation>
+        </annotation>
+      </attribute>
+    </complexType>
+  </element>
+
+  <element name="variable">
+    <complexType>
+      <annotation>
+        <documentation>Explicit variable declaration.</documentation>
+      </annotation>
+      <sequence>
+        <group ref="tns:wireObjectGroup" minOccurs="0" />
+      </sequence>
+      <attribute name="name" type="string">
+        <annotation>
+          <documentation>Name of the variable. Must differ from other variable
+            names.</documentation>
+        </annotation>
+      </attribute>
+      <attribute name="type" type="string">
+        <annotation>
+          <documentation>Type of the variable.</documentation>
+        </annotation>
+      </attribute>
+      <attribute name="init-expr" type="string">
+        <annotation>
+          <documentation></documentation>
+        </annotation>
+      </attribute>
+      <attribute name="history" type="tns:booleanValueType" />
+    </complexType>
+  </element>
+
+  <group name="eventListenerGroup">
+    <choice>
+      <element name="event-listener">
+        <complexType>
+          <complexContent>
+            <extension base="tns:wireObjectType">
+              <attribute name="propagation" type="tns:booleanValueType" />
+            </extension>
+          </complexContent>
+        </complexType>
+      </element>
+      <element name="hql">
+        <complexType>
+          <complexContent>
+            <extension base="tns:qlType">
+              <attribute name="propagation" type="tns:booleanValueType" />
+            </extension>
+          </complexContent>
+        </complexType>
+      </element>
+      <element name="sql">
+        <complexType>
+          <complexContent>
+            <extension base="tns:qlType">
+              <attribute name="propagation" type="tns:booleanValueType" />
+            </extension>
+          </complexContent>
+        </complexType>
+      </element>
+      <element name="java">
+        <complexType>
+          <complexContent>
+            <extension base="tns:javaType">
+              <attribute name="propagation" type="tns:booleanValueType" />
+            </extension>
+          </complexContent>
+        </complexType>
+      </element>
+      <element name="assign">
+        <complexType>
+          <complexContent>
+            <extension base="tns:assignType">
+              <attribute name="propagation" type="tns:booleanValueType" />
+            </extension>
+          </complexContent>
+        </complexType>
+      </element>
+      <element name="script">
+        <complexType>
+          <complexContent>
+            <extension base="tns:scriptType">
+              <attribute name="propagation" type="tns:booleanValueType" />
+            </extension>
+          </complexContent>
+        </complexType>
+      </element>
+      <element name="mail">
+        <complexType>
+          <complexContent>
+            <extension base="tns:mailType">
+              <attribute name="propagation" type="tns:booleanValueType" />
+            </extension>
+          </complexContent>
+        </complexType>
+      </element>
+    </choice>
+  </group>
+
+  <complexType name="mailType">
+    <complexContent>
+      <extension base="tns:wireObjectType">
+        <sequence>
+          <element name="from" type="tns:mailRecipientType" minOccurs="0" />
+          <element name="to" type="tns:mailRecipientType" minOccurs="0" />
+          <element name="cc" type="tns:mailRecipientType" minOccurs="0" />
+          <element name="bcc" type="tns:mailRecipientType" minOccurs="0" />
+          <element name="subject" type="string" minOccurs="0" />
+          <element name="text" type="string" minOccurs="0" />
+          <element name="html" type="string" minOccurs="0" />
+          <element name="attachments" minOccurs="0">
+            <complexType>
+              <sequence>
+                <element name="attachment" maxOccurs="unbounded">
+                  <complexType>
+                    <attribute name="url" type="string">
+                      <annotation>
+                        <documentation>Resource in the web.</documentation>
+                      </annotation>
+                    </attribute>
+                    <attribute name="resource" type="string">
+                      <annotation>
+                        <documentation>Resource in the classpath.</documentation>
+                      </annotation>
+                    </attribute>
+                    <attribute name="file" type="string">
+                      <annotation>
+                        <documentation>Path in the file system.</documentation>
+                      </annotation>
+                    </attribute>
+                  </complexType>
+                </element>
+              </sequence>
+            </complexType>
+          </element>
+        </sequence>
+        <attribute name="template" type="tns:templateType" />
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <complexType name="jmsType">
+    <choice minOccurs="1" maxOccurs="1">
+      <element name="object" type="tns:wireObjectType" />
+      <element name="text" type="string" />
+      <element name="map" type="tns:mapType" />
+    </choice>
+    <attribute name="connection-factory" type="string">
+      <annotation>
+        <documentation>JNDI name of the connection factory.</documentation>
+      </annotation>
+    </attribute>
+    <attribute name="destination" type="string">
+      <annotation>
+        <documentation>JNDI name of the destination.</documentation>
+      </annotation>
+    </attribute>
+    <attribute name="transacted" type="tns:booleanValueType" default="false">
+      <annotation>
+        <documentation>Tells whether the message should be sent in a transaction.</documentation>
+      </annotation>
+    </attribute>
+    <attribute name="acknowledge" type="tns:acknowledgeType" default="auto">
+      <annotation>
+        <documentation>Indicates the acknowledgment mode.</documentation>
+      </annotation>
+    </attribute>
+  </complexType>
+
+  <complexType name="mailRecipientType">
+    <attribute name="addresses" type="string">
+      <annotation>
+        <documentation>List of email addresses separated by ',' (comma)
+          or whitespace.</documentation>
+      </annotation>
+    </attribute>
+    <attribute name="users" type="string">
+      <annotation>
+        <documentation>List of users, resolved to email addresses thought
+          the configured identity component. Users are separated by ',' (comma)
+          ';' (semicolon) or whitespace.</documentation>
+      </annotation>
+    </attribute>
+    <attribute name="groups" type="string">
+      <annotation>
+        <documentation>List of groups, that are resolved to the email address against
+          configured identity component. Groups are separated by ',' (comma)
+          ';' (semicolon) or whitespace</documentation>
+      </annotation>
+    </attribute>
+  </complexType>
+
+  <simpleType name="booleanValueType">
+    <restriction base="string">
+      <enumeration value="true" />
+      <enumeration value="on" />
+      <enumeration value="enabled" />
+      <enumeration value="false" />
+      <enumeration value="off" />
+      <enumeration value="disabled" />
+    </restriction>
+  </simpleType>
+
+  <simpleType name="acknowledgeType">
+    <restriction base="string">
+      <enumeration value="auto" />
+      <enumeration value="client" />
+      <enumeration value="dups-ok" />
+    </restriction>
+  </simpleType>
+
+  <simpleType name="templateType">
+    <annotation>
+      <documentation>Reference to the email template.</documentation>
+    </annotation>
+    <restriction base="string" />
+  </simpleType>
+
+  <element name="migrate-instances">
+    <annotation>
+      <documentation>Information to migrate instances of previously deployed
+        process definitions to the new version.</documentation>
+    </annotation>
+    <complexType>
+      <choice minOccurs="0" maxOccurs="unbounded">
+        <element name="migration-handler">
+          <annotation>
+            <documentation>The migration handler specifies the name of a class to be executed
+              while migrating the process instance.</documentation>
+          </annotation>
+          <complexType>
+            <attribute name="class" />
+          </complexType>
+        </element>
+        <element name="activity-mapping">
+          <annotation>
+            <documentation>One activity mapping will be present for each activity of which the
+              name changed.</documentation>
+          </annotation>
+          <complexType>
+            <attribute name="old-name" type="string" use="required">
+              <annotation>
+                <documentation>Name of the activity in the previously deployed
+                  process definition.</documentation>
+              </annotation>
+            </attribute>
+            <attribute name="new-name" type="string" use="required">
+              <annotation>
+                <documentation>Name of the activity in the newly deployed
+                  process definition.</documentation>
+              </annotation>
+            </attribute>
+          </complexType>
+        </element>
+      </choice>
+      <attribute name="action" type="tns:migrationActionType" default="migrate" />
+    </complexType>
+  </element>
+
+  <simpleType name="migrationActionType">
+    <restriction base="string">
+      <enumeration value="end" />
+      <enumeration value="migrate" />
+    </restriction>
+  </simpleType>
+</schema>

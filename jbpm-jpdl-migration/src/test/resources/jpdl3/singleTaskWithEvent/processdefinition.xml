@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process-definition  xmlns="urn:jbpm.org:jpdl-3.2"  name="singleTaskWithEvent">
+
+
+	<start-state name="start-state">
+		<transition to="human-task"></transition>
+	</start-state>
+
+
+	<task-node name="human-task">
+		<description>
+			A human task with event.
+		</description>
+		<task name="Test task">
+			<description>
+				Test task.
+			</description>
+			<assignment actor-id="EXPERT" />
+		</task>
+		<event type="node-enter">
+			<action class="org.jboss.handler.HumanTaskHandlerEnter"></action>
+		</event>
+        <event type="node-leave">
+            <action class="org.jboss.handler.HumanTaskHandlerLeave" />
+        </event>
+		<transition to="end-state"></transition>
+	</task-node>
+
+
+	<end-state name="end-state"></end-state>
+
+
+</process-definition>

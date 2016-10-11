@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process-definition  xmlns="urn:jbpm.org:jpdl-3.2"  name="singleSubFlow">
+
+
+	<description>
+		A sub-flow.
+	</description>
+
+
+	<start-state name="start-state">
+		<transition to="sub-flow"></transition>
+	</start-state>
+
+
+	<process-state name="sub-flow">
+		<description>
+			A sub-flow.
+		</description>
+		<sub-process name="some_process"/>
+		<variable access="read,write" name="price" mapped-name="newPrice"></variable>
+		<transition to="end-state"></transition>
+	</process-state>
+
+
+	<end-state name="end-state"></end-state>
+
+
+</process-definition>

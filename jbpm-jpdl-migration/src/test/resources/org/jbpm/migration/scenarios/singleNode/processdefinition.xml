@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process-definition xmlns="urn:jbpm.org:jpdl-3.2"
+                    name="SingleNode">
+
+    <start-state name="start-state">
+        <description>
+            A test description.
+        </description>
+        <transition to="node" />
+    </start-state>
+
+    <node name="node">
+        <description>
+            A node.
+        </description>       
+        <transition to="end-state" />
+    </node>
+
+    <end-state name="end-state">
+        <description>
+            The end.
+        </description>
+    </end-state>
+
+</process-definition>

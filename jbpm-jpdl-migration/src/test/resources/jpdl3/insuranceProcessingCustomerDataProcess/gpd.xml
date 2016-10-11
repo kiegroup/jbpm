@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<root-container name="Insurance_ProcessingCustomerDataProcess" width="1072" height="521">
+  <node name="start" x="125" y="31" width="132" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node name="Get level of relationship" x="29" y="207" width="167" height="36">
+    <edge>
+      <label x="-81" y="-11"/>
+    </edge>
+    <edge>
+      <label x="-42" y="-5"/>
+    </edge>
+  </node>
+  <node name="change insurance status in system" x="519" y="410" width="229" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node name="Insurance customer" x="311" y="297" width="215" height="36">
+    <edge>
+      <label x="-140" y="-30"/>
+    </edge>
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node name="Create level relationship" x="21" y="308" width="178" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node name="Level of relationshop in request" x="63" y="99" width="236" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node name="end" x="296" y="484" width="132" height="36"/>
+</root-container>

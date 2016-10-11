@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<root-container name="SingleNodeWithEventLeave" width="771" height="331">
+  <node name="start-state" x="104" y="45" width="132" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node name="node" x="109" y="133" width="132" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node name="end-state" x="119" y="218" width="132" height="36"/>
+</root-container>

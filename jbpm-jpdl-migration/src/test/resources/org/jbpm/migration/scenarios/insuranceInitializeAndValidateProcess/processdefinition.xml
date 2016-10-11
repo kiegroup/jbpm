@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<process-definition  xmlns="urn:jbpm.org:jpdl-3.2"  name="Insurance_InitializeValidatingProcess">
+
+
+	<start-state name="start">
+		<transition to="initializeRequest" />
+	</start-state>
+
+
+	<node name="validateRequest" async="true">
+		<action class="org.jboss.jbpm.handler.validateRequestHandler" config-type="bean" />
+		<transition to="end" name="valid" />
+		<transition to="Manual" name="not valid" />
+	</node>
+
+	<node name="initializeRequest" async="true">
+		<action async="true" class="org.jboss.jbpm.handler.InitializeerAanvraagHandler" config-type="bean" />
+		<transition to="validateRequest" />
+	</node>
+
+
+	<end-state name="end" />
+
+	<end-state name="Manual" />
+
+
+</process-definition>

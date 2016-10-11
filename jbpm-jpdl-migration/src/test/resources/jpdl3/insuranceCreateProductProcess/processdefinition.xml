@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process-definition  xmlns="urn:jbpm.org:jpdl-3.2"  name="Insurance_CreateProductProcess">
+
+
+	<start-state name="start">
+		<transition to="level relatie" />
+	</start-state>
+
+
+	<decision name="level relatie" async="true">
+		<handler class="org.jboss.jbpm.handler.LevelRelatieHandler" />
+		<transition to="writePolicy" name="new relationship" />
+		<transition to="determine active policy" name="existing relationship without known policy" />
+		<transition to="writePolicy" name="existing relationship with policy" />
+		<transition to="writePolicy" name="existing relationship without policy" />
+	</decision>
+
+	<node name="determine active policy" async="true">
+		<action class="org.jboss.jbpm.handler.BepalenActievePolisHandler" />
+		<transition to="writePolicy" />
+	</node>
+
+	<state name="writePolicy" async="true">
+		<event type="node-enter">
+			<action class="org.jboss.jbpm.handler.SchrijvenPolisHandler" />
+		</event>
+		<event type="node-leave">
+			<action class="org.jboss.jbpm.handler.SchrijvenPolisHandler" />
+		</event>
+		<transition to="end" />
+	</state>
+
+
+	<end-state name="end"></end-state>
+
+
+</process-definition>

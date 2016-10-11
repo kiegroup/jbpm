@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process-definition  xmlns="urn:jbpm.org:jpdl-3.2"  name="org.jbpm.migration.scenarios.singleSubFlow.subprocess">
+
+	<start-state name="sub-start-state1">
+		<transition to="sub-node1"></transition>
+	</start-state>
+
+	<node name="sub-node1">
+                <action class="org.jbpm.migration.tools.jpdl.handlers.VariableActionHandler">			
+		</action>
+		<transition to="sub-end-state1"></transition>
+	</node>
+
+	<end-state name="sub-end-state1"></end-state>
+
+</process-definition>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process-definition  xmlns="urn:jbpm.org:jpdl-3.2"  name="SingleNodeWithAction">
+
+	<start-state name="start-state">
+		<description>
+			A start-state.
+		</description>
+		<transition to="node" />
+	</start-state>
+
+	<node name="node">
+        <action class="org.jboss.handler.TestHandler" />
+		<description>
+			A node wiht action.
+		</description>
+		<transition to="end-state" />
+	</node>
+
+	<end-state name="end-state" />
+
+</process-definition>

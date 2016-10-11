@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process-definition  xmlns="urn:jbpm.org:jpdl-3.2"  name="superState">
+
+
+	<start-state name="start-state1">
+		<transition to="fork1"></transition>
+	</start-state>
+
+
+	<fork name="fork1">
+		<transition to="super-state1/node1" name="super-state1/node1"></transition>
+		<transition to="super-state2/node1" name="super-state2/node1"></transition>
+	</fork>
+
+	<join name="join1">
+		<transition to="end-state1"></transition>
+	</join>
+
+	<super-state name="super-state1">
+		<node name="node1">
+			<transition to="../join1"></transition>
+		</node>
+		<event type="superstate-enter">
+			<action class="org.jboss.jbpm.ActionHandlerEnter"></action>
+		</event>
+	</super-state>
+
+	<super-state name="super-state2">
+		<node name="node1">
+			<transition to="../join1"></transition>
+		</node>
+		<event type="superstate-enter">
+			<action class="org.jboss.jbpm.ActionHandlerEnter"></action>
+		</event>
+	</super-state>
+
+
+	<end-state name="end-state1"></end-state>
+
+
+</process-definition>

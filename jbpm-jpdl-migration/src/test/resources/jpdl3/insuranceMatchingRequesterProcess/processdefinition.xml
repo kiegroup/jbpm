@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process-definition  xmlns="urn:jbpm.org:jpdl-3.2"  name="Insurance_MatchingRequesterProcess">
+
+
+	<start-state name="start">
+		<transition to="customer id known" />
+	</start-state>
+
+
+	<decision name="customer id known">
+		<handler class="org.jboss.jbpm.handler.KlantnummerBekendHandler" />
+		<transition to="Matching customer insurances" name="nee" />
+		<transition to="Gathering customer data" name="ja" />
+	</decision>
+
+	<node name="Create sales oppertunity" async="true">
+		<action async="true" class="org.jboss.jbpm.handler.OpvoerenVerkoopkansHandler"></action>
+		<transition to="end" />
+	</node>
+
+	<task-node name="Matching customer insurances">
+		<task name="Matching customer insurances">
+			<assignment pooled-actors="in2flow_processing_department" />
+		</task>
+		<event type="node-enter">
+			<action class="org.jboss.jbpm.handler.MatchenKlantVerzekerenEnterHandler" config-type="bean" />
+		</event>
+		<transition to="approved" />
+	</task-node>
+
+	<node name="Gathering customer data" async="true">
+		<action class="org.jboss.jbpm.handler.OphalenKlantgegevensHandler" />
+		<transition to="Create sales oppertunity" />
+	</node>
+
+	<decision name="approved">
+		<handler class="org.jboss.jbpm.handler.GoedgekeurdHandler" />
+		<transition to="Gathering customer data" name="yes" />
+		<transition to="by hand" name="no" />
+	</decision>
+
+	<end-state name="end" />
+
+	<end-state name="by hand" />
+
+</process-definition>

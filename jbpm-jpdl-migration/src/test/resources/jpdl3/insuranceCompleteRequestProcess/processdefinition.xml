@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process-definition  xmlns="urn:jbpm.org:jpdl-3.2"  name="Insurance_CompleteRequestProcess">
+
+
+	<start-state name="start">
+		<transition to="send processing PDF" />
+	</start-state>
+
+
+	<state name="waiting for closing of sales oppertunity" async="true">
+		<event type="node-enter">
+			<action class="org.jboss.jbpm.handler.WachtenSluitenVerkoopkansHandler" config-type="bean"/>
+		</event>		
+		<transition to="closing sales oppertunity" name="close_insurance_sale_oppertunity" />
+	</state>
+
+	<node name="closing sales oppertunity" async="true">
+		<action class="org.jboss.jbpm.handler.SluitenVerkoopkansHandler" />
+		<transition to="end-automated" />
+	</node>
+
+	<node name="send processing PDF" async="true">
+		<action class="org.jboss.jbpm.handler.VersturenVerwerkingsPDFHandler" />
+		<transition to="by hand" />
+	</node>
+
+	<decision name="by hand">
+		<handler config-type="bean" class="org.jboss.jbpm.handler.HandmatigHandler" />
+		<transition to="waiting for closing of sales oppertunity" name="no" />
+		<transition to="end-by-hand" name="yes" />
+	</decision>
+
+	<end-state name="end-automated" />
+
+	<end-state name="end-by-hand" />
+
+
+</process-definition>

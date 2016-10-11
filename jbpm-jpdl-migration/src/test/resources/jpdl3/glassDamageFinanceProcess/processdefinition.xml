@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process-definition  xmlns="urn:jbpm.org:jpdl-3.2"  name="glassDamageFinanceProcess">
+	<description>glassDamageProcess</description>
+
+	<end-state name="endInvoiceMailed"></end-state>
+
+	<end-state name="endClaimBrokenOff"></end-state>
+
+	<end-state name="endFinancialsCreated"></end-state>
+
+	<end-state name="endOverdueInvoiceMailed"></end-state>
+
+
+	<event type="process-start">
+		<script>
+	    	<expression>
+				import org.jboss.jbpm.process.CodesParameterResolver;
+	    		import java.util.Calendar;
+	    			
+	    		CodesParameterResolver codesParameterResolver = new CodesParameterResolver();
+	    		Integer amount = Integer.valueOf(codesParameterResolver.getParameter("dueDate.amount@glassDamageProcess.repairGlassDamage"));
+	      		Integer field = Integer.valueOf(codesParameterResolver.getParameter("dueDate.Calendar.field@glassDamageProcess.repairGlassDamage"));
+	      		
+	      		Calendar calendar = Calendar.getInstance();
+				calendar.add(field, amount);
+	     	</expression>
+	     	<variable name='repairGlassDamageDueDate' mapped-name='calendar' access='read,write'/>
+	    </script>
+	</event>
+
+	<start-state name="start">
+		<transition to="isInvoicePresent"></transition>
+	</start-state>
+
+	<decision name="isInvoicePresent">
+		<handler
+			class="org.jboss.jbpm.DecisionHandlerProxy"
+			config-type="bean">
+			<beanName>invoicePresentDecisionHandler</beanName>
+		</handler>
+		<transition name="true" to="mailInvoice"></transition>
+		<transition name="false" to="repairGlassDamage"></transition>
+	</decision>
+
+	<state name="repairGlassDamage" >
+		<timer name="overDueTimer" duedate="#{repairGlassDamageDueDate}" transition="continue"></timer>
+		<transition name="continue" to="isInvoicePresentAfterOverdue"></transition>
+	</state> 
+	
+	<node name="mailInvoice">
+		<action	class="org.jboss.jbpm.ActionHandlerProxy" config-type="bean">
+			<beanName>invoiceMailCarglassActionHandler</beanName>
+		</action>
+		<transition to="endInvoiceMailed"></transition>
+	</node>
+
+	<decision name="isInvoicePresentAfterOverdue">
+		<handler
+			class="org.jboss.jbpm.DecisionHandlerProxy"
+			config-type="bean">
+			<beanName>invoicePresentDecisionHandler</beanName>
+		</handler>
+		<transition name="false" to="areFinancialActionsCreated"></transition>
+		<transition name="true" to="mailOverdueInvoice"></transition>
+	</decision>
+
+	<decision name="areFinancialActionsCreated">
+		<handler
+			class="org.jboss.jbpm.DecisionHandlerProxy"
+			config-type="bean">
+			<beanName>areFinancialMovementsCreatedDecisionHandler</beanName>
+		</handler>
+		<transition name="false" to="breakOffClaim"></transition>
+		<transition name="true" to="endFinancialsCreated"></transition>
+	</decision>
+
+	<node name="breakOffClaim">
+		<action	class="org.jboss.jbpm.ActionHandlerProxy" config-type="bean">
+			<beanName>breakOffClaimActionHandler</beanName>
+		</action>
+		<transition to="endClaimBrokenOff"></transition>
+	</node>
+
+	<node name="mailOverdueInvoice">
+		<action	class="org.jboss.jbpm.ActionHandlerProxy" config-type="bean">
+			<beanName>invoiceMailCarglassActionHandler</beanName>
+		</action>
+		<transition to="endOverdueInvoiceMailed"></transition>
+	</node>
+
+
+</process-definition>

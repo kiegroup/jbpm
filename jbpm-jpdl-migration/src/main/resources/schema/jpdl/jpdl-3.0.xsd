@@ -1,0 +1,866 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 4 U (http://www.xmlspy.com) by Jim Rigsbee (private) -->
+<xs:schema targetNamespace="http://jbpm.org/3/jpdl" elementFormDefault="qualified" attributeFormDefault="unqualified" version="3.0" xmlns="http://jbpm.org/3/jpdl" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="process-definition" type="process-definition-v3.0">
+		<xs:annotation>
+			<xs:documentation>jBPM Process Definition Language (JPDL) version 3.0 </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:simpleType name="configType">
+		<xs:annotation>
+			<xs:documentation>Indicates how to use the metadata within a handler</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="field"/>
+			<xs:enumeration value="bean"/>
+			<xs:enumeration value="constructor"/>
+			<xs:enumeration value="configuration-property"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="duedateType">
+		<xs:annotation>
+			<xs:documentation>Expression that indicates when a timer is due to fire</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="\p{N}+([ ]+business)?[ ]+((second)|(seconds)|(minute)|(minutes)|(hour)|(hours)|(day)|(days)|(week)|(weeks)|(month)|(months)|(year)|(years))([ ]+(and)[ ]+\p{N}+([ ]+business)?[ ]+((second)|(seconds)|(minute)|(minutes)|(hour)|(hours)|(day)|(days)|(week)|(weeks)|(month)|(months)|(year)|(years)))*"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="booleanType">
+		<xs:annotation>
+			<xs:documentation>Yes, no, true, false, on, and off</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="yes"/>
+			<xs:enumeration value="no"/>
+			<xs:enumeration value="true"/>
+			<xs:enumeration value="false"/>
+			<xs:enumeration value="on"/>
+			<xs:enumeration value="off"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="accessType">
+		<xs:annotation>
+			<xs:documentation>Defines how a variable may be accessed</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="read"/>
+			<xs:enumeration value="read,required"/>
+			<xs:enumeration value="read,write"/>
+			<xs:enumeration value="read,write,required"/>
+			<xs:enumeration value="write"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="repeatType">
+		<xs:annotation>
+			<xs:documentation>Defines if and when to repeat a timer</xs:documentation>
+		</xs:annotation>
+		<xs:union memberTypes="duedateType booleanType"/>
+	</xs:simpleType>
+	<xs:element name="action">
+		<xs:annotation>
+			<xs:documentation>Defines custom behavior</xs:documentation>
+		</xs:annotation>
+		<xs:complexType mixed="true">
+			<xs:sequence>
+				<xs:any processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+			<xs:attribute name="name" type="xs:string" use="optional">
+				<xs:annotation>
+					<xs:documentation>The name of the action.  When actions are given names, they can be looked up from the process definition.  This can be useful for runtime actions and declaring actions only once.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="class" type="xs:string" use="optional">
+				<xs:annotation>
+					<xs:documentation>Either a class or ref-name must be specified.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="ref-name" type="xs:string" use="optional">
+				<xs:annotation>
+					<xs:documentation>Either a class or ref-name must be specified.  The content of this action is not processed if a referenced action is specified.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="accept-propagated-events" type="booleanType" use="optional" default="true">
+				<xs:annotation>
+					<xs:documentation>If set to false, the action will only be executed on events that were fired on this action's element.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="config-type" type="configType" use="optional">
+				<xs:annotation>
+					<xs:documentation>Specifies how the action object should be constructed and how the content of this element should be used as configuration information for the action object.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="assignment">
+		<xs:annotation>
+			<xs:documentation>Controls the behavior of assigning a task to an identity.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:any processContents="lax" minOccurs="0" maxOccurs="unbounded">
+					<xs:annotation>
+						<xs:documentation>The content of the assignment element can be used as configuration information for your custom assignment handler implementations.  This allows the creation of reusable delegation classes.</xs:documentation>
+					</xs:annotation>
+				</xs:any>
+			</xs:sequence>
+			<xs:attribute name="class" type="xs:string" use="required">
+				<xs:annotation>
+					<xs:documentation>The fully qualified class name of an implementation of org.jbpm.taskmgmt.def.AssignmentHandler.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="config-type" type="configType" use="optional">
+				<xs:annotation>
+					<xs:documentation>Specifies how the assignment handler object should be constructed and how the content of this element should be used as configuration information for that object.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="expression" type="xs:string" use="optional"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="cancel-timer">
+		<xs:annotation>
+			<xs:documentation>Cancels a timer previously set with create-timer</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:attribute name="name" type="xs:string" use="required">
+				<xs:annotation>
+					<xs:documentation>The name of the timer to be cancelled.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="create-timer">
+		<xs:annotation>
+			<xs:documentation>See documentation for the timer element.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:choice>
+				<xs:element ref="action"/>
+				<xs:element ref="script"/>
+			</xs:choice>
+			<xs:attribute name="name" type="xs:string" use="optional">
+				<xs:annotation>
+					<xs:documentation>The name of the timer.  This name can be used later in a cancel-timer element.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="duedate" type="duedateType" use="required">
+				<xs:annotation>
+					<xs:documentation>The duration that specifies the time period between the creation of the timer and the execution of the timer.  This can be expressed in business hours, minutes, etc.  See the documentation for syntax for this attribute.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="repeat" type="repeatType" use="optional">
+				<xs:annotation>
+					<xs:documentation>yes, true, or duration.  After a timer has been executed on the duedate, this repeat attribute specifies the duration between repeating timer executions until the node is left.  If yes or true are specified then the value of duedate is used.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="transition" type="xs:string" use="optional"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="decision">
+		<xs:annotation>
+			<xs:documentation>Defines a decision to be made in the processing path</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:annotation>
+					<xs:documentation>Either a handler or transitions with conditions should be specified.   The decision will look for the first transition for which the condition evaluates to true.  A transition without a condition is considered to evaluate to true (to model the 'otherwise' branch.  See the condition element.</xs:documentation>
+				</xs:annotation>
+				<xs:element name="handler" minOccurs="0">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:any processContents="lax" minOccurs="0" maxOccurs="unbounded">
+								<xs:annotation>
+									<xs:documentation>The content of the handler element can be used as configuration information for your custom decision handler implementations.  This allows the creation of reusable delegation classes.</xs:documentation>
+								</xs:annotation>
+							</xs:any>
+						</xs:sequence>
+						<xs:attribute name="class" type="xs:string" use="required">
+							<xs:annotation>
+								<xs:documentation>The fully qualified class name of an implementation of org.jbpm.graph.node.DecisionHandler.</xs:documentation>
+							</xs:annotation>
+						</xs:attribute>
+						<xs:attribute name="config-type" type="configType" use="optional">
+							<xs:annotation>
+								<xs:documentation>Specifies how the decision handler object should be constructed and how the content of this element should be used as configuration information for that object.</xs:documentation>
+							</xs:annotation>
+						</xs:attribute>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="transition" minOccurs="0" maxOccurs="unbounded">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="condition" minOccurs="0">
+								<xs:annotation>
+									<xs:documentation>A beanshell script that evaluates to true or false.</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+							<xs:choice minOccurs="0" maxOccurs="unbounded">
+								<xs:element ref="action" minOccurs="0" maxOccurs="unbounded"/>
+								<xs:element ref="script" minOccurs="0" maxOccurs="unbounded"/>
+								<xs:element ref="create-timer" minOccurs="0" maxOccurs="unbounded"/>
+								<xs:element ref="cancel-timer" minOccurs="0" maxOccurs="unbounded"/>
+							</xs:choice>
+							<xs:element ref="exception-handler" minOccurs="0" maxOccurs="unbounded"/>
+						</xs:sequence>
+						<xs:attribute name="name" type="xs:string" use="required">
+							<xs:annotation>
+								<xs:documentation>The name of the transition.  Note that each transition leaving a node must have a distinct name.</xs:documentation>
+							</xs:annotation>
+						</xs:attribute>
+						<xs:attribute name="to" type="xs:string" use="required">
+							<xs:annotation>
+								<xs:documentation>The hierarchical name of the destination node.  See documentation for an description of hierarchical names.</xs:documentation>
+							</xs:annotation>
+						</xs:attribute>
+					</xs:complexType>
+				</xs:element>
+				<xs:element ref="event" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="timer" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="exception-handler" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+			<xs:attribute name="name" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="end-state">
+		<xs:annotation>
+			<xs:documentation>Marks the end of a processing path.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="event" minOccurs="0" maxOccurs="unbounded">
+					<xs:annotation>
+						<xs:documentation>Event types supported:  node-enter, before-signal</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:choice minOccurs="0" maxOccurs="unbounded">
+							<xs:element ref="action"/>
+							<xs:element ref="script"/>
+							<xs:element ref="create-timer"/>
+							<xs:element ref="cancel-timer"/>
+						</xs:choice>
+						<xs:attribute name="type" use="required">
+							<xs:simpleType>
+								<xs:restriction base="xs:string">
+									<xs:enumeration value="node-enter"/>
+									<xs:enumeration value="before-signal"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:attribute>
+					</xs:complexType>
+				</xs:element>
+				<xs:element ref="exception-handler" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+			<xs:attribute name="name" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="event">
+		<xs:annotation>
+			<xs:documentation>Supported event types: node-enter, node-leave, before-signal, after-signal.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:choice minOccurs="0" maxOccurs="unbounded">
+				<xs:element ref="action"/>
+				<xs:element ref="script"/>
+				<xs:element ref="create-timer"/>
+				<xs:element ref="cancel-timer"/>
+			</xs:choice>
+			<xs:attribute name="type" use="required">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="node-enter"/>
+						<xs:enumeration value="node-leave"/>
+						<xs:enumeration value="before-signal"/>
+						<xs:enumeration value="after-signal"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:attribute>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="exception-handler">
+		<xs:annotation>
+			<xs:documentation>A list of exception handlers that applies to all exceptions thrown by delegation classes within this node.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:choice maxOccurs="unbounded">
+				<xs:element ref="action"/>
+				<xs:element ref="script"/>
+			</xs:choice>
+			<xs:attribute name="exception-class" type="xs:string" use="optional">
+				<xs:annotation>
+					<xs:documentation>Specifies the fully qualified class name of the java throwable class that should match this exception handler.  If this attribute is not specified it matches all exceptions derived from java.lang.Throwable.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="fork">
+		<xs:annotation>
+			<xs:documentation>Defines a point in the processing path where multiple execution paths will run in parallel.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="script" minOccurs="0"/>
+				<xs:element ref="transition" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="event" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="timer" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="exception-handler" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+			<xs:attribute name="name" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="join">
+		<xs:annotation>
+			<xs:documentation>Defines a point in the processing path where multiple execution paths merge into one path.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="transition" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="event" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="timer" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="exception-handler" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+			<xs:attribute name="name" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="node">
+		<xs:annotation>
+			<xs:documentation>A generic node allowing custom behavior.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:choice minOccurs="0" maxOccurs="1">
+					<xs:annotation>
+						<xs:documentation>A custom action that represents the behaviour for this node</xs:documentation>
+					</xs:annotation>
+					<xs:element ref="action"/>
+					<xs:element ref="script"/>
+					<xs:element ref="create-timer"/>
+					<xs:element ref="cancel-timer"/>
+				</xs:choice>
+				<xs:element ref="transition" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="event" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="timer" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="exception-handler" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+			<xs:attribute name="name" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="process-state">
+		<xs:annotation>
+			<xs:documentation>A node that allows execution of another subordinate process.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="sub-process">
+					<xs:complexType>
+						<xs:attribute name="name" type="xs:string" use="required">
+							<xs:annotation>
+								<xs:documentation>The name of the subordinate process definition to be executed within the enclosing process.</xs:documentation>
+							</xs:annotation>
+						</xs:attribute>
+						<xs:attribute name="version" type="xs:integer" use="optional">
+							<xs:annotation>
+								<xs:documentation>The version of the deployed process-definition that is to be executed.  If none is specified the latest version of the identified process will be used.</xs:documentation>
+							</xs:annotation>
+						</xs:attribute>
+					</xs:complexType>
+				</xs:element>
+				<xs:element ref="variable" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="transition" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element name="event" minOccurs="0" maxOccurs="unbounded">
+					<xs:annotation>
+						<xs:documentation>Supported event types: node-enter, node-leave, before-signal, after-signal, subprocess-created, subprocess-end.</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:choice minOccurs="0" maxOccurs="unbounded">
+							<xs:element ref="action"/>
+							<xs:element ref="script"/>
+							<xs:element ref="create-timer"/>
+							<xs:element ref="cancel-timer"/>
+						</xs:choice>
+						<xs:attribute name="type" use="required">
+							<xs:simpleType>
+								<xs:restriction base="xs:string">
+									<xs:enumeration value="node-enter"/>
+									<xs:enumeration value="node-leave"/>
+									<xs:enumeration value="before-signal"/>
+									<xs:enumeration value="after-signal"/>
+									<xs:enumeration value="subprocess-created"/>
+									<xs:enumeration value="subprocess-end"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:attribute>
+					</xs:complexType>
+				</xs:element>
+				<xs:element ref="timer" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="exception-handler" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+			<xs:attribute name="name" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="script">
+		<xs:annotation>
+			<xs:documentation>A beanshell script to execute.  The script can be the content of this tag or you can specify one or more variables and a beanshell script in the expression tag.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence minOccurs="0">
+				<xs:element ref="variable" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element name="expression">
+					<xs:annotation>
+						<xs:documentation>The beanshell script.</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+			</xs:sequence>
+			<xs:attribute name="name" type="xs:string" use="optional">
+				<xs:annotation>
+					<xs:documentation>The name of the script action.  When actions are given names, they can be looked up from the process definition.  This can be useful for runtime actions and declaring actions only once.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="accept-propagated-events" type="booleanType" use="optional" default="true">
+				<xs:annotation>
+					<xs:documentation>If set to false the action will only be executed on events that were fired in this action's element.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="state">
+		<xs:annotation>
+			<xs:documentation>Represents a wait state in a process.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:choice minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>A custom action that represents the behaviour for this node</xs:documentation>
+					</xs:annotation>
+					<xs:element ref="action"/>
+					<xs:element ref="script"/>
+					<xs:element ref="create-timer"/>
+					<xs:element ref="cancel-timer"/>
+				</xs:choice>
+				<xs:element ref="transition" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="event" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="timer" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="exception-handler" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+			<xs:attribute name="name" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="super-state">
+		<xs:annotation>
+			<xs:documentation>Grouping mechanism for a named set of nodes.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:choice minOccurs="0" maxOccurs="unbounded">
+					<xs:annotation>
+						<xs:documentation>The nodes of the process definition.  Note that a process without nodes is valid, but cannot be executed.</xs:documentation>
+					</xs:annotation>
+					<xs:element ref="state"/>
+					<xs:element ref="task-node"/>
+					<xs:element ref="super-state"/>
+					<xs:element ref="process-state"/>
+					<xs:element ref="node"/>
+					<xs:element ref="fork"/>
+					<xs:element ref="join"/>
+					<xs:element ref="decision"/>
+					<xs:element ref="end-state"/>
+				</xs:choice>
+				<xs:element ref="transition" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element name="event" minOccurs="0" maxOccurs="unbounded">
+					<xs:annotation>
+						<xs:documentation>Supports all event types except the process-start and end events.</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:choice minOccurs="0" maxOccurs="unbounded">
+							<xs:element ref="action"/>
+							<xs:element ref="script"/>
+							<xs:element ref="create-timer"/>
+							<xs:element ref="cancel-timer"/>
+						</xs:choice>
+						<xs:attribute name="type" use="required">
+							<xs:simpleType>
+								<xs:restriction base="xs:string">
+									<xs:enumeration value="node-enter"/>
+									<xs:enumeration value="node-leave"/>
+									<xs:enumeration value="before-signal"/>
+									<xs:enumeration value="after-signal"/>
+									<xs:enumeration value="superstate-enter"/>
+									<xs:enumeration value="superstate-leave"/>
+									<xs:enumeration value="task-create"/>
+									<xs:enumeration value="task-assign"/>
+									<xs:enumeration value="task-start"/>
+									<xs:enumeration value="task-end"/>
+									<xs:enumeration value="transition"/>
+									<xs:enumeration value="timer"/>
+									<xs:enumeration value="subprocess-created"/>
+									<xs:enumeration value="subprocess-end"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:attribute>
+					</xs:complexType>
+				</xs:element>
+				<xs:element ref="timer" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="exception-handler" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+			<xs:attribute name="name" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="swimlane">
+		<xs:annotation>
+			<xs:documentation>Groups tasks assigned to the same resource.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="assignment" minOccurs="0"/>
+			</xs:sequence>
+			<xs:attribute name="name" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="task">
+		<xs:annotation>
+			<xs:documentation>The tasks that should be created when execution arrives in this task node.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="assignment" minOccurs="0"/>
+				<xs:element name="controller" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>Controller supports the inclusion of one or more "variable" tags as children.  It also supports custom XML for use with a custom controller class as indicated by config-type.</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:any processContents="lax" minOccurs="0" maxOccurs="unbounded">
+								<xs:annotation>
+									<xs:documentation>This section can include "variable" elements to identify input and output variables involved in this task.</xs:documentation>
+								</xs:annotation>
+							</xs:any>
+						</xs:sequence>
+						<xs:attribute name="class" type="xs:string" use="optional"/>
+						<xs:attribute name="config-type" type="configType" use="optional">
+							<xs:annotation>
+								<xs:documentation>Specifies how the assignment handler object should be constructed and how the content of this element should be used as configuration information for that object.</xs:documentation>
+							</xs:annotation>
+						</xs:attribute>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="event" minOccurs="0" maxOccurs="unbounded">
+					<xs:annotation>
+						<xs:documentation>Supports events:  task-create, task-assign, task-start, task-end.</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:choice minOccurs="0" maxOccurs="unbounded">
+							<xs:element ref="action"/>
+							<xs:element ref="script"/>
+							<xs:element ref="create-timer"/>
+							<xs:element ref="cancel-timer"/>
+						</xs:choice>
+						<xs:attribute name="type" use="required">
+							<xs:simpleType>
+								<xs:restriction base="xs:string">
+									<xs:enumeration value="task-create"/>
+									<xs:enumeration value="task-start"/>
+									<xs:enumeration value="task-assign"/>
+									<xs:enumeration value="task-end"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:attribute>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="timer" minOccurs="0" maxOccurs="unbounded">
+					<xs:annotation>
+						<xs:documentation>Specifies a timer that monitors the duration of an execution in this task.</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:choice>
+							<xs:element ref="action"/>
+							<xs:element ref="script"/>
+						</xs:choice>
+						<xs:attribute name="name" type="xs:string" use="optional">
+							<xs:annotation>
+								<xs:documentation>The name for this timer. Every timer should have a unique name.  If a name is not specified then the name of the enclosing node is taken.</xs:documentation>
+							</xs:annotation>
+						</xs:attribute>
+						<xs:attribute name="duedate" type="duedateType" use="required">
+							<xs:annotation>
+								<xs:documentation>The duration that specifies the time period between the creation of the timer and the execution of the timer.  This can be expressed in business hours, minutes, etc.  See the documentation for syntax for this attribute.</xs:documentation>
+							</xs:annotation>
+						</xs:attribute>
+						<xs:attribute name="repeat" type="repeatType" use="optional">
+							<xs:annotation>
+								<xs:documentation>yes, true, or duration.  After a timer has been executed on the duedate, this repeat attribute specifies the duration between repeating timer executions until the node is left.  If yes or true are specified then the value of duedate is used.</xs:documentation>
+							</xs:annotation>
+						</xs:attribute>
+						<xs:attribute name="transition" type="xs:string" use="optional">
+							<xs:annotation>
+								<xs:documentation>A transition name to be taken after the timer executes, the timer event is fired and execution of any specified actions has completed.</xs:documentation>
+							</xs:annotation>
+						</xs:attribute>
+						<xs:attribute name="cancel-event" type="xs:string" use="optional" default="task-end">
+							<xs:annotation>
+								<xs:documentation>task-assign, task-start, task-end, or any combination of these specified as a comma separated list.</xs:documentation>
+							</xs:annotation>
+						</xs:attribute>
+					</xs:complexType>
+				</xs:element>
+				<xs:element ref="exception-handler" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+			<xs:attribute name="name" type="xs:string" use="optional">
+				<xs:annotation>
+					<xs:documentation>Named tasks can be referenced and looked up via the TaskMgmtDefinition.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="blocking"   type="booleanType" use="optional" default="false"/>
+			<xs:attribute name="signalling" type="booleanType" use="optional" default="true"/>
+			<xs:attribute name="description" type="xs:string" use="optional"/>
+			<xs:attribute name="duedate" type="duedateType" use="optional">
+				<xs:annotation>
+					<xs:documentation>The duration that specifies the time period between the creation of the timer and the execution of the timer.  This can be expressed in business hours, minutes, etc.  See the documentation for syntax for this attribute.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="swimlane" type="xs:string" use="optional"/>
+			<xs:attribute name="priority" use="optional" default="normal">
+				<xs:annotation>
+					<xs:documentation>This value can also be any integer where the lower the number the higher the priority.</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:union>
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:enumeration value="highest"/>
+								<xs:enumeration value="high"/>
+								<xs:enumeration value="normal"/>
+								<xs:enumeration value="low"/>
+								<xs:enumeration value="lowest"/>
+							</xs:restriction>
+						</xs:simpleType>
+						<xs:simpleType>
+							<xs:restriction base="xs:int"/>
+						</xs:simpleType>
+					</xs:union>
+				</xs:simpleType>
+			</xs:attribute>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="task-node">
+		<xs:annotation>
+			<xs:documentation>A node which accepts a list of tasks to be executed.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="task" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="transition" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="event" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="timer" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="exception-handler" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+			<xs:attribute name="name" type="xs:string" use="required"/>
+			<xs:attribute name="signal" use="optional" default="last">
+				<xs:annotation>
+					<xs:documentation>Signal specifies the effect of task completion on the process execution continuation.</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="unsynchronized"/>
+						<xs:enumeration value="never"/>
+						<xs:enumeration value="first"/>
+						<xs:enumeration value="first-wait"/>
+						<xs:enumeration value="last"/>
+						<xs:enumeration value="last-wait"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:attribute>
+			<xs:attribute name="create-tasks" type="booleanType" use="optional" default="true">
+				<xs:annotation>
+					<xs:documentation>Can be set to false when a runtime calculation has to determine which of the tasks have to be created.  In that case, add an action on node-enter, create the tasks in the action, and set create-tasks to false.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="end-tasks" type="booleanType" use="optional" default="false">
+				<xs:annotation>
+					<xs:documentation>Can be set to true, in which all the tasks that are still open are ended on the node-leave event.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="timer">
+		<xs:annotation>
+			<xs:documentation>Specifies a timer that monitors the duration of an execution in this node.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:choice>
+				<xs:element ref="action"/>
+				<xs:element ref="script"/>
+			</xs:choice>
+			<xs:attribute name="name" type="xs:string" use="optional">
+				<xs:annotation>
+					<xs:documentation>The name for this timer. Every timer should have a unique name.  If a name is not specified then the name of the enclosing node is taken.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="duedate" type="duedateType" use="required">
+				<xs:annotation>
+					<xs:documentation>The duration that specifies the time period between the creation of the timer and the execution of the timer.  This can be expressed in business hours, minutes, etc.  See the documentation for syntax for this attribute.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="repeat" type="repeatType" use="optional">
+				<xs:annotation>
+					<xs:documentation>yes, true, or duration.  After a timer has been executed on the duedate, this repeat attribute specifies the duration between repeating timer executions until the node is left.  If yes or true are specified then the value of duedate is used.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="transition" type="xs:string" use="optional">
+				<xs:annotation>
+					<xs:documentation>A transition name to be taken after the timer executes, the timer event is fired and execution of any specified actions has completed.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="transition">
+		<xs:annotation>
+			<xs:documentation>The leaving transitions.  Each transition leaving a node must have a distinct name.  At most one transition can have no name.  The first transition specified is the default transition:  the path taken when the node is left without specifying a transition.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:choice minOccurs="0" maxOccurs="unbounded">
+					<xs:element ref="action"/>
+					<xs:element ref="script"/>
+					<xs:element ref="create-timer"/>
+					<xs:element ref="cancel-timer"/>
+				</xs:choice>
+				<xs:element ref="exception-handler" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+			<xs:attribute name="name" type="xs:string" use="optional">
+				<xs:annotation>
+					<xs:documentation>The name of the transition.  Note that each transition leaving a node must have a distinct name.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="to" type="xs:string" use="required">
+				<xs:annotation>
+					<xs:documentation>The hierarchical name of the destination node.  See documentation for an description of hierarchical names.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="variable">
+		<xs:annotation>
+			<xs:documentation>Input and Output variables for the node.  Input variables are specified by access "read". If you have assigned variables during the script evaluation, the variables with "write" access allows you to store the values in the process instance.  It does not matter whether the variables existed prior to this action.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:any processContents="lax" minOccurs="0" maxOccurs="unbounded">
+					<xs:annotation>
+						<xs:documentation>User defined metadata.</xs:documentation>
+					</xs:annotation>
+				</xs:any>
+			</xs:sequence>
+			<xs:attribute name="name" type="xs:string" use="required"/>
+			<xs:attribute name="access" type="accessType" use="optional" default="read,write"/>
+			<xs:attribute name="mapped-name" type="xs:string" use="optional">
+				<xs:annotation>
+					<xs:documentation>Defaults to the process variable name as given by the name attribute.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="process-definition-v3.0">
+		<xs:annotation>
+			<xs:documentation>Version 3.0 of the PDL schema</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element ref="swimlane" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="start-state" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The start state of the process.  Note that a process without a start-state is valid, but cannot be executed.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element ref="task" minOccurs="0"/>
+						<xs:element ref="transition" minOccurs="0" maxOccurs="unbounded"/>
+						<xs:element name="event" minOccurs="0" maxOccurs="unbounded">
+							<xs:complexType>
+								<xs:choice minOccurs="0" maxOccurs="unbounded">
+									<xs:element ref="action"/>
+									<xs:element ref="script"/>
+									<xs:element ref="create-timer"/>
+									<xs:element ref="cancel-timer"/>
+								</xs:choice>
+								<xs:attribute name="type" use="required">
+									<xs:simpleType>
+										<xs:restriction base="xs:string">
+											<xs:enumeration value="node-leave"/>
+											<xs:enumeration value="after-signal"/>
+										</xs:restriction>
+									</xs:simpleType>
+								</xs:attribute>
+							</xs:complexType>
+						</xs:element>
+						<xs:element ref="exception-handler" minOccurs="0" maxOccurs="unbounded"/>
+					</xs:sequence>
+					<xs:attribute name="name" type="xs:string" use="optional"/>
+					<xs:attribute name="swimlane" type="xs:string" use="optional"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:choice minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>The nodes of the process definition.  Note that a process without nodes is valid, but cannot be executed.</xs:documentation>
+				</xs:annotation>
+				<xs:element ref="state"/>
+				<xs:element ref="task-node"/>
+				<xs:element ref="super-state"/>
+				<xs:element ref="process-state"/>
+				<xs:element ref="node"/>
+				<xs:element ref="fork"/>
+				<xs:element ref="join"/>
+				<xs:element ref="decision"/>
+				<xs:element ref="end-state"/>
+			</xs:choice>
+			<xs:choice minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Globally defined actions that can be referenced from events and transitions.  </xs:documentation>
+				</xs:annotation>
+				<xs:element ref="action"/>
+				<xs:element ref="script"/>
+				<xs:element ref="create-timer"/>
+				<xs:element ref="cancel-timer"/>
+			</xs:choice>
+			<xs:element ref="task" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="event" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Supports all event types.  Uniquely supports process-start and process-end.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:choice minOccurs="0" maxOccurs="unbounded">
+						<xs:element ref="action"/>
+						<xs:element ref="script"/>
+						<xs:element ref="create-timer"/>
+						<xs:element ref="cancel-timer"/>
+					</xs:choice>
+					<xs:attribute name="type" use="required">
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:enumeration value="node-enter"/>
+								<xs:enumeration value="node-leave"/>
+								<xs:enumeration value="before-signal"/>
+								<xs:enumeration value="after-signal"/>
+								<xs:enumeration value="superstate-enter"/>
+								<xs:enumeration value="superstate-leave"/>
+								<xs:enumeration value="task-create"/>
+								<xs:enumeration value="task-assign"/>
+								<xs:enumeration value="task-start"/>
+								<xs:enumeration value="task-end"/>
+								<xs:enumeration value="transition"/>
+								<xs:enumeration value="timer"/>
+								<xs:enumeration value="subprocess-created"/>
+								<xs:enumeration value="subprocess-end"/>
+								<xs:enumeration value="process-start"/>
+								<xs:enumeration value="process-end"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:attribute>
+				</xs:complexType>
+			</xs:element>
+			<xs:element ref="exception-handler" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="name" type="xs:string" use="optional">
+			<xs:annotation>
+				<xs:documentation>the name of the process</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+</xs:schema>

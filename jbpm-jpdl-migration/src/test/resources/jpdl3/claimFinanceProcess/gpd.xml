@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<root-container name="claimFinanceProcess" width="1072" height="736">
+  <node name="start" x="394" y="20" width="132" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node name="IsIntakeLight" x="393" y="93" width="132" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node name="IntakeLight" x="558" y="164" width="132" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node name="CompleteIntake" x="257" y="161" width="161" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node name="CheckIntake" x="123" y="237" width="132" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+      <bendpoint w1="137" h1="32" w2="-143" h2="36"/>
+    </edge>
+  </node>
+  <node name="IsGlassDamage" x="401" y="454" width="132" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node name="GlassDamageSubProcess" x="189" y="524" width="221" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node name="CloseClaimForm" x="499" y="603" width="132" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node name="ProfileOK" x="413" y="235" width="132" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+    <edge>
+      <label x="5" y="-10"/>
+      <bendpoint w1="-163" h1="-18" w2="117" h2="-22"/>
+    </edge>
+  </node>
+  <node name="IsClaimInterrupted" x="231" y="616" width="154" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node name="CommPoliceReportAccessToPublicProsecutor" x="287" y="312" width="379" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+    <edge>
+      <label x="-101" y="-15"/>
+    </edge>
+  </node>
+  <node name="SendToProsecutor" x="677" y="383" width="197" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node name="RequestAccessFromProsecutor" x="81" y="393" width="185" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node name="end" x="509" y="699" width="132" height="36"/>
+  <node name="end-interrupted-claims" x="186" y="693" width="192" height="36"/>
+</root-container>

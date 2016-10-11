@@ -81,6 +81,7 @@
     <module>jbpm-document</module>
     <module>jbpm-test</module>
     <module>jbpm-case-mgmt</module>
+    <module>jbpm-jpdl-migration</module>
     <module>jbpm-test-coverage</module>
     <module>jbpm-examples</module>
     <module>jbpm-installer</module>
