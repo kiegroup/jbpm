@@ -22,17 +22,8 @@ import org.kie.api.definition.process.Node;
 public class DynamicNode extends CompositeContextNode {
 
 	private static final long serialVersionUID = 510l;
-	
-	private boolean autoComplete = false;
-	private String completionExpression;
-		
-	public boolean isAutoComplete() {
-		return autoComplete;
-	}
 
-	public void setAutoComplete(boolean autoComplete) {
-		this.autoComplete = autoComplete;
-	}
+	private String completionExpression;
 
 	public boolean acceptsEvent(String type, Object event) {
 		for (Node node: getNodes()) {
@@ -42,7 +33,7 @@ public class DynamicNode extends CompositeContextNode {
 		}
 		return super.acceptsEvent(type, event);
 	}
-	
+
     public Node internalGetNode(long id) {
     	try {
     		return getNode(id);
