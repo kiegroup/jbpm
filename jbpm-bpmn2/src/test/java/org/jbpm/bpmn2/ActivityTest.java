@@ -1768,4 +1768,26 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         assertEquals(1, listAddress.size());
         assertProcessInstanceFinished(processInstance, ksession);
     }
+
+    @Test
+    public void testSubProcessInAdHocProcess() throws Exception {
+        // JBPM-5374
+        KieBase kbase = createKnowledgeBaseWithoutDumper(
+                "BPMN2-SubProcessInAdHocProcess.bpmn2");
+        ksession = createKnowledgeSession(kbase);
+        TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task", workItemHandler);
+
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        ProcessInstance processInstance = ksession.startProcess("SubProcessInAdHocProcess", parameters);
+        assertProcessInstanceActive(processInstance);
+
+        ksession = restoreSession(ksession, true);
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task", workItemHandler);
+
+        WorkItem workItem = workItemHandler.getWorkItem();
+        assertNotNull(workItem);
+        ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
+        assertProcessInstanceFinished(processInstance, ksession);
+    }
 }
