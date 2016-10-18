@@ -487,7 +487,7 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 			InternalRuntimeManager manager = (InternalRuntimeManager) getKnowledgeRuntime().getEnvironment().get("RuntimeManager");
 	        if (manager != null) {            
 	            // check if process instance is owned by the same manager as the one owning ksession
-	            if (!manager.getIdentifier().equals(getDeploymentId())) {	                
+	            if (hasDeploymentId() && !manager.getIdentifier().equals(getDeploymentId())) {	                
 	                logger.debug("Skipping signal on process instance " + getId() + " as it's owned by another deployment " +
 	                                                    getDeploymentId() + " != " + manager.getIdentifier());	                
 	                return;
@@ -708,5 +708,13 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
     
     public void setDeploymentId(String deploymentId) {
         this.deploymentId = deploymentId;
+    }
+    
+    protected boolean hasDeploymentId() {
+        if (this.deploymentId == null || this.deploymentId.isEmpty()) {
+            return false;
+        }
+        
+        return true;
     }
 }
