@@ -334,7 +334,7 @@ public class FilteredKModuleDeploymentServiceTest extends AbstractKieServicesBas
            .setGroupId(groupId)
            .setArtifactId(artifactId)
            .setVersion(version)
-           .addClass(Building.class, House.class, Person.class, OtherPerson.class, Thing.class)
+           .addClass(House.class, Person.class, Thing.class)
            .createKieJarAndDeployToMaven();
        KModuleDeploymentUnit limitDeploymentUnit = new KModuleDeploymentUnit(groupId, artifactId, version);
 
