@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process-definition xmlns="urn:jbpm.org:jpdl-3.2" name="claimFinanceProcess">
+	<description>claimProcess</description>
+
+
+	<start-state name="start">
+		<description>claimProcessStart</description>
+		<transition to="IsIntakeLight"></transition>
+	</start-state>
+
+	<decision name="IsIntakeLight">
+		<handler
+			class="org.jboss.jbpm.DecisionHandlerProxy"
+			config-type="bean">
+			<beanName>intakeLightDecisionHandler</beanName>
+		</handler>
+		<transition name="isNotLight" to="CompleteIntake"></transition>
+		<transition name="isIntakeLight" to="IntakeLight"></transition>
+	</decision>
+
+	<task-node name="IntakeLight">
+
+		<event type="task-create">
+			<script>
+				taskInstance.setVariableLocally("applicationMethod","getDefaultController")
+			</script>
+			<script>
+				taskInstance.setVariableLocally("implementationOrController","intakeAController")
+			</script>
+			<script>
+	 			<expression>executionContext.getTaskInstance().setVariable("delayDays",new Integer(4))</expression>
+	 		</script>
+			<action	class="org.jboss.jbpm.actionhandler.SetDefaultTaskParametersAction"/>			
+		</event>
+		<task name="IntakeLightForm">
+		 	<assignment class="org.jboss.jbpm.assignment.IntakeAssignmentHandler"></assignment>
+			<description>IntakeLightForm</description>
+			<assignment pooled-actors="DamageCar@Schadebeheer,DamageCar@carglass"></assignment>
+		</task>
+		<transition to="ProfileOK"></transition>
+	</task-node>
+
+	<task-node name="CompleteIntake">
+	 	<event type="task-create">
+
+			<script>
+				taskInstance.setVariableLocally("applicationMethod","getDefaultController")
+			</script>
+			<script>
+				taskInstance.setVariableLocally("implementationOrController","intakeAController")
+			</script>
+			<script>
+	 			taskInstance.setVariableLocally("delayDays",new Integer(0))
+	 		</script>
+			<action	class="org.jboss.jbpm.actionhandler.SetDefaultTaskParametersAction"/>
+		</event>
+		<task name="CompleteIntakeForm">
+			<assignment class="org.jboss.jbpm.assignment.CompleteIntakeAssignmentHandler"></assignment>
+			<description>CompleteIntakeForm</description>
+			<assignment pooled-actors="DamageCar@Schadebeheer,DamageCar@carglass"></assignment>
+		</task>
+		<transition to="ProfileOK"></transition>
+	</task-node>
+
+	<task-node name="CheckIntake">
+		<task name="CheckIntake">
+			 <event type="task-create">
+				<script>
+					taskInstance.setVariableLocally("implementationOrController","intakeBController")
+				</script>
+				<script>
+					taskInstance.setVariableLocally("applicationMethod","getDefaultController")
+				</script>
+				<script>
+		 			taskInstance.setVariableLocally("delayDays",new Integer(0))
+		 		</script>
+				<action	class="org.jboss.jbpm.actionhandler.SetDefaultTaskParametersAction"/>
+			</event> 
+			<assignment class="org.jboss.jbpm.assignment.CheckIntakeAssignmentHandler"></assignment>
+			<description>CheckIntake</description>
+			<assignment pooled-actors="DamageCar@Schadebeheer,DamageCar@carglass"></assignment>
+		</task>
+		<transition to="ProfileOK"></transition> 
+	</task-node>
+	
+	<decision name="IsGlassDamage">
+		<handler
+			class="org.jboss.jbpm.DecisionHandlerProxy"
+			config-type="bean">
+			<beanName>glassDamageDecisionHandler</beanName>
+		</handler>
+		<transition to="CloseClaimForm" name="false"></transition>
+		<transition to="GlassDamageSubProcess" name="true"></transition>
+	</decision>
+	
+
+	
+	<process-state name="GlassDamageSubProcess">
+      <sub-process name="glassdamageprocess" binding="late"/>
+      <variable name="CENTRALFILE_ID" access="read" mapped-name="CENTRALFILE_ID" />
+      <variable name="ClAIM_ID" access="read" mapped-name="CLAIM_ID" />
+      <transition to="IsClaimInterrupted" name="to CloseClaimForm" />
+    </process-state>
+
+	<task-node name="CloseClaimForm">
+		<task name="CloseClaimForm">
+		  <event type="task-create">
+			<script>
+				taskInstance.setVariableLocally("implementationOrController","closeClaimController")
+			</script>
+			<script>
+				taskInstance.setVariableLocally("applicationMethod","getDefaultController")
+			</script>
+			<script>
+	 			taskInstance.setVariableLocally("delayDays",new Integer(180))
+	 		</script>
+			<action	class="org.jboss.jbpm.actionhandler.SetDefaultTaskParametersAction"/>
+		  </event>
+		  <assignment class="org.jboss.jbpm.assignment.CloseClaimFormAssignmentHandler"></assignment>
+		  <description>
+			CloseClaimForm
+		  </description>
+
+		  <assignment pooled-actors="DamageCar@Schadebeheer"></assignment>
+		</task>
+		<transition to="end" name="to end"/>
+	</task-node>
+
+	<decision name="ProfileOK" >
+		<handler
+			class="org.jboss.jbpm.DecisionHandlerProxy"
+			config-type="bean">
+			<beanName>checkProfileDecisionHandler</beanName>
+		</handler>
+		<transition name="ProfileOK" to="CommPoliceReportAccessToPublicProsecutor"></transition>
+		<transition name="ProfileNOK" to="CheckIntake"></transition>
+	</decision>
+
+	<decision name="IsClaimInterrupted">
+		<handler
+			class="org.jboss.jbpm.DecisionHandlerProxy"
+			config-type="bean">
+			<beanName>isClaimInterruptedDecisionHandler</beanName>
+		</handler>
+		<transition name="true" to="end-interrupted-claims"></transition>
+		<transition name="false" to="CloseClaimForm"></transition>
+	</decision>
+
+	<decision name="CommPoliceReportAccessToPublicProsecutor">
+		<handler
+			class="org.jboss.jbpm.DecisionHandlerProxy"
+			config-type="bean">
+			<beanName>communicatePoliceReportAccessToPublicProsecutorDecisionHandler</beanName>
+		</handler>
+		<transition name="SEND_ACCESS" to="SendToProsecutor"></transition>
+		<transition name="NO_COMMUNICATION" to="IsGlassDamage"></transition>
+		<transition name="ASK_ACCESS" to="RequestAccessFromProsecutor" ></transition>
+	</decision>
+
+	<node name="SendToProsecutor">
+		<action	class="org.jboss.jbpm.ActionHandlerProxy" config-type="bean">
+			<beanName>sendPVToProsecutorActionHandler</beanName>
+		</action>
+		<transition to="IsGlassDamage"></transition>
+	</node>
+	
+	<node name="RequestAccessFromProsecutor">
+		<action	class="org.jboss.jbpm.ActionHandlerProxy" config-type="bean">
+			<beanName>requestPVToProsecutorActionHandler</beanName>
+		</action>
+		<transition to="IsGlassDamage"></transition>
+	</node>
+
+	<end-state name="end"></end-state>
+
+	<end-state name="end-interrupted-claims"></end-state>
+
+</process-definition>

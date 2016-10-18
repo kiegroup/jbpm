@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process-definition   xmlns="urn:jbpm.org:jpdl-3.2" name="payments">
+   <start-state name="start">
+      <transition to="Initialize" name="to_process_state"/>
+   </start-state>
+   <process-state name="Initialize">
+		<sub-process name="initialize_request"/>
+		<transition to="Validate request" name="to_process_state"/>
+   </process-state>
+ 
+	<process-state name="Validate request">
+		<sub-process name="validate_request"/>
+		<transition to="Match clients" name="to_process_state"/>
+	</process-state>
+
+	<process-state name="Match clients">
+		<sub-process name="match_clients"/>
+		<transition to="Acceptance" name="to_process_state"/>
+	</process-state>
+
+	<process-state name="Acceptance">
+		<sub-process name="acceptance"/>
+		<transition to="Client processing" name="to_process_state"/>
+	</process-state>
+
+
+	<process-state name="Client processing">
+		<sub-process name="client_processing"/>
+		<transition to="Product request" name="to_process_state"/>
+	</process-state>
+
+	<process-state name="Product request">
+		<sub-process name="product_request"/>
+		<transition to="Create documents" name="to_process_state"/>
+	</process-state>
+
+	<process-state name="Create documents">
+		<sub-process name="create_documents"/>
+		<transition to="Monitor client activities" name="to_process_state"/>
+	</process-state>
+
+	<process-state name="Monitor client activities">
+		<sub-process name="monitor_documents"/>
+		<transition to="Finalize request" name="to_process_state"/>
+	</process-state>
+
+	<process-state name="Finalize request" >
+		<sub-process name="finalize_request"/>
+		<transition to="end" name="to_end"/>
+	</process-state>
+
+   <end-state name="end" />
+   
+</process-definition>

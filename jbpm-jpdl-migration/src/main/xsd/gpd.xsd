@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+
+<!-- 2010/11/23: First version, based on a simple GPD example. -->
+
+<xs:schema xmlns="" xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+    <xs:element name="root-container">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="node" maxOccurs="unbounded" />
+            </xs:sequence>
+            <xs:attribute name="name" type="xs:string" />
+            <xs:attribute name="width" type="xs:int" />
+            <xs:attribute name="height" type="xs:int" />
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="node">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="edge" minOccurs="0" maxOccurs="unbounded" />
+            </xs:sequence>
+            <xs:attribute name="name" type="xs:string" />
+            <xs:attribute name="x" type="xs:int" />
+            <xs:attribute name="y" type="xs:int" />
+            <xs:attribute name="width" type="xs:int" />
+            <xs:attribute name="height" type="xs:int" />
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="edge">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="label" maxOccurs="unbounded" />
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="label">
+        <xs:complexType>
+            <xs:attribute name="x" type="xs:int" />
+            <xs:attribute name="y" type="xs:int" />
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

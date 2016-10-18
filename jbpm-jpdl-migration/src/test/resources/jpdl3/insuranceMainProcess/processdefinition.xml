@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process-definition  xmlns="urn:jbpm.org:jpdl-3.2"  name="InsuranceProcess">
+
+
+	<start-state name="start">
+		<transition to="Initialize and validate Request" />
+	</start-state>
+
+
+	<process-state name="Initialize and validate Request" async="true">
+		<sub-process name="Insurance_InitializeValidatingProcess" />
+		<variable access="read,write" name="requestId" mapped-name="requestId" />
+		<variable access="read,write" name="ORIGINAL_REQUEST" mapped-name="ORIGINAL_REQUEST"/>
+		<transition to="Initialize and validate request OK" />
+	</process-state>
+
+	<process-state name="Matching requester" async="true">
+		<sub-process name="Insurance_MatchingRequesterProcess" />
+		<variable access="read,write" name="requestId" mapped-name="requestId" />
+		<variable access="read,write" name="CREDIT_CHECK" mapped-name="CREDIT_CHECK" />
+		<variable access="read,write" name="INDICATION_INSURED_CUSTOMER" mapped-name="INDICATION_INSURED_CUSTOMER" />
+		<variable access="read,write" name="CUSTOMER_NUMBER" mapped-name="CUSTOMER_NUMBER" />
+		<variable access="read,write" name="OPPID" mapped-name="OPPID" />
+		<variable access="read,write" name="CUSTOMER_NAW" mapped-name="CUSTOMER_NAW_DATA" />
+		<variable access="read,write" name="ORIGINAL_REQUEST" mapped-name="ORIGINAL_REQUEST"/>
+		<transition to="Matching requester OK" />
+	</process-state>
+
+	<decision name="Matching requester OK">
+		<handler config-type="bean" class="org.jboss.jbpm.handler.SubProcessOKHandler">
+			<endStateNodeName>
+				Complete Request
+			</endStateNodeName>
+		</handler>
+		<transition to="Process customer data" />
+	</decision>
+
+	<process-state name="Process customer data" async="true">
+		<sub-process name="Insurance_ProcessingCustomerDataProcess" />
+		<variable access="read,write" name="requestId" mapped-name="requestId" />
+		<variable access="read,write" name="CREDIT_CHECK" mapped-name="CREDIT_CHECK" />
+		<variable access="read,write" name="INDICATION_INSURED_CUSTOMER" mapped-name="INDICATION_INSURED_CUSTOMER" />
+		<variable access="read,write" name="CUSTOMER_NUMBER" mapped-name="CUSTOMER_NUMBER" />
+		<variable access="read,write" name="OPPID" mapped-name="OPPID" />
+		<variable access="read,write" name="CUSTOMER_NAW" mapped-name="CUSTOMER_NAW_DATA" />
+		<variable access="read,write" name="L7_NEW_CUSTOMER" mapped-name="L7_NEW_CUSTOMER" />
+		<variable access="read,write" name="L7_FOUND_ACCOUNTNUMBERS" mapped-name="L7_FOUND_ACCOUNTNUMBERS" />
+		<variable access="read,write" name="L7_CUSTOMERID" mapped-name="L7_CUSTOMERID" />
+		<variable access="read,write" name="ORIGINAL_REQUEST" mapped-name="ORIGINAL_REQUEST"/>
+		<transition to="Process customer data OK" />
+	</process-state>
+
+	<decision name="Process customer data OK">
+		<handler class="org.jboss.jbpm.handler.SubProcessOKHandler">
+			<endStateNodeName>
+				Complete Request
+			</endStateNodeName>
+		</handler>
+		<transition to="Create product" />
+	</decision>
+
+	<decision name="Initialize and validate request OK">
+		<handler class="org.jboss.jbpm.handler.SubProcessOKHandler">
+			<endStateNodeName>
+				Complete Request
+			</endStateNodeName>
+		</handler>
+		<transition to="Matching requester" />
+	</decision>
+
+	<process-state name="Create product" async="true">
+		<sub-process name="Insurance_CreatingProductProcess" />
+		<variable access="read,write" name="requestId" mapped-name="requestId" />
+		<variable access="read,write" name="CREDIT_CHECK" mapped-name="CREDIT_CHECK" />
+		<variable access="read,write" name="INDICATION_INSURED_CUSTOMER" mapped-name="INDICATION_INSURED_CUSTOMER" />
+		<variable access="read,write" name="CUSTOMER_NUMBER" mapped-name="CUSTOMER_NUMBER" />
+		<variable access="read,write" name="OPPID" mapped-name="OPPID" />
+		<variable access="read,write" name="CUSTOMER_NAW" mapped-name="CUSTOMER_NAW_DATA" />
+		<variable access="read,write" name="L7_NEW_CUSTOMER" mapped-name="L7_NEW_CUSTOMER" />
+		<variable access="read,write" name="L7_FOUND_ACCOUNTNUMBERS" mapped-name="L7_FOUND_ACCOUNTNUMBERS" />
+		<variable access="read,write" name="L7_POLICY_NUMBER" mapped-name="L7_POLICY_NUMBER" />
+		<variable access="read,write" name="L7_CUSTOMERID" mapped-name="L7_CUSTOMERID" />
+		<variable access="read,write" name="ORIGINAL_REQUEST" mapped-name="ORIGINAL_REQUEST"/>
+		<transition to="Create product OK" />
+	</process-state>
+
+	<decision name="Create product OK">
+		<handler class="org.jboss.jbpm.handler.SubProcessOKHandler">
+			<endStateNodeName>
+				Voltooien aanvraag
+			</endStateNodeName>
+		</handler>
+		<transition to="Complete request" />
+	</decision>
+
+	<process-state name="Complete request" async="true">
+		<sub-process name="Insurance_CompletingRequestProcess" />
+		<variable access="read,write" name="requestId" mapped-name="requestId" />
+		<variable access="read,write" name="CREDIT_CHECK" mapped-name="CREDIT_CHECK" />
+		<variable access="read,write" name="INDICATION_INSURED_CUSTOMER" mapped-name="INDICATION_INSURED_CUSTOMER" />
+		<variable access="read,write" name="CUSTOMER_NUMBER" mapped-name="CUSTOMER_NUMBER" />
+		<variable access="read,write" name="OPPID" mapped-name="OPPID" />
+		<variable access="read,write" name="CUSTOMER_NAW" mapped-name="CUSTOMER_NAW_DATA" />
+		<variable access="read,write" name="L7_NEW_CUSTOMER" mapped-name="L7_NEW_CUSTOMER" />
+		<variable access="read,write" name="L7_FOUND_ACCOUNTNUMBERS" mapped-name="L7_FOUND_ACCOUNTNUMBERS" />
+		<variable access="read,write" name="L7_POLICY_NUMBER" mapped-name="L7_POLICY_NUMBER" />
+		<variable access="read,write" name="L7_CUSTOMERID" mapped-name="L7_CUSTOMERID" />
+		<variable access="read,write" name="ORIGINAL_REQUEST" mapped-name="ORIGINAL_REQUEST"/>
+		<transition to="Complete request OK" />
+	</process-state>
+
+	<decision name="Complete request OK">
+		<transition to="end" />
+	</decision>
+
+
+	<end-state name="end" />
+
+
+</process-definition>

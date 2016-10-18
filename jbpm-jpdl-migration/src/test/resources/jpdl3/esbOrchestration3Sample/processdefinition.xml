@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process-definition xmlns="urn:jbpm.org:jpdl-3.2" name="bpm_orchestration3Process">
+
+
+	<start-state name="start-state1">
+		<transition to="Service 1"></transition>
+	</start-state>
+
+
+	<node name="Service 1">
+		<action name="esbAction"
+			class="org.jboss.soa.esb.services.jbpm.actionhandlers.EsbActionHandler">
+			<esbCategoryName>
+				BPM_Orchestration3_Service1
+			</esbCategoryName>
+			<esbServiceName>Service1</esbServiceName>
+			<bpmToEsbVars>
+				<mapping bpm="theBody" esb="BODY_CONTENT" />
+			</bpmToEsbVars>
+			<esbToBpmVars>
+				<mapping esb="BODY_CONTENT" bpm="theBody"/>
+			</esbToBpmVars>
+		</action>
+		<transition to="Service 2"></transition>
+	</node>
+
+	<node name="Service 2">
+		<action name="esbAction"
+			class="org.jboss.soa.esb.services.jbpm.actionhandlers.EsbActionHandler">
+			<esbCategoryName>
+				BPM_Orchestration3_Service2
+			</esbCategoryName>
+			<esbServiceName>Service2</esbServiceName>
+			<bpmToEsbVars>
+				<mapping bpm="theBody" esb="BODY_CONTENT" />
+			</bpmToEsbVars>
+			<esbToBpmVars>
+				<mapping esb="BODY_CONTENT" bpm="theBody" />
+			</esbToBpmVars>
+		</action>
+		<transition to="Service 3"></transition>
+	</node>
+
+	<node name="Service 3">
+		<action name="esbAction"
+			class="org.jboss.soa.esb.services.jbpm.actionhandlers.EsbActionHandler">
+			<esbCategoryName>
+				BPM_Orchestration3_Service3
+			</esbCategoryName>
+			<esbServiceName>Service3</esbServiceName>
+			<bpmToEsbVars>
+				<mapping bpm="theBody" esb="BODY_CONTENT" />
+			</bpmToEsbVars>
+			<esbToBpmVars>
+				<mapping esb="BODY_CONTENT" bpm="theBody" />
+			</esbToBpmVars>
+		</action>
+		<transition to="end-state1"></transition>
+	</node>
+
+
+	<end-state name="end-state1"></end-state>
+
+
+</process-definition>

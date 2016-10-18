@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<root-container name="Insurance_CreateProductProcess" width="1090" height="484">
+  <node name="start" x="206" y="53" width="132" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node name="level relatie" x="198" y="134" width="132" height="36">
+    <edge>
+      <label x="68" y="29"/>
+    </edge>
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+    <edge>
+      <label x="-137" y="131"/>
+    </edge>
+    <edge>
+      <label x="-158" y="-38"/>
+    </edge>
+  </node>
+  <node name="determine active policy" x="445" y="246" width="206" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node name="writePolicy" x="56" y="237" width="132" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node name="end" x="300" y="378" width="132" height="36"/>
+</root-container>

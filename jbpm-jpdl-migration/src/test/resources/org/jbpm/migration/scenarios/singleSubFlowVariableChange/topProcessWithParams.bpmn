@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:drools="http://www.jboss.org/drools" xmlns:jpdl="urn:jbpm.org:jpdl-3.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="singleSubFlowVariableChange" name="singleSubFlowVariableChange" targetNamespace="http://www.jbpm.org/">
+  <itemDefinition id="priceItem" structureRef="Integer" />
+
+    <process id="singleSubFlowVariableChange_Process" name="singleSubFlowVariableChange">
+        <property id="price" itemSubjectRef="priceItem" />
+        
+        <startEvent id="start-state" name="start-state"/>
+        <sequenceFlow id="flow_start-state1" sourceRef="start-state" targetRef="sub-flow"/>
+        <callActivity calledElement="org.jbpm.migration.scenarios.singleSubFlowVariableChange.subprocess" id="sub-flow" name="sub-flow">
+            <ioSpecification>
+                <dataInput id="price_Input" name="newPrice"/>
+                <dataOutput id="price_Output" name="newPrice"/>
+                <inputSet>
+                    <dataInputRefs>price_Input</dataInputRefs>
+                </inputSet>
+                <outputSet>
+                    <dataOutputRefs>price_Output</dataOutputRefs>
+                </outputSet>
+            </ioSpecification>
+            <dataInputAssociation>
+                <sourceRef>price</sourceRef>
+                <targetRef>price_Input</targetRef>
+            </dataInputAssociation>
+            <dataOutputAssociation>
+                <sourceRef>price_Output</sourceRef>
+                <targetRef>price</targetRef>
+            </dataOutputAssociation>
+        </callActivity>
+        <sequenceFlow id="flow_sub-flow1" sourceRef="sub-flow" targetRef="end-state"/>
+        <endEvent id="end-state" name="end-state"/>
+    </process>
+</definitions>

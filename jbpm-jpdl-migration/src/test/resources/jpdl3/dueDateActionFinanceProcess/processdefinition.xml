@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process-definition xmlns="urn:jbpm.org:jpdl-3.2"
+	name="dueDateActionFinanceProcess">
+	<description>dueDateActionFinanceProcess</description>
+
+	<start-state name="start">
+		<description>startDueDateActionFinanceProcess</description>
+		<transition to="dueDateActionWaitState"></transition>
+	</start-state>
+
+	<state name="dueDateActionWaitState">
+		<event type="node-enter">
+			<action class="org.jboss.workflow.jbpm.ActionHandlerGetDueDate" />
+		</event>
+		<timer name="overDueTimer" duedate="#{dueDate}" transition="continue">
+			<action
+				class="org.jboss.workflow.jbpm.ActionHandlerViaVariableProxy"
+				config-type="bean" />
+		</timer>
+		<transition name="continue" to="isMaximumDueDateActionsReached"></transition>
+	</state>
+
+	<decision name="isMaximumDueDateActionsReached">
+		<handler
+			class="org.jboss.workflow.jbpm.DecisionHandlerViaVariableProxy"
+			config-type="bean" />
+		<transition name="false" to="dueDateActionWaitState"></transition>
+		<transition name="true" to="end-state"></transition>
+	</decision>
+
+	<end-state name="end-state">
+		<description>endDueDateActionFinanceProcess</description>
+	</end-state>
+
+</process-definition>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:_0="http://www.jboss.org/jbpm/migrationtool/singleNodeConversion" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="singleNodeConversion" targetNamespace="http://www.jboss.org/jbpm/migrationtool/singleNodeConversion">
+  <process id="singleNodeConversionProcess" name="singleNodeCoversionProcess">
+    <startEvent id="start" name="start-state">
+      <outgoing>flow1</outgoing>
+    </startEvent>
+    <sequenceFlow id="flow1" name="to_node" sourceRef="start" targetRef="node"/>
+    <scriptTask id="node" name="node" scriptFormat="java">
+      <incoming>flow1</incoming>
+      <outgoing>flow2</outgoing>
+      <script>System.out.println(&quot;Demo&quot;);</script>
+    </scriptTask>
+    <sequenceFlow id="flow2" name="to_end" sourceRef="node" targetRef="end"/>
+    <endEvent id="end" name="end-state">
+      <incoming>flow2</incoming>
+    </endEvent>
+  </process>
+  <bpmndi:BPMNDiagram id="_M-3lMMn3EeKBK6SD4cEcKg">
+    <bpmndi:BPMNPlane id="_M-4MQMn3EeKBK6SD4cEcKg" bpmnElement="_0:singleNodeConversion">
+      <bpmndi:BPMNShape id="start_gui" bpmnElement="_0:start">
+        <dc:Bounds height="30.0" width="30.0" x="100.0" y="35.0"/>
+        <bpmndi:BPMNLabel id="_M-4MQcn3EeKBK6SD4cEcKg"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="node_gui" bpmnElement="_0:node">
+        <dc:Bounds height="40.0" width="50.0" x="90.0" y="105.0"/>
+        <bpmndi:BPMNLabel id="_M-4MQsn3EeKBK6SD4cEcKg"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_gui" bpmnElement="_0:end">
+        <dc:Bounds height="28.0" width="28.0" x="101.0" y="182.0"/>
+        <bpmndi:BPMNLabel id="_M-4MQ8n3EeKBK6SD4cEcKg"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="flow1_gui" bpmnElement="_0:flow1">
+        <di:waypoint xsi:type="dc:Point" x="115.0" y="65.0"/>
+        <di:waypoint xsi:type="dc:Point" x="115.0" y="105.0"/>
+        <bpmndi:BPMNLabel id="_M-4MRMn3EeKBK6SD4cEcKg"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow2_gui" bpmnElement="_0:flow2">
+        <di:waypoint xsi:type="dc:Point" x="115.0" y="145.0"/>
+        <di:waypoint xsi:type="dc:Point" x="115.0" y="182.0"/>
+        <bpmndi:BPMNLabel id="_M-4MRcn3EeKBK6SD4cEcKg"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

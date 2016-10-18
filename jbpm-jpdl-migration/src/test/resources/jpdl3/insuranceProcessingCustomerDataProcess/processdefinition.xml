@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process-definition  xmlns="urn:jbpm.org:jpdl-3.2"  name="Insurance_ProcessingCustomerDataProcess">
+
+
+	<start-state name="start">
+		<transition to="Level of relationshop in request" />
+	</start-state>
+
+
+	<node name="Get level of relationship" async="true">
+		<action class="org.jboss.jbpm.handler.OphalenLevelRelatieHandler" />
+		<transition to="Create level relationship" name="relationship unknown" />
+		<transition to="Insurance customer" name="relationship known" />
+	</node>
+
+	<node name="change insurance status in system" async="true">
+		<action class="org.jboss.jbpm.handler.WijzigVerzekeringstatusHandler" />
+		<transition to="end" />
+	</node>
+
+	<decision name="Insurance customer" async="true">
+		<handler class="org.jboss.jbpm.handler.Insurance customerHandler" />
+		<transition to="end" name="insurance status known" />
+		<transition to="change insurance status in system" name="insurance status unknown" />
+	</decision>
+
+	<state name="Create level relationship" async="true">
+		<event type="node-enter">
+			<action class="org.jboss.jbpm.handler.OpvoerenLevelRelatieHandler" />
+		</event>
+		<event type="node-leave">
+			<action class="org.jboss.jbpm.handler.OpvoerenLevelRelatieHandler" />
+		</event>
+		<transition to="Insurance customer">
+			<action class="org.jboss.jbpm.handler.SetVariableHandler" config-type="bean">
+				<name>
+					name
+				</name>
+			</action>
+		</transition>
+	</state>
+
+	<decision name="Level of relationshop in request" async="true">
+		<handler class="org.jboss.jbpm.handler.LevelRelatieInAanvraagHandler" />
+		<transition to="Insurance customer" name="yes" />
+		<transition to="Get level of relationship" name="no" />
+	</decision>
+
+
+	<end-state name="end" />
+
+
+</process-definition>

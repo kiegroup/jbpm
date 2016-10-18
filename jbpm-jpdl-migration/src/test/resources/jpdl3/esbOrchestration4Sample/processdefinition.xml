@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process-definition xmlns="urn:jbpm.org:jpdl-3.2" name="bpm4_ESBOrderProcess">
+   <start-state name="start">
+      <transition name="" to="Intake Order"></transition>
+   </start-state>
+
+   <node name="Intake Order">
+         
+         <action name="esbAction" class="org.jboss.soa.esb.services.jbpm.actionhandlers.EsbActionHandler">
+            <esbCategoryName>BPM_Orchestration4</esbCategoryName>
+            <esbServiceName>IntakeService</esbServiceName>
+            <!-- async call of IntakeService -->            
+		    <bpmToEsbVars>
+            	<mapping bpm="entireOrderAsXML" esb="BODY_CONTENT" />            	
+            </bpmToEsbVars>
+            <esbToBpmVars>
+            	<mapping esb="body.entireOrderAsXML" bpm="entireOrderAsXML" />
+				<mapping esb="body.orderHeader" bpm="entireOrderAsObject" />
+				<mapping esb="body.customer" bpm="entireCustomerAsObject" />							
+				<mapping esb="body.order_orderId" bpm="order_orderid" />
+				<mapping esb="body.order_totalAmount" bpm="order_totalamount" />	
+				<mapping esb="body.order_orderPriority" bpm="order_priority" />
+				<mapping esb="body.customer_firstName" bpm="customer_firstName" />
+				<mapping esb="body.customer_lastName" bpm="customer_lastName" />
+				<mapping esb="body.customer_status" bpm="customer_status" />            	
+            </esbToBpmVars>
+         </action>
+         
+      <transition name="" to="Review Order"></transition>
+   </node>
+   
+   <task-node name="Review Order">
+      <task name="Order Review">
+         <assignment actor-id="user"></assignment>
+			<controller>
+            <variable name="customer_firstName" access="read,write,required"/>
+            <variable name="customer_lastName" access="read,write,required"/>
+            <variable name="customer_status" access="read,write"/>
+            <variable name="order_totalamount" access="read"/>
+            <variable name="order_priority" access="read"/>
+            <variable name="order_orderid" access="read"/>
+            <variable name="order_discount" access="read"/>
+            <variable name="entireOrderAsXML" access="read"/>
+         </controller>
+      </task>     
+      <transition name="" to="Calculate Discount"/>
+   </task-node>
+   
+   <node name="Calculate Discount">         
+          
+         <action name="esbAction" class="org.jboss.soa.esb.services.jbpm.actionhandlers.EsbActionHandler">
+            <esbCategoryName>BPM_Orchestration4</esbCategoryName>
+            <esbServiceName>DiscountService</esbServiceName>         
+			<bpmToEsbVars>
+				<mapping bpm="entireCustomerAsObject" esb="body.customer" />
+				<mapping bpm="customer_firstName" esb="body.customer.firstName" />
+				<mapping bpm="customer_lastName" esb="body.customer.lastName" />
+				<mapping bpm="customer_status" esb="body.customer.status" />
+				<mapping bpm="entireOrderAsObject" esb="orderHeader" />
+				<mapping bpm="entireOrderAsXML" esb="BODY_CONTENT" />
+			</bpmToEsbVars>
+            <esbToBpmVars>
+            	<mapping bpm="entireOrderAsObject" esb="order" />
+            	<mapping esb="body.order_orderDiscount" bpm="order_discount" />
+				<mapping esb="body.customer.firstName" bpm="customer_firstName" />
+				<mapping esb="body.customer.lastName" bpm="customer_lastName" />
+				<mapping esb="body.customer.status" bpm="customer_status" />            	
+			</esbToBpmVars>         
+         </action>
+          
+      <transition name="" to="Review Discount"></transition>
+   </node>
+
+   <task-node name="Review Discount">
+      <task name="Discount Review">
+			<assignment actor-id="manager"></assignment>
+		</task>
+      <transition name="" to="Ship It"></transition>
+   </task-node>
+
+   <node name="Ship It">
+      <transition name="" to="end">
+      	<action name="esbAction" class="org.jboss.soa.esb.services.jbpm.actionhandlers.EsbNotifier">
+           <esbCategoryName>BPM_Orchestration4</esbCategoryName>
+           <esbServiceName>ShippingService</esbServiceName>                           
+		   <bpmToEsbVars><mapping bpm="entireCustomerAsObject" esb="customer" />
+				<mapping bpm="customer_firstName" esb="body.customer.firstName" />
+				<mapping bpm="customer_lastName" esb="body.customer.lastName" />
+				<mapping bpm="entireOrderAsObject" esb="orderHeader" />
+				<mapping bpm="entireOrderAsXML" esb="entireOrderAsXML" />
+	       </bpmToEsbVars>
+	    </action>
+      </transition>
+   </node>
+   
+   <end-state name="end"></end-state>
+ 
+</process-definition>

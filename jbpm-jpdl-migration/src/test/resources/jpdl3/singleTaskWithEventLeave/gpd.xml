@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<root-container name="singleTaskWithEventLeave" width="771" height="331">
+  <node name="start-state" x="73" y="85" width="132" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node name="human-task" x="77" y="179" width="132" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node name="end-state" x="70" y="279" width="132" height="36"/>
+</root-container>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process-definition  xmlns="urn:jbpm.org:jpdl-3.2"  name="singleTask">
+
+
+	<start-state name="start-state">
+		<transition to="human-task"></transition>
+	</start-state>
+
+
+	<task-node name="human-task">
+		<description>
+			A human task.
+		</description>
+		<task name="Test task">
+			<description>
+				A test task.
+			</description>
+			<assignment actor-id="EXPERT" />
+		</task>
+		<transition to="end-state"></transition>
+	</task-node>
+
+
+	<end-state name="end-state"></end-state>
+
+
+</process-definition>

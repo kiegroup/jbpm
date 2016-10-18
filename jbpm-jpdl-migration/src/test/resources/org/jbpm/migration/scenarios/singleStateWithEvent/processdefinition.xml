@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process-definition  xmlns="urn:jbpm.org:jpdl-3.2"  name="singleState">
+
+
+	<start-state name="start-state">
+		<transition to="state"></transition>
+	</start-state>
+
+
+	<state name="state">
+		<event type="node-enter">
+            <action class="org.jbpm.migration.tools.jpdl.handlers.DefaultActionHandler" />
+        </event>
+		<event type="node-leave">
+            <action class="org.jbpm.migration.tools.jpdl.handlers.DefaultActionHandler" />
+        </event>
+	
+	
+		<transition to="end-state"></transition>
+	</state>
+
+
+	<end-state name="end-state"></end-state>
+
+
+</process-definition>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<root-container name="superStates" width="883" height="704">
+  <node name="start-state1" x="332" y="101" width="132" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node name="fork1" x="274" y="209" width="252" height="24">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node name="join1" x="278" y="558" width="252" height="24">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node-container name="super-state1" x="43" y="278" width="360" height="240">
+    <node name="node1" x="110" y="79" width="132" height="36">
+      <edge>
+        <label x="5" y="-10"/>
+      </edge>
+    </node>
+  </node-container>
+  <node-container name="super-state2" x="522" y="277" width="360" height="240">
+    <node name="node1" x="146" y="93" width="132" height="36">
+      <edge>
+        <label x="5" y="-10"/>
+      </edge>
+    </node>
+  </node-container>
+  <node name="end-state1" x="337" y="667" width="132" height="36"/>
+</root-container>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process-definition  xmlns="urn:jbpm.org:jpdl-3.2"  name="swimlanesTest">
+    <swimlane name="groupA">
+        <assignment actor-id="1111" />
+    </swimlane>
+        
+    <swimlane name="groupB" >
+        <assignment actor-id="2222" />
+    </swimlane>
+
+	<start-state name="start-state1">
+		<transition to="task-node1"></transition>
+	</start-state>
+
+	<task-node name="task-node1">
+		<task swimlane="groupA"></task>
+		<transition to="task-node2"></transition>
+	</task-node>
+
+	<task-node name="task-node2">
+		<task swimlane="groupB"></task>
+		<transition to="end-state1"></transition>
+	</task-node>
+
+	<end-state name="end-state1"></end-state>
+
+</process-definition>

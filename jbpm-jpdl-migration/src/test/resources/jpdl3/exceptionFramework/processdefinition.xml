@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process-definition  xmlns="urn:jbpm.org:jpdl-3.2"  name="Exception Framework">
+
+   <start-state name="start">
+		<transition to="Determine Exception Handling" />
+	</start-state>
+
+	<decision name="Determine Exception Handling">
+		<handler class="org.jboss.handler.DetermineExceptionHandlingHandler" />
+		<transition to="Human Task" name="No" />
+        <transition to="Retry" name="Yes" />
+    </decision>
+
+    <task-node name="Human Task">
+		<task name="Technical dropout">
+			<assignment actor-id="EXPERT" />
+		</task>
+		<event type="node-enter">
+			<action class="org.jboss.handler.HumanTaskHandler"></action>
+		</event>
+        <event type="node-leave">
+            <action class="org.jboss.handler.HumanTaskHandler" />
+        </event>
+		<transition to="join"></transition>
+	</task-node>
+
+    <state name="Retry">
+        <event type="node-enter">
+            <action class="org.jboss.handler.RetryHandler" />
+        </event>
+		<transition to="join" />
+    </state>
+
+	<node name="Trigger Originating Process">
+    	<action class="org.jboss.handler.TriggerOriginatingProcessHandler" />
+		<transition to="end" />
+	</node>
+
+	<join name="join">
+		<transition to="Trigger Originating Process" />
+	</join>
+	
+	<end-state name="end" />
+    
+</process-definition>

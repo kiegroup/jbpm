@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<root-container name="dueDateActionFinanceProcess" width="1090" height="484">
+  <node name="start" x="157" y="44" width="132" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node name="dueDateActionWaitState" x="139" y="141" width="180" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node name="isMaximumDueDateActionsReached" x="106" y="255" width="240" height="36">
+    <edge>
+      <label x="-39" y="-3"/>
+      <bendpoint w1="-51" h1="-61" w2="-56" h2="59"/>
+    </edge>
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node name="end-state" x="158" y="349" width="132" height="36"/>
+</root-container>

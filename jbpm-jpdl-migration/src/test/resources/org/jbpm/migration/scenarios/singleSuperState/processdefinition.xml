@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process-definition  xmlns="urn:jbpm.org:jpdl-3.2"  name="singleSuperState">
+
+    <start-state name="start-state1">
+        <transition to="super-state1/task-node1"></transition>
+    </start-state>
+
+
+    <super-state name="super-state1">
+        <node name="task-node1">           
+            <transition to="../super-state2/task-node1"></transition>
+        </node>
+        <node name="task-node2">      
+            <transition to="../end-state1"></transition>
+        </node>
+        
+    </super-state>
+
+    <super-state name="super-state2">
+        <node name="task-node1">
+            <transition to="task-node2"/>
+        </node>
+        <node name="task-node2">
+            <transition to="../super-state1/task-node2"/>
+        </node>
+    </super-state>
+
+
+    <end-state name="end-state1"></end-state>
+
+</process-definition>
