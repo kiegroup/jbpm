@@ -31,14 +31,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jbpm.executor.entities.ErrorInfo;
 import org.jbpm.executor.entities.RequestInfo;
 import org.jbpm.executor.impl.event.ExecutorEventSupport;
-import org.kie.api.executor.Command;
-import org.kie.api.executor.CommandCallback;
-import org.kie.api.executor.CommandContext;
-import org.kie.api.executor.ExecutionResults;
-import org.kie.api.executor.ExecutorQueryService;
-import org.kie.api.executor.ExecutorStoreService;
-import org.kie.api.executor.Reoccurring;
-import org.kie.api.executor.STATUS;
+import org.kie.api.executor.*;
 import org.kie.internal.runtime.manager.InternalRuntimeManager;
 import org.kie.internal.runtime.manager.RuntimeManagerRegistry;
 import org.slf4j.Logger;
@@ -87,7 +80,8 @@ public abstract class AbstractAvailableJobsExecutor {
             eventSupport.fireBeforeJobExecuted(request, null);
             if (request != null) {
             	boolean processReoccurring = false;
-            	Command cmd = null;
+                boolean asyncCallback = false;
+            	CommandBase cmd = null;
                 CommandContext ctx = null;
                 List<CommandCallback> callbacks = null;
                 ClassLoader cl = getClassLoader(request.getDeploymentId());
@@ -117,34 +111,92 @@ public abstract class AbstractAvailableJobsExecutor {
                     // add class loader so internally classes can be created with valid (kjar) deployment
                     ctx.setData("ClassLoader", cl);
                     
-                    
                     cmd = classCacheManager.findCommand(request.getCommandName(), cl);
-                    ExecutionResults results = cmd.execute(ctx);
-                    
-                    callbacks = classCacheManager.buildCommandCallback(ctx, cl);                
-                    
-                    for (CommandCallback handler : callbacks) {
-                        
-                        handler.onCommandDone(ctx, results);
-                    }
-                    
-                    if (results != null) {
-                        try {
-                            ByteArrayOutputStream bout = new ByteArrayOutputStream();
-                            ObjectOutputStream out = new ObjectOutputStream(bout);
-                            out.writeObject(results);
-                            byte[] respData = bout.toByteArray();
-                            request.setResponseData(respData);
-                        } catch (IOException e) {
-                            request.setResponseData(null);
+                    if (cmd instanceof Command) {
+                        ExecutionResults results = ((Command) cmd).execute(ctx);
+
+                        callbacks = classCacheManager.buildCommandCallback(ctx, cl);
+
+                        for (CommandCallback handler : callbacks) {
+
+                            handler.onCommandDone(ctx, results);
                         }
+
+                        if (results != null) {
+                            try {
+                                ByteArrayOutputStream bout = new ByteArrayOutputStream();
+                                ObjectOutputStream out = new ObjectOutputStream(bout);
+                                out.writeObject(results);
+                                byte[] respData = bout.toByteArray();
+                                request.setResponseData(respData);
+                            } catch (IOException e) {
+                                request.setResponseData(null);
+                            }
+                        }
+
+                        request.setStatus(STATUS.DONE);
+
+                        executorStoreService.updateRequest(request);
+                        processReoccurring = true;
+
+                    } else if (cmd instanceof CommandAsync) {
+                        ;
+                        if (request.getStatus() != STATUS.RUNNING_CALLBACK) {
+                            //request
+                            logger.debug("Async command processing request");
+
+                            ((CommandAsync) cmd).execute(ctx, request.getId());
+
+                            request.setStatus(STATUS.WAITING_ASYNC);
+
+                            executorStoreService.updateRequest(request);
+                            processReoccurring = true;
+
+                        } else {
+                            //response
+                            logger.debug("Async command processing response");
+
+                            processReoccurring = false;
+                            asyncCallback = true;
+
+                            ExecutionResults results = null;
+                            byte[] responseData = request.getResponseData();
+                            if (responseData != null) {
+                                ObjectInputStream in = null;
+                                try {
+                                    in = new ObjectInputStream(new ByteArrayInputStream(responseData));
+                                    results = (ExecutionResults) in.readObject();
+                                } catch (Exception e) {
+                                    logger.warn("Exception while deserializing execution results", e);
+                                    throw e;
+                                } finally {
+                                    if (in != null) {
+                                        try {
+                                            in.close();
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                }
+                            }
+
+                            callbacks = classCacheManager.buildCommandCallback(ctx, cl);
+
+                            for (CommandCallback handler : callbacks) {
+                                handler.onCommandDone(ctx, results);
+                            }
+
+                            request.setStatus(STATUS.DONE);
+
+                            executorStoreService.updateRequest(request);
+                        }
+
+                    } else {
+                        throw new UnsupportedClassVersionError(cmd.getClass().getName()
+                                + " does not implement " + Command.class.getName()
+                                + " nor " + CommandAsync.class.getName());
                     }
-    
-                    request.setStatus(STATUS.DONE);
-                     
-                    executorStoreService.updateRequest(request);
-                    processReoccurring = true;
-                    
+
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 } catch (Throwable e) {
@@ -152,7 +204,8 @@ public abstract class AbstractAvailableJobsExecutor {
                     callbacks = classCacheManager.buildCommandCallback(ctx, cl);  
                     
                 	processReoccurring = handleException(request, e, ctx, callbacks);
-                	
+
+                    processReoccurring &= asyncCallback;
                 } finally {
                 	handleCompletion(processReoccurring, cmd, ctx);
                 	eventSupport.fireAfterJobExecuted(request, exception);
@@ -233,7 +286,7 @@ public abstract class AbstractAvailableJobsExecutor {
         }
     }
     
-    protected void handleCompletion(boolean processReoccurring, Command cmd, CommandContext ctx) {
+    protected void handleCompletion(boolean processReoccurring, CommandBase cmd, CommandContext ctx) {
         if (processReoccurring && cmd != null && cmd instanceof Reoccurring) {
             Date current = new Date();
             Date nextScheduleTime = ((Reoccurring) cmd).getScheduleTime();

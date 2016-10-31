@@ -460,6 +460,46 @@ public class AsyncWorkItemHandlerTest extends AbstractExecutorBaseTest {
         processInstance = runtime.getKieSession().getProcessInstance(processInstance.getId());
         assertNull(processInstance);
     }
+
+    @Test(timeout=30000)
+    public void testRunProcessWithAsyncCallbackHandler() throws Exception {
+        final CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("Hello", 1);
+        RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get().newDefaultBuilder()
+                .userGroupCallback(userGroupCallback)
+                .addAsset(ResourceFactory.newClassPathResource("BPMN2-ScriptTask.bpmn2"), ResourceType.BPMN2)
+                .registerableItemsFactory(new DefaultRegisterableItemsFactory() {
+
+                    @Override
+                    public Map<String, WorkItemHandler> getWorkItemHandlers(RuntimeEngine runtime) {
+
+                        Map<String, WorkItemHandler> handlers = super.getWorkItemHandlers(runtime);
+                        handlers.put("async", new AsyncWorkItemHandler(executorService, "org.jbpm.executor.commands.AsyncCommand"));
+                        return handlers;
+                    }
+                    @Override
+                    public List<ProcessEventListener> getProcessEventListeners( RuntimeEngine runtime) {
+                        List<ProcessEventListener> listeners = super.getProcessEventListeners(runtime);
+                        listeners.add(countDownListener);
+                        return listeners;
+                    }
+                })
+                .get();
+
+        manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);
+        assertNotNull(manager);
+
+        RuntimeEngine runtime = manager.getRuntimeEngine(EmptyContext.get());
+        KieSession ksession = runtime.getKieSession();
+        assertNotNull(ksession);
+
+        ProcessInstance processInstance = ksession.startProcess("ScriptTask");
+        assertEquals(ProcessInstance.STATE_ACTIVE, processInstance.getState());
+
+        Thread.sleep(10000);
+
+        processInstance = runtime.getKieSession().getProcessInstance(processInstance.getId());
+        assertNull(processInstance);
+    }
     
     private ExecutorService buildExecutorService() {        
         emf = Persistence.createEntityManagerFactory("org.jbpm.executor");

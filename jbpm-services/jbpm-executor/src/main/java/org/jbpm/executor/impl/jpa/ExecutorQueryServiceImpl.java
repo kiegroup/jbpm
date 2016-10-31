@@ -238,7 +238,11 @@ public class ExecutorQueryServiceImpl implements ExecutorQueryService {
 				request = ctx.queryAndLockWithParametersInTransaction("PendingRequestsForProcessing",params, true, RequestInfo.class);
 				
 				if (request != null) {
-	                request.setStatus(STATUS.RUNNING);
+                    if (request.getStatus() == STATUS.QUEUED_CALLBACK) {
+                        request.setStatus(STATUS.RUNNING_CALLBACK);
+                    } else {
+                        request.setStatus(STATUS.RUNNING);
+                    }
 	                // update date on when it was started to be executed
 	                ((org.jbpm.executor.entities.RequestInfo)request).setTime(new Date());
 	                ctx.merge(request);
@@ -272,7 +276,11 @@ public class ExecutorQueryServiceImpl implements ExecutorQueryService {
                 request = foundInstance.get(0);
                 
                 if (request != null) {
-                    request.setStatus(STATUS.RUNNING);
+                    if (request.getStatus() == STATUS.QUEUED_CALLBACK) {
+                        request.setStatus(STATUS.RUNNING_CALLBACK);
+                    } else {
+                        request.setStatus(STATUS.RUNNING);
+                    }
                     // update date on when it was started to be executed
                         ((org.jbpm.executor.entities.RequestInfo)request).setTime(new Date());
                         ctx.merge(request);
