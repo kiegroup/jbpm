@@ -34,6 +34,7 @@ import java.io.ObjectOutput;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class DefaultSignalManager implements SignalManager {
@@ -50,14 +51,18 @@ public class DefaultSignalManager implements SignalManager {
 	}
 
 	public void addEventListener(String type, EventListener eventListener) {
-		if (processEventListeners == null) {
-			processEventListeners = new HashMap<String, List<EventListener>>();
+		synchronized(processEventListeners){
+			if (processEventListeners == null) {
+				processEventListeners = new ConcurrentHashMap<String, List<EventListener>>();
+			}
 		}
 		List<EventListener> eventListeners = processEventListeners.get(type);
-		if (eventListeners == null) {
-			eventListeners = new CopyOnWriteArrayList<EventListener>();
-			processEventListeners.put(type, eventListeners);
-		}
+		synchronized(eventListeners){
+			if (eventListeners == null) {
+				eventListeners = new CopyOnWriteArrayList<EventListener>();
+				processEventListeners.put(type, eventListeners);
+			}
+		}		
 		eventListeners.add(eventListener);
 	}
 	
