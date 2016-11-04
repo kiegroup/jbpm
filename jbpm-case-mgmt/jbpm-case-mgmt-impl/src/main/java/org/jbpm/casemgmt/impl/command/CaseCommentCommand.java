@@ -16,10 +16,8 @@
 
 package org.jbpm.casemgmt.impl.command;
 
-import java.util.Collection;
-
 import org.drools.core.ClassObjectFilter;
-import org.drools.core.command.impl.KnowledgeCommandContext;
+import org.drools.core.command.impl.RegistryContext;
 import org.jbpm.casemgmt.api.model.instance.CaseFileInstance;
 import org.jbpm.casemgmt.api.model.instance.CommentInstance;
 import org.jbpm.casemgmt.impl.event.CaseEventSupport;
@@ -28,6 +26,8 @@ import org.jbpm.casemgmt.impl.model.instance.CommentInstanceImpl;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.rule.FactHandle;
 import org.kie.internal.command.Context;
+
+import java.util.Collection;
 
 /**
  * Adds or removes comment to/from case
@@ -67,7 +67,7 @@ public class CaseCommentCommand extends CaseCommand<Void> {
     
     @Override
     public Void execute(Context context) {
-        KieSession ksession = ((KnowledgeCommandContext) context).getKieSession();
+        KieSession ksession = ((RegistryContext) context).lookup( KieSession.class );
         
         Collection<? extends Object> caseFiles = ksession.getObjects(new ClassObjectFilter(CaseFileInstance.class));
         if (caseFiles.size() != 1) {
