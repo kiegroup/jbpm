@@ -16,15 +16,8 @@
 
 package org.jbpm.kie.services.impl;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.drools.core.command.impl.GenericCommand;
-import org.drools.core.command.impl.KnowledgeCommandContext;
+import org.drools.core.command.impl.ExecutableCommand;
+import org.drools.core.command.impl.RegistryContext;
 import org.drools.core.command.runtime.process.SetProcessInstanceVariablesCommand;
 import org.drools.core.command.runtime.process.StartProcessCommand;
 import org.drools.core.process.instance.WorkItemManager;
@@ -59,6 +52,13 @@ import org.kie.internal.runtime.manager.context.CorrelationKeyContext;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ProcessServiceImpl implements ProcessService, VariablesAware {
 	
@@ -310,13 +310,13 @@ public class ProcessServiceImpl implements ProcessService, VariablesAware {
         RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstanceId));
         KieSession ksession = engine.getKieSession();
         try {
-            Object variable = ksession.execute(new GenericCommand<Object>() {
+            Object variable = ksession.execute(new ExecutableCommand<Object>() {
 
                 private static final long serialVersionUID = -2693525229757876896L;
 
                 @Override
                 public Object execute(org.kie.internal.command.Context context) {
-                    KieSession ksession = ((KnowledgeCommandContext) context).getKieSession();
+                    KieSession ksession = ((RegistryContext) context).lookup( KieSession.class );
                     WorkflowProcessInstance pi = (WorkflowProcessInstance) ksession.getProcessInstance(processInstanceId, true);
                     if (pi == null) {
                         throw new ProcessInstanceNotFoundException("Process instance with id " + processInstanceId + " was not found");
