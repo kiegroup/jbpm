@@ -340,6 +340,6 @@ public class RuleSetNodeInstance extends StateBasedNodeInstance implements Event
             return Boolean.parseBoolean(asWaitState.toString());
         }
         
-        return false;
+        return true;
     }
 }

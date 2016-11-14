@@ -284,7 +284,10 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         List<String> list = new ArrayList<String>();
         ksession.setGlobal("list", list);
         ProcessInstance processInstance = ksession.startProcess("RuleTask");
+        assertTrue(processInstance.getState() == ProcessInstance.STATE_ACTIVE);
+        ksession = restoreSession(ksession, true);
         ksession.setGlobal("list", list);
+        ksession.fireAllRules();
         assertTrue(list.size() == 1);
         assertProcessInstanceFinished(processInstance, ksession);
     }
@@ -300,6 +303,9 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         params.put("x", "SomeString");
         ProcessInstance processInstance = ksession.startProcess("RuleTask",
                 params);
+        assertTrue(processInstance.getState() == ProcessInstance.STATE_ACTIVE);
+        ksession = restoreSession(ksession, true);
+        ksession.fireAllRules();
         assertTrue(list.size() == 0);
         assertProcessInstanceFinished(processInstance, ksession);
     }
@@ -319,6 +325,9 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         ut.begin();
         ProcessInstance processInstance = ksession.startProcess("RuleTask",
                 params);
+        assertTrue(processInstance.getState() == ProcessInstance.STATE_ACTIVE);
+                
+        ksession.fireAllRules();
         ut.commit();
         assertTrue(list.size() == 1);
 
@@ -339,6 +348,8 @@ public class ActivityTest extends JbpmBpmn2TestCase {
 
         ProcessInstance processInstance = ksession.startProcess("RuleTask",
                 params);
+        assertTrue(processInstance.getState() == ProcessInstance.STATE_ACTIVE);
+        ksession.fireAllRules();
         assertTrue(list.size() == 1);
 
         assertProcessVarValue(processInstance, "x", "AnotherString");
@@ -352,7 +363,45 @@ public class ActivityTest extends JbpmBpmn2TestCase {
                 "BPMN2-RuleTask3.drl");
         ksession = createKnowledgeSession(kbase);
        
-
+        ksession.addEventListener(new AgendaEventListener() {
+            public void matchCreated(MatchCreatedEvent event) {
+            }
+            
+            public void matchCancelled(MatchCancelledEvent event) {
+            }
+            
+            public void beforeRuleFlowGroupDeactivated(
+                    org.kie.api.event.rule.RuleFlowGroupDeactivatedEvent event) {
+            }
+            
+            public void beforeRuleFlowGroupActivated(
+                    org.kie.api.event.rule.RuleFlowGroupActivatedEvent event) {
+            }
+            
+            public void beforeMatchFired(BeforeMatchFiredEvent event) {
+            }
+            
+            public void agendaGroupPushed(
+                    org.kie.api.event.rule.AgendaGroupPushedEvent event) {
+            }
+            
+            public void agendaGroupPopped(
+                    org.kie.api.event.rule.AgendaGroupPoppedEvent event) {
+            }
+            
+            public void afterRuleFlowGroupDeactivated(
+                    org.kie.api.event.rule.RuleFlowGroupDeactivatedEvent event) {
+            }
+            
+            public void afterRuleFlowGroupActivated(
+                    org.kie.api.event.rule.RuleFlowGroupActivatedEvent event) {
+                ksession.fireAllRules();
+            }
+            
+            public void afterMatchFired(AfterMatchFiredEvent event) {
+            }
+            
+            });
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("x", "SomeString");
         ProcessInstance processInstance = ksession.startProcess("RuleTask",
@@ -421,7 +470,10 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         ksession2.setGlobal("list", list2);
         ProcessInstance processInstance1 = ksession.startProcess("RuleTask");
         ProcessInstance processInstance2 = ksession2.startProcess("RuleTask");
+        ksession.fireAllRules();
         assertProcessInstanceFinished(processInstance1, ksession);
+        assertProcessInstanceActive(processInstance2);
+        ksession2.fireAllRules();
         assertProcessInstanceFinished(processInstance2, ksession2);
     }
 
@@ -1232,6 +1284,8 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         ksession.addEventListener(new RuleAwareProcessEventLister());
         ProcessInstance processInstance = ksession
                 .startProcess("BPMN2-BusinessRuleTask");
+        int fired = ksession.fireAllRules();
+        assertEquals(1, fired);
         assertProcessInstanceFinished(processInstance, ksession);
     }
 
@@ -1247,7 +1301,8 @@ public class ActivityTest extends JbpmBpmn2TestCase {
 
         ksession = restoreSession(ksession, true);
         ksession.addEventListener(new RuleAwareProcessEventLister());
-
+        int fired = ksession.fireAllRules();
+        assertEquals(1, fired);
         assertProcessInstanceFinished(processInstance, ksession);
 
     }
@@ -1264,7 +1319,8 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         params.put("dynamicrule", "MyRuleFlow");
         ProcessInstance processInstance = ksession.startProcess(
                 "BPMN2-BusinessRuleTask", params);
-
+        int fired = ksession.fireAllRules();
+        assertEquals(1, fired);
         assertProcessInstanceFinished(processInstance, ksession);
     }
 
@@ -1280,7 +1336,8 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         params.put("person", new Person());
         ProcessInstance processInstance = ksession.startProcess(
                 "BPMN2-BusinessRuleTask", params);
-
+        int fired = ksession.fireAllRules();
+        assertEquals(1, fired);
         assertProcessInstanceFinished(processInstance, ksession);
     }
 
@@ -1296,7 +1353,8 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         params.put("person", new Person());
         ProcessInstance processInstance = ksession.startProcess(
                 "BPMN2-BusinessRuleTask", params);
-
+        int fired = ksession.fireAllRules();
+        assertEquals(1, fired);
         assertProcessInstanceFinished(processInstance, ksession);
     }
 
@@ -1312,6 +1370,7 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         Person person = new Person();
         person.setName("john");
         ksession.insert(person);
+        ksession.fireAllRules();
 
         assertProcessInstanceCompleted(processInstance.getId(), ksession);
         assertTrue(list.size() == 1);
@@ -1515,7 +1574,8 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("name", "JoHn");
         ProcessInstance processInstance = ksession.startProcess("BPMN2-RuleTaskWithTransformation", params);
-
+        int fired = ksession.fireAllRules();
+        assertEquals(1, fired);
         assertProcessInstanceFinished(processInstance, ksession);
 
         data = (List<String>) ksession.getGlobal("data");

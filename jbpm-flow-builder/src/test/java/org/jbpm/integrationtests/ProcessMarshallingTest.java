@@ -91,7 +91,6 @@ public class ProcessMarshallingTest extends AbstractBaseTest {
         kbuilder.add( ResourceFactory.newReaderResource( new StringReader( process ) ), ResourceType.DRF );
 
         StatefulKnowledgeSession ksession = createKieSession(kbuilder.getKnowledgePackages().toArray(new KnowledgePackage[0]));
-        ksession.getEnvironment().set("org.jbpm.rule.task.waitstate", true);
 
         List<Object> list = new ArrayList<Object>();
         ksession.setGlobal( "list", list );

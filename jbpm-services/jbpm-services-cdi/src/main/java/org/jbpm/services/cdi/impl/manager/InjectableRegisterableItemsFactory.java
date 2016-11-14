@@ -39,6 +39,7 @@ import org.jbpm.process.audit.AbstractAuditLogger;
 import org.jbpm.process.audit.AuditLoggerFactory;
 import org.jbpm.process.audit.JPAWorkingMemoryDbLogger;
 import org.jbpm.process.audit.event.AuditEventBuilder;
+import org.jbpm.process.instance.event.listeners.TriggerRulesEventListener;
 import org.jbpm.runtime.manager.api.qualifiers.Agenda;
 import org.jbpm.runtime.manager.api.qualifiers.Process;
 import org.jbpm.runtime.manager.api.qualifiers.Task;
@@ -221,6 +222,7 @@ public class InjectableRegisterableItemsFactory extends DefaultRegisterableItems
     @Override
     public List<AgendaEventListener> getAgendaEventListeners(RuntimeEngine runtime) {
         List<AgendaEventListener> defaultListeners = new ArrayList<AgendaEventListener>();
+        defaultListeners.add(new TriggerRulesEventListener(runtime.getKieSession()));
         try {
             for (EventListenerProducer<AgendaEventListener> producer : agendaListenerProducer) {
                 defaultListeners.addAll(producer.getEventListeners(((RuntimeEngineImpl)runtime).getManager().getIdentifier(), getParametersMap(runtime)));
