@@ -18,7 +18,9 @@ package org.jbpm.casemgmt.impl;
 
 import static java.util.stream.Collectors.toMap;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.kie.scanner.MavenRepository.getMavenRepository;
@@ -26,6 +28,7 @@ import static org.kie.scanner.MavenRepository.getMavenRepository;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -36,6 +39,7 @@ import java.util.UUID;
 
 import org.drools.compiler.kie.builder.impl.InternalKieModule;
 import org.jbpm.casemgmt.api.CaseActiveException;
+import org.jbpm.casemgmt.api.CaseCommentNotFoundException;
 import org.jbpm.casemgmt.api.CaseNotFoundException;
 import org.jbpm.casemgmt.api.model.AdHocFragment;
 import org.jbpm.casemgmt.api.model.CaseDefinition;
@@ -45,6 +49,7 @@ import org.jbpm.casemgmt.api.model.instance.CaseInstance;
 import org.jbpm.casemgmt.api.model.instance.CaseMilestoneInstance;
 import org.jbpm.casemgmt.api.model.instance.CommentInstance;
 import org.jbpm.casemgmt.api.model.instance.CommentSortBy;
+import org.jbpm.casemgmt.api.model.instance.MilestoneStatus;
 import org.jbpm.casemgmt.impl.model.instance.CaseInstanceImpl;
 import org.jbpm.casemgmt.impl.objects.EchoService;
 import org.jbpm.casemgmt.impl.util.AbstractCaseServicesBaseTest;
@@ -733,6 +738,18 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
             assertNotNull(milestones);
             assertEquals(0, milestones.size());
             
+            milestones = caseRuntimeDataService.getCaseInstanceMilestones(HR_CASE_ID, false, new QueryContext());
+            assertNotNull(milestones);
+            assertEquals(2, milestones.size());
+            
+            List<String> expectedMilestones = Arrays.asList("Milestone1", "Milestone2");
+            for (CaseMilestoneInstance mi : milestones) {
+                assertTrue("Expected mile stopne not found", expectedMilestones.contains(mi.getName()));
+                assertEquals("Wrong milestone status", MilestoneStatus.Available, mi.getStatus());
+                assertFalse("Should not be achieved", mi.isAchieved());
+                assertNull("Achieved date should be null", mi.getAchievedAt());
+            }
+            
             // trigger milestone node
             caseService.triggerAdHocFragment(HR_CASE_ID, "Milestone1", null);
             
@@ -955,6 +972,56 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
             }
         }
     }
+
+    @Test
+    public void testUpdateNotExistingCaseComment() {
+        assertNotNull(deploymentService);
+        DeploymentUnit deploymentUnit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
+
+        deploymentService.deploy(deploymentUnit);
+        units.add(deploymentUnit);
+        Map<String, Object> data = new HashMap<>();
+        CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), USER_TASK_STAGE_AUTO_START_CASE_P_ID, data);
+
+        String caseId = caseService.startCase(deploymentUnit.getIdentifier(), USER_TASK_STAGE_AUTO_START_CASE_P_ID, caseFile);
+        assertNotNull(caseId);
+        assertEquals(FIRST_CASE_ID, caseId);
+        try {
+            caseService.updateCaseComment(FIRST_CASE_ID, "not-existing-comment", "poul", "just a tiny comment");
+            fail("Updating non-existent case comment should throw CaseCommentNotFoundException.");
+        } catch (CaseCommentNotFoundException e) {
+            // expected
+        } finally {
+            if (caseId != null) {
+                caseService.cancelCase(caseId);
+            }
+        }
+    }
+
+    @Test
+    public void testRemoveNotExistingCaseComment() {
+        assertNotNull(deploymentService);
+        DeploymentUnit deploymentUnit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
+
+        deploymentService.deploy(deploymentUnit);
+        units.add(deploymentUnit);
+        Map<String, Object> data = new HashMap<>();
+        CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), USER_TASK_STAGE_AUTO_START_CASE_P_ID, data);
+
+        String caseId = caseService.startCase(deploymentUnit.getIdentifier(), USER_TASK_STAGE_AUTO_START_CASE_P_ID, caseFile);
+        assertNotNull(caseId);
+        assertEquals(FIRST_CASE_ID, caseId);
+        try {
+            caseService.removeCaseComment(FIRST_CASE_ID, "not-existing-comment");
+            fail("Removing non-existent case comment should throw CaseCommentNotFoundException.");
+        } catch (CaseCommentNotFoundException e) {
+            // expected
+        } finally {
+            if (caseId != null) {
+                caseService.cancelCase(caseId);
+            }
+        }
+    }
     
     @Test
     public void testStartCaseWithStageAndAdHocFragments() {
@@ -1136,6 +1203,47 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
             } catch (CaseActiveException e) {
                 // expected
             }
+        } catch (Exception e) {
+            logger.error("Unexpected error {}", e.getMessage(), e);
+            fail("Unexpected exception " + e.getMessage());
+        } finally {
+            if (caseId != null) {
+                caseService.cancelCase(caseId);
+            }
+        }
+    }
+    
+    @Test
+    public void testStartThenReopenDestroyedCase() {
+        assertNotNull(deploymentService);        
+        DeploymentUnit deploymentUnit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
+        
+        deploymentService.deploy(deploymentUnit);
+        units.add(deploymentUnit);
+        
+        Map<String, Object> data = new HashMap<>();
+        data.put("name", "my first case");
+        CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), EMPTY_CASE_P_ID, data);
+        
+        String caseId = caseService.startCase(deploymentUnit.getIdentifier(), EMPTY_CASE_P_ID, caseFile);
+        assertNotNull(caseId);
+        assertEquals(FIRST_CASE_ID, caseId);
+        try {
+            CaseInstance cInstance = caseService.getCaseInstance(caseId);
+            assertNotNull(cInstance);
+            assertEquals(deploymentUnit.getIdentifier(), cInstance.getDeploymentId());
+            assertEquals("my first case", cInstance.getCaseDescription());
+            
+            caseService.destroyCase(caseId);
+            
+            try {
+                caseService.reopenCase(caseId, deploymentUnit.getIdentifier(), EMPTY_CASE_P_ID);
+                fail("Not allowed to reopen destroyed case");
+                
+            } catch (CaseNotFoundException e) {
+                // expected
+            }
+            caseId = null;
         } catch (Exception e) {
             logger.error("Unexpected error {}", e.getMessage(), e);
             fail("Unexpected exception " + e.getMessage());
