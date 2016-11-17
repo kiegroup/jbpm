@@ -35,7 +35,7 @@ public class InMemorySessionFactory implements SessionFactory {
 
     private RuntimeEnvironment environment;
     private KieBase kbase;
-    // TODO all sessions stored here should be proxied so it can be removed on dispose/destroy
+
     private Map<Long, KieSession> sessions = new ConcurrentHashMap<Long, KieSession>();
     
     public InMemorySessionFactory(RuntimeEnvironment environment) {
@@ -54,9 +54,11 @@ public class InMemorySessionFactory implements SessionFactory {
 
     @Override
     public KieSession newKieSession() {
-        KieSession ksession = kbase.newKieSession(environment.getConfiguration(), environment.getEnvironment());
+        KieSession ksession = wrapSession(kbase.newKieSession(environment.getConfiguration(), environment.getEnvironment()));
+
         this.sessions.put(ksession.getIdentifier(), ksession);
-        return wrapSession(ksession);
+
+        return ksession;
     }
 
     @Override
