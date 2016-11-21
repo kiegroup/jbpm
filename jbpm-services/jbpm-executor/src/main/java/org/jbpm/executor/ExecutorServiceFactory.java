@@ -51,7 +51,7 @@ public class ExecutorServiceFactory {
 	private final static String mode = System.getProperty( "org.jbpm.cdi.executor.mode", "singleton" );
 	
 	private final static String availableJobsExecutorName = System.getProperty(
-	    "org.jbpm.cdi.available.jobs.executor.name", "java:module/AvailableJobsExecutor" );
+	    "org.jbpm.cdi.executor.jndi", "java:module/AvailableJobsExecutor" );
 
 	private static final Logger logger = LoggerFactory.getLogger(ExecutorServiceFactory.class);
    
