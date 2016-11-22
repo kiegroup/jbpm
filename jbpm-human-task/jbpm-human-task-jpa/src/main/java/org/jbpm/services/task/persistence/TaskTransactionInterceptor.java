@@ -15,20 +15,22 @@
 
 package org.jbpm.services.task.persistence;
 
-import org.drools.core.command.CommandService;
-import org.drools.core.command.Interceptor;
 import org.drools.core.command.impl.AbstractInterceptor;
+import org.drools.core.runtime.ChainableRunner;
 import org.drools.persistence.OrderedTransactionSynchronization;
 import org.drools.persistence.TransactionManager;
 import org.drools.persistence.TransactionManagerFactory;
 import org.drools.persistence.TransactionManagerHelper;
-import org.kie.api.command.Command;
+import org.kie.api.KieBase;
+import org.kie.api.runtime.Context;
+import org.kie.api.runtime.ConversationContext;
 import org.kie.api.runtime.Environment;
 import org.kie.api.runtime.EnvironmentName;
+import org.kie.api.runtime.Executable;
+import org.kie.api.runtime.KieSession;
+import org.kie.api.runtime.RequestContext;
 import org.kie.api.task.UserGroupCallback;
 import org.kie.api.task.model.Task;
-import org.kie.internal.command.Context;
-import org.kie.internal.command.ContextManager;
 import org.kie.internal.task.api.TaskContext;
 import org.kie.internal.task.api.TaskPersistenceContext;
 import org.kie.internal.task.api.TaskPersistenceContextManager;
@@ -40,13 +42,14 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
 import java.util.Collection;
+import java.util.Map;
 
 public class TaskTransactionInterceptor extends AbstractInterceptor {
 
 	private static Logger logger = LoggerFactory.getLogger(TaskTransactionInterceptor.class);
     private static String SPRING_TM_CLASSNAME = "org.springframework.transaction.support.AbstractPlatformTransactionManager";
 	
-	private CommandService             commandService;
+	private ChainableRunner            commandService;
     private TransactionManager         txm;
     private TaskPersistenceContextManager  tpm;
     private boolean eagerDisabled = false;
@@ -57,20 +60,19 @@ public class TaskTransactionInterceptor extends AbstractInterceptor {
     }
 	
 	@Override
-	public synchronized <T> T execute(Command<T> command) {
+	public synchronized RequestContext execute( Executable executable, RequestContext ctx ) {
 		boolean transactionOwner = false;
-		T result = null;
-		
+
         try {
             transactionOwner = txm.begin();
             tpm.beginCommandScopedEntityManager();
             TransactionManagerHelper.registerTransactionSyncInContainer(this.txm, new TaskSynchronizationImpl( this ));
                 
-            result = executeNext((Command<T>) command);
-            postInit(result);
+            executeNext(executable, ctx);
+            postInit(ctx.getResult());
             txm.commit( transactionOwner );
 
-            return result;
+            return ctx;
 
         } catch (TaskException e) {
         	// allow to handle TaskException as business exceptions on caller side
@@ -103,62 +105,118 @@ public class TaskTransactionInterceptor extends AbstractInterceptor {
 		}
 	}
 	
-	public void addInterceptor(Interceptor interceptor) {
+	public void addInterceptor(ChainableRunner interceptor ) {
         interceptor.setNext( this.commandService == null ? this : this.commandService );
         this.commandService = interceptor;
     }
 	
 	@Override
-	public Context getContext() {
+	public RequestContext createContext() {
 		
-		final TaskPersistenceContext persistenceContext = tpm.getPersistenceContext(); 
+		final TaskPersistenceContext persistenceContext = tpm.getPersistenceContext();
 		persistenceContext.joinTransaction();
 	
-        return new TaskContext() {
-			
-			@Override
-			public void set(String identifier, Object value) {	
-				txm.putResource(identifier, value);
-			}
-			
-			@Override
-			public void remove(String identifier) {
-			}
-			
-			@Override
-			public String getName() {
-				return null;
-			}
-			
-			@Override
-			public ContextManager getContextManager() {
-				return null;
-			}
-			
-			@Override
-			public Object get(String identifier) {
-				return txm.getResource(identifier);
-			}
-			
-			@Override
-			public void setPersistenceContext(TaskPersistenceContext context) {
-			}
-			
-			@Override
-			public TaskPersistenceContext getPersistenceContext() {
-				return persistenceContext;
-			}
+        return new TransactionContext(persistenceContext);
+	}
 
-			@Override
-			public UserGroupCallback getUserGroupCallback() {
-				return null;
-			}
+	public class TransactionContext implements TaskContext, RequestContext {
+		private final TaskPersistenceContext persistenceContext;
 
-            @Override
-            public Task loadTaskVariables(Task task) {
-                return task;
-            }
-		};
+		public TransactionContext( TaskPersistenceContext persistenceContext ) {
+			this.persistenceContext = persistenceContext;
+		}
+
+		@Override
+		public void set(String identifier, Object value) {
+			txm.putResource(identifier, value);
+		}
+
+		@Override
+		public void remove(String identifier) {
+		}
+
+		@Override
+		public boolean has( String identifier ) {
+			return false;
+
+		}
+
+		@Override
+		public String getName() {
+			return null;
+		}
+
+		@Override
+		public Object get(String identifier) {
+			return txm.getResource(identifier);
+		}
+
+		@Override
+		public void setPersistenceContext(TaskPersistenceContext context) {
+		}
+
+		@Override
+		public TaskPersistenceContext getPersistenceContext() {
+			return persistenceContext;
+		}
+
+		@Override
+		public UserGroupCallback getUserGroupCallback() {
+			return null;
+		}
+
+		@Override
+		public Task loadTaskVariables(Task task) {
+			return task;
+		}
+
+		@Override
+		public long getRequestId() {
+			throw new UnsupportedOperationException( "org.jbpm.services.task.persistence.TaskTransactionInterceptor.TransactionContext.getRequestId -> TODO" );
+
+		}
+
+		@Override
+		public long getConversationId() {
+			throw new UnsupportedOperationException( "org.jbpm.services.task.persistence.TaskTransactionInterceptor.TransactionContext.getConversationId -> TODO" );
+
+		}
+
+		@Override
+		public Map<String, Object> getOut() {
+			throw new UnsupportedOperationException( "org.jbpm.services.task.persistence.TaskTransactionInterceptor.TransactionContext.getOut -> TODO" );
+
+		}
+
+		@Override
+		public Object getResult() {
+			throw new UnsupportedOperationException( "org.jbpm.services.task.persistence.TaskTransactionInterceptor.TransactionContext.getResult -> TODO" );
+
+		}
+
+		@Override
+		public RequestContext with( KieBase kieBase ) {
+			throw new UnsupportedOperationException( "org.jbpm.services.task.persistence.TaskTransactionInterceptor.TransactionContext.with -> TODO" );
+
+		}
+
+		@Override
+		public RequestContext with( KieSession kieSession ) {
+			throw new UnsupportedOperationException( "org.jbpm.services.task.persistence.TaskTransactionInterceptor.TransactionContext.with -> TODO" );
+
+		}
+
+		@Override
+		public ConversationContext getConversationContext() {
+			throw new UnsupportedOperationException( "org.jbpm.services.task.persistence.TaskTransactionInterceptor.TransactionContext.getConversationContext -> TODO" );
+
+		}
+
+		@Override
+		public Context getApplicationContext() {
+			throw new UnsupportedOperationException( "org.jbpm.services.task.persistence.TaskTransactionInterceptor.TransactionContext.getApplicationContext -> TODO" );
+
+		}
 	}
 	
 	public void initTransactionManager(Environment env) {

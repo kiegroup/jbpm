@@ -30,11 +30,15 @@ import org.jbpm.services.task.internals.lifecycle.MVELLifeCycleManager;
 import org.jbpm.services.task.rule.TaskRuleService;
 import org.jbpm.services.task.rule.impl.RuleContextProviderImpl;
 import org.jbpm.services.task.rule.impl.TaskRuleServiceImpl;
+import org.kie.api.KieBase;
+import org.kie.api.runtime.Context;
+import org.kie.api.runtime.ConversationContext;
 import org.kie.api.runtime.Environment;
 import org.kie.api.runtime.EnvironmentName;
+import org.kie.api.runtime.KieSession;
+import org.kie.api.runtime.RequestContext;
 import org.kie.api.task.UserGroupCallback;
 import org.kie.api.task.model.Task;
-import org.kie.internal.command.Context;
 import org.kie.internal.command.ContextManager;
 import org.kie.internal.task.api.TaskAdminService;
 import org.kie.internal.task.api.TaskAttachmentService;
@@ -47,10 +51,12 @@ import org.kie.internal.task.api.TaskInstanceService;
 import org.kie.internal.task.api.TaskPersistenceContext;
 import org.kie.internal.task.api.TaskQueryService;
 
+import java.util.Map;
+
 /**
  *
  */
-public class TaskContext implements org.kie.internal.task.api.TaskContext {
+public class TaskContext implements org.kie.internal.task.api.TaskContext, RequestContext {
     
     private TaskPersistenceContext persistenceContext;
     private Environment environment;
@@ -61,7 +67,7 @@ public class TaskContext implements org.kie.internal.task.api.TaskContext {
     public TaskContext() {
     }   
     
-    public TaskContext(Context context, Environment environment, TaskEventSupport taskEventSupport) {    	
+    public TaskContext( Context context, Environment environment, TaskEventSupport taskEventSupport ) {
     	if (context instanceof org.kie.internal.task.api.TaskContext) {
     		this.delegate = ((org.kie.internal.task.api.TaskContext) context);
     		this.persistenceContext = ((org.kie.internal.task.api.TaskContext) context).getPersistenceContext();
@@ -170,8 +176,52 @@ public class TaskContext implements org.kie.internal.task.api.TaskContext {
     }
 
     @Override
+    public boolean has( String identifier ) {
+        throw new UnsupportedOperationException("Not supported for this type of context.");
+    }
+
+    @Override
     public Task loadTaskVariables(Task task) {
         return getTaskContentService().loadTaskVariables(task);
-    }    
+    }
 
+    @Override
+    public long getRequestId() {
+        throw new UnsupportedOperationException("Not supported for this type of context.");
+    }
+
+    @Override
+    public long getConversationId() {
+        throw new UnsupportedOperationException("Not supported for this type of context.");
+    }
+
+    @Override
+    public Map<String, Object> getOut() {
+        throw new UnsupportedOperationException("Not supported for this type of context.");
+    }
+
+    @Override
+    public Object getResult() {
+        throw new UnsupportedOperationException("Not supported for this type of context.");
+    }
+
+    @Override
+    public RequestContext with( KieBase kieBase ) {
+        throw new UnsupportedOperationException("Not supported for this type of context.");
+    }
+
+    @Override
+    public RequestContext with( KieSession kieSession ) {
+        throw new UnsupportedOperationException("Not supported for this type of context.");
+    }
+
+    @Override
+    public ConversationContext getConversationContext() {
+        throw new UnsupportedOperationException("Not supported for this type of context.");
+    }
+
+    @Override
+    public Context getApplicationContext() {
+        throw new UnsupportedOperationException("Not supported for this type of context.");
+    }
 }
