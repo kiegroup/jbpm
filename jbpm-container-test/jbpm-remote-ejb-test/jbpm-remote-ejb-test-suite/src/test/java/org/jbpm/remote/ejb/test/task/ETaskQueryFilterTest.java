@@ -55,7 +55,7 @@ public class ETaskQueryFilterTest extends RemoteEjbTest {
         logger.info("### Potential owner task list: " + taskList);
         Assertions.assertThat(taskList).hasSize(2);
 
-        taskList = ejb.getTasksOwned("john", new QueryFilter(0, 1, false, null, "en-UK", null));
+        taskList = ejb.getTasksOwned("john", new QueryFilter(0, 1, null, "en-UK", null));
         logger.info("### Owned task list: " + taskList);
         Assertions.assertThat(taskList.size()).isEqualTo(1);
     }
@@ -86,15 +86,6 @@ public class ETaskQueryFilterTest extends RemoteEjbTest {
             logger.info("### Task Name: " + taskList.get(i).getName());
             Assertions.assertThat(taskList.get(i).getName()).isEqualTo("john's task " + (i + 1));
         }
-    }
-
-    @Test
-    public void testSingleResult() {
-        startHumanTaskProcess(4, "john's task", "john");
-
-        List<TaskSummary> taskList = ejb.getTasksAssignedAsPotentialOwner("john", null, null, new QueryFilter(0, 0, true));
-        logger.info("### Potential owner task list: " + taskList);
-        Assertions.assertThat(taskList).hasSize(1);
     }
 
     private void startHumanTaskProcess(int instanceCount, String taskName, String assigneeName) {
