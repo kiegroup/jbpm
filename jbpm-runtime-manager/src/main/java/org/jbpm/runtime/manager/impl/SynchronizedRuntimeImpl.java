@@ -29,11 +29,11 @@ import org.kie.internal.task.api.InternalTaskService;
 public class SynchronizedRuntimeImpl extends RuntimeEngineImpl {
 
     private TaskService synchronizedTaskService;
-    
+
     public SynchronizedRuntimeImpl(KieSession ksession, InternalTaskService taskService) {
         super(ksession, taskService);
         if (taskService != null) {
-        this.synchronizedTaskService = new SynchronizedTaskService(ksession, taskService);
+            this.synchronizedTaskService = new SynchronizedTaskService(ksession, taskService);
         }
     }
 

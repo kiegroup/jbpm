@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -29,7 +29,7 @@ import org.kie.internal.command.Context;
 @XmlRootElement(name="composite-command")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class CompositeCommand<T> extends TaskCommand<T> {
-	
+
 	private static final long serialVersionUID = -5591247478243819049L;
 
 	@XmlElements(value={
@@ -97,7 +97,6 @@ public class CompositeCommand<T> extends TaskCommand<T> {
 	            @XmlElement(name="get-task-property", type=GetTaskPropertyCommand.class),
 	            @XmlElement(name="get-tasks-by-process-instance-id", type=GetTasksByProcessInstanceIdCommand.class),
 	            @XmlElement(name="get-tasks-by-status-by-process-instance-id", type=GetTasksByStatusByProcessInstanceIdCommand.class),
-	            @XmlElement(name="get-tasks-by-various-fields", type=GetTasksByVariousFieldsCommand.class),
 	            @XmlElement(name="get-tasks-for-process", type=GetTasksForProcessCommand.class),
 	            @XmlElement(name="get-tasks-owned", type=GetTasksOwnedCommand.class),
 	            @XmlElement(name="get-user", type=GetUserCommand.class),
@@ -126,14 +125,14 @@ public class CompositeCommand<T> extends TaskCommand<T> {
 
 	@XmlElement
 	private List<TaskCommand<?>> commands;
-	
+
 	public CompositeCommand() {
-		
+
 	}
-	
+
 	public CompositeCommand(TaskCommand<T> mainCommand, TaskCommand<?>...commands) {
 		this.mainCommand = mainCommand;
-		this.commands = Arrays.asList(commands);		
+		this.commands = Arrays.asList(commands);
 	}
 
 	@Override
@@ -165,7 +164,7 @@ public class CompositeCommand<T> extends TaskCommand<T> {
 	@Override
 	public Long getTaskId() {
 		if ( mainCommand != null) {
-			return mainCommand.getTaskId();	
+			return mainCommand.getTaskId();
 		}
 		return this.taskId;
 	}

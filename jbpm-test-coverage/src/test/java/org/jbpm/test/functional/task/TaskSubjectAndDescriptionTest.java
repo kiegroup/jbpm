@@ -19,7 +19,6 @@ package org.jbpm.test.functional.task;
 import java.util.List;
 
 import org.assertj.core.api.Assertions;
-import org.jbpm.runtime.manager.impl.task.SynchronizedTaskService;
 import org.jbpm.test.JbpmTestCase;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,6 +29,7 @@ import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.task.TaskService;
 import org.kie.api.task.model.Task;
 import org.kie.api.task.model.TaskSummary;
+import org.kie.internal.task.api.InternalTaskService;
 
 public class TaskSubjectAndDescriptionTest extends JbpmTestCase {
     
@@ -52,7 +52,7 @@ public class TaskSubjectAndDescriptionTest extends JbpmTestCase {
         createRuntimeManager(HUMAN_TASK, HUMAN_TASK2);
         RuntimeEngine runtimeEngine = getRuntimeEngine();
         kieSession = runtimeEngine.getKieSession();
-        taskService = (SynchronizedTaskService) runtimeEngine.getTaskService();
+        taskService = (InternalTaskService) runtimeEngine.getTaskService();
     }
 
     @Test
