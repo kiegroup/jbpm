@@ -32,7 +32,6 @@ import org.jbpm.services.task.rule.impl.RuleContextProviderImpl;
 import org.jbpm.services.task.rule.impl.TaskRuleServiceImpl;
 import org.kie.api.KieBase;
 import org.kie.api.runtime.Context;
-import org.kie.api.runtime.ConversationContext;
 import org.kie.api.runtime.Environment;
 import org.kie.api.runtime.EnvironmentName;
 import org.kie.api.runtime.KieSession;
@@ -186,16 +185,6 @@ public class TaskContext implements org.kie.internal.task.api.TaskContext, Reque
     }
 
     @Override
-    public long getRequestId() {
-        throw new UnsupportedOperationException("Not supported for this type of context.");
-    }
-
-    @Override
-    public long getConversationId() {
-        throw new UnsupportedOperationException("Not supported for this type of context.");
-    }
-
-    @Override
     public Map<String, Object> getOut() {
         throw new UnsupportedOperationException("Not supported for this type of context.");
     }
@@ -216,7 +205,7 @@ public class TaskContext implements org.kie.internal.task.api.TaskContext, Reque
     }
 
     @Override
-    public ConversationContext getConversationContext() {
+    public Context getConversationContext() {
         throw new UnsupportedOperationException("Not supported for this type of context.");
     }
 

@@ -16,11 +16,12 @@
 package org.jbpm.services.task.commands;
 
 import org.drools.core.command.impl.ExecutableCommand;
+import org.drools.core.fluent.impl.Batch;
+import org.drools.core.fluent.impl.InternalExecutable;
 import org.drools.core.runtime.ChainableRunner;
 import org.drools.core.runtime.InternalLocalRunner;
 import org.jbpm.services.task.events.TaskEventSupport;
 import org.kie.api.command.Command;
-import org.kie.api.runtime.Batch;
 import org.kie.api.runtime.Environment;
 import org.kie.api.runtime.Executable;
 import org.kie.api.runtime.RequestContext;
@@ -68,7 +69,7 @@ public class TaskCommandExecutorImpl implements InternalLocalRunner {
 
 		@Override
 		public RequestContext execute(Executable executable, RequestContext context) {
-			for (Batch batch : executable.getBatches()) {
+			for (Batch batch : ( (InternalExecutable) executable ).getBatches()) {
 				for (Command command : batch.getCommands()) {
 					if (command instanceof TaskCommand) {
 						((ExecutableCommand) command).execute( createContext() );

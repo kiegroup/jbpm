@@ -23,7 +23,6 @@ import org.drools.persistence.TransactionManagerFactory;
 import org.drools.persistence.TransactionManagerHelper;
 import org.kie.api.KieBase;
 import org.kie.api.runtime.Context;
-import org.kie.api.runtime.ConversationContext;
 import org.kie.api.runtime.Environment;
 import org.kie.api.runtime.EnvironmentName;
 import org.kie.api.runtime.Executable;
@@ -171,18 +170,6 @@ public class TaskTransactionInterceptor extends AbstractInterceptor {
 		}
 
 		@Override
-		public long getRequestId() {
-			throw new UnsupportedOperationException( "org.jbpm.services.task.persistence.TaskTransactionInterceptor.TransactionContext.getRequestId -> TODO" );
-
-		}
-
-		@Override
-		public long getConversationId() {
-			throw new UnsupportedOperationException( "org.jbpm.services.task.persistence.TaskTransactionInterceptor.TransactionContext.getConversationId -> TODO" );
-
-		}
-
-		@Override
 		public Map<String, Object> getOut() {
 			throw new UnsupportedOperationException( "org.jbpm.services.task.persistence.TaskTransactionInterceptor.TransactionContext.getOut -> TODO" );
 
@@ -207,9 +194,8 @@ public class TaskTransactionInterceptor extends AbstractInterceptor {
 		}
 
 		@Override
-		public ConversationContext getConversationContext() {
+		public Context getConversationContext() {
 			throw new UnsupportedOperationException( "org.jbpm.services.task.persistence.TaskTransactionInterceptor.TransactionContext.getConversationContext -> TODO" );
-
 		}
 
 		@Override
