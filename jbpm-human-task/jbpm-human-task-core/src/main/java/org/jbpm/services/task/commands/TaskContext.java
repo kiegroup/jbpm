@@ -15,6 +15,8 @@
  */
 package org.jbpm.services.task.commands;
 
+import java.util.Map;
+
 import org.jbpm.services.task.events.TaskEventSupport;
 import org.jbpm.services.task.impl.TaskAdminServiceImpl;
 import org.jbpm.services.task.impl.TaskAttachmentServiceImpl;
@@ -49,8 +51,6 @@ import org.kie.internal.task.api.TaskIdentityService;
 import org.kie.internal.task.api.TaskInstanceService;
 import org.kie.internal.task.api.TaskPersistenceContext;
 import org.kie.internal.task.api.TaskQueryService;
-
-import java.util.Map;
 
 /**
  *

@@ -15,6 +15,7 @@
  */
 package org.jbpm.services.task.commands;
 
+import org.drools.core.command.RequestContextImpl;
 import org.drools.core.command.impl.ExecutableCommand;
 import org.drools.core.fluent.impl.Batch;
 import org.drools.core.fluent.impl.InternalExecutable;
@@ -69,10 +70,12 @@ public class TaskCommandExecutorImpl implements InternalLocalRunner {
 
 		@Override
 		public RequestContext execute(Executable executable, RequestContext context) {
+
 			for (Batch batch : ( (InternalExecutable) executable ).getBatches()) {
 				for (Command command : batch.getCommands()) {
 					if (command instanceof TaskCommand) {
-						((ExecutableCommand) command).execute( createContext() );
+					    Object result = ((ExecutableCommand) command).execute( new TaskContext(context, environment, taskEventSupport) );
+					    context.getOut().put("Result", result);
 					} else {
 						throw new IllegalArgumentException("Task service can only execute task commands");
 					}

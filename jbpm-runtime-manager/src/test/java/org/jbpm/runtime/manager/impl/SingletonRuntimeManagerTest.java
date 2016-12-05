@@ -758,7 +758,7 @@ public class SingletonRuntimeManagerTest extends AbstractBaseTest {
         ProcessInstance processInstance = ksession.startProcess("UserTaskWithRollback");
 
         ExecutableRunner commandService = ((CommandBasedStatefulKnowledgeSession)ksession).getRunner();
-        assertEquals( SingleSessionCommandService.class, commandService.getClass() );
+        assertEquals( PersistableRunner.class, commandService.getClass() );
 
 
         ChainableRunner internalCommandService = ((PersistableRunner)commandService).getChainableRunner();
@@ -787,7 +787,7 @@ public class SingletonRuntimeManagerTest extends AbstractBaseTest {
         assertEquals(OptimisticLockRetryInterceptor.class, internalCommandService.getClass());
         
         internalCommandService = (ChainableRunner) ((OptimisticLockRetryInterceptor) internalCommandService).getNext();
-        assertEquals("org.drools.persistence.SingleSessionCommandService$TransactionInterceptor", internalCommandService.getClass().getName());
+        assertEquals("org.drools.persistence.PersistableRunner$TransactionInterceptor", internalCommandService.getClass().getName());
 
         // close manager which will close session maintained by the manager
         manager.close();

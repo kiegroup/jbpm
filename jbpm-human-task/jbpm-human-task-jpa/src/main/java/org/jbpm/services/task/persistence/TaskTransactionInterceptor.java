@@ -15,6 +15,12 @@
 
 package org.jbpm.services.task.persistence;
 
+import java.lang.reflect.Constructor;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.drools.core.command.RequestContextImpl;
 import org.drools.core.command.impl.AbstractInterceptor;
 import org.drools.core.runtime.ChainableRunner;
 import org.drools.persistence.OrderedTransactionSynchronization;
@@ -39,10 +45,6 @@ import org.kie.internal.task.exception.TaskException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Constructor;
-import java.util.Collection;
-import java.util.Map;
-
 public class TaskTransactionInterceptor extends AbstractInterceptor {
 
 	private static Logger logger = LoggerFactory.getLogger(TaskTransactionInterceptor.class);
@@ -66,8 +68,10 @@ public class TaskTransactionInterceptor extends AbstractInterceptor {
             transactionOwner = txm.begin();
             tpm.beginCommandScopedEntityManager();
             TransactionManagerHelper.registerTransactionSyncInContainer(this.txm, new TaskSynchronizationImpl( this ));
-                
-            executeNext(executable, ctx);
+            RequestContext context = createContext();
+            executeNext(executable, context);
+            
+            ((RequestContextImpl)ctx).setLastReturned(context.getResult());
             postInit(ctx.getResult());
             txm.commit( transactionOwner );
 
@@ -120,6 +124,7 @@ public class TaskTransactionInterceptor extends AbstractInterceptor {
 
 	public class TransactionContext implements TaskContext, RequestContext {
 		private final TaskPersistenceContext persistenceContext;
+		private final Map<String, Object> output = new HashMap<>();
 
 		public TransactionContext( TaskPersistenceContext persistenceContext ) {
 			this.persistenceContext = persistenceContext;
@@ -171,13 +176,12 @@ public class TaskTransactionInterceptor extends AbstractInterceptor {
 
 		@Override
 		public Map<String, Object> getOut() {
-			throw new UnsupportedOperationException( "org.jbpm.services.task.persistence.TaskTransactionInterceptor.TransactionContext.getOut -> TODO" );
-
+			return output;
 		}
 
 		@Override
 		public Object getResult() {
-			throw new UnsupportedOperationException( "org.jbpm.services.task.persistence.TaskTransactionInterceptor.TransactionContext.getResult -> TODO" );
+			return output.get("Result");
 
 		}
 
@@ -203,6 +207,7 @@ public class TaskTransactionInterceptor extends AbstractInterceptor {
 			throw new UnsupportedOperationException( "org.jbpm.services.task.persistence.TaskTransactionInterceptor.TransactionContext.getApplicationContext -> TODO" );
 
 		}
+
 	}
 	
 	public void initTransactionManager(Environment env) {
