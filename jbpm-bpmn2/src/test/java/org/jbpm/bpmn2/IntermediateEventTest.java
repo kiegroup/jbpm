@@ -1794,6 +1794,7 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
         ksession.getWorkItemManager().completeWorkItem(2, null);
 
         ksession.dispose();
+        ksession = null;
         separateEmf.close();
     }
 

@@ -15,12 +15,6 @@
 
 package org.jbpm.services.task.persistence;
 
-import java.lang.reflect.Constructor;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.drools.core.command.RequestContextImpl;
 import org.drools.core.command.impl.AbstractInterceptor;
 import org.drools.core.runtime.ChainableRunner;
 import org.drools.persistence.OrderedTransactionSynchronization;
@@ -44,6 +38,9 @@ import org.kie.internal.task.api.model.InternalTask;
 import org.kie.internal.task.exception.TaskException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Constructor;
+import java.util.Collection;
 
 public class TaskTransactionInterceptor extends AbstractInterceptor {
 
@@ -71,7 +68,7 @@ public class TaskTransactionInterceptor extends AbstractInterceptor {
             RequestContext context = createContext();
             executeNext(executable, context);
             
-            ((RequestContextImpl)ctx).setLastReturned(context.getResult());
+            ctx.setResult(context.getResult());
             postInit(ctx.getResult());
             txm.commit( transactionOwner );
 
@@ -124,7 +121,6 @@ public class TaskTransactionInterceptor extends AbstractInterceptor {
 
 	public class TransactionContext implements TaskContext, RequestContext {
 		private final TaskPersistenceContext persistenceContext;
-		private final Map<String, Object> output = new HashMap<>();
 
 		public TransactionContext( TaskPersistenceContext persistenceContext ) {
 			this.persistenceContext = persistenceContext;
@@ -175,14 +171,13 @@ public class TaskTransactionInterceptor extends AbstractInterceptor {
 		}
 
 		@Override
-		public Map<String, Object> getOut() {
-			return output;
+		public Object getResult() {
+			return get("Result");
 		}
 
 		@Override
-		public Object getResult() {
-			return output.get("Result");
-
+		public void setResult( Object result ) {
+			set("Result", result);
 		}
 
 		@Override
