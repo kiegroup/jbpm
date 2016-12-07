@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2014 - 2016 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,8 +36,9 @@ public class CommonUtils {
 	 */
 	public static Long getProcessInstanceId(Command<?> command) {
 		if (command instanceof ProcessInstanceIdCommand) {
-			return ((ProcessInstanceIdCommand) command).getProcessInstanceId();
-		} 
+			Long processInstanceId = ((ProcessInstanceIdCommand) command).getProcessInstanceId();
+			return processInstanceId < 0 ? null : processInstanceId;
+		}
 
         return null;
 		

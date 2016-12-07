@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2014 - 2016 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +37,7 @@ import javax.transaction.UserTransaction;
 
 import org.drools.compiler.kie.builder.impl.InternalKieModule;
 import org.drools.core.command.runtime.process.GetProcessInstanceCommand;
+import org.drools.core.command.runtime.process.SignalEventCommand;
 import org.jbpm.kie.services.impl.KModuleDeploymentUnit;
 import org.jbpm.kie.test.util.AbstractKieServicesBaseTest;
 import org.jbpm.runtime.manager.impl.deploy.DeploymentDescriptorImpl;
@@ -112,7 +114,8 @@ public class ProcessServiceImplTest extends AbstractKieServicesBaseTest {
         if (units != null && !units.isEmpty()) {
             for (DeploymentUnit unit : units) {
             	try {
-                deploymentService.undeploy(unit);
+                    abortActiveProcesses(unit.getIdentifier());
+                    deploymentService.undeploy(unit);
             	} catch (Exception e) {
             		// do nothing in case of some failed tests to avoid next test to fail as well
             	}
@@ -120,6 +123,14 @@ public class ProcessServiceImplTest extends AbstractKieServicesBaseTest {
             units.clear();
         }
         close();
+    }
+
+    private void abortActiveProcesses(String deploymentId) {
+        List<Integer> states = Collections.singletonList(ProcessInstance.STATE_ACTIVE);
+        Collection<ProcessInstanceDesc> processInstances = runtimeDataService.getProcessInstancesByDeploymentId(deploymentId, states, null);
+        for (ProcessInstanceDesc processInstance : processInstances) {
+            processService.abortProcessInstance(processInstance.getId());
+        }
     }
 
     @Test
@@ -826,5 +837,48 @@ public class ProcessServiceImplTest extends AbstractKieServicesBaseTest {
 
         }
 
+    }
+
+    @Test
+    public void testExecuteSignalEventCommandWithPerProcessInstanceStrategy() {
+        assertNotNull(deploymentService);
+
+        KModuleDeploymentUnit deploymentUnit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION, null, null,
+                RuntimeStrategy.PER_PROCESS_INSTANCE.name());
+
+        deploymentService.deploy(deploymentUnit);
+        units.add(deploymentUnit);
+
+        boolean isDeployed = deploymentService.isDeployed(deploymentUnit.getIdentifier());
+        assertTrue(isDeployed);
+
+        assertNotNull(processService);
+
+        long processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "signal");
+        assertNotNull(processInstanceId);
+
+        long processInstanceId2 = processService.startProcess(deploymentUnit.getIdentifier(), "signal");
+        assertNotNull(processInstanceId2);
+
+        ProcessInstance pi = processService.getProcessInstance(processInstanceId);
+        assertNotNull(pi);
+
+        pi = processService.getProcessInstance(processInstanceId2);
+        assertNotNull(pi);
+
+        SignalEventCommand signalCommand = new SignalEventCommand("MySignal", null);
+        processService.execute(deploymentUnit.getIdentifier(), signalCommand);
+
+        assertProcessInstanceFinished(processInstanceId);
+        assertProcessInstanceFinished(processInstanceId2);
+    }
+
+    private void assertProcessInstanceFinished(Long processInstanceId) {
+        try {
+            ProcessInstance processInstance = processService.getProcessInstance(processInstanceId);
+            assertNull(processInstance);
+        } catch (SessionNotFoundException ex) {
+            // expected
+        }
     }
 }
