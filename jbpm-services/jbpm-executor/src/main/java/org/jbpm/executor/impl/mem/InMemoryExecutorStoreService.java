@@ -64,7 +64,8 @@ public class InMemoryExecutorStoreService implements ExecutorStoreService {
 		if (request.getStatus() == STATUS.CANCELLED 
 			|| request.getStatus() == STATUS.DONE
 			|| request.getStatus() == STATUS.ERROR
-			|| request.getStatus() == STATUS.RUNNING) {
+			|| request.getStatus() == STATUS.RUNNING
+			|| request.getStatus() == STATUS.RUNNING_CALLBACK) {
 			logger.debug("Updating request by removing it as it was already processed {}", request);
 			requests.remove(request.getId());
 			if (processedRequests.size() > 100) {

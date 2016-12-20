@@ -42,6 +42,7 @@ import org.jbpm.executor.ExecutorNotStartedException;
 import org.jbpm.executor.entities.RequestInfo;
 import org.jbpm.executor.impl.event.ExecutorEventSupport;
 import org.kie.api.executor.CommandContext;
+import org.kie.api.executor.ExecutionResults;
 import org.kie.api.executor.ExecutorStoreService;
 import org.kie.api.executor.STATUS;
 import org.kie.internal.executor.api.Executor;
@@ -379,6 +380,51 @@ public class ExecutorImpl implements Executor {
             eventSupport.fireAfterJobScheduled(requestInfo, e);
         }
         return requestInfo.getId();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void scheduleResponse(Long requestId, ExecutionResults results) {
+
+        RequestInfo requestInfo = (RequestInfo) executorStoreService.findRequest(requestId);
+        if (requestInfo == null || requestInfo.getStatus() != STATUS.WAITING_ASYNC) {
+            throw new RuntimeException("Cannot find async request with id = " + requestId);
+        }
+
+        requestInfo.setStatus(STATUS.QUEUED_CALLBACK);
+        requestInfo.setTime(new Date());
+        requestInfo.setMessage("Ready to callback");
+        requestInfo.setOwner(null);
+
+        if (results != null) {
+            try {
+                ByteArrayOutputStream bout = new ByteArrayOutputStream();
+                ObjectOutputStream out = new ObjectOutputStream(bout);
+                out.writeObject(results);
+                byte[] respData = bout.toByteArray();
+                requestInfo.setResponseData(respData);
+            } catch (IOException e) {
+                requestInfo.setResponseData(null);
+            }
+        }
+
+        eventSupport.fireBeforeJobScheduled(requestInfo, null);
+        try {
+            executorStoreService.updateRequest(requestInfo);
+
+            if (useJMS) {
+                    logger.debug("Sending JMS message to trigger callback job execution for job {}", requestInfo.getId());
+                    // send JMS message to trigger processing
+                    sendMessage(String.valueOf(requestInfo.getId()), requestInfo.getPriority());
+            }
+
+            logger.debug("Scheduled response for Command: {} - requestId: {} with {} retries", requestInfo.getCommandName(), requestInfo.getId(), requestInfo.getRetries());
+            eventSupport.fireAfterJobScheduled(requestInfo, null);
+        } catch (Throwable e) {
+            eventSupport.fireAfterJobScheduled(requestInfo, e);
+        }
     }
 
     /**

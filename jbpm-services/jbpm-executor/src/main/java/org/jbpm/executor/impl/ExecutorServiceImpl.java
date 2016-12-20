@@ -25,13 +25,7 @@ import org.jbpm.executor.ExecutorNotStartedException;
 import org.jbpm.executor.ExecutorServiceFactory;
 import org.jbpm.executor.RequeueAware;
 import org.jbpm.executor.impl.event.ExecutorEventSupport;
-import org.kie.api.executor.CommandContext;
-import org.kie.api.executor.ErrorInfo;
-import org.kie.api.executor.Executor;
-import org.kie.api.executor.ExecutorAdminService;
-import org.kie.api.executor.ExecutorQueryService;
-import org.kie.api.executor.RequestInfo;
-import org.kie.api.executor.STATUS;
+import org.kie.api.executor.*;
 import org.kie.api.runtime.query.QueryContext;
 import org.kie.internal.executor.api.ExecutorService;
 
@@ -135,6 +129,10 @@ public class ExecutorServiceImpl implements ExecutorService, RequeueAware {
 
     public Long scheduleRequest(String commandName, CommandContext ctx) {
         return executor.scheduleRequest(commandName, ctx);
+    }
+
+    public void scheduleResponse(Long requestId, ExecutionResults results) {
+        executor.scheduleResponse(requestId, results);
     }
 
     public void cancelRequest(Long requestId) {

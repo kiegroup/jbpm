@@ -49,14 +49,14 @@ public class InMemoryExecutorQueryServiceImpl implements ExecutorQueryService {
 	public List<RequestInfo> getPendingRequests() {
 		Map<Long, RequestInfo> requests = storeService.getRequests();
 		
-		return (List<RequestInfo>) CollectionUtils.select(requests.values(), new GetRequestsByStatus(STATUS.QUEUED, STATUS.RETRYING));
+		return (List<RequestInfo>) CollectionUtils.select(requests.values(), new GetRequestsByStatus(STATUS.QUEUED, STATUS.QUEUED_CALLBACK, STATUS.RETRYING));
 	}
 
 	@Override
 	public List<RequestInfo> getPendingRequestById(Long id) {
 		List<RequestInfo> requests = new ArrayList<RequestInfo>();
 		RequestInfo request = storeService.findRequest(id);
-		if (request != null && request.getStatus() == STATUS.QUEUED) {
+		if (request != null && (request.getStatus() == STATUS.QUEUED || request.getStatus() == STATUS.QUEUED_CALLBACK)) {
 			requests.add(request);
 		}
 		return requests;
@@ -91,7 +91,7 @@ public class InMemoryExecutorQueryServiceImpl implements ExecutorQueryService {
 	public List<RequestInfo> getQueuedRequests() {
 		Map<Long, RequestInfo> requests = storeService.getRequests();
 		
-		return (List<RequestInfo>) CollectionUtils.select(requests.values(), new GetRequestsByStatus(STATUS.QUEUED));
+		return (List<RequestInfo>) CollectionUtils.select(requests.values(), new GetRequestsByStatus(STATUS.QUEUED, STATUS.QUEUED_CALLBACK));
 	}
 
 	@Override
@@ -131,7 +131,7 @@ public class InMemoryExecutorQueryServiceImpl implements ExecutorQueryService {
 	public List<RequestInfo> getRunningRequests() {
 		Map<Long, RequestInfo> requests = storeService.getRequests();
 		
-		return (List<RequestInfo>) CollectionUtils.select(requests.values(), new GetRequestsByStatus(STATUS.RUNNING));
+		return (List<RequestInfo>) CollectionUtils.select(requests.values(), new GetRequestsByStatus(STATUS.RUNNING, STATUS.WAITING_ASYNC, STATUS.RUNNING_CALLBACK));
 	}
 
 	@Override

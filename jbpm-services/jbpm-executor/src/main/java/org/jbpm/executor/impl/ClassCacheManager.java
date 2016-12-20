@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.kie.api.executor.Command;
+import org.kie.api.executor.CommandBase;
 import org.kie.api.executor.CommandCallback;
 import org.kie.api.executor.CommandContext;
 import org.kie.internal.runtime.Cacheable;
@@ -39,7 +39,7 @@ public class ClassCacheManager {
     
     private static final Logger logger = LoggerFactory.getLogger(ClassCacheManager.class);
     
-    private final Map<String, Command> commandCache = new HashMap<String, Command>();
+    private final Map<String, CommandBase> commandCache = new HashMap<String, CommandBase>();
     private final Map<String, CommandCallback> callbackCache = new HashMap<String, CommandCallback>();  
 
     /**
@@ -48,24 +48,24 @@ public class ClassCacheManager {
      * @param name - fully qualified class name of the command
      * @return initialized class instance
      */
-    public Command findCommand(String name, ClassLoader cl) {
+    public CommandBase findCommand(String name, ClassLoader cl) {
         synchronized (commandCache) {
             
             if (!commandCache.containsKey(name)) {
                 
                 try {
-                    Command commandInstance = (Command) Class.forName(name, true, cl).newInstance();
+                    CommandBase commandInstance = (CommandBase) Class.forName(name, true, cl).newInstance();
                     commandCache.put(name, commandInstance);
                 } catch (Exception ex) {
                     throw new IllegalArgumentException("Unknown Command implementation with name '" + name + "'");
                 }
     
             } else {
-                Command cmd = commandCache.get(name);
+                CommandBase cmd = commandCache.get(name);
                 if (!cmd.getClass().getClassLoader().equals(cl)) {
                     commandCache.remove(name);
                     try {
-                        Command commandInstance = (Command) Class.forName(name, true, cl).newInstance();
+                        CommandBase commandInstance = (CommandBase) Class.forName(name, true, cl).newInstance();
                         commandCache.put(name, commandInstance);
                     } catch (Exception ex) {
                         throw new IllegalArgumentException("Unknown Command implementation with name '" + name + "'");
