@@ -34,7 +34,7 @@ import org.kie.internal.process.CorrelationKey;
 import org.kie.internal.process.CorrelationProperty;
 
 @Entity
-@SequenceGenerator(name="correlationKeyInfoIdSeq", sequenceName="CORRELATION_KEY_ID_SEQ")
+@SequenceGenerator(name="correlationKeyInfoIdSeq", sequenceName="CORRELATION_KEY_ID_SEQ", allocationSize=1)
 public class CorrelationKeyInfo implements CorrelationKey, Serializable {
 
 	private static final long serialVersionUID = 4469298702447675428L;

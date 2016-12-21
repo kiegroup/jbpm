@@ -57,7 +57,7 @@ import org.kie.api.runtime.Environment;
 import org.kie.api.runtime.process.ProcessInstance;
 
 @Entity
-@SequenceGenerator(name="processInstanceInfoIdSeq", sequenceName="PROCESS_INSTANCE_INFO_ID_SEQ")
+@SequenceGenerator(name="processInstanceInfoIdSeq", sequenceName="PROCESS_INSTANCE_INFO_ID_SEQ", allocationSize=1)
 public class ProcessInstanceInfo implements Transformable {
 
     @Id

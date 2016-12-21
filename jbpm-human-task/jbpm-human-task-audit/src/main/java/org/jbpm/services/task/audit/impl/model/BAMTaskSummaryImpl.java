@@ -31,7 +31,7 @@ import javax.persistence.Version;
 
 @Entity
 @Table(name="BAMTaskSummary")
-@SequenceGenerator(name="bamTaskIdSeq", sequenceName="BAM_TASK_ID_SEQ")
+@SequenceGenerator(name="bamTaskIdSeq", sequenceName="BAM_TASK_ID_SEQ", allocationSize=1)
 public class BAMTaskSummaryImpl implements Serializable {
 
     private static final long serialVersionUID = 2793651602463099870L;

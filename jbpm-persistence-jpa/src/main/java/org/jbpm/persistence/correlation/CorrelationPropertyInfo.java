@@ -29,7 +29,7 @@ import javax.persistence.Version;
 import org.kie.internal.process.CorrelationProperty;
 
 @Entity
-@SequenceGenerator(name="correlationPropertyInfoIdSeq", sequenceName="CORRELATION_PROP_ID_SEQ")
+@SequenceGenerator(name="correlationPropertyInfoIdSeq", sequenceName="CORRELATION_PROP_ID_SEQ", allocationSize=1)
 public class CorrelationPropertyInfo implements CorrelationProperty<String>, Serializable {
 
 	private static final long serialVersionUID = -4469224502447675428L;
