@@ -19,6 +19,7 @@ package org.jbpm.kie.services.impl;
 import static org.kie.internal.query.QueryParameterIdentifiers.FILTER;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -58,7 +59,6 @@ import org.kie.internal.identity.IdentityProvider;
 import org.kie.internal.process.CorrelationKey;
 import org.kie.internal.query.QueryFilter;
 import org.kie.internal.task.api.AuditTask;
-import org.kie.internal.task.api.InternalTaskService;
 import org.kie.internal.task.api.model.TaskEvent;
 import org.kie.internal.task.query.TaskSummaryQueryBuilder;
 
@@ -77,6 +77,14 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
     protected TaskAuditService taskAuditService;
 
     private DeploymentRolesManager deploymentRolesManager = new DeploymentRolesManager();
+    
+    private static final List<Status> allActiveStatus = Arrays.asList(new Status[]{
+        Status.Created,
+        Status.Ready,
+        Status.Reserved,
+        Status.InProgress,
+        Status.Suspended
+      });
 
     public RuntimeDataServiceImpl() {
     	QueryManager.get().addNamedQueries("META-INF/Servicesorm.xml");
@@ -723,43 +731,58 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
 
 	@Override
 	public List<TaskSummary> getTasksAssignedAsBusinessAdministrator(String userId, QueryFilter filter) {
-
-		List<Status> allActiveStatus = new ArrayList<Status>();
-		allActiveStatus.add(Status.Created);
-		allActiveStatus.add(Status.Ready);
-		allActiveStatus.add(Status.Reserved);
-		allActiveStatus.add(Status.InProgress);
-		allActiveStatus.add(Status.Suspended);
-
-		Map<String, Object> params = new HashMap<String, Object>();
-        params.put("userId", userId);
-        params.put("status", allActiveStatus);
-        params.put("groupIds", identityProvider.getRoles());
-        applyQueryContext(params, filter);
-        applyQueryFilter(params, filter);
-        return (List<TaskSummary>) commandService.execute(
-				new QueryNameCommand<List<TaskSummary>>("TasksAssignedAsBusinessAdministratorByStatus",params));
+	
+		return getTasksAssignedAsBusinessAdministratorByStatus(userId, null, filter);
 
 	}
 
 	@Override
 	public List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId, QueryFilter filter) {
-		return ((InternalTaskService)taskService).getTasksAssignedAsPotentialOwner(userId, null , null, filter);
+	    
+	    Map<String, Object> params = new HashMap<String, Object>();
+        params.put("userId", userId);
+        params.put("groupIds", identityProvider.getRoles());
+        params.put("status", allActiveStatus); 
+        
+        applyQueryContext(params, filter);
+        applyQueryFilter(params, filter);
+        return (List<TaskSummary>) commandService.execute(new QueryNameCommand<List<TaskSummary>>("NewTasksAssignedAsPotentialOwner",params));
+        
 	}
 
 	@Override
 	public List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId, List<String> groupIds, QueryFilter filter) {
-		return ((InternalTaskService)taskService).getTasksAssignedAsPotentialOwner(userId, groupIds , null, filter);
+	    Map<String, Object> params = new HashMap<String, Object>();
+        params.put("userId", userId);        
+        params.put("groupIds", identityProvider.getRoles());
+        
+        applyQueryContext(params, filter);
+        applyQueryFilter(params, filter);
+        return (List<TaskSummary>) commandService.execute(new QueryNameCommand<List<TaskSummary>>("TasksAssignedAsPotentialOwnerWithGroups",params));
 	}
 
 	@Override
 	public List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId, List<String> groupIds, List<Status> status, QueryFilter filter) {
-		return ((InternalTaskService)taskService).getTasksAssignedAsPotentialOwner(userId, groupIds , status, filter);
+	    Map<String, Object> params = new HashMap<String, Object>();
+        params.put("userId", userId);        
+        params.put("groupIds", adoptList(groupIds, identityProvider.getRoles()));
+        params.put("status", adoptList(status, allActiveStatus));  
+        
+        applyQueryContext(params, filter);
+        applyQueryFilter(params, filter);
+        return (List<TaskSummary>) commandService.execute(new QueryNameCommand<List<TaskSummary>>("NewTasksAssignedAsPotentialOwner",params));
 	}
 
 	@Override
 	public List<TaskSummary> getTasksAssignedAsPotentialOwnerByStatus(String userId, List<Status> status, QueryFilter filter) {
-		return ((InternalTaskService)taskService).getTasksAssignedAsPotentialOwner(userId, null, status, filter);
+	    Map<String, Object> params = new HashMap<String, Object>();
+        params.put("userId", userId);        
+        params.put("groupIds", identityProvider.getRoles());
+        params.put("status", adoptList(status, allActiveStatus));  
+        
+        applyQueryContext(params, filter);
+        applyQueryFilter(params, filter);
+        return (List<TaskSummary>) commandService.execute(new QueryNameCommand<List<TaskSummary>>("NewTasksAssignedAsPotentialOwner",params));
 	}
 
 	@Override
@@ -773,10 +796,10 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
 	                            params, "order by t.id DESC", filter.getOffset(), filter.getCount());
 
 
-			taskSummaries = ((InternalTaskService)taskService).getTasksAssignedAsPotentialOwner(userId, null, status, qf);
+			taskSummaries = getTasksAssignedAsPotentialOwnerByStatus(userId, status, qf);
         } else {
             QueryFilter qf = new QueryFilter(filter.getOffset(), filter.getCount());
-            taskSummaries = ((InternalTaskService)taskService).getTasksAssignedAsPotentialOwner(userId,null, status, qf);
+            taskSummaries = getTasksAssignedAsPotentialOwnerByStatus(userId, status, qf);
         }
         return taskSummaries;
 	}
@@ -792,10 +815,10 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
 	                            params, "order by t.id DESC", filter.getOffset(), filter.getCount());
 
 
-			taskSummaries = ((InternalTaskService)taskService).getTasksOwned(userId, null, qf);
+			taskSummaries = getTasksOwnedByStatus(userId, strStatuses, qf);
         } else {
             QueryFilter qf = new QueryFilter(filter.getOffset(), filter.getCount());
-            taskSummaries = ((InternalTaskService)taskService).getTasksOwned(userId,null, qf);
+            taskSummaries = getTasksOwnedByStatus(userId, strStatuses, qf);
         }
         return taskSummaries;
 	}
@@ -803,17 +826,26 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
 	@Override
 	public List<TaskSummary> getTasksOwned(String userId, QueryFilter filter) {
 
-        return ((InternalTaskService)taskService).getTasksOwned(userId, null, filter);
+        return getTasksOwnedByStatus(userId, null, filter);
 	}
 
 	@Override
 	public List<TaskSummary> getTasksOwnedByStatus(String userId, List<Status> status, QueryFilter filter) {
-		return ((InternalTaskService)taskService).getTasksOwned(userId, status, filter);
+	    Map<String, Object> params = new HashMap<String, Object>();
+        params.put("userId", userId);        
+        params.put("status", adoptList(status, allActiveStatus));  
+        
+        applyQueryContext(params, filter);
+        applyQueryFilter(params, filter);
+        return (List<TaskSummary>) commandService.execute(new QueryNameCommand<List<TaskSummary>>("NewTasksOwned",params));
 	}
 
 	@Override
 	public List<Long> getTasksByProcessInstanceId(Long processInstanceId) {
-		return taskService.getTasksByProcessInstanceId(processInstanceId);
+	    Map<String, Object> params = new HashMap<String, Object>();
+        params.put("processInstanceId", processInstanceId);                  
+        
+        return (List<Long>) commandService.execute(new QueryNameCommand<List<Long>>("TasksByProcessInstanceId",params));
 	}
 
 	@Override
@@ -842,7 +874,15 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
     public List<TaskSummary> getTasksAssignedAsBusinessAdministratorByStatus(String userId,
                                                                              List<Status> statuses,
                                                                              QueryFilter filter) {
-        return ((InternalTaskService)taskService).getTasksAssignedAsBusinessAdministratorByStatus(userId, filter.getLanguage(), statuses);
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("userId", userId);
+        params.put("status", allActiveStatus);
+        params.put("groupIds", identityProvider.getRoles());
+        applyQueryContext(params, filter);
+        applyQueryFilter(params, filter);
+        return (List<TaskSummary>) commandService.execute(
+                new QueryNameCommand<List<TaskSummary>>("TasksAssignedAsBusinessAdministratorByStatus",params));
+        
     }
 
     @Override
@@ -957,16 +997,36 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
         return auditTasks;
     }
 
-        @Override
+    @Override
     public List<AuditTask> getAllGroupAuditTask(String userId, QueryFilter filter){
 
-        return taskAuditService.getAllGroupAuditTasksByUser(userId, filter);
+        List<String> owners = new ArrayList<String>();
+        owners.add(userId);
+        owners.addAll(identityProvider.getRoles());
+    
+        Map<String, Object> params = new HashMap<String, Object>();           
+        params.put("potentialOwners", owners);
+        
+        applyQueryContext(params, filter);
+        applyQueryFilter(params, filter);
+        List<AuditTask> auditTasks = commandService.execute(new QueryNameCommand<List<AuditTask>>("getAllGroupAuditTasksByUser", params));
+        return auditTasks;            
 
     }
 
      @Override
     public List<AuditTask> getAllAdminAuditTask(String userId, QueryFilter filter){
-        return taskAuditService.getAllAdminAuditTasksByUser(userId, filter);
+         List<String> businessAdmins = new ArrayList<String>();
+         businessAdmins.add(userId);
+         businessAdmins.addAll(identityProvider.getRoles());
+     
+         Map<String, Object> params = new HashMap<String, Object>();           
+         params.put("businessAdmins", businessAdmins);
+         
+         applyQueryContext(params, filter);
+         applyQueryFilter(params, filter);
+         List<AuditTask> auditTasks = commandService.execute(new QueryNameCommand<List<AuditTask>>("getAllAdminAuditTasksByUser", params));
+         return auditTasks;  
     }
 
     public List<TaskEvent> getTaskEvents(long taskId, QueryFilter filter) {
@@ -1180,5 +1240,16 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
         }
     }
 
-
+     protected List<?> adoptList(List<?> source, List<?> values) {
+         
+         if (source == null || source.isEmpty()) {
+             List<Object> data = new ArrayList<Object>();            
+             for (Object value : values) {
+                 data.add(value);
+             }
+             
+             return data;
+         }
+         return source;
+     }
 }
