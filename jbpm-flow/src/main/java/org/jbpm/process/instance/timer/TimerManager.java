@@ -310,6 +310,7 @@ public class TimerManager {
 
             } catch (Throwable e) {
                 logger.error("Error when executing timer job", e);
+                throw new RuntimeException(e);
             } finally {
                 kruntime.endOperation();
             }
