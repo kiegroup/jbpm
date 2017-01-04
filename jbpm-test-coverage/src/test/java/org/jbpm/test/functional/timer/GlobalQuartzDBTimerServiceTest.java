@@ -166,6 +166,8 @@ public class GlobalQuartzDBTimerServiceTest extends GlobalTimerServiceBaseTest {
         additionalCopy.shutdown();
     }
     
+    
+    
     /**
      * Test that illustrates that jobs are persisted and survives server restart
      * and as soon as GlobalTimerService is active jobs are fired and it loads and aborts the 
