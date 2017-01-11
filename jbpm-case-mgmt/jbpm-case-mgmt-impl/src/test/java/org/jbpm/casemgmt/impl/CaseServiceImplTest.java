@@ -101,6 +101,7 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
         processes.add("cases/UserStageAdhocCase.bpmn2");
         processes.add("cases/ScriptRoleAssignmentCase.bpmn2");
         processes.add("cases/NoStartNodeAdhocCase.bpmn2");
+        processes.add("cases/CaseFileConditionalEvent.bpmn2");
         // add processes that can be used by cases but are not cases themselves
         processes.add("processes/DataVerificationProcess.bpmn2");
         
