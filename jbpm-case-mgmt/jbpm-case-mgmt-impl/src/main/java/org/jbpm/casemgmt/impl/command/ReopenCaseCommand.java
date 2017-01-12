@@ -68,22 +68,23 @@ public class ReopenCaseCommand extends CaseCommand<Void> {
         
         if (data != null && !data.isEmpty()) {
             logger.debug("Updating case file in working memory");
-            Collection<? extends Object> caseFiles = ksession.getObjects(new ClassObjectFilter(CaseFileInstance.class));
+            Collection<? extends Object> caseFiles = ksession.getEntryPoint(caseDefinitionId).getObjects(new ClassObjectFilter(CaseFileInstance.class));
             if (caseFiles.size() == 0) {
                 throw new CaseNotFoundException("Case with id " + caseId + " was not found");
             }
             CaseFileInstance caseFile = (CaseFileInstance) caseFiles.iterator().next();                        
-            FactHandle factHandle = ksession.getFactHandle(caseFile);
+            FactHandle factHandle = ksession.getEntryPoint(caseDefinitionId).getFactHandle(caseFile);
             
             caseFile.addAll(data);
             
-            ksession.update(factHandle, caseFile);
+            ksession.getEntryPoint(caseDefinitionId).update(factHandle, caseFile);
         }
         logger.debug("Starting process instance for case {} and case definition {}", caseId, caseDefinitionId);
         CorrelationKey correlationKey = correlationKeyFactory.newCorrelationKey(caseId);
         Map<String, Object> params = new HashMap<>();
         // set case id to allow it to use CaseContext when creating runtime engine
         params.put(EnvironmentName.CASE_ID, caseId);
+        params.put(ENTRY_POINT_VAR_NAME, caseDefinitionId);
         long processInstanceId = processService.startProcess(deploymentId, caseDefinitionId, correlationKey, params);
         logger.debug("Case {} successfully reopened (process instance id {})", caseId, processInstanceId);
         caseEventSupport.fireAfterCaseReopened(caseId, deploymentId, caseDefinitionId, data, processInstanceId);

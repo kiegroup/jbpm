@@ -30,6 +30,7 @@ import java.util.Collections;
 public abstract class CaseCommand<T> implements ExecutableCommand<T> {
 
     private static final long serialVersionUID = 4116744986913465571L;
+    protected static final String ENTRY_POINT_VAR_NAME = "_EntryPoint_";
     
     private CaseEventSupport emptyCaseEventSupport = new CaseEventSupport(Collections.emptyList());
 

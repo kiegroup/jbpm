@@ -35,8 +35,10 @@ public class AddDataCaseFileInstanceCommand extends CaseCommand<Void> {
     private static final long serialVersionUID = 6345222909719335953L;
 
     private Map<String, Object> parameters;
+    private String caseDefinitionId;
     
-    public AddDataCaseFileInstanceCommand(Map<String, Object> parameters) {                
+    public AddDataCaseFileInstanceCommand(String caseDefinitionId, Map<String, Object> parameters) {                
+        this.caseDefinitionId = caseDefinitionId;
         this.parameters = parameters;        
     }
 
@@ -44,19 +46,19 @@ public class AddDataCaseFileInstanceCommand extends CaseCommand<Void> {
     public Void execute(Context context) {
         KieSession ksession = ((RegistryContext) context).lookup( KieSession.class );
         
-        Collection<? extends Object> caseFiles = ksession.getObjects(new ClassObjectFilter(CaseFileInstance.class));
+        Collection<? extends Object> caseFiles = ksession.getEntryPoint(caseDefinitionId).getObjects(new ClassObjectFilter(CaseFileInstance.class));
         if (caseFiles.size() != 1) {
             throw new IllegalStateException("Not able to find distinct case file - found case files " + caseFiles.size());
         }
         CaseFileInstance caseFile = (CaseFileInstance) caseFiles.iterator().next();
-        FactHandle factHandle = ksession.getFactHandle(caseFile);
+        FactHandle factHandle = ksession.getEntryPoint(caseDefinitionId).getFactHandle(caseFile);
         
         CaseEventSupport caseEventSupport = getCaseEventSupport(context);
         caseEventSupport.fireBeforeCaseDataAdded(caseFile.getCaseId(), parameters);
         caseFile.addAll(parameters);
         caseEventSupport.fireAfterCaseDataAdded(caseFile.getCaseId(), parameters);
         
-        ksession.update(factHandle, caseFile);
+        ksession.getEntryPoint(caseDefinitionId).update(factHandle, caseFile);
         return null;
     }
 

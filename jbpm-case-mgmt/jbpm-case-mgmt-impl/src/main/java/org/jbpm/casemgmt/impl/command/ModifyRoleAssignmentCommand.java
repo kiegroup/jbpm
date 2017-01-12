@@ -39,7 +39,10 @@ public class ModifyRoleAssignmentCommand extends CaseCommand<Void> {
     private OrganizationalEntity entity;
     private boolean add;
     
-    public ModifyRoleAssignmentCommand(String roleName, OrganizationalEntity entity, boolean add) {
+    private String caseDefinitionId;
+    
+    public ModifyRoleAssignmentCommand(String caseDefinitionId, String roleName, OrganizationalEntity entity, boolean add) {
+        this.caseDefinitionId = caseDefinitionId;
         this.roleName = roleName;
         this.entity = entity;
         this.add = add;
@@ -49,12 +52,12 @@ public class ModifyRoleAssignmentCommand extends CaseCommand<Void> {
     public Void execute(Context context) {
         KieSession ksession = ((RegistryContext) context).lookup( KieSession.class );
         
-        Collection<? extends Object> caseFiles = ksession.getObjects(new ClassObjectFilter(CaseFileInstance.class));
+        Collection<? extends Object> caseFiles = ksession.getEntryPoint(caseDefinitionId).getObjects(new ClassObjectFilter(CaseFileInstance.class));
         if (caseFiles.size() != 1) {
             throw new IllegalStateException("Not able to find distinct case file - found case files " + caseFiles.size());
         }
         CaseFileInstance caseFile = (CaseFileInstance) caseFiles.iterator().next();
-        FactHandle factHandle = ksession.getFactHandle(caseFile);
+        FactHandle factHandle = ksession.getEntryPoint(caseDefinitionId).getFactHandle(caseFile);
         
         CaseEventSupport caseEventSupport = getCaseEventSupport(context);
         
@@ -68,7 +71,7 @@ public class ModifyRoleAssignmentCommand extends CaseCommand<Void> {
             caseEventSupport.fireAfterCaseRoleAssignmentRemoved(caseFile.getCaseId(), roleName, entity);
         }
         
-        ksession.update(factHandle, caseFile);
+        ksession.getEntryPoint(caseDefinitionId).update(factHandle, caseFile);
         return null;
     }
 

@@ -6,7 +6,7 @@ import org.jbpm.casemgmt.demo.insurance.ClaimReport;
 rule "classify-claim" ruleflow-group "claims"
 
 when 
-    $caseData : CaseData()
+    $caseData : CaseData() from entry-point "insurance-claims.CarInsuranceClaimCase" 
     $claim : ClaimReport( ) from $caseData.getData("claimReport")      
 then 
     System.out.println("Classified claim " + $claim);

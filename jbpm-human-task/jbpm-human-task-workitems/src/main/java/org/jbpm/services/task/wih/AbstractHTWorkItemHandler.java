@@ -35,6 +35,8 @@ import org.kie.api.runtime.process.CaseData;
 import org.kie.api.runtime.process.WorkItem;
 import org.kie.api.runtime.process.WorkItemHandler;
 import org.kie.api.runtime.process.WorkItemManager;
+import org.kie.api.runtime.process.WorkflowProcessInstance;
+import org.kie.api.runtime.rule.EntryPoint;
 import org.kie.api.task.model.I18NText;
 import org.kie.api.task.model.OrganizationalEntity;
 import org.kie.api.task.model.PeopleAssignments;
@@ -57,6 +59,8 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractHTWorkItemHandler implements WorkItemHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractHTWorkItemHandler.class);
+    private static final String DEFAULT_ENTRY_POINT = "DEFAULT";
+    private static final String ENTRY_POINT_VAR_NAME = "_EntryPoint_";
     
     protected OnErrorAction action = OnErrorAction.LOG;
 
@@ -141,18 +145,22 @@ public abstract class AbstractHTWorkItemHandler implements WorkItemHandler {
         taskData.setWorkItemId(workItem.getId());
         taskData.setProcessInstanceId(workItem.getProcessInstanceId());
         if (session != null) {
-            if (session.getProcessInstance(workItem.getProcessInstanceId()) != null) {
-                taskData.setProcessId(session.getProcessInstance(workItem.getProcessInstanceId()).getProcess().getId());
+            WorkflowProcessInstance processInstance = (WorkflowProcessInstance) session.getProcessInstance(workItem.getProcessInstanceId());
+            if (processInstance != null) {
+                taskData.setProcessId(processInstance.getProcess().getId());
                 String deploymentId = ((WorkItemImpl) workItem).getDeploymentId();
                 taskData.setDeploymentId(deploymentId);            
             }
             if (session instanceof KieSession) {
                 taskData.setProcessSessionId(((KieSession) session).getIdentifier());
             }
-            @SuppressWarnings("unchecked")
-            Collection<CaseData> caseFiles = (Collection<CaseData>) session.getObjects(new ClassObjectFilter(CaseData.class));
-            if (caseFiles != null && caseFiles.size() == 1) {
-                caseFile = caseFiles.iterator().next();
+            EntryPoint entryPoint = session.getEntryPoint(getEntryPointName(processInstance));
+            if (entryPoint != null) {
+                @SuppressWarnings("unchecked")
+                Collection<CaseData> caseFiles = (Collection<CaseData>) entryPoint.getObjects(new ClassObjectFilter(CaseData.class));
+                if (caseFiles != null && caseFiles.size() == 1) {
+                    caseFile = caseFiles.iterator().next();
+                }
             }
         }
         taskData.setSkipable(!"false".equals(workItem.getParameter("Skippable")));
@@ -235,4 +243,14 @@ public abstract class AbstractHTWorkItemHandler implements WorkItemHandler {
     public abstract void executeWorkItem(WorkItem workItem, WorkItemManager manager);
 
     public abstract void abortWorkItem(WorkItem workItem, WorkItemManager manager);
+    
+    protected String getEntryPointName(WorkflowProcessInstance processInstance) {
+        if (processInstance != null) {
+            String entryPointName = (String) processInstance.getVariable(ENTRY_POINT_VAR_NAME);
+            if (entryPointName != null) {
+                return entryPointName;
+            }
+        }
+        return DEFAULT_ENTRY_POINT;
+    }
 }

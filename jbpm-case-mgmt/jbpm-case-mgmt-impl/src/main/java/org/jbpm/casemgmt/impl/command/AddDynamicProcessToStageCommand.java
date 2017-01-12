@@ -27,6 +27,7 @@ import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.Context;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -41,13 +42,17 @@ public class AddDynamicProcessToStageCommand extends CaseCommand<Long> {
     private String stageId;
     private long processInstanceId;
     private Map<String, Object> parameters;
+
+    private String caseDefinitionId;
     
-    public AddDynamicProcessToStageCommand(String caseId, Long processInstanceId, String stageId, String processId, Map<String, Object> parameters) {        
+    public AddDynamicProcessToStageCommand(String caseId, Long processInstanceId, String stageId, String processId, Map<String, Object> parameters, String caseDefinitionId) {        
         this.caseId = caseId;
         this.processInstanceId = processInstanceId;
         this.stageId = stageId;
         this.processId = processId;
         this.parameters = parameters;
+
+        this.caseDefinitionId = caseDefinitionId;
         
         if (processInstanceId == null || processId == null || stageId == null) {
             throw new IllegalArgumentException("Mandatory parameters are missing - process instance id / process id / stage id");
@@ -62,6 +67,10 @@ public class AddDynamicProcessToStageCommand extends CaseCommand<Long> {
         if (processInstance == null) {
             throw new ProcessInstanceNotFoundException("No process instance found with id " + processInstanceId);
         }
+        if (parameters == null) {
+            parameters = new HashMap<>();
+        }
+        parameters.put(ENTRY_POINT_VAR_NAME, caseDefinitionId);
         
         DynamicNodeInstance dynamicContext = (DynamicNodeInstance) ((WorkflowProcessInstanceImpl) processInstance).getNodeInstances(true).stream()
                 .filter(ni -> (ni instanceof DynamicNodeInstance) && stageId.equals(ni.getNode().getMetaData().get("UniqueId")))

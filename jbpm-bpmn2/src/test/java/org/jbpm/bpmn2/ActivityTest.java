@@ -1062,7 +1062,7 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         assertProcessInstanceActive(processInstance);
         ksession.signalEvent("User1", null, processInstance.getId());
         assertProcessInstanceActive(processInstance);
-        ksession.insert(new Person());
+        ksession.getEntryPoint("AdHocProcess").insert(new Person());
         ksession.signalEvent("Task3", null, processInstance.getId());
         assertProcessInstanceFinished(processInstance, ksession);
     }
@@ -1090,7 +1090,7 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
         ksession.signalEvent("User1", null, processInstance.getId());
         assertProcessInstanceActive(processInstance);
-        ksession.insert(new Person());
+        ksession.getEntryPoint("AdHocProcess").insert(new Person());
         ksession.signalEvent("Task3", null, processInstance.getId());
         assertProcessInstanceFinished(processInstance, ksession);
     }
@@ -1116,7 +1116,7 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         ksession = restoreSession(ksession, true);
         ksession.signalEvent("User1", null, processInstance.getId());
         assertProcessInstanceActive(processInstance);
-        ksession.insert(new Person());
+        ksession.getEntryPoint("AdHocProcess").insert(new Person());
         ksession.signalEvent("Task3", null, processInstance.getId());
         assertProcessInstanceFinished(processInstance, ksession);
     }
