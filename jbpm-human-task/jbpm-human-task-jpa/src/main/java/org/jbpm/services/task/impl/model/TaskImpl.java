@@ -423,7 +423,10 @@ public class TaskImpl implements InternalTask {
     public void setDescription(String description) {
         this.description = description;
     }
-    
-    
 
+    @Override
+    public String toString() {
+        return "TaskImpl [id=" + id + ", name=" + name + "]";
+    }
+  
 }
