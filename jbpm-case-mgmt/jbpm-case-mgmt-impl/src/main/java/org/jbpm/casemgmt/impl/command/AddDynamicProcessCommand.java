@@ -24,6 +24,7 @@ import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.Context;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -38,11 +39,15 @@ public class AddDynamicProcessCommand extends CaseCommand<Long> {
     private long processInstanceId;
     private Map<String, Object> parameters;
     
-    public AddDynamicProcessCommand(String caseId, Long processInstanceId, String processId, Map<String, Object> parameters) {        
+    private String caseDefinitionId;
+    
+    public AddDynamicProcessCommand(String caseId, Long processInstanceId, String processId, Map<String, Object> parameters, String caseDefinitionId) {        
         this.caseId = caseId;
         this.processInstanceId = processInstanceId;
         this.processId = processId;
         this.parameters = parameters;
+        
+        this.caseDefinitionId = caseDefinitionId;
         
         if (processInstanceId == null || processId == null) {
             throw new IllegalArgumentException("Mandatory parameters are missing - process instance id and process id");
@@ -57,6 +62,11 @@ public class AddDynamicProcessCommand extends CaseCommand<Long> {
         if (processInstance == null) {
             throw new ProcessInstanceNotFoundException("No process instance found with id " + processInstanceId);
         }
+        if (parameters == null) {
+            parameters = new HashMap<>();
+        }
+        parameters.put(ENTRY_POINT_VAR_NAME, caseDefinitionId);
+        
         CaseEventSupport caseEventSupport = getCaseEventSupport(context);
         caseEventSupport.fireBeforeDynamicProcessAdded(caseId, processInstanceId, processId, parameters);
         

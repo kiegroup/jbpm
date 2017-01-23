@@ -74,13 +74,14 @@ public class StartCaseCommand extends CaseCommand<Void> {
         caseEventSupport.fireBeforeCaseStarted(caseId, deploymentId, caseDefinitionId, caseFile);
         
         logger.debug("Inserting case file into working memory");
-        processService.execute(deploymentId, CaseContext.get(caseId), commandsFactory.newInsert(caseFile));
+        processService.execute(deploymentId, CaseContext.get(caseId), commandsFactory.newInsert(caseFile, "caseFile", false, caseDefinitionId));
         
         logger.debug("Starting process instance for case {} and case definition {}", caseId, caseDefinitionId);
         CorrelationKey correlationKey = correlationKeyFactory.newCorrelationKey(caseId);
         Map<String, Object> params = new HashMap<>();
         // set case id to allow it to use CaseContext when creating runtime engine
         params.put(EnvironmentName.CASE_ID, caseId);
+        params.put(ENTRY_POINT_VAR_NAME, caseDefinitionId);
         final long processInstanceId = processService.startProcess(deploymentId, caseDefinitionId, correlationKey, params);
         logger.debug("Case {} successfully started (process instance id {})", caseId, processInstanceId);
         

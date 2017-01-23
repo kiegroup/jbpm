@@ -46,19 +46,24 @@ public class CaseCommentCommand extends CaseCommand<Void> {
     private String commentId;
 
     private String updatedText;
+    
+    private String caseDefinitionId;
 
-    public CaseCommentCommand(String author, String comment) {
+    public CaseCommentCommand(String caseDefinitionId, String author, String comment) {
+        this.caseDefinitionId = caseDefinitionId;
         this.author = author;
         this.comment = comment;
         this.add = true;
     }
 
-    public CaseCommentCommand(String commentId) {
+    public CaseCommentCommand(String caseDefinitionId, String commentId) {
+        this.caseDefinitionId = caseDefinitionId;
         this.commentId = commentId;
         this.remove = true;
     }
 
-    public CaseCommentCommand(String commentId, String author, String updatedText) {
+    public CaseCommentCommand(String caseDefinitionId, String commentId, String author, String updatedText) {
+        this.caseDefinitionId = caseDefinitionId;
         this.commentId = commentId;
         this.author = author;
         this.updatedText = updatedText;
@@ -70,12 +75,12 @@ public class CaseCommentCommand extends CaseCommand<Void> {
     public Void execute(Context context) {
         KieSession ksession = ((RegistryContext) context).lookup( KieSession.class );
 
-        Collection<? extends Object> caseFiles = ksession.getObjects(new ClassObjectFilter(CaseFileInstance.class));
+        Collection<? extends Object> caseFiles = ksession.getEntryPoint(caseDefinitionId).getObjects(new ClassObjectFilter(CaseFileInstance.class));
         if (caseFiles.size() != 1) {
             throw new IllegalStateException("Not able to find distinct case file - found case files " + caseFiles.size());
         }
         CaseFileInstance caseFile = (CaseFileInstance) caseFiles.iterator().next();
-        FactHandle factHandle = ksession.getFactHandle(caseFile);
+        FactHandle factHandle = ksession.getEntryPoint(caseDefinitionId).getFactHandle(caseFile);
 
         CaseEventSupport caseEventSupport = getCaseEventSupport(context);
 
@@ -104,7 +109,7 @@ public class CaseCommentCommand extends CaseCommand<Void> {
             ((CaseFileInstanceImpl)caseFile).removeComment(toRemove);
             caseEventSupport.fireBeforeCaseCommentRemoved(caseFile.getCaseId(), toRemove);
         }
-        ksession.update(factHandle, caseFile);
+        ksession.getEntryPoint(caseDefinitionId).update(factHandle, caseFile);
         return null;
     }
 

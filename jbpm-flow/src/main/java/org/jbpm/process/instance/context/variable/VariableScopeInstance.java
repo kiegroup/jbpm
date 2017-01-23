@@ -29,8 +29,11 @@ import org.jbpm.process.instance.ContextInstanceContainer;
 import org.jbpm.process.instance.InternalProcessRuntime;
 import org.jbpm.process.instance.context.AbstractContextInstance;
 import org.jbpm.workflow.core.Node;
+import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 import org.jbpm.workflow.instance.node.CompositeContextNodeInstance;
 import org.kie.api.runtime.process.CaseData;
+import org.kie.api.runtime.process.WorkflowProcessInstance;
+import org.kie.api.runtime.rule.EntryPoint;
 import org.kie.api.runtime.rule.FactHandle;
 
 /**
@@ -38,7 +41,10 @@ import org.kie.api.runtime.rule.FactHandle;
  */
 public class VariableScopeInstance extends AbstractContextInstance {
 
-    private static final long serialVersionUID = 510l;    
+    private static final long serialVersionUID = 510l;  
+    
+    private static final String DEFAULT_ENTRY_POINT = "DEFAULT";
+    private static final String ENTRY_POINT_VAR_NAME = "_EntryPoint_";
     
     private Map<String, Object> variables = new HashMap<String, Object>();
     private transient String variableIdPrefix = null;
@@ -70,14 +76,17 @@ public class VariableScopeInstance extends AbstractContextInstance {
                 return value;
             }
             // support for case file data
-            @SuppressWarnings("unchecked")
-            Collection<CaseData> caseFiles = (Collection<CaseData>) getProcessInstance().getKnowledgeRuntime().getObjects(new ClassObjectFilter(CaseData.class));
-            if (caseFiles.size() == 1) {
-                CaseData caseFile = caseFiles.iterator().next();
-                // check if there is case file prefix and if so remove it before checking case file data
-                final String lookUpName = name.startsWith(VariableScope.CASE_FILE_PREFIX) ? name.replaceFirst(VariableScope.CASE_FILE_PREFIX, "") : name;
-                if (caseFile != null) {
-                    return caseFile.getData(lookUpName);
+            EntryPoint entryPoint = getProcessInstance().getKnowledgeRuntime().getEntryPoint(getEntryPointName());
+            if (entryPoint != null) {
+                @SuppressWarnings("unchecked")
+                Collection<CaseData> caseFiles = (Collection<CaseData>) entryPoint.getObjects(new ClassObjectFilter(CaseData.class));
+                if (caseFiles.size() == 1) {
+                    CaseData caseFile = caseFiles.iterator().next();
+                    // check if there is case file prefix and if so remove it before checking case file data
+                    final String lookUpName = name.startsWith(VariableScope.CASE_FILE_PREFIX) ? name.replaceFirst(VariableScope.CASE_FILE_PREFIX, "") : name;
+                    if (caseFile != null) {
+                        return caseFile.getData(lookUpName);
+                    }
                 }
             }
             
@@ -120,17 +129,18 @@ public class VariableScopeInstance extends AbstractContextInstance {
         if (name.startsWith(VariableScope.CASE_FILE_PREFIX)) {
             String nameInCaseFile = name.replaceFirst(VariableScope.CASE_FILE_PREFIX, "");            
             // store it under case file rather regular variables
-            @SuppressWarnings("unchecked")
-            Collection<CaseData> caseFiles = (Collection<CaseData>) getProcessInstance().getKnowledgeRuntime().getObjects(new ClassObjectFilter(CaseData.class));
-            if (caseFiles.size() == 1) {
-                CaseData caseFile = (CaseData) caseFiles.iterator().next();
-                FactHandle factHandle = getProcessInstance().getKnowledgeRuntime().getFactHandle(caseFile);
-                
-                caseFile.add(nameInCaseFile, value);
-                getProcessInstance().getKnowledgeRuntime().update(factHandle, caseFile);
-                return;
+            EntryPoint entryPoint = getProcessInstance().getKnowledgeRuntime().getEntryPoint(getEntryPointName());
+            if (entryPoint != null) {
+                @SuppressWarnings("unchecked")
+                Collection<CaseData> caseFiles = (Collection<CaseData>) entryPoint.getObjects(new ClassObjectFilter(CaseData.class));
+                if (caseFiles.size() == 1) {
+                    CaseData caseFile = (CaseData) caseFiles.iterator().next();
+                    FactHandle factHandle = entryPoint.getFactHandle(caseFile);
+                    caseFile.add(nameInCaseFile, value);
+                    entryPoint.update(factHandle, caseFile);
+                    return;
+                }
             }
-            
         }
         // not a case, store it in normal variables
     	variables.put(name, value);
@@ -151,4 +161,14 @@ public class VariableScopeInstance extends AbstractContextInstance {
     	}
 	}
 
+    protected String getEntryPointName() {
+        if (getProcessInstance() != null) {
+            Map<String, Object> variables = ((WorkflowProcessInstanceImpl)getProcessInstance()).getVariables();
+            String entryPointName = (String) variables.get(ENTRY_POINT_VAR_NAME);
+            if (entryPointName != null) {
+                return entryPointName;
+            }
+        }
+        return DEFAULT_ENTRY_POINT;
+    }
 }

@@ -37,8 +37,10 @@ public class RemoveDataCaseFileInstanceCommand extends CaseCommand<Void> {
     private static final long serialVersionUID = 6345222909719335953L;
 
     private List<String> variableNames;
+    private String caseDefinitionId;
     
-    public RemoveDataCaseFileInstanceCommand(List<String> variableNames) {                
+    public RemoveDataCaseFileInstanceCommand(String caseDefinitionId, List<String> variableNames) {    
+        this.caseDefinitionId = caseDefinitionId;
         this.variableNames = variableNames;        
     }
 
@@ -46,12 +48,12 @@ public class RemoveDataCaseFileInstanceCommand extends CaseCommand<Void> {
     public Void execute(Context context) {
         KieSession ksession = ((RegistryContext) context).lookup( KieSession.class );
         
-        Collection<? extends Object> caseFiles = ksession.getObjects(new ClassObjectFilter(CaseFileInstance.class));
+        Collection<? extends Object> caseFiles = ksession.getEntryPoint(caseDefinitionId).getObjects(new ClassObjectFilter(CaseFileInstance.class));
         if (caseFiles.size() != 1) {
             throw new IllegalStateException("Not able to find distinct case file - found case files " + caseFiles.size());
         }
         CaseFileInstance caseFile = (CaseFileInstance) caseFiles.iterator().next();
-        FactHandle factHandle = ksession.getFactHandle(caseFile);
+        FactHandle factHandle = ksession.getEntryPoint(caseDefinitionId).getFactHandle(caseFile);
         
         Map<String, Object> remove = new HashMap<>();        
         variableNames.forEach(p -> remove.put(p, caseFile.getData(p)));
@@ -63,7 +65,7 @@ public class RemoveDataCaseFileInstanceCommand extends CaseCommand<Void> {
         
         caseEventSupport.fireAfterCaseDataRemoved(caseFile.getCaseId(), remove);
         
-        ksession.update(factHandle, caseFile);
+        ksession.getEntryPoint(caseDefinitionId).update(factHandle, caseFile);
         return null;
     }
 

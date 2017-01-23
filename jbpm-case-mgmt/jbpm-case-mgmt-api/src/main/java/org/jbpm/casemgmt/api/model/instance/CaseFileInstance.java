@@ -34,6 +34,12 @@ public interface CaseFileInstance extends CaseData {
     String getCaseId();
     
     /**
+     * Returns case definition id this case instance is associated with.
+     * @return
+     */
+    String getCaseDefinitionId();
+    
+    /**
      * Returns start date of the associated case
      * @return
      */

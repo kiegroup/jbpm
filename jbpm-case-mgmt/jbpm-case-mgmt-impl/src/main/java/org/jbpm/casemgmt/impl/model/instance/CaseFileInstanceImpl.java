@@ -52,6 +52,7 @@ public class CaseFileInstanceImpl implements CaseFileInstance, CaseAssignment, S
     private Date caseStartDate;
     private Date caseEndDate;
     private Date caseReopenDate;
+    private String caseDefinitionId;
     
     private Map<String, Object> data = new HashMap<>();    
     private Map<String, CaseRoleInstance> roles = new HashMap<>();    
@@ -63,18 +64,21 @@ public class CaseFileInstanceImpl implements CaseFileInstance, CaseAssignment, S
         
     }
     
-    public CaseFileInstanceImpl(String caseId) {
+    public CaseFileInstanceImpl(String caseId, String caseDefinitionId) {
         this.caseId = caseId;
+        this.caseDefinitionId = caseDefinitionId;
         this.caseStartDate = new Date();
     }
     
-    public CaseFileInstanceImpl(Map<String, Object> data) {        
+    public CaseFileInstanceImpl(Map<String, Object> data, String caseDefinitionId) {        
         this.data = data;
+        this.caseDefinitionId = caseDefinitionId;
         this.caseStartDate = new Date();
     }
     
-    public CaseFileInstanceImpl(String caseId, Map<String, Object> data) {
+    public CaseFileInstanceImpl(String caseId, String caseDefinitionId, Map<String, Object> data) {
         this.caseId = caseId;
+        this.caseDefinitionId = caseDefinitionId;
         this.data = data;
         this.caseStartDate = new Date();
     }
@@ -293,6 +297,14 @@ public class CaseFileInstanceImpl implements CaseFileInstance, CaseAssignment, S
         } else if (!data.equals(other.data))
             return false;
         return true;
+    }
+
+    public String getCaseDefinitionId() {
+        return caseDefinitionId;
+    }
+
+    public void setCaseDefinitionId(String caseDefinitionId) {
+        this.caseDefinitionId = caseDefinitionId;
     }
 
 }

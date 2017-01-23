@@ -75,6 +75,8 @@ public class SubProcessNodeInstance extends StateBasedNodeInstance implements Ev
     private static final long serialVersionUID = 510l;
     private static final Logger logger = LoggerFactory.getLogger(SubProcessNodeInstance.class);
     
+    private static final String ENTRY_POINT_VAR_NAME = "_EntryPoint_";
+    
     // NOTE: ContetxInstances are not persisted as current functionality (exception scope) does not require it
     private Map<String, ContextInstance> contextInstances = new HashMap<String, ContextInstance>();
     private Map<String, List<ContextInstance>> subContextInstances = new HashMap<String, List<ContextInstance>>();
@@ -192,6 +194,7 @@ public class SubProcessNodeInstance extends StateBasedNodeInstance implements Ev
                 String caseId = (String) kruntime.getEnvironment().get(EnvironmentName.CASE_ID);
                 if (caseId != null) {
                     context = CaseContext.get(caseId);
+                    parameters.put(EnvironmentName.CASE_ID, caseId);
                 }
                 
                 RuntimeEngine runtime = manager.getRuntimeEngine(context);
@@ -200,6 +203,9 @@ public class SubProcessNodeInstance extends StateBasedNodeInstance implements Ev
             if (getSubProcessNode().getMetaData("MICollectionInput") != null) {
                 // remove foreach input variable to avoid problems when running in variable strict mode
                 parameters.remove(getSubProcessNode().getMetaData("MICollectionInput"));
+            }
+            if (getVariable(ENTRY_POINT_VAR_NAME) != null) {
+                parameters.put(ENTRY_POINT_VAR_NAME, getVariable(ENTRY_POINT_VAR_NAME));
             }
 
             ProcessInstance processInstance = null;

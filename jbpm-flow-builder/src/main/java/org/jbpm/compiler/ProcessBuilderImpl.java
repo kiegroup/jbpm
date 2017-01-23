@@ -15,6 +15,16 @@
  */
 package org.jbpm.compiler;
 
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.xml.parsers.FactoryConfigurationError;
+
 import org.drools.compiler.builder.impl.KnowledgeBuilderConfigurationImpl;
 import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
 import org.drools.compiler.compiler.BaseKnowledgeBuilderResultImpl;
@@ -70,15 +80,6 @@ import org.kie.api.io.Resource;
 import org.kie.internal.builder.KnowledgeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.xml.parsers.FactoryConfigurationError;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * A ProcessBuilder can be used to build processes based on XML files
@@ -363,6 +364,16 @@ public class ProcessBuilderImpl implements org.drools.compiler.compiler.ProcessB
                     builder.append( "global " + entry.getValue() + " " + entry.getKey() + ";\n" );
                 }
             }
+            
+            if (ruleFlow.isDynamic()) {
+                String defineEntryPoint = "rule \"RuleFlow-CaseDefinition-" + ruleFlow.getId() + "\"  @Propagation(EAGER) \n" +
+                    "      ruleflow-group \"DROOLS_SYSTEM\" \n" +
+                    "    when \n" +
+                    "      Object() from entry-point \"" + process.getId() +"\"\n" +
+                    "    then \n" +
+                    "end \n\n";
+                builder.append(defineEntryPoint);
+            }
 
             Node[] nodes = ruleFlow.getNodes();
             generateRules(nodes, process, builder);
@@ -371,6 +382,7 @@ public class ProcessBuilderImpl implements org.drools.compiler.compiler.ProcessB
     }
 
     private void generateRules(Node[] nodes, Process process, StringBuffer builder) {
+        
         for ( int i = 0; i < nodes.length; i++ ) {
             if ( nodes[i] instanceof Split ) {
                 Split split = (Split) nodes[i];
@@ -426,7 +438,7 @@ public class ProcessBuilderImpl implements org.drools.compiler.compiler.ProcessB
         		connection.getToType() + "\"  @Propagation(EAGER) \n" +
         	"      ruleflow-group \"DROOLS_SYSTEM\" \n" +
         	"    when \n" +
-        	"      " + constraint + "\n" +
+        	"      " + constraint + getEntryPoint(constraint, process) +  "\n" +
         	"    then \n" +
             "end \n\n";
     }
@@ -437,7 +449,7 @@ public class ProcessBuilderImpl implements org.drools.compiler.compiler.ProcessB
         	"rule \"RuleFlow-Milestone-" + process.getId() + "-" + milestone.getUniqueId() + "\" @Propagation(EAGER) \n" +
         	"      ruleflow-group \"DROOLS_SYSTEM\" \n" +
         	"    when \n" +
-        	"      " + milestone.getConstraint() + "\n" +
+        	"      " + milestone.getConstraint() + getEntryPoint(milestone.getConstraint(), process) +  "\n" +
         	"    then \n" +
         	"end \n\n";
     }
@@ -452,7 +464,7 @@ public class ProcessBuilderImpl implements org.drools.compiler.compiler.ProcessB
 	        		key.getNodeId() + "-" + key.getToType() + "\" @Propagation(EAGER) \n" +
 	    		"      ruleflow-group \"DROOLS_SYSTEM\" \n" +
 	    		"    when \n" +
-	    		"      " + state.getConstraints().get(key).getConstraint() + "\n" +
+	    		"      " + state.getConstraints().get(key).getConstraint() + getEntryPoint(state.getConstraints().get(key).getConstraint(), process) + "\n" +
 	    		"    then \n" +
 	    		"end \n\n";
     	}
@@ -470,7 +482,7 @@ public class ProcessBuilderImpl implements org.drools.compiler.compiler.ProcessB
                     attachedTo + "\" @Propagation(EAGER) \n" +
                 "      ruleflow-group \"DROOLS_SYSTEM\" \n" +
                 "    when \n" +
-                "      " + condition + "\n" +
+                "      " + condition + getEntryPoint(condition, process) +  "\n" +
                 "    then \n" +
                 "end \n\n";
         }
@@ -487,7 +499,7 @@ public class ProcessBuilderImpl implements org.drools.compiler.compiler.ProcessB
                 "rule \"RuleFlowStateEventSubProcess-Event-" + process.getId() + "-" + compositeNode.getUniqueId() + "\" @Propagation(EAGER) \n" +
                 "      ruleflow-group \"DROOLS_SYSTEM\" \n" +
                 "    when \n" +
-                "      " + condition + "\n" +
+                "      " + condition  + getEntryPoint(condition, process) +  "\n" +
                 "    then \n" +
                 "end \n\n";
         }
@@ -511,7 +523,7 @@ public class ProcessBuilderImpl implements org.drools.compiler.compiler.ProcessB
         	"rule \"RuleFlow-Start-" + process.getId() + "\" @Propagation(EAGER) \n" +
         	(trigger.getHeader() == null ? "" : "        " + trigger.getHeader() + " \n") +
         	"    when\n" +
-        	"        " + trigger.getConstraint() + "\n" +
+        	"        " + trigger.getConstraint() + getEntryPoint(trigger.getConstraint(), process) +  "\n" +
         	"    then\n";
         Map<String, String> inMappings = trigger.getInMappings();
         if ( inMappings != null && !inMappings.isEmpty() ) {
@@ -531,9 +543,22 @@ public class ProcessBuilderImpl implements org.drools.compiler.compiler.ProcessB
         "rule \"RuleFlow-AdHocComplete-" + process.getId() + "-" + dynamicNode.getUniqueId() + "\" @Propagation(EAGER) \n" +
         "      ruleflow-group \"DROOLS_SYSTEM\" \n" +
         "    when \n" +
-        "      " + dynamicNode.getCompletionExpression() + "\n" +
+        "      " + dynamicNode.getCompletionExpression() + getEntryPoint(dynamicNode.getCompletionExpression(), process) +  "\n" +
         "    then \n" +
         "end \n\n";
+    }
+    
+    private String getEntryPoint(String constraint, Process process) {
+        if (constraint == null || constraint.trim().isEmpty()) {
+            return "";
+        }
+        
+        
+        if (((WorkflowProcessImpl) process).isDynamic()) {
+            return " from entry-point \"" + process.getId() +"\"";
+        } 
+        
+        return "";
     }
 
 }
