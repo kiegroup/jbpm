@@ -74,8 +74,7 @@ public class MVELLifeCycleManagerTest {
 
 	/**
 	 * Tests that a user who is in the ExcludedOwners list of the {@link Task task's) {@link PeopleAssignments peopleAssignment's) object IS
-	 * allowed to execute operations on the given task IF the person is also a Business Administrator. We expect to get a
-	 * {@link PermissionDeniedException}.
+	 * allowed to execute operations on the given task IF the person is also a Business Administrator.
 	 */
 	@Test
 	public void testDelegateIsAllowedExcludedOwnerBusinessAdministrator() {
