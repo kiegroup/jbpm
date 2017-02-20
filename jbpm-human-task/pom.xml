@@ -17,6 +17,7 @@
     <module>jbpm-human-task-workitems</module>
     <module>jbpm-human-task-audit</module>
     <module>jbpm-human-task-jpa</module>
+    <module>jbpm-human-task-mapdb</module>
   </modules>
 
   <dependencies>

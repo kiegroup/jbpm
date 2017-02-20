@@ -51,6 +51,16 @@ public class ContentDataImpl implements org.kie.internal.task.api.model.ContentD
 	public void setContent(byte[] content) {
 		this.content = content;
 	}
+	
+	@Override
+	public Object getContentObject() {
+		throw new UnsupportedOperationException("Not implemented for JPA");
+	}
+	
+	@Override
+	public void setContentObject(Object object) {
+		throw new UnsupportedOperationException("Not implemented for JPA");
+	}
 
 	public void writeExternal(ObjectOutput out) throws IOException {
 		if ( accessType != null ) {
