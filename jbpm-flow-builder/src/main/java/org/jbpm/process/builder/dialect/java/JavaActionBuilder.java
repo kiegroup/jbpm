@@ -17,7 +17,6 @@
 package org.jbpm.process.builder.dialect.java;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -25,9 +24,7 @@ import org.drools.compiler.compiler.AnalysisResult;
 import org.drools.compiler.compiler.BoundIdentifiers;
 import org.drools.compiler.lang.descr.ActionDescr;
 import org.drools.compiler.rule.builder.PackageBuildContext;
-import org.drools.compiler.rule.builder.dialect.java.JavaAnalysisResult;
 import org.drools.compiler.rule.builder.dialect.java.JavaDialect;
-import org.drools.compiler.rule.builder.dialect.java.parser.JavaLocalDeclarationDescr;
 import org.jbpm.process.builder.ActionBuilder;
 import org.jbpm.process.builder.ProcessBuildContext;
 import org.jbpm.process.core.ContextResolver;
@@ -68,7 +65,7 @@ public class JavaActionBuilder extends AbstractJavaProcessBuilder
         JavaDialect dialect = (JavaDialect) context.getDialect( "java" );
         
         Map<String, Class<?>> variables = new HashMap<String,Class<?>>();
-        BoundIdentifiers boundIdentifiers = new BoundIdentifiers(variables, context.getKnowledgeBuilder().getGlobals());
+        BoundIdentifiers boundIdentifiers = new BoundIdentifiers(variables, context);
         AnalysisResult analysis = dialect.analyzeBlock( context,
                                                         actionDescr,
                                                         actionDescr.getText(),
