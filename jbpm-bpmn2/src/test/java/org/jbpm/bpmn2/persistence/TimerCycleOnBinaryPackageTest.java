@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -52,7 +52,7 @@ public class TimerCycleOnBinaryPackageTest extends JbpmBpmn2TestCase {
     public static void setup() throws Exception {
         setUpDataSource();
     }
-    
+
     @Before
     public void prepare() {
         clearHistory();
@@ -60,18 +60,18 @@ public class TimerCycleOnBinaryPackageTest extends JbpmBpmn2TestCase {
 
     @After
     public void dispose() {
-        if (ksession != null) {
+        if (ksession != null) {            
             ksession.dispose();
         }
     }
 
-    @Test(timeout=10000)
+    @Test(timeout=20000)
     public void testStartTimerCycleFromDisc() throws Exception {
         CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("start", 2);
         KieBase kbase = createKnowledgeBaseFromDisc("BPMN2-StartTimerCycle.bpmn2");
         StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
         ksession.addEventListener(countDownListener);
-        
+
         assertEquals(0, getNumberOfProcessInstances("defaultPackage.TimerProcess"));
         long sessionId = ksession.getIdentifier();
         Environment env = ksession.getEnvironment();
@@ -87,14 +87,14 @@ public class TimerCycleOnBinaryPackageTest extends JbpmBpmn2TestCase {
                 .getCommandService().getContext()).getKieSession()
                 .addEventListener(new TriggerRulesEventListener(ksession));
 
-        
+
 
         countDownListener.waitTillCompleted();
 
         assertEquals(2, getNumberOfProcessInstances("defaultPackage.TimerProcess"));
         logger.info("dispose");
         ksession.dispose();
-        
+
         countDownListener = new CountDownProcessEventListener("start", 2);
 
         ksession = JPAKnowledgeService.loadStatefulKnowledgeSession(sessionId,
@@ -109,18 +109,20 @@ public class TimerCycleOnBinaryPackageTest extends JbpmBpmn2TestCase {
             }
         });
 
-        ((KnowledgeCommandContext) 
+        ((KnowledgeCommandContext)
                 ((CommandBasedStatefulKnowledgeSession) ksession)
                 .getCommandService().getContext())
         .getKieSession().addEventListener(new TriggerRulesEventListener(ksession));
 
-        countDownListener.waitTillCompleted();
-        ksession.dispose();
+        countDownListener.waitTillCompleted();        
         assertEquals(4, getNumberOfProcessInstances("defaultPackage.TimerProcess"));
+        abortProcessInstances(ksession);
+        ksession.dispose();
     }
 
-    @Test(timeout=10000)
+    @Test(timeout=20000)
     public void testStartTimerCycleFromClassPath() throws Exception {
+
         CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("start", 2);
         KieBase kbase = createKnowledgeBase("BPMN2-StartTimerCycle.bpmn2");
         StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
@@ -137,7 +139,7 @@ public class TimerCycleOnBinaryPackageTest extends JbpmBpmn2TestCase {
             }
         });
 
-        ((KnowledgeCommandContext) 
+        ((KnowledgeCommandContext)
                 ((CommandBasedStatefulKnowledgeSession) ksession)
                 .getCommandService().getContext())
         .getKieSession().addEventListener(new TriggerRulesEventListener(ksession));
@@ -161,14 +163,15 @@ public class TimerCycleOnBinaryPackageTest extends JbpmBpmn2TestCase {
             }
         });
 
-        ((KnowledgeCommandContext) 
+        ((KnowledgeCommandContext)
                 ((CommandBasedStatefulKnowledgeSession) ksession)
                 .getCommandService().getContext())
         .getKieSession().addEventListener(new TriggerRulesEventListener(ksession));
 
         countDownListener.waitTillCompleted();
-        ksession.dispose();
         assertEquals(4, getNumberOfProcessInstances("defaultPackage.TimerProcess"));
+        abortProcessInstances(ksession);
+        ksession.dispose();
     }
 
     @Test @Ignore("beta4 phreak")
@@ -182,7 +185,7 @@ public class TimerCycleOnBinaryPackageTest extends JbpmBpmn2TestCase {
         final List<String> list = new ArrayList<String>();
         ksession.setGlobal("list", list);
 
-        ((KnowledgeCommandContext) 
+        ((KnowledgeCommandContext)
                 ((CommandBasedStatefulKnowledgeSession) ksession)
                 .getCommandService().getContext())
         .getKieSession().addEventListener(new TriggerRulesEventListener(ksession));
@@ -202,7 +205,7 @@ public class TimerCycleOnBinaryPackageTest extends JbpmBpmn2TestCase {
         final List<String> list2 = new ArrayList<String>();
         ksession.setGlobal("list", list2);
 
-        ((KnowledgeCommandContext) 
+        ((KnowledgeCommandContext)
                 ((CommandBasedStatefulKnowledgeSession) ksession)
                 .getCommandService().getContext())
         .getKieSession().addEventListener(new TriggerRulesEventListener(ksession));
@@ -225,7 +228,7 @@ public class TimerCycleOnBinaryPackageTest extends JbpmBpmn2TestCase {
         final List<String> list = new ArrayList<String>();
         ksession.setGlobal("list", list);
 
-        ((KnowledgeCommandContext) 
+        ((KnowledgeCommandContext)
                 ((CommandBasedStatefulKnowledgeSession) ksession)
                 .getCommandService().getContext())
         .getKieSession().addEventListener(new TriggerRulesEventListener(ksession));
@@ -245,7 +248,7 @@ public class TimerCycleOnBinaryPackageTest extends JbpmBpmn2TestCase {
         final List<String> list2 = new ArrayList<String>();
         ksession.setGlobal("list", list2);
 
-        ((KnowledgeCommandContext) 
+        ((KnowledgeCommandContext)
                 ((CommandBasedStatefulKnowledgeSession) ksession)
                 .getCommandService().getContext())
         .getKieSession().addEventListener(new TriggerRulesEventListener(ksession));
@@ -255,6 +258,8 @@ public class TimerCycleOnBinaryPackageTest extends JbpmBpmn2TestCase {
         Thread.sleep(5000);
 
         assertEquals(3, list2.size());
+        abortProcessInstances(ksession);
+        ksession.dispose();
     }
 
 
