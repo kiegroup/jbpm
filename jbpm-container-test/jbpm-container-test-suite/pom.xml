@@ -25,12 +25,12 @@
     <wsdl.token>?wsdl</wsdl.token>
 
     <!-- Datasource properties -->
-    <org.jbpm.persistence.dialect>org.hibernate.dialect.H2Dialect</org.jbpm.persistence.dialect>
-    <org.jbpm.datasource.connection.url>jdbc:h2:mem:test-db;MVCC=TRUE</org.jbpm.datasource.connection.url>
-    <org.jbpm.datasource.username>sa</org.jbpm.datasource.username>
-    <org.jbpm.datasource.password></org.jbpm.datasource.password>
-    <org.jbpm.datasource.driver.class>org.h2.Driver</org.jbpm.datasource.driver.class>
-    <org.jbpm.datasource.driver.jdbc.class>org.h2.Driver</org.jbpm.datasource.driver.jdbc.class>
+    <org.jbpm.persistence.dialect>org.hibernate.dialect.PostgreSQL82Dialect</org.jbpm.persistence.dialect>
+    <org.jbpm.datasource.connection.url>jdbc:postgresql://localhost:5432/jbpm</org.jbpm.datasource.connection.url>
+    <org.jbpm.datasource.username>jbpm</org.jbpm.datasource.username>
+    <org.jbpm.datasource.password>jbpm</org.jbpm.datasource.password>
+    <org.jbpm.datasource.driver.class>org.postgresql.xa.PGXADataSource</org.jbpm.datasource.driver.class>
+    <org.jbpm.datasource.driver.jdbc.class>org.postgresql.Driver</org.jbpm.datasource.driver.jdbc.class>
     <org.jbpm.datasource.hostname/>
     <org.jbpm.datasource.port/>
     <org.jbpm.datasource.dbName/>
@@ -63,6 +63,16 @@
     <container.profile.dir>${configurations.dir}/cargo-profile</container.profile.dir>
     <container.log.file>${container.profile.dir}/profile-log.txt</container.log.file>
   </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.postgresql</groupId>
+        <artifactId>postgresql</artifactId>
+        <version>9.4.1212.jre7</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <dependencies>
 
@@ -254,6 +264,10 @@
       <scope>test</scope>
     </dependency>
 
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+    </dependency>
   </dependencies>
 
   <build>
@@ -549,6 +563,10 @@
                     <dependency>
                       <groupId>com.h2database</groupId>
                       <artifactId>h2</artifactId>
+                    </dependency>
+                    <dependency>
+                      <groupId>org.postgresql</groupId>
+                      <artifactId>postgresql</artifactId>
                     </dependency>
                   </dependencies>
                 </container>
