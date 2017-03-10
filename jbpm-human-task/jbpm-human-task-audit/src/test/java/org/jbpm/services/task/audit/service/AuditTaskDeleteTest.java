@@ -128,9 +128,10 @@ public class AuditTaskDeleteTest extends TaskJPAAuditService {
     	StandaloneJtaStrategy jtaHelper = new StandaloneJtaStrategy(emf);
         EntityManager em = jtaHelper.getEntityManager();
         Object tx = jtaHelper.joinTransaction(em);
-        pLogs.forEach(pl -> {
+        
+        for (ProcessInstanceLog pl : pLogs) {        
             em.persist(pl);
-        });
+        }
         jtaHelper.leaveTransaction(em, tx);
     }
 
