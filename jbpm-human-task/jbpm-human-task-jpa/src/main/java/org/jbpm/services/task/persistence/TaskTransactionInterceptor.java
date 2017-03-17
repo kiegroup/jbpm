@@ -290,7 +290,7 @@ public class TaskTransactionInterceptor extends AbstractInterceptor {
 		}
 
 		public void afterCompletion(int status) {
-
+			this.service.tpm.dispose();
 			this.service.tpm.endCommandScopedEntityManager();
 
 		}
