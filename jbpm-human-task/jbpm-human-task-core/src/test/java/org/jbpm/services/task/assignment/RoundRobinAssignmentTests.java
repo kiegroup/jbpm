@@ -28,6 +28,20 @@ import javax.persistence.Persistence;
 public class RoundRobinAssignmentTests extends AbstractAssignmentTests {
     private PoolingDataSource pds;
     private EntityManagerFactory emf;
+    private static final String BASE_TASK_INFO = "with (new Task()) { priority = 55, taskData = (with (new TaskData()) { } ), ";
+    private static final String MULTI_ACTOR_ASSIGNMENTS = ""
+    		+ "peopleAssignments = (with (new PeopleAssignments()) { potentialOwners = [new User('Bobba Fet'), new User('Darth Vader'), new User('Luke Cage')],"
+            + " businessAdministrators = [new User('Administrator')], } ),";
+    private static final String MULTI_ACTOR_WITH_GROUP_ASSIGNMENTS = ""
+    		+ "peopleAssignments = (with (new PeopleAssignments()) { potentialOwners = [new User('Bobba Fet'), new Group('Crusaders'), new User('Luke Cage')],"
+    		+ " businessAdministrators = [new User('Administrator')], } ),";
+    private static final String ADD_ACTOR_ASSIGNMENTS = ""
+    		+ "peopleAssignments = (with (new PeopleAssignments()) { potentialOwners = [new User('Bobba Fet'), new User('Darth Vader'), new User('Luke Cage'), new User('Tony Stark')],"
+    		+ " businessAdministrators = [new User('Administrator')], } ),";
+    private static final String REMOVE_ACTOR_ASSIGNMENTS = ""
+    		+ "peopleAssignments = (with (new PeopleAssignments()) { potentialOwners = [new User('Bobba Fet'), new User('Luke Cage'), new User('Tony Stark')],"
+    		+ " businessAdministrators = [new User('Administrator')], } ),";
+    
 
     @Before
     public void setup() {
@@ -57,10 +71,10 @@ public class RoundRobinAssignmentTests extends AbstractAssignmentTests {
     }
 
     @Test
-    public void testMultiActorRoundRobin() {
-        final String taskString = "(with (new Task()) { priority = 55, taskData = (with (new TaskData()) { } ), " +
-                "peopleAssignments = (with (new PeopleAssignments()) { potentialOwners = [new User('Bobba Fet'), new User('Darth Vader'), new User('Luke Cage')]," +
-                "   businessAdministrators = [new User('Administrator')], } )," +
+    public void testMultiActor() {
+        final String taskString = "(" +
+        		BASE_TASK_INFO +	
+                 MULTI_ACTOR_ASSIGNMENTS +
                 "name = 'MultiActorRoundRobinTask'})";
         createAndAssertTask(taskString, "Bobba Fet", 3, "Bobba Fet","Darth Vader","Luke Cage");
         createAndAssertTask(taskString, "Darth Vader", 3, "Bobba Fet","Darth Vader","Luke Cage");
@@ -70,13 +84,54 @@ public class RoundRobinAssignmentTests extends AbstractAssignmentTests {
     }
 
     @Test
-    public void testMultiActorWithGroupRoundRobin() {
-        final String taskString = "(with (new Task()) { priority = 55, taskData = (with (new TaskData()) { } ), " +
-                "peopleAssignments = (with (new PeopleAssignments()) { potentialOwners = [new User('Bobba Fet'), new Group('Crusaders'), new User('Luke Cage')]," +
-                "   businessAdministrators = [new User('Administrator')], } )," +
+    public void testMultiActorWithGroup() {
+        final String taskString = "(" +
+        		BASE_TASK_INFO +
+        		MULTI_ACTOR_WITH_GROUP_ASSIGNMENTS +
                 "name = 'MultiActorWithGroupRoundRobinTask'})";
         createAndAssertTask(taskString, "Bobba Fet", 3, "Bobba Fet","Crusaders","Luke Cage");
         createAndAssertTask(taskString, "Luke Cage", 3, "Bobba Fet","Crusaders","Luke Cage");
-        createAndAssertTask(taskString, "Darth Vader", 3, "Bobba Fet","analyst","Luke Cage");
+        // 
+        // Note: Tony Stark must be a member of the Crusaders
+        // see userinfo.properties
+        //
+        createAndAssertTask(taskString, "Tony Stark", 3, "Bobba Fet","Crusaders","Luke Cage");
+    }
+    
+    @Test
+    public void testMultiActorWithAddedActor() {
+        final String taskString = "(" +
+        		BASE_TASK_INFO +
+                MULTI_ACTOR_ASSIGNMENTS +
+               "name = 'MultiActorWithAddsRoundRobinTask'})";
+        final String taskString2 = "(" +
+     		   BASE_TASK_INFO +
+     		   ADD_ACTOR_ASSIGNMENTS + 
+     		   "name = 'MultiActorWithAddsRoundRobinTask'})";
+       createAndAssertTask(taskString, "Bobba Fet", 3, "Bobba Fet","Darth Vader","Luke Cage");
+       createAndAssertTask(taskString2, "Darth Vader", 4, "Bobba Fet","Darth Vader","Luke Cage","Tony Stark");
+       createAndAssertTask(taskString2, "Luke Cage", 4, "Bobba Fet","Darth Vader","Luke Cage","Tony Stark");
+       // Expect that the "round robin" will circle back to the beginning of the list
+       createAndAssertTask(taskString2, "Bobba Fet", 4, "Bobba Fet","Darth Vader","Luke Cage","Tony Stark");
+
+       // Because Tony was added after Bobba took the first task, he will show up after Bobba gets used the second time 
+       createAndAssertTask(taskString2, "Tony Stark", 4, "Bobba Fet","Darth Vader","Luke Cage","Tony Stark");
+       
+    }
+    
+    @Test
+    public void testMultiActorWithRemovedActor() {
+        final String taskString2 = "(" +
+        		BASE_TASK_INFO +
+                REMOVE_ACTOR_ASSIGNMENTS +
+               "name = 'MultiActorWithAddsRoundRobinTask'})";
+        final String taskString = "(" +
+     		   BASE_TASK_INFO +
+     		   ADD_ACTOR_ASSIGNMENTS + 
+     		   "name = 'MultiActorWithAddsRoundRobinTask'})";
+        createAndAssertTask(taskString, "Bobba Fet", 4, "Bobba Fet","Darth Vader","Luke Cage","Tony Stark");
+        createAndAssertTask(taskString2, "Luke Cage", 3, "Bobba Fet", "Luke Cage", "Tony Stark");
+        createAndAssertTask(taskString2, "Tony Stark", 3, "Bobba Fet", "Luke Cage", "Tony Stark");
+        createAndAssertTask(taskString2, "Bobba Fet", 3, "Bobba Fet", "Luke Cage", "Tony Stark");
     }
 }

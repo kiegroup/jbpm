@@ -74,7 +74,7 @@ public class RoundRobinAssignmentStrategy implements AssignmentStrategy {
                 .collect(Collectors.toList());
 
         // Get the users belonging to groups that are potential owners
-        potentialOwners.stream().filter(oe -> oe instanceof Group)
+        task.getPeopleAssignments().getPotentialOwners().parallelStream().filter(oe -> oe instanceof Group)
                 .forEach(oe -> {
                     Iterator<OrganizationalEntity> groupUsers = userInfo.getMembersForGroup((Group)oe);
                     if (groupUsers != null) {
@@ -90,7 +90,14 @@ public class RoundRobinAssignmentStrategy implements AssignmentStrategy {
         // If a queue already exists for this task then its contents should be synchronized with the
         // current list of potential owners
         if (circularQueueMap.containsKey(queueName)) {
-            mappedQueue = circularQueueMap.get(queueName);
+            final CircularQueue<OrganizationalEntity> queue = circularQueueMap.get(queueName); 
+            potentialOwners.forEach(po -> {
+            	if (!queueContainsUser(queue,po)) {
+            		queue.add(po);
+            	}
+            });
+            queue.removeIf(oe -> !potentialOwners.contains(oe));
+            mappedQueue = queue;
         } else {
             CircularQueue<OrganizationalEntity> queue = new CircularQueue();
             potentialOwners.forEach(po -> {queue.add(po);});
@@ -99,6 +106,10 @@ public class RoundRobinAssignmentStrategy implements AssignmentStrategy {
         }
         OrganizationalEntity owner = mappedQueue.take();
         return new Assignment(owner.getId());
+    }
+    
+    protected boolean queueContainsUser(CircularQueue<OrganizationalEntity> queue, OrganizationalEntity oe) {
+    	return queue.contains(oe);
     }
 
     protected String getQueueName(Task task) {
