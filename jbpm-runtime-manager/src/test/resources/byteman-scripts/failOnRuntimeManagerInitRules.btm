@@ -1,0 +1,20 @@
+RULE init counter PI
+CLASS org.jbpm.runtime.manager.impl.TimerInitFailureRuntimeManagerTest
+METHOD testPerProcessInstanceRuntimeManager
+AT ENTRY
+IF TRUE
+  DO 
+  deleteCounter("myCounter");
+  createCounter("myCounter");
+ENDRULE
+
+
+RULE throwExOnInitializerPI
+CLASS org.jbpm.runtime.manager.impl.PerProcessInstanceRuntimeManager$PerProcessInstanceInitializer
+METHOD initKieSession
+BIND myCounter = incrementCounter("myCounter");
+AT ENTRY
+IF myCounter >= 2 && myCounter < 5
+  DO traceln("### Throwing Exception on : " + Thread.currentThread().getName());
+   throw new RuntimeException("ERROR!");
+ENDRULE
