@@ -38,12 +38,14 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.drools.compiler.kie.builder.impl.InternalKieModule;
+import org.jbpm.casemgmt.api.AdHocFragmentNotFoundException;
 import org.jbpm.casemgmt.api.CaseActiveException;
 import org.jbpm.casemgmt.api.CaseCommentNotFoundException;
 import org.jbpm.casemgmt.api.CaseNotFoundException;
 import org.jbpm.casemgmt.api.model.AdHocFragment;
 import org.jbpm.casemgmt.api.model.CaseDefinition;
 import org.jbpm.casemgmt.api.model.CaseStage;
+import org.jbpm.casemgmt.api.model.CaseStatus;
 import org.jbpm.casemgmt.api.model.instance.CaseFileInstance;
 import org.jbpm.casemgmt.api.model.instance.CaseInstance;
 import org.jbpm.casemgmt.api.model.instance.CaseMilestoneInstance;
@@ -73,7 +75,7 @@ import org.kie.api.task.model.Status;
 import org.kie.api.task.model.TaskSummary;
 import org.kie.internal.KieInternalServices;
 import org.kie.internal.process.CorrelationKey;
-import org.kie.internal.query.QueryContext;
+import org.kie.api.runtime.query.QueryContext;
 import org.kie.internal.query.QueryFilter;
 import org.kie.scanner.MavenRepository;
 import org.slf4j.Logger;
@@ -103,6 +105,7 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
         processes.add("cases/ScriptRoleAssignmentCase.bpmn2");
         processes.add("cases/NoStartNodeAdhocCase.bpmn2");
         processes.add("cases/CaseFileConditionalEvent.bpmn2");
+        processes.add("cases/CaseWithRolesDefinition.bpmn2");
         // add processes that can be used by cases but are not cases themselves
         processes.add("processes/DataVerificationProcess.bpmn2");
         
@@ -575,7 +578,7 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
             
             // add dynamic user task to empty case instance - first by case id
             Map<String, Object> parameters = new HashMap<>();            
-            caseService.addDynamicSubprocess(FIRST_CASE_ID, SUBPROCESS_P_ID, parameters);                        
+            caseService.addDynamicSubprocess(FIRST_CASE_ID, SUBPROCESS_P_ID, parameters);
             
             // second task add by process instance id
             Collection<ProcessInstanceDesc> caseProcessInstances = caseRuntimeDataService.getProcessInstancesForCase(caseId, new QueryContext());
@@ -1716,7 +1719,7 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
             assertNotNull(instances);
             assertEquals(0, instances.size());
             
-            List<Integer> status = Arrays.asList(1);
+            List<CaseStatus> status = Arrays.asList(CaseStatus.OPEN);
                         
             identityProvider.setRoles(Arrays.asList("HR"));
             instances = caseRuntimeDataService.getCaseInstancesAnyRole(status, new QueryContext());
@@ -1801,6 +1804,113 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
             fail("Unexpected exception " + e.getMessage());
         } finally {            
             if (caseId != null) {
+                caseService.cancelCase(caseId);
+            }
+        }
+    }
+    
+    @Test
+    public void testCaseAuthorizationImplicitOwner() {
+        assertNotNull(deploymentService);        
+        DeploymentUnit deploymentUnit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
+        String expectedCaseId = "UniqueID-0000000001";
+        deploymentService.deploy(deploymentUnit);
+        units.add(deploymentUnit);
+        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();        
+        roleAssignments.put("patient", new UserImpl("john"));
+        
+        Map<String, Object> data = new HashMap<>();
+        data.put("s", "description");
+        CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), "CaseWithRolesDefinition", data, roleAssignments);
+        
+        identityProvider.setName("mary");
+        String caseId = caseService.startCase(deploymentUnit.getIdentifier(), "CaseWithRolesDefinition", caseFile);
+        assertNotNull(caseId);
+        assertEquals(expectedCaseId, caseId);
+        try {
+            CaseInstance cInstance = caseService.getCaseInstance(caseId);
+            assertNotNull(cInstance);
+            assertEquals(expectedCaseId, cInstance.getCaseId());
+            assertEquals(deploymentUnit.getIdentifier(), cInstance.getDeploymentId());
+           
+            identityProvider.setName("john");
+            
+            List<TaskSummary> tasks = caseRuntimeDataService.getCaseTasksAssignedAsPotentialOwner(expectedCaseId, "john", Arrays.asList(Status.Reserved), new QueryContext());
+            assertEquals(1, tasks.size());
+            
+            userTaskService.completeAutoProgress(tasks.get(0).getId(), "john", null);
+            
+            identityProvider.setName("mary");
+            caseService.triggerAdHocFragment(expectedCaseId, "task2", null);
+            
+            tasks = caseRuntimeDataService.getCaseTasksAssignedAsPotentialOwner(expectedCaseId, "mary", Arrays.asList(Status.Reserved), new QueryContext());
+            assertEquals(1, tasks.size());
+            
+            userTaskService.completeAutoProgress(tasks.get(0).getId(), "mary", null);
+            
+            caseService.triggerAdHocFragment(expectedCaseId, "task3", null);
+            
+            tasks = caseRuntimeDataService.getCaseTasksAssignedAsPotentialOwner(expectedCaseId, "mary", Arrays.asList(Status.Ready), new QueryContext());
+            assertEquals(1, tasks.size());
+            
+            userTaskService.completeAutoProgress(tasks.get(0).getId(), "mary", null);
+            
+        } catch (Exception e) {
+            logger.error("Unexpected error {}", e.getMessage(), e);
+            fail("Unexpected exception " + e.getMessage());
+        } finally {            
+            if (caseId != null) {
+                identityProvider.setName("mary");
+                caseService.cancelCase(caseId);
+            }
+        }
+    }
+    
+    @Test
+    public void testTriggerNotExistingAdHocFragment() {
+        assertNotNull(deploymentService);        
+        DeploymentUnit deploymentUnit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
+        String expectedCaseId = "UniqueID-0000000001";
+        deploymentService.deploy(deploymentUnit);
+        units.add(deploymentUnit);
+        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();        
+        roleAssignments.put("patient", new UserImpl("john"));
+        
+        Map<String, Object> data = new HashMap<>();
+        data.put("s", "description");
+        CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), "CaseWithRolesDefinition", data, roleAssignments);
+        
+        identityProvider.setName("mary");
+        String caseId = caseService.startCase(deploymentUnit.getIdentifier(), "CaseWithRolesDefinition", caseFile);
+        assertNotNull(caseId);
+        assertEquals(expectedCaseId, caseId);
+        try {
+            CaseInstance cInstance = caseService.getCaseInstance(caseId);
+            assertNotNull(cInstance);
+            assertEquals(expectedCaseId, cInstance.getCaseId());
+            assertEquals(deploymentUnit.getIdentifier(), cInstance.getDeploymentId());
+           
+            identityProvider.setName("john");
+            
+            List<TaskSummary> tasks = caseRuntimeDataService.getCaseTasksAssignedAsPotentialOwner(expectedCaseId, "john", Arrays.asList(Status.Reserved), new QueryContext());
+            assertEquals(1, tasks.size());
+            
+            userTaskService.completeAutoProgress(tasks.get(0).getId(), "john", null);
+            
+            identityProvider.setName("mary");
+            try {
+                caseService.triggerAdHocFragment(expectedCaseId, "not existing", null);
+                fail("There is no ad hoc fragment with name 'not existing'");
+            } catch (AdHocFragmentNotFoundException e) {
+                // expected
+            }
+            
+        } catch (Exception e) {
+            logger.error("Unexpected error {}", e.getMessage(), e);
+            fail("Unexpected exception " + e.getMessage());
+        } finally {            
+            if (caseId != null) {
+                identityProvider.setName("mary");
                 caseService.cancelCase(caseId);
             }
         }
