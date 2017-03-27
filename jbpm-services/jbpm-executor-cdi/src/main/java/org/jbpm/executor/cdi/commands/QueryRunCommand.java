@@ -27,6 +27,7 @@ import org.kie.api.executor.Command;
 import org.kie.api.executor.CommandContext;
 import org.kie.api.executor.ExecutionResults;
 import org.kie.api.runtime.process.WorkItem;
+import org.kie.api.runtime.query.AdvancedQueryContext;
 import org.kie.api.runtime.query.QueryContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +60,7 @@ public class QueryRunCommand implements Command{
 			QueryResultMapper<?> mapper =  (QueryResultMapper<?>) m.invoke(null, new Object[0]);
 			
 			
-	        Object queryR = cdiBean.query((String)ctx.getData("query"), mapper, new QueryContext());
+	        Object queryR = cdiBean.query((String)ctx.getData("query"), mapper, new AdvancedQueryContext());
 	        
 	        logger.info("Result of the query is " + queryR);
 		} catch (Exception e) {		

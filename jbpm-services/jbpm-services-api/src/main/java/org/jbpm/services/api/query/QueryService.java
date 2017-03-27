@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.jbpm.services.api.query.model.QueryDefinition;
 import org.jbpm.services.api.query.model.QueryParam;
+import org.kie.api.runtime.query.AdvancedQueryContext;
 import org.kie.api.runtime.query.QueryContext;
 
 /**
@@ -79,7 +80,7 @@ public interface QueryService {
      * @return results mapped to objects from raw data set
      * @throws QueryNotFoundException in case there is no such query registered
      */
-    <T> T query(String queryName, QueryResultMapper<T> mapper, QueryContext queryContext, QueryParam...filterParams) throws QueryNotFoundException;
+    <T> T query(String queryName, QueryResultMapper<T> mapper, AdvancedQueryContext queryContext, QueryParam...filterParams) throws QueryNotFoundException;
     
     /**
      * Performs query on given query definition that had to be previously registered. Results will be mapped 
@@ -96,6 +97,6 @@ public interface QueryService {
      * @return results mapped to objects from raw data set
      * @throws QueryNotFoundException in case there is no such query registered
      */
-    <T> T query(String queryName, QueryResultMapper<T> mapper, QueryContext queryContext, QueryParamBuilder<?> paramBuilder) throws QueryNotFoundException;
+    <T> T query(String queryName, QueryResultMapper<T> mapper, AdvancedQueryContext queryContext, QueryParamBuilder<?> paramBuilder) throws QueryNotFoundException;
     
 }

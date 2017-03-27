@@ -76,6 +76,7 @@ import org.junit.runner.RunWith;
 import org.kie.api.KieServices;
 import org.kie.api.builder.ReleaseId;
 import org.kie.api.runtime.process.ProcessInstance;
+import org.kie.api.runtime.query.AdvancedQueryContext;
 import org.kie.api.runtime.query.QueryContext;
 import org.kie.scanner.MavenRepository;
 import org.slf4j.Logger;
@@ -207,7 +208,7 @@ private static final Logger logger = LoggerFactory.getLogger(QueryServiceEJBInte
         
         queryService.registerQuery(query);
         
-        List<QueryDefinition> queries = queryService.getQueries(new QueryContext());
+        List<QueryDefinition> queries = queryService.getQueries(new AdvancedQueryContext());
         assertNotNull(queries);
         assertEquals(1, queries.size());
         
@@ -226,20 +227,20 @@ private static final Logger logger = LoggerFactory.getLogger(QueryServiceEJBInte
         assertEquals(query.getExpression(), registeredQuery.getExpression());
         assertEquals(query.getTarget(), registeredQuery.getTarget());
         
-    	Collection<ProcessInstanceDesc> instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new QueryContext());
+    	Collection<ProcessInstanceDesc> instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new AdvancedQueryContext());
     	assertNotNull(instances);
     	assertEquals(0, instances.size());
 
     	processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument");
     	assertNotNull(processInstanceId);
 
-    	instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new QueryContext());
+    	instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new AdvancedQueryContext());
     	assertNotNull(instances);
     	assertEquals(1, instances.size());
     	assertEquals(1, (int)instances.iterator().next().getState());
     	
     	// search using named mapper to refer to query mappers by name
-    	instances = queryService.query(query.getName(), new NamedQueryMapper<Collection<ProcessInstanceDesc>>("ProcessInstances"), new QueryContext());
+    	instances = queryService.query(query.getName(), new NamedQueryMapper<Collection<ProcessInstanceDesc>>("ProcessInstances"), new AdvancedQueryContext());
         assertNotNull(instances);
         assertEquals(1, instances.size());
         assertEquals(1, (int)instances.iterator().next().getState());
@@ -247,7 +248,7 @@ private static final Logger logger = LoggerFactory.getLogger(QueryServiceEJBInte
     	processService.abortProcessInstance(processInstanceId);
     	processInstanceId = null;
     	
-    	instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new QueryContext(COLUMN_PROCESSNAME, false));
+    	instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new AdvancedQueryContext(COLUMN_PROCESSNAME + "desc"));
     	assertNotNull(instances);
     	assertEquals(1, instances.size());
     	assertEquals(3, (int)instances.iterator().next().getState());
@@ -260,7 +261,7 @@ private static final Logger logger = LoggerFactory.getLogger(QueryServiceEJBInte
         
         queryService.registerQuery(query);
         
-        Collection<ProcessInstanceDesc> instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new QueryContext());
+        Collection<ProcessInstanceDesc> instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new AdvancedQueryContext());
     	assertNotNull(instances);
     	assertEquals(0, instances.size());
 
@@ -268,18 +269,18 @@ private static final Logger logger = LoggerFactory.getLogger(QueryServiceEJBInte
     	assertNotNull(processInstanceId);
 
     	// search for aborted only
-    	instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new QueryContext(), QueryParam.equalsTo(COLUMN_STATUS, 3));
+    	instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new AdvancedQueryContext(), QueryParam.equalsTo(COLUMN_STATUS, 3));
     	assertNotNull(instances);
     	assertEquals(0, instances.size());
     	// aborted and active
-        instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new QueryContext(), QueryParam.equalsTo(COLUMN_STATUS, 3, 1));
+        instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new AdvancedQueryContext(), QueryParam.equalsTo(COLUMN_STATUS, 3, 1));
         assertNotNull(instances);
         assertEquals(1, instances.size());
 
     	processService.abortProcessInstance(processInstanceId);
     	processInstanceId = null;
     	// aborted only
-    	instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new QueryContext(), QueryParam.equalsTo(COLUMN_STATUS, 3));
+    	instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new AdvancedQueryContext(), QueryParam.equalsTo(COLUMN_STATUS, 3));
     	assertNotNull(instances);
     	assertEquals(1, instances.size());
     	assertEquals(3, (int)instances.iterator().next().getState());
@@ -292,14 +293,14 @@ private static final Logger logger = LoggerFactory.getLogger(QueryServiceEJBInte
         
         queryService.registerQuery(query);
         
-        Collection<ProcessInstanceDesc> instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new QueryContext());
+        Collection<ProcessInstanceDesc> instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new AdvancedQueryContext());
         assertNotNull(instances);
         assertEquals(0, instances.size());
 
         processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument");
         assertNotNull(processInstanceId);
 
-        instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new QueryContext(), QueryParam.likeTo(COLUMN_PROCESSID, true, "org.jbpm%"));
+        instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new AdvancedQueryContext(), QueryParam.likeTo(COLUMN_PROCESSID, true, "org.jbpm%"));
         assertNotNull(instances);
         assertEquals(1, instances.size());
         
@@ -328,21 +329,21 @@ private static final Logger logger = LoggerFactory.getLogger(QueryServiceEJBInte
         processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument", params);
         assertNotNull(processInstanceId);
 
-        List<ProcessInstanceWithVarsDesc> processInstanceLogs = queryService.query(query.getName(), ProcessInstanceWithVarsQueryMapper.get(), new QueryContext());
+        List<ProcessInstanceWithVarsDesc> processInstanceLogs = queryService.query(query.getName(), ProcessInstanceWithVarsQueryMapper.get(), new AdvancedQueryContext());
         assertNotNull(processInstanceLogs);
         assertEquals(1, processInstanceLogs.size());
 
         ProcessInstanceWithVarsDesc instance = processInstanceLogs.get(0); 
         assertEquals(3, instance.getVariables().size());
         
-        processInstanceLogs = queryService.query(query.getName(), ProcessInstanceWithVarsQueryMapper.get(), new QueryContext(), QueryParam.equalsTo(COLUMN_VAR_NAME, "approval_document"));
+        processInstanceLogs = queryService.query(query.getName(), ProcessInstanceWithVarsQueryMapper.get(), new AdvancedQueryContext(), QueryParam.equalsTo(COLUMN_VAR_NAME, "approval_document"));
         assertNotNull(processInstanceLogs);
         assertEquals(1, processInstanceLogs.size());
 
         instance = processInstanceLogs.get(0); 
         assertEquals(1, instance.getVariables().size());
         
-        processInstanceLogs = queryService.query(query.getName(), ProcessInstanceWithVarsQueryMapper.get(), new QueryContext(), QueryParam.equalsTo(COLUMN_VAR_NAME, "not existing"));
+        processInstanceLogs = queryService.query(query.getName(), ProcessInstanceWithVarsQueryMapper.get(), new AdvancedQueryContext(), QueryParam.equalsTo(COLUMN_VAR_NAME, "not existing"));
         assertNotNull(processInstanceLogs);
         assertEquals(0, processInstanceLogs.size());
 
@@ -365,7 +366,7 @@ private static final Logger logger = LoggerFactory.getLogger(QueryServiceEJBInte
         processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument", params);
         assertNotNull(processInstanceId);
 
-        List<UserTaskInstanceDesc> taskInstanceLogs = queryService.query(query.getName(), UserTaskInstanceQueryMapper.get(), new QueryContext());
+        List<UserTaskInstanceDesc> taskInstanceLogs = queryService.query(query.getName(), UserTaskInstanceQueryMapper.get(), new AdvancedQueryContext());
         assertNotNull(taskInstanceLogs);
         assertEquals(1, taskInstanceLogs.size());
         
@@ -390,14 +391,14 @@ private static final Logger logger = LoggerFactory.getLogger(QueryServiceEJBInte
         processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument", params);
         assertNotNull(processInstanceId);
 
-        List<UserTaskInstanceWithVarsDesc> taskInstanceLogs = queryService.query(query.getName(), UserTaskInstanceWithVarsQueryMapper.get(), new QueryContext());
+        List<UserTaskInstanceWithVarsDesc> taskInstanceLogs = queryService.query(query.getName(), UserTaskInstanceWithVarsQueryMapper.get(), new AdvancedQueryContext());
         assertNotNull(taskInstanceLogs);
         assertEquals(1, taskInstanceLogs.size());
 
         UserTaskInstanceWithVarsDesc instance = taskInstanceLogs.get(0); 
         assertEquals(5, instance.getVariables().size());
         
-        taskInstanceLogs = queryService.query(query.getName(), UserTaskInstanceWithVarsQueryMapper.get(), new QueryContext(), 
+        taskInstanceLogs = queryService.query(query.getName(), UserTaskInstanceWithVarsQueryMapper.get(), new AdvancedQueryContext(), 
                                                             QueryParam.equalsTo(COLUMN_TASK_VAR_NAME, "Comment"), 
                                                             QueryParam.equalsTo(COLUMN_TASK_VAR_VALUE, "Write a Document"));
         assertNotNull(taskInstanceLogs);
@@ -406,7 +407,7 @@ private static final Logger logger = LoggerFactory.getLogger(QueryServiceEJBInte
         instance = taskInstanceLogs.get(0); 
         assertEquals(1, instance.getVariables().size());
         
-        taskInstanceLogs = queryService.query(query.getName(), UserTaskInstanceWithVarsQueryMapper.get(), new QueryContext(), 
+        taskInstanceLogs = queryService.query(query.getName(), UserTaskInstanceWithVarsQueryMapper.get(), new AdvancedQueryContext(), 
                 QueryParam.equalsTo(COLUMN_TASK_VAR_NAME, "Comment"), 
                 QueryParam.equalsTo(COLUMN_TASK_VAR_VALUE, "Wrong Comment"));
         assertNotNull(taskInstanceLogs);
@@ -427,7 +428,7 @@ private static final Logger logger = LoggerFactory.getLogger(QueryServiceEJBInte
         
         queryService.registerQuery(query);
         
-        List<QueryDefinition> queries = queryService.getQueries(new QueryContext());
+        List<QueryDefinition> queries = queryService.getQueries(new AdvancedQueryContext());
         assertNotNull(queries);
         assertEquals(1, queries.size());
         
@@ -453,13 +454,13 @@ private static final Logger logger = LoggerFactory.getLogger(QueryServiceEJBInte
         assertNotNull(processInstanceId);
         identityProvider.setName("notvalid");
         
-        List<UserTaskInstanceDesc> taskInstanceLogs = queryService.query(query.getName(), UserTaskInstanceQueryMapper.get(), new QueryContext());
+        List<UserTaskInstanceDesc> taskInstanceLogs = queryService.query(query.getName(), UserTaskInstanceQueryMapper.get(), new AdvancedQueryContext());
         assertNotNull(taskInstanceLogs);
         assertEquals(0, taskInstanceLogs.size());
         
         identityProvider.setName("salaboy");
         
-        taskInstanceLogs = queryService.query(query.getName(), UserTaskInstanceQueryMapper.get(), new QueryContext());
+        taskInstanceLogs = queryService.query(query.getName(), UserTaskInstanceQueryMapper.get(), new AdvancedQueryContext());
         assertNotNull(taskInstanceLogs);
         assertEquals(1, taskInstanceLogs.size());       
         
@@ -478,7 +479,7 @@ private static final Logger logger = LoggerFactory.getLogger(QueryServiceEJBInte
         
         queryService.registerQuery(query);
         
-        List<QueryDefinition> queries = queryService.getQueries(new QueryContext());
+        List<QueryDefinition> queries = queryService.getQueries(new AdvancedQueryContext());
         assertNotNull(queries);
         assertEquals(1, queries.size());
         
@@ -503,20 +504,20 @@ private static final Logger logger = LoggerFactory.getLogger(QueryServiceEJBInte
         processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument", params);
         assertNotNull(processInstanceId);
 
-        List<UserTaskInstanceDesc> taskInstanceLogs = queryService.query(query.getName(), UserTaskInstanceQueryMapper.get(), new QueryContext());
+        List<UserTaskInstanceDesc> taskInstanceLogs = queryService.query(query.getName(), UserTaskInstanceQueryMapper.get(), new AdvancedQueryContext());
         assertNotNull(taskInstanceLogs);
         assertEquals(0, taskInstanceLogs.size());
         
         identityProvider.setName("Administrator");
         
-        taskInstanceLogs = queryService.query(query.getName(), UserTaskInstanceQueryMapper.get(), new QueryContext());
+        taskInstanceLogs = queryService.query(query.getName(), UserTaskInstanceQueryMapper.get(), new AdvancedQueryContext());
         assertNotNull(taskInstanceLogs);
         assertEquals(1, taskInstanceLogs.size());
         
         identityProvider.setName("salaboy");
         identityProvider.setRoles(Arrays.asList("Administrators"));
         
-        taskInstanceLogs = queryService.query(query.getName(), UserTaskInstanceQueryMapper.get(), new QueryContext());
+        taskInstanceLogs = queryService.query(query.getName(), UserTaskInstanceQueryMapper.get(), new AdvancedQueryContext());
         assertNotNull(taskInstanceLogs);
         assertEquals(1, taskInstanceLogs.size());
         
