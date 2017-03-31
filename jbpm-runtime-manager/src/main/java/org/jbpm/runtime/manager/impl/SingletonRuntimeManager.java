@@ -20,6 +20,7 @@ import org.drools.core.command.impl.RegistryContext;
 import org.drools.core.common.InternalKnowledgeRuntime;
 import org.drools.core.runtime.process.InternalProcessRuntime;
 import org.jbpm.process.instance.ProcessRuntimeImpl;
+import org.jbpm.runtime.manager.impl.error.ExecutionErrorManagerImpl;
 import org.jbpm.services.task.impl.TaskContentRegistry;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.Context;
@@ -159,6 +160,7 @@ public class SingletonRuntimeManager extends AbstractRuntimeManager {
     		throw new IllegalStateException("Runtime manager " + identifier + " is already closed");
     	}
     	checkPermission();
+    	((ExecutionErrorManagerImpl)executionErrorManager).createHandler();
         // always return the same instance
         return this.singleton;
     }
@@ -185,6 +187,7 @@ public class SingletonRuntimeManager extends AbstractRuntimeManager {
     @Override
     public void disposeRuntimeEngine(RuntimeEngine runtime) {
         // no-op, singleton session is always active
+        ((ExecutionErrorManagerImpl)executionErrorManager).closeHandler();
     }
 
     @Override
