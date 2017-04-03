@@ -16,6 +16,9 @@
 
 package org.jbpm.kie.services.impl.query;
 
+import static org.jbpm.services.api.query.QueryResultMapper.COLUMN_DEPLOYMENTID;
+import static org.jbpm.services.api.query.QueryResultMapper.COLUMN_EXTERNALID;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -61,10 +64,7 @@ import org.kie.api.runtime.query.AdvancedQueryContext;
 import org.kie.api.runtime.query.QueryContext;
 import org.kie.internal.identity.IdentityProvider;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import static org.jbpm.services.api.query.QueryResultMapper.COLUMN_EXTERNALID;
-import static org.jbpm.services.api.query.QueryResultMapper.COLUMN_DEPLOYMENTID;;
+import org.slf4j.LoggerFactory;;
 
 public class QueryServiceImpl implements QueryService, DeploymentEventListener {
 
@@ -224,12 +224,16 @@ public class QueryServiceImpl implements QueryService, DeploymentEventListener {
             filter = paramBuilder.build();
         }
 
-        if (queryContext.getOrderByClause() != null) {
-            String[] orderByItems = queryContext.getOrderByClause().split(",");
-            for (String orderByItem : orderByItems) {
-                String[] orderBySortOrder = orderByItem.trim().split(" ");
-                logger.debug("Applying order by {} with {}", orderBySortOrder[0].trim(), orderBySortOrder[1].trim() != null ? orderBySortOrder[1].trim() : "asc");
-                builder.sort(orderBySortOrder[0].trim(), orderBySortOrder[1].trim() != null ? orderBySortOrder[1].trim() : "asc");
+        // process the ORDER BY clause into order by and sort order pairs
+        if (queryContext.getOrderByClause() != null && !queryContext.getOrderByClause().isEmpty()) {
+            String[] orderBySortOrderItems = queryContext.getOrderByClause().split(",");
+
+            for (String orderBySortOrderItem : orderBySortOrderItems) {
+                String[] orderBySortOrder = orderBySortOrderItem.trim().split(" ");
+                //check that sort order is given.  default to 'asc'.
+                String sortOrder = orderBySortOrder.length == 1 ? "asc" : orderBySortOrder[1].trim();
+                logger.debug("Applying order by {} with {}", orderBySortOrder[0].trim(), sortOrder);
+                builder.sort(orderBySortOrder[0].trim(), sortOrder);
             }
         }
 
