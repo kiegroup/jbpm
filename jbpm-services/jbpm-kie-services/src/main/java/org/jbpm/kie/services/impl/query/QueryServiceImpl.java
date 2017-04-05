@@ -191,12 +191,12 @@ public class QueryServiceImpl implements QueryService, DeploymentEventListener {
     }
 
     @Override
-    public <T> T query(String queryName, QueryResultMapper<T> mapper, AdvancedQueryContext queryContext, QueryParam... filterParams) throws QueryNotFoundException {
+    public <T> T query(String queryName, QueryResultMapper<T> mapper, QueryContext queryContext, QueryParam... filterParams) throws QueryNotFoundException {
         return query(queryName, mapper, queryContext, new CoreFunctionQueryParamBuilder(filterParams));
     }
 
     @Override
-    public <T> T query(String queryName, QueryResultMapper<T> mapper, AdvancedQueryContext queryContext, QueryParamBuilder<?> paramBuilder) throws QueryNotFoundException {
+    public <T> T query(String queryName, QueryResultMapper<T> mapper, QueryContext queryContext, QueryParamBuilder<?> paramBuilder) throws QueryNotFoundException {
         if (dataSetDefRegistry.getDataSetDef(queryName) == null) {
             throw new QueryNotFoundException("Query " + queryName + " not found");
         }
@@ -224,16 +224,25 @@ public class QueryServiceImpl implements QueryService, DeploymentEventListener {
             filter = paramBuilder.build();
         }
 
-        // process the ORDER BY clause into order by and sort order pairs
-        if (queryContext.getOrderByClause() != null && !queryContext.getOrderByClause().isEmpty()) {
-            String[] orderBySortOrderItems = queryContext.getOrderByClause().split(",");
+        // if advanced ordering is used process the ORDER BY clause into order by and sort order pairs
+        if (queryContext instanceof AdvancedQueryContext && ((AdvancedQueryContext) queryContext).getOrderByClause() != null && !((AdvancedQueryContext) queryContext).getOrderByClause().isEmpty()) {
+            String[] orderBySortOrderItems = ((AdvancedQueryContext) queryContext).getOrderByClause().split(",");
 
             for (String orderBySortOrderItem : orderBySortOrderItems) {
                 String[] orderBySortOrder = orderBySortOrderItem.trim().split(" ");
                 //check that sort order is given.  default to 'asc'.
                 String sortOrder = orderBySortOrder.length == 1 ? "asc" : orderBySortOrder[1].trim();
-                logger.debug("Applying order by {} with {}", orderBySortOrder[0].trim(), sortOrder);
+                logger.debug("Applying order by clause '{}' with {}ending sort order", orderBySortOrder[0].trim(), sortOrder);
                 builder.sort(orderBySortOrder[0].trim(), sortOrder);
+            }
+        } else { // use default simple ordering
+            if (queryContext.getOrderBy() != null) {
+                String[] oderByItems = queryContext.getOrderBy().split(",");
+
+                for (String orderBy : oderByItems) {
+                    logger.debug("Applying order by {} and ascending {}", orderBy, queryContext.isAscending());
+                    builder.sort(orderBy.trim(), queryContext.isAscending() ? "asc" : "desc");
+                }
             }
         }
 

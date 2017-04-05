@@ -51,7 +51,6 @@ import org.junit.Test;
 import org.kie.api.KieServices;
 import org.kie.api.builder.ReleaseId;
 import org.kie.api.runtime.manager.RuntimeManager;
-import org.kie.api.runtime.query.AdvancedQueryContext;
 import org.kie.api.runtime.query.QueryContext;
 import org.kie.api.task.model.Status;
 import org.kie.api.task.model.TaskSummary;
@@ -404,7 +403,7 @@ public class TaskVariablesQueryServiceTest extends AbstractKieServicesBaseTest {
         queryService.registerQuery(queryTPO);
         
         queryService.query(query.getName(), 
-                UserTaskInstanceWithCustomVarsQueryMapper.get(variableMap), new AdvancedQueryContext(), 
+                UserTaskInstanceWithCustomVarsQueryMapper.get(variableMap), new QueryContext(), 
                 QueryParam.equalsTo("productCode", "EAP"));
         
         long currentTime = System.currentTimeMillis();
@@ -447,7 +446,7 @@ public class TaskVariablesQueryServiceTest extends AbstractKieServicesBaseTest {
         long timestamp = System.currentTimeMillis();
         
         List<UserTaskInstanceWithVarsDesc> taskInstanceLogs = queryService.query(query.getName(), 
-                                        UserTaskInstanceWithCustomVarsQueryMapper.get(variableMap), new AdvancedQueryContext(), 
+                                        UserTaskInstanceWithCustomVarsQueryMapper.get(variableMap), new QueryContext(), 
                                         QueryParam.equalsTo("productCode", "EAP"));
         
 
@@ -457,7 +456,7 @@ public class TaskVariablesQueryServiceTest extends AbstractKieServicesBaseTest {
         logger.info("let's find tasks for product EAP or Wildfly");
         timestamp = System.currentTimeMillis();
         taskInstanceLogs = queryService.query(query.getName(), 
-                UserTaskInstanceWithCustomVarsQueryMapper.get(variableMap), new AdvancedQueryContext(), 
+                UserTaskInstanceWithCustomVarsQueryMapper.get(variableMap), new QueryContext(), 
                 QueryParam.in("productCode", Arrays.asList("EAP", "WILDFLY")));
         logger.info("Task query by variable took {} ms with result size {}", (System.currentTimeMillis() - timestamp), taskInstanceLogs.size());
 
@@ -465,7 +464,7 @@ public class TaskVariablesQueryServiceTest extends AbstractKieServicesBaseTest {
         logger.info("let's find tasks for product EAP and country Brazil");
         timestamp = System.currentTimeMillis();
         taskInstanceLogs = queryService.query(query.getName(), 
-                UserTaskInstanceWithCustomVarsQueryMapper.get(variableMap), new AdvancedQueryContext(), 
+                UserTaskInstanceWithCustomVarsQueryMapper.get(variableMap), new QueryContext(), 
                 QueryParam.equalsTo("productCode", "EAP"), QueryParam.equalsTo("country", "Brazil"));
         logger.info("Task query by variable took {} ms with result size {}", (System.currentTimeMillis() - timestamp), taskInstanceLogs.size());
         
@@ -473,21 +472,21 @@ public class TaskVariablesQueryServiceTest extends AbstractKieServicesBaseTest {
         logger.info("let's find tasks for product BPMS and BRMS by using wildcard search");
         timestamp = System.currentTimeMillis();
         taskInstanceLogs = queryService.query(query.getName(), 
-                UserTaskInstanceWithCustomVarsQueryMapper.get(variableMap), new AdvancedQueryContext(), 
+                UserTaskInstanceWithCustomVarsQueryMapper.get(variableMap), new QueryContext(), 
                 QueryParam.likeTo("productCode", false, "B%"));
         logger.info("Task query by variable took {} ms with result size {}", (System.currentTimeMillis() - timestamp), taskInstanceLogs.size());
         
         logger.info("let's find tasks for product Weblogic or WebSphere by wildcard and country Canada");
         timestamp = System.currentTimeMillis();
         taskInstanceLogs = queryService.query(query.getName(), 
-                UserTaskInstanceWithCustomVarsQueryMapper.get(variableMap), new AdvancedQueryContext(), 
+                UserTaskInstanceWithCustomVarsQueryMapper.get(variableMap), new QueryContext(), 
                 QueryParam.likeTo("productCode", false, "WEB%"), QueryParam.equalsTo("country", "Canada"));
         logger.info("Task query by variable took {} ms with result size {}", (System.currentTimeMillis() - timestamp), taskInstanceLogs.size());
 
         logger.info("let's find tasks for product EAP and country Brazil and tasks with status Ready and Reserved");
         timestamp = System.currentTimeMillis();
         taskInstanceLogs = queryService.query(query.getName(), 
-                UserTaskInstanceWithCustomVarsQueryMapper.get(variableMap), new AdvancedQueryContext(), 
+                UserTaskInstanceWithCustomVarsQueryMapper.get(variableMap), new QueryContext(), 
                 QueryParam.equalsTo("productCode", "EAP"), 
                 QueryParam.equalsTo("country", "Brazil"), 
                 QueryParam.in("status", Arrays.asList(Status.Ready.toString(), Status.Reserved.toString())));
@@ -496,7 +495,7 @@ public class TaskVariablesQueryServiceTest extends AbstractKieServicesBaseTest {
         logger.info("let's find tasks for product Weblogic or WebSphere by wildcard where quantity is bigger than 20");
         timestamp = System.currentTimeMillis();
         taskInstanceLogs = queryService.query(query.getName(), 
-                UserTaskInstanceWithCustomVarsQueryMapper.get(variableMap), new AdvancedQueryContext(), 
+                UserTaskInstanceWithCustomVarsQueryMapper.get(variableMap), new QueryContext(), 
                 QueryParam.likeTo("productCode", false, "WEB%"), QueryParam.greaterOrEqualTo("quantity", 20));
         logger.info("Task query by variable took {} ms with result size {}", (System.currentTimeMillis() - timestamp), taskInstanceLogs.size());
 
@@ -509,7 +508,7 @@ public class TaskVariablesQueryServiceTest extends AbstractKieServicesBaseTest {
         
         timestamp = System.currentTimeMillis();
         taskInstanceLogs = queryService.query(query.getName(), 
-                UserTaskInstanceWithCustomVarsQueryMapper.get(variableMap), new AdvancedQueryContext(), 
+                UserTaskInstanceWithCustomVarsQueryMapper.get(variableMap), new QueryContext(), 
                 QueryParam.equalsTo("productCode", "EAP"), QueryParam.between("saleDate", from, to));
         logger.info("Task query by variable took {} ms with result size {}", (System.currentTimeMillis() - timestamp), taskInstanceLogs.size());
         
@@ -522,7 +521,7 @@ public class TaskVariablesQueryServiceTest extends AbstractKieServicesBaseTest {
         timestamp = System.currentTimeMillis();
         
         taskInstanceLogs = queryService.query(queryTPO.getName(), 
-                                        UserTaskInstanceWithCustomVarsQueryMapper.get(variableMap), new AdvancedQueryContext(), 
+                                        UserTaskInstanceWithCustomVarsQueryMapper.get(variableMap), new QueryContext(), 
                                         QueryParam.equalsTo("productCode", "EAP"));
         
 
@@ -532,7 +531,7 @@ public class TaskVariablesQueryServiceTest extends AbstractKieServicesBaseTest {
         logger.info("let's find tasks for product EAP or Wildfly");
         timestamp = System.currentTimeMillis();
         taskInstanceLogs = queryService.query(queryTPO.getName(), 
-                UserTaskInstanceWithCustomVarsQueryMapper.get(variableMap), new AdvancedQueryContext(), 
+                UserTaskInstanceWithCustomVarsQueryMapper.get(variableMap), new QueryContext(), 
                 QueryParam.in("productCode", Arrays.asList("EAP", "WILDFLY")));
         logger.info("Task query by variable took {} ms with result size {}", (System.currentTimeMillis() - timestamp), taskInstanceLogs.size());
 
@@ -540,7 +539,7 @@ public class TaskVariablesQueryServiceTest extends AbstractKieServicesBaseTest {
         logger.info("let's find tasks for product EAP and country Brazil");
         timestamp = System.currentTimeMillis();
         taskInstanceLogs = queryService.query(queryTPO.getName(), 
-                UserTaskInstanceWithCustomVarsQueryMapper.get(variableMap), new AdvancedQueryContext(), 
+                UserTaskInstanceWithCustomVarsQueryMapper.get(variableMap), new QueryContext(), 
                 QueryParam.equalsTo("productCode", "EAP"), QueryParam.equalsTo("country", "Brazil"));
         logger.info("Task query by variable took {} ms with result size {}", (System.currentTimeMillis() - timestamp), taskInstanceLogs.size());
         
@@ -548,21 +547,21 @@ public class TaskVariablesQueryServiceTest extends AbstractKieServicesBaseTest {
         logger.info("let's find tasks for product BPMS and BRMS by using wildcard search");
         timestamp = System.currentTimeMillis();
         taskInstanceLogs = queryService.query(queryTPO.getName(), 
-                UserTaskInstanceWithCustomVarsQueryMapper.get(variableMap), new AdvancedQueryContext(), 
+                UserTaskInstanceWithCustomVarsQueryMapper.get(variableMap), new QueryContext(), 
                 QueryParam.likeTo("productCode", false, "B%"));
         logger.info("Task query by variable took {} ms with result size {}", (System.currentTimeMillis() - timestamp), taskInstanceLogs.size());
         
         logger.info("let's find tasks for product Weblogic or WebSphere by wildcard and country Canada");
         timestamp = System.currentTimeMillis();
         taskInstanceLogs = queryService.query(queryTPO.getName(), 
-                UserTaskInstanceWithCustomVarsQueryMapper.get(variableMap), new AdvancedQueryContext(), 
+                UserTaskInstanceWithCustomVarsQueryMapper.get(variableMap), new QueryContext(), 
                 QueryParam.likeTo("productCode", false, "WEB%"), QueryParam.equalsTo("country", "Canada"));
         logger.info("Task query by variable took {} ms with result size {}", (System.currentTimeMillis() - timestamp), taskInstanceLogs.size());
 
         logger.info("let's find tasks for product EAP and country Brazil and tasks with status Ready and Reserved");
         timestamp = System.currentTimeMillis();
         taskInstanceLogs = queryService.query(queryTPO.getName(), 
-                UserTaskInstanceWithCustomVarsQueryMapper.get(variableMap), new AdvancedQueryContext(), 
+                UserTaskInstanceWithCustomVarsQueryMapper.get(variableMap), new QueryContext(), 
                 QueryParam.equalsTo("productCode", "EAP"), 
                 QueryParam.equalsTo("country", "Brazil"), 
                 QueryParam.in("status", Arrays.asList(Status.Ready.toString(), Status.Reserved.toString())));
@@ -571,7 +570,7 @@ public class TaskVariablesQueryServiceTest extends AbstractKieServicesBaseTest {
         logger.info("let's find tasks for product Weblogic or WebSphere by wildcard where quantity is bigger than 20");
         timestamp = System.currentTimeMillis();
         taskInstanceLogs = queryService.query(queryTPO.getName(), 
-                UserTaskInstanceWithCustomVarsQueryMapper.get(variableMap), new AdvancedQueryContext(), 
+                UserTaskInstanceWithCustomVarsQueryMapper.get(variableMap), new QueryContext(), 
                 QueryParam.likeTo("productCode", false, "WEB%"), QueryParam.greaterOrEqualTo("quantity", 20));
         logger.info("Task query by variable took {} ms with result size {}", (System.currentTimeMillis() - timestamp), taskInstanceLogs.size());
 
@@ -580,7 +579,7 @@ public class TaskVariablesQueryServiceTest extends AbstractKieServicesBaseTest {
         
         timestamp = System.currentTimeMillis();
         taskInstanceLogs = queryService.query(queryTPO.getName(), 
-                UserTaskInstanceWithCustomVarsQueryMapper.get(variableMap), new AdvancedQueryContext(), 
+                UserTaskInstanceWithCustomVarsQueryMapper.get(variableMap), new QueryContext(), 
                 QueryParam.equalsTo("productCode", "EAP"), QueryParam.between("saleDate", from, to));
         logger.info("Task query by variable took {} ms with result size {}", (System.currentTimeMillis() - timestamp), taskInstanceLogs.size());
         

@@ -107,32 +107,6 @@
           "methodName": "getReferenceId",
           "elementKind": "method",
           "justification": "support for reference id of given node, mainly used by reusable subprocessnode to refer to actual process instance it started"
-        },
-		{
-          "code": "java.method.parameterTypeChanged",
-          "old": "parameter <T> T org.jbpm.services.api.query.QueryService::query(java.lang.String, org.jbpm.services.api.query.QueryResultMapper<T>, ===org.kie.api.runtime.query.QueryContext===, org.jbpm.services.api.query.QueryParamBuilder<?>) throws org.jbpm.services.api.query.QueryNotFoundException",
-          "new": "parameter <T> T org.jbpm.services.api.query.QueryService::query(java.lang.String, org.jbpm.services.api.query.QueryResultMapper<T>, ===org.kie.api.runtime.query.AdvancedQueryContext===, org.jbpm.services.api.query.QueryParamBuilder<?>) throws org.jbpm.services.api.query.QueryNotFoundException",
-          "oldType": "org.kie.api.runtime.query.QueryContext",
-          "newType": "org.kie.api.runtime.query.AdvancedQueryContext",
-          "package": "org.jbpm.services.api.query",
-          "classSimpleName": "QueryService",
-          "methodName": "query",
-          "parameterIndex": "2",
-          "elementKind": "parameter",
-          "justification": "QueryContext has been extended to support full order by clause used by advanced querying api"
-        },
-        {
-          "code": "java.method.parameterTypeChanged",
-          "old": "parameter <T> T org.jbpm.services.api.query.QueryService::query(java.lang.String, org.jbpm.services.api.query.QueryResultMapper<T>, ===org.kie.api.runtime.query.QueryContext===, org.jbpm.services.api.query.model.QueryParam[]) throws org.jbpm.services.api.query.QueryNotFoundException",
-          "new": "parameter <T> T org.jbpm.services.api.query.QueryService::query(java.lang.String, org.jbpm.services.api.query.QueryResultMapper<T>, ===org.kie.api.runtime.query.AdvancedQueryContext===, org.jbpm.services.api.query.model.QueryParam[]) throws org.jbpm.services.api.query.QueryNotFoundException",
-          "oldType": "org.kie.api.runtime.query.QueryContext",
-          "newType": "org.kie.api.runtime.query.AdvancedQueryContext",
-          "package": "org.jbpm.services.api.query",
-          "classSimpleName": "QueryService",
-          "methodName": "query",
-          "parameterIndex": "2",
-          "elementKind": "parameter",
-          "justification":  "QueryContext has been extended to support full order by clause used by advanced querying api"
         }
       ]
     }

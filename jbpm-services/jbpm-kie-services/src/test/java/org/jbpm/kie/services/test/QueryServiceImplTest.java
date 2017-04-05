@@ -16,8 +16,8 @@
 
 package org.jbpm.kie.services.test;
 
-import static org.jbpm.services.api.query.QueryResultMapper.COLUMN_PROCESSINSTANCEID;
 import static org.jbpm.services.api.query.QueryResultMapper.COLUMN_PROCESSID;
+import static org.jbpm.services.api.query.QueryResultMapper.COLUMN_PROCESSINSTANCEID;
 import static org.jbpm.services.api.query.QueryResultMapper.COLUMN_PROCESSNAME;
 import static org.jbpm.services.api.query.QueryResultMapper.COLUMN_STATUS;
 import static org.jbpm.services.api.query.QueryResultMapper.COLUMN_TASK_VAR_NAME;
@@ -221,20 +221,20 @@ public class QueryServiceImplTest extends AbstractKieServicesBaseTest {
         assertEquals(query.getExpression(), registeredQuery.getExpression());
         assertEquals(query.getTarget(), registeredQuery.getTarget());
 
-        Collection<ProcessInstanceDesc> instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new AdvancedQueryContext());
+        Collection<ProcessInstanceDesc> instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new QueryContext());
         assertNotNull(instances);
         assertEquals(0, instances.size());
 
         processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument");
         assertNotNull(processInstanceId);
 
-        instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new AdvancedQueryContext());
+        instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new QueryContext());
         assertNotNull(instances);
         assertEquals(1, instances.size());
         assertEquals(1, (int) instances.iterator().next().getState());
 
         // search using named mapper to refer to query mappers by name
-        instances = queryService.query(query.getName(), new NamedQueryMapper<Collection<ProcessInstanceDesc>>("ProcessInstances"), new AdvancedQueryContext());
+        instances = queryService.query(query.getName(), new NamedQueryMapper<Collection<ProcessInstanceDesc>>("ProcessInstances"), new QueryContext());
         assertNotNull(instances);
         assertEquals(1, instances.size());
         assertEquals(1, (int) instances.iterator().next().getState());
@@ -242,7 +242,7 @@ public class QueryServiceImplTest extends AbstractKieServicesBaseTest {
         processService.abortProcessInstance(processInstanceId);
         processInstanceId = null;
 
-        instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new AdvancedQueryContext(COLUMN_PROCESSNAME + " DESC"));
+        instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new QueryContext(COLUMN_PROCESSNAME, false));
         assertNotNull(instances);
         assertEquals(1, instances.size());
         assertEquals(3, (int) instances.iterator().next().getState());
@@ -255,7 +255,7 @@ public class QueryServiceImplTest extends AbstractKieServicesBaseTest {
 
         queryService.registerQuery(query);
 
-        Collection<ProcessInstanceDesc> instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new AdvancedQueryContext());
+        Collection<ProcessInstanceDesc> instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new QueryContext());
         assertNotNull(instances);
         assertEquals(0, instances.size());
 
@@ -263,18 +263,18 @@ public class QueryServiceImplTest extends AbstractKieServicesBaseTest {
         assertNotNull(processInstanceId);
 
         // search for aborted only
-        instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new AdvancedQueryContext(), QueryParam.equalsTo(COLUMN_STATUS, 3));
+        instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new QueryContext(), QueryParam.equalsTo(COLUMN_STATUS, 3));
         assertNotNull(instances);
         assertEquals(0, instances.size());
         // aborted and active
-        instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new AdvancedQueryContext(), QueryParam.equalsTo(COLUMN_STATUS, 3, 1));
+        instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new QueryContext(), QueryParam.equalsTo(COLUMN_STATUS, 3, 1));
         assertNotNull(instances);
         assertEquals(1, instances.size());
 
         processService.abortProcessInstance(processInstanceId);
         processInstanceId = null;
         // aborted only
-        instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new AdvancedQueryContext(), QueryParam.equalsTo(COLUMN_STATUS, 3));
+        instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new QueryContext(), QueryParam.equalsTo(COLUMN_STATUS, 3));
         assertNotNull(instances);
         assertEquals(1, instances.size());
         assertEquals(3, (int) instances.iterator().next().getState());
@@ -287,14 +287,14 @@ public class QueryServiceImplTest extends AbstractKieServicesBaseTest {
 
         queryService.registerQuery(query);
 
-        Collection<ProcessInstanceDesc> instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new AdvancedQueryContext());
+        Collection<ProcessInstanceDesc> instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new QueryContext());
         assertNotNull(instances);
         assertEquals(0, instances.size());
 
         processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument");
         assertNotNull(processInstanceId);
 
-        instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new AdvancedQueryContext(), QueryParam.likeTo(COLUMN_PROCESSID, true, "org.jbpm%"));
+        instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new QueryContext(), QueryParam.likeTo(COLUMN_PROCESSID, true, "org.jbpm%"));
         assertNotNull(instances);
         assertEquals(1, instances.size());
 
@@ -317,21 +317,21 @@ public class QueryServiceImplTest extends AbstractKieServicesBaseTest {
         processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument", params);
         assertNotNull(processInstanceId);
 
-        List<ProcessInstanceWithVarsDesc> processInstanceLogs = queryService.query(query.getName(), ProcessInstanceWithVarsQueryMapper.get(), new AdvancedQueryContext());
+        List<ProcessInstanceWithVarsDesc> processInstanceLogs = queryService.query(query.getName(), ProcessInstanceWithVarsQueryMapper.get(), new QueryContext());
         assertNotNull(processInstanceLogs);
         assertEquals(1, processInstanceLogs.size());
 
         ProcessInstanceWithVarsDesc instance = processInstanceLogs.get(0);
         assertEquals(3, instance.getVariables().size());
 
-        processInstanceLogs = queryService.query(query.getName(), ProcessInstanceWithVarsQueryMapper.get(), new AdvancedQueryContext(), QueryParam.equalsTo(COLUMN_VAR_NAME, "approval_document"));
+        processInstanceLogs = queryService.query(query.getName(), ProcessInstanceWithVarsQueryMapper.get(), new QueryContext(), QueryParam.equalsTo(COLUMN_VAR_NAME, "approval_document"));
         assertNotNull(processInstanceLogs);
         assertEquals(1, processInstanceLogs.size());
 
         instance = processInstanceLogs.get(0);
         assertEquals(1, instance.getVariables().size());
 
-        processInstanceLogs = queryService.query(query.getName(), ProcessInstanceWithVarsQueryMapper.get(), new AdvancedQueryContext(), QueryParam.equalsTo(COLUMN_VAR_NAME, "not existing"));
+        processInstanceLogs = queryService.query(query.getName(), ProcessInstanceWithVarsQueryMapper.get(), new QueryContext(), QueryParam.equalsTo(COLUMN_VAR_NAME, "not existing"));
         assertNotNull(processInstanceLogs);
         assertEquals(0, processInstanceLogs.size());
 
@@ -354,7 +354,7 @@ public class QueryServiceImplTest extends AbstractKieServicesBaseTest {
         processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument", params);
         assertNotNull(processInstanceId);
 
-        List<UserTaskInstanceDesc> taskInstanceLogs = queryService.query(query.getName(), UserTaskInstanceQueryMapper.get(), new AdvancedQueryContext());
+        List<UserTaskInstanceDesc> taskInstanceLogs = queryService.query(query.getName(), UserTaskInstanceQueryMapper.get(), new QueryContext());
         assertNotNull(taskInstanceLogs);
         assertEquals(1, taskInstanceLogs.size());
 
@@ -377,21 +377,21 @@ public class QueryServiceImplTest extends AbstractKieServicesBaseTest {
         processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument", params);
         assertNotNull(processInstanceId);
 
-        List<UserTaskInstanceWithVarsDesc> taskInstanceLogs = queryService.query(query.getName(), UserTaskInstanceWithVarsQueryMapper.get(), new AdvancedQueryContext());
+        List<UserTaskInstanceWithVarsDesc> taskInstanceLogs = queryService.query(query.getName(), UserTaskInstanceWithVarsQueryMapper.get(), new QueryContext());
         assertNotNull(taskInstanceLogs);
         assertEquals(1, taskInstanceLogs.size());
 
         UserTaskInstanceWithVarsDesc instance = taskInstanceLogs.get(0);
         assertEquals(3, instance.getVariables().size());
 
-        taskInstanceLogs = queryService.query(query.getName(), UserTaskInstanceWithVarsQueryMapper.get(), new AdvancedQueryContext(), QueryParam.equalsTo(COLUMN_TASK_VAR_NAME, "Comment"), QueryParam.equalsTo(COLUMN_TASK_VAR_VALUE, "Write a Document"));
+        taskInstanceLogs = queryService.query(query.getName(), UserTaskInstanceWithVarsQueryMapper.get(), new QueryContext(), QueryParam.equalsTo(COLUMN_TASK_VAR_NAME, "Comment"), QueryParam.equalsTo(COLUMN_TASK_VAR_VALUE, "Write a Document"));
         assertNotNull(taskInstanceLogs);
         assertEquals(1, taskInstanceLogs.size());
 
         instance = taskInstanceLogs.get(0);
         assertEquals(1, instance.getVariables().size());
 
-        taskInstanceLogs = queryService.query(query.getName(), UserTaskInstanceWithVarsQueryMapper.get(), new AdvancedQueryContext(), QueryParam.equalsTo(COLUMN_TASK_VAR_NAME, "Comment"), QueryParam.equalsTo(COLUMN_TASK_VAR_VALUE, "Wrong Comment"));
+        taskInstanceLogs = queryService.query(query.getName(), UserTaskInstanceWithVarsQueryMapper.get(), new QueryContext(), QueryParam.equalsTo(COLUMN_TASK_VAR_NAME, "Comment"), QueryParam.equalsTo(COLUMN_TASK_VAR_VALUE, "Wrong Comment"));
         assertNotNull(taskInstanceLogs);
         assertEquals(0, taskInstanceLogs.size());
 
@@ -433,17 +433,17 @@ public class QueryServiceImplTest extends AbstractKieServicesBaseTest {
         assertNotNull(processInstanceId);
         identityProvider.setName("notvalid");
 
-        List<UserTaskInstanceDesc> taskInstanceLogs = queryService.query(query.getName(), UserTaskInstanceQueryMapper.get(), new AdvancedQueryContext());
+        List<UserTaskInstanceDesc> taskInstanceLogs = queryService.query(query.getName(), UserTaskInstanceQueryMapper.get(), new QueryContext());
         assertNotNull(taskInstanceLogs);
         assertEquals(0, taskInstanceLogs.size());
 
         identityProvider.setName("salaboy");
 
-        taskInstanceLogs = queryService.query(query.getName(), UserTaskInstanceQueryMapper.get(), new AdvancedQueryContext());
+        taskInstanceLogs = queryService.query(query.getName(), UserTaskInstanceQueryMapper.get(), new QueryContext());
         assertNotNull(taskInstanceLogs);
         assertEquals(1, taskInstanceLogs.size());
 
-        List<TaskSummary> taskSummaries = queryService.query(query.getName(), TaskSummaryQueryMapper.get(), new AdvancedQueryContext());
+        List<TaskSummary> taskSummaries = queryService.query(query.getName(), TaskSummaryQueryMapper.get(), new QueryContext());
         assertNotNull(taskSummaries);
         assertEquals(1, taskSummaries.size());
 
@@ -484,20 +484,20 @@ public class QueryServiceImplTest extends AbstractKieServicesBaseTest {
         processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument", params);
         assertNotNull(processInstanceId);
 
-        List<UserTaskInstanceDesc> taskInstanceLogs = queryService.query(query.getName(), UserTaskInstanceQueryMapper.get(), new AdvancedQueryContext());
+        List<UserTaskInstanceDesc> taskInstanceLogs = queryService.query(query.getName(), UserTaskInstanceQueryMapper.get(), new QueryContext());
         assertNotNull(taskInstanceLogs);
         assertEquals(0, taskInstanceLogs.size());
 
         identityProvider.setName("Administrator");
 
-        taskInstanceLogs = queryService.query(query.getName(), UserTaskInstanceQueryMapper.get(), new AdvancedQueryContext());
+        taskInstanceLogs = queryService.query(query.getName(), UserTaskInstanceQueryMapper.get(), new QueryContext());
         assertNotNull(taskInstanceLogs);
         assertEquals(1, taskInstanceLogs.size());
 
         identityProvider.setName("salaboy");
         identityProvider.setRoles(Arrays.asList("Administrators"));
 
-        taskInstanceLogs = queryService.query(query.getName(), UserTaskInstanceQueryMapper.get(), new AdvancedQueryContext());
+        taskInstanceLogs = queryService.query(query.getName(), UserTaskInstanceQueryMapper.get(), new QueryContext());
         assertNotNull(taskInstanceLogs);
         assertEquals(1, taskInstanceLogs.size());
 
@@ -539,7 +539,7 @@ public class QueryServiceImplTest extends AbstractKieServicesBaseTest {
         variableMap.put("AGE", "integer");
         variableMap.put("CUSTOMERID", "long");
 
-        List<UserTaskInstanceWithVarsDesc> taskInstanceLogs = queryService.query(query.getName(), UserTaskInstanceWithCustomVarsQueryMapper.get(variableMap), new AdvancedQueryContext());
+        List<UserTaskInstanceWithVarsDesc> taskInstanceLogs = queryService.query(query.getName(), UserTaskInstanceWithCustomVarsQueryMapper.get(variableMap), new QueryContext());
         assertNotNull(taskInstanceLogs);
         assertEquals(1, taskInstanceLogs.size());
 
@@ -567,7 +567,7 @@ public class QueryServiceImplTest extends AbstractKieServicesBaseTest {
 
         queryService.registerQuery(query);
 
-        Collection<ProcessInstanceDesc> instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new AdvancedQueryContext());
+        Collection<ProcessInstanceDesc> instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new QueryContext());
         assertNotNull(instances);
         assertEquals(0, instances.size());
 
@@ -583,7 +583,7 @@ public class QueryServiceImplTest extends AbstractKieServicesBaseTest {
         parameters.put("max", processInstanceId + 2);
         QueryParamBuilder<?> paramBuilder = qbFactory.newInstance(parameters);
 
-        instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new AdvancedQueryContext(), paramBuilder);
+        instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new QueryContext(), paramBuilder);
         assertNotNull(instances);
         assertEquals(1, instances.size());
 
@@ -592,7 +592,7 @@ public class QueryServiceImplTest extends AbstractKieServicesBaseTest {
         parameters.put("max", 0l);
         paramBuilder = qbFactory.newInstance(parameters);
 
-        instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new AdvancedQueryContext(), paramBuilder);
+        instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new QueryContext(), paramBuilder);
         assertNotNull(instances);
         assertEquals(0, instances.size());
 
@@ -634,7 +634,7 @@ public class QueryServiceImplTest extends AbstractKieServicesBaseTest {
         variableMap.put("AGE", "integer");
         variableMap.put("CUSTOMERID", "long");
 
-        List<ProcessInstanceWithVarsDesc> processInstanceLogs = queryService.query(query.getName(), ProcessInstanceWithCustomVarsQueryMapper.get(variableMap), new AdvancedQueryContext());
+        List<ProcessInstanceWithVarsDesc> processInstanceLogs = queryService.query(query.getName(), ProcessInstanceWithCustomVarsQueryMapper.get(variableMap), new QueryContext());
         assertNotNull(processInstanceLogs);
         assertEquals(1, processInstanceLogs.size());
 
@@ -682,14 +682,14 @@ public class QueryServiceImplTest extends AbstractKieServicesBaseTest {
         assertEquals(query.getExpression(), registeredQuery.getExpression());
         assertEquals(query.getTarget(), registeredQuery.getTarget());
 
-        List<List<Object>> instances = queryService.query(query.getName(), RawListQueryMapper.get(), new AdvancedQueryContext());
+        List<List<Object>> instances = queryService.query(query.getName(), RawListQueryMapper.get(), new QueryContext());
         assertNotNull(instances);
         assertEquals(0, instances.size());
 
         processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument");
         assertNotNull(processInstanceId);
 
-        instances = queryService.query(query.getName(), RawListQueryMapper.get(), new AdvancedQueryContext());
+        instances = queryService.query(query.getName(), RawListQueryMapper.get(), new QueryContext());
         assertNotNull(instances);
         assertEquals(1, instances.size());
 
@@ -729,7 +729,7 @@ public class QueryServiceImplTest extends AbstractKieServicesBaseTest {
         assertEquals(query.getExpression(), registeredQuery.getExpression());
         assertEquals(query.getTarget(), registeredQuery.getTarget());
 
-        List<List<Object>> instances = queryService.query(query.getName(), RawListQueryMapper.get(), new AdvancedQueryContext());
+        List<List<Object>> instances = queryService.query(query.getName(), RawListQueryMapper.get(), new QueryContext());
         assertNotNull(instances);
         assertEquals(0, instances.size());
 
@@ -738,7 +738,7 @@ public class QueryServiceImplTest extends AbstractKieServicesBaseTest {
         Long processInstanceId2 = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument");
         assertNotNull(processInstanceId2);
 
-        instances = queryService.query(query.getName(), RawListQueryMapper.get(), new AdvancedQueryContext());
+        instances = queryService.query(query.getName(), RawListQueryMapper.get(), new QueryContext());
         assertNotNull(instances);
         assertEquals(2, instances.size());
 
@@ -760,58 +760,6 @@ public class QueryServiceImplTest extends AbstractKieServicesBaseTest {
     }
 
     @Test
-    public void testGetProcessInstancesWithSortingCriteria() {
-
-        query = new SqlQueryDefinition("getAllProcessInstances", dataSourceJNDIname);
-        query.setExpression("select * from processinstancelog");
-
-        queryService.registerQuery(query);
-
-        List<QueryDefinition> queries = queryService.getQueries(new QueryContext());
-        assertNotNull(queries);
-        assertEquals(1, queries.size());
-
-        QueryDefinition registeredQuery = queries.get(0);
-        assertNotNull(registeredQuery);
-        assertEquals(query.getName(), registeredQuery.getName());
-        assertEquals(query.getSource(), registeredQuery.getSource());
-        assertEquals(query.getExpression(), registeredQuery.getExpression());
-        assertEquals(query.getTarget(), registeredQuery.getTarget());
-
-        registeredQuery = queryService.getQuery(query.getName());
-
-        assertNotNull(registeredQuery);
-        assertEquals(query.getName(), registeredQuery.getName());
-        assertEquals(query.getSource(), registeredQuery.getSource());
-        assertEquals(query.getExpression(), registeredQuery.getExpression());
-        assertEquals(query.getTarget(), registeredQuery.getTarget());
-
-        List<ProcessInstanceDesc> instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new AdvancedQueryContext());
-        assertNotNull(instances);
-        assertEquals(0, instances.size());
-
-        processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument");
-        assertNotNull(processInstanceId);
-        Long processInstanceId2 = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument");
-        assertNotNull(processInstanceId2);
-        Long processInstanceId3 = processService.startProcess(deploymentUnit.getIdentifier(), "org.jboss.qa.bpms.HumanTask");
-        assertNotNull(processInstanceId3);
-
-        String orderByClause = "processId asc, processInstanceId desc";
-
-        instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new AdvancedQueryContext(orderByClause));
-        assertNotNull(instances);
-        assertEquals(3, instances.size());
-
-        // Check that sorting criteria for processInstanceId is descending
-        assertTrue(instances.get(2).getId() < instances.get(1).getId());
-
-        processService.abortProcessInstance(processInstanceId2);
-        processService.abortProcessInstance(processInstanceId);
-        processInstanceId = null;
-    }
-
-    @Test
     public void testGetProcessInstancesCount() {
 
         query = new SqlQueryDefinition("getAllProcessInstances", dataSourceJNDIname);
@@ -823,7 +771,7 @@ public class QueryServiceImplTest extends AbstractKieServicesBaseTest {
         assertNotNull(queries);
         assertEquals(1, queries.size());
 
-        Collection<List<Object>> instances = queryService.query(query.getName(), RawListQueryMapper.get(), new AdvancedQueryContext(), QueryParam.count(COLUMN_PROCESSINSTANCEID));
+        Collection<List<Object>> instances = queryService.query(query.getName(), RawListQueryMapper.get(), new QueryContext(), QueryParam.count(COLUMN_PROCESSINSTANCEID));
         assertNotNull(instances);
         assertEquals(1, instances.size());
 
@@ -837,7 +785,7 @@ public class QueryServiceImplTest extends AbstractKieServicesBaseTest {
         processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument");
         assertNotNull(processInstanceId);
 
-        instances = queryService.query(query.getName(), RawListQueryMapper.get(), new AdvancedQueryContext(), QueryParam.count(COLUMN_PROCESSINSTANCEID));
+        instances = queryService.query(query.getName(), RawListQueryMapper.get(), new QueryContext(), QueryParam.count(COLUMN_PROCESSINSTANCEID));
         assertNotNull(instances);
         assertEquals(1, instances.size());
 
@@ -867,7 +815,7 @@ public class QueryServiceImplTest extends AbstractKieServicesBaseTest {
 
         QueryParam[] parameters = QueryParam.getBuilder().append(QueryParam.groupBy(COLUMN_PROCESSNAME)).append(QueryParam.count(COLUMN_PROCESSINSTANCEID)).get();
 
-        Collection<List<Object>> instances = queryService.query(query.getName(), RawListQueryMapper.get(), new AdvancedQueryContext(), parameters);
+        Collection<List<Object>> instances = queryService.query(query.getName(), RawListQueryMapper.get(), new QueryContext(), parameters);
         assertNotNull(instances);
         assertEquals(0, instances.size());
 
@@ -876,7 +824,7 @@ public class QueryServiceImplTest extends AbstractKieServicesBaseTest {
 
         long processInstanceId2 = processService.startProcess(deploymentUnit.getIdentifier(), "org.jboss.qa.bpms.HumanTask");
 
-        instances = queryService.query(query.getName(), RawListQueryMapper.get(), new AdvancedQueryContext(), parameters);
+        instances = queryService.query(query.getName(), RawListQueryMapper.get(), new QueryContext(), parameters);
         assertNotNull(instances);
         assertEquals(2, instances.size());
         // write document process
@@ -926,14 +874,14 @@ public class QueryServiceImplTest extends AbstractKieServicesBaseTest {
         assertEquals(query.getExpression(), registeredQuery.getExpression());
         assertEquals(query.getTarget(), registeredQuery.getTarget());
 
-        Collection<ProcessInstanceDesc> instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new AdvancedQueryContext());
+        Collection<ProcessInstanceDesc> instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new QueryContext());
         assertNotNull(instances);
         assertEquals(0, instances.size());
 
         processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument");
         assertNotNull(processInstanceId);
 
-        instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new AdvancedQueryContext());
+        instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new QueryContext());
         assertNotNull(instances);
         assertEquals(1, instances.size());
         assertEquals(1, (int) instances.iterator().next().getState());
@@ -944,7 +892,7 @@ public class QueryServiceImplTest extends AbstractKieServicesBaseTest {
         identityProvider.setRoles(roles);
         identityProvider.setName("anotherUser2");
 
-        instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new AdvancedQueryContext());
+        instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new QueryContext());
         assertNotNull(instances);
         assertEquals(0, instances.size());
     }
@@ -962,7 +910,7 @@ public class QueryServiceImplTest extends AbstractKieServicesBaseTest {
 
         queryService.registerQuery(query);
 
-        List<QueryDefinition> queries = queryService.getQueries(new AdvancedQueryContext());
+        List<QueryDefinition> queries = queryService.getQueries(new QueryContext());
         assertNotNull(queries);
         assertEquals(1, queries.size());
 
@@ -982,11 +930,11 @@ public class QueryServiceImplTest extends AbstractKieServicesBaseTest {
 
         identityProvider.setName("salaboy");
 
-        List<UserTaskInstanceDesc> taskInstanceLogs = queryService.query(query.getName(), UserTaskInstanceQueryMapper.get(), new AdvancedQueryContext());
+        List<UserTaskInstanceDesc> taskInstanceLogs = queryService.query(query.getName(), UserTaskInstanceQueryMapper.get(), new QueryContext());
         assertNotNull(taskInstanceLogs);
         assertEquals(1, taskInstanceLogs.size());
 
-        List<TaskSummary> taskSummaries = queryService.query(query.getName(), TaskSummaryQueryMapper.get(), new AdvancedQueryContext());
+        List<TaskSummary> taskSummaries = queryService.query(query.getName(), TaskSummaryQueryMapper.get(), new QueryContext());
         assertNotNull(taskSummaries);
         assertEquals(1, taskSummaries.size());
 
@@ -996,11 +944,11 @@ public class QueryServiceImplTest extends AbstractKieServicesBaseTest {
         identityProvider.setRoles(roles);
         identityProvider.setName("anotherUser");
 
-        taskInstanceLogs = queryService.query(query.getName(), UserTaskInstanceQueryMapper.get(), new AdvancedQueryContext());
+        taskInstanceLogs = queryService.query(query.getName(), UserTaskInstanceQueryMapper.get(), new QueryContext());
         assertNotNull(taskInstanceLogs);
         assertEquals(0, taskInstanceLogs.size());
 
-        taskSummaries = queryService.query(query.getName(), TaskSummaryQueryMapper.get(), new AdvancedQueryContext());
+        taskSummaries = queryService.query(query.getName(), TaskSummaryQueryMapper.get(), new QueryContext());
         assertNotNull(taskSummaries);
         assertEquals(0, taskSummaries.size());
 
@@ -1038,14 +986,14 @@ public class QueryServiceImplTest extends AbstractKieServicesBaseTest {
         processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument", params);
         assertNotNull(processInstanceId);
 
-        List<UserTaskInstanceDesc> taskInstanceLogs = queryService.query(query.getName(), UserTaskInstanceQueryMapper.get(), new AdvancedQueryContext());
+        List<UserTaskInstanceDesc> taskInstanceLogs = queryService.query(query.getName(), UserTaskInstanceQueryMapper.get(), new QueryContext());
         assertNotNull(taskInstanceLogs);
         assertEquals(0, taskInstanceLogs.size());
 
         identityProvider.setName("salaboy");
         identityProvider.setRoles(Arrays.asList("Administrators", "managers"));
 
-        taskInstanceLogs = queryService.query(query.getName(), UserTaskInstanceQueryMapper.get(), new AdvancedQueryContext());
+        taskInstanceLogs = queryService.query(query.getName(), UserTaskInstanceQueryMapper.get(), new QueryContext());
         assertNotNull(taskInstanceLogs);
         assertEquals(1, taskInstanceLogs.size());
 
@@ -1055,10 +1003,66 @@ public class QueryServiceImplTest extends AbstractKieServicesBaseTest {
         identityProvider.setRoles(roles);
         identityProvider.setName("Administrator");
         // even though it's Administrator it has no access to deployment
-        taskInstanceLogs = queryService.query(query.getName(), UserTaskInstanceQueryMapper.get(), new AdvancedQueryContext());
+        taskInstanceLogs = queryService.query(query.getName(), UserTaskInstanceQueryMapper.get(), new QueryContext());
         assertNotNull(taskInstanceLogs);
         assertEquals(0, taskInstanceLogs.size());
 
+        processService.abortProcessInstance(processInstanceId);
+        processInstanceId = null;
+    }
+
+    /*
+     * JBPM-5468 adding support for full ORDER BY clause with QueryService.  This test
+     * selects 3 processes and verifies sorting criteria specified by the ORDER BY clause.
+     */
+    @Test
+    public void testGetProcessInstancesWithOrderByClause() {
+
+        query = new SqlQueryDefinition("getAllProcessInstances", dataSourceJNDIname);
+        query.setExpression("select * from processinstancelog");
+
+        queryService.registerQuery(query);
+
+        List<QueryDefinition> queries = queryService.getQueries(new QueryContext());
+        assertNotNull(queries);
+        assertEquals(1, queries.size());
+
+        QueryDefinition registeredQuery = queries.get(0);
+        assertNotNull(registeredQuery);
+        assertEquals(query.getName(), registeredQuery.getName());
+        assertEquals(query.getSource(), registeredQuery.getSource());
+        assertEquals(query.getExpression(), registeredQuery.getExpression());
+        assertEquals(query.getTarget(), registeredQuery.getTarget());
+
+        registeredQuery = queryService.getQuery(query.getName());
+
+        assertNotNull(registeredQuery);
+        assertEquals(query.getName(), registeredQuery.getName());
+        assertEquals(query.getSource(), registeredQuery.getSource());
+        assertEquals(query.getExpression(), registeredQuery.getExpression());
+        assertEquals(query.getTarget(), registeredQuery.getTarget());
+
+        List<ProcessInstanceDesc> instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new AdvancedQueryContext());
+        assertNotNull(instances);
+        assertEquals(0, instances.size());
+
+        processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument");
+        assertNotNull(processInstanceId);
+        Long processInstanceId2 = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument");
+        assertNotNull(processInstanceId2);
+        Long processInstanceId3 = processService.startProcess(deploymentUnit.getIdentifier(), "org.jboss.qa.bpms.HumanTask");
+        assertNotNull(processInstanceId3);
+
+        String orderByClause = "processId asc, processInstanceId desc";
+
+        instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new AdvancedQueryContext(orderByClause));
+        assertNotNull(instances);
+        assertEquals(3, instances.size());
+
+        // Check that sorting criteria for processInstanceId is descending
+        assertTrue("Testing ORDER BY clause with descending sort order on processInstanceId failed", instances.get(2).getId() < instances.get(1).getId());
+
+        processService.abortProcessInstance(processInstanceId2);
         processService.abortProcessInstance(processInstanceId);
         processInstanceId = null;
     }

@@ -20,7 +20,6 @@ import java.util.List;
 
 import org.jbpm.services.api.query.model.QueryDefinition;
 import org.jbpm.services.api.query.model.QueryParam;
-import org.kie.api.runtime.query.AdvancedQueryContext;
 import org.kie.api.runtime.query.QueryContext;
 
 /**
@@ -36,21 +35,21 @@ public interface QueryService {
      * @throws QueryAlreadyRegisteredException in case there is already query registered with given name (queryDefinition.getName())
      */
     void registerQuery(QueryDefinition queryDefinition) throws QueryAlreadyRegisteredException;
-    
+
     /**
      * Registers or replaces existing query. Similar to what <code>registerQuery</code> does, though it won't throw 
      * exception in case there is already query registered but simply replace it.
      * @param queryDefinition definition of the query to be registered/replaced
      */
     void replaceQuery(QueryDefinition queryDefinition);
-    
+
     /**
      * Removes the query definition from the system
      * @param uniqueQueryName unique name that query was registered under
      * @throws QueryNotFoundException in case there is no such query registered
      */
-    void unregisterQuery(String uniqueQueryName) throws QueryNotFoundException;   
-    
+    void unregisterQuery(String uniqueQueryName) throws QueryNotFoundException;
+
     /**
      * Returns query definition details that is registered under given uniqueQueryName
      * @param uniqueQueryName unique name that query was registered under 
@@ -58,14 +57,14 @@ public interface QueryService {
      * @throws QueryNotFoundException in case there is no such query registered
      */
     QueryDefinition getQuery(String uniqueQueryName) throws QueryNotFoundException;
-    
+
     /**
      * Returns list of query definitions registered in the system
      * @param queryContext provides pagnition information for the query
      * @return returns list of found queries
      */
-    List<QueryDefinition> getQueries(QueryContext queryContext); 
-    
+    List<QueryDefinition> getQueries(QueryContext queryContext);
+
     /**
      * Performs query on given query definition that had to be previously registered. Results will be mapped 
      * by given <code>mapper</code> and:
@@ -80,8 +79,8 @@ public interface QueryService {
      * @return results mapped to objects from raw data set
      * @throws QueryNotFoundException in case there is no such query registered
      */
-    <T> T query(String queryName, QueryResultMapper<T> mapper, AdvancedQueryContext queryContext, QueryParam...filterParams) throws QueryNotFoundException;
-    
+    <T> T query(String queryName, QueryResultMapper<T> mapper, QueryContext queryContext, QueryParam... filterParams) throws QueryNotFoundException;
+
     /**
      * Performs query on given query definition that had to be previously registered. Results will be mapped 
      * by given <code>mapper</code> and:
@@ -97,6 +96,6 @@ public interface QueryService {
      * @return results mapped to objects from raw data set
      * @throws QueryNotFoundException in case there is no such query registered
      */
-    <T> T query(String queryName, QueryResultMapper<T> mapper, AdvancedQueryContext queryContext, QueryParamBuilder<?> paramBuilder) throws QueryNotFoundException;
-    
+    <T> T query(String queryName, QueryResultMapper<T> mapper, QueryContext queryContext, QueryParamBuilder<?> paramBuilder) throws QueryNotFoundException;
+
 }
