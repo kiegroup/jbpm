@@ -46,13 +46,14 @@ public class RoundRobinAssignmentStrategy implements AssignmentStrategy {
 
     private class CircularQueue<T> extends LinkedBlockingQueue<T> {
         @Override
-        public T take() {
+        public synchronized T take() {
             T headValue = null;
             try {
                 headValue = super.take();
                 super.offer(headValue);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                logger.error("Thread interrupted during the 'take' from a circular queue in the " +
+                                     "RoundRobinAssignmentStrategy",e);
             }
             return headValue;
         }
@@ -69,12 +70,12 @@ public class RoundRobinAssignmentStrategy implements AssignmentStrategy {
         UserInfo userInfo = (UserInfo) ((org.jbpm.services.task.commands.TaskContext)taskContext).get(EnvironmentName.TASK_USER_INFO);
 
         // Get the the users from the task's the potential owners
-        List<OrganizationalEntity> potentialOwners = task.getPeopleAssignments().getPotentialOwners().parallelStream()
+        List<OrganizationalEntity> potentialOwners = task.getPeopleAssignments().getPotentialOwners().stream()
                 .filter(oe -> oe instanceof User && !excluded.contains(oe))
                 .collect(Collectors.toList());
 
         // Get the users belonging to groups that are potential owners
-        task.getPeopleAssignments().getPotentialOwners().parallelStream().filter(oe -> oe instanceof Group)
+        task.getPeopleAssignments().getPotentialOwners().stream().filter(oe -> oe instanceof Group)
                 .forEach(oe -> {
                     Iterator<OrganizationalEntity> groupUsers = userInfo.getMembersForGroup((Group)oe);
                     if (groupUsers != null) {
@@ -86,33 +87,44 @@ public class RoundRobinAssignmentStrategy implements AssignmentStrategy {
                     }
                 });
         String queueName = getQueueName(task);
-        CircularQueue<OrganizationalEntity> mappedQueue = null;
-        // If a queue already exists for this task then its contents should be synchronized with the
-        // current list of potential owners
-        if (circularQueueMap.containsKey(queueName)) {
-            final CircularQueue<OrganizationalEntity> queue = circularQueueMap.get(queueName); 
-            potentialOwners.forEach(po -> {
-            	if (!queueContainsUser(queue,po)) {
-            		queue.add(po);
-            	}
-            });
-            queue.removeIf(oe -> !potentialOwners.contains(oe));
-            mappedQueue = queue;
-        } else {
-            CircularQueue<OrganizationalEntity> queue = new CircularQueue();
-            potentialOwners.forEach(po -> {queue.add(po);});
-            circularQueueMap.put(queueName,queue);
-            mappedQueue = queue;
-        }
+        CircularQueue<OrganizationalEntity> mappedQueue = synchronizedQueue(circularQueueMap.get(queueName),potentialOwners);
+        // if the queue did not already exist then it will be added to the map
+        // otherwise the queue that was in the map will be updated
+        circularQueueMap.put(queueName,mappedQueue);
         OrganizationalEntity owner = mappedQueue.take();
         return new Assignment(owner.getId());
+    }
+
+    /**
+     * Synchronizes the {@code OrganizationalEntity} objects contained in the {@code CircularQueue} and the list of
+     * potential owners
+     * @param queue The queue to be synchronized. If null then a new CircularQueue will be created
+     * @param potentialOwners This list of potential owners of the task
+     * @return The CircularQueue that contains all potential owners
+     */
+    private synchronized CircularQueue<OrganizationalEntity> synchronizedQueue(CircularQueue<OrganizationalEntity> queue,
+                                                                              List<OrganizationalEntity> potentialOwners) {
+        final CircularQueue<OrganizationalEntity> workingQueue = queue != null ? queue:new CircularQueue();
+        potentialOwners.forEach(po -> {
+            if (!queueContainsUser(workingQueue,po)) {
+                workingQueue.add(po);
+            }
+        });
+        workingQueue.removeIf(oe -> !potentialOwners.contains(oe));
+        return workingQueue;
     }
     
     protected boolean queueContainsUser(CircularQueue<OrganizationalEntity> queue, OrganizationalEntity oe) {
     	return queue.contains(oe);
     }
 
+    /**
+     * Generates a queue name that is based on data retrieved from the task. The form of the generated queue name is:
+     * Process ID + "_" + Deployment ID + " " + Task Name
+     * @param task Source of the data used to generate the queue name
+     * @return The generated queue name
+     */
     protected String getQueueName(Task task) {
-        return task.getTaskData().getDeploymentId()+"_"+task.getName();
+        return task.getTaskData().getProcessId()+"_"+task.getTaskData().getDeploymentId()+"_"+task.getName();
     }
 }

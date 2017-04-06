@@ -61,6 +61,7 @@ public class RoundRobinAssignmentTests extends AbstractAssignmentTests {
     @After
     public void clean() {
         System.clearProperty("org.jbpm.task.assignment.enabled");
+        System.clearProperty("org.jbpm.task.assignment.strategy");
         AssignmentServiceProvider.clear();
         if (emf != null) {
             emf.close();
