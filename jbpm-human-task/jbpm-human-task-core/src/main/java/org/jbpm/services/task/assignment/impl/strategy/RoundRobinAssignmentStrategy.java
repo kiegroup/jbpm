@@ -15,6 +15,13 @@
 
 package org.jbpm.services.task.assignment.impl.strategy;
 
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.stream.Collectors;
+
 import org.kie.api.runtime.EnvironmentName;
 import org.kie.api.task.TaskContext;
 import org.kie.api.task.model.Group;
@@ -28,21 +35,11 @@ import org.kie.internal.task.api.model.InternalPeopleAssignments;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.stream.Collectors;
-
 public class RoundRobinAssignmentStrategy implements AssignmentStrategy {
     private static final Logger logger = LoggerFactory.getLogger(RoundRobinAssignmentStrategy.class);
     private static final String IDENTIFIER = "RoundRobin";
 
-    private boolean active = IDENTIFIER.equals(System.getProperty("org.jbpm.task.assignment.strategy"));
-
-    private Map<String,CircularQueue> circularQueueMap = new ConcurrentHashMap();
+    private Map<String,CircularQueue<OrganizationalEntity>> circularQueueMap = new ConcurrentHashMap();
 
     private class CircularQueue<T> extends LinkedBlockingQueue<T> {
         @Override
@@ -87,10 +84,7 @@ public class RoundRobinAssignmentStrategy implements AssignmentStrategy {
                     }
                 });
         String queueName = getQueueName(task);
-        CircularQueue<OrganizationalEntity> mappedQueue = synchronizedQueue(circularQueueMap.get(queueName),potentialOwners);
-        // if the queue did not already exist then it will be added to the map
-        // otherwise the queue that was in the map will be updated
-        circularQueueMap.put(queueName,mappedQueue);
+        CircularQueue<OrganizationalEntity> mappedQueue = synchronizedQueue(queueName,potentialOwners);
         OrganizationalEntity owner = mappedQueue.take();
         return new Assignment(owner.getId());
     }
@@ -98,19 +92,24 @@ public class RoundRobinAssignmentStrategy implements AssignmentStrategy {
     /**
      * Synchronizes the {@code OrganizationalEntity} objects contained in the {@code CircularQueue} and the list of
      * potential owners
-     * @param queue The queue to be synchronized. If null then a new CircularQueue will be created
+     * @param queueName The name of the queue to be synchronized.
      * @param potentialOwners This list of potential owners of the task
      * @return The CircularQueue that contains all potential owners
      */
-    private synchronized CircularQueue<OrganizationalEntity> synchronizedQueue(CircularQueue<OrganizationalEntity> queue,
+    private synchronized CircularQueue<OrganizationalEntity> synchronizedQueue(String queueName,
                                                                               List<OrganizationalEntity> potentialOwners) {
-        final CircularQueue<OrganizationalEntity> workingQueue = queue != null ? queue:new CircularQueue();
+    	CircularQueue<OrganizationalEntity> existingQueue = (queueName == null || queueName.trim().length() == 0) ? null:circularQueueMap.get(queueName);
+    	//
+    	// If the queue does not exist then a new CircularQueue should be created
+    	//
+        final CircularQueue<OrganizationalEntity> workingQueue = existingQueue != null ? existingQueue:new CircularQueue();
         potentialOwners.forEach(po -> {
             if (!queueContainsUser(workingQueue,po)) {
                 workingQueue.add(po);
             }
         });
         workingQueue.removeIf(oe -> !potentialOwners.contains(oe));
+        circularQueueMap.put(queueName, workingQueue);
         return workingQueue;
     }
     
