@@ -46,7 +46,7 @@ public class IncrementalCompilationTest extends AbstractBaseTest {
 
         KieBuilder kieBuilder = ks.newKieBuilder( kfs ).buildAll();
         Results results = kieBuilder.getResults();
-        assertEquals( 4,
+        assertEquals( 3,
                       results.getMessages( org.kie.api.builder.Message.Level.ERROR ).size() );
 
         //This process file has the errors fixed
@@ -57,7 +57,7 @@ public class IncrementalCompilationTest extends AbstractBaseTest {
         //I'd expect the 4 previous errors to be cleared
         assertEquals( 0,
                       addResults.getAddedMessages().size() );
-        assertEquals( 4,
+        assertEquals( 3,
                       addResults.getRemovedMessages().size() );
     }
 
