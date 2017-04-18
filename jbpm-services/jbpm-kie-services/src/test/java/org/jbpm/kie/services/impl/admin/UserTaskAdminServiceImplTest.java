@@ -26,6 +26,7 @@ import static org.kie.scanner.MavenRepository.getMavenRepository;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -37,12 +38,14 @@ import org.jbpm.kie.services.test.KModuleDeploymentServiceTest;
 import org.jbpm.kie.test.util.AbstractKieServicesBaseTest;
 import org.jbpm.kie.test.util.CountDownListenerFactory;
 import org.jbpm.services.api.ProcessInstanceNotFoundException;
+import org.jbpm.services.api.TaskNotFoundException;
 import org.jbpm.services.api.admin.TaskNotification;
 import org.jbpm.services.api.admin.TaskReassignment;
 import org.jbpm.services.api.admin.UserTaskAdminService;
 import org.jbpm.services.api.model.DeploymentUnit;
 import org.jbpm.services.task.exception.PermissionDeniedException;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.kie.api.KieServices;
@@ -110,6 +113,7 @@ public class UserTaskAdminServiceImplTest extends AbstractKieServicesBaseTest {
         units.add(deploymentUnit);
         // set user to administrator so it will be allowed to do operations
         identityProvider.setName("Administrator");
+        identityProvider.setRoles(Arrays.asList(""));
     }
 
     @After
@@ -159,6 +163,72 @@ public class UserTaskAdminServiceImplTest extends AbstractKieServicesBaseTest {
         
         userTaskAdminService.addPotentialOwners(task.getId(), false, factory.newUser("john"));
         
+    }
+
+    @Test(expected = TaskNotFoundException.class)
+    public void testAddPotentialOwnersToNonExistentTask() {
+        processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument");
+        assertNotNull(processInstanceId);
+
+        List<TaskSummary> tasks = runtimeDataService.getTasksAssignedAsPotentialOwner("salaboy", new QueryFilter());
+        assertEquals(1, tasks.size());
+        TaskSummary task = tasks.get(0);
+
+        userTaskService.release(task.getId(), "salaboy");
+        userTaskAdminService.addPotentialOwners(15456, false, factory.newUser("john"));
+    }
+
+    @Test
+    public void testAddRemovePotentialOwnersAsGroup() {
+        processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument");
+        assertNotNull(processInstanceId);
+
+        List<TaskSummary> tasks = runtimeDataService.getTasksAssignedAsPotentialOwner("salaboy", new QueryFilter());
+        assertEquals(1, tasks.size());
+        TaskSummary task = tasks.get(0);
+        userTaskService.release(task.getId(), "salaboy");
+
+        // Forward the task to HR group (Add HR as potential owners)
+        identityProvider.setRoles(Arrays.asList("HR"));
+        userTaskAdminService.addPotentialOwners(task.getId(), true, factory.newGroup("HR"));
+        tasks = runtimeDataService.getTasksAssignedAsPotentialOwner("katy", new QueryFilter());
+        assertEquals(1, tasks.size());
+
+        // HR has no resources to handle so lets forward it to accounting
+        userTaskAdminService.removePotentialOwners(task.getId(), factory.newGroup("HR"));
+        tasks = runtimeDataService.getTasksAssignedAsPotentialOwner("katy", new QueryFilter());
+        assertEquals(0, tasks.size());
+
+        identityProvider.setRoles(Arrays.asList("Accounting"));
+        userTaskAdminService.addPotentialOwners(task.getId(), false, factory.newGroup("Accounting"));
+        tasks = runtimeDataService.getTasksAssignedAsPotentialOwner("mary", new QueryFilter());
+        assertEquals(1, tasks.size());
+    }
+
+    @Test
+    public void testAddRemoveExcludedOwnersAsGroup() {
+        processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument");
+        assertNotNull(processInstanceId);
+
+        List<TaskSummary> tasks = runtimeDataService.getTasksAssignedAsPotentialOwner("salaboy", new QueryFilter());
+        assertEquals(1, tasks.size());
+        TaskSummary task = tasks.get(0);
+        userTaskService.release(task.getId(), "salaboy");
+
+        identityProvider.setRoles(Arrays.asList("IT"));
+        userTaskAdminService.addExcludedOwners(task.getId(),true, factory.newGroup("IT"));
+        tasks = runtimeDataService.getTasksAssignedAsPotentialOwner("salaboy", new QueryFilter());
+        assertEquals(0, tasks.size());
+
+        userTaskAdminService.removeExcludedOwners(task.getId(), factory.newGroup("IT"));
+        tasks = runtimeDataService.getTasksAssignedAsPotentialOwner("salaboy", new QueryFilter());
+        assertEquals(1, tasks.size());
+
+        try {
+            userTaskService.claim(task.getId(), "salaboy");
+        } catch (Exception ex) {
+            Assert.fail("salaboy should be able to claim task here. + " +  ex.getMessage());
+        }
     }
 
     @Test
