@@ -86,7 +86,7 @@ public class TimerInitFailureRuntimeManagerTest extends AbstractBaseTest {
     }
  
     
-    @Test(timeout=10000)
+    @Test(timeout=15000)
     @BMScript(value = "byteman-scripts/failOnRuntimeManagerInitRules.btm")
     public void testPerProcessInstanceRuntimeManager() throws Exception {
         final CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("Intermediate Catch Event 1", 1);
