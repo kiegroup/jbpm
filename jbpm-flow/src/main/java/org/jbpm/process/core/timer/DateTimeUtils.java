@@ -15,12 +15,12 @@
 
 package org.jbpm.process.core.timer;
 
+import java.time.Duration;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+
 import org.drools.core.time.TimeUtils;
-import org.joda.time.DateTime;
-import org.joda.time.Duration;
-import org.joda.time.Period;
-import org.joda.time.format.ISODateTimeFormat;
-import org.joda.time.format.ISOPeriodFormat;
 
 public class DateTimeUtils extends TimeUtils {
     
@@ -40,16 +40,23 @@ public class DateTimeUtils extends TimeUtils {
         return false;
     }
 
+    public static boolean isNumeric(String dateTimeStr) {
+        if (dateTimeStr != null) {
+            return dateTimeStr.chars().allMatch(Character::isDigit);
+        }
+
+        return false;
+    }
+
     public static long parseDateTime(String dateTimeStr) {
-            DateTime dt = ISODateTimeFormat.dateTimeNoMillis().parseDateTime(dateTimeStr);
-            return dt.getMillis();
+        OffsetDateTime dateTime = OffsetDateTime.parse(dateTimeStr, DateTimeFormatter.ISO_DATE_TIME);
+        return dateTime.toInstant().toEpochMilli();
     }
     
     
     public static long parseDuration(String durationStr) {
         if (isPeriod(durationStr)) {
-            Period p = ISOPeriodFormat.standard().parsePeriod(durationStr);
-            return p.toStandardDuration().getMillis();
+            return Duration.parse(durationStr).toMillis();
         } else {
             return TimeUtils.parseTimeString(durationStr);
         }
@@ -57,27 +64,26 @@ public class DateTimeUtils extends TimeUtils {
     
     public static long parseDateAsDuration(String dateTimeStr) {
         try {
-        
-            DateTime dt = ISODateTimeFormat.dateTimeParser().parseDateTime(dateTimeStr);
-            Duration duration = new Duration(System.currentTimeMillis(), dt.getMillis());
-            
-            return duration.getMillis();
+            OffsetDateTime dateTime = OffsetDateTime.parse(dateTimeStr, DateTimeFormatter.ISO_DATE_TIME);
+            Duration duration = Duration.between(OffsetDateTime.now(), dateTime);
+
+            return duration.toMillis();
         } catch (Exception e) {
             return TimeUtils.parseTimeString(dateTimeStr);
         }
     }
     
     public static String[] parseISORepeatable(String isoString) {
-    	String[] result = new String[3];
-    	String[] elements = isoString.split("/");
+        String[] result = new String[3];
+        String[] elements = isoString.split("/");
         if (elements.length==3) {
-        	result[0] = elements[0].substring(1);
-        	result[1] = elements[1];
-        	result[2] = elements[2];
+            result[0] = elements[0].substring(1);
+            result[1] = elements[1];
+            result[2] = elements[2];
         } else {
-        	result[0] = elements[0].substring(1);
-        	result[1] = new DateTime().toString();
-        	result[2] = elements[1];
+            result[0] = elements[0].substring(1);
+            result[1] = OffsetDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME);
+            result[2] = elements[1];
         }
         
         return result;
@@ -92,16 +98,37 @@ public class DateTimeUtils extends TimeUtils {
             String delayIn = parsed[1];
             String periodIn = parsed[2];
  
-            DateTime startAtDelay =  ISODateTimeFormat.dateTimeParser().parseDateTime(delayIn);
-            Duration startAtDelayDur = new Duration(System.currentTimeMillis(), startAtDelay.getMillis());
-            if (startAtDelayDur.getMillis() <= 0) {
-                // need to introduce delay to allow all initialization
-                startAtDelayDur = Duration.standardSeconds(1);
+            Duration startAtDelayDur = null;
+            Duration period = null;
+
+            if (DateTimeUtils.isPeriod(delayIn)) {
+                // If delay is specified as duration then period variable carry end time information
+                OffsetDateTime endTime = OffsetDateTime.parse(periodIn, DateTimeFormatter.ISO_DATE_TIME);
+                period = Duration.parse(delayIn);
+                startAtDelayDur = Duration.between(OffsetDateTime.now(), endTime.minus(period));
+
+            } else if (DateTimeUtils.isPeriod(periodIn)) {
+                // If period is specified as duration then delay variable carry start time information
+                OffsetDateTime startTime = OffsetDateTime.parse(delayIn, DateTimeFormatter.ISO_DATE_TIME);
+                period = Duration.parse(periodIn);
+                startAtDelayDur = Duration.between(OffsetDateTime.now(), startTime);
+
+            } else {
+                // Both delay and period are specified as start and end times
+                OffsetDateTime startTime = OffsetDateTime.parse(delayIn, DateTimeFormatter.ISO_DATE_TIME);
+                OffsetDateTime endTime = OffsetDateTime.parse(periodIn, DateTimeFormatter.ISO_DATE_TIME);
+                startAtDelayDur = Duration.between(OffsetDateTime.now(), startTime);
+                period = Duration.between(startTime, endTime);
             }
-            Period period = ISOPeriodFormat.standard().parsePeriod(periodIn);
+
+            if (startAtDelayDur.isNegative() || startAtDelayDur.isZero()) {
+                // need to introduce delay to allow all initialization
+                startAtDelayDur = Duration.of(1, ChronoUnit.SECONDS);
+            }
+
             result[0] = Long.parseLong(repeats.length()==0?"-1":repeats);
-            result[1] = startAtDelayDur.getMillis();
-            result[2] = period.toStandardDuration().getMillis();
+            result[1] = startAtDelayDur.toMillis();
+            result[2] = period.toMillis();
             
             return result;
         } else {
