@@ -33,23 +33,31 @@ import bitronix.tm.resource.jdbc.PoolingDataSource;
 public class LoadBalanceAssignmentStrategyTest extends AbstractAssignmentTests {
     private PoolingDataSource pds;
     private EntityManagerFactory emf;
+//    private static final Logger
+    private static final String BASE_TASK_INFO = "with (new Task()) { priority = 55, taskData = (with (new TaskData()) { } ), ";
+    private static final String MULTI_ACTOR_ASSIGNMENTS = ""
+    		+ "peopleAssignments = (with (new PeopleAssignments()) { potentialOwners = [new User('Bobba Fet'), new User('Darth Vader'), new User('Luke Cage')],"
+            + " businessAdministrators = [new User('Administrator')], } ),";
+    private static final String MULTI_ACTOR_WITH_GROUP_ASSIGNMENTS = ""
+    		+ "peopleAssignments = (with (new PeopleAssignments()) { potentialOwners = [new User('Bobba Fet'), new Group('Crusaders'), new User('Luke Cage')],"
+    		+ " businessAdministrators = [new User('Administrator')], } ),";
+    private static final String ADD_ACTOR_ASSIGNMENTS = ""
+    		+ "peopleAssignments = (with (new PeopleAssignments()) { potentialOwners = [new User('Bobba Fet'), new User('Darth Vader'), new User('Luke Cage'), new User('Tony Stark')],"
+    		+ " businessAdministrators = [new User('Administrator')], } ),";
+    private static final String REMOVE_ACTOR_ASSIGNMENTS = ""
+    		+ "peopleAssignments = (with (new PeopleAssignments()) { potentialOwners = [new User('Bobba Fet'), new User('Luke Cage'), new User('Tony Stark')],"
+    		+ " businessAdministrators = [new User('Administrator')], } ),";
 
-	@BeforeClass
-	public static void setUpBeforeClass() throws Exception {
-	}
-
-	@AfterClass
-	public static void tearDownAfterClass() throws Exception {
-	}
 
 	@Before
 	public void setUp() throws Exception {
         System.setProperty("org.jbpm.task.assignment.enabled", "true");
         System.setProperty("org.jbpm.task.assignment.strategy", "LoadBalance");
+        System.setProperty("org.jbpm.task.assignment.loadbalance.calculator","org.jbpm.services.task.assignment.impl.TaskCountLoadCalculator");
         pds = setupPoolingDataSource();
         emf = Persistence.createEntityManagerFactory( "org.jbpm.services.task" );
 
-        AssignmentServiceProvider.override(new RoundRobinAssignmentStrategy());
+        AssignmentServiceProvider.override(new LoadBalanceAssignmentStrategy());
 
         this.taskService = (InternalTaskService) HumanTaskServiceFactory.newTaskServiceConfigurator()
                 .entityManagerFactory(emf)
@@ -59,11 +67,21 @@ public class LoadBalanceAssignmentStrategyTest extends AbstractAssignmentTests {
 
 	@After
 	public void clean() throws Exception {
+        System.clearProperty("org.jbpm.task.assignment.enabled");
+        System.clearProperty("org.jbpm.task.assignment.strategy");
+        System.clearProperty("org.jbpm.task.assignment.loadbalance.calculator");
+        AssignmentServiceProvider.clear();
+        if (emf != null) {
+            emf.close();
+        }
+        if (pds != null) {
+            pds.close();
+        }
 	}
 
 	@Test
-	public void test() {
-		fail("Not yet implemented");
+	public void testMultipleUser() {
+		assertTrue(false);
 	}
 
 }

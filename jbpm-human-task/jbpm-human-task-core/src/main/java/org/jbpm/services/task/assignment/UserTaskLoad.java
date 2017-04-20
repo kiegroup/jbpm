@@ -2,6 +2,7 @@ package org.jbpm.services.task.assignment;
 
 import java.io.Serializable;
 
+import org.jbpm.services.task.impl.model.UserImpl;
 import org.kie.api.task.model.User;
 
 public class UserTaskLoad implements Serializable, Comparable<UserTaskLoad> {
@@ -17,10 +18,24 @@ public class UserTaskLoad implements Serializable, Comparable<UserTaskLoad> {
 		this.calculatedLoad = calculatedLoad;
 	}
 	
+	public UserTaskLoad(String calculatorIdentifier, String user, Double calculatedLoad) {
+		super();
+		this.calculatorIdentifier = calculatorIdentifier;
+		this.user = new UserImpl(user);
+		this.calculatedLoad = calculatedLoad;
+	}
+	
 	public UserTaskLoad(String calculatorIdentifier, User user) {
 		super();
 		this.calculatorIdentifier = calculatorIdentifier;
 		this.user = user;
+		this.calculatedLoad = Double.NaN;
+	}
+	
+	public UserTaskLoad(String calculatorIdentifier, String user) {
+		super();
+		this.calculatorIdentifier = calculatorIdentifier;
+		this.user = new UserImpl(user);
 		this.calculatedLoad = Double.NaN;
 	}
 
