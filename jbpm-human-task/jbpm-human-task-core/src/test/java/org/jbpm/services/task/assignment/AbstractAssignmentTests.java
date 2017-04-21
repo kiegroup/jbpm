@@ -63,4 +63,20 @@ public class AbstractAssignmentTests extends HumanTaskServicesBaseTest {
         assertPotentialOwners(task, expectedPotOwners, expectedPotOwnerNames);
         assertActualOwner(task, actualOwner);
     }
+    
+    protected Task createForCompletionTask(String taskExpression, String actualOwner, int expectedPotOwners, String... expectedPotOwnerNames) {
+    	Task task = TaskFactory.evalTask(new StringReader(taskExpression));
+    	assertPotentialOwners(task, expectedPotOwners);
+    	
+    	taskService.addTask(task, new HashMap<String,Object>());
+        assertPotentialOwners(task, expectedPotOwners, expectedPotOwnerNames);
+        assertActualOwner(task, actualOwner);
+    	
+    	return task;
+    }
+    
+    protected void completeTask(Task task) {
+    	taskService.start(task.getId(), task.getTaskData().getActualOwner().getId());
+    	taskService.complete(task.getId(), task.getTaskData().getActualOwner().getId(), new HashMap<String,Object>());
+    }
 }

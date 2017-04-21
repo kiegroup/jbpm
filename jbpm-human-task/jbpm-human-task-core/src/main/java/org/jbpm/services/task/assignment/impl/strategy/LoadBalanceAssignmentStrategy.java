@@ -34,9 +34,9 @@ public class LoadBalanceAssignmentStrategy implements AssignmentStrategy {
 	private Cache<User, UserTaskLoad> userTaskLoadsCache;
 	private LoadCalculator calculator;
 	
-	public LoadBalanceAssignmentStrategy(LoadCalculator calculator) {
+	public LoadBalanceAssignmentStrategy() {
 		this.calculator = new TaskCountLoadCalculator();
-		userTaskLoadsCache = CacheBuilder.newBuilder().expireAfterWrite(30, TimeUnit.MINUTES).build();
+		userTaskLoadsCache = CacheBuilder.newBuilder().expireAfterWrite(10, TimeUnit.MILLISECONDS).build();
 	}
 	
 	private Function<OrganizationalEntity, User> entityToUser = (oe) -> {

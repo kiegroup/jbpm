@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.jbpm.services.task.assignment.UserTaskLoad;
@@ -51,6 +52,8 @@ public class TaskCountLoadCalculator extends LoadCalculatorImpl {
         }
 		return load;
 	}
+    
+    Function<AssignmentImpl, String> assignKey = (assignment) -> { return assignment.getUser(); };
 
 	@Override
 	public Collection<UserTaskLoad> getUserTaskLoads(List<User> users, TaskContext context) {
@@ -63,10 +66,20 @@ public class TaskCountLoadCalculator extends LoadCalculatorImpl {
         
         logger.debug("DB query to be used for finding assignments :: '{}'", getMultiUserQuery());
         List<AssignmentImpl> assignments = persistenceContext.queryStringWithParametersInTransaction(getMultiUserQuery(), params, ClassUtil.<List<AssignmentImpl>>castClass(List.class));
+        Map<String,AssignmentImpl> assignmentMap = assignments.stream().collect(Collectors.toMap(assignKey,(assign)->assign));
         if (assignments != null && !assignments.isEmpty()) {
-        	assignments.forEach(assign -> {
-        		UserTaskLoad load = new UserTaskLoad(getIdentifier(), assign.getUser(), new Double(assign.getCurrentlyAssigned()));
-        		userTaskLoads.add(load);
+        	users.forEach(usr -> {
+        		String uid = usr.getId();
+        		if (assignmentMap.containsKey(uid)) {
+        			Long loadValue = assignmentMap.get(uid).getCurrentlyAssigned();
+        			userTaskLoads.add(new UserTaskLoad(getIdentifier(), usr, new Double(loadValue != null ? loadValue:0)));
+        		} else {
+        			userTaskLoads.add(new UserTaskLoad(getIdentifier(), usr, new Double(0)));
+        		}
+        	});
+        } else {
+        	users.forEach(u -> {
+        		userTaskLoads.add(new UserTaskLoad(getIdentifier(),u,new Double(0)));
         	});
         }
 		return userTaskLoads;
