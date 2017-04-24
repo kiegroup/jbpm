@@ -157,6 +157,74 @@ public class LoadBalanceAssignmentStrategyTest extends AbstractAssignmentTests {
         logger.info("testMultipleUserWithGroup completed");
 	}
 	
+	@Test
+	public void testMultipleUserWithAdd() {
+        final String taskString = "(" +
+        		BASE_TASK_INFO +	
+                 MULTI_ACTOR_ASSIGNMENTS +
+                "name = 'MultiUserWithAddLoadBalanceTask'})";
+        final String taskString2 = "(" +
+      		   BASE_TASK_INFO +
+      		   ADD_ACTOR_ASSIGNMENTS + 
+      		   "name = 'MultiUserWithAddLoadBalanceTask2'})";
+		
+        tasks.put("Bobba Fet",createForCompletionTask(taskString, "Bobba Fet", 3, "Bobba Fet","Darth Vader","Luke Cage"));
+        tasks.put("Darth Vader",createForCompletionTask(taskString, "Darth Vader", 3, "Bobba Fet","Darth Vader","Luke Cage"));
+        tasks.put("Luke Cage",createForCompletionTask(taskString, "Luke Cage", 3, "Bobba Fet","Darth Vader","Luke Cage"));
+        assertNumberOfNonCompletedTasks("Darth Vader", 1);
+        assertNumberOfNonCompletedTasks("Bobba Fet", 1);
+        assertNumberOfNonCompletedTasks("Luke Cage", 1);
+
+        tasks.put("Bobba Fet",createForCompletionTask(taskString, "Bobba Fet", 3, "Bobba Fet","Darth Vader","Luke Cage"));
+        tasks.put("Darth Vader",createForCompletionTask(taskString, "Darth Vader", 3, "Bobba Fet","Darth Vader","Luke Cage"));
+        tasks.put("Luke Cage",createForCompletionTask(taskString, "Luke Cage", 3, "Bobba Fet","Darth Vader","Luke Cage"));
+        assertNumberOfNonCompletedTasks("Darth Vader", 2);
+        assertNumberOfNonCompletedTasks("Bobba Fet", 2);
+        assertNumberOfNonCompletedTasks("Luke Cage", 2);
+        
+        // Check that if we complete a task and then create a new one
+        // that it gets assigned to the proper user
+        getTaskToComplete("Darth Vader").ifPresent(complete);
+        assertNumberOfNonCompletedTasks("Darth Vader", 1);
+        tasks.put("Darth Vader",createForCompletionTask(taskString, "Darth Vader", 3, "Bobba Fet","Darth Vader","Luke Cage"));
+        assertNumberOfNonCompletedTasks("Darth Vader", 2);
+        
+        // Now add a user with no tasks and make sure that
+        // the assignment goes to the new user
+        tasks.put("Tony Stark", createForCompletionTask(taskString2,"Tony Stark",4,"Bobba Fet","Darth Vader","Luke Cage","Tony Stark"));
+        assertNumberOfNonCompletedTasks("Tony Stark",1);
+	}
+	
+	@Test
+	public void testMultipleUsersWithRemove() {
+        final String taskString = "(" +
+       		   BASE_TASK_INFO +
+       		   ADD_ACTOR_ASSIGNMENTS + 
+       		   "name = 'MultiUserWithRemoveLoadBalanceTask'})";
+        final String taskString2 = "("
+        		+ BASE_TASK_INFO
+        		+ REMOVE_ACTOR_ASSIGNMENTS
+        		+ "name = 'MultiUserWithRemoveLoadBalanceTask2'})";
+		
+        tasks.put("Bobba Fet",createForCompletionTask(taskString, "Bobba Fet", 4, "Bobba Fet","Darth Vader","Luke Cage","Tony Stark"));
+        tasks.put("Darth Vader",createForCompletionTask(taskString, "Darth Vader", 4, "Bobba Fet","Darth Vader","Luke Cage","Tony Stark"));
+        tasks.put("Luke Cage",createForCompletionTask(taskString, "Luke Cage", 4, "Bobba Fet","Darth Vader","Luke Cage","Tony Stark"));
+        tasks.put("Tony Stark",createForCompletionTask(taskString, "Tony Stark", 4, "Bobba Fet","Darth Vader","Luke Cage","Tony Stark"));
+        assertNumberOfNonCompletedTasks("Darth Vader", 1);
+        assertNumberOfNonCompletedTasks("Bobba Fet", 1);
+        assertNumberOfNonCompletedTasks("Luke Cage", 1);
+        assertNumberOfNonCompletedTasks("Tony Stark", 1);
+
+        tasks.put("Bobba Fet",createForCompletionTask(taskString2, "Bobba Fet", 3, "Bobba Fet","Luke Cage","Tony Stark"));
+        tasks.put("Luke Cage",createForCompletionTask(taskString2, "Luke Cage", 3, "Bobba Fet","Luke Cage","Tony Stark"));
+        tasks.put("Tony Stark",createForCompletionTask(taskString2, "Tony Stark", 3, "Bobba Fet","Luke Cage","Tony Stark"));
+        assertNumberOfNonCompletedTasks("Darth Vader", 1);
+        assertNumberOfNonCompletedTasks("Bobba Fet", 2);
+        assertNumberOfNonCompletedTasks("Luke Cage", 2);
+        assertNumberOfNonCompletedTasks("Tony Stark", 2);
+        
+	}
+	
 	private Consumer<Task> complete = (task) -> {
 		completeTask(task);
 		this.tasks.get(task.getTaskData().getActualOwner().getId()).remove(task);

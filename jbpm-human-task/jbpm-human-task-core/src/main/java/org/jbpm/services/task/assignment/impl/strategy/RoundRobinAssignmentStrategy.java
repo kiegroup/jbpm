@@ -102,7 +102,7 @@ public class RoundRobinAssignmentStrategy implements AssignmentStrategy {
     	//
     	// If the queue does not exist then a new CircularQueue should be created
     	//
-        final CircularQueue<OrganizationalEntity> workingQueue = existingQueue != null ? existingQueue:new CircularQueue();
+        final CircularQueue<OrganizationalEntity> workingQueue = existingQueue != null ? existingQueue:new CircularQueue<>();
         potentialOwners.forEach(po -> {
             if (!queueContainsUser(workingQueue,po)) {
                 workingQueue.add(po);

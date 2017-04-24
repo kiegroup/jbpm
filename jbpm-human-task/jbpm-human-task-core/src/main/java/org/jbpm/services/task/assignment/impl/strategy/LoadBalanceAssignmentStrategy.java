@@ -3,15 +3,11 @@ package org.jbpm.services.task.assignment.impl.strategy;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.jbpm.services.task.assignment.LoadCalculator;
 import org.jbpm.services.task.assignment.UserTaskLoad;
-import org.jbpm.services.task.assignment.impl.LoadCalculatorImpl;
-import org.jbpm.services.task.assignment.impl.TaskCountLoadCalculator;
-import org.jbpm.services.task.utils.ClassUtil;
 import org.kie.api.runtime.EnvironmentName;
 import org.kie.api.task.TaskContext;
 import org.kie.api.task.model.Group;
@@ -24,9 +20,6 @@ import org.kie.internal.task.api.assignment.AssignmentStrategy;
 import org.kie.internal.task.api.model.InternalPeopleAssignments;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 
 public class LoadBalanceAssignmentStrategy implements AssignmentStrategy {
 	private static final Logger logger = LoggerFactory.getLogger(LoadBalanceAssignmentStrategy.class);

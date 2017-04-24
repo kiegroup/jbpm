@@ -13,7 +13,6 @@ import org.jbpm.services.task.utils.ClassUtil;
 import org.kie.api.task.TaskContext;
 import org.kie.api.task.model.User;
 import org.kie.internal.task.api.TaskPersistenceContext;
-import org.kie.internal.task.api.assignment.Assignment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +34,8 @@ public class TaskCountLoadCalculator extends LoadCalculatorImpl {
     public TaskCountLoadCalculator() {
     	super(IDENTIFIER);
     }
+
+    Function<AssignmentImpl, String> assignKey = (assignment) -> { return assignment.getUser(); };
     
     @Override
 	public UserTaskLoad getUserTaskLoad(User user, TaskContext context) {
@@ -53,11 +54,10 @@ public class TaskCountLoadCalculator extends LoadCalculatorImpl {
 		return load;
 	}
     
-    Function<AssignmentImpl, String> assignKey = (assignment) -> { return assignment.getUser(); };
 
 	@Override
 	public Collection<UserTaskLoad> getUserTaskLoads(List<User> users, TaskContext context) {
-		Collection<UserTaskLoad> userTaskLoads = new ArrayList();
+		Collection<UserTaskLoad> userTaskLoads = new ArrayList<>();
 		List<String> userIds = users.stream().map(user -> {return user.getId();}).collect(Collectors.toList());
 		
         TaskPersistenceContext persistenceContext = ((org.jbpm.services.task.commands.TaskContext)context).getPersistenceContext();
