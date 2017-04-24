@@ -63,7 +63,7 @@ public class UserTaskLoad implements Serializable, Comparable<UserTaskLoad> {
 		if (o == null) {
 			throw new IllegalArgumentException("Illegal attempt to compare UserTaskLoad with a null object");
 		}
-		if (this.calculatedLoad == Double.NaN || o.calculatedLoad == Double.NaN) {
+		if (this.calculatedLoad.isNaN() || o.calculatedLoad.isNaN()) {
 			throw new IllegalStateException("Uninitialized UserTaskLoad encountered during UserTaskLoad comparison");
 		}
 		
