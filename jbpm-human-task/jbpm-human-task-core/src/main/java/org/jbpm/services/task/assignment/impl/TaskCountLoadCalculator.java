@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TaskCountLoadCalculator extends LoadCalculatorImpl {
-	private static final String IDENTIFIER = "SimpleLoadCalculator";
+	private static final String IDENTIFIER = "TaskCountLoadCalculator";
 	private static final Logger logger = LoggerFactory.getLogger(TaskCountLoadCalculator.class);
     private static final String SINGLE_USER_QUERY = 
             "select new Integer(count(t)) "

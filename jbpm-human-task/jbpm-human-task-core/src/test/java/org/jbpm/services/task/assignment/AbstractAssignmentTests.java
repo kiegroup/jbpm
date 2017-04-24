@@ -29,6 +29,7 @@ import java.util.List;
 import org.jbpm.services.task.HumanTaskServicesBaseTest;
 import org.jbpm.services.task.impl.factories.TaskFactory;
 import org.kie.api.task.model.OrganizationalEntity;
+import org.kie.api.task.model.Status;
 import org.kie.api.task.model.Task;
 
 public class AbstractAssignmentTests extends HumanTaskServicesBaseTest {
@@ -54,6 +55,12 @@ public class AbstractAssignmentTests extends HumanTaskServicesBaseTest {
     protected void assertNoActualOwner(Task task) {
         assertNull("Actual owner present when not expected", task.getTaskData().getActualOwner());        
     }
+    
+    protected void assertNumberOfNonCompletedTasks(String user, int expectedNumber) {
+    	int count = taskService.getTasksOwned(user, Arrays.asList(Status.Reserved,Status.Suspended,Status.InProgress), null).size();
+    	assertEquals("Not matching number of non-completed tasks",expectedNumber,count);
+    }
+    
    
     protected void createAndAssertTask(String taskExpression, String actualOwner, int expectedPotOwners, String... expectedPotOwnerNames) {
         Task task = TaskFactory.evalTask(new StringReader(taskExpression));

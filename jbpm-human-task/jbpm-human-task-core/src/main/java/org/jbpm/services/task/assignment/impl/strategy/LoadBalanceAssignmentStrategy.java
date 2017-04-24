@@ -31,12 +31,11 @@ import com.google.common.cache.CacheBuilder;
 public class LoadBalanceAssignmentStrategy implements AssignmentStrategy {
 	private static final Logger logger = LoggerFactory.getLogger(LoadBalanceAssignmentStrategy.class);
 	private static final String IDENTIFIER = "LoadBalance";
-	private Cache<User, UserTaskLoad> userTaskLoadsCache;
 	private LoadCalculator calculator;
 	
-	public LoadBalanceAssignmentStrategy() {
-		this.calculator = new TaskCountLoadCalculator();
-		userTaskLoadsCache = CacheBuilder.newBuilder().expireAfterWrite(10, TimeUnit.MILLISECONDS).build();
+	public LoadBalanceAssignmentStrategy() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+		String calculatorClass = System.getProperty("org.jbpm.task.assignment.loadbalance.calculator","org.jbpm.services.task.assignment.impl.TaskCountLoadCalculator");
+		this.calculator = (LoadCalculator)Class.forName(calculatorClass).newInstance();
 	}
 	
 	private Function<OrganizationalEntity, User> entityToUser = (oe) -> {
@@ -71,29 +70,11 @@ public class LoadBalanceAssignmentStrategy implements AssignmentStrategy {
                         });
                     }
                 });
-        List<User> missingUsers = potentialOwners.stream()
-        		.filter(po -> !userTaskLoadsCache.asMap().containsKey(po))
-        		.map(entityToUser)	// On the fly conversion 
-        		.collect(Collectors.toList());
-        if (missingUsers != null && !missingUsers.isEmpty()) {
-        	if (missingUsers.size() == 1) {
-        		UserTaskLoad load = calculator.getUserTaskLoad((User)missingUsers.get(0), taskContext);
-        		userTaskLoadsCache.put(load.getUser(), load);
-        	} else {
-        		Collection<UserTaskLoad> loads = calculator.getUserTaskLoads(missingUsers, taskContext);
-        		loads.forEach(l -> {userTaskLoadsCache.put(l.getUser(), l);});
-        	}
-        }
-        UserTaskLoad lightestLoad = getLightestLoad(potentialOwners.stream().map(entityToUser).collect(Collectors.toList()));
+        logger.info("Asking the load calculator [{}] for task loads for the users {}",calculator.getIdentifier(),potentialOwners);
+        List<User> users = potentialOwners.stream().map(entityToUser).collect(Collectors.toList());
+        Collection<UserTaskLoad> loads = calculator.getUserTaskLoads(users, taskContext);
+        UserTaskLoad lightestLoad = loads.stream().min(UserTaskLoad::compareTo).orElse(null);
 		return lightestLoad != null ? new Assignment(lightestLoad.getUser().getId()):null;
-	}
-	
-	private synchronized UserTaskLoad getLightestLoad(List<User> users) {
-		UserTaskLoad lightestLoad = null;
-		Collection<UserTaskLoad> loads = userTaskLoadsCache.asMap().values();
-		Collection<UserTaskLoad> userLoads = loads.stream().filter(taskLoad -> users.contains(taskLoad.getUser())).collect(Collectors.toList());
-		lightestLoad = userLoads.stream().min(UserTaskLoad::compareTo).orElse(null);
-		return lightestLoad;
 	}
 
 }
