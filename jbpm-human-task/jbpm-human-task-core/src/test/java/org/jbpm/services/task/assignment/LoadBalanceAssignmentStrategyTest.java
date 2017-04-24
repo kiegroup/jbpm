@@ -62,6 +62,10 @@ public class LoadBalanceAssignmentStrategyTest extends AbstractAssignmentTests {
     private static final String REMOVE_ACTOR_ASSIGNMENTS = ""
     		+ "peopleAssignments = (with (new PeopleAssignments()) { potentialOwners = [new User('Bobba Fet'), new User('Luke Cage'), new User('Tony Stark')],"
     		+ " businessAdministrators = [new User('Administrator')], } ),";
+    private static final String DARTH_VADER = "Darth Vader";
+    private static final String BOBBA_FET = "Bobba Fet";
+    private static final String LUKE_CAGE = "Luke Cage";
+    private static final String TONY_STARK = "Tony Stark";
 
 
 	@Before
@@ -102,30 +106,30 @@ public class LoadBalanceAssignmentStrategyTest extends AbstractAssignmentTests {
         		BASE_TASK_INFO +	
                  MULTI_ACTOR_ASSIGNMENTS +
                 "name = 'MultiUserLoadBalanceTask'})";
-        tasks.put("Bobba Fet",createForCompletionTask(taskString, "Bobba Fet", 3, "Bobba Fet","Darth Vader","Luke Cage"));
-        tasks.put("Darth Vader",createForCompletionTask(taskString, "Darth Vader", 3, "Bobba Fet","Darth Vader","Luke Cage"));
-        tasks.put("Luke Cage",createForCompletionTask(taskString, "Luke Cage", 3, "Bobba Fet","Darth Vader","Luke Cage"));
-        assertNumberOfNonCompletedTasks("Darth Vader", 1);
-        assertNumberOfNonCompletedTasks("Bobba Fet", 1);
-        assertNumberOfNonCompletedTasks("Luke Cage", 1);
+        tasks.put(BOBBA_FET,createForCompletionTask(taskString, BOBBA_FET, 3, BOBBA_FET,DARTH_VADER,LUKE_CAGE));
+        tasks.put(DARTH_VADER,createForCompletionTask(taskString, DARTH_VADER, 3, BOBBA_FET,DARTH_VADER,LUKE_CAGE));
+        tasks.put(LUKE_CAGE,createForCompletionTask(taskString, LUKE_CAGE, 3, BOBBA_FET,DARTH_VADER,LUKE_CAGE));
+        assertNumberOfNonCompletedTasks(DARTH_VADER, 1);
+        assertNumberOfNonCompletedTasks(BOBBA_FET, 1);
+        assertNumberOfNonCompletedTasks(LUKE_CAGE, 1);
 
-        tasks.put("Bobba Fet",createForCompletionTask(taskString, "Bobba Fet", 3, "Bobba Fet","Darth Vader","Luke Cage"));
-        tasks.put("Darth Vader",createForCompletionTask(taskString, "Darth Vader", 3, "Bobba Fet","Darth Vader","Luke Cage"));
-        tasks.put("Luke Cage",createForCompletionTask(taskString, "Luke Cage", 3, "Bobba Fet","Darth Vader","Luke Cage"));
-        assertNumberOfNonCompletedTasks("Darth Vader", 2);
-        assertNumberOfNonCompletedTasks("Bobba Fet", 2);
-        assertNumberOfNonCompletedTasks("Luke Cage", 2);
+        tasks.put(BOBBA_FET,createForCompletionTask(taskString, BOBBA_FET, 3, BOBBA_FET,DARTH_VADER,LUKE_CAGE));
+        tasks.put(DARTH_VADER,createForCompletionTask(taskString, DARTH_VADER, 3, BOBBA_FET,DARTH_VADER,LUKE_CAGE));
+        tasks.put(LUKE_CAGE,createForCompletionTask(taskString, LUKE_CAGE, 3, BOBBA_FET,DARTH_VADER,LUKE_CAGE));
+        assertNumberOfNonCompletedTasks(DARTH_VADER, 2);
+        assertNumberOfNonCompletedTasks(BOBBA_FET, 2);
+        assertNumberOfNonCompletedTasks(LUKE_CAGE, 2);
         
         // Check that if we complete a task and then create a new one
         // that it gets assigned to the proper user
-        getTaskToComplete("Darth Vader").ifPresent(complete);
-        assertNumberOfNonCompletedTasks("Darth Vader", 1);
-        tasks.put("Darth Vader",createForCompletionTask(taskString, "Darth Vader", 3, "Bobba Fet","Darth Vader","Luke Cage"));
-        assertNumberOfNonCompletedTasks("Darth Vader", 2);
+        getTaskToComplete(DARTH_VADER).ifPresent(complete);
+        assertNumberOfNonCompletedTasks(DARTH_VADER, 1);
+        tasks.put(DARTH_VADER,createForCompletionTask(taskString, DARTH_VADER, 3, BOBBA_FET,DARTH_VADER,LUKE_CAGE));
+        assertNumberOfNonCompletedTasks(DARTH_VADER, 2);
         
         // Make sure that we aren't trying to complete a previously completed task
-        getTaskToComplete("Darth Vader").ifPresent(complete);
-        assertNumberOfNonCompletedTasks("Darth Vader", 1);
+        getTaskToComplete(DARTH_VADER).ifPresent(complete);
+        assertNumberOfNonCompletedTasks(DARTH_VADER, 1);
         
         logger.info("testMultipleUser completed");
 	}
@@ -136,24 +140,24 @@ public class LoadBalanceAssignmentStrategyTest extends AbstractAssignmentTests {
         		BASE_TASK_INFO +
         		MULTI_ACTOR_WITH_GROUP_ASSIGNMENTS +
                 "name = 'MultiUserWithGroupLoadBalanceTask'})";
-        tasks.put("Bobba Fet", createForCompletionTask(taskString, "Bobba Fet", 3, "Bobba Fet","Crusaders","Luke Cage"));
-        tasks.put("Luke Cage", createForCompletionTask(taskString, "Luke Cage", 3, "Bobba Fet","Crusaders","Luke Cage"));
-        tasks.put("Tony Stark", createForCompletionTask(taskString, "Tony Stark", 3, "Bobba Fet","Crusaders","Luke Cage"));
-        assertNumberOfNonCompletedTasks("Bobba Fet", 1);
-        assertNumberOfNonCompletedTasks("Luke Cage", 1);
-        assertNumberOfNonCompletedTasks("Tony Stark", 1);
+        tasks.put(BOBBA_FET, createForCompletionTask(taskString, BOBBA_FET, 3, BOBBA_FET,"Crusaders",LUKE_CAGE));
+        tasks.put(LUKE_CAGE, createForCompletionTask(taskString, LUKE_CAGE, 3, BOBBA_FET,"Crusaders",LUKE_CAGE));
+        tasks.put(TONY_STARK, createForCompletionTask(taskString, TONY_STARK, 3, BOBBA_FET,"Crusaders",LUKE_CAGE));
+        assertNumberOfNonCompletedTasks(BOBBA_FET, 1);
+        assertNumberOfNonCompletedTasks(LUKE_CAGE, 1);
+        assertNumberOfNonCompletedTasks(TONY_STARK, 1);
         
-        tasks.put("Bobba Fet", createForCompletionTask(taskString, "Bobba Fet", 3, "Bobba Fet","Crusaders","Luke Cage"));
-        tasks.put("Luke Cage", createForCompletionTask(taskString, "Luke Cage", 3, "Bobba Fet","Crusaders","Luke Cage"));
-        tasks.put("Tony Stark", createForCompletionTask(taskString, "Tony Stark", 3, "Bobba Fet","Crusaders","Luke Cage"));
-        assertNumberOfNonCompletedTasks("Bobba Fet", 2);
-        assertNumberOfNonCompletedTasks("Luke Cage", 2);
-        assertNumberOfNonCompletedTasks("Tony Stark", 2);
+        tasks.put(BOBBA_FET, createForCompletionTask(taskString, BOBBA_FET, 3, BOBBA_FET,"Crusaders",LUKE_CAGE));
+        tasks.put(LUKE_CAGE, createForCompletionTask(taskString, LUKE_CAGE, 3, BOBBA_FET,"Crusaders",LUKE_CAGE));
+        tasks.put(TONY_STARK, createForCompletionTask(taskString, TONY_STARK, 3, BOBBA_FET,"Crusaders",LUKE_CAGE));
+        assertNumberOfNonCompletedTasks(BOBBA_FET, 2);
+        assertNumberOfNonCompletedTasks(LUKE_CAGE, 2);
+        assertNumberOfNonCompletedTasks(TONY_STARK, 2);
         
-        getTaskToComplete("Luke Cage").ifPresent(complete);
-        assertNumberOfNonCompletedTasks("Luke Cage", 1);
-        tasks.put("Luke Cage", createForCompletionTask(taskString, "Luke Cage", 3, "Bobba Fet","Crusaders","Luke Cage"));
-        assertNumberOfNonCompletedTasks("Luke Cage", 2);
+        getTaskToComplete(LUKE_CAGE).ifPresent(complete);
+        assertNumberOfNonCompletedTasks(LUKE_CAGE, 1);
+        tasks.put(LUKE_CAGE, createForCompletionTask(taskString, LUKE_CAGE, 3, BOBBA_FET,"Crusaders",LUKE_CAGE));
+        assertNumberOfNonCompletedTasks(LUKE_CAGE, 2);
         logger.info("testMultipleUserWithGroup completed");
 	}
 	
@@ -168,31 +172,31 @@ public class LoadBalanceAssignmentStrategyTest extends AbstractAssignmentTests {
       		   ADD_ACTOR_ASSIGNMENTS + 
       		   "name = 'MultiUserWithAddLoadBalanceTask2'})";
 		
-        tasks.put("Bobba Fet",createForCompletionTask(taskString, "Bobba Fet", 3, "Bobba Fet","Darth Vader","Luke Cage"));
-        tasks.put("Darth Vader",createForCompletionTask(taskString, "Darth Vader", 3, "Bobba Fet","Darth Vader","Luke Cage"));
-        tasks.put("Luke Cage",createForCompletionTask(taskString, "Luke Cage", 3, "Bobba Fet","Darth Vader","Luke Cage"));
-        assertNumberOfNonCompletedTasks("Darth Vader", 1);
-        assertNumberOfNonCompletedTasks("Bobba Fet", 1);
-        assertNumberOfNonCompletedTasks("Luke Cage", 1);
+        tasks.put(BOBBA_FET,createForCompletionTask(taskString, BOBBA_FET, 3, BOBBA_FET,DARTH_VADER,LUKE_CAGE));
+        tasks.put(DARTH_VADER,createForCompletionTask(taskString, DARTH_VADER, 3, BOBBA_FET,DARTH_VADER,LUKE_CAGE));
+        tasks.put(LUKE_CAGE,createForCompletionTask(taskString, LUKE_CAGE, 3, BOBBA_FET,DARTH_VADER,LUKE_CAGE));
+        assertNumberOfNonCompletedTasks(DARTH_VADER, 1);
+        assertNumberOfNonCompletedTasks(BOBBA_FET, 1);
+        assertNumberOfNonCompletedTasks(LUKE_CAGE, 1);
 
-        tasks.put("Bobba Fet",createForCompletionTask(taskString, "Bobba Fet", 3, "Bobba Fet","Darth Vader","Luke Cage"));
-        tasks.put("Darth Vader",createForCompletionTask(taskString, "Darth Vader", 3, "Bobba Fet","Darth Vader","Luke Cage"));
-        tasks.put("Luke Cage",createForCompletionTask(taskString, "Luke Cage", 3, "Bobba Fet","Darth Vader","Luke Cage"));
-        assertNumberOfNonCompletedTasks("Darth Vader", 2);
-        assertNumberOfNonCompletedTasks("Bobba Fet", 2);
-        assertNumberOfNonCompletedTasks("Luke Cage", 2);
+        tasks.put(BOBBA_FET,createForCompletionTask(taskString, BOBBA_FET, 3, BOBBA_FET,DARTH_VADER,LUKE_CAGE));
+        tasks.put(DARTH_VADER,createForCompletionTask(taskString, DARTH_VADER, 3, BOBBA_FET,DARTH_VADER,LUKE_CAGE));
+        tasks.put(LUKE_CAGE,createForCompletionTask(taskString, LUKE_CAGE, 3, BOBBA_FET,DARTH_VADER,LUKE_CAGE));
+        assertNumberOfNonCompletedTasks(DARTH_VADER, 2);
+        assertNumberOfNonCompletedTasks(BOBBA_FET, 2);
+        assertNumberOfNonCompletedTasks(LUKE_CAGE, 2);
         
         // Check that if we complete a task and then create a new one
         // that it gets assigned to the proper user
-        getTaskToComplete("Darth Vader").ifPresent(complete);
-        assertNumberOfNonCompletedTasks("Darth Vader", 1);
-        tasks.put("Darth Vader",createForCompletionTask(taskString, "Darth Vader", 3, "Bobba Fet","Darth Vader","Luke Cage"));
-        assertNumberOfNonCompletedTasks("Darth Vader", 2);
+        getTaskToComplete(DARTH_VADER).ifPresent(complete);
+        assertNumberOfNonCompletedTasks(DARTH_VADER, 1);
+        tasks.put(DARTH_VADER,createForCompletionTask(taskString, DARTH_VADER, 3, BOBBA_FET,DARTH_VADER,LUKE_CAGE));
+        assertNumberOfNonCompletedTasks(DARTH_VADER, 2);
         
         // Now add a user with no tasks and make sure that
         // the assignment goes to the new user
-        tasks.put("Tony Stark", createForCompletionTask(taskString2,"Tony Stark",4,"Bobba Fet","Darth Vader","Luke Cage","Tony Stark"));
-        assertNumberOfNonCompletedTasks("Tony Stark",1);
+        tasks.put(TONY_STARK, createForCompletionTask(taskString2,TONY_STARK,4,BOBBA_FET,DARTH_VADER,LUKE_CAGE,TONY_STARK));
+        assertNumberOfNonCompletedTasks(TONY_STARK,1);
 	}
 	
 	@Test
@@ -206,22 +210,22 @@ public class LoadBalanceAssignmentStrategyTest extends AbstractAssignmentTests {
         		+ REMOVE_ACTOR_ASSIGNMENTS
         		+ "name = 'MultiUserWithRemoveLoadBalanceTask2'})";
 		
-        tasks.put("Bobba Fet",createForCompletionTask(taskString, "Bobba Fet", 4, "Bobba Fet","Darth Vader","Luke Cage","Tony Stark"));
-        tasks.put("Darth Vader",createForCompletionTask(taskString, "Darth Vader", 4, "Bobba Fet","Darth Vader","Luke Cage","Tony Stark"));
-        tasks.put("Luke Cage",createForCompletionTask(taskString, "Luke Cage", 4, "Bobba Fet","Darth Vader","Luke Cage","Tony Stark"));
-        tasks.put("Tony Stark",createForCompletionTask(taskString, "Tony Stark", 4, "Bobba Fet","Darth Vader","Luke Cage","Tony Stark"));
-        assertNumberOfNonCompletedTasks("Darth Vader", 1);
-        assertNumberOfNonCompletedTasks("Bobba Fet", 1);
-        assertNumberOfNonCompletedTasks("Luke Cage", 1);
-        assertNumberOfNonCompletedTasks("Tony Stark", 1);
+        tasks.put(BOBBA_FET,createForCompletionTask(taskString, BOBBA_FET, 4, BOBBA_FET,DARTH_VADER,LUKE_CAGE,TONY_STARK));
+        tasks.put(DARTH_VADER,createForCompletionTask(taskString, DARTH_VADER, 4, BOBBA_FET,DARTH_VADER,LUKE_CAGE,TONY_STARK));
+        tasks.put(LUKE_CAGE,createForCompletionTask(taskString, LUKE_CAGE, 4, BOBBA_FET,DARTH_VADER,LUKE_CAGE,TONY_STARK));
+        tasks.put(TONY_STARK,createForCompletionTask(taskString, TONY_STARK, 4, BOBBA_FET,DARTH_VADER,LUKE_CAGE,TONY_STARK));
+        assertNumberOfNonCompletedTasks(DARTH_VADER, 1);
+        assertNumberOfNonCompletedTasks(BOBBA_FET, 1);
+        assertNumberOfNonCompletedTasks(LUKE_CAGE, 1);
+        assertNumberOfNonCompletedTasks(TONY_STARK, 1);
 
-        tasks.put("Bobba Fet",createForCompletionTask(taskString2, "Bobba Fet", 3, "Bobba Fet","Luke Cage","Tony Stark"));
-        tasks.put("Luke Cage",createForCompletionTask(taskString2, "Luke Cage", 3, "Bobba Fet","Luke Cage","Tony Stark"));
-        tasks.put("Tony Stark",createForCompletionTask(taskString2, "Tony Stark", 3, "Bobba Fet","Luke Cage","Tony Stark"));
-        assertNumberOfNonCompletedTasks("Darth Vader", 1);
-        assertNumberOfNonCompletedTasks("Bobba Fet", 2);
-        assertNumberOfNonCompletedTasks("Luke Cage", 2);
-        assertNumberOfNonCompletedTasks("Tony Stark", 2);
+        tasks.put(BOBBA_FET,createForCompletionTask(taskString2, BOBBA_FET, 3, BOBBA_FET,LUKE_CAGE,TONY_STARK));
+        tasks.put(LUKE_CAGE,createForCompletionTask(taskString2, LUKE_CAGE, 3, BOBBA_FET,LUKE_CAGE,TONY_STARK));
+        tasks.put(TONY_STARK,createForCompletionTask(taskString2, TONY_STARK, 3, BOBBA_FET,LUKE_CAGE,TONY_STARK));
+        assertNumberOfNonCompletedTasks(DARTH_VADER, 1);
+        assertNumberOfNonCompletedTasks(BOBBA_FET, 2);
+        assertNumberOfNonCompletedTasks(LUKE_CAGE, 2);
+        assertNumberOfNonCompletedTasks(TONY_STARK, 2);
         
 	}
 	
