@@ -1,3 +1,17 @@
+/*
+ * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
 package org.jbpm.services.task.assignment.impl.strategy;
 
 import java.util.Collection;
@@ -20,7 +34,11 @@ import org.kie.internal.task.api.assignment.AssignmentStrategy;
 import org.kie.internal.task.api.model.InternalPeopleAssignments;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+/**
+ * Assignment strategy that uses a plug-able approach for calculating
+ * the load that potential task owners have. It then assigns the task
+ * to the user with the lightest load.
+ */
 public class LoadBalanceAssignmentStrategy implements AssignmentStrategy {
 	private static final Logger logger = LoggerFactory.getLogger(LoadBalanceAssignmentStrategy.class);
 	private static final String IDENTIFIER = "LoadBalance";
@@ -46,9 +64,9 @@ public class LoadBalanceAssignmentStrategy implements AssignmentStrategy {
         List<OrganizationalEntity> excluded = ((InternalPeopleAssignments)task.getPeopleAssignments()).getExcludedOwners();
         UserInfo userInfo = (UserInfo) ((org.jbpm.services.task.commands.TaskContext)taskContext).get(EnvironmentName.TASK_USER_INFO);
 
-        // Get the the users from the task's the potential owners
+        // Get the the users from the task's the potential owners, making sure that excluded users are not included
         List<OrganizationalEntity> potentialOwners = task.getPeopleAssignments().getPotentialOwners().stream()
-                .filter(oe -> oe instanceof User && !excluded.contains(oe))
+                .filter(oe -> oe instanceof User && !excluded.contains(oe) && !oe.getId().equals(excludedUser))
                 .collect(Collectors.toList());
 
         // Get the users belonging to groups that are potential owners
@@ -57,13 +75,13 @@ public class LoadBalanceAssignmentStrategy implements AssignmentStrategy {
                     Iterator<OrganizationalEntity> groupUsers = userInfo.getMembersForGroup((Group)oe);
                     if (groupUsers != null) {
                         groupUsers.forEachRemaining(user -> {
-                            if (user != null && !excluded.contains(user) && !potentialOwners.contains(user)) {
+                            if (user != null && !excluded.contains(user) && !potentialOwners.contains(user) && !user.getId().equals(excludedUser)) {
                                 potentialOwners.add(user);
                             }
                         });
                     }
                 });
-        logger.info("Asking the load calculator [{}] for task loads for the users {}",calculator.getIdentifier(),potentialOwners);
+        logger.debug("Asking the load calculator [{}] for task loads for the users {}",calculator.getIdentifier(),potentialOwners);
         List<User> users = potentialOwners.stream().map(entityToUser).collect(Collectors.toList());
         Collection<UserTaskLoad> loads = calculator.getUserTaskLoads(users, taskContext);
         UserTaskLoad lightestLoad = loads.stream().min(UserTaskLoad::compareTo).orElse(null);
