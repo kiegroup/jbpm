@@ -39,10 +39,12 @@ public class RoundRobinAssignmentStrategy implements AssignmentStrategy {
     private static final Logger logger = LoggerFactory.getLogger(RoundRobinAssignmentStrategy.class);
     private static final String IDENTIFIER = "RoundRobin";
 
-    private Map<String,CircularQueue<OrganizationalEntity>> circularQueueMap = new ConcurrentHashMap();
+    private Map<String,CircularQueue<OrganizationalEntity>> circularQueueMap = new ConcurrentHashMap<>();
 
     private class CircularQueue<T> extends LinkedBlockingQueue<T> {
-        @Override
+		private static final long serialVersionUID = -4872976466112032423L;
+
+		@Override
         public synchronized T take() {
             T headValue = null;
             try {

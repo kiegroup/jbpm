@@ -14,24 +14,17 @@
 */
 package org.jbpm.services.task.assignment;
 
-import static org.junit.Assert.*;
-
 import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
-import org.drools.core.rule.constraint.ConditionAnalyzer.ThisInvocation;
 import org.jbpm.services.task.HumanTaskServiceFactory;
 import org.jbpm.services.task.assignment.impl.strategy.LoadBalanceAssignmentStrategy;
-import org.jbpm.services.task.assignment.impl.strategy.RoundRobinAssignmentStrategy;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.kie.api.task.model.Status;
 import org.kie.api.task.model.Task;
