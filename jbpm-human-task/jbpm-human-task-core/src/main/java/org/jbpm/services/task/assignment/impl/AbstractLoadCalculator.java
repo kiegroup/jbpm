@@ -16,10 +16,10 @@ package org.jbpm.services.task.assignment.impl;
 
 import org.jbpm.services.task.assignment.LoadCalculator;
 
-public abstract class LoadCalculatorImpl implements LoadCalculator {
+public abstract class AbstractLoadCalculator implements LoadCalculator {
 	protected String loadCalculatorIdentifier;
 	
-	public LoadCalculatorImpl(String loadCalculatorIdentifier) {
+	public AbstractLoadCalculator(String loadCalculatorIdentifier) {
 		this.loadCalculatorIdentifier = loadCalculatorIdentifier;
 	}
 	

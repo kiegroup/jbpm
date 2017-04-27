@@ -30,7 +30,7 @@ import org.kie.internal.task.api.TaskPersistenceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TaskCountLoadCalculator extends LoadCalculatorImpl {
+public class TaskCountLoadCalculator extends AbstractLoadCalculator {
 	private static final String IDENTIFIER = "TaskCountLoadCalculator";
 	private static final Logger logger = LoggerFactory.getLogger(TaskCountLoadCalculator.class);
     private static final String SINGLE_USER_QUERY = 

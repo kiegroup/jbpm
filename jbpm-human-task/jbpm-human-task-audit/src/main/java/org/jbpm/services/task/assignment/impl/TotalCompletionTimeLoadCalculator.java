@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
-public class TotalCompletionTimeLoadCalculator extends LoadCalculatorImpl {
+public class TotalCompletionTimeLoadCalculator extends AbstractLoadCalculator {
 	private static final Logger logger = LoggerFactory.getLogger(TotalCompletionTimeLoadCalculator.class);
 	private static final String IDENTIFIER = "TotalCompletionTime";
 	private static Long timeToLive;
