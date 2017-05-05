@@ -44,7 +44,7 @@ import org.kie.internal.task.api.model.TaskEvent;
  */
 @Entity
 @Table(name = "TaskEvent")
-@SequenceGenerator(name = "taskEventIdSeq", sequenceName = "TASK_EVENT_ID_SEQ")
+@SequenceGenerator(name = "taskEventIdSeq", sequenceName = "TASK_EVENT_ID_SEQ", allocationSize=1)
 public class TaskEventImpl implements TaskEvent, Externalizable {
 
   @Id

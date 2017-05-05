@@ -37,7 +37,7 @@ import javax.persistence.Version;
  * This entity must be included in the persistence.xml when the "Per Process Instance" strategy is used.
  */
 @Entity
-@SequenceGenerator(name="contextMappingInfoIdSeq", sequenceName="CONTEXT_MAPPING_INFO_ID_SEQ")
+@SequenceGenerator(name="contextMappingInfoIdSeq", sequenceName="CONTEXT_MAPPING_INFO_ID_SEQ", allocationSize=1)
 @NamedQueries(value=
     {@NamedQuery(name="FindContextMapingByContextId", 
                 query="from ContextMappingInfo where contextId = :contextId"
