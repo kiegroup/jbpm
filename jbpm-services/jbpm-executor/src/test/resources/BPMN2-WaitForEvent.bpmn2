@@ -5,7 +5,7 @@
     <bpmn2:startEvent id="processStartEvent" drools:selectable="true" color:background-color="#9acd32" color:border-color="#000000" color:color="#000000" name="">
       <bpmn2:outgoing>_D47401E2-CA08-4630-BF07-87C32C9E5082</bpmn2:outgoing>
     </bpmn2:startEvent>
-    <bpmn2:intermediateCatchEvent id="_E779DEC1-CA31-4496-8DC4-27A8E5725A61" drools:selectable="true" drools:boundaryca="" color:background-color="#f5deb3" color:border-color="#a0522d" color:color="#000000" name="">
+    <bpmn2:intermediateCatchEvent id="_E779DEC1-CA31-4496-8DC4-27A8E5725A61" drools:selectable="true" drools:boundaryca="" color:background-color="#f5deb3" color:border-color="#a0522d" color:color="#000000" name="Signal">
       <bpmn2:incoming>_D47401E2-CA08-4630-BF07-87C32C9E5082</bpmn2:incoming>
       <bpmn2:outgoing>_F47F3DF6-7D9F-4561-B247-6107C9776852</bpmn2:outgoing>
       <bpmn2:signalEventDefinition id="_ge8lsOgNEeS3ScoFLk_wFg" signalRef="MySignal"/>

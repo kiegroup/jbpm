@@ -990,6 +990,7 @@ public class AsyncContinuationSupportTest extends AbstractExecutorBaseTest {
 
     @Test(timeout=10000)
     public void testAsyncModeWithSignalProcess() throws Exception {
+        final CountDownProcessEventListener countDownListenerSignalAsync = new CountDownProcessEventListener("Signal", 1, true);
         final CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("EndProcess", 1);
         RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get().newDefaultBuilder()
                 .userGroupCallback(userGroupCallback)
@@ -1001,6 +1002,7 @@ public class AsyncContinuationSupportTest extends AbstractExecutorBaseTest {
                     public List<ProcessEventListener> getProcessEventListeners(RuntimeEngine runtime) {
                         List<ProcessEventListener> listeners = super.getProcessEventListeners(runtime);
                         listeners.add(countDownListener);
+                        listeners.add(countDownListenerSignalAsync);
                         return listeners;
                     }
                 })
@@ -1021,9 +1023,11 @@ public class AsyncContinuationSupportTest extends AbstractExecutorBaseTest {
         processInstance = runtime.getKieSession().getProcessInstance(processInstanceId);
         assertNotNull(processInstance);
 
+        // wait for the signal not to be triggered in async way before sending signal
+        countDownListenerSignalAsync.waitTillCompleted();
         // Send async signal to the process instance
         System.out.println("<<<< Sending signal >>>>>");
-        ksession.signalEvent("MySignal", null);
+        runtime.getKieSession().signalEvent("MySignal", null);
 
         countDownListener.waitTillCompleted();
 
