@@ -15,14 +15,9 @@
 
 package org.jbpm.services.task.assignment;
 
-import static java.util.stream.Collectors.toList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 import java.io.StringReader;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -31,44 +26,47 @@ import org.jbpm.services.task.impl.factories.TaskFactory;
 import org.kie.api.task.model.OrganizationalEntity;
 import org.kie.api.task.model.Status;
 import org.kie.api.task.model.Task;
+import org.kie.api.task.model.User;
 
-public class AbstractAssignmentTests extends HumanTaskServicesBaseTest {
+import static org.assertj.core.api.Assertions.*;
+import static org.junit.Assert.assertEquals;
 
-    
-    protected void assertPotentialOwners(Task task, int expectedSize, String...expectedNames) {
+public class AbstractAssignmentTest extends HumanTaskServicesBaseTest {
+
+    protected void assertPotentialOwners(Task task, int expectedSize, String... expectedNames) {
         List<OrganizationalEntity> potentialOwners = task.getPeopleAssignments().getPotentialOwners();
-        
-        assertEquals("Expected size of potential owners do not match", expectedSize, potentialOwners.size());
-        
+
+        assertThat(potentialOwners).hasSize(expectedSize);
+
         if (expectedNames.length > 0) {
-            List<String> names = potentialOwners.stream().map(po -> po.getId()).collect(toList());
-            
-            assertTrue("No match for expected potential owner names", names.containsAll(Arrays.asList(expectedNames)));
+            assertThat(potentialOwners).as("No match for expected potential owner name")
+                    .extracting(OrganizationalEntity::getId)
+                    .contains(expectedNames);
         }
     }
-    
-    protected void assertActualOwner(Task task, String actualOwner) {
-        assertNotNull("No actual owner when expected", task.getTaskData().getActualOwner());
-        assertEquals("Not matching actual owner", actualOwner, task.getTaskData().getActualOwner().getId());
+
+    protected void assertActualOwner(Task task, String expectedActualOwner) {
+        User actualOwner = task.getTaskData().getActualOwner();
+        assertThat(actualOwner).as("No actual owner when expected").isNotNull();
+        assertThat(actualOwner.getId()).as("Not matching actual owner").isEqualTo(expectedActualOwner);
     }
-    
+
     protected void assertNoActualOwner(Task task) {
-        assertNull("Actual owner present when not expected", task.getTaskData().getActualOwner());        
+        assertThat(task.getTaskData().getActualOwner()).as("Actual owner present when not expected").isNull();
     }
-    
-    protected void assertNumberOfNonCompletedTasks(String user, int expectedNumber) {
-    	int count = taskService.getTasksOwned(user, Arrays.asList(Status.Reserved,Status.Suspended,Status.InProgress), null).size();
-    	assertEquals("Not matching number of non-completed tasks",expectedNumber,count);
-    }
-    
-   
-    protected void createAndAssertTask(String taskExpression, String actualOwner, int expectedPotOwners, String... expectedPotOwnerNames) {
+
+    protected long createAndAssertTask(String taskExpression, String actualOwner, int expectedPotentialOwners,
+                                       String... expectedPotentialOwnerNames) {
         Task task = TaskFactory.evalTask(new StringReader(taskExpression));
-        assertPotentialOwners(task, expectedPotOwners);
-       
-        taskService.addTask(task, new HashMap<String, Object>());
-        assertPotentialOwners(task, expectedPotOwners, expectedPotOwnerNames);
+        assertPotentialOwners(task, expectedPotentialOwners);
+
+        long taskId = taskService.addTask(task, Collections.emptyMap());
+
+        task = taskService.getTaskById(taskId);
+        assertPotentialOwners(task, expectedPotentialOwners, expectedPotentialOwnerNames);
         assertActualOwner(task, actualOwner);
+
+        return taskId;
     }
     
     protected Task createForCompletionTask(String taskExpression, String actualOwner, int expectedPotOwners, String... expectedPotOwnerNames) {
@@ -82,8 +80,14 @@ public class AbstractAssignmentTests extends HumanTaskServicesBaseTest {
     	return task;
     }
     
+    protected void assertNumberOfNonCompletedTasks(String user, int expectedNumber) {
+    	int count = taskService.getTasksOwned(user, Arrays.asList(Status.Reserved,Status.Suspended,Status.InProgress), null).size();
+    	assertEquals("Not matching number of non-completed tasks",expectedNumber,count);
+    }
+    
     protected void completeTask(Task task) {
     	taskService.start(task.getId(), task.getTaskData().getActualOwner().getId());
     	taskService.complete(task.getId(), task.getTaskData().getActualOwner().getId(), new HashMap<String,Object>());
     }
+    
 }

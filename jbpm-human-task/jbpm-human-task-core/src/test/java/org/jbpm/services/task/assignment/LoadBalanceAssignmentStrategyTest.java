@@ -37,7 +37,7 @@ import com.google.common.collect.ListMultimap;
 
 import bitronix.tm.resource.jdbc.PoolingDataSource;
 
-public class LoadBalanceAssignmentStrategyTest extends AbstractAssignmentTests {
+public class LoadBalanceAssignmentStrategyTest extends AbstractAssignmentTest {
     private PoolingDataSource pds;
     private EntityManagerFactory emf;
     private ListMultimap<String, Task> tasks;

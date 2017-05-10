@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 
 import bitronix.tm.resource.jdbc.PoolingDataSource;
 
-public class TotalCompletionTimeAssignmentStrategyTest extends AbstractAssignmentTests {
+public class TotalCompletionTimeAssignmentStrategyTest extends AbstractAssignmentTest {
     private PoolingDataSource pds;
     private EntityManagerFactory emf;
     private Long taskIds[];
