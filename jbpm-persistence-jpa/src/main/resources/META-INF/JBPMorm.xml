@@ -1,43 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<entity-mappings 
+<entity-mappings
   version="2.0"
   xmlns="http://java.sun.com/xml/ns/persistence/orm"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://java.sun.com/xml/ns/persistence/orm orm_2_0.xsd">
-    
+
       <named-query name="ProcessInstancesWaitingForEvent">
           <query>
-select 
+select
     processInstanceInfo.processInstanceId
-from 
+from
     ProcessInstanceInfo processInstanceInfo join processInstanceInfo.eventTypes eventTypes
 where
     eventTypes = :type
           </query>
       </named-query>
-      
+
       <named-query name="GetProcessInstanceIdByCorrelation">
           <query>
-select 
-    key.processInstanceId 
-from 
-    CorrelationKeyInfo key 
-    left join key.properties props 
-where 
-    cast(:elem_count as integer) = 
-	(select count(id) from CorrelationPropertyInfo cpi where cpi.correlationKey.id = key.id) and 
-    props.value in :properties 
-    group by key.id,key.processInstanceId 
-having count(key.id) = :elem_count
-          </query>
-      </named-query>
-       <named-query name="GetCorrelationKeysByProcessInstanceId">
-          <query>     
-select 
-    key 
-from 
-    CorrelationKeyInfo key 
-where 
+select
+    key.processInstanceId
+from
+    CorrelationKeyInfo key
+where
+    key.name = :ckey
+    </query>
+  </named-query>
+  <named-query name="GetCorrelationKeysByProcessInstanceId">
+    <query>
+      select
+    key
+from
+    CorrelationKeyInfo key
+where
     key.processInstanceId = :pId
       </query>
       </named-query>
