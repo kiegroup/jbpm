@@ -19,17 +19,29 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.util.List;
+import java.util.LinkedList;
 
+import java.text.MessageFormat;
 import javax.xml.parsers.SAXParser;
 
 import org.kie.api.definition.process.Process;
 import org.drools.core.xml.ExtensibleXmlParser;
 import org.drools.core.xml.SemanticModules;
+import org.jbpm.ruleflow.core.RuleFlowProcess;
+import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
+//processId, processPkg, processName, processVersion
 public class XmlProcessReader {
     private ExtensibleXmlParser parser;
+    private final MessageFormat message = new java.text.MessageFormat("Node Info: id:{0} name:{1} \n" +
+                                                                              "Parser message: {2}");
+
+    private final MessageFormat messageWithProcessInfo = new java.text.MessageFormat("Process Info: id:{0}, pkg:{1}, name:{2}, version:{3} \n" +
+                                                                              "Node Info: id:{4} name:{5} \n" +
+                                                                              "Parser message: {6}");
 
     private List<Process>        processes;
 
@@ -38,11 +50,16 @@ public class XmlProcessReader {
     }
 
     public XmlProcessReader(final SemanticModules modules, ClassLoader classLoader, final SAXParser parser) {
-        if ( parser == null ) {
-            this.parser = new ExtensibleXmlParser();
-        } else {
-            this.parser = new ExtensibleXmlParser( parser );
-        }      
+        this.parser = new ExtensibleXmlParser() {
+            @Override
+            protected String buildPrintMessage(final SAXParseException x) {
+                return processParserMessage(super.getParents(), super.getAttrs(), super.buildPrintMessage(x));
+            }
+        };
+
+        if(parser != null) {
+            this.parser.setParser(parser);
+        }
         this.parser.setSemanticModules( modules );
         this.parser.setData( new ProcessBuildData() );
         this.parser.setClassLoader( classLoader );
@@ -100,5 +117,22 @@ public class XmlProcessReader {
     
     public ProcessBuildData getProcessBuildData() {
         return (ProcessBuildData) this.parser.getData();
+    }
+
+    protected String processParserMessage(LinkedList<Object> parents, Attributes attr, String errorMessage) {
+        String nodeId = (attr == null  || attr.getValue("id") == null) ? "" : attr.getValue("id");
+        String nodeName = (attr == null  || attr.getValue("name") == null) ? "" : attr.getValue("name");
+
+        for(Object parent : parents) {
+            if(parent != null && parent instanceof RuleFlowProcess) {
+                RuleFlowProcess process = ((RuleFlowProcess) parent);
+                return messageWithProcessInfo.format(new Object[] {process.getId(),
+                        process.getPackageName(),
+                        process.getName(),
+                        process.getVersion(), nodeId, nodeName, errorMessage});
+            }
+        }
+
+        return message.format(new Object[] {nodeId, nodeName, errorMessage});
     }
 }
