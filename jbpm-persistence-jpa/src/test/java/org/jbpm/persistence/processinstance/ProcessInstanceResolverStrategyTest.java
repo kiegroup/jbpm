@@ -125,8 +125,7 @@ public class ProcessInstanceResolverStrategyTest extends AbstractBaseTest {
         NonSerializableClass processVar = new NonSerializableClass();
         processVar.setString("1234567890");
         params.put(VAR_NAME, processVar);
-        params.put("logger", logger);
-
+        
         // Persist variable
         UserTransaction ut = (UserTransaction) new InitialContext().lookup("java:comp/UserTransaction");
         ut.begin();
