@@ -70,7 +70,7 @@ public class CustomAssignmentStrategyTest extends AbstractAssignmentTest {
         pds = setupPoolingDataSource();
         emf = Persistence.createEntityManagerFactory("org.jbpm.services.task");
 
-        AssignmentServiceProvider.override(new CustomStrategy());
+        AssignmentServiceProvider.override(new CustomStrategy(DARTH_VADER));
 
         this.taskService = (InternalTaskService) HumanTaskServiceFactory.newTaskServiceConfigurator()
                 .entityManagerFactory(emf)
@@ -97,6 +97,19 @@ public class CustomAssignmentStrategyTest extends AbstractAssignmentTest {
         createAndAssertTask(taskString, DARTH_VADER, 3, BOBBA_FET, DARTH_VADER, LUKE_CAGE);
         createAndAssertTask(taskString, DARTH_VADER, 3, BOBBA_FET, DARTH_VADER, LUKE_CAGE);
         createAndAssertTask(taskString, DARTH_VADER, 3, BOBBA_FET, DARTH_VADER, LUKE_CAGE);
+    }
+
+    @Test
+    public void testAssignTasksAndChangeStrategy() {
+        final String taskString = createTaskString(MULTI_ACTOR_ASSIGNMENTS, "MultiActorChangeCustomStrategyTask");
+
+        createAndAssertTask(taskString, DARTH_VADER, 3, BOBBA_FET, DARTH_VADER, LUKE_CAGE);
+        createAndAssertTask(taskString, DARTH_VADER, 3, BOBBA_FET, DARTH_VADER, LUKE_CAGE);
+
+        AssignmentServiceProvider.override(new CustomStrategy(BOBBA_FET));
+
+        createAndAssertTask(taskString, BOBBA_FET, 3, BOBBA_FET, DARTH_VADER, LUKE_CAGE);
+        createAndAssertTask(taskString, BOBBA_FET, 3, BOBBA_FET, DARTH_VADER, LUKE_CAGE);
     }
 
     @Test

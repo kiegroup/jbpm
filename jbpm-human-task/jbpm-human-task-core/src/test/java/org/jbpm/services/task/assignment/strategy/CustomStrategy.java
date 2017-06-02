@@ -26,9 +26,10 @@ public class CustomStrategy implements AssignmentStrategy {
 
     private static final Logger logger = LoggerFactory.getLogger(CustomStrategy.class);
     private static final String IDENTIFIER = "Custom";
-    private static final String ASSIGN_TO_USER = "Darth Vader";
+    private String assignToUser;
 
-    public CustomStrategy() {
+    public CustomStrategy(String assignToUser) {
+        this.assignToUser = assignToUser;
     }
 
     @Override
@@ -38,14 +39,14 @@ public class CustomStrategy implements AssignmentStrategy {
 
     @Override
     public Assignment apply(Task task, TaskContext tc, String string) {
-        logger.debug("Task {} is assign to user {}.", task.getId(), ASSIGN_TO_USER);
-        return new Assignment(ASSIGN_TO_USER);
+        logger.debug("Task {} is assign to user {}.", task.getId(), assignToUser);
+        return new Assignment(assignToUser);
 
     }
 
     @Override
     public String toString() {
-        return "AssignmentStrategy:: " + IDENTIFIER + " This strategy assign all task to user " + ASSIGN_TO_USER;
+        return "AssignmentStrategy:: " + IDENTIFIER + " This strategy assign all task to user " + assignToUser;
     }
 
 }
