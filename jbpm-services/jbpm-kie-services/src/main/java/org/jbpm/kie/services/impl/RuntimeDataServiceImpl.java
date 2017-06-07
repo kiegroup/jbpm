@@ -1,9 +1,8 @@
 /*
- * Copyright 2012 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2017 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -12,12 +11,12 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+*/
 
 package org.jbpm.kie.services.impl;
 
 import static org.kie.internal.query.QueryParameterIdentifiers.FILTER;
-import static org.jbpm.kie.services.impl.CommonUtils.*;
+import static org.jbpm.kie.services.impl.CommonUtils.getCallbackUserRoles;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,6 +36,7 @@ import org.apache.commons.collections.Predicate;
 import org.jbpm.kie.services.api.DeploymentIdResolver;
 import org.jbpm.kie.services.impl.model.ProcessAssetDesc;
 import org.jbpm.kie.services.impl.security.DeploymentRolesManager;
+import org.jbpm.runtime.manager.impl.identity.UserDataServiceProvider;
 import org.jbpm.services.api.DeploymentEvent;
 import org.jbpm.services.api.DeploymentEventListener;
 import org.jbpm.services.api.RuntimeDataService;
@@ -56,6 +56,7 @@ import org.kie.api.runtime.query.QueryContext;
 import org.kie.api.task.TaskService;
 import org.kie.api.task.model.Status;
 import org.kie.api.task.model.TaskSummary;
+import org.kie.api.task.UserGroupCallback;
 import org.kie.internal.identity.IdentityProvider;
 import org.kie.internal.process.CorrelationKey;
 import org.kie.internal.query.QueryFilter;
@@ -79,6 +80,8 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
 
     private DeploymentRolesManager deploymentRolesManager = new DeploymentRolesManager();
 
+    private UserGroupCallback userGroupCallback = UserDataServiceProvider.getUserGroupCallback();
+
     private static final List<Status> allActiveStatus = Arrays.asList(new Status[]{
         Status.Created,
         Status.Ready,
@@ -101,6 +104,13 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
 		this.identityProvider = identityProvider;
 	}
 
+	public void setUserGroupCallback(UserGroupCallback userGroupCallback) {
+        this.userGroupCallback = userGroupCallback;
+    }
+
+    public UserGroupCallback getUserGroupCallback() {
+        return userGroupCallback;
+    }
 
     public void setTaskService(TaskService taskService) {
 		this.taskService = taskService;
@@ -742,8 +752,8 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
 
 	    Map<String, Object> params = new HashMap<String, Object>();
         params.put("userId", userId);
-        params.put("groupIds", getAuthenticatedUserRoles(identityProvider));
-        params.put("status", allActiveStatus);
+        params.put("groupIds", getCallbackUserRoles(userGroupCallback, userId));
+        params.put("status", allActiveStatus); 
 
         applyQueryContext(params, filter);
         applyQueryFilter(params, filter);
@@ -754,8 +764,8 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
 	@Override
 	public List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId, List<String> groupIds, QueryFilter filter) {
 	    Map<String, Object> params = new HashMap<String, Object>();
-        params.put("userId", userId);
-        params.put("groupIds", getAuthenticatedUserRoles(identityProvider));
+        params.put("userId", userId);        
+        params.put("groupIds", getCallbackUserRoles(userGroupCallback, userId));
 
         applyQueryContext(params, filter);
         applyQueryFilter(params, filter);
@@ -765,9 +775,9 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
 	@Override
 	public List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId, List<String> groupIds, List<Status> status, QueryFilter filter) {
 	    Map<String, Object> params = new HashMap<String, Object>();
-        params.put("userId", userId);
-        params.put("groupIds", adoptList(groupIds, getAuthenticatedUserRoles(identityProvider)));
-        params.put("status", adoptList(status, allActiveStatus));
+        params.put("userId", userId);        
+        params.put("groupIds", adoptList(groupIds, getCallbackUserRoles(userGroupCallback, userId)));
+        params.put("status", adoptList(status, allActiveStatus));  
 
         applyQueryContext(params, filter);
         applyQueryFilter(params, filter);
@@ -777,9 +787,9 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
 	@Override
 	public List<TaskSummary> getTasksAssignedAsPotentialOwnerByStatus(String userId, List<Status> status, QueryFilter filter) {
 	    Map<String, Object> params = new HashMap<String, Object>();
-        params.put("userId", userId);
-        params.put("groupIds", getAuthenticatedUserRoles(identityProvider));
-        params.put("status", adoptList(status, allActiveStatus));
+        params.put("userId", userId);        
+        params.put("groupIds", getCallbackUserRoles(userGroupCallback, userId));
+        params.put("status", adoptList(status, allActiveStatus));  
 
         applyQueryContext(params, filter);
         applyQueryFilter(params, filter);
@@ -878,7 +888,7 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("userId", userId);
         params.put("status", adoptList(statuses, allActiveStatus));
-        params.put("groupIds", getAuthenticatedUserRoles(identityProvider));
+        params.put("groupIds", getCallbackUserRoles(userGroupCallback, userId));
         applyQueryContext(params, filter);
         applyQueryFilter(params, filter);
         return (List<TaskSummary>) commandService.execute(
@@ -1003,8 +1013,8 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
 
         List<String> owners = new ArrayList<String>();
         owners.add(userId);
-        owners.addAll(getAuthenticatedUserRoles(identityProvider));
-
+        owners.addAll(getCallbackUserRoles(userGroupCallback, userId));
+    
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("potentialOwners", owners);
 
@@ -1019,8 +1029,8 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
     public List<AuditTask> getAllAdminAuditTask(String userId, QueryFilter filter){
          List<String> businessAdmins = new ArrayList<String>();
          businessAdmins.add(userId);
-         businessAdmins.addAll(getAuthenticatedUserRoles(identityProvider));
-
+         businessAdmins.addAll(getCallbackUserRoles(userGroupCallback, userId));
+     
          Map<String, Object> params = new HashMap<String, Object>();
          params.put("businessAdmins", businessAdmins);
 
