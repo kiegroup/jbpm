@@ -15,9 +15,9 @@
 
 package org.jbpm.process.workitem;
 
-import org.drools.core.process.core.datatype.impl.type.EnumDataType;
-import org.drools.core.process.core.datatype.impl.type.ListDataType;
-import org.drools.core.process.core.datatype.impl.type.StringDataType;
+import org.jbpm.process.core.datatype.impl.type.EnumDataType;
+import org.jbpm.process.core.datatype.impl.type.ListDataType;
+import org.jbpm.process.core.datatype.impl.type.StringDataType;
 import org.jbpm.process.workitem.enums.AnimalsEnum;
 import org.jbpm.process.workitem.enums.CarsEnum;
 import org.jbpm.test.util.AbstractBaseTest;
