@@ -876,6 +876,51 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
             }
         }
     }
+    
+    @Test
+    public void testCaseWithCommentsPagination() {
+        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new UserImpl("john"));
+
+        Map<String, Object> data = new HashMap<>();
+        CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), USER_TASK_STAGE_AUTO_START_CASE_P_ID, data, roleAssignments);
+
+        String caseId = caseService.startCase(deploymentUnit.getIdentifier(), USER_TASK_STAGE_AUTO_START_CASE_P_ID, caseFile);
+        assertNotNull(caseId);
+        assertEquals(FIRST_CASE_ID, caseId);
+        try {
+            CaseInstance cInstance = caseService.getCaseInstance(caseId);
+            assertNotNull(cInstance);
+            assertEquals(FIRST_CASE_ID, cInstance.getCaseId());
+            assertEquals(deploymentUnit.getIdentifier(), cInstance.getDeploymentId());
+
+            for (int i = 0 ; i < 55 ; i++) {
+                caseService.addCaseComment(FIRST_CASE_ID, "anna", "comment" + i);
+            }
+            
+            int pageSize = 20;
+
+            Collection<CommentInstance> firstPage = caseService.getCaseComments(FIRST_CASE_ID, 0, pageSize, new QueryContext());
+            assertNotNull(firstPage);
+            assertEquals(20, firstPage.size());
+            
+            Collection<CommentInstance> secondPage = caseService.getCaseComments(FIRST_CASE_ID, 1, pageSize, new QueryContext());
+            assertNotNull(secondPage);
+            assertEquals(20, secondPage.size());
+            
+            Collection<CommentInstance> thirdPage = caseService.getCaseComments(FIRST_CASE_ID, 2, pageSize, new QueryContext());
+            assertNotNull(thirdPage);
+            assertEquals(15, thirdPage.size());
+
+        } catch (Exception e) {
+            logger.error("Unexpected error {}", e.getMessage(), e);
+            fail("Unexpected exception " + e.getMessage());
+        } finally {
+            if (caseId != null) {
+                caseService.cancelCase(caseId);
+            }
+        }
+    }
 
     @Test
     public void testUpdateNotExistingCaseComment() {

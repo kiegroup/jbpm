@@ -478,6 +478,27 @@ public class CaseServiceImpl implements CaseService {
             return result;
         }).collect(Collectors.toList());          
     }
+    
+    @Override
+    public Collection<CommentInstance> getCaseComments(String caseId, int page, int pageSize, QueryContext queryContext) throws CaseNotFoundException {
+        authorizationManager.checkAuthorization(caseId);
+        Collection<CommentInstance> comments = getCaseComments(caseId, queryContext);
+        
+        List<CommentInstance> commentsToPaginate = new ArrayList<>(comments);
+        
+    	int allCommentsSize = commentsToPaginate.size();    	    	
+    	int pageIndex = (allCommentsSize + pageSize - 1) / pageSize;
+    	
+    	if (allCommentsSize < pageSize) {
+    		return comments;
+    	}    	
+    	else if (pageIndex == page + 1) {
+    		return commentsToPaginate.subList(page * pageSize, allCommentsSize);
+    	}
+    	else {
+    	    return commentsToPaginate.subList(page * pageSize, (page * pageSize) + pageSize);
+}           
+    }
 
     @Override
     public void addCaseComment(String caseId, String author, String comment) throws CaseNotFoundException {
