@@ -896,21 +896,36 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
 
             for (int i = 0 ; i < 55 ; i++) {
                 caseService.addCaseComment(FIRST_CASE_ID, "anna", "comment" + i);
-            }
-            
+            } 
+           
             int pageSize = 20;
-
+            int i = 0;
+            
             Collection<CommentInstance> firstPage = caseService.getCaseComments(FIRST_CASE_ID, 0, pageSize, new QueryContext());
             assertNotNull(firstPage);
             assertEquals(20, firstPage.size());
+            for (CommentInstance commentInstance : firstPage) {       	
+            	assertComment(commentInstance, "anna", "comment" + i);
+            	i++;
+            }
             
             Collection<CommentInstance> secondPage = caseService.getCaseComments(FIRST_CASE_ID, 1, pageSize, new QueryContext());
             assertNotNull(secondPage);
             assertEquals(20, secondPage.size());
+            for (CommentInstance commentInstance : secondPage) {       	
+            	assertComment(commentInstance, "anna", "comment" + i);
+            	i++;
+            }
             
             Collection<CommentInstance> thirdPage = caseService.getCaseComments(FIRST_CASE_ID, 2, pageSize, new QueryContext());
             assertNotNull(thirdPage);
             assertEquals(15, thirdPage.size());
+            for (CommentInstance commentInstance : thirdPage) {       	
+            	assertComment(commentInstance, "anna", "comment" + i);
+            	i++;
+            }
+            
+            
 
         } catch (Exception e) {
             logger.error("Unexpected error {}", e.getMessage(), e);
