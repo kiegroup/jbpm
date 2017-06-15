@@ -23,7 +23,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.hornetq.api.core.HornetQException;
 import org.hornetq.api.core.TransportConfiguration;
@@ -58,8 +60,12 @@ public class HornetQTaskClientConnector implements TaskClientConnector {
 	private ServerLocator serverLocator;
 	private ClientProducer producer;
 	private ClientConsumer consumer;
-	
-	private Thread responsesThread; 
+
+	private Thread responsesThread;
+
+	private ReentrantLock lock = new ReentrantLock();
+
+	private static final long TRY_LOCK_TIMEOUT = Long.parseLong(System.getProperty("jbpm.hq.connector.trylock.timeout", "500"));
 
 	public HornetQTaskClientConnector(String name, BaseClientHandler handler) {
 		if (name == null) {
@@ -119,9 +125,24 @@ public class HornetQTaskClientConnector implements TaskClientConnector {
                     try {
                         ClientMessage serverMessage = consumer.receive();
                         if (serverMessage != null) {
-                            ((HornetQTaskClientHandler) handler).messageReceived(session, readMessage(serverMessage), BaseHornetQTaskServer.SERVER_TASK_COMMANDS_QUEUE);
-                            serverMessage.acknowledge();
-                            session.commit();
+                            lock.lock();
+                            try {
+                                if(logger.isTraceEnabled()) {
+                                    logger.trace(lock + " is locked in responsesThread");
+                                }
+                                if (consumer.isClosed()) {
+                                    logger.info("consumer is already closed");
+                                    break;
+                                }
+                                ((HornetQTaskClientHandler) handler).messageReceived(session, readMessage(serverMessage), BaseHornetQTaskServer.SERVER_TASK_COMMANDS_QUEUE);
+                                serverMessage.acknowledge();
+                                session.commit();
+                            } finally {
+                                lock.unlock();
+                                if(logger.isTraceEnabled()) {
+                                    logger.trace(lock + " is unlocked in responsesThread");
+                                }
+                            }
                             if(logger.isTraceEnabled()) {
                                 logger.trace("serverMessage " + serverMessage + " consumed and ack'd with commit");
                             }
@@ -179,12 +200,28 @@ public class HornetQTaskClientConnector implements TaskClientConnector {
 
 	public void disconnect() throws Exception {
 		if (session!= null && !session.isClosed()) {
-			session.close();
-			producer.close();
-			if (consumer!=null) {
-				consumer.close();
+			boolean tryLock = lock.tryLock(TRY_LOCK_TIMEOUT, TimeUnit.MILLISECONDS);
+			try {
+				if (!tryLock) {
+					logger.info(lock + " tryLock failed in disconnect() with TRY_LOCK_TIMEOUT = " + TRY_LOCK_TIMEOUT + " ms");
+				}
+				if (logger.isTraceEnabled() && tryLock) {
+					logger.trace(lock + " is locked in disconnect()");
+				}
+				session.close();
+				producer.close();
+				if (consumer != null) {
+					consumer.close();
+				}
+				serverLocator.close();
+			} finally {
+				if (tryLock) {
+					lock.unlock();
+				}
+				if (logger.isTraceEnabled() && tryLock) {
+					logger.trace(lock + " is unlocked in disconnect()");
+				}
 			}
-			serverLocator.close();
 			
 			responsesThread.interrupt();
 		}
