@@ -139,7 +139,7 @@ public interface CaseService {
      * @throws CaseActiveException thrown when case is still active
      */
     void reopenCase(String caseId, String deploymentId, String caseDefinitionId, Map<String, Object> data) throws CaseNotFoundException;
-    
+
     /*
      * dynamic case operations section
      */
@@ -247,7 +247,7 @@ public interface CaseService {
      * @throws CaseNotFoundException thrown in case case was not found with given id
      */
     void triggerAdHocFragment(Long processInstanceId, String fragmentName, Object data) throws CaseNotFoundException;
-    
+
     /*
      * Case file section
      */
@@ -284,7 +284,7 @@ public interface CaseService {
      * @throws CaseNotFoundException thrown in case case was not found with given id
      */
     void removeDataFromCaseFile(String caseId, List<String> variableNames) throws CaseNotFoundException;
-    
+
     /*
      * Case role section
      */
@@ -315,7 +315,7 @@ public interface CaseService {
      * @throws CaseNotFoundException thrown in case case was not found with given id
      */
     Collection<CaseRoleInstance> getCaseRoleAssignments(String caseId) throws CaseNotFoundException;
-    
+
     /*
      * Case comments section
      */
@@ -336,6 +336,16 @@ public interface CaseService {
      * @throws CaseNotFoundException thrown in case case was not found with given id
      */
     Collection<CommentInstance> getCaseComments(String caseId, CommentSortBy sortBy, QueryContext queryContext) throws CaseNotFoundException;
+
+    /**
+     * Returns all case comments sorted with given sortBy
+     * @param caseId unique case id in the format PREFIX-GENERATED_ID as described on startCase method
+     * @param page defines the specific page index to query
+     * @param pageSize defines how many items per page
+     * @return a specific page of comments added to given case
+     * @throws CaseNotFoundException thrown in case case was not found with given id
+     */
+    Collection<CommentInstance> getCaseComments(String caseId, int page, int pageSize, QueryContext queryContext) throws CaseNotFoundException;
 
     /**
      * Adds new comment to the case
@@ -363,7 +373,7 @@ public interface CaseService {
      * @throws CaseNotFoundException thrown in case case was not found with given id
      */
     void removeCaseComment(String caseId, String commentId) throws CaseNotFoundException;
-    
+
     /*
      * Case model instance creation section
      */
@@ -421,4 +431,5 @@ public interface CaseService {
      * @return new instance for groupId
      */
     Group newGroup(String groupId);
+
 }
