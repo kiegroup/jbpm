@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<checkstyle version="7.4">
+<file name="/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-app/src/main/java/org/jbpm/remote/ejb/test/servlet/PingServlet.java">
+</file>
+<file name="/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-app/src/main/resources/userinfo.properties">
+</file>
+</checkstyle>

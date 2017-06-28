@@ -1,0 +1,7 @@
+/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-suite/src/main/java/org/jbpm/remote/ejb/test/client/EJBClient.java
+/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-suite/src/main/java/org/jbpm/remote/ejb/test/ProcessDefinitions.java
+/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-suite/src/main/java/org/jbpm/remote/ejb/test/mock/RestService.java
+/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-suite/src/main/java/org/jbpm/remote/ejb/test/maven/MavenProject.java
+/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-suite/src/main/java/org/jbpm/remote/ejb/test/users/UserAccount.java
+/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-suite/src/main/java/org/jbpm/remote/ejb/test/users/Users.java
+/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-suite/src/main/java/org/jbpm/remote/ejb/test/mock/WebService.java

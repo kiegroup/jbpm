@@ -1,0 +1,10 @@
+org/jboss/qa/bpms/remote/ejb/domain/Person.class
+org/jboss/qa/bpms/dm/iberia/Reservation.class
+com/bpms/functional/jobexec/UserCommand.class
+org/jboss/qa/bpms/dm/iberia/Passenger.class
+org/jboss/qa/bpms/remote/ejb/domain/ListType.class
+org/jboss/qa/bpms/remote/ejb/domain/Request.class
+org/jboss/qa/bpms/remote/ejb/domain/NestedType.class
+com/bpms/functional/jobexec/User.class
+com/bpms/functional/jobexec/UserFailingCommand.class
+org/jboss/qa/bpms/remote/ejb/domain/MyType.class
