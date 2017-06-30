@@ -1,0 +1,10 @@
+/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-domain/src/main/java/com/bpms/functional/jobexec/User.java
+/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-domain/src/main/java/org/jboss/qa/bpms/dm/iberia/Passenger.java
+/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-domain/src/main/java/org/jboss/qa/bpms/remote/ejb/domain/Request.java
+/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-domain/src/main/java/com/bpms/functional/jobexec/UserCommand.java
+/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-domain/src/main/java/org/jboss/qa/bpms/dm/iberia/Reservation.java
+/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-domain/src/main/java/org/jboss/qa/bpms/remote/ejb/domain/NestedType.java
+/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-domain/src/main/java/org/jboss/qa/bpms/remote/ejb/domain/Person.java
+/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-domain/src/main/java/com/bpms/functional/jobexec/UserFailingCommand.java
+/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-domain/src/main/java/org/jboss/qa/bpms/remote/ejb/domain/MyType.java
+/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-domain/src/main/java/org/jboss/qa/bpms/remote/ejb/domain/ListType.java
