@@ -69,5 +69,10 @@ public class JPASessionFactory implements SessionFactory {
         // even though it's added always TransactionLockInterceptor is by default disabled so won't do anything
         sscs.addInterceptor(new TransactionLockInterceptor(ksession.getEnvironment()));
     }
+
+    @Override
+    public void onDispose(Long sessionId) {
+        // no op
+    }
     
 }

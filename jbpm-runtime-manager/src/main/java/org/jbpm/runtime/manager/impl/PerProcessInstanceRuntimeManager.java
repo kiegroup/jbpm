@@ -232,7 +232,7 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
                 	}
                     ((Disposable) runtime).dispose();
                 }
-    
+
             	releaseAndCleanLock(runtime);
         	}
     	} catch (Exception e) {
@@ -292,6 +292,7 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
             		event.getProcessInstance().getId()), managerId);
             removeLocalRuntime(runtime);
 
+            factory.onDispose(runtime.getKieSession().getIdentifier());
             registerDisposeCallback(runtime,
                         new DestroySessionTransactionSynchronization(runtime.getKieSession()));
         }
@@ -410,6 +411,7 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
                     return null;
                 }
             });
+            factory.onDispose(initialKsession.getIdentifier());
             initialKsession.execute(new DestroyKSessionCommand(initialKsession, this));
 
             if (!"false".equalsIgnoreCase(System.getProperty("org.jbpm.rm.init.timer"))) {

@@ -49,6 +49,8 @@ public class RuntimeEngineImpl implements RuntimeEngine, Disposable {
     private boolean disposed = false;
     private boolean afterCompletion = false;
     
+    private Long ksessionId = -1l;
+    
     private List<DisposeListener> listeners = new CopyOnWriteArrayList<DisposeListener>();
     
     public RuntimeEngineImpl(KieSession ksession, TaskService taskService) {
@@ -68,6 +70,7 @@ public class RuntimeEngineImpl implements RuntimeEngine, Disposable {
         }
         if (ksession == null && initializer != null) {
         	ksession = initializer.initKieSession(context, (InternalRuntimeManager) manager, this);
+        	ksessionId = ksession.getIdentifier();
         }
         return this.ksession;
     }
@@ -150,6 +153,7 @@ public class RuntimeEngineImpl implements RuntimeEngine, Disposable {
 
 	public void internalSetKieSession(KieSession ksession) {
 		this.ksession = ksession;
+		ksessionId = ksession.getIdentifier();
 	}
 
 	public boolean isAfterCompletion() {
@@ -167,4 +171,9 @@ public class RuntimeEngineImpl implements RuntimeEngine, Disposable {
     public void setContext(Context<?> context) {
         this.context = context;
     }
+   
+    public Long getKsessionId() {
+        return ksessionId;
+    }
+   
 }
