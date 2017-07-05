@@ -121,6 +121,7 @@ public class KModuleDeploymentService extends AbstractDeploymentService {
             }
             KModuleDeploymentUnit kmoduleUnit = (KModuleDeploymentUnit) unit;
             DeployedUnitImpl deployedUnit = new DeployedUnitImpl(unit);
+            deployedUnit.setActive(kmoduleUnit.isActive());
 
             // Create the release id
             KieContainer kieContainer = kmoduleUnit.getKieContainer();
@@ -533,7 +534,7 @@ public class KModuleDeploymentService extends AbstractDeploymentService {
 	@Override
 	public void deactivate(String deploymentId) {
 		DeployedUnit deployed = getDeployedUnit(deploymentId);
-		if (deployed != null) {
+		if (deployed != null && deployed.isActive()) {
 			((DeployedUnitImpl)deployed).setActive(false);
 			notifyOnDeactivate(deployed.getDeploymentUnit(), deployed);
 		}
