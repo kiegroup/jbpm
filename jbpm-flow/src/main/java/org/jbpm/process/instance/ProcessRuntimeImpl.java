@@ -66,7 +66,7 @@ import org.kie.internal.process.CorrelationKey;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
 import org.kie.internal.runtime.manager.context.CaseContext;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
-import org.kie.internal.utils.CompositeClassLoader;
+import org.kie.api.utils.CompositeClassLoader;
 
 import java.io.IOException;
 import java.util.Collection;

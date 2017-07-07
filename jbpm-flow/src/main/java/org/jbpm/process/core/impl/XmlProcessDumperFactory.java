@@ -15,7 +15,7 @@
 
 package org.jbpm.process.core.impl;
 
-import org.kie.internal.utils.ServiceRegistryImpl;
+import org.kie.api.utils.ServiceRegistryImpl;
 
 public class XmlProcessDumperFactory {
 
