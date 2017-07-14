@@ -148,10 +148,7 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
     }
 
     protected void registerDisposeCallback(RuntimeEngine runtime, TransactionSynchronization sync) {
-    	if (hasEnvironmentEntry("IS_JTA_TRANSACTION", false)) {
-    		return;
-    	}
-        // register it if there is an active transaction as we assume then to be running in a managed environment e.g CMT
+        // register it if there is an active transaction as we assume then to be running in a managed environment e.g CMT       
         TransactionManager tm = getTransactionManager(runtime.getKieSession().getEnvironment());
         if (tm.getStatus() != TransactionManager.STATUS_NO_TRANSACTION
                 && tm.getStatus() != TransactionManager.STATUS_ROLLEDBACK
@@ -165,8 +162,8 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
         if (((RuntimeEngineImpl)runtime).isDisposed()) {
             return false;
         }
-        // if this method was called as part of afterCompletion or is no JTA at all, allow to dispose
-        if (((RuntimeEngineImpl)runtime).isAfterCompletion() || hasEnvironmentEntry("IS_JTA_TRANSACTION", false)) {
+        // if this method was called as part of afterCompletion allow to dispose
+        if (((RuntimeEngineImpl)runtime).isAfterCompletion()) {
             return true;
         }
         try {
@@ -276,7 +273,7 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
     }
 
     protected boolean canDestroy(RuntimeEngine runtime) {
-    	if (hasEnvironmentEntry("IS_JTA_TRANSACTION", false) || ((RuntimeEngineImpl) runtime).isAfterCompletion()) {
+    	if (((RuntimeEngineImpl) runtime).isAfterCompletion()) {
     		return false;
     	}
         TransactionManager tm = getTransactionManager(runtime.getKieSession().getEnvironment());
