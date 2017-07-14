@@ -254,7 +254,7 @@ public class TimerManager {
             // check if the timer instance is not already registered to avoid duplicated timers
             if (!tm.getTimerMap().containsKey(timerInstance.getId())) {
                 ProcessJobContext pctx = new ProcessJobContext(timerInstance, trigger, processInstanceId,
-                        inCtx.wm.getKnowledgeRuntime());
+                        inCtx.wm.getKnowledgeRuntime(), false);
                 Date date = trigger.hasNextFireTime();
 
                 if (date != null) {
@@ -366,6 +366,8 @@ public class TimerManager {
 
         private JobHandle jobHandle;
         private Long sessionId;
+        
+        private boolean newTimer;
 
         public ProcessJobContext(final TimerInstance timer, final Trigger trigger, final Long processInstanceId,
                 final InternalKnowledgeRuntime kruntime) {
@@ -374,6 +376,17 @@ public class TimerManager {
             this.processInstanceId = processInstanceId;
             this.kruntime = kruntime;
             this.sessionId = timer.getSessionId();
+            this.newTimer = true;
+        }
+        
+        public ProcessJobContext(final TimerInstance timer, final Trigger trigger, final Long processInstanceId,
+                final InternalKnowledgeRuntime kruntime, boolean newTimer) {
+            this.timer = timer;
+            this.trigger = trigger;
+            this.processInstanceId = processInstanceId;
+            this.kruntime = kruntime;
+            this.sessionId = timer.getSessionId();
+            this.newTimer = newTimer;
         }
 
         public Long getProcessInstanceId() {
@@ -411,6 +424,10 @@ public class TimerManager {
         @Override
         public InternalWorkingMemory getWorkingMemory() {
             return kruntime instanceof InternalWorkingMemory ? (InternalWorkingMemory)kruntime : null;
+        }
+        
+        public boolean isNewTimer() {
+            return newTimer;
         }
     }
 
