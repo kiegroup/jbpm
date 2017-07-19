@@ -16,7 +16,6 @@
 
 package org.jbpm.services.task.identity;
 
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -35,7 +34,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * LDAP integration for Task Service to collect user and role/group information.
- * 
+ *
  * Following is a list of all supported properties:
  * <ul>
  *  <li>ldap.bind.user (optional if LDAP server accepts anonymous access)</li>
@@ -50,6 +49,7 @@ import org.slf4j.LoggerFactory;
  *  <li>ldap.roles.attr.id (optional, if not given 'cn' will be used)</li>
  *  <li>ldap.user.id.dn (optional, is user id a DN, instructs the callback to query for user DN before searching for roles, default false)</li>
  *  <li>ldap.search.scope (optional, if not given 'OBJECT_SCOPE' will be used) possible values are: OBJECT_SCOPE, ONELEVEL_SCOPE, SUBTREE_SCOPE</li>
+ * <li>ldap.name.escape (optional, instructs to escape - illegal character in user/group name before the query - currently escapes only comma) by default is set to true</li>
  *  <li>java.naming.factory.initial</li>
  *  <li>java.naming.security.authentication</li>
  *  <li>java.naming.security.protocol</li>
@@ -58,11 +58,11 @@ import org.slf4j.LoggerFactory;
  * </ul>
  */
 public class LDAPUserGroupCallbackImpl extends AbstractUserGroupInfo implements UserGroupCallback {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(LDAPUserGroupCallbackImpl.class);
-    
+
     protected static final String DEFAULT_PROPERTIES_NAME = "classpath:/jbpm.usergroup.callback.properties";
-    
+
     public static final String BIND_USER = "ldap.bind.user";
     public static final String BIND_PWD = "ldap.bind.pwd";
     public static final String USER_CTX = "ldap.user.ctx";
@@ -75,63 +75,63 @@ public class LDAPUserGroupCallbackImpl extends AbstractUserGroupInfo implements 
     public static final String ROLE_ATTR_ID = "ldap.roles.attr.id";
     public static final String IS_USER_ID_DN = "ldap.user.id.dn";
     public static final String SEARCH_SCOPE = "ldap.search.scope";
-    
+    public static final String LDAP_NAME_ESCAPE = "ldap.name.escape";
+
     protected static final String[] requiredProperties = {USER_CTX, ROLE_CTX, USER_FILTER, ROLE_FILTER, USER_ROLES_FILTER};
 
-    
     private Properties config;
-    
+
     //no no-arg constructor to prevent cdi from auto deploy
     public LDAPUserGroupCallbackImpl(boolean activate) {
         String propertiesLocation = System.getProperty("jbpm.usergroup.callback.properties");
-        
-        config = readProperties(propertiesLocation, DEFAULT_PROPERTIES_NAME);       
+
+        config = readProperties(propertiesLocation, DEFAULT_PROPERTIES_NAME);
         validate();
     }
-    
+
     public LDAPUserGroupCallbackImpl(Properties config) {
         this.config = config;
         validate();
     }
 
     public boolean existsUser(String userId) {
-        
+        userId = escapeIllegalChars(userId);
         InitialLdapContext ctx = null;
         boolean exists = false;
         try {
             ctx = buildInitialLdapContext();
-            
+
             String userContext = this.config.getProperty(USER_CTX);
             String userFilter = this.config.getProperty(USER_FILTER);
             String userAttrId = this.config.getProperty(USER_ATTR_ID, "uid");
-            
+
             userFilter = userFilter.replaceAll("\\{0\\}", userId);
-            
-            logger.debug("Seaching for user existence with filter {} on context {}", userFilter, userContext);            
-            
+
+            logger.debug("Seaching for user existence with filter {} on context {}", userFilter, userContext);
+
             SearchControls constraints = new SearchControls();
-            String searchScope  = this.config.getProperty(SEARCH_SCOPE);
+            String searchScope = this.config.getProperty(SEARCH_SCOPE);
             if (searchScope != null) {
-            	constraints.setSearchScope(parseSearchScope(searchScope));
+                constraints.setSearchScope(parseSearchScope(searchScope));
             }
-            
+
             NamingEnumeration<SearchResult> result = ctx.search(userContext, userFilter, constraints);
             if (result.hasMore()) {
-                
+
                 SearchResult sr = result.next();
                 Attribute ldapUserId = sr.getAttributes().get(userAttrId);
-                
+
                 if (ldapUserId.contains(userId)) {
                     exists = true;
                 }
                 logger.debug("Entry in LDAP found and result of matching with given user id is {}", exists);
-                
+
             }
             result.close();
-        
+
         } catch (Exception e) {
             e.printStackTrace();
-        }finally {
+        } finally {
             if (ctx != null) {
                 try {
                     ctx.close();
@@ -139,46 +139,46 @@ public class LDAPUserGroupCallbackImpl extends AbstractUserGroupInfo implements 
                     e.printStackTrace();
                 }
             }
-            
+
         }
-        
+
         return exists;
     }
 
     public boolean existsGroup(String groupId) {
-        
+        groupId = escapeIllegalChars(groupId);
         InitialLdapContext ctx = null;
         boolean exists = false;
         try {
             ctx = buildInitialLdapContext();
-            
+
             String roleContext = this.config.getProperty(ROLE_CTX);
             String roleFilter = this.config.getProperty(ROLE_FILTER);
             String roleAttrId = this.config.getProperty(ROLE_ATTR_ID, "cn");
-            
+
             roleFilter = roleFilter.replaceAll("\\{0\\}", groupId);
-            
+
             SearchControls constraints = new SearchControls();
-            String searchScope  = this.config.getProperty(SEARCH_SCOPE);
+            String searchScope = this.config.getProperty(SEARCH_SCOPE);
             if (searchScope != null) {
-            	constraints.setSearchScope(parseSearchScope(searchScope));
+                constraints.setSearchScope(parseSearchScope(searchScope));
             }
-            
+
             NamingEnumeration<SearchResult> result = ctx.search(roleContext, roleFilter, constraints);
             if (result.hasMore()) {
                 SearchResult sr = result.next();
                 Attribute ldapUserId = sr.getAttributes().get(roleAttrId);
-                
+
                 if (ldapUserId.contains(groupId)) {
                     exists = true;
                 }
-                
+
             }
             result.close();
-        
+
         } catch (Exception e) {
             e.printStackTrace();
-        }finally {
+        } finally {
             if (ctx != null) {
                 try {
                     ctx.close();
@@ -186,77 +186,73 @@ public class LDAPUserGroupCallbackImpl extends AbstractUserGroupInfo implements 
                     e.printStackTrace();
                 }
             }
-            
+
         }
-        
+
         return exists;
     }
 
-    public List<String> getGroupsForUser(String userId, List<String> groupIds,
-            List<String> allExistingGroupIds) {
-       
+    public List<String> getGroupsForUser(String userId, List<String> groupIds, List<String> allExistingGroupIds) {
+
         InitialLdapContext ctx = null;
         List<String> userGroups = new ArrayList<String>();
         try {
             ctx = buildInitialLdapContext();
-            
-            String userDN = null;
+
+            String userDN = userId;
             // if user id is not DN look it up first in ldap
             if (!Boolean.parseBoolean(this.config.getProperty(IS_USER_ID_DN, "false"))) {
                 logger.debug("User id is not DN, looking up user first...");
-                
                 String userContext = this.config.getProperty(USER_CTX);
                 String userFilter = this.config.getProperty(USER_FILTER);
-                
-                userFilter = userFilter.replaceAll("\\{0\\}", userId);
+
                 SearchControls constraints = new SearchControls();
-                String searchScope  = this.config.getProperty(SEARCH_SCOPE);
+                String searchScope = this.config.getProperty(SEARCH_SCOPE);
                 if (searchScope != null) {
-                	constraints.setSearchScope(parseSearchScope(searchScope));
+                    constraints.setSearchScope(parseSearchScope(searchScope));
                 }
 
-                logger.debug("Searching for user DN with filter {} on context {}", userFilter, userContext);                
-                
-                NamingEnumeration<SearchResult> result = ctx.search(userContext, userFilter, constraints);
+                logger.debug("Searching for user DN with filter {} on context {}", userFilter, userContext);
+
+                NamingEnumeration<SearchResult> result = ctx.search(userContext, userFilter, new Object[]{userId}, constraints);
                 if (result.hasMore()) {
                     SearchResult searchResult = result.nextElement();
                     userDN = searchResult.getNameInNamespace();
                     logger.debug("User DN found, DN is {}", userDN);
-                    
+
                 }
                 result.close();
             }
-            
+
             String roleContext = this.config.getProperty(USER_ROLES_CTX, this.config.getProperty(ROLE_CTX));
             String roleFilter = this.config.getProperty(USER_ROLES_FILTER);
             String roleAttrId = this.config.getProperty(ROLE_ATTR_ID, "cn");
-            
-            roleFilter = roleFilter.replaceAll("\\{0\\}", (userDN != null ? userDN : userId));
+
             SearchControls constraints = new SearchControls();
-            String searchScope  = this.config.getProperty(SEARCH_SCOPE);
+            String searchScope = this.config.getProperty(SEARCH_SCOPE);
             if (searchScope != null) {
-            	constraints.setSearchScope(parseSearchScope(searchScope));
+                constraints.setSearchScope(parseSearchScope(searchScope));
             }
 
-			logger.debug("Searching for groups for user with filter {} on context {}", roleFilter, roleContext);
-            
-            NamingEnumeration<SearchResult> result = ctx.search(roleContext, roleFilter, constraints);
+            logger.debug("Searching for groups for user with filter {} on context {}", roleFilter, roleContext);
+
+            NamingEnumeration<SearchResult> result = ctx.search(roleContext, roleFilter, new Object[]{userDN}, constraints);
             if (result.hasMore()) {
                 SearchResult searchResult = null;
                 String name = null;
                 while (result.hasMore()) {
                     searchResult = result.nextElement();
-                    name = (String) searchResult.getAttributes().get(roleAttrId).get();
+                    name = unescapeIllegalChars((String) searchResult.getAttributes().get(roleAttrId).get());
                     logger.debug("Found group {}", name);
-                    
+
                     userGroups.add(name);
                 }
             }
             result.close();
-        
+
         } catch (Exception e) {
             e.printStackTrace();
-        }finally {
+        } finally {
             if (ctx != null) {
                 try {
                     ctx.close();
@@ -264,11 +260,11 @@ public class LDAPUserGroupCallbackImpl extends AbstractUserGroupInfo implements 
                     e.printStackTrace();
                 }
             }
-            
+
         }
         return userGroups;
     }
-    
+
     protected void validate() {
         if (this.config == null) {
             throw new IllegalArgumentException("No configuration found for LDAPUserGroupCallbackImpl, aborting...");
@@ -282,20 +278,20 @@ public class LDAPUserGroupCallbackImpl extends AbstractUserGroupInfo implements 
                 missingRequiredProps.append(requiredProp);
             }
         }
-        
+
         if (missingRequiredProps.length() > 0) {
             logger.debug("Validation failed due to missing required properties: {}", missingRequiredProps.toString());
-            
+
             throw new IllegalArgumentException("Missing required properties to configure LDAPUserGroupCallbackImpl: " + missingRequiredProps.toString());
         }
     }
-    
+
     protected InitialLdapContext buildInitialLdapContext() throws NamingException {
 
         // Set defaults for key values if they are missing
         String factoryName = this.config.getProperty(Context.INITIAL_CONTEXT_FACTORY);
 
-        if (factoryName == null)  {
+        if (factoryName == null) {
 
             factoryName = "com.sun.jndi.ldap.LdapCtxFactory";
             this.config.setProperty(Context.INITIAL_CONTEXT_FACTORY, factoryName);
@@ -313,45 +309,63 @@ public class LDAPUserGroupCallbackImpl extends AbstractUserGroupInfo implements 
         String providerURL = (String) this.config.getProperty(Context.PROVIDER_URL);
         if (providerURL == null) {
 
-            providerURL = "ldap://localhost:"+ ((protocol != null && protocol.equals("ssl")) ? "636" : "389");
+            providerURL = "ldap://localhost:" + ((protocol != null && protocol.equals("ssl")) ? "636" : "389");
             this.config.setProperty(Context.PROVIDER_URL, providerURL);
         }
-        
-        String binduser = this.config.getProperty(BIND_USER); 
+
+        String binduser = this.config.getProperty(BIND_USER);
 
         if (binduser != null) {
 
             this.config.setProperty(Context.SECURITY_PRINCIPAL, binduser);
         }
 
-        String bindpwd = this.config.getProperty(BIND_PWD); 
+        String bindpwd = this.config.getProperty(BIND_PWD);
 
         if (binduser != null) {
 
             this.config.setProperty(Context.SECURITY_CREDENTIALS, bindpwd);
         }
-        
+
         if (logger.isDebugEnabled()) {
             logger.debug("Using following InitialLdapContext properties:");
             logger.debug("Factory {}", this.config.getProperty(Context.INITIAL_CONTEXT_FACTORY));
             logger.debug("Authentication {}", this.config.getProperty(Context.SECURITY_AUTHENTICATION));
-            logger.debug("Protocol {}",  this.config.getProperty(Context.SECURITY_PROTOCOL));
-            logger.debug("Provider URL {}",  this.config.getProperty(Context.PROVIDER_URL));
+            logger.debug("Protocol {}", this.config.getProperty(Context.SECURITY_PROTOCOL));
+            logger.debug("Provider URL {}", this.config.getProperty(Context.PROVIDER_URL));
         }
-        
+
         return new InitialLdapContext(this.config, null);
     }
-    
-	protected int parseSearchScope(String searchScope) {
-		logger.debug("Search scope: {}", searchScope);
-		if ("OBJECT_SCOPE".equals(searchScope))
-			return 0;
-		else if ("ONELEVEL_SCOPE".equals(searchScope))
-			return 1;
-		else if ("SUBTREE_SCOPE".equals(searchScope))
-			return 2;
 
-		// Default set to ONELEVEL_SCOPE
-		return 1;
-	}
+    protected int parseSearchScope(String searchScope) {
+        logger.debug("Search scope: {}", searchScope);
+        if ("OBJECT_SCOPE".equals(searchScope))
+            return 0;
+        else if ("ONELEVEL_SCOPE".equals(searchScope))
+            return 1;
+        else if ("SUBTREE_SCOPE".equals(searchScope))
+            return 2;
+
+        // Default set to ONELEVEL_SCOPE
+        return 1;
+    }
+
+    private boolean escapeOn() {
+        return Boolean.parseBoolean(this.config.getProperty(LDAP_NAME_ESCAPE, "true"));
+    }
+
+    protected String escapeIllegalChars(String entityId) {
+        if (!escapeOn()) {
+            return entityId;
+        }
+        return entityId.replace(",", "\\,");
+    }
+
+    protected String unescapeIllegalChars(String entityId) {
+        if (!escapeOn()) {
+            return entityId;
+        }
+        return entityId.replace("\\,", ",");
+    }
 }
