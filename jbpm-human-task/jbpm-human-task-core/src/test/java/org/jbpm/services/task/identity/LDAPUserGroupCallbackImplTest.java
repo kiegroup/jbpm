@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -280,6 +280,35 @@ public class LDAPUserGroupCallbackImplTest extends LDAPBaseTest {
 
         assertUsers(ldapUserGroupCallback, true, true, false, false);
         assertGroups(ldapUserGroupCallback, true, true, false, false);
+    }
+
+    @Test
+    public void testUserExistsWithCommaInDN() {
+        UserGroupCallback ldapUserGroupCallback = createLdapUserGroupCallback(Configuration.CUSTOM);
+        Assertions.assertThat(ldapUserGroupCallback).isNotNull();
+
+        boolean userExists = ldapUserGroupCallback.existsUser("john,jr");
+        Assertions.assertThat(userExists).isTrue();
+    }
+
+    @Test
+    public void testGroupExistsWithCommaInDN() {
+        UserGroupCallback ldapUserGroupCallback = createLdapUserGroupCallback(Configuration.CUSTOM);
+        Assertions.assertThat(ldapUserGroupCallback).isNotNull();
+
+        boolean groupExists = ldapUserGroupCallback.existsGroup("manager,eng");
+        Assertions.assertThat(groupExists).isTrue();
+    }
+
+    @Test
+    public void testGroupsForUserWithCommaInDN() {
+        UserGroupCallback ldapUserGroupCallback = createLdapUserGroupCallback(Configuration.CUSTOM);
+        Assertions.assertThat(ldapUserGroupCallback).isNotNull();
+
+        List<String> userGroups = ldapUserGroupCallback.getGroupsForUser("john,jr", null, null);
+        Assertions.assertThat(userGroups).hasSize(1);
+        Assertions.assertThat(userGroups.get(0)).isEqualTo("manager,eng");
+
     }
 
     private Properties createUserGroupCallbackProperties() {
