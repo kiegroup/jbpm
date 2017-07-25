@@ -15,16 +15,16 @@
  */
 package org.jbpm.process.instance;
 
-import org.kie.api.KieBase;
-import org.kie.api.definition.process.Process;
-import org.kie.internal.runtime.KnowledgeRuntime;
-import org.kie.api.runtime.process.ProcessInstance;
-
 import java.lang.reflect.Constructor;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Map;
+
+import org.kie.api.KieBase;
+import org.kie.api.definition.process.Process;
+import org.kie.api.internal.runtime.KnowledgeRuntime;
+import org.kie.api.runtime.process.ProcessInstance;
 
 public final class StartProcessHelper {
     
