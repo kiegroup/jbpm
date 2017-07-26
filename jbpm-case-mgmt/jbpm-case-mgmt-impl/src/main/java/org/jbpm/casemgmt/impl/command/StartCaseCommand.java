@@ -31,9 +31,9 @@ import org.jbpm.process.instance.ProcessInstance;
 import org.jbpm.services.api.ProcessService;
 import org.kie.api.KieServices;
 import org.kie.api.command.KieCommands;
-import org.kie.api.internal.runtime.KnowledgeRuntime;
 import org.kie.api.runtime.Context;
 import org.kie.api.runtime.EnvironmentName;
+import org.kie.api.runtime.KieRuntime;
 import org.kie.api.runtime.KieSession;
 import org.kie.internal.KieInternalServices;
 import org.kie.internal.identity.IdentityProvider;
@@ -105,7 +105,7 @@ public class StartCaseCommand extends CaseCommand<Void> {
                                 name,
                                 null, entry.getValue(), 
                                 pi,
-                                (KnowledgeRuntime) ksession);
+                                (KieRuntime) ksession );
                         }
                     }
                     return null;
