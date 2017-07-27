@@ -15,11 +15,20 @@
 
 package org.jbpm.osgi.flow.compiler;
 
+import org.drools.compiler.compiler.ProcessBuilderFactory;
 import org.drools.core.osgi.BaseActivator;
+import org.kie.api.runtime.manager.RuntimeManagerFactory;
+import org.osgi.framework.BundleContext;
 
 public class Activator extends BaseActivator {
 
     public Activator() {
         super( Activator.class.getClassLoader() );
+    }
+
+    @Override
+    public void start(BundleContext bc ) throws Exception {
+        RuntimeManagerFactory.Factory.reset();
+        ProcessBuilderFactory.reInitializeProvider();
     }
 }
