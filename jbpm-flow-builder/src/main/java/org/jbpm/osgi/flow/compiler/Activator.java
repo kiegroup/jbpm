@@ -15,7 +15,6 @@
 
 package org.jbpm.osgi.flow.compiler;
 
-import org.drools.compiler.compiler.ProcessBuilderFactory;
 import org.drools.core.osgi.BaseActivator;
 import org.kie.api.runtime.manager.RuntimeManagerFactory;
 import org.osgi.framework.BundleContext;
@@ -27,8 +26,8 @@ public class Activator extends BaseActivator {
     }
 
     @Override
-    public void start(BundleContext bc ) throws Exception {
+    public void start(BundleContext context) throws Exception {
         RuntimeManagerFactory.Factory.reset();
-        ProcessBuilderFactory.reInitializeProvider();
+        super.start(context);
     }
 }
