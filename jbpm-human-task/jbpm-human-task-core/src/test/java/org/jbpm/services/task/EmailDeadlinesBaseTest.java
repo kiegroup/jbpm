@@ -44,7 +44,7 @@ import org.kie.internal.task.api.model.InternalPeopleAssignments;
 import org.kie.internal.task.api.model.InternalTask;
 import org.kie.internal.task.api.model.InternalTaskData;
 import org.kie.internal.utils.ChainedProperties;
-import org.kie.internal.utils.ClassLoaderUtil;
+import org.kie.api.utils.ClassLoaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.subethamail.wiser.Wiser;

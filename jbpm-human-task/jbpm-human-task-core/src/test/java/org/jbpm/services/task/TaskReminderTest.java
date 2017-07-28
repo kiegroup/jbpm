@@ -23,7 +23,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.kie.internal.task.api.InternalTaskService;
 import org.kie.internal.utils.ChainedProperties;
-import org.kie.internal.utils.ClassLoaderUtil;
+import org.kie.api.utils.ClassLoaderUtil;
 import org.subethamail.wiser.Wiser;
 
 public class TaskReminderTest extends TaskReminderBaseTest {
