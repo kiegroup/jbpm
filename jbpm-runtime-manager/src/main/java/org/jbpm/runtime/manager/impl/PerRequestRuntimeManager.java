@@ -18,6 +18,9 @@ package org.jbpm.runtime.manager.impl;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.drools.core.time.TimerService;
+import org.jbpm.process.core.timer.TimerServiceRegistry;
+import org.jbpm.process.core.timer.impl.GlobalTimerService;
 import org.jbpm.runtime.manager.impl.factory.LocalTaskServiceFactory;
 import org.jbpm.runtime.manager.impl.tx.DestroySessionTransactionSynchronization;
 import org.jbpm.runtime.manager.impl.tx.DisposeSessionTransactionSynchronization;
@@ -132,13 +135,22 @@ public class PerRequestRuntimeManager extends AbstractRuntimeManager {
 
     	if (canDispose(runtime)) {
     	    local.get().remove(identifier);
-            factory.onDispose(((RuntimeEngineImpl)runtime).getKsessionId());
+            Long ksessionId = ((RuntimeEngineImpl)runtime).getKsessionId();
+            factory.onDispose(ksessionId);
             try {
                 if (canDestroy(runtime)) {
                     runtime.getKieSession().destroy();
                 } else {
                     if (runtime instanceof Disposable) {
                         ((Disposable) runtime).dispose();
+                    }
+                }
+                if (ksessionId != null) {
+                    TimerService timerService = TimerServiceRegistry.getInstance().get(getIdentifier() + TimerServiceRegistry.TIMER_SERVICE_SUFFIX);
+                    if (timerService != null) {
+                        if (timerService instanceof GlobalTimerService) {
+                            ((GlobalTimerService) timerService).clearTimerJobInstances(ksessionId);
+                        }
                     }
                 }
             } catch (Exception e) {

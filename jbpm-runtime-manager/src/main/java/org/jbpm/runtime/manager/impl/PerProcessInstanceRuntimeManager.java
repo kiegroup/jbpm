@@ -31,6 +31,9 @@ import org.drools.core.common.InternalKnowledgeRuntime;
 import org.drools.persistence.OrderedTransactionSynchronization;
 import org.drools.persistence.TransactionManager;
 import org.drools.persistence.TransactionManagerHelper;
+import org.drools.core.time.TimerService;
+import org.jbpm.process.core.timer.TimerServiceRegistry;
+import org.jbpm.process.core.timer.impl.GlobalTimerService;
 import org.jbpm.runtime.manager.impl.factory.LocalTaskServiceFactory;
 import org.jbpm.runtime.manager.impl.mapper.EnvironmentAwareProcessInstanceContext;
 import org.jbpm.runtime.manager.impl.mapper.InMemoryMapper;
@@ -225,15 +228,24 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
     	try {
         	if (canDispose(runtime)) {
             	removeLocalRuntime(runtime);
+            	Long ksessionId = ((RuntimeEngineImpl)runtime).getKsessionId();
             	if (runtime instanceof Disposable) {
                 	// special handling for in memory to not allow to dispose if there is any context in the mapper
-                	if (mapper instanceof InMemoryMapper && ((InMemoryMapper)mapper).hasContext(runtime.getKieSession().getIdentifier())){
+                	if (mapper instanceof InMemoryMapper && ((InMemoryMapper)mapper).hasContext(ksessionId)){
                 		return;
                 	}
                     ((Disposable) runtime).dispose();
                 }
 
             	releaseAndCleanLock(runtime);
+            	if (ksessionId != null) {
+                	TimerService timerService = TimerServiceRegistry.getInstance().get(getIdentifier() + TimerServiceRegistry.TIMER_SERVICE_SUFFIX);
+                    if (timerService != null) {
+                        if (timerService instanceof GlobalTimerService) {
+                            ((GlobalTimerService) timerService).clearTimerJobInstances(ksessionId);
+                        }
+                    }
+            	}
         	}
     	} catch (Exception e) {
     	    releaseAndCleanLock(runtime);
