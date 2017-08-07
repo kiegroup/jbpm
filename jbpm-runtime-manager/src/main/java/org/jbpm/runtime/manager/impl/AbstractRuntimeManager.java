@@ -148,7 +148,7 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
     }
 
     protected void registerDisposeCallback(RuntimeEngine runtime, TransactionSynchronization sync) {
-        // register it if there is an active transaction as we assume then to be running in a managed environment e.g CMT       
+        // register it if there is an active transaction as we assume then to be running in a managed environment e.g CMT
         TransactionManager tm = getTransactionManager(runtime.getKieSession().getEnvironment());
         if (tm.getStatus() != TransactionManager.STATUS_NO_TRANSACTION
                 && tm.getStatus() != TransactionManager.STATUS_ROLLEDBACK
@@ -200,15 +200,19 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
     	cacheManager.dispose();
         environment.close();
         registry.remove(identifier);
-        TimerService timerService = TimerServiceRegistry.getInstance().remove(getIdentifier() + TimerServiceRegistry.TIMER_SERVICE_SUFFIX);
+        TimerService timerService = TimerServiceRegistry.getInstance().get(getIdentifier() + TimerServiceRegistry.TIMER_SERVICE_SUFFIX);
         if (timerService != null) {
-            if (removeJobs && timerService instanceof GlobalTimerService) {
-                ((GlobalTimerService) timerService).destroy();
-            }
-            timerService.shutdown();
-            GlobalSchedulerService schedulerService = ((SchedulerProvider) environment).getSchedulerService();
-            if (schedulerService != null) {
-                schedulerService.shutdown();
+            try {
+                if (removeJobs && timerService instanceof GlobalTimerService) {
+                    ((GlobalTimerService) timerService).destroy();
+                }
+                timerService.shutdown();
+                GlobalSchedulerService schedulerService = ((SchedulerProvider) environment).getSchedulerService();
+                if (schedulerService != null) {
+                    schedulerService.shutdown();
+                }
+            } finally {
+                TimerServiceRegistry.getInstance().remove(getIdentifier() + TimerServiceRegistry.TIMER_SERVICE_SUFFIX);
             }
         }
         this.closed = true;
