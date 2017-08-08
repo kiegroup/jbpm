@@ -701,7 +701,7 @@ public class PerProcessInstanceRuntimeManagerTest extends AbstractBaseTest {
         assertTrue(customTaskServiceUsed.get());
     }
     
-    @Test(timeout=10000)
+    @Test(timeout=30000)
     public void testRestoreTimersAfterManagerClose() throws Exception {
         final CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("timer", 2);
     	final List<Long> timerExpirations = new ArrayList<Long>();
@@ -751,10 +751,13 @@ public class PerProcessInstanceRuntimeManagerTest extends AbstractBaseTest {
         
         manager = RuntimeManagerFactory.Factory.get().newPerProcessInstanceRuntimeManager(environment);        
         assertNotNull(manager);
+        
         countDownListener.reset(2);
         countDownListener.waitTillCompleted();
         
         runtime = manager.getRuntimeEngine(ProcessInstanceIdContext.get(pi1.getId()));
+        
+        runtime.getKieSession().abortProcessInstance(pi1.getId());
 
         manager.disposeRuntimeEngine(runtime);
         manager.close();
