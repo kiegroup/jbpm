@@ -29,6 +29,8 @@ import org.kie.api.task.model.Task;
 import org.kie.internal.command.Context;
 import org.kie.internal.task.api.TaskInstanceService;
 import org.kie.internal.task.api.model.InternalTaskData;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -42,11 +44,11 @@ import org.kie.internal.task.api.model.InternalTaskData;
 public class CompleteTaskCommand extends UserGroupCallbackTaskCommand<Void> {
 
 	private static final long serialVersionUID = 412409697422083299L;
-	
+
 	@XmlJavaTypeAdapter(JaxbMapAdapter.class)
     @XmlElement
     protected Map<String, Object> data;
-    
+
     public CompleteTaskCommand() {
     }
 
@@ -69,16 +71,29 @@ public class CompleteTaskCommand extends UserGroupCallbackTaskCommand<Void> {
         doCallbackUserOperation(userId, context);
         groupIds = doUserGroupCallbackOperation(userId, null, context);
         context.set("local:groups", groupIds);
-        
-        Task task = context.getTaskQueryService().getTaskInstanceById(taskId);        
+
+        Task task = context.getTaskQueryService().getTaskInstanceById(taskId);
+
+        context.loadTaskVariables(task);
+
+        Map<String, Object> outputdata = task.getTaskData().getTaskOutputVariables();
+        if (outputdata != null) {
+            // if there are data given with completion, merged them into existing outputs
+            if (data != null) {
+                outputdata.putAll(data);
+            }
+            // since output data was non null make it the actual data
+            data = outputdata;
+
+        }
+
         context.getTaskRuleService().executeRules(task, userId, data, TaskRuleService.COMPLETE_TASK_SCOPE);
-        
         ((InternalTaskData)task.getTaskData()).setTaskOutputVariables(data);
-        
+
         TaskInstanceService instanceService = context.getTaskInstanceService();
         instanceService.complete(taskId, userId, data);
     	return null;
-        
+
     }
-	
+
 }
