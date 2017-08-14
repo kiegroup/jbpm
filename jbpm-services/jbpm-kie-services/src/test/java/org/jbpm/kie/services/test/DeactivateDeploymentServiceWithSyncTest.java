@@ -173,31 +173,17 @@ public class DeactivateDeploymentServiceWithSyncTest extends AbstractKieServices
         
         final AtomicBoolean deploymentActive = new AtomicBoolean(true);
         
-        CoundDownDeploymentListener countDownListener = new CoundDownDeploymentListener(1);
-        countDownListener.setDeploy(true);
-        ((ListenerSupport)deploymentService).addListener(countDownListener);
-        ((ListenerSupport)deploymentService).addListener(new DeploymentEventListener() {
-            
-            
-            @Override
-            public void onUnDeploy(DeploymentEvent event) {            
-            }
-            
+        CoundDownDeploymentListener countDownListener = new CoundDownDeploymentListener(1) {
             @Override
             public void onDeploy(DeploymentEvent event) {
+                // This used to use a specific listener for setting the active state
                 deploymentActive.set(event.getDeployedUnit().isActive());
-                
+                super.onDeploy(event);
             }
-            
-            @Override
-            public void onDeactivate(DeploymentEvent event) {               
-            }
-            
-            @Override
-            public void onActivate(DeploymentEvent event) {              
-            }
-        });
-        invoker.start();        
+        };
+        countDownListener.setDeploy(true);
+        ((ListenerSupport)deploymentService).addListener(countDownListener);
+        invoker.start();
         
         countDownListener.waitTillCompleted();
         
