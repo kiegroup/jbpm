@@ -33,6 +33,7 @@ import javax.transaction.UserTransaction;
 import org.drools.core.command.SingleSessionCommandService;
 import org.drools.core.command.impl.CommandBasedStatefulKnowledgeSession;
 import org.drools.core.time.TimerService;
+import org.drools.core.time.impl.TimerJobInstance;
 import org.jbpm.process.core.timer.GlobalSchedulerService;
 import org.jbpm.process.core.timer.TimerServiceRegistry;
 import org.jbpm.process.core.timer.impl.GlobalTimerService;
@@ -85,26 +86,26 @@ public class GlobalTimerServiceVolumeTest extends TimerBaseTest {
     private RuntimeManager manager;
 
     private EntityManagerFactory emf;
-    
+
     private int numberOfProcesses = 10;
     private CountDownProcessEventListener countDownListener;
-    
+
     @Parameters(name = "Strategy : {0}")
     public static Collection<Object[]> data() {
-        return Arrays.asList(new Object[][] {                      
+        return Arrays.asList(new Object[][] {
                  {"request"},
                  {"processinstance"},
                  {"case"}
            });
     }
-    
+
     private String strategy;
-    
+
     public GlobalTimerServiceVolumeTest(String strategy) {
         this.strategy = strategy;
     }
-    
-    @Rule 
+
+    @Rule
     public TestName testName = new TestName();
 
     @Before
@@ -120,7 +121,7 @@ public class GlobalTimerServiceVolumeTest extends TimerBaseTest {
         globalScheduler = new QuartzSchedulerService();
 
         emf = Persistence.createEntityManagerFactory("org.jbpm.test.persistence");
-        
+
         countDownListener = new CountDownProcessEventListener("timer", numberOfProcesses);
         // prepare listener to assert results
         final List<Long> timerExporations = new ArrayList<Long>();
@@ -132,9 +133,9 @@ public class GlobalTimerServiceVolumeTest extends TimerBaseTest {
                     timerExporations.add(event.getProcessInstance().getId());
                 }
             }
-            
+
         };
-        
+
         RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
                 .newDefaultBuilder()
                 .entityManagerFactory(emf)
@@ -164,10 +165,10 @@ public class GlobalTimerServiceVolumeTest extends TimerBaseTest {
         }
         emf.close();
     }
-    
+
     @Test(timeout=30000)
     public void testRuntimeManagerStrategyWithTimerService() throws Exception {
- 
+
         // prepare task service with users and groups
         RuntimeEngine engine = manager.getRuntimeEngine(EmptyContext.get());
         TaskService taskService = engine.getTaskService();
@@ -194,7 +195,7 @@ public class GlobalTimerServiceVolumeTest extends TimerBaseTest {
 
 
         manager.disposeRuntimeEngine(engine);
-        
+
         int counter = numberOfProcesses;
         // start processes until oom
         while (counter > 0) {
@@ -202,43 +203,49 @@ public class GlobalTimerServiceVolumeTest extends TimerBaseTest {
             counter--;
         }
 
+        Collection<TimerJobInstance> timers = null;
         Map<Long, List<GlobalJobHandle>> jobs = null;
         TimerService timerService = TimerServiceRegistry.getInstance().get(manager.getIdentifier() + TimerServiceRegistry.TIMER_SERVICE_SUFFIX);
         if (timerService != null) {
             if (timerService instanceof GlobalTimerService) {
                 jobs = ((GlobalTimerService) timerService).getTimerJobsPerSession();
+
+                timers = ((GlobalTimerService) timerService).getTimerJobFactoryManager().getTimerJobInstances();
             }
         }
-        
+
         assertNotNull("Jobs should not be null as number of timers have been created", jobs);
         assertEquals("There should be no jobs in the global timer service", 0, jobs.size());
-        
-        RuntimeEngine empty = manager.getRuntimeEngine(EmptyContext.get());        
+
+        assertNotNull("Timer instances should not be null as number of timers have been created", timers);
+        assertEquals("There should be no timer instances in the global timer service manager", 0, timers.size());
+
+        RuntimeEngine empty = manager.getRuntimeEngine(EmptyContext.get());
         AuditService logService = empty.getAuditService();
-        
+
         List<? extends ProcessInstanceLog> logs = logService.findActiveProcessInstances("IntermediateCatchEvent");
         assertEquals("Active process instances should be " + numberOfProcesses, numberOfProcesses, logs.size());
 
         countDownListener.waitTillCompleted();
-        
+
         List<TaskSummary> tasks = empty.getTaskService().getTasksAssignedAsPotentialOwner("john", "en-UK");
         assertEquals("Number of John's tasks should be " + numberOfProcesses, numberOfProcesses, tasks.size());
-        
+
         for (TaskSummary task : tasks) {
-            
+
             RuntimeEngine piEngine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
-            
+
             piEngine.getTaskService().start(task.getId(), "john");
             piEngine.getTaskService().complete(task.getId(), "john", null);
-            
+
             manager.disposeRuntimeEngine(piEngine);
         }
-        
+
         logs = logService.findActiveProcessInstances("IntermediateCatchEvent");
         assertEquals("Active process instances should be 0", 0, logs.size());
-        logService.dispose();   
+        logService.dispose();
         manager.disposeRuntimeEngine(empty);
-        
+
     }
 
 
