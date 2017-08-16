@@ -170,11 +170,17 @@ public class GlobalTimerService implements TimerService, InternalSchedulerServic
     }
     
     public void clearTimerJobInstances(long id) {
-        
-        List<GlobalJobHandle> jobs = timerJobsPerSession.remove(id); 
-        logger.debug("Removed {} jobs for session {}", jobs, id);
-        
-        logger.debug("Size of timer jobs per session is {}", timerJobsPerSession.size());
+        synchronized (timerJobsPerSession) {            
+            List<GlobalJobHandle> jobs = timerJobsPerSession.remove(id); 
+            logger.debug("Removed {} jobs for session {}", jobs, id);
+            
+            logger.debug("Size of timer jobs per session is {}", timerJobsPerSession.size());
+            if (jobs != null) {
+                for (GlobalJobHandle handle : jobs) {
+                    jobFactoryManager.removeTimerJobInstance(handle.getTimerJobInstance());
+                }
+            }
+        }
     }
 
     @Override
