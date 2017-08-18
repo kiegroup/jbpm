@@ -69,13 +69,18 @@ public class CorrelationPersistenceTest extends AbstractBaseTest {
         ut.begin();
         EntityManager em = emf.createEntityManager();
 
-        em.persist(factory.newCorrelationKey("test123"));
+        try {
+            em.persist(factory.newCorrelationKey("test123"));
 
-        List<String> props = new ArrayList<String>();
-        props.add("test123");
-        props.add("123test");
-        em.persist(factory.newCorrelationKey(props));
-        
+            List<String> props = new ArrayList<String>();
+            props.add("test123");
+            props.add("123test");
+
+            em.persist(factory.newCorrelationKey(props));
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            ut.rollback();
+        }
         ut.commit();
     }
     
@@ -86,8 +91,13 @@ public class CorrelationPersistenceTest extends AbstractBaseTest {
             UserTransaction ut = InitialContext.doLookup("java:comp/UserTransaction");
             ut.begin();
             EntityManager em = emf.createEntityManager();
-            em.createQuery("delete from CorrelationPropertyInfo").executeUpdate();
-            em.createQuery("delete from CorrelationKeyInfo").executeUpdate();
+            try {
+                em.createQuery("delete from CorrelationPropertyInfo").executeUpdate();
+                em.createQuery("delete from CorrelationKeyInfo").executeUpdate();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                ut.rollback();
+            }
             ut.commit();
         } catch (Exception e) {
             e.printStackTrace();
