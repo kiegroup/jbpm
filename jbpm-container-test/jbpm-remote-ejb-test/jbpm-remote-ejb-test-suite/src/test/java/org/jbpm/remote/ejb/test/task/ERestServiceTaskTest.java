@@ -94,7 +94,7 @@ public class ERestServiceTaskTest extends RemoteEjbTest {
         logger.info(result);
 
         Assertions.assertThat(status).isEqualTo(201);
-        Assertions.assertThat(result).isNullOrEmpty();
+        Assertions.assertThat(result != null ? result.trim() : result).isNullOrEmpty();
     }
 
     @Test
