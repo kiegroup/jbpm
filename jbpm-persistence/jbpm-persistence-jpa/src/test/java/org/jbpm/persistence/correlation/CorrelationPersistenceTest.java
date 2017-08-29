@@ -35,6 +35,7 @@ import javax.transaction.UserTransaction;
 
 import org.jbpm.test.util.AbstractBaseTest;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -67,9 +68,8 @@ public class CorrelationPersistenceTest extends AbstractBaseTest {
         EntityManagerFactory emf = (EntityManagerFactory) context.get(EnvironmentName.ENTITY_MANAGER_FACTORY);
         UserTransaction ut = InitialContext.doLookup("java:comp/UserTransaction");
         ut.begin();
-        EntityManager em = emf.createEntityManager();
-
         try {
+            EntityManager em = emf.createEntityManager();
             em.persist(factory.newCorrelationKey("test123"));
 
             List<String> props = new ArrayList<String>();
@@ -77,30 +77,26 @@ public class CorrelationPersistenceTest extends AbstractBaseTest {
             props.add("123test");
 
             em.persist(factory.newCorrelationKey(props));
+            ut.commit();
         } catch (Exception ex) {
-            ex.printStackTrace();
             ut.rollback();
+            Assert.fail("Exception thrown while trying to prepare correlation data.");
         }
-        ut.commit();
     }
     
     @After
-    public void after() {  
+    public void after() throws Exception {
+        EntityManagerFactory emf = (EntityManagerFactory) context.get(EnvironmentName.ENTITY_MANAGER_FACTORY);
+        UserTransaction ut = InitialContext.doLookup("java:comp/UserTransaction");
+        ut.begin();
         try {
-            EntityManagerFactory emf = (EntityManagerFactory) context.get(EnvironmentName.ENTITY_MANAGER_FACTORY);
-            UserTransaction ut = InitialContext.doLookup("java:comp/UserTransaction");
-            ut.begin();
             EntityManager em = emf.createEntityManager();
-            try {
-                em.createQuery("delete from CorrelationPropertyInfo").executeUpdate();
-                em.createQuery("delete from CorrelationKeyInfo").executeUpdate();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                ut.rollback();
-            }
+            em.createQuery("delete from CorrelationPropertyInfo").executeUpdate();
+            em.createQuery("delete from CorrelationKeyInfo").executeUpdate();
             ut.commit();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ex) {
+            ut.rollback();
+            Assert.fail("Exception thrown while trying to cleanup correlation data.");
         }
         cleanUp(context);
     }
