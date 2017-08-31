@@ -118,7 +118,7 @@ public class PoolingDataSource implements DataSource {
         if (driverProperties.getProperty("user") != null) {
             return getConnection(driverProperties.getProperty("user"), driverProperties.getProperty("password"));
         } else {
-            Properties properties = new Properties();
+            Properties properties = getDriverProperties();
             properties.put(TransactionalDriver.XADataSource, this.xads);
             return transactionalDriver.connect("jdbc:arjuna:" + uniqueName, properties);
         }
@@ -126,7 +126,7 @@ public class PoolingDataSource implements DataSource {
 
     @Override
     public Connection getConnection(String username, String password) throws SQLException {
-        Properties properties = new Properties();
+        Properties properties = getDriverProperties();
         properties.put(TransactionalDriver.XADataSource, this.xads);
         properties.put(TransactionalDriver.userName, username);
         if (password != null) {
