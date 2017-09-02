@@ -18,6 +18,7 @@
       <directory>src/main/repository/${classPrefix}</directory>
       <outputDirectory>${classPrefix}</outputDirectory>
       <includes>
+        <include>*.wid</include>
         <include>*.png</include>
       </includes>
     </fileSet>
@@ -26,13 +27,6 @@
       <outputDirectory>${classPrefix}</outputDirectory>
       <includes>
         <include>*.jar</include>
-      </includes>
-    </fileSet>
-    <fileSet>
-      <directory>target/generated-sources/annotations</directory>
-      <outputDirectory>${classPrefix}</outputDirectory>
-      <includes>
-        <include>*.wid</include>
       </includes>
     </fileSet>
   </fileSets>

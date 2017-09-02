@@ -88,11 +88,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.antlr</groupId>
-      <artifactId>ST4</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
       <scope>test</scope>
@@ -109,14 +104,4 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>com.google.testing.compile</groupId>
-        <artifactId>compile-testing</artifactId>
-        <version>0.11</version>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
 </project>
