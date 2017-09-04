@@ -150,7 +150,7 @@
     </query>
     <!-- hint name="org.hibernate.timeout" value="200"/ -->
   </named-query>
-  
+
   <named-query name="getProcessInstanceByCorrelationKey">
     <query>
      select
@@ -175,7 +175,7 @@
     </query>
     <!-- hint name="org.hibernate.timeout" value="200"/ -->
   </named-query>
-  
+
   <named-query name="getProcessInstancesByCorrelationKey">
     <query>
      select
@@ -297,7 +297,7 @@
     </query>
     <!-- hint name="org.hibernate.timeout" value="200"/ -->
   </named-query>
-  
+
   <named-query name="getProcessInstancesByVariableName">
 
     <query>
@@ -324,7 +324,7 @@
     </query>
     <!-- hint name="org.hibernate.timeout" value="200"/ -->
   </named-query>
-  
+
   <named-query name="getProcessInstancesByVariableNameAndValue">
 
     <query>
@@ -344,15 +344,15 @@
       )
       from
         ProcessInstanceLog log
-      where log.status in (:states) and log.processInstanceId in 
+      where log.status in (:states) and log.processInstanceId in
       (select vlog.processInstanceId from VariableInstanceLog vlog where vlog.variableId=:variable and vlog.value like :variableValue
-      and vlog.id in (select max(vlog2.id) from VariableInstanceLog vlog2 group by vlog2.processInstanceId))
+      and vlog.id in (select max(vlog2.id) from VariableInstanceLog vlog2 where vlog2.variableId = vlog.variableId group by vlog2.processInstanceId))
       ORDER BY
         log.processId, log.start
     </query>
     <!-- hint name="org.hibernate.timeout" value="200"/ -->
-  </named-query>  
-  
+  </named-query>
+
   <!-- node instance queries -->
 
   <named-query name="getProcessInstanceFullHistory">
@@ -374,12 +374,12 @@
         NodeInstanceLog log
       where
         log.processInstanceId=:processId
-      ORDER BY 
+      ORDER BY
         log.date DESC, log.id DESC
     </query>
     <!-- hint name="org.hibernate.timeout" value="200"/ -->
   </named-query>
-  
+
     <named-query name="getProcessInstanceFullHistoryByType">
     <query>
       select
@@ -398,9 +398,9 @@
       from
         NodeInstanceLog log
       where
-        log.processInstanceId=:processId 
+        log.processInstanceId=:processId
         AND log.type=:type
-      ORDER BY 
+      ORDER BY
         log.date DESC, log.id DESC
     </query>
     <!-- hint name="org.hibernate.timeout" value="200"/ -->
@@ -425,11 +425,11 @@
       from
         NodeInstanceLog log
       where
-        log.nodeInstanceId in ( select nil.nodeInstanceId from NodeInstanceLog nil where nil.processInstanceId=:processId  
+        log.nodeInstanceId in ( select nil.nodeInstanceId from NodeInstanceLog nil where nil.processInstanceId=:processId
                     GROUP BY nil.nodeInstanceId
                     HAVING sum(nil.type) = 0)
-        and log.type = 0  
-        and log.processInstanceId=:processId          
+        and log.type = 0
+        and log.processInstanceId=:processId
       order by
         log.id ASC
     </query>
@@ -454,17 +454,17 @@
       from
         NodeInstanceLog log
       where
-        log.nodeInstanceId in (select nodeInstanceId from NodeInstanceLog nid where nid.processInstanceId=:processId AND nid.type = 1 
+        log.nodeInstanceId in (select nodeInstanceId from NodeInstanceLog nid where nid.processInstanceId=:processId AND nid.type = 1
         						GROUP BY nid.nodeInstanceId
-                    			HAVING sum(nid.type) &gt;= 1) 
-       	and log.type = 1 
-       	and log.processInstanceId=:processId  
-      ORDER BY 
+                    			HAVING sum(nid.type) &gt;= 1)
+       	and log.type = 1
+       	and log.processInstanceId=:processId
+      ORDER BY
         log.date ASC
     </query>
     <!-- hint name="org.hibernate.timeout" value="200"/ -->
   </named-query>
-  
+
     <named-query name="getNodeInstanceForWorkItem">
     <query>
       select
@@ -484,8 +484,8 @@
         NodeInstanceLog log
       where
         log.workItemId=:workItemId
-       	and log.type = 0   
-      ORDER BY 
+       	and log.type = 0
+      ORDER BY
         log.nodeInstanceId, log.id ASC
     </query>
     <!-- hint name="org.hibernate.timeout" value="200"/ -->
@@ -508,8 +508,8 @@
       from
         VariableInstanceLog log
       where
-        log.processInstanceId =:processInstanceId AND log.id in 
-        (select max(vss.id) FROM VariableInstanceLog vss WHERE vss.processInstanceId =:processInstanceId group by vss.variableId ) 
+        log.processInstanceId =:processInstanceId AND log.id in
+        (select max(vss.id) FROM VariableInstanceLog vss WHERE vss.processInstanceId =:processInstanceId group by vss.variableId )
         order by log.id
     </query>
     <!-- hint name="org.hibernate.timeout" value="200"/ -->
@@ -530,16 +530,16 @@
       from
         VariableInstanceLog log
       where
-        log.processInstanceId =:processInstanceId AND log.variableId =:variableId 
-      order by 
+        log.processInstanceId =:processInstanceId AND log.variableId =:variableId
+      order by
         log.id DESC
     </query>
     <!-- hint name="org.hibernate.timeout" value="200"/ -->
   </named-query>
-  
+
   <named-query name="getTaskInstanceById">
     <query>
-        select 
+        select
 	      new org.jbpm.kie.services.impl.model.UserTaskInstanceDesc(
 	      a.taskId,
 	      a.status,
@@ -555,17 +555,17 @@
 	      a.createdOn,
 	      a.dueDate
 	      )
-        from 
-        	AuditTaskImpl a 
-        where 
-        	a.taskId = :taskId 
+        from
+        	AuditTaskImpl a
+        where
+        	a.taskId = :taskId
     </query>
     <!-- hint name="org.hibernate.timeout" value="200"/ -->
   </named-query>
-  
+
   <named-query name="getTaskInstanceByWorkItemId">
     <query>
-        select 
+        select
 	      new org.jbpm.kie.services.impl.model.UserTaskInstanceDesc(
 	      a.taskId,
 	      a.status,
@@ -581,18 +581,18 @@
 	      a.createdOn,
 	      a.dueDate
 	      )
-        from 
+        from
         	AuditTaskImpl a
-        where 
-        	a.workItemId = :workItemId 
-        	
+        where
+        	a.workItemId = :workItemId
+
     </query>
     <!-- hint name="org.hibernate.timeout" value="200"/ -->
   </named-query>
-  
+
     <named-query name="getTaskInstancesByProcessInstanceId">
     <query>
-        select 
+        select
         new org.jbpm.kie.services.impl.model.UserTaskInstanceDesc(
         a.taskId,
         a.status,
@@ -608,11 +608,11 @@
         a.createdOn,
         a.dueDate
         )
-        from 
-          AuditTaskImpl a 
-        where 
+        from
+          AuditTaskImpl a
+        where
           a.processInstanceId = :processInstanceId
-          and a.status in ( :statuses) 
+          and a.status in ( :statuses)
     </query>
     <!-- hint name="org.hibernate.timeout" value="200"/ -->
   </named-query>
@@ -625,7 +625,7 @@
     </query>
     <!-- hint name="org.hibernate.timeout" value="200"/ -->
   </named-query>
-  
+
   <named-query name="getDeploymentUnitsByDate">
 
     <query>
@@ -633,8 +633,8 @@
     </query>
     <!-- hint name="org.hibernate.timeout" value="200"/ -->
   </named-query>
-  
-  
+
+
   <named-query name="getDeploymentUnitsByState">
 
     <query>
@@ -642,8 +642,8 @@
     </query>
     <!-- hint name="org.hibernate.timeout" value="200"/ -->
   </named-query>
-  
-  
+
+
   <!-- query definitions storage named queries -->
   <named-query name="getQueryDefinitionByName">
 
@@ -652,7 +652,7 @@
     </query>
     <!-- hint name="org.hibernate.timeout" value="200"/ -->
   </named-query>
-  
+
   <named-query name="getQueryDefinitions">
 
     <query>
