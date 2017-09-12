@@ -20,9 +20,10 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
-import org.jbpm.process.core.datatype.DataType;
-
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.security.ExplicitTypePermission;
+import org.drools.core.common.ProjectClassLoader;
+import org.jbpm.process.core.datatype.DataType;
 
 import static org.kie.internal.xstream.XStreamUtils.createXStream;
 
@@ -90,19 +91,26 @@ public class ObjectDataType implements DataType {
     }
 
     public Object readValue(String value) {
-        XStream xstream = createXStream();
-        if (classLoader != null) {
-            xstream.setClassLoader(classLoader);
-        }
-        return xstream.fromXML(value);
+        return getXStream().fromXML(value);
     }
 
     public String writeValue(Object value) {
+        return getXStream().toXML(value);
+    }
+
+    private XStream getXStream() {
         XStream xstream = createXStream();
         if (classLoader != null) {
             xstream.setClassLoader(classLoader);
+            if (classLoader instanceof ProjectClassLoader ) {
+                String[] classes = ( (ProjectClassLoader) classLoader ).getStore().keySet().stream()
+                                                                       .map( s -> s.replace( '/', '.' ) )
+                                                                       .map( s -> s.endsWith( ".class" ) ? s.substring( 0, s.length() - ".class".length() ) : s )
+                                                                       .toArray(String[]::new);
+                xstream.addPermission( new ExplicitTypePermission( classes ) );
+            }
         }
-        return xstream.toXML(value);
+        return xstream;
     }
 
     public String getStringType() {
