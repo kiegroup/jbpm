@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<checkstyle version="7.4">
+<file name="/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-domain/src/main/java/com/bpms/functional/jobexec/User.java">
+</file>
+<file name="/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-domain/src/main/java/com/bpms/functional/jobexec/UserCommand.java">
+<error line="21" severity="error" message="Wrong lexicographical order for &apos;org.kie.api.executor.Command&apos; import. Should be before &apos;org.kie.api.runtime.process.WorkItem&apos;." source="com.puppycrawl.tools.checkstyle.checks.imports.CustomImportOrderCheck"/>
+<error line="22" severity="error" message="Wrong lexicographical order for &apos;org.kie.api.executor.CommandContext&apos; import. Should be before &apos;org.kie.api.runtime.process.WorkItem&apos;." source="com.puppycrawl.tools.checkstyle.checks.imports.CustomImportOrderCheck"/>
+<error line="23" severity="error" message="Wrong lexicographical order for &apos;org.kie.api.executor.ExecutionResults&apos; import. Should be before &apos;org.kie.api.runtime.process.WorkItem&apos;." source="com.puppycrawl.tools.checkstyle.checks.imports.CustomImportOrderCheck"/>
+</file>
+<file name="/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-domain/src/main/java/com/bpms/functional/jobexec/UserFailingCommand.java">
+</file>
+<file name="/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-domain/src/main/java/org/jboss/qa/bpms/dm/iberia/Passenger.java">
+</file>
+<file name="/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-domain/src/main/java/org/jboss/qa/bpms/dm/iberia/Reservation.java">
+</file>
+<file name="/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-domain/src/main/java/org/jboss/qa/bpms/remote/ejb/domain/ListType.java">
+</file>
+<file name="/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-domain/src/main/java/org/jboss/qa/bpms/remote/ejb/domain/MyType.java">
+<error line="71" severity="error" message="&apos;if&apos; construct must use &apos;{}&apos;s." source="com.puppycrawl.tools.checkstyle.checks.blocks.NeedBracesCheck"/>
+<error line="73" severity="error" message="&apos;if&apos; construct must use &apos;{}&apos;s." source="com.puppycrawl.tools.checkstyle.checks.blocks.NeedBracesCheck"/>
+<error line="75" severity="error" message="&apos;if&apos; construct must use &apos;{}&apos;s." source="com.puppycrawl.tools.checkstyle.checks.blocks.NeedBracesCheck"/>
+<error line="79" severity="error" message="&apos;if&apos; construct must use &apos;{}&apos;s." source="com.puppycrawl.tools.checkstyle.checks.blocks.NeedBracesCheck"/>
+<error line="81" severity="error" message="&apos;if&apos; construct must use &apos;{}&apos;s." source="com.puppycrawl.tools.checkstyle.checks.blocks.NeedBracesCheck"/>
+</file>
+<file name="/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-domain/src/main/java/org/jboss/qa/bpms/remote/ejb/domain/NestedType.java">
+</file>
+<file name="/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-domain/src/main/java/org/jboss/qa/bpms/remote/ejb/domain/Person.java">
+</file>
+<file name="/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-domain/src/main/java/org/jboss/qa/bpms/remote/ejb/domain/Request.java">
+</file>
+</checkstyle>

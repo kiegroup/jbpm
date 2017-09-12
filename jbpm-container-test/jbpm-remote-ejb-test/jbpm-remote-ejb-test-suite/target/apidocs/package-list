@@ -1,0 +1,5 @@
+org.jbpm.remote.ejb.test
+org.jbpm.remote.ejb.test.client
+org.jbpm.remote.ejb.test.maven
+org.jbpm.remote.ejb.test.mock
+org.jbpm.remote.ejb.test.users
