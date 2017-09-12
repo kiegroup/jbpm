@@ -24,6 +24,8 @@ import org.jbpm.process.core.datatype.DataType;
 
 import com.thoughtworks.xstream.XStream;
 
+import static org.kie.internal.xstream.XStreamUtils.createXStream;
+
 /**
  * Representation of an object datatype.
  */
@@ -88,7 +90,7 @@ public class ObjectDataType implements DataType {
     }
 
     public Object readValue(String value) {
-        XStream xstream = new XStream();
+        XStream xstream = createXStream();
         if (classLoader != null) {
             xstream.setClassLoader(classLoader);
         }
@@ -96,7 +98,7 @@ public class ObjectDataType implements DataType {
     }
 
     public String writeValue(Object value) {
-        XStream xstream = new XStream();
+        XStream xstream = createXStream();
         if (classLoader != null) {
             xstream.setClassLoader(classLoader);
         }

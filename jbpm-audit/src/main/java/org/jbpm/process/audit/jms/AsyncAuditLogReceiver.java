@@ -68,7 +68,7 @@ public class AsyncAuditLogReceiver implements MessageListener {
             try {
                 String messageContent = textMessage.getText();
                 Integer eventType = textMessage.getIntProperty("EventType");
-                XStream xstream = new XStream();
+                XStream xstream = createXStream();
                 String[] voidDeny = {"void.class", "Void.class"};
                 xstream.denyTypes(voidDeny);
                 Object event = xstream.fromXML(messageContent);
