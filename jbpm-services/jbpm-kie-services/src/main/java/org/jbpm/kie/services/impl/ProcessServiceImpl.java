@@ -29,6 +29,7 @@ import org.drools.core.command.runtime.process.SetProcessInstanceVariablesComman
 import org.drools.core.command.runtime.process.StartProcessCommand;
 import org.drools.core.process.instance.WorkItemManager;
 import org.jbpm.process.instance.impl.ProcessInstanceImpl;
+import org.jbpm.process.instance.impl.util.VariableUtil;
 import org.jbpm.services.api.DeploymentNotFoundException;
 import org.jbpm.services.api.DeploymentService;
 import org.jbpm.services.api.ProcessInstanceNotFoundException;
@@ -551,7 +552,7 @@ public class ProcessServiceImpl implements ProcessService, VariablesAware {
 			if (nodeInstance instanceof EventNodeInstance) {
 				String type = ((EventNodeInstance) nodeInstance).getEventNode().getType();
 				if (type != null && !type.startsWith("Message-")) {
-					activeNodesComposite.add(type);
+					activeNodesComposite.add(VariableUtil.resolveVariable(type, nodeInstance));
 				}
 
 			}
