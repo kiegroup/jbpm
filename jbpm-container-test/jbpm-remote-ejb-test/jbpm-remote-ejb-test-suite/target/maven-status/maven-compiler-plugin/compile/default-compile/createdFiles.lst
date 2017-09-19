@@ -1,0 +1,9 @@
+org/jbpm/remote/ejb/test/users/UserAccount.class
+org/jbpm/remote/ejb/test/mock/WebService.class
+org/jbpm/remote/ejb/test/client/EJBClient.class
+org/jbpm/remote/ejb/test/mock/RestService$Resource.class
+org/jbpm/remote/ejb/test/users/Users.class
+org/jbpm/remote/ejb/test/ProcessDefinitions.class
+org/jbpm/remote/ejb/test/mock/RestService.class
+org/jbpm/remote/ejb/test/mock/WebService$EchoService.class
+org/jbpm/remote/ejb/test/maven/MavenProject.class
