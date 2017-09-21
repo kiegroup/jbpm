@@ -87,8 +87,10 @@ public class UpdateTimerCommand implements GenericCommand<Void>, ProcessInstance
         TimerManager tm = getTimerManager(kieSession);
 
         RuleFlowProcessInstance wfp = (RuleFlowProcessInstance) kieSession.getProcessInstance(processInstanceId);
-
-        for (NodeInstance nodeInstance : wfp.getNodeInstances()) {
+        if (wfp == null) {
+            throw new IllegalArgumentException("Process instance with id " + processInstanceId + " not found");
+        }
+        for (NodeInstance nodeInstance : wfp.getNodeInstances(true)) {
             if (nodeInstance instanceof TimerNodeInstance) {
                 TimerNodeInstance tni = (TimerNodeInstance) nodeInstance;
                 if (tni.getNodeName().equals(timerName)) {
@@ -112,7 +114,7 @@ public class UpdateTimerCommand implements GenericCommand<Void>, ProcessInstance
                 }
             } else if (nodeInstance instanceof StateBasedNodeInstance) {
                 StateBasedNodeInstance sbni = (StateBasedNodeInstance) nodeInstance;
-                
+
                 if (sbni.getNodeName().equals(timerName)) {
                     List<Long> timerList = sbni.getTimerInstances();
                     if (timerList != null && timerList.size() == 1) {
