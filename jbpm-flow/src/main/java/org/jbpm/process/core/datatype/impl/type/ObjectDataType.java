@@ -19,6 +19,7 @@ package org.jbpm.process.core.datatype.impl.type;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.util.Map;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.security.ExplicitTypePermission;
@@ -103,11 +104,14 @@ public class ObjectDataType implements DataType {
         if (classLoader != null) {
             xstream.setClassLoader(classLoader);
             if (classLoader instanceof ProjectClassLoader ) {
-                String[] classes = ( (ProjectClassLoader) classLoader ).getStore().keySet().stream()
-                                                                       .map( s -> s.replace( '/', '.' ) )
-                                                                       .map( s -> s.endsWith( ".class" ) ? s.substring( 0, s.length() - ".class".length() ) : s )
-                                                                       .toArray(String[]::new);
-                xstream.addPermission( new ExplicitTypePermission( classes ) );
+                Map<String, byte[]> store = ((ProjectClassLoader) classLoader).getStore();
+                if (store != null) {
+                    String[] classes = store.keySet().stream()
+                                            .map( s -> s.replace( '/', '.' ) )
+                                            .map( s -> s.endsWith( ".class" ) ? s.substring( 0, s.length() - ".class".length() ) : s )
+                                            .toArray( String[]::new );
+                    xstream.addPermission( new ExplicitTypePermission( classes ) );
+                }
             }
         }
         return xstream;
