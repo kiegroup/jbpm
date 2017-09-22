@@ -19,7 +19,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
+import java.util.UUID;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -27,7 +27,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.jbpm.document.Document;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlRootElement(name="document-object")
+@XmlRootElement(name = "document-object")
 public class DocumentImpl implements Document {
 
     private static final long serialVersionUID = -7422666286189013484L;
@@ -41,9 +41,14 @@ public class DocumentImpl implements Document {
     private Map<String, String> attributes;
 
     public DocumentImpl() {
+        // Setting default values for identifier && download link
+        this.identifier = UUID.randomUUID().toString();
     }
 
-    public DocumentImpl(String identifier, String name, long size, Date lastModified) {
+    public DocumentImpl(String identifier,
+                        String name,
+                        long size,
+                        Date lastModified) {
         this.identifier = identifier;
         this.name = name;
         this.size = size;
@@ -51,14 +56,21 @@ public class DocumentImpl implements Document {
         attributes = new HashMap<String, String>();
     }
 
-    public DocumentImpl(String name, long size, Date lastModified) {
+    public DocumentImpl(String name,
+                        long size,
+                        Date lastModified) {
+        this();
         this.name = name;
         this.size = size;
         this.lastModified = lastModified;
         attributes = new HashMap<String, String>();
     }
 
-    public DocumentImpl( String identifier, String name, long size, Date lastModified, String link ) {
+    public DocumentImpl(String identifier,
+                        String name,
+                        long size,
+                        Date lastModified,
+                        String link) {
         this.identifier = identifier;
         this.name = name;
         this.size = size;
@@ -123,8 +135,10 @@ public class DocumentImpl implements Document {
     }
 
     @Override
-    public void addAttribute(String attributeName, String attributeValue) {
-        attributes.put(attributeName, attributeValue);
+    public void addAttribute(String attributeName,
+                             String attributeValue) {
+        attributes.put(attributeName,
+                       attributeValue);
     }
 
     @Override
@@ -149,7 +163,7 @@ public class DocumentImpl implements Document {
 
     @Override
     public String toString() {
-        SimpleDateFormat sdf = new SimpleDateFormat( DOCUMENT_DATE_PATTERN );
-        return  name + PROPERTIES_SEPARATOR + size + PROPERTIES_SEPARATOR + ((lastModified!=null)? sdf.format( lastModified ) : "" ) + PROPERTIES_SEPARATOR + link ;
+        SimpleDateFormat sdf = new SimpleDateFormat(DOCUMENT_DATE_PATTERN);
+        return name + PROPERTIES_SEPARATOR + size + PROPERTIES_SEPARATOR + ((lastModified != null) ? sdf.format(lastModified) : "") + PROPERTIES_SEPARATOR + identifier;
     }
 }
