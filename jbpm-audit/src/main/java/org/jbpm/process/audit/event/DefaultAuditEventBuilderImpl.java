@@ -54,18 +54,10 @@ public class DefaultAuditEventBuilderImpl implements AuditEventBuilder {
         if (correlationKey != null) {
         	log.setCorrelationKey(correlationKey.toExternalForm());
         }
-        try {
-            Object value = pi.getMetaData().get("ParentProcessInstanceId");
-	    if( value != null ){
-	        long parentProcessInstanceId = (Long) value;
-                log.setParentProcessInstanceId( parentProcessInstanceId );
-	     }else{
-		log.setParentProcessInstanceId(-1L);
-	     }
-        } catch (Exception e) {
-            //in case of problems with getting hold of parentProcessInstanceId don't break the operation
-            log.setParentProcessInstanceId(-1L);
-        }
+        
+        long parentProcessInstanceId = (Long) pi.getMetaData().getOrDefault("ParentProcessInstanceId", -1L);
+	log.setParentProcessInstanceId( parentProcessInstanceId );	     
+        
 
         return log;
     }
