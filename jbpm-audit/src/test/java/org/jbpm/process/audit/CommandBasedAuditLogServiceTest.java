@@ -68,7 +68,6 @@ public class CommandBasedAuditLogServiceTest extends AbstractAuditLogServiceTest
     @After
     public void tearDown() throws Exception {
         session.dispose();
-        auditLogService.clear();
         session = null;
         auditLogService = null;
         cleanUp(context);
