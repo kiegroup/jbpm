@@ -42,7 +42,7 @@ public class PotOwnerTasksPreprocessorTest {
 
         potOwnerTasksPreprocessor.preprocess(dataSetLookup);
 
-        assertEquals("((ID = " + role1 + ", " + role2 + ", " + userId + " AND (ACTUALOWNER =  OR ACTUALOWNER is_null )) OR ACTUALOWNER = " + userId + ")",
+        assertEquals("((ENTITY_ID is_null  OR ENTITY_ID != " + userId + ") AND ((ID = " + role1 + ", " + role2 + ", " + userId + " AND (ACTUALOWNER =  OR ACTUALOWNER is_null )) OR ACTUALOWNER = " + userId + "))",
                 dataSetLookup.getFirstFilterOp().getColumnFilterList().get(0).toString());
     }
 
@@ -55,7 +55,7 @@ public class PotOwnerTasksPreprocessorTest {
 
         potOwnerTasksPreprocessor.preprocess(dataSetLookup);
 
-        assertEquals("((ID = " + userId + " AND (ACTUALOWNER =  OR ACTUALOWNER is_null )) OR ACTUALOWNER = " + userId + ")",
+        assertEquals("((ENTITY_ID is_null  OR ENTITY_ID != " + userId + ") AND ((ID = " + userId + " AND (ACTUALOWNER =  OR ACTUALOWNER is_null )) OR ACTUALOWNER = " + userId + "))",
                 dataSetLookup.getFirstFilterOp().getColumnFilterList().get(0).toString());
     }
 
