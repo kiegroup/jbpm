@@ -15,19 +15,7 @@
  */
 package org.jbpm.services.task;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertNotEquals;
-
-import java.io.StringReader;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-
+import org.assertj.core.api.Assertions;
 import org.jbpm.services.task.impl.factories.TaskFactory;
 import org.jbpm.test.util.PoolingDataSource;
 import org.junit.After;
@@ -42,9 +30,19 @@ import org.kie.internal.task.api.TaskModelProvider;
 import org.kie.internal.task.api.model.InternalComment;
 import org.kie.internal.task.api.model.InternalOrganizationalEntity;
 
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import java.io.StringReader;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+
+import static org.junit.Assert.*;
+
 public class TaskCommentTest extends HumanTaskServicesBaseTest{
         private PoolingDataSource pds;
         private EntityManagerFactory emf;
+        private static final Date TODAY = new Date();
 
         @Before
         public void setup() {
@@ -82,8 +80,7 @@ public class TaskCommentTest extends HumanTaskServicesBaseTest{
             TaskSummary taskSum = tasks.get(0);
 
             Comment comment = TaskModelProvider.getFactory().newComment();
-            Date date = new Date();
-            ((InternalComment)comment).setAddedAt(date);
+            ((InternalComment)comment).setAddedAt(TODAY);
             User user = TaskModelProvider.getFactory().newUser();
             ((InternalOrganizationalEntity) user).setId("Troll");
             ((InternalComment)comment).setAddedBy(user);
@@ -96,7 +93,7 @@ public class TaskCommentTest extends HumanTaskServicesBaseTest{
             Comment commentById = taskService.getCommentById(commentId.longValue());
             assertNotNull(commentById);
             assertEquals(commentId, commentById.getId());
-            assertEquals(date, commentById.getAddedAt());
+            Assertions.assertThat(commentById.getAddedAt()).isCloseTo(TODAY, 1000);
             assertEquals(user, commentById.getAddedBy());
             assertEquals(txt, commentById.getText());
 
