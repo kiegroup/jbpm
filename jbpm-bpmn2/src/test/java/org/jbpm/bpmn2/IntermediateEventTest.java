@@ -29,6 +29,7 @@ import java.util.Set;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
+import org.assertj.core.api.Assertions;
 import org.drools.core.command.SingleSessionCommandService;
 import org.drools.core.command.impl.CommandBasedStatefulKnowledgeSession;
 import org.drools.core.command.impl.ExecutableCommand;
@@ -36,6 +37,8 @@ import org.drools.core.command.impl.RegistryContext;
 import org.drools.core.common.InternalKnowledgeRuntime;
 import org.drools.core.impl.StatefulKnowledgeSessionImpl;
 import org.drools.core.process.instance.WorkItemHandler;
+import org.hamcrest.core.AnyOf;
+import org.hamcrest.core.Is;
 import org.jbpm.bpmn2.handler.ReceiveTaskHandler;
 import org.jbpm.bpmn2.handler.SendTaskHandler;
 import org.jbpm.bpmn2.objects.Person;
@@ -1206,7 +1209,7 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
         ksession = restoreSession(ksession, true);
         ksession.getWorkItemManager().registerWorkItemHandler("Human Task", handler);
         timers = getTimerManager(ksession).getTimers();
-        assertTrue(timers == null || timers.isEmpty());
+        Assertions.assertThat(timers).isNullOrEmpty();
         ksession.getWorkItemManager().completeWorkItem(handler.getWorkItem().getId(), null);
 
         assertProcessInstanceFinished(processInstance, ksession);
