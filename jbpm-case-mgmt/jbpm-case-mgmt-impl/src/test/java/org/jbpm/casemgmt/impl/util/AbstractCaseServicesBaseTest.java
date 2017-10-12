@@ -143,6 +143,7 @@ public abstract class AbstractCaseServicesBaseTest {
     protected static final String COND_CASE_P_ID = "CaseFileConditionalEvent";
     protected static final String TWO_STAGES_CASE_P_ID = "CaseWithTwoStages";
     protected static final String TWO_STAGES_CONDITIONS_CASE_P_ID = "CaseWithTwoStagesConditions";
+    protected static final String EXPRESSION_CASE_P_ID = "ExpressionWithCaseFileItem";
 
     protected static final String SUBPROCESS_P_ID = "DataVerification";
 
@@ -553,7 +554,13 @@ public abstract class AbstractCaseServicesBaseTest {
     }
 
     public void assertCaseInstanceNotActive(String caseId) {
-        Throwable thrown = catchThrowable(() -> caseService.getCaseInstance(caseId));
-        assertThat(thrown).as("Case instance is still active").isInstanceOf(CaseNotFoundException.class);
+        try {
+            CaseInstance caseInstance = caseService.getCaseInstance(caseId);
+            assertThat(caseInstance).isNotNull();
+            assertThat(caseInstance.getStatus()).isIn(CaseStatus.CLOSED.getId(), CaseStatus.CANCELLED.getId());
+        } catch (CaseNotFoundException ex) {
+            // in case it does not exist at all
+        }
+        
     }
 }
