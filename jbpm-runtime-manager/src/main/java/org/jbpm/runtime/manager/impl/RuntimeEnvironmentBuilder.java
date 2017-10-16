@@ -239,6 +239,7 @@ public class RuntimeEnvironmentBuilder implements RuntimeEnvironmentBuilderFacto
 		for (NamedObjectModel model : descriptor.getConfiguration()) {
 			Object entry = getInstanceFromModel(model, kieContainer, contaxtParams);
 			builder.addConfiguration(model.getName(), (String) entry);
+			contaxtParams.put( model.getName(), (String) entry);
 		}
 		ObjectMarshallingStrategy[] mStrategies = new ObjectMarshallingStrategy[descriptor.getMarshallingStrategies().size() + 1];
 		int index = 0;
