@@ -296,21 +296,23 @@ public class ProtobufProcessMarshaller
     public static VariableContainer marshallVariablesContainer(MarshallerWriteContext context, Map<String, Object> variables) throws IOException{
     	JBPMMessages.VariableContainer.Builder vcbuilder = JBPMMessages.VariableContainer.newBuilder();
         for(String key : variables.keySet()){
-            JBPMMessages.Variable.Builder builder = JBPMMessages.Variable.newBuilder().setName( key );
-            if(variables.get(key) != null){
-                ObjectMarshallingStrategy strategy = context.objectMarshallingStrategyStore.getStrategyObject( variables.get(key) );
-                Integer index = context.getStrategyIndex( strategy );
-                builder.setStrategyIndex( index )
-                   .setValue( ByteString.copyFrom( strategy.marshal( context.strategyContext.get( strategy ),
-                                                                     context,
-                                                                     variables.get(key) ) ) );
-                
-            } 
-                                     
-           
-            
-            vcbuilder.addVariable(builder.build());
-        }
+            if(key != null){
+		    JBPMMessages.Variable.Builder builder = JBPMMessages.Variable.newBuilder().setName( key );
+		    if(variables.get(key) != null){
+			ObjectMarshallingStrategy strategy = context.objectMarshallingStrategyStore.getStrategyObject( variables.get(key) );
+			Integer index = context.getStrategyIndex( strategy );
+			builder.setStrategyIndex( index )
+			   .setValue( ByteString.copyFrom( strategy.marshal( context.strategyContext.get( strategy ),
+									     context,
+									     variables.get(key) ) ) );
+
+		    } 
+
+
+
+		    vcbuilder.addVariable(builder.build());
+		}
+	}
         
         return vcbuilder.build();
     }
