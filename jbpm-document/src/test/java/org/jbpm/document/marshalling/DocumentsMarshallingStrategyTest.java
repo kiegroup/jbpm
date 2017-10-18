@@ -60,7 +60,7 @@ public class DocumentsMarshallingStrategyTest {
 	@Test
 	public void testSingleDocMarshallUnmarshall() throws IOException, ClassNotFoundException {
 		DocumentMarshallingStrategy docMarshallingStrategy = new DocumentMarshallingStrategy();
-		Document document = getDocument();
+		Document document = getDocument("docOne");
 		byte[] marshalledDocument = docMarshallingStrategy.marshal(null, null, document);
 		Document unmarshalledDocument = (Document) docMarshallingStrategy.unmarshal(null, null, marshalledDocument, this.getClass().getClassLoader());
 	
@@ -70,14 +70,14 @@ public class DocumentsMarshallingStrategyTest {
 	}
 	
 	
-	private Document getDocument() {
+	private Document getDocument(String documentName) {
 		Document documentOne = new DocumentImpl();
-		documentOne.setIdentifier("docOne");
+		documentOne.setIdentifier(documentName);
 		documentOne.setLastModified(new Date());
-		documentOne.setLink("http://documentOne");
-		documentOne.setName("DocumentOne Name");
+		documentOne.setLink("http://" +  documentName);
+		documentOne.setName(documentName + " Name");
 		documentOne.setSize(1);
-		documentOne.setContent("documentOne".getBytes());	
+		documentOne.setContent(documentName.getBytes());
 		return documentOne;
 	}
 	
@@ -85,27 +85,8 @@ public class DocumentsMarshallingStrategyTest {
 		
 		List<Document> documents = new ArrayList<>();
 		
-		
-		Document documentOne = new DocumentImpl();
-		documentOne.setIdentifier("docOne");
-		documentOne.setLastModified(new Date());
-		documentOne.setLink("http://documentOne");
-		documentOne.setName("DocumentOne Name");
-		documentOne.setSize(1);
-		documentOne.setContent("documentOne".getBytes());
-		
-		documents.add(documentOne);
-		
-		
-		Document documentTwo = new DocumentImpl();
-		documentTwo.setIdentifier("docTwo");
-		documentTwo.setLastModified(new Date());
-		documentTwo.setLink("http://documentTwo");
-		documentTwo.setName("DocumentTwo Name");
-		documentTwo.setSize(1);
-		documentTwo.setContent("documentTwo".getBytes());
-		
-		documents.add(documentTwo);
+		documents.add(getDocument("documentOne"));
+		documents.add(getDocument("documentTwo"));
 		
 		return documents;
 	}
