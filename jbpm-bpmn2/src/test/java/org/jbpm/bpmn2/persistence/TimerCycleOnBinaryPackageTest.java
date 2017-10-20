@@ -21,7 +21,7 @@ import org.jbpm.bpmn2.JbpmBpmn2TestCase;
 import org.jbpm.process.audit.AuditLoggerFactory;
 import org.jbpm.process.audit.AuditLoggerFactory.Type;
 import org.jbpm.process.instance.event.listeners.TriggerRulesEventListener;
-import org.jbpm.test.util.CountDownProcessEventListener;
+import org.jbpm.test.listener.NodeLeftCountDownProcessEventListener;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -67,7 +67,7 @@ public class TimerCycleOnBinaryPackageTest extends JbpmBpmn2TestCase {
 
     @Test(timeout=20000)
     public void testStartTimerCycleFromDisc() throws Exception {
-        CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("start", 2);
+        NodeLeftCountDownProcessEventListener countDownListener = new NodeLeftCountDownProcessEventListener("start", 2);
         KieBase kbase = createKnowledgeBaseFromDisc("BPMN2-StartTimerCycle.bpmn2");
         try {
             StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
@@ -95,7 +95,7 @@ public class TimerCycleOnBinaryPackageTest extends JbpmBpmn2TestCase {
             logger.info("dispose");
             ksession.dispose();
             
-            countDownListener = new CountDownProcessEventListener("start", 2);
+            countDownListener = new NodeLeftCountDownProcessEventListener("start", 2);
     
             ksession = JPAKnowledgeService.loadStatefulKnowledgeSession(sessionId,
                     kbase, null, env);
@@ -127,7 +127,7 @@ public class TimerCycleOnBinaryPackageTest extends JbpmBpmn2TestCase {
     @Test(timeout=20000)
     public void testStartTimerCycleFromClassPath() throws Exception {
         
-        CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("start", 2);
+        NodeLeftCountDownProcessEventListener countDownListener = new NodeLeftCountDownProcessEventListener("start", 2);
         KieBase kbase = createKnowledgeBase("BPMN2-StartTimerCycle.bpmn2");
         try {
             StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
@@ -153,7 +153,7 @@ public class TimerCycleOnBinaryPackageTest extends JbpmBpmn2TestCase {
             logger.info("dispose");
             ksession.dispose();
     
-            countDownListener = new CountDownProcessEventListener("start", 2);
+            countDownListener = new NodeLeftCountDownProcessEventListener("start", 2);
             ksession = JPAKnowledgeService.loadStatefulKnowledgeSession(sessionId,
                     kbase, null, env);
             ksession.addEventListener(countDownListener);

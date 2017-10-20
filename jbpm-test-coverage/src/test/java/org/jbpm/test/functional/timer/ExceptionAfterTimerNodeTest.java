@@ -19,7 +19,7 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import org.jbpm.test.JbpmTestCase;
-import org.jbpm.test.listener.CountDownProcessEventListener;
+import org.jbpm.test.listener.NodeLeftCountDownProcessEventListener;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -63,7 +63,7 @@ public class ExceptionAfterTimerNodeTest extends JbpmTestCase {
 	
 	@Test(timeout=10000)
     public void testExceptionAfterTimer() {
-	    final CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("TimerEvent", 1, true);        
+	    final NodeLeftCountDownProcessEventListener countDownListener = new NodeLeftCountDownProcessEventListener("TimerEvent", 1, true);
         createRuntimeManager("org/jbpm/test/functional/timer/ExceptionAfterTimer.bpmn2");
         RuntimeEngine runtimeEngine = getRuntimeEngine();
         KieSession ksession = runtimeEngine.getKieSession();

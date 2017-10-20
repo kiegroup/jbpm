@@ -19,8 +19,8 @@ import org.jbpm.runtime.manager.impl.DefaultRegisterableItemsFactory;
 import org.jbpm.runtime.manager.impl.RuntimeEngineImpl;
 import org.jbpm.runtime.manager.util.TestUtil;
 import org.jbpm.services.task.identity.JBossUserGroupCallbackImpl;
+import org.jbpm.test.listener.NodeLeftCountDownProcessEventListener;
 import org.jbpm.test.util.AbstractBaseTest;
-import org.jbpm.test.util.CountDownProcessEventListener;
 import org.jbpm.test.util.PoolingDataSource;
 import org.junit.After;
 import org.junit.Before;
@@ -80,7 +80,7 @@ public class ConcurrentOperationsTest extends AbstractBaseTest {
     
     @Test(timeout=10000)
     public void testExecuteProcessWithAsyncHandler() throws Exception {
-    	final CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("Log", 1);
+    	final NodeLeftCountDownProcessEventListener countDownListener = new NodeLeftCountDownProcessEventListener("Log", 1);
         RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
     			.newDefaultBuilder()
                 .userGroupCallback(userGroupCallback)
@@ -140,7 +140,7 @@ public class ConcurrentOperationsTest extends AbstractBaseTest {
     
     @Test(timeout=10000)
     public void testExecuteHumanTaskWithAsyncHandler() throws Exception {
-        final CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("Log", 1);
+        final NodeLeftCountDownProcessEventListener countDownListener = new NodeLeftCountDownProcessEventListener("Log", 1);
         RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
     			.newDefaultBuilder()
                 .userGroupCallback(userGroupCallback) 
