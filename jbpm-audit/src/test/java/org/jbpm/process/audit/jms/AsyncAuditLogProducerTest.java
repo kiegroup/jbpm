@@ -319,7 +319,6 @@ public class AsyncAuditLogProducerTest extends AbstractBaseTest {
         List<NodeInstanceLog> nodeInstances = logService.findNodeInstances(processInstance.getId());
         assertEquals(6, nodeInstances.size());
         for (NodeInstanceLog nodeInstance: nodeInstances) {
-
             assertEquals(processInstance.getId(), nodeInstance.getProcessInstanceId().longValue());
             assertEquals("com.sample.ruleflow3", nodeInstance.getProcessId());
             assertNotNull(nodeInstance.getDate());
