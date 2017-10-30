@@ -104,8 +104,8 @@ public class AsyncAuditLogProducerTest extends AbstractBaseTest {
         jmsProps.put("jbpm.audit.jms.connection.factory", factory);
         jmsProps.put("jbpm.audit.jms.queue", queue);
         AbstractAuditLogger logger = AuditLoggerFactory.newInstance(Type.JMS, session, jmsProps);
-        assertNotNull(logger);
-        assertTrue((logger instanceof AsyncAuditLogProducer));
+        Assertions.assertThat(logger).isNotNull();
+        Assertions.assertThat((logger instanceof AsyncAuditLogProducer)).isTrue();
 
         // start process instance
         long processInstanceId = session.startProcess("com.sample.ruleflow").getId();
@@ -113,8 +113,8 @@ public class AsyncAuditLogProducerTest extends AbstractBaseTest {
         
         MessageReceiver receiver = new MessageReceiver();
         List<Message> messages = receiver.receive(queue);
-        assertNotNull(messages);
-        assertEquals(11, messages.size());
+        Assertions.assertThat(messages).isNotNull();
+        Assertions.assertThat(messages.size()).isEqualTo(11);
 
     }
     
@@ -133,8 +133,8 @@ public class AsyncAuditLogProducerTest extends AbstractBaseTest {
         jmsProps.put("jbpm.audit.jms.connection.factory", factory);
         jmsProps.put("jbpm.audit.jms.queue", queue);
         AbstractAuditLogger logger = AuditLoggerFactory.newInstance(Type.JMS, session, jmsProps);
-        assertNotNull(logger);
-        assertTrue((logger instanceof AsyncAuditLogProducer));
+        Assertions.assertThat(logger).isNotNull();
+        Assertions.assertThat((logger instanceof AsyncAuditLogProducer)).isTrue();
 
         // start process instance
         long processInstanceId = session.startProcess("com.sample.ruleflow").getId();
@@ -143,8 +143,8 @@ public class AsyncAuditLogProducerTest extends AbstractBaseTest {
         
         MessageReceiver receiver = new MessageReceiver();
         List<Message> messages = receiver.receive(queue);
-        assertNotNull(messages);
-        assertEquals(11, messages.size());
+        Assertions.assertThat(messages).isNotNull();
+        Assertions.assertThat(messages.size()).isEqualTo(11);
 
     }
     
@@ -163,8 +163,8 @@ public class AsyncAuditLogProducerTest extends AbstractBaseTest {
         jmsProps.put("jbpm.audit.jms.connection.factory", factory);
         jmsProps.put("jbpm.audit.jms.queue", queue);
         AbstractAuditLogger logger = AuditLoggerFactory.newInstance(Type.JMS, session, jmsProps);
-        assertNotNull(logger);
-        assertTrue((logger instanceof AsyncAuditLogProducer));
+        Assertions.assertThat(logger).isNotNull();
+        Assertions.assertThat((logger instanceof AsyncAuditLogProducer)).isTrue();
 
         // start process instance
         long processInstanceId = session.startProcess("com.sample.ruleflow").getId();
@@ -173,9 +173,8 @@ public class AsyncAuditLogProducerTest extends AbstractBaseTest {
         
         MessageReceiver receiver = new MessageReceiver();
         List<Message> messages = receiver.receive(queue);
-        assertNotNull(messages);
-        assertEquals(0, messages.size());
-
+        Assertions.assertThat(messages).isNotNull();
+        Assertions.assertThat(messages.size()).isEqualTo(0);
     }
     
     @Test
@@ -193,8 +192,8 @@ public class AsyncAuditLogProducerTest extends AbstractBaseTest {
         jmsProps.put("jbpm.audit.jms.connection.factory", jmsServer.lookup("ConnectionFactory"));
         jmsProps.put("jbpm.audit.jms.queue", queue);
         AbstractAuditLogger logger = AuditLoggerFactory.newInstance(Type.JMS, session, jmsProps);
-        assertNotNull(logger);
-        assertTrue((logger instanceof AsyncAuditLogProducer));
+        Assertions.assertThat(logger).isNotNull();
+        Assertions.assertThat((logger instanceof AsyncAuditLogProducer)).isTrue();
 
         // start process instance
         long processInstanceId = session.startProcess("com.sample.ruleflow").getId();
@@ -203,9 +202,8 @@ public class AsyncAuditLogProducerTest extends AbstractBaseTest {
         
         MessageReceiver receiver = new MessageReceiver();
         List<Message> messages = receiver.receive(queue);
-        assertNotNull(messages);
-        assertEquals(11, messages.size());
-
+        Assertions.assertThat(messages).isNotNull();
+        Assertions.assertThat(messages.size()).isEqualTo(11);
     }
     
     @Test
@@ -221,8 +219,8 @@ public class AsyncAuditLogProducerTest extends AbstractBaseTest {
         jmsProps.put("jbpm.audit.jms.connection.factory", factory);
         jmsProps.put("jbpm.audit.jms.queue", queue);
         AbstractAuditLogger logger = AuditLoggerFactory.newInstance(Type.JMS, session, jmsProps);
-        assertNotNull(logger);
-        assertTrue((logger instanceof AsyncAuditLogProducer));
+        Assertions.assertThat(logger).isNotNull();
+        Assertions.assertThat((logger instanceof AsyncAuditLogProducer)).isTrue();
 
 
         // start process instance
@@ -234,19 +232,18 @@ public class AsyncAuditLogProducerTest extends AbstractBaseTest {
         // validate if everything is stored in db
         AuditLogService logService = new JPAAuditLogService(env);
         List<ProcessInstanceLog> processInstances = logService.findProcessInstances("com.sample.ruleflow");
-        assertEquals(1, processInstances.size());
+        Assertions.assertThat(processInstances.size()).isEqualTo(1);
         List<NodeInstanceLog> nodeInstances = logService.findNodeInstances(processInstance.getId());
-        assertEquals(6, nodeInstances.size());
+        Assertions.assertThat(nodeInstances.size()).isEqualTo(6);
         for (NodeInstanceLog nodeInstance: nodeInstances) {
-
-            assertEquals(processInstance.getId(), nodeInstance.getProcessInstanceId().longValue());
-            assertEquals("com.sample.ruleflow", nodeInstance.getProcessId());
-            assertNotNull(nodeInstance.getDate());
+            Assertions.assertThat(processInstance.getId()).isEqualTo(nodeInstance.getProcessInstanceId().longValue());
+            Assertions.assertThat(nodeInstance.getProcessId()).isEqualTo("com.sample.ruleflow");
+            Assertions.assertThat(nodeInstance.getDate()).isNotNull();
         }
         logService.clear();
         processInstances = logService.findProcessInstances("com.sample.ruleflow");
         logService.dispose();
-        assertTrue(processInstances.isEmpty());
+        Assertions.assertThat(processInstances).isEmpty();
     }
     
     @Test
@@ -259,8 +256,8 @@ public class AsyncAuditLogProducerTest extends AbstractBaseTest {
 
 
         AbstractAuditLogger logger = AuditLoggerFactory.newJMSInstance(true, factory, queue);
-        assertNotNull(logger);
-        assertTrue((logger instanceof AsyncAuditLogProducer));
+        Assertions.assertThat(logger).isNotNull();
+        Assertions.assertThat((logger instanceof AsyncAuditLogProducer)).isTrue();
         session.addEventListener(logger);
 
         // start process instance
@@ -272,19 +269,18 @@ public class AsyncAuditLogProducerTest extends AbstractBaseTest {
         // validate if everything is stored in db
         AuditLogService logService = new JPAAuditLogService(env);
         List<ProcessInstanceLog> processInstances = logService.findProcessInstances("com.sample.ruleflow");
-        assertEquals(1, processInstances.size());
+        Assertions.assertThat(processInstances.size()).isEqualTo(1);
         List<NodeInstanceLog> nodeInstances = logService.findNodeInstances(processInstance.getId());
-        assertEquals(6, nodeInstances.size());
+        Assertions.assertThat(nodeInstances.size()).isEqualTo(6);
         for (NodeInstanceLog nodeInstance: nodeInstances) {
-
-            assertEquals(processInstance.getId(), nodeInstance.getProcessInstanceId().longValue());
-            assertEquals("com.sample.ruleflow", nodeInstance.getProcessId());
-            assertNotNull(nodeInstance.getDate());
+            Assertions.assertThat(nodeInstance.getProcessInstanceId().longValue()).isEqualTo(processInstance.getId());
+            Assertions.assertThat(nodeInstance.getProcessId()).isEqualTo("com.sample.ruleflow");
+            Assertions.assertThat(nodeInstance.getDate()).isNotNull();
         }
         logService.clear();
         processInstances = logService.findProcessInstances("com.sample.ruleflow");
         logService.dispose();
-        assertTrue(processInstances.isEmpty());
+        Assertions.assertThat(processInstances).isEmpty();
     }
     
     @Test
@@ -300,8 +296,8 @@ public class AsyncAuditLogProducerTest extends AbstractBaseTest {
         jmsProps.put("jbpm.audit.jms.connection.factory", factory);
         jmsProps.put("jbpm.audit.jms.queue", queue);
         AbstractAuditLogger logger = AuditLoggerFactory.newInstance(Type.JMS, session, jmsProps);
-        assertNotNull(logger);
-        assertTrue((logger instanceof AsyncAuditLogProducer));
+        Assertions.assertThat(logger).isNotNull();
+        Assertions.assertThat((logger instanceof AsyncAuditLogProducer)).isTrue();
 
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("s", "test value");
@@ -315,37 +311,37 @@ public class AsyncAuditLogProducerTest extends AbstractBaseTest {
         // validate if everything is stored in db
         AuditLogService logService = new JPAAuditLogService(env);
         List<ProcessInstanceLog> processInstances = logService.findProcessInstances("com.sample.ruleflow3");
-        assertEquals(1, processInstances.size());
+        Assertions.assertThat(processInstances.size()).isEqualTo(1);
         List<NodeInstanceLog> nodeInstances = logService.findNodeInstances(processInstance.getId());
-        assertEquals(6, nodeInstances.size());
+        Assertions.assertThat(nodeInstances.size()).isEqualTo(6);
         for (NodeInstanceLog nodeInstance: nodeInstances) {
-            assertEquals(processInstance.getId(), nodeInstance.getProcessInstanceId().longValue());
-            assertEquals("com.sample.ruleflow3", nodeInstance.getProcessId());
-            assertNotNull(nodeInstance.getDate());
+            Assertions.assertThat(nodeInstance.getProcessInstanceId().longValue()).isEqualTo(processInstance.getId());
+            Assertions.assertThat(nodeInstance.getProcessId()).isEqualTo("com.sample.ruleflow3");
+            Assertions.assertThat(nodeInstance.getDate()).isNotNull();
         }
         //verify variables
         List<VariableInstanceLog> variables = logService.findVariableInstances(processInstance.getId());
-        assertNotNull(variables);
-        assertEquals(2, variables.size());
+        Assertions.assertThat(variables).isNotNull();
+        Assertions.assertThat(variables.size()).isEqualTo(2);
         
         VariableInstanceLog var = variables.get(0);
         // initial value from rule flow definition
-        assertEquals("InitialValue", var.getValue());
+        Assertions.assertThat(var.getValue()).isEqualTo("InitialValue");
         assertThat(var.getOldValue(), AnyOf.anyOf(Is.is(""), Is.is((String) null), Is.is(" ")));
-        assertEquals(processInstance.getId(), var.getProcessInstanceId().longValue());
-        assertEquals(processInstance.getProcessId(), var.getProcessId());
-        assertEquals("s", var.getVariableId());
-        assertEquals("s", var.getVariableInstanceId());
+        Assertions.assertThat(var.getProcessInstanceId().longValue()).isEqualTo(processInstance.getId());
+        Assertions.assertThat(var.getProcessId()).isEqualTo(processInstance.getProcessId());
+        Assertions.assertThat(var.getVariableId()).isEqualTo("s");
+        Assertions.assertThat(var.getVariableInstanceId()).isEqualTo("s");
         
         // value given at process start
         var = variables.get(1);
         // initial value from rule flow definition
-        assertEquals("test value", var.getValue());
-        assertEquals("InitialValue", var.getOldValue());
-        assertEquals(processInstance.getId(), var.getProcessInstanceId().longValue());
-        assertEquals(processInstance.getProcessId(), var.getProcessId());
-        assertEquals("s", var.getVariableId());
-        assertEquals("s", var.getVariableInstanceId());
+        Assertions.assertThat(var.getValue()).isEqualTo("test value");
+        Assertions.assertThat(var.getOldValue()).isEqualTo("InitialValue");
+        Assertions.assertThat(var.getProcessInstanceId().longValue()).isEqualTo(processInstance.getId());
+        Assertions.assertThat(var.getProcessId()).isEqualTo(processInstance.getProcessId());
+        Assertions.assertThat(var.getVariableId()).isEqualTo("s");
+        Assertions.assertThat(var.getVariableInstanceId()).isEqualTo("s");
 
         logService.clear();
         processInstances = logService.findProcessInstances("com.sample.ruleflow3");
@@ -366,8 +362,8 @@ public class AsyncAuditLogProducerTest extends AbstractBaseTest {
         jmsProps.put("jbpm.audit.jms.connection.factory", factory);
         jmsProps.put("jbpm.audit.jms.queue", queue);
         AbstractAuditLogger logger = AuditLoggerFactory.newInstance(Type.JMS, session, jmsProps);
-        assertNotNull(logger);
-        assertTrue((logger instanceof AsyncAuditLogProducer));
+        Assertions.assertThat(logger).isNotNull();
+        Assertions.assertThat((logger instanceof AsyncAuditLogProducer)).isTrue();
 
         List<String> names = new LinkedList<String>();
         names.add("john");
@@ -386,18 +382,18 @@ public class AsyncAuditLogProducerTest extends AbstractBaseTest {
         // validate if everything is stored in db
         AuditLogService logService = new JPAAuditLogService(env);
         List<ProcessInstanceLog> processInstances = logService.findProcessInstances("com.sample.ruleflow3");
-        assertEquals(1, processInstances.size());
+        Assertions.assertThat(processInstances.size()).isEqualTo(1);
         List<NodeInstanceLog> nodeInstances = logService.findNodeInstances(processInstance.getId());
-        assertEquals(12, nodeInstances.size());
+        Assertions.assertThat(nodeInstances.size()).isEqualTo(12);
         for (NodeInstanceLog nodeInstance: nodeInstances) {
-            assertEquals(processInstance.getId(), nodeInstance.getProcessInstanceId().longValue());
-            assertEquals("com.sample.ruleflow3", nodeInstance.getProcessId());
-            assertNotNull(nodeInstance.getDate());
+            Assertions.assertThat(nodeInstance.getProcessInstanceId().longValue()).isEqualTo(processInstance.getId());
+            Assertions.assertThat(nodeInstance.getProcessId()).isEqualTo("com.sample.ruleflow3");
+            Assertions.assertThat(nodeInstance.getDate()).isNotNull();
         }
         //verify variables
         List<VariableInstanceLog> variables = logService.findVariableInstances(processInstance.getId());
-        assertNotNull(variables);
-        assertEquals(8, variables.size());
+        Assertions.assertThat(variables).isNotNull();
+        Assertions.assertThat(variables.size()).isEqualTo(8);
         
         List<VariableInstanceLog> listVariables = new ArrayList<VariableInstanceLog>();
         // collect only those that are related to list process variable
@@ -406,8 +402,8 @@ public class AsyncAuditLogProducerTest extends AbstractBaseTest {
                 listVariables.add(v);
             }
         }
-        
-        assertEquals(3, listVariables.size());
+
+        Assertions.assertThat(listVariables.size()).isEqualTo(3);
 
         List<String> variableValues = new ArrayList<String>();
         List<String> variableIds = new ArrayList<String>();
@@ -415,9 +411,9 @@ public class AsyncAuditLogProducerTest extends AbstractBaseTest {
             variableValues.add(var.getValue());
             variableIds.add(var.getVariableId());
             assertThat(var.getOldValue(), AnyOf.anyOf(Is.is(""), Is.is((String) null), Is.is(" ")));
-            assertEquals(processInstance.getId(), var.getProcessInstanceId().longValue());
-            assertEquals(processInstance.getProcessId(), var.getProcessId());
-            assertEquals("list", var.getVariableInstanceId());
+            Assertions.assertThat(var.getProcessInstanceId().longValue()).isEqualTo(processInstance.getId());
+            Assertions.assertThat(var.getProcessId()).isEqualTo(processInstance.getProcessId());
+            Assertions.assertThat(var.getVariableInstanceId()).isEqualTo("list");
         }
 
         Assertions.assertThat(variableValues).contains("john", "mary", "peter");
