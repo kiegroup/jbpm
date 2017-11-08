@@ -34,7 +34,6 @@ import org.jbpm.bpmn2.objects.Person;
 import org.jbpm.bpmn2.objects.TestWorkItemHandler;
 import org.jbpm.test.listener.NodeLeftCountDownProcessEventListener;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -346,7 +345,7 @@ public class StartEventTest extends JbpmBpmn2TestCase {
                 }
             });
             Assertions.assertThat(list.size()).isEqualTo(0);
-            // Timer in the process takes 500ms, so after 2.5 seconds, there should be 5 process IDs in the list.
+            // Timer in the process takes 500ms, so after 1 second, there should be 2 process IDs in the list.
             countDownListener.waitTillCompleted();
             Assertions.assertThat(getNumberOfProcessInstances("MultipleStartEvents")).isEqualTo(2);
         } finally {
@@ -509,7 +508,7 @@ public class StartEventTest extends JbpmBpmn2TestCase {
             }
         });
         Assertions.assertThat(list.size()).isEqualTo(0);
-        // Timer in the process takes 500ms, so after 2.5 seconds, there should be 5 process IDs in the list.
+        // Timer in the process takes 500ms, so after 1 second, there should be 2 process IDs in the list.
         countDownListener.waitTillCompleted();
         Assertions.assertThat(getNumberOfProcessInstances("MultipleStartEvents")).isEqualTo(2);
 
