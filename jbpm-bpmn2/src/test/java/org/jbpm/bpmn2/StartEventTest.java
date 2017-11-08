@@ -43,6 +43,7 @@ import org.kie.api.KieBase;
 import org.kie.api.KieServices;
 import org.kie.api.builder.KieRepository;
 import org.kie.api.event.process.DefaultProcessEventListener;
+import org.kie.api.event.process.ProcessCompletedEvent;
 import org.kie.api.event.process.ProcessStartedEvent;
 import org.kie.api.io.Resource;
 import org.kie.api.runtime.KieContainer;
@@ -52,6 +53,8 @@ import org.kie.api.runtime.process.WorkItem;
 import org.kie.internal.io.ResourceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 @RunWith(Parameterized.class)
 public class StartEventTest extends JbpmBpmn2TestCase {
@@ -290,12 +293,8 @@ public class StartEventTest extends JbpmBpmn2TestCase {
         Assertions.assertThat(getNumberOfProcessInstances("Minimal")).isEqualTo(1);
         // now remove the process from kbase to make sure runtime based listeners are removed from signal manager
         kbase.removeProcess("Minimal");
-        
-        try {
-            ksession.signalEvent("MySignal", "NewValue");
-        } catch (IllegalArgumentException e) {
-            Assertions.assertThat(e.getMessage()).isEqualTo("Unknown process ID: Minimal");
-        }
+        Assertions.assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> { ksession.signalEvent("MySignal", "NewValue"); })
+                    .withMessageContaining("Unknown process ID: Minimal");
         // must be still one as the process was removed
         Assertions.assertThat(getNumberOfProcessInstances("Minimal")).isEqualTo(1);
 
@@ -584,34 +583,37 @@ public class StartEventTest extends JbpmBpmn2TestCase {
 
     }
 
+    /**
+     * Should fail as timer expression is not valid
+     *
+     * @throws Exception
+     */
     @Test
     public void testInvalidDateTimerStart() throws Exception {
-        try {
-            createKnowledgeBase("timer/BPMN2-StartTimerDateInvalid.bpmn2");
-            fail("Should fail as timer expression is not valid");
-        } catch (RuntimeException e) {
-            Assertions.assertThat(e.getMessage().contains("Could not parse date 'abcdef'")).isTrue();
-        }
+        Assertions.assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> { createKnowledgeBase("timer/BPMN2-StartTimerDateInvalid.bpmn2"); })
+                .withMessageContaining("Could not parse date 'abcdef'");
     }
 
+    /**
+     * Should fail as timer expression is not valid
+     *
+     * @throws Exception
+     */
     @Test
     public void testInvalidDurationTimerStart() throws Exception {
-        try {
-            createKnowledgeBase("timer/BPMN2-StartTimerDurationInvalid.bpmn2");
-            fail("Should fail as timer expression is not valid");
-        } catch (Exception e) {
-            Assertions.assertThat(e.getMessage().contains("Could not parse delay 'abcdef'")).isTrue();
-        }
+        Assertions.assertThatExceptionOfType(Exception.class).isThrownBy(() -> { createKnowledgeBase("timer/BPMN2-StartTimerDurationInvalid.bpmn2"); })
+                .withMessageContaining("Could not parse delay 'abcdef'");
     }
 
+    /**
+     * Should fail as timer expression is not valid
+     *
+     * @throws Exception
+     */
     @Test
     public void testInvalidCycleTimerStart() throws Exception {
-        try {
-            createKnowledgeBase("timer/BPMN2-StartTimerCycleInvalid.bpmn2");
-            fail("Should fail as timer expression is not valid");
-        } catch (Exception e) {
-            Assertions.assertThat(e.getMessage().contains("Could not parse delay 'abcdef'")).isTrue();
-        }
+        Assertions.assertThatExceptionOfType(Exception.class).isThrownBy(() -> { createKnowledgeBase("timer/BPMN2-StartTimerCycleInvalid.bpmn2"); })
+                .withMessageContaining("Could not parse delay 'abcdef'");
     }
 
 
