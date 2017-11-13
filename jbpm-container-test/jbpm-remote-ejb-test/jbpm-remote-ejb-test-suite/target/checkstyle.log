@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<checkstyle version="7.4">
+<file name="/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-suite/src/main/java/org/jbpm/remote/ejb/test/ProcessDefinitions.java">
+</file>
+<file name="/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-suite/src/main/java/org/jbpm/remote/ejb/test/client/EJBClient.java">
+</file>
+<file name="/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-suite/src/main/java/org/jbpm/remote/ejb/test/maven/MavenProject.java">
+</file>
+<file name="/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-suite/src/main/java/org/jbpm/remote/ejb/test/mock/RestService.java">
+</file>
+<file name="/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-suite/src/main/java/org/jbpm/remote/ejb/test/mock/WebService.java">
+</file>
+<file name="/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-suite/src/main/java/org/jbpm/remote/ejb/test/users/UserAccount.java">
+</file>
+<file name="/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-suite/src/main/java/org/jbpm/remote/ejb/test/users/Users.java">
+</file>
+<file name="/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-suite/src/test/java/org/jbpm/remote/ejb/test/RemoteEjbTest.java">
+</file>
+<file name="/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-suite/src/test/java/org/jbpm/remote/ejb/test/TestKjars.java">
+</file>
+<file name="/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-suite/src/test/java/org/jbpm/remote/ejb/test/deployment/EDeploymentTest.java">
+</file>
+<file name="/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-suite/src/test/java/org/jbpm/remote/ejb/test/history/EProcessHistoryTest.java">
+</file>
+<file name="/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-suite/src/test/java/org/jbpm/remote/ejb/test/history/EVariableHistoryTest.java">
+</file>
+<file name="/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-suite/src/test/java/org/jbpm/remote/ejb/test/process/EEndProcessInstanceTest.java">
+</file>
+<file name="/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-suite/src/test/java/org/jbpm/remote/ejb/test/process/EGetNodeInstanceTest.java">
+</file>
+<file name="/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-suite/src/test/java/org/jbpm/remote/ejb/test/process/EGetProcessDefinitionTest.java">
+</file>
+<file name="/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-suite/src/test/java/org/jbpm/remote/ejb/test/process/EGetProcessInstanceTest.java">
+</file>
+<file name="/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-suite/src/test/java/org/jbpm/remote/ejb/test/process/ESignalProcessInstanceTest.java">
+</file>
+<file name="/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-suite/src/test/java/org/jbpm/remote/ejb/test/process/ESimultaneousProcessInstancesTest.java">
+</file>
+<file name="/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-suite/src/test/java/org/jbpm/remote/ejb/test/process/EStartProcessInstanceTest.java">
+</file>
+<file name="/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-suite/src/test/java/org/jbpm/remote/ejb/test/process/variable/ECustomVariableTest.java">
+</file>
+<file name="/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-suite/src/test/java/org/jbpm/remote/ejb/test/process/variable/EGetProcessInstanceVariablesTest.java">
+</file>
+<file name="/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-suite/src/test/java/org/jbpm/remote/ejb/test/process/variable/EGetVariableDefinitionTest.java">
+</file>
+<file name="/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-suite/src/test/java/org/jbpm/remote/ejb/test/process/variable/EObjectVariableTest.java">
+</file>
+<file name="/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-suite/src/test/java/org/jbpm/remote/ejb/test/task/EGetTaskTest.java">
+</file>
+<file name="/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-suite/src/test/java/org/jbpm/remote/ejb/test/task/ERestServiceTaskTest.java">
+</file>
+<file name="/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-suite/src/test/java/org/jbpm/remote/ejb/test/task/ETaskAttachmentTest.java">
+</file>
+<file name="/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-suite/src/test/java/org/jbpm/remote/ejb/test/task/ETaskCommentTest.java">
+</file>
+<file name="/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-suite/src/test/java/org/jbpm/remote/ejb/test/task/ETaskContentTest.java">
+</file>
+<file name="/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-suite/src/test/java/org/jbpm/remote/ejb/test/task/ETaskOperationTest.java">
+</file>
+<file name="/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-suite/src/test/java/org/jbpm/remote/ejb/test/task/ETaskParametersTest.java">
+</file>
+<file name="/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-suite/src/test/java/org/jbpm/remote/ejb/test/task/ETaskQueryFilterTest.java">
+</file>
+<file name="/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-suite/src/test/java/org/jbpm/remote/ejb/test/task/EWebServiceTaskTest.java">
+</file>
+<file name="/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/jbpm-remote-ejb-test-suite/src/main/resources/jboss-ejb-client.properties">
+</file>
+</checkstyle>

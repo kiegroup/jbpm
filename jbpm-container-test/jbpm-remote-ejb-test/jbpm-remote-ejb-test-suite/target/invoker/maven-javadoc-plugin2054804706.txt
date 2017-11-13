@@ -1,0 +1,48 @@
+Invoking Maven for the goals: [org.apache.maven.plugins:maven-javadoc-plugin:3.0.0-M1:javadoc] with no properties
+
+M2_HOME=/opt/tools/mavenVer
+MAVEN_OPTS= -Xms2g -Xmx3g
+JAVA_HOME=/opt/tools/jdk1.8.0_131/jre/..
+JAVA_OPTS=null
+
+[INFO] Scanning for projects...
+[INFO]                                                                         
+[INFO] ------------------------------------------------------------------------
+[INFO] Building test-kjar-evaluation 7.5.0.t017
+[INFO] ------------------------------------------------------------------------
+[INFO] 
+[INFO] >>> maven-javadoc-plugin:3.0.0-M1:javadoc (default-cli) > generate-sources @ test-kjar-evaluation >>>
+[INFO] 
+[INFO] --- maven-enforcer-plugin:3.0.0-M1:enforce (enforce-plugin-versions) @ test-kjar-evaluation ---
+[INFO] 
+[INFO] --- maven-enforcer-plugin:3.0.0-M1:enforce (ban-blacklisted-dependencies) @ test-kjar-evaluation ---
+[INFO] 
+[INFO] --- maven-enforcer-plugin:3.0.0-M1:enforce (enforce-java-version) @ test-kjar-evaluation ---
+[INFO] 
+[INFO] --- maven-enforcer-plugin:3.0.0-M1:enforce (enforce-maven-version) @ test-kjar-evaluation ---
+[INFO] 
+[INFO] --- maven-checkstyle-plugin:2.17:check (validate) @ test-kjar-evaluation ---
+[INFO] 
+[INFO] --- maven-enforcer-plugin:3.0.0-M1:enforce (no-managed-deps) @ test-kjar-evaluation ---
+[INFO] 
+[INFO] --- buildnumber-maven-plugin:1.4:create (get-scm-revision) @ test-kjar-evaluation ---
+[INFO] Executing: /bin/sh -c cd '/home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/test-kjar-parent/test-kjar-evaluation' && 'git' 'rev-parse' '--verify' 'HEAD'
+[INFO] Working directory: /home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/test-kjar-parent/test-kjar-evaluation
+[INFO] Storing buildNumber: a0fef863c239ccf2bf506fe0e55fc030ce63bf34 at timestamp: 1510584111531
+[INFO] Storing buildScmBranch: master
+[INFO] 
+[INFO] --- build-helper-maven-plugin:1.12:add-source (default) @ test-kjar-evaluation ---
+[INFO] Source directory: /home/jenkins/workspace/trisotech-tag/jbpm/jbpm-container-test/jbpm-remote-ejb-test/test-kjar-parent/test-kjar-evaluation/target/generated-sources/annotations added.
+[INFO] 
+[INFO] --- build-helper-maven-plugin:1.12:parse-version (default) @ test-kjar-evaluation ---
+[INFO] 
+[INFO] <<< maven-javadoc-plugin:3.0.0-M1:javadoc (default-cli) < generate-sources @ test-kjar-evaluation <<<
+[INFO] 
+[INFO] --- maven-javadoc-plugin:3.0.0-M1:javadoc (default-cli) @ test-kjar-evaluation ---
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 5.547 s
+[INFO] Finished at: 2017-11-13T15:41:52+01:00
+[INFO] Final Memory: 62M/2304M
+[INFO] ------------------------------------------------------------------------
