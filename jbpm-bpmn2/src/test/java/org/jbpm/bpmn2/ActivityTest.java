@@ -85,6 +85,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.junit.Assert.*;
+
 @RunWith(Parameterized.class)
 public class ActivityTest extends JbpmBpmn2TestCase {
 

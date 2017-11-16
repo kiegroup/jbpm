@@ -53,6 +53,8 @@ import org.kie.internal.io.ResourceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.junit.Assert.*;
+
 @RunWith(Parameterized.class)
 public class StartEventTest extends JbpmBpmn2TestCase {
 
