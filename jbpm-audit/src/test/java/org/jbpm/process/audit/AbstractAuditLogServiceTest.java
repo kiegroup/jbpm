@@ -274,9 +274,8 @@ public abstract class AbstractAuditLogServiceTest extends AbstractBaseTest {
         
         logger.debug("Checking process instances for process 'com.sample.ruleflow3'");
         processInstances = auditLogService.findProcessInstances("com.sample.ruleflow3");
-        int expected = initialProcessInstanceSize + 1; 
-        logger.info("Expected " + expected + " ProcessInstanceLog instances, not " + processInstances.size());
-        Assertions.assertThat(processInstances.size()).isEqualTo(expected);
+        int expected = initialProcessInstanceSize + 1;
+        Assertions.assertThat(processInstances.size()).isEqualTo(expected).withFailMessage(String.format("Expected %d ProcessInstanceLog instances, not %d", expected, processInstances.size()));
         ProcessInstanceLog processInstance = processInstances.get(initialProcessInstanceSize);
         logger.debug("{} -> {} - {}",processInstance.toString(), processInstance.getStart(), processInstance.getEnd());
         Assertions.assertThat(processInstance.getStart()).isNotNull();
