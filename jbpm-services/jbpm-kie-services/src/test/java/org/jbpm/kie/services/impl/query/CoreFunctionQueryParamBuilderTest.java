@@ -25,7 +25,7 @@ import org.jbpm.services.api.query.model.QueryParam;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.dashbuilder.dataset.filter.FilterFactory.*;
 import static org.jbpm.services.api.query.QueryResultMapper.*;
