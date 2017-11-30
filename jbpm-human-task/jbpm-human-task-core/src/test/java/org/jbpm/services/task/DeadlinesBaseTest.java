@@ -16,14 +16,12 @@
 package org.jbpm.services.task;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.*;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.*;
 
-import org.assertj.core.api.Assertions;
 import org.jbpm.services.task.deadlines.NotificationListener;
 import org.jbpm.services.task.deadlines.notifications.impl.MockNotificationListener;
 import org.jbpm.services.task.impl.factories.TaskFactory;
@@ -79,12 +77,12 @@ public abstract class DeadlinesBaseTest extends HumanTaskServicesBaseTest {
         checkContentSubjectAndBody(unmarshallObject);
 
         // emails should not be set yet
-        Assertions.assertThat(((MockNotificationListener)notificationListener).getEventsRecieved().size()).isEqualTo(0);
+        assertThat(((MockNotificationListener)notificationListener).getEventsRecieved().size()).isEqualTo(0);
         
         countDownListener.waitTillCompleted();
 
         // 1 email with two recipients should now exist
-        Assertions.assertThat(((MockNotificationListener)notificationListener).getEventsRecieved().size()).isEqualTo(1);
+        assertThat(((MockNotificationListener)notificationListener).getEventsRecieved().size()).isEqualTo(1);
         
     }
     @Test(timeout=10000)
@@ -110,14 +108,14 @@ public abstract class DeadlinesBaseTest extends HumanTaskServicesBaseTest {
       
         content = (InternalContent) taskService.getContentById(contentId);
         Object unmarshallObject = ContentMarshallerHelper.unmarshall(content.getContent(), null);
-        Assertions.assertThat(unmarshallObject.toString()).isEqualTo("'singleobject'");
+        assertThat(unmarshallObject.toString()).isEqualTo("'singleobject'");
 
         // emails should not be set yet
-        Assertions.assertThat(((MockNotificationListener)notificationListener).getEventsRecieved().size()).isEqualTo(0);
+        assertThat(((MockNotificationListener)notificationListener).getEventsRecieved().size()).isEqualTo(0);
         countDownListener.waitTillCompleted();
 
         // 1 email with two recipients should now exist
-        Assertions.assertThat(((MockNotificationListener)notificationListener).getEventsRecieved().size()).isEqualTo(1);
+        assertThat(((MockNotificationListener)notificationListener).getEventsRecieved().size()).isEqualTo(1);
 
     }
     @Test(timeout=10000)
@@ -165,16 +163,16 @@ public abstract class DeadlinesBaseTest extends HumanTaskServicesBaseTest {
         taskService.start(taskId, "Administrator");
         taskService.complete(taskId, "Administrator", null);
         // emails should not be set yet
-        Assertions.assertThat(((MockNotificationListener)notificationListener).getEventsRecieved().size()).isEqualTo(0);
+        assertThat(((MockNotificationListener)notificationListener).getEventsRecieved().size()).isEqualTo(0);
 
         countDownListener.waitTillCompleted();
 
         // no email should ne sent as task was completed before deadline was triggered
-        Assertions.assertThat(((MockNotificationListener)notificationListener).getEventsRecieved().size()).isEqualTo(0);
+        assertThat(((MockNotificationListener)notificationListener).getEventsRecieved().size()).isEqualTo(0);
         task = (InternalTask) taskService.getTaskById(taskId);
-        Assertions.assertThat(task.getTaskData().getStatus()).isEqualTo(Status.Completed);
-        Assertions.assertThat(((InternalTask) task).getDeadlines().getStartDeadlines().size()).isEqualTo(0);
-        Assertions.assertThat(((InternalTask) task).getDeadlines().getEndDeadlines().size()).isEqualTo(0);
+        assertThat(task.getTaskData().getStatus()).isEqualTo(Status.Completed);
+        assertThat(((InternalTask) task).getDeadlines().getStartDeadlines().size()).isEqualTo(0);
+        assertThat(((InternalTask) task).getDeadlines().getEndDeadlines().size()).isEqualTo(0);
         
         
     }
@@ -224,16 +222,16 @@ public abstract class DeadlinesBaseTest extends HumanTaskServicesBaseTest {
         taskService.start(taskId, "Administrator");
         taskService.fail(taskId, "Administrator", null);
         // emails should not be set yet
-        Assertions.assertThat(((MockNotificationListener)notificationListener).getEventsRecieved().size()).isEqualTo(0);
+        assertThat(((MockNotificationListener)notificationListener).getEventsRecieved().size()).isEqualTo(0);
         
         countDownListener.waitTillCompleted();
         
         // no email should ne sent as task was completed before deadline was triggered
-        Assertions.assertThat(((MockNotificationListener)notificationListener).getEventsRecieved().size()).isEqualTo(0);
+        assertThat(((MockNotificationListener)notificationListener).getEventsRecieved().size()).isEqualTo(0);
         task = (InternalTask) taskService.getTaskById(taskId);
-        Assertions.assertThat(task.getTaskData().getStatus()).isEqualTo(Status.Failed);
-        Assertions.assertThat(task.getDeadlines().getStartDeadlines().size()).isEqualTo(0);
-        Assertions.assertThat(task.getDeadlines().getEndDeadlines().size()).isEqualTo(0);
+        assertThat(task.getTaskData().getStatus()).isEqualTo(Status.Failed);
+        assertThat(task.getDeadlines().getStartDeadlines().size()).isEqualTo(0);
+        assertThat(task.getDeadlines().getEndDeadlines().size()).isEqualTo(0);
     }
     
     @Test(timeout=10000)
@@ -279,16 +277,16 @@ public abstract class DeadlinesBaseTest extends HumanTaskServicesBaseTest {
         
         taskService.skip(taskId, "Administrator");
         // emails should not be set yet
-        Assertions.assertThat(((MockNotificationListener)notificationListener).getEventsRecieved().size()).isEqualTo(0);
+        assertThat(((MockNotificationListener)notificationListener).getEventsRecieved().size()).isEqualTo(0);
         
         countDownListener.waitTillCompleted();
 
         // no email should ne sent as task was completed before deadline was triggered
-        Assertions.assertThat(((MockNotificationListener)notificationListener).getEventsRecieved().size()).isEqualTo(0);
+        assertThat(((MockNotificationListener)notificationListener).getEventsRecieved().size()).isEqualTo(0);
         task = (InternalTask) taskService.getTaskById(taskId);
-        Assertions.assertThat(task.getTaskData().getStatus()).isEqualTo(Status.Obsolete);
-        Assertions.assertThat(task.getDeadlines().getStartDeadlines().size()).isEqualTo(0);
-        Assertions.assertThat(task.getDeadlines().getEndDeadlines().size()).isEqualTo(0);
+        assertThat(task.getTaskData().getStatus()).isEqualTo(Status.Obsolete);
+        assertThat(task.getDeadlines().getStartDeadlines().size()).isEqualTo(0);
+        assertThat(task.getDeadlines().getEndDeadlines().size()).isEqualTo(0);
     }
     
     @Test(timeout=10000)   
@@ -334,16 +332,16 @@ public abstract class DeadlinesBaseTest extends HumanTaskServicesBaseTest {
         
         taskService.exit(taskId, "Administrator");
         // emails should not be set yet
-        Assertions.assertThat(((MockNotificationListener)notificationListener).getEventsRecieved().size()).isEqualTo(0);
+        assertThat(((MockNotificationListener)notificationListener).getEventsRecieved().size()).isEqualTo(0);
 
         countDownListener.waitTillCompleted();
 
         // no email should ne sent as task was completed before deadline was triggered
-        Assertions.assertThat(((MockNotificationListener)notificationListener).getEventsRecieved().size()).isEqualTo(0);
+        assertThat(((MockNotificationListener)notificationListener).getEventsRecieved().size()).isEqualTo(0);
         task = (InternalTask) taskService.getTaskById(taskId);
-        Assertions.assertThat(task.getTaskData().getStatus()).isEqualTo(Status.Exited);
-        Assertions.assertThat(task.getDeadlines().getStartDeadlines().size()).isEqualTo(0);
-        Assertions.assertThat(task.getDeadlines().getEndDeadlines().size()).isEqualTo(0);
+        assertThat(task.getTaskData().getStatus()).isEqualTo(Status.Exited);
+        assertThat(task.getDeadlines().getStartDeadlines().size()).isEqualTo(0);
+        assertThat(task.getDeadlines().getEndDeadlines().size()).isEqualTo(0);
     }
 
 
@@ -366,22 +364,22 @@ public abstract class DeadlinesBaseTest extends HumanTaskServicesBaseTest {
         for (OrganizationalEntity entity : potentialOwners) {
             ids.add(entity.getId());
         }
-        Assertions.assertThat(ids.contains("Tony Stark")).isTrue();
-        Assertions.assertThat(ids.contains("Luke Cage")).isTrue();
+        assertThat(ids.contains("Tony Stark")).isTrue();
+        assertThat(ids.contains("Luke Cage")).isTrue();
 
         // should have re-assigned by now
         countDownListener.waitTillCompleted();
         
         task = taskService.getTaskById(taskId);
-        Assertions.assertThat(task.getTaskData().getStatus()).isEqualTo(Status.Ready);
+        assertThat(task.getTaskData().getStatus()).isEqualTo(Status.Ready);
         potentialOwners = (List<OrganizationalEntity>) task.getPeopleAssignments().getPotentialOwners();
 
         ids = new ArrayList<String>(potentialOwners.size());
         for (OrganizationalEntity entity : potentialOwners) {
             ids.add(entity.getId());
         }
-        Assertions.assertThat(ids.contains("Bobba Fet")).isTrue();
-        Assertions.assertThat(ids.contains("Jabba Hutt")).isTrue();
+        assertThat(ids.contains("Bobba Fet")).isTrue();
+        assertThat(ids.contains("Jabba Hutt")).isTrue();
     }
 
       @Test(timeout=12000)
@@ -444,23 +442,23 @@ public abstract class DeadlinesBaseTest extends HumanTaskServicesBaseTest {
           taskService.start(taskId, "Administrator");
           taskService.complete(taskId, "Administrator", null);
           // emails should not be set yet
-          Assertions.assertThat(((MockNotificationListener)notificationListener).getEventsRecieved().size()).isEqualTo(0);
+          assertThat(((MockNotificationListener)notificationListener).getEventsRecieved().size()).isEqualTo(0);
  
           countDownListener.waitTillCompleted();
 
           // no email should be sent as task was completed before deadline was triggered
-          Assertions.assertThat(((MockNotificationListener)notificationListener).getEventsRecieved().size()).isEqualTo(1);
+          assertThat(((MockNotificationListener)notificationListener).getEventsRecieved().size()).isEqualTo(1);
           task = (InternalTask) taskService.getTaskById(taskId);
-          Assertions.assertThat(task.getTaskData().getStatus()).isEqualTo(Status.Completed);
-          Assertions.assertThat(((InternalTask) task).getDeadlines().getStartDeadlines().size()).isEqualTo(0);
-          Assertions.assertThat(((InternalTask) task).getDeadlines().getEndDeadlines().size()).isEqualTo(0);
+          assertThat(task.getTaskData().getStatus()).isEqualTo(Status.Completed);
+          assertThat(((InternalTask) task).getDeadlines().getStartDeadlines().size()).isEqualTo(0);
+          assertThat(((InternalTask) task).getDeadlines().getEndDeadlines().size()).isEqualTo(0);
           
           taskService.start(task2.getId(), "Administrator");
           taskService.complete(task2.getId(), "Administrator", null);
           
           task = (InternalTask) taskService.getTaskById(task2.getId());
-          Assertions.assertThat(task.getTaskData().getStatus()).isEqualTo(Status.Completed);
-          Assertions.assertThat(((InternalTask) task).getDeadlines().getStartDeadlines().size()).isEqualTo(0);
-          Assertions.assertThat(((InternalTask) task).getDeadlines().getEndDeadlines().size()).isEqualTo(0);
+          assertThat(task.getTaskData().getStatus()).isEqualTo(Status.Completed);
+          assertThat(((InternalTask) task).getDeadlines().getStartDeadlines().size()).isEqualTo(0);
+          assertThat(((InternalTask) task).getDeadlines().getEndDeadlines().size()).isEqualTo(0);
       }
 }
