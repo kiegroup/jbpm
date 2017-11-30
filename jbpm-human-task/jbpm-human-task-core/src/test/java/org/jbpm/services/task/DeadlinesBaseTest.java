@@ -384,7 +384,7 @@ public abstract class DeadlinesBaseTest extends HumanTaskServicesBaseTest {
         Assertions.assertThat(ids.contains("Jabba Hutt")).isTrue();
     }
 
-      @Test(timeout=10000)
+      @Test(timeout=12000)
       public void testDelayedEmailNotificationOnDeadlineTaskCompletedMultipleTasks() throws Exception {
           CountDownTaskEventListener countDownListener = new CountDownTaskEventListener(2, false, true);
           addCountDownListner(countDownListener);
