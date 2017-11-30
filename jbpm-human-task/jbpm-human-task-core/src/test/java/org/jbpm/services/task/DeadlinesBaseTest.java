@@ -21,11 +21,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.jbpm.services.task.deadlines.NotificationListener;
 import org.jbpm.services.task.deadlines.notifications.impl.MockNotificationListener;
@@ -440,7 +436,12 @@ public abstract class DeadlinesBaseTest extends HumanTaskServicesBaseTest {
           content = (InternalContent) taskService.getContentById(contentId);
           Object unmarshallObject = ContentMarshallerHelper.unmarshall(content.getContent(), null);
           checkContentSubjectAndBody(unmarshallObject);
-          
+
+          Calendar cal = Calendar.getInstance();
+          cal.add(Calendar.SECOND, 4);
+          task.getDeadlines().getStartDeadlines().get(0).setDate(cal.getTime());
+          task2.getDeadlines().getStartDeadlines().get(0).setDate(cal.getTime());
+
           taskService.start(taskId, "Administrator");
           taskService.complete(taskId, "Administrator", null);
           // emails should not be set yet
