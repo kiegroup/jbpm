@@ -763,7 +763,7 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
             return;
         }
         
-        indexAndPersistVariables(task, variables, persistenceContext, VariableType.OUTPUT);
+        indexAndPersistVariables(event, task, variables, persistenceContext, VariableType.OUTPUT);
     }
 
     @Override
@@ -775,11 +775,12 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
         Task task = event.getTask();        
         TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext());
 
-        indexAndPersistVariables(task, variables, persistenceContext, VariableType.INPUT);
+        indexAndPersistVariables(event, task, variables, persistenceContext, VariableType.INPUT);
     }
     
-    protected void indexAndPersistVariables(Task task, Map<String, Object> variables, TaskPersistenceContext persistenceContext, VariableType type) {
+    protected void indexAndPersistVariables(TaskEvent event, Task task, Map<String, Object> variables, TaskPersistenceContext persistenceContext, VariableType type) {
         TaskIndexerManager manager = TaskIndexerManager.get();
+        String userId = task.getTaskData().getActualOwner().getId();
         
         for (Map.Entry<String, Object> variable : variables.entrySet()) {
             if (SKIPPED_TASK_VARIABLES.contains(variable.getKey()) || variable.getValue() == null) {
@@ -792,8 +793,26 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
                     tVariable.setType(type);
                     persistenceContext.persist(tVariable);
                 }
+                
             }
         }
+        
+        persistenceContext.persist(new TaskEventImpl(task.getId(), org.kie.internal.task.api.model.TaskEvent.TaskEventType.UPDATED, task.getTaskData().getProcessInstanceId(), task.getTaskData().getWorkItemId(), userId ));
+        
+        AuditTaskImpl auditTaskImpl = getAuditTask(event, persistenceContext, task);
+        if (auditTaskImpl == null) {
+            logger.warn("Unable find audit task entry for task id {} '{}', skipping audit task update", task.getId(), task.getName());
+            return;
+        }
+        auditTaskImpl.setDescription(task.getDescription());
+        auditTaskImpl.setName(task.getName());  
+        auditTaskImpl.setActivationTime(task.getTaskData().getActivationTime());
+        auditTaskImpl.setPriority(task.getPriority());
+        auditTaskImpl.setDueDate(task.getTaskData().getExpirationTime());
+        auditTaskImpl.setStatus(task.getTaskData().getStatus().name());
+        auditTaskImpl.setActualOwner(userId);
+        updateLastModifiedDate(auditTaskImpl);
+        persistenceContext.merge(auditTaskImpl);
     }
     
     private void updateLastModifiedDate(AuditTaskImpl auditTaskImpl){

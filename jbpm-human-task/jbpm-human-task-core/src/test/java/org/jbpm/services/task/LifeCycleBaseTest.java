@@ -2855,6 +2855,39 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
         assertEquals(Status.Reserved, task2.getTaskData().getStatus());
     }
     
+    @Test
+    public void testCompleteWithContentAndVarPersistenceListener(TaskLifeCycleEventListener listener) {
+        
+
+        // One potential owner, should go straight to state Reserved
+        String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
+        str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [new User('Bobba Fet'), new User('Darth Vader') ],businessAdministrators = [ new User('Administrator') ], }),";
+        str += "name =  'This is my task name' })";
+
+        ((EventService<TaskLifeCycleEventListener>)taskService).registerTaskEventListener(listener);
+        
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("input", "simple input");
+        Task task = TaskFactory.evalTask(new StringReader(str));
+        taskService.addTask(task, params);
+        long taskId = task.getId();
+        
+        // start task
+        taskService.start(taskId, "Darth Vader");
+        Task task1 = taskService.getTaskById(taskId);
+        assertEquals(Status.InProgress, task1.getTaskData().getStatus());
+        assertEquals("Darth Vader", task1.getTaskData().getActualOwner().getId());
+
+        // complete task with output
+        params = new HashMap<String, Object>();
+        params.put("content", "content");
+        taskService.addContent(taskId, params);
+        
+        List<org.kie.internal.task.api.model.TaskEvent> listEvents = taskService.getTaskEventsById(taskId);
+        assertEquals(4, listEvents.size());
+        
+    }
+
     protected void testCompleteWithContentAndVarListener(TaskLifeCycleEventListener listener) {
         
 
