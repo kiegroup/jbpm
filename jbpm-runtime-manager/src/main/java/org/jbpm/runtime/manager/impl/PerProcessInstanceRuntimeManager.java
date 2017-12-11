@@ -640,14 +640,15 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
             Long piId = ((ProcessInstanceIdContext) ((RuntimeEngineImpl)runtime).getContext()).getContextId();
             if (piId != null) {
                 ReentrantLock lock = engineLocks.get(piId);
-
-                if (!lock.hasQueuedThreads()) {
-                    logger.debug("Removing lock {} from list as non is waiting for it by {}", lock, runtime);
-                    engineLocks.remove(piId);
-                }
-                if (lock.isHeldByCurrentThread()) {
-                    lock.unlock();
-                    logger.debug("{} unlocked by {}", lock, runtime);
+                if (lock != null) {
+                    if (!lock.hasQueuedThreads()) {
+                        logger.debug("Removing lock {} from list as non is waiting for it by {}", lock, runtime);
+                        engineLocks.remove(piId);
+                    }
+                    if (lock.isHeldByCurrentThread()) {
+                        lock.unlock();
+                        logger.debug("{} unlocked by {}", lock, runtime);
+                    }
                 }
             }
         }
