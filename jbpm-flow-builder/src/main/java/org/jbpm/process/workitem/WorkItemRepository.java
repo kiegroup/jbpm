@@ -121,11 +121,6 @@ public class WorkItemRepository {
 	private static List<Map<String, Object>> getAllWorkDefinitionsMap(String directory) {
 		List<Map<String, Object>> workDefinitions = new ArrayList<Map<String, Object>>();
 		for (String s: getDirectories(directory)) {
-			try {
-				workDefinitions.addAll(getAllWorkDefinitionsMap(directory + "/" + s));
-			} catch (Throwable t) {
-				t.printStackTrace();
-			}
 			workDefinitions.addAll(getWorkDefinitionsMap(directory, s));
 		}
 		return workDefinitions;

@@ -35,7 +35,8 @@ public class WorkItemRepositoryTest extends AbstractBaseTest {
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][] {
                 {"repository"},
-                {"repositorynoindexconf"}
+                {"repositorynoindexconf"},
+                {"repositoryinnerdirectories"}
         });
     }
 
