@@ -34,6 +34,7 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jbpm.kie.test.util.AbstractKieServicesBaseTest;
 import org.jbpm.runtime.manager.util.TestUtil;
+import org.jbpm.services.task.commands.TaskCommand;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -42,8 +43,10 @@ import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.runtime.manager.RuntimeManager;
 import org.kie.api.runtime.process.ProcessInstance;
+import org.kie.api.task.TaskService;
 import org.kie.api.task.model.Status;
 import org.kie.api.task.model.TaskSummary;
+import org.kie.internal.command.Context;
 import org.kie.internal.runtime.manager.cdi.qualifier.PerProcessInstance;
 import org.kie.internal.runtime.manager.cdi.qualifier.PerRequest;
 import org.kie.internal.runtime.manager.cdi.qualifier.Singleton;
@@ -168,7 +171,7 @@ public class SingleRuntimeManagerTest extends AbstractKieServicesBaseTest {
         
         RuntimeEngine runtime = singletonManager.getRuntimeEngine(EmptyContext.get());
         assertNotNull(runtime);
-        testProcessStartOnManager(runtime);
+        testProcessStartOnManager(runtime, singletonManager);
         
         singletonManager.disposeRuntimeEngine(runtime);     
     }
@@ -179,7 +182,7 @@ public class SingleRuntimeManagerTest extends AbstractKieServicesBaseTest {
         
         RuntimeEngine runtime = perRequestManager.getRuntimeEngine(EmptyContext.get());
         assertNotNull(runtime);
-        testProcessStartOnManager(runtime);   
+        testProcessStartOnManager(runtime, perRequestManager);   
         perRequestManager.disposeRuntimeEngine(runtime);
     }
     
@@ -189,12 +192,12 @@ public class SingleRuntimeManagerTest extends AbstractKieServicesBaseTest {
         
         RuntimeEngine runtime = perProcessInstanceManager.getRuntimeEngine(ProcessInstanceIdContext.get());
         assertNotNull(runtime);
-        testProcessStartOnManager(runtime);  
+        testProcessStartOnManager(runtime, perProcessInstanceManager);  
         perProcessInstanceManager.disposeRuntimeEngine(runtime);
     }
     
     
-    private void testProcessStartOnManager(RuntimeEngine runtime) {
+    private void testProcessStartOnManager(RuntimeEngine runtime, RuntimeManager manager) {
         
         
         KieSession ksession = runtime.getKieSession();
@@ -203,15 +206,29 @@ public class SingleRuntimeManagerTest extends AbstractKieServicesBaseTest {
         ProcessInstance processInstance = ksession.startProcess("UserTask");
         assertNotNull(processInstance);
         
+        TaskService taskService = runtime.getTaskService();
+        String deploymentId = taskService.execute(new TaskCommand<String>() {
+
+            @Override
+            public String execute(Context context) {
+                return (String) context.get("deploymentId");
+            }
+
+            
+            
+        });       
+        assertNotNull(deploymentId);
+        assertEquals(manager.getIdentifier(), deploymentId);
+        
         List<Status> statuses = new ArrayList<Status>();
         statuses.add(Status.Reserved);
-        List<TaskSummary> tasks = runtime.getTaskService().getTasksOwnedByStatus("john", statuses, "en-UK");
+        List<TaskSummary> tasks = taskService.getTasksOwnedByStatus("john", statuses, "en-UK");
         assertNotNull(tasks);
         assertEquals(1, tasks.size());
         
-        runtime.getTaskService().start(tasks.get(0).getId(), "john");
+        taskService.start(tasks.get(0).getId(), "john");
         
-        runtime.getTaskService().complete(tasks.get(0).getId(), "john", null);
+        taskService.complete(tasks.get(0).getId(), "john", null);
         
         processInstance = ksession.getProcessInstance(processInstance.getId());
         assertNull(processInstance);

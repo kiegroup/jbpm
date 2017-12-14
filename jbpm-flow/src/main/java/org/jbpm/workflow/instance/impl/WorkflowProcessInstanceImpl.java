@@ -407,7 +407,8 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
     }
 
 	public void reconnect() {
-		super.reconnect();
+        validate();
+	    super.reconnect();
 		for (NodeInstance nodeInstance : nodeInstances) {
 			if (nodeInstance instanceof EventBasedNodeInstanceInterface) {
 				((EventBasedNodeInstanceInterface) nodeInstance)
@@ -484,15 +485,6 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 			if (getState() != ProcessInstance.STATE_ACTIVE) {
 				return;
 			}
-			InternalRuntimeManager manager = (InternalRuntimeManager) getKnowledgeRuntime().getEnvironment().get("RuntimeManager");
-	        if (manager != null) {            
-	            // check if process instance is owned by the same manager as the one owning ksession
-	            if (hasDeploymentId() && !manager.getIdentifier().equals(getDeploymentId())) {	                
-	                logger.debug("Skipping signal on process instance " + getId() + " as it's owned by another deployment " +
-	                                                    getDeploymentId() + " != " + manager.getIdentifier());	                
-	                return;
-	            }
-	        }
 			List<NodeInstance> currentView = new ArrayList<NodeInstance>(this.nodeInstances);
 
 			try {
@@ -553,6 +545,7 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 			boolean external) {
 		Map<String, List<EventListener>> eventListeners =
 			external ? this.externalEventListeners : this.eventListeners;
+
 		List<EventListener> listeners = eventListeners.get(type);
 		if (listeners == null) {
 			listeners = new CopyOnWriteArrayList<EventListener>();
@@ -716,5 +709,16 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
         }
         
         return true;
+    }
+    
+    private void validate() {
+        InternalRuntimeManager manager = (InternalRuntimeManager) getKnowledgeRuntime().getEnvironment().get("RuntimeManager");
+        if (manager != null) {
+            // check if process instance is owned by the same manager as the one owning ksession
+            if (hasDeploymentId() && !manager.getIdentifier().equals(getDeploymentId())) {
+                throw new IllegalStateException("Process instance " + getId() + " is owned by another deployment " +
+                        getDeploymentId() + " != " + manager.getIdentifier());
+            }
+        }
     }
 }

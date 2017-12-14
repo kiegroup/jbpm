@@ -31,6 +31,7 @@ import org.jbpm.process.core.timer.impl.GlobalTimerService;
 import org.jbpm.runtime.manager.api.SchedulerProvider;
 import org.jbpm.runtime.manager.impl.deploy.DeploymentDescriptorManager;
 import org.jbpm.services.task.impl.TaskContentRegistry;
+import org.jbpm.services.task.impl.command.CommandBasedTaskService;
 import org.jbpm.services.task.wih.ExternalTaskEventListener;
 import org.kie.api.event.process.ProcessEventListener;
 import org.kie.api.event.rule.AgendaEventListener;
@@ -53,6 +54,7 @@ import org.kie.internal.runtime.manager.RuntimeManagerRegistry;
 import org.kie.internal.runtime.manager.SecurityManager;
 import org.kie.internal.runtime.manager.SessionFactory;
 import org.kie.internal.runtime.manager.SessionNotFoundException;
+import org.kie.internal.runtime.manager.TaskServiceFactory;
 import org.kie.internal.task.api.EventService;
 import org.kie.internal.task.api.InternalTaskService;
 
@@ -92,6 +94,7 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
         if (registry.isRegistered(identifier)) {
             throw new IllegalStateException("RuntimeManager with id " + identifier + " is already active");
         }
+        ((SimpleRuntimeEnvironment)environment).getEnvironmentTemplate().set("deploymentId", this.getIdentifier());
         internalSetDeploymentDescriptor();
         internalSetKieContainer();
         ((InternalRegisterableItemsFactory)environment.getRegisterableItemsFactory()).setRuntimeManager(this);
@@ -262,6 +265,15 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
                 });
             }
         }
+    }
+    
+    protected InternalTaskService newTaskService(TaskServiceFactory factory) {
+        InternalTaskService internalTaskService = (InternalTaskService) factory.newTaskService();
+        if (internalTaskService instanceof CommandBasedTaskService) {
+            ((CommandBasedTaskService) internalTaskService).getEnvironment().set("deploymentId", this.getIdentifier());
+        }
+        
+        return internalTaskService;
     }
 
     protected void removeRuntimeFromTaskService() {
