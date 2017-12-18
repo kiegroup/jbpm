@@ -74,6 +74,12 @@ public class ExecutorImpl implements Executor {
 
     private static final Logger logger = LoggerFactory.getLogger(ExecutorImpl.class);
     
+    private static final int DEFAULT_PRIORITY = 5;
+    private static final int MAX_PRIORITY = 9;
+    private static final int MIN_PRIORITY = 0;
+    
+    private static final int INCREMENT_INITIAL_DELAY = 2000;
+    
     private ExecutorStoreService executorStoreService;
 
     private List<ScheduledFuture<?>> handle = new ArrayList<ScheduledFuture<?>>();
@@ -216,16 +222,16 @@ public class ExecutorImpl implements Executor {
                     + " \t - Interval: {} {} \n" + " \t - Retries per Request: {}\n",
                     threadPoolSize, interval, timeunit.toString(), retries);
             
-            int delayIncremental = 0;
+            int delayIncremental = this.initialDelay;
             
-            scheduler = Executors.newScheduledThreadPool(threadPoolSize);
+            scheduler = getScheduledExecutorService();
             for (int i = 0; i < threadPoolSize; i++) {
-                long delay = 2000 + delayIncremental;
+                long delay = INCREMENT_INITIAL_DELAY + delayIncremental;
                 long interval = TimeUnit.MILLISECONDS.convert(this.interval, timeunit);
                 logger.debug("Starting executor thread with initial delay {} interval {} and time unit {}", delay, interval, TimeUnit.MILLISECONDS);
                 handle.add(scheduler.scheduleAtFixedRate(executorStoreService.buildExecutorRunnable(), delay, interval, TimeUnit.MILLISECONDS));
                                
-                delayIncremental += this.initialDelay;
+                delayIncremental += INCREMENT_INITIAL_DELAY;
                 
             }
             
@@ -257,17 +263,17 @@ public class ExecutorImpl implements Executor {
                     + " \t - Interval: {}" + " Seconds\n" + " \t - Retries per Request: {}\n",
                     threadPoolSize, interval, retries);
             
-            int delayIncremental = 0;
+            int delayIncremental = this.initialDelay;
             
-            scheduler = Executors.newScheduledThreadPool(threadPoolSize, threadFactory);
+            scheduler = getScheduledExecutorService();
             for (int i = 0; i < threadPoolSize; i++) {
                 
-                long delay = 2000 + delayIncremental;
+                long delay = INCREMENT_INITIAL_DELAY + delayIncremental;
                 long interval = TimeUnit.MILLISECONDS.convert(this.interval, timeunit);
                 logger.debug("Starting executor thread with initial delay {} interval {} and time unit {}", delay, interval, TimeUnit.MILLISECONDS);
                 handle.add(scheduler.scheduleAtFixedRate(executorStoreService.buildExecutorRunnable(), delay, interval, TimeUnit.MILLISECONDS));
                 
-                delayIncremental += this.initialDelay;
+                delayIncremental += INCREMENT_INITIAL_DELAY;
             }
         } else {
         	throw new ExecutorNotStartedException();
@@ -446,5 +452,8 @@ public class ExecutorImpl implements Executor {
         }
     }
 
+    protected ScheduledExecutorService getScheduledExecutorService() {
+        return Executors.newScheduledThreadPool(threadPoolSize);
+    }
 
 }

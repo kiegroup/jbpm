@@ -16,6 +16,8 @@
 
 package org.jbpm.test.functional.async;
 
+import java.util.concurrent.CountDownLatch;
+
 import org.assertj.core.api.Assertions;
 import org.jbpm.executor.ExecutorServiceFactory;
 import org.jbpm.process.core.async.AsyncSignalEventCommand;
@@ -38,12 +40,11 @@ import org.kie.api.runtime.process.ProcessInstance;
  */
 public class AsyncIntermediateCatchSignalTest extends JbpmTestCase {
 
-    private static Object LOCK = new Object();
-
     private static final String PROCESS_AICS = "org.jbpm.test.functional.async.AsyncIntermediateCatchSignal";
     private static final String BPMN_AICS = "org/jbpm/test/functional/async/AsyncIntermediateCatchSignal.bpmn2";
 
     private ExecutorService executorService;
+    private CountDownLatch latch;
 
     @Before
     @Override
@@ -53,17 +54,15 @@ public class AsyncIntermediateCatchSignalTest extends JbpmTestCase {
         executorService = ExecutorServiceFactory.newExecutorService(getEmf());
         executorService.setInterval(1);
         executorService.setThreadPoolSize(3);
-        executorService.init();
         addEnvironmentEntry("ExecutorService", executorService);
         addWorkItemHandler("SyncError", new FirstErrorWorkItemHandler());
         addProcessEventListener(new DefaultProcessEventListener() {
             @Override
             public void afterProcessCompleted(ProcessCompletedEvent event) {
-                synchronized (LOCK) {
-                    LOCK.notifyAll();
-                }
+                latch.countDown();
             }
         });
+        executorService.init();
     }
 
     @After
@@ -74,7 +73,8 @@ public class AsyncIntermediateCatchSignalTest extends JbpmTestCase {
     }
 
     @Test(timeout = 10000)
-    public void testCorrectProcessStateAfterExceptionSignalCommand() {
+    public void testCorrectProcessStateAfterExceptionSignalCommand() throws InterruptedException {
+        latch = new CountDownLatch(1);
         RuntimeManager runtimeManager = createRuntimeManager(BPMN_AICS);
         KieSession ksession = getRuntimeEngine().getKieSession();
         ProcessInstance pi = ksession.startProcess(PROCESS_AICS, null);
@@ -88,41 +88,30 @@ public class AsyncIntermediateCatchSignalTest extends JbpmTestCase {
 
         executorService.scheduleRequest(AsyncSignalEventCommand.class.getName(), ctx);
 
-        synchronized (LOCK) {
-            try {
-                LOCK.wait();
-            } catch (InterruptedException e) {
-            }
-        }
-
+        latch.await();
     }
 
-    @Test
-    public void testCorrectProcessStateAfterExceptionSignalCommandMulti() {
+    
+    @Test(timeout = 20000)
+    public void testCorrectProcessStateAfterExceptionSignalCommandMulti() throws InterruptedException {
+        latch = new CountDownLatch(5);
         RuntimeManager runtimeManager = createRuntimeManager(BPMN_AICS);
         KieSession ksession = getRuntimeEngine().getKieSession();
         long[] pid = new long[5];
-        for (int i = 0; i < 5; ++i) {
+        for (int i = 0; i < 5; i++) {
             ProcessInstance pi = ksession.startProcess(PROCESS_AICS, null);
             pid[i] = pi.getId();
 
             CommandContext ctx = new CommandContext();
             ctx.setData("DeploymentId", runtimeManager.getIdentifier());
-            ctx.setData("ProcessInstanceId", pid[i]);
+            ctx.setData("ProcessInstanceId", pi.getId());
             ctx.setData("Signal", "MySignal");
             ctx.setData("Event", null);
 
             executorService.scheduleRequest(AsyncSignalEventCommand.class.getName(), ctx);
         }
 
-        for (int i=0; i < 5; ++i) {
-            synchronized (LOCK) {
-                try {
-                    LOCK.wait();
-                } catch (InterruptedException e) {
-                }
-            }
-        }
+        latch.await();
 
         for (long p : pid) {
             ProcessInstance pi = ksession.getProcessInstance(p);
@@ -130,7 +119,7 @@ public class AsyncIntermediateCatchSignalTest extends JbpmTestCase {
         }
     }
 
-    @Test(expected = org.jbpm.workflow.instance.WorkflowRuntimeException.class)
+    @Test(timeout = 10000, expected = org.jbpm.workflow.instance.WorkflowRuntimeException.class)
     public void testSyncGlobalSignal() {
         KieSession ksession = createKSession(BPMN_AICS);
         ksession.startProcess(PROCESS_AICS, null);
