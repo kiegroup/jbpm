@@ -108,6 +108,7 @@ import org.jbpm.services.task.events.TaskEventSupport;
 import org.jbpm.services.task.impl.TaskContentRegistry;
 import org.jbpm.services.task.impl.TaskSummaryQueryBuilderImpl;
 import org.kie.api.command.Command;
+import org.kie.api.runtime.Environment;
 import org.kie.api.task.TaskLifeCycleEventListener;
 import org.kie.api.task.model.Attachment;
 import org.kie.api.task.model.Comment;
@@ -135,6 +136,7 @@ public class CommandBasedTaskService implements InternalTaskService, EventServic
 
 	private CommandService executor;
 	private TaskEventSupport taskEventSupport;
+	private Environment environment;
 
 	private QueryFilter addLanguageFilter(String language) {
 	   if( language == null ) {
@@ -147,9 +149,10 @@ public class CommandBasedTaskService implements InternalTaskService, EventServic
 	   return filter;
 	}
 
-	public CommandBasedTaskService(CommandService executor, TaskEventSupport taskEventSupport) {
+	public CommandBasedTaskService(CommandService executor, TaskEventSupport taskEventSupport, Environment environment) {
 		this.executor = executor;
 		this.taskEventSupport = taskEventSupport;
+		this.environment = environment;
 	}
 
 	@Override
@@ -811,6 +814,10 @@ public class CommandBasedTaskService implements InternalTaskService, EventServic
 		throw new UnsupportedOperationException(Thread.currentThread().getStackTrace()[1].getMethodName() + " is not supported on the " +
 		        this.getClass().getSimpleName());
 	}
+	
+    public Environment getEnvironment() {
+        return environment;
+    }
 
 	// notification service methods
 
