@@ -7,7 +7,7 @@
   <parent>
     <groupId>org.jbpm</groupId>
     <artifactId>jbpm</artifactId>
-    <version>7.5.1-SNAPSHOT</version>
+    <version>7.5.1.t020</version>
   </parent>
 
   <artifactId>jbpm-audit</artifactId>
