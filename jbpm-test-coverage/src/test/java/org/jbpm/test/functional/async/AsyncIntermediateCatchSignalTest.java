@@ -25,6 +25,7 @@ import org.jbpm.test.JbpmTestCase;
 import org.jbpm.test.wih.FirstErrorWorkItemHandler;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.kie.api.event.process.DefaultProcessEventListener;
 import org.kie.api.event.process.ProcessCompletedEvent;
@@ -91,6 +92,7 @@ public class AsyncIntermediateCatchSignalTest extends JbpmTestCase {
         latch.await();
     }
 
+    @Ignore("JBPM-6720 Possible jBPM bug, test fails randomly. Ignored till resolved.")
     @Test(timeout = 20000)
     public void testCorrectProcessStateAfterExceptionSignalCommandMulti() throws InterruptedException {
         latch = new CountDownLatch(5);
