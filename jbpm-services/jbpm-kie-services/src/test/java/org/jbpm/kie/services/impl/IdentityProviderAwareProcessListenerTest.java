@@ -30,7 +30,7 @@ import org.kie.api.runtime.KieSession;
 import org.kie.internal.identity.IdentityProvider;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -74,7 +74,6 @@ public class IdentityProviderAwareProcessListenerTest {
     public void testUserNotSet() {
         final WorkflowProcessInstance processInstance = mock(WorkflowProcessInstance.class);
         final HashMap<String, Object> metaData = new HashMap<>();
-        when(processInstance.getMetaData()).thenReturn(metaData);
         final ProcessStartedEvent event = new ProcessStartedEventImpl(processInstance, mock(KieRuntime.class));
 
         listener.beforeProcessStarted(event);

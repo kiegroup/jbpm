@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.kie.internal.identity.IdentityProvider;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -68,12 +68,8 @@ public class BusinessAdminPreprocessorTest {
     @Test
     public void testQueryByUserBusinessAdmin() {
         dataSetLookup = spy(new DataSetLookup());
-        String role1 = "role1";
-        String role2 = "role2";
         String userId = "admin";
 
-        when(identityProvider.getRoles()).thenReturn(Arrays.asList(role1,
-                                                                   role2));
         when(identityProvider.getName()).thenReturn(userId);
 
         businessAdminPreprocessor.preprocess(dataSetLookup);
