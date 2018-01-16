@@ -633,7 +633,7 @@ private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentSe
     	
     	Task taskInstance = userTaskService.getTask(taskId);
     	assertNotNull(taskInstance);
-    	assertEquals(Status.Reserved, taskInstance.getTaskData().getStatus());
+    	assertEquals(Status.Ready, taskInstance.getTaskData().getStatus());
     	assertEquals("Write a Document", taskInstance.getName());
     	assertTrue(StringUtils.isEmpty(((InternalTask)taskInstance).getFormName()));
     }

@@ -16,6 +16,7 @@
 
 package org.jbpm.kie.services.impl.query.preprocessor;
 
+
 import static org.dashbuilder.dataset.filter.FilterFactory.OR;
 import static org.dashbuilder.dataset.filter.FilterFactory.equalsTo;
 import static org.jbpm.services.api.query.QueryResultMapper.COLUMN_ACTUALOWNER;
@@ -25,18 +26,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.dashbuilder.dataset.DataSetLookup;
-import org.dashbuilder.dataset.def.DataSetPreprocessor;
+import org.dashbuilder.dataset.DataSetMetadata;
 import org.dashbuilder.dataset.filter.ColumnFilter;
 import org.dashbuilder.dataset.filter.DataSetFilter;
 import org.kie.internal.identity.IdentityProvider;
 
-public class PotOwnerTasksPreprocessor implements DataSetPreprocessor {
+public class PotOwnerTasksPreprocessor extends UserTasksPreprocessor {
 
     private IdentityProvider identityProvider;
     
-    
-    public PotOwnerTasksPreprocessor(IdentityProvider identityProvider) {
-        this.identityProvider = identityProvider;
+    public PotOwnerTasksPreprocessor(IdentityProvider identityProvider, DataSetMetadata metadata) {
+        super(metadata);
+        this.identityProvider = identityProvider;        
     }
 
 
@@ -62,7 +63,8 @@ public class PotOwnerTasksPreprocessor implements DataSetPreprocessor {
             filter.addFilterColumn(OR(condList));
             lookup.addOperation(filter);
         }
-
+        
+        super.preprocess(lookup);       
     }
 
 }
