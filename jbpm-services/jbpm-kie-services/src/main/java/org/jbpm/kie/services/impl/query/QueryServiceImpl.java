@@ -28,10 +28,12 @@ import org.dashbuilder.dataset.DataSet;
 import org.dashbuilder.dataset.DataSetLookupBuilder;
 import org.dashbuilder.dataset.DataSetLookupFactory;
 import org.dashbuilder.dataset.DataSetManager;
+import org.dashbuilder.dataset.DataSetMetadata;
 import org.dashbuilder.dataset.def.DataSetDef;
 import org.dashbuilder.dataset.def.DataSetDefFactory;
 import org.dashbuilder.dataset.def.DataSetDefRegistry;
 import org.dashbuilder.dataset.def.SQLDataSetDefBuilder;
+import org.dashbuilder.dataset.exception.DataSetLookupException;
 import org.dashbuilder.dataset.filter.ColumnFilter;
 import org.jbpm.kie.services.impl.query.persistence.PersistDataSetListener;
 import org.jbpm.kie.services.impl.query.persistence.QueryDefinitionEntity;
@@ -138,14 +140,25 @@ public class QueryServiceImpl implements QueryService {
                     .dbSQL(sqlQueryDefinition.getExpression(), true);                       
             
             DataSetDef sqlDef = builder.buildDef();
-            
-            
-            dataSetDefRegistry.registerDataSetDef(sqlDef);
-            
-            if (queryDefinition.getTarget().equals(Target.BA_TASK)) {
-                dataSetDefRegistry.registerPreprocessor(sqlDef.getUUID(), new BusinessAdminTasksPreprocessor(identityProvider));
-            } else if (queryDefinition.getTarget().equals(Target.PO_TASK)) {
-                dataSetDefRegistry.registerPreprocessor(sqlDef.getUUID(), new PotOwnerTasksPreprocessor(identityProvider));
+
+            try {
+                dataSetDefRegistry.registerDataSetDef(sqlDef);
+                DataSetMetadata metadata = dataSetManager.getDataSetMetadata(sqlDef.getUUID());
+                
+                if (queryDefinition.getTarget().equals(Target.BA_TASK)) {
+                    dataSetDefRegistry.registerPreprocessor(sqlDef.getUUID(), new BusinessAdminTasksPreprocessor(identityProvider, metadata));
+                } else if (queryDefinition.getTarget().equals(Target.PO_TASK)) {
+                    dataSetDefRegistry.registerPreprocessor(sqlDef.getUUID(), new PotOwnerTasksPreprocessor(identityProvider, metadata));
+                }
+                for (String columnId : metadata.getColumnIds()) {
+                    sqlDef.addColumn(columnId, metadata.getColumnType(columnId));
+                }
+    
+                logger.info("Registered {} query successfully", queryDefinition.getName());
+            } catch (DataSetLookupException e) {
+                unregisterQuery(queryDefinition.getName());
+                
+                throw e;
             }
             
             logger.info("Registered {} query successfully", queryDefinition.getName());

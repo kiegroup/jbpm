@@ -23,16 +23,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.dashbuilder.dataset.DataSetLookup;
-import org.dashbuilder.dataset.def.DataSetPreprocessor;
+import org.dashbuilder.dataset.DataSetMetadata;
 import org.dashbuilder.dataset.filter.DataSetFilter;
 import org.kie.internal.identity.IdentityProvider;
 
-public class BusinessAdminTasksPreprocessor implements DataSetPreprocessor {
+public class BusinessAdminTasksPreprocessor extends UserTasksPreprocessor {
 
-    private IdentityProvider identityProvider;
-    
-    
-    public BusinessAdminTasksPreprocessor(IdentityProvider identityProvider) {
+    private IdentityProvider identityProvider;    
+
+    public BusinessAdminTasksPreprocessor(IdentityProvider identityProvider, DataSetMetadata metadata) {
+        super(metadata);
         this.identityProvider = identityProvider;
     }
 
@@ -54,7 +54,8 @@ public class BusinessAdminTasksPreprocessor implements DataSetPreprocessor {
             filter.addFilterColumn(equalsTo(COLUMN_ORGANIZATIONAL_ENTITY, orgEntities));
             lookup.addOperation(filter);
         }
-
+        
+        super.preprocess(lookup);
     }
 
 }

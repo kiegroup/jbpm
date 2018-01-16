@@ -108,6 +108,7 @@ private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentSe
         processes.add("repo/processes/general/BPMN2-UserTask.bpmn2");
         processes.add("repo/processes/general/SimpleHTProcess.bpmn2");
         processes.add("repo/processes/general/AdHocSubProcess.bpmn2");
+        processes.add("repo/processes/general/NoFormNameHumanTask.bpmn");
 
         InternalKieModule kJar1 = createKieJar(ks, releaseId, processes);
         File pom = new File("target/kmodule", "pom.xml");
@@ -777,6 +778,49 @@ private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentSe
         processService.abortProcessInstance(processInstanceId2);
         processService.abortProcessInstance(processInstanceId);
         processInstanceId = null;        
+    }
+    
+    @Test
+    public void testGetTaskInstancesAsPotOwnersRemoveDuplicates() {
+        String PO_TASK_QUERY = "SELECT ti.*, oe.id as oeid FROM AuditTaskImpl ti, PeopleAssignments_PotOwners po, OrganizationalEntity oe WHERE ti.taskId= po.task_id AND po.entity_id = oe.id";
+        query = new SqlQueryDefinition("getMyTaskInstances", dataSourceJNDIname, Target.PO_TASK);
+        query.setExpression(PO_TASK_QUERY);
+        
+        queryService.registerQuery(query);
+        
+        List<QueryDefinition> queries = queryService.getQueries(new QueryContext());
+        assertNotNull(queries);
+        assertEquals(1, queries.size());
+        
+        QueryDefinition registeredQuery = queries.get(0);
+        assertNotNull(registeredQuery);
+        assertEquals(query.getName(), registeredQuery.getName());
+        assertEquals(query.getSource(), registeredQuery.getSource());
+        assertEquals(query.getExpression(), registeredQuery.getExpression());
+        assertEquals(query.getTarget(), registeredQuery.getTarget());
+        
+        registeredQuery = queryService.getQuery(query.getName());
+        
+        assertNotNull(registeredQuery);
+        assertEquals(query.getName(), registeredQuery.getName());
+        assertEquals(query.getSource(), registeredQuery.getSource());
+        assertEquals(query.getExpression(), registeredQuery.getExpression());
+        assertEquals(query.getTarget(), registeredQuery.getTarget());
+        
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("approval_document", "initial content");
+        
+        processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument.noform", params);
+        assertNotNull(processInstanceId);
+        identityProvider.setName("salaboy");
+        identityProvider.setRoles(Arrays.asList("HR", "PM"));
+        
+        List<UserTaskInstanceDesc> taskInstanceLogs = queryService.query(query.getName(), UserTaskInstanceQueryMapper.get(), new QueryContext());
+        assertNotNull(taskInstanceLogs);
+        assertEquals(1, taskInstanceLogs.size()); 
+        
+        processService.abortProcessInstance(processInstanceId);
+        processInstanceId = null;
     }
     
     protected void setFieldValue(Object instance, String fieldName, Object value) {
