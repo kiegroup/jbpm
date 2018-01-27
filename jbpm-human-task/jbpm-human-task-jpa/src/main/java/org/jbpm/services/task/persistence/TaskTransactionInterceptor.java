@@ -22,10 +22,13 @@ import org.drools.core.command.CommandService;
 import org.drools.core.command.Interceptor;
 import org.drools.core.command.impl.AbstractInterceptor;
 import org.drools.persistence.OrderedTransactionSynchronization;
+import org.drools.persistence.TransactionAware;
 import org.drools.persistence.TransactionManager;
 import org.drools.persistence.TransactionManagerFactory;
 import org.drools.persistence.TransactionManagerHelper;
 import org.kie.api.command.Command;
+import org.kie.api.KieBase;
+import org.kie.api.marshalling.ObjectMarshallingStrategy;
 import org.kie.api.runtime.Environment;
 import org.kie.api.runtime.EnvironmentName;
 import org.kie.api.task.UserGroupCallback;
@@ -51,8 +54,11 @@ public class TaskTransactionInterceptor extends AbstractInterceptor {
     private TaskPersistenceContextManager  tpm;
     private boolean eagerDisabled = false;
     
+    private Environment environment; 
+    
     public TaskTransactionInterceptor(Environment environment) {
     	this.eagerDisabled = Boolean.getBoolean("jbpm.ht.eager.disabled");
+    	this.environment = environment;
     	initTransactionManager(environment);
     }
 	
@@ -66,8 +72,19 @@ public class TaskTransactionInterceptor extends AbstractInterceptor {
             tpm.beginCommandScopedEntityManager();
             TransactionManagerHelper.registerTransactionSyncInContainer(this.txm, new TaskSynchronizationImpl( this ));
                 
+            if (txm != null) {
+                ObjectMarshallingStrategy[] strategies = (ObjectMarshallingStrategy[]) environment.get(EnvironmentName.OBJECT_MARSHALLING_STRATEGIES);
+                if (strategies != null) {
+                    for (ObjectMarshallingStrategy strategy : strategies) {
+                        if (strategy instanceof TransactionAware) {
+                            ((TransactionAware) strategy).onStart(txm);
+                        }
+                    }
+                }
+            }
             result = executeNext((Command<T>) command);
             postInit(result);
+
             txm.commit( transactionOwner );
 
             return result;
@@ -247,6 +264,18 @@ public class TaskTransactionInterceptor extends AbstractInterceptor {
 
 		public void afterCompletion(int status) {
 
+		    if (this.service.txm != null) {
+                ObjectMarshallingStrategy[] strategies = (ObjectMarshallingStrategy[]) this.service.environment.get(EnvironmentName.OBJECT_MARSHALLING_STRATEGIES);
+
+                if (strategies != null) {
+                    for (ObjectMarshallingStrategy strategy : strategies) {
+                        if (strategy instanceof TransactionAware) {
+                            ((TransactionAware) strategy).onEnd(this.service.txm);
+                        }
+                    }
+                }
+            }
+		    
 			this.service.tpm.endCommandScopedEntityManager();
 
 		}
