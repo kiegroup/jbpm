@@ -271,6 +271,8 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
         InternalTaskService internalTaskService = (InternalTaskService) factory.newTaskService();
         if (internalTaskService instanceof CommandBasedTaskService) {
             ((CommandBasedTaskService) internalTaskService).getEnvironment().set("deploymentId", this.getIdentifier());
+            ((CommandBasedTaskService) internalTaskService).getEnvironment().set(EnvironmentName.OBJECT_MARSHALLING_STRATEGIES, 
+                                                                                 ((SimpleRuntimeEnvironment)environment).getEnvironmentTemplate().get(EnvironmentName.OBJECT_MARSHALLING_STRATEGIES));
         }
         
         return internalTaskService;
