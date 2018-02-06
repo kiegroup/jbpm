@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Map.Entry;
 
 import org.kie.api.task.model.Group;
 import org.kie.api.task.model.OrganizationalEntity;
@@ -112,6 +113,16 @@ public class DefaultUserInfo extends AbstractUserGroupInfo implements UserInfo {
         
         if (entityInfo != null) {
             return (String) entityInfo.get("locale");
+        }
+        return null;
+    }
+    
+    @Override
+    public String getEntityForEmail(String email) {
+        for (Entry<String, Map<String, Object>> entry : registry.entrySet()) {
+            if (entry.getValue().get("email").equals(email)) {
+                return entry.getKey();
+            }
         }
         return null;
     }

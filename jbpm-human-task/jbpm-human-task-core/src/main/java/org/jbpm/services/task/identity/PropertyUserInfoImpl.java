@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 
 import org.kie.api.task.model.Group;
@@ -145,5 +146,15 @@ public class PropertyUserInfoImpl extends AbstractUserGroupInfo implements UserI
                 
             }
         }
+    }
+
+    @Override
+    public String getEntityForEmail(String email) {
+        for (Entry<String, Map<String, Object>> entry : registry.entrySet()) {
+            if (entry.getValue().get("email").equals(email)) {
+                return entry.getKey();
+            }
+        }
+        return null;
     }
 }
