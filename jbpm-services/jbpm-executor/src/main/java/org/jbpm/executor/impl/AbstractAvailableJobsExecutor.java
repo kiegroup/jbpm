@@ -111,6 +111,7 @@ public abstract class AbstractAvailableJobsExecutor {
                             }
                         }
                     }
+
                     for (Map.Entry<String, Object> entry : contextData.entrySet()) {
                     	ctx.setData(entry.getKey(), entry.getValue());
                     }
@@ -119,6 +120,8 @@ public abstract class AbstractAvailableJobsExecutor {
                     
                     
                     cmd = classCacheManager.findCommand(request.getCommandName(), cl);
+                    // increment execution counter directly to cover both success and failure paths
+                    request.setExecutions(request.getExecutions() + 1);   
                     ExecutionResults results = cmd.execute(ctx);
                     
                     callbacks = classCacheManager.buildCommandCallback(ctx, cl);                
@@ -138,6 +141,7 @@ public abstract class AbstractAvailableJobsExecutor {
                         } catch (IOException e) {
                             request.setResponseData(null);
                         }
+
                     }
     
                     request.setStatus(STATUS.DONE);
@@ -201,7 +205,7 @@ public abstract class AbstractAvailableJobsExecutor {
                 long retryAdd = 0l;
 
                 try {
-                    retryAdd = retryDelay.get(request.getExecutions());
+                    retryAdd = retryDelay.get(request.getExecutions() - 1); // need to decrement it as executions are directly incremented upon execution
                 } catch (IndexOutOfBoundsException ex) {
                     // in case there is no element matching given execution, use last one
                     retryAdd = retryDelay.get(retryDelay.size()-1);
@@ -220,7 +224,6 @@ public abstract class AbstractAvailableJobsExecutor {
         } else {
             logger.debug("Error no retries left!");
             request.setStatus(STATUS.ERROR);
-            request.setExecutions(request.getExecutions() + 1);
             
             executorStoreService.updateRequest(request);
             
