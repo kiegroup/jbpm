@@ -227,27 +227,35 @@ public class ExecutorQueryServiceImpl implements ExecutorQueryService {
 
 		@Override
 		public RequestInfo execute(Context context) {
-			Map<String, Object> params = new HashMap<String, Object>();
-	    	params.put("now", new Date());
-	    	params.put("firstResult", 0);
-	    	params.put("maxResults", 1);
-	    	params.put("owner", ExecutorService.EXECUTOR_ID);
-	    	RequestInfo request = null;
-	    	try {
-	    		org.jbpm.shared.services.impl.JpaPersistenceContext ctx = (org.jbpm.shared.services.impl.JpaPersistenceContext) context;
-				request = ctx.queryAndLockWithParametersInTransaction("PendingRequestsForProcessing",params, true, RequestInfo.class);
-				
-				if (request != null) {
-	                request.setStatus(STATUS.RUNNING);
-	                // update date on when it was started to be executed
-	                ((org.jbpm.executor.entities.RequestInfo)request).setTime(new Date());
-	                ctx.merge(request);
-	            }
-	    	} catch (NoResultException e) {
-	    		
-	    	}
-			return request;
-		}
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put("now", new Date());
+            params.put("owner", ExecutorService.EXECUTOR_ID);
+            RequestInfo request = null;
+            try {
+                org.jbpm.shared.services.impl.JpaPersistenceContext ctx = (org.jbpm.shared.services.impl.JpaPersistenceContext) context;
+
+                if ("org.jbpm.persistence.jpa.hibernate.DisabledFollowOnLockOracle10gDialect".equals(ctx.get("hibernate.dialect"))) {
+
+                    Number lockedRequest = ctx.nativeQueryAndLockWithParametersInTransaction("NativePendingRequestsForProcessing", params, true, Number.class);
+                    if (lockedRequest != null) {
+                        request = ctx.find(org.jbpm.executor.entities.RequestInfo.class, lockedRequest.longValue());
+                    }
+                } else {
+                    params.put("firstResult", 0);
+                    params.put("maxResults", 1);
+                    request = ctx.queryAndLockWithParametersInTransaction("PendingRequestsForProcessing", params, true, RequestInfo.class);
+                }
+                if (request != null) {
+                    request.setStatus(STATUS.RUNNING);
+                    // update date on when it was started to be executed
+                    ((org.jbpm.executor.entities.RequestInfo) request).setTime(new Date());
+                    ctx.merge(request);
+                }
+            } catch (NoResultException e) {
+
+            }
+            return request;
+        }
     	
     }
     
