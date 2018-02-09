@@ -96,4 +96,26 @@
         </query>
     </named-query>
     
+    
+    
+    
+    
+    <named-native-query name="NativePendingRequestsForProcessing">
+        <query>
+            SELECT id
+            FROM
+                RequestInfo where id in  (SELECT requestinf0_.id
+                                          FROM (SELECT requestinf1_.id
+                                                FROM RequestInfo requestinf1_
+                                                WHERE (requestinf1_.status = 'QUEUED' OR requestinf1_.status = 'RETRYING')
+                                                    AND requestinf1_.timestamp &lt; :now 
+                                                    AND (requestinf1_.owner = :owner OR requestinf1_.owner IS NULL)
+                                                ORDER BY requestinf1_.priority DESC
+                                               ) requestinf0_
+                                          WHERE rownum &lt;= 1 
+                                         )
+            FOR UPDATE
+        </query>
+    </named-native-query>
+    
 </entity-mappings>
