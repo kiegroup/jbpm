@@ -19,6 +19,7 @@ package org.jbpm.workflow.instance.impl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -106,6 +107,7 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 
 	private String deploymentId;
 	private String correlationKey;
+	private Date startDate;
 
     public NodeContainer getNodeContainer() {
 		return getWorkflowProcess();
@@ -750,6 +752,14 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 
     public void setCorrelationKey(String correlationKey) {
         this.correlationKey = correlationKey;
+    }
+    
+    public Date getStartDate() {
+        return startDate;
+    }
+    
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
     }
 
     protected boolean hasDeploymentId() {

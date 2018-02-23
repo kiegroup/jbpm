@@ -123,7 +123,8 @@ public class JPAProcessInstanceManager
                 ProcessInstanceInfo processInstanceInfo = (ProcessInstanceInfo) context.findProcessInstanceInfo( id );
                 if ( processInstanceInfo == null ) {
                     return null;
-                }                
+                }  
+                processInstance.setStartDate(processInstanceInfo.getStartDate());
                 TransactionManagerHelper.addToUpdatableSet(txm, processInstanceInfo);
                 processInstanceInfo.updateLastReadDate();
   
