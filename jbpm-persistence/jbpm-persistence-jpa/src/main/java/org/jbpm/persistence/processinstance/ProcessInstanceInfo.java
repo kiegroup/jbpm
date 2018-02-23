@@ -186,6 +186,7 @@ public class ProcessInstanceInfo implements PersistentProcessInstance {
             	context.wm = ((StatefulKnowledgeSessionImpl) kruntime).getInternalWorkingMemory();
                 processInstance = marshaller.readProcessInstance(context);
                 ((WorkflowProcessInstanceImpl) processInstance).setPersisted(false);
+                
                 if (readOnly) {
                     ((WorkflowProcessInstanceImpl) processInstance).disconnect();
                 }
@@ -196,6 +197,7 @@ public class ProcessInstanceInfo implements PersistentProcessInstance {
                                                     e );
             }
         }
+        ((WorkflowProcessInstanceImpl) processInstance).setStartDate(this.startDate);
         return processInstance;
     }
    
