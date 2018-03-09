@@ -53,9 +53,19 @@ import com.thoughtworks.xstream.XStream;
 public class AsyncAuditLogReceiver implements MessageListener {
     
     private EntityManagerFactory entityManagerFactory;
+    private XStream xstream;
     
     public AsyncAuditLogReceiver(EntityManagerFactory entityManagerFactory) {
         this.entityManagerFactory = entityManagerFactory;
+        initXStream();
+    }
+
+    private void initXStream() {
+        if(xstream==null) {
+            xstream = new XStream();
+            String[] voidDeny = {"void.class", "Void.class"};
+            xstream.denyTypes(voidDeny);
+        }
     }
     
     @SuppressWarnings("unchecked")
@@ -67,9 +77,6 @@ public class AsyncAuditLogReceiver implements MessageListener {
             try {
                 String messageContent = textMessage.getText();
                 Integer eventType = textMessage.getIntProperty("EventType");
-                XStream xstream = new XStream();
-                String[] voidDeny = {"void.class", "Void.class"};
-                xstream.denyTypes(voidDeny);
                 Object event = xstream.fromXML(messageContent);
                 
                 switch (eventType) {
