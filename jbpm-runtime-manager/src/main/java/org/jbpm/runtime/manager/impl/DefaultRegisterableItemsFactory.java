@@ -70,6 +70,7 @@ public class DefaultRegisterableItemsFactory extends SimpleRegisterableItemsFact
 	private static final Logger logger = LoggerFactory.getLogger(DefaultRegisterableItemsFactory.class);
 
     private AuditEventBuilder auditBuilder = new ManagedAuditEventBuilderImpl();
+    private AbstractAuditLogger jmsLogger = null;
     
     @Override
     public Map<String, WorkItemHandler> getWorkItemHandlers(RuntimeEngine runtime) {
@@ -112,14 +113,16 @@ public class DefaultRegisterableItemsFactory extends SimpleRegisterableItemsFact
 	        defaultListeners.add(logger);
         } else if (descriptor.getAuditMode() == AuditMode.JMS) {
         	try {
-                Properties properties = new Properties();
-                InputStream input = getRuntimeManager().getEnvironment().getClassLoader().getResourceAsStream("/jbpm.audit.jms.properties");
-                properties.load(input);
-                
-                @SuppressWarnings({ "unchecked", "rawtypes" })
-				AbstractAuditLogger logger =  AuditLoggerFactory.newJMSInstance((Map)properties);
-                logger.setBuilder(getAuditBuilder(runtime));
-    	        defaultListeners.add(logger);
+                if(jmsLogger==null) {
+                    Properties properties = new Properties();
+                    InputStream input = getRuntimeManager().getEnvironment().getClassLoader().getResourceAsStream("/jbpm.audit.jms.properties");
+                    properties.load(input);
+                    logger.debug("Creating AsyncAuditLogProducer {}", properties);
+
+				    jmsLogger =  AuditLoggerFactory.newJMSInstance((Map)properties);
+                    jmsLogger.setBuilder(getAuditBuilder(runtime));
+                }
+                defaultListeners.add(jmsLogger);
             } catch (IOException e) {
                 logger.error("Unable to load jms audit properties from {}", "/jbpm.audit.jms.properties", e);
             }
