@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2018 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,78 +44,77 @@ import org.kie.internal.runtime.conf.AuditMode;
 import org.kie.internal.runtime.conf.DeploymentDescriptor;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 
-public class DefaultRegisterableItemsFactoryTest  extends AbstractDeploymentDescriptorTest {
+public class DefaultRegisterableItemsFactoryTest extends AbstractDeploymentDescriptorTest {
 
-	private PoolingDataSource pds;
-	private RuntimeManager manager;    
+    private PoolingDataSource pds;
+    private RuntimeManager manager;
 
-	@Before
-	public void setup() {
-		TestUtil.cleanupSingletonSessionId();
-		pds = TestUtil.setupPoolingDataSource();
-	}
+    @Before
+    public void setup() {
+        TestUtil.cleanupSingletonSessionId();
+        pds = TestUtil.setupPoolingDataSource();
+    }
 
-	@After
-	public void teardown() {
-		if (manager != null) {
-			manager.close();
-		}
-		EntityManagerFactoryManager.get().clear();
-		pds.close();
-	}
+    @After
+    public void teardown() {
+        if (manager != null) {
+            manager.close();
+        }
+        EntityManagerFactoryManager.get().clear();
+        pds.close();
+    }
 
+    @Test
+    public void testJmsAuditCacheInstance() throws Exception {
+        KieServices ks = KieServices.Factory.get();
+        ReleaseId releaseId = ks.newReleaseId("org.jbpm.test.jms", "kjar-jms-audit", "1.0.0");
 
-	@Test
-	public void testJmsAuditCacheInstance() throws Exception {		
-		KieServices ks = KieServices.Factory.get();
-		ReleaseId releaseId = ks.newReleaseId("org.jbpm.test.jms", "kjar-jms-audit", "1.0.0");
+        DeploymentDescriptor customDescriptor = new DeploymentDescriptorImpl("org.jbpm.persistence.jpa");
+        customDescriptor.getBuilder()
+                        .auditMode(AuditMode.JMS);
+        Map<String, String> resources = new HashMap<String, String>();
+        resources.put("src/main/resources/" + DeploymentDescriptor.META_INF_LOCATION, customDescriptor.toXml());
 
-		DeploymentDescriptor customDescriptor = new DeploymentDescriptorImpl("org.jbpm.persistence.jpa");
-		customDescriptor.getBuilder()
-		.auditMode(AuditMode.JMS);
-		Map<String, String> resources = new HashMap<String, String>();
-		resources.put("src/main/resources/" + DeploymentDescriptor.META_INF_LOCATION, customDescriptor.toXml());
+        InternalKieModule kJar1 = createKieJar(ks, releaseId, resources);
+        installKjar(releaseId, kJar1);
 
-		InternalKieModule kJar1 = createKieJar(ks, releaseId, resources);       
-		installKjar(releaseId, kJar1);
+        RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
+                                                                          .newDefaultBuilder(releaseId)
+                                                                          .classLoader(this.getClass().getClassLoader())
+                                                                          .get();
 
-		RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()        		
-				.newDefaultBuilder(releaseId)
-				.classLoader(this.getClass().getClassLoader())
-				.get();
+        manager = RuntimeManagerFactory.Factory.get().newPerProcessInstanceRuntimeManager(environment);
+        assertNotNull(manager);
 
-		manager = RuntimeManagerFactory.Factory.get().newPerProcessInstanceRuntimeManager(environment);
-		assertNotNull(manager);
+        RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get());
+        assertNotNull(engine);
+        AsyncAuditLogProducer asyncAuditLogProducer = null;
+        KieSession kieSession = engine.getKieSession();
+        for (ProcessEventListener listener : kieSession.getProcessEventListeners()) {
+            if (listener instanceof AsyncAuditLogProducer) {
+                asyncAuditLogProducer = (AsyncAuditLogProducer) listener;
+                break;
+            }
+        }
+        assertNotNull(asyncAuditLogProducer);
 
-		RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get());        
-		assertNotNull(engine);
-		AsyncAuditLogProducer asyncAuditLogProducer = null; 
-		KieSession kieSession = engine.getKieSession();
-		for(ProcessEventListener listener : kieSession.getProcessEventListeners()) {
-			if(listener instanceof AsyncAuditLogProducer) {
-				asyncAuditLogProducer = (AsyncAuditLogProducer)listener;
-				break;
-			}        	
-		}
-		assertNotNull(asyncAuditLogProducer);
+        manager.close();
+        manager = RuntimeManagerFactory.Factory.get().newPerProcessInstanceRuntimeManager(environment);
+        assertNotNull(manager);
 
-		manager.close();
-		manager = RuntimeManagerFactory.Factory.get().newPerProcessInstanceRuntimeManager(environment);
-		assertNotNull(manager);
+        RuntimeEngine engine2 = manager.getRuntimeEngine(ProcessInstanceIdContext.get());
 
-		RuntimeEngine engine2 = manager.getRuntimeEngine(ProcessInstanceIdContext.get());        
-
-		KieSession kieSession2 = engine2.getKieSession();
-		AsyncAuditLogProducer asyncAuditLogProducer2 = null; 
-		for(ProcessEventListener listener : kieSession2.getProcessEventListeners()) {
-			if(listener instanceof AsyncAuditLogProducer) {
-				asyncAuditLogProducer2 = (AsyncAuditLogProducer)listener;
-				break;
-			}        	
-		}
-		assertNotNull(asyncAuditLogProducer2);
-		// check if the instance is the same (cached)
-		assertEquals(asyncAuditLogProducer, asyncAuditLogProducer2);
-	}
+        KieSession kieSession2 = engine2.getKieSession();
+        AsyncAuditLogProducer asyncAuditLogProducer2 = null;
+        for (ProcessEventListener listener : kieSession2.getProcessEventListeners()) {
+            if (listener instanceof AsyncAuditLogProducer) {
+                asyncAuditLogProducer2 = (AsyncAuditLogProducer) listener;
+                break;
+            }
+        }
+        assertNotNull(asyncAuditLogProducer2);
+        // check if the instance is the same (cached)
+        assertEquals(asyncAuditLogProducer, asyncAuditLogProducer2);
+    }
 
 }
