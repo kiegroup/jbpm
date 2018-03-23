@@ -70,5 +70,10 @@ public class EDeploymentTest extends AbstractEJBServicesTest {
         DeployedUnit undeployed = deploymentService.getDeployedUnit(basicKieJar.getIdentifier());
         Assertions.assertThat(undeployed).isNull();
     }
+    
+    @Test
+    public void testEJBTimerServiceInitTimersDeactivated() {
+        Assertions.assertThat(System.getProperty("org.jbpm.rm.init.timer")).isEqualTo("false");
+    }
 
 }
