@@ -83,6 +83,7 @@ public class SingletonRuntimeManager extends AbstractRuntimeManager {
     }
     
     public void init() {
+        logger.info("SingletonRuntimeManager initializing.");
         
         // TODO should we proxy/wrap the ksession so we capture dispose.destroy method calls?
         String location = getLocation();
@@ -129,6 +130,7 @@ public class SingletonRuntimeManager extends AbstractRuntimeManager {
     
     @Override
     public void activate() {
+        logger.info("SingletonRuntimeManager activating.");
         super.activate();
         this.singleton.getKieSession().execute(new ExecutableCommand<Void>() {
 
@@ -150,6 +152,7 @@ public class SingletonRuntimeManager extends AbstractRuntimeManager {
 
     @Override
     public void deactivate() {
+        logger.info("SingletonRuntimeManager deactivating.");
         super.deactivate();
         this.singleton.getKieSession().execute(new ExecutableCommand<Void>() {
 
@@ -205,6 +208,7 @@ public class SingletonRuntimeManager extends AbstractRuntimeManager {
 
     @Override
     public void close() {
+        logger.info("SingletonRuntimeManager closing.");
         if (singleton == null) {
             return;
         }
@@ -229,6 +233,7 @@ public class SingletonRuntimeManager extends AbstractRuntimeManager {
      * @return sessionId if file was found otherwise 0
      */
     protected Long getPersistedSessionId(String location, String identifier) {
+        logger.info("SingletonRuntimeManager loading session id.");
         File sessionIdStore = new File(location + File.separator + identifier+ "-jbpmSessionId.ser");
         if (sessionIdStore.exists()) {
         	Long knownSessionId = null; 
@@ -276,6 +281,7 @@ public class SingletonRuntimeManager extends AbstractRuntimeManager {
      * @param ksessionId value of ksessionId to be stored
      */
     protected void persistSessionId(String location, String identifier, Long ksessionId) {
+        logger.info("SingletonRuntimeManager persisting session id.");
         if (location == null) {
             return;
         }
