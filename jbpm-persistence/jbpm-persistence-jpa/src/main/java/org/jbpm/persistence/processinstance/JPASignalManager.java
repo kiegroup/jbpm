@@ -74,6 +74,9 @@ public class JPASignalManager extends DefaultSignalManager {
             } catch (IllegalStateException e) {
                 // IllegalStateException can be thrown when using RuntimeManager
                 // and invalid ksession was used for given context
+                logger.warn("IllegalStateException when loading process instance for signal '{}', instance with id {} will not be signaled",
+                        type, id);
+                logger.warn("Error: ", e);
             } catch (RuntimeException e) {
                 logger.warn("Exception when loading process instance for signal '{}', instance with id {} will not be signaled",
                         e.getMessage(), id);
