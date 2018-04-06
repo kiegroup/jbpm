@@ -67,8 +67,8 @@ public class JPASignalManager extends DefaultSignalManager {
             }
         }
         
-        
         for ( long id : processInstancesToSignalList ) {
+            logger.warn("Processing instance with id: ", id);
             try {
                 getKnowledgeRuntime().getProcessInstance( id );
             } catch (IllegalStateException e) {
