@@ -431,10 +431,13 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
     }
 
 	public void reconnect() {
+	    System.out.println("XXXXXXXX reconnecting process instance, node instances " + nodeInstances.size());
         validate();
 	    super.reconnect();
 		for (NodeInstance nodeInstance : nodeInstances) {
+		    System.out.println("XXXXXXXX node instance ");
 			if (nodeInstance instanceof EventBasedNodeInstanceInterface) {
+			    System.out.println("XXXXXXXX adding listeners");
 				((EventBasedNodeInstanceInterface) nodeInstance)
 						.addEventListeners();
 			}
