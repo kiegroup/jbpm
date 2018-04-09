@@ -119,7 +119,9 @@ public class JPAProcessInstanceManager
         org.jbpm.process.instance.ProcessInstance processInstance = null;
         processInstance = (org.jbpm.process.instance.ProcessInstance) this.processInstances.get(id);
         if (processInstance != null) {
+            System.out.println("XXXXXXXX process instance found");
             if (((WorkflowProcessInstanceImpl) processInstance).isPersisted() && !readOnly) {
+                System.out.println("XXXXXXXX process instance persisted");
             	ProcessPersistenceContextManager ppcm 
         	    = (ProcessPersistenceContextManager) this.kruntime.getEnvironment().get( EnvironmentName.PERSISTENCE_CONTEXT_MANAGER );
             	ppcm.beginCommandScopedEntityManager();
@@ -137,6 +139,8 @@ public class JPAProcessInstanceManager
             }
         	return processInstance;
         }
+
+        System.out.println("XXXXXXXX process instance not found");
 
     	// Make sure that the cmd scoped entity manager has started
     	ProcessPersistenceContextManager ppcm 
