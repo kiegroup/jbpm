@@ -67,17 +67,27 @@ public class AsyncAuditLogProducer extends AbstractAuditLogger {
     private ConnectionFactory connectionFactory;    
     private Queue queue;
     private boolean transacted = true;
+    private XStream xstream;
     
     private ProcessIndexerManager indexManager = ProcessIndexerManager.get();
 
     public AsyncAuditLogProducer() {
-        
+        initXStream();
     }
-    
+
     public AsyncAuditLogProducer(KieSession session, boolean transacted) {
         super(session);
         this.transacted = transacted;
         session.addEventListener(this);
+        initXStream();
+    }
+
+    private void initXStream() {
+        if(xstream==null) {
+            xstream = new XStream();
+            String[] voidDeny = {"void.class", "Void.class"};
+            xstream.denyTypes(voidDeny);
+        }
     }
 
     public ConnectionFactory getConnectionFactory() {
@@ -169,13 +179,10 @@ public class AsyncAuditLogProducer extends AbstractAuditLogger {
             queueConnection = connectionFactory.createConnection();
             queueSession = queueConnection.createSession(transacted, Session.AUTO_ACKNOWLEDGE);
            
-            XStream xstream = new XStream();
-            String[] voidDeny = {"void.class", "Void.class"};
-            xstream.denyTypes(voidDeny);
             String eventXml = xstream.toXML(messageContent);
             TextMessage message = queueSession.createTextMessage(eventXml);
             message.setIntProperty("EventType", eventType);
-            producer = queueSession.createProducer(queue);            
+            producer = queueSession.createProducer(queue);
             producer.send(message);
         } catch (Exception e) {
             throw new RuntimeException("Error when sending JMS message with working memory event", e);
