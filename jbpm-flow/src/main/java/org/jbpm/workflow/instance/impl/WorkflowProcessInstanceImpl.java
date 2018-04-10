@@ -728,6 +728,7 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 		    if (!remove) {
 		        System.out.println("XXXXXXXX remove event listener unsuccessful: " + listener);
 		    }
+		    System.out.println("XXXXXXXXD listeners after removal value: " + listeners + " is external: " + external + " in WPI " + this);
 			if (listeners.isEmpty()) {
 				eventListeners.remove(type);
 				if (external) {
