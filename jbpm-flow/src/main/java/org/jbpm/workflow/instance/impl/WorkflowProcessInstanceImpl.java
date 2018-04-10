@@ -703,7 +703,7 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 	public void addEventListener(String type, EventListener listener, boolean external) {
 		Map<String, List<EventListener>> eventListeners = external ? this.externalEventListeners : this.eventListeners;
 		List<EventListener> listeners = eventListeners.get(type);
-		System.out.println("XXXXXXXX listeners value: " + listeners + " is external: " + external);
+		System.out.println("XXXXXXXX listeners value: " + listeners + " is external: " + external + " in WPI " + this);
 		if (listeners == null) {
 			listeners = new CopyOnWriteArrayList<EventListener>();
 			eventListeners.put(type, listeners);
@@ -723,7 +723,10 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 		Map<String, List<EventListener>> eventListeners = external ? this.externalEventListeners : this.eventListeners;
 		List<EventListener> listeners = eventListeners.get(type);
 		if (listeners != null) {
-		    listeners.remove(listener);
+		    boolean remove = listeners.remove(listener);
+		    if (!remove) {
+		        System.out.println("XXXXXXXX remove event listener unsuccessful: " + listener);
+		    }
 			if (listeners.isEmpty()) {
 				eventListeners.remove(type);
 				if (external) {
