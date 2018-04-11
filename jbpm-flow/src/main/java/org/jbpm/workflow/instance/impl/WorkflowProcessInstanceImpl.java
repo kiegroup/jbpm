@@ -445,16 +445,16 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 		registerExternalEventNodeListeners();
 	}
 
-	public String toString() {
-		final StringBuilder sb = new StringBuilder("WorkflowProcessInstance");
-		sb.append(getId());
-		sb.append(" [processId=");
-		sb.append(getProcessId());
-		sb.append(",state=");
-		sb.append(getState());
-		sb.append("]");
-		return sb.toString();
-	}
+//	public String toString() {
+//		final StringBuilder sb = new StringBuilder("WorkflowProcessInstance");
+//		sb.append(getId());
+//		sb.append(" [processId=");
+//		sb.append(getProcessId());
+//		sb.append(",state=");
+//		sb.append(getState());
+//		sb.append("]");
+//		return sb.toString();
+//	}
 
 	public void start() {
 		start(null);

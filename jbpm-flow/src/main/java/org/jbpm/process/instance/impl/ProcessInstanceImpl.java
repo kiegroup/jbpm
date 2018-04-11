@@ -250,16 +250,16 @@ public abstract class ProcessInstanceImpl implements ProcessInstance, Serializab
     	return null;
     }
     
-    public String toString() {
-        final StringBuilder b = new StringBuilder( "ProcessInstance " );
-        b.append( getId() );
-        b.append( " [processId=" );
-        b.append( this.process.getId() );
-        b.append( ",state=" );
-        b.append( this.state );
-        b.append( "]" );
-        return b.toString();
-    }
+//    public String toString() {
+//        final StringBuilder b = new StringBuilder( "ProcessInstance " );
+//        b.append( getId() );
+//        b.append( " [processId=" );
+//        b.append( this.process.getId() );
+//        b.append( ",state=" );
+//        b.append( this.state );
+//        b.append( "]" );
+//        return b.toString();
+//    }
 
 	public Map<String, Object> getMetaData() {
 		return this.metaData;

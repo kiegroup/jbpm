@@ -172,7 +172,8 @@ public class ProcessInstanceInfo implements PersistentProcessInstance {
                                               Environment env,
                                               boolean readOnly) {
         this.env = env;
-        if ( processInstance == null ) {        	
+        if ( processInstance == null ) {
+            System.out.println("XXXXXXXX process instance not found, creating");
             try {
                 ByteArrayInputStream bais = new ByteArrayInputStream( processInstanceByteArray );
                 MarshallerReaderContext context = new MarshallerReaderContext( bais,
@@ -196,6 +197,7 @@ public class ProcessInstanceInfo implements PersistentProcessInstance {
                                                     e );
             }
         }
+        System.out.println("XXXXXXXX process instance ready, returning");
         ((WorkflowProcessInstanceImpl) processInstance).internalSetStartDate(this.startDate);
         return processInstance;
     }

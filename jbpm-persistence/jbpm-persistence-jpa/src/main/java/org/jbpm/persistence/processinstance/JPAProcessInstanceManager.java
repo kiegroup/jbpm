@@ -153,6 +153,7 @@ public class JPAProcessInstanceManager
         if ( processInstanceInfo == null ) {
             return null;
         }
+        System.out.println("XXXXXXXX getProcessInstance");
         processInstance = (org.jbpm.process.instance.ProcessInstance)
         	processInstanceInfo.getProcessInstance(kruntime, this.kruntime.getEnvironment(), readOnly);
         if (!readOnly) {
