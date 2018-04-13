@@ -13,10 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jbpm.process.workitem.core;
 
-import org.kie.api.runtime.process.WorkItemHandler;
+package org.jbpm.process.workitem.email;
 
-public abstract class AbstractLogOrThrowWorkItemHandler extends AbstractLogOrThrowHandler implements WorkItemHandler {
+import java.util.List;
 
+public interface Message {
+
+    Recipients getRecipients();
+
+    String getFrom();
+
+    String getReplyTo();
+
+    String getDocumentFormat();
+
+    String getSubject();
+
+    String getBody();
+
+    List<String> getAttachments();
+
+    boolean hasAttachment();
 }
