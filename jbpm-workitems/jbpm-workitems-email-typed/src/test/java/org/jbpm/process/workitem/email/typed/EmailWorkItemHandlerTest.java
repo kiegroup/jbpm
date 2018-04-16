@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2018 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,9 +12,10 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package org.jbpm.process.workitem.email;
+package org.jbpm.process.workitem.email.typed;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -22,7 +23,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.mail.internet.InternetAddress;
@@ -31,7 +31,6 @@ import javax.mail.internet.MimeMessage.RecipientType;
 
 import org.drools.core.process.instance.impl.DefaultWorkItemManager;
 import org.drools.core.process.instance.impl.TypedWorkItemImpl;
-import org.drools.core.process.instance.impl.WorkItemImpl;
 import org.jbpm.bpmn2.handler.WorkItemHandlerRuntimeException;
 import org.jbpm.test.AbstractBaseTest;
 import org.junit.After;
@@ -87,7 +86,7 @@ public class EmailWorkItemHandlerTest extends AbstractBaseTest {
         EmailWorkItemHandler handler = new EmailWorkItemHandler();
         handler.setConnection(emailHost, emailPort, null, null);
 
-        SimpleMessage message = new SimpleMessage();
+        Message message = new Message();
         TypedWorkItemImpl<Message, Object> workItem = new TypedWorkItemImpl<>(message);
         message.getRecipients().addRecipient(Recipient.to("person1@domain.com"));
         message.setFrom("person2@domain.com");
@@ -117,7 +116,7 @@ public class EmailWorkItemHandlerTest extends AbstractBaseTest {
         EmailWorkItemHandler handler = new EmailWorkItemHandler();
         handler.setConnection(emailHost, emailPort, null, null);
 
-        SimpleMessage message = new SimpleMessage();
+        Message message = new Message();
         TypedWorkItemImpl<Message, Object> workItem = new TypedWorkItemImpl<>(message);
         Recipients rcpts = message.getRecipients();
         rcpts.setRecipients(Arrays.asList(
@@ -166,7 +165,7 @@ public class EmailWorkItemHandlerTest extends AbstractBaseTest {
         EmailWorkItemHandler handler = new EmailWorkItemHandler();
         handler.setConnection(emailHost, emailPort, null, null);
 
-        SimpleMessage message = new SimpleMessage();
+        Message message = new Message();
         TypedWorkItemImpl<Message, Object> workItem = new TypedWorkItemImpl<>(message);
         message.getRecipients().setRecipients(Arrays.asList(
                 Recipient.to("person1@domain.com"),
@@ -215,7 +214,7 @@ public class EmailWorkItemHandlerTest extends AbstractBaseTest {
         EmailWorkItemHandler handler = new EmailWorkItemHandler();
         handler.setConnection(emailHost, "123", null, null);
 
-        SimpleMessage message = new SimpleMessage();
+        Message message = new Message();
         TypedWorkItemImpl<Message, Object> workItem = new TypedWorkItemImpl<>(message);
         message.getRecipients().addRecipient(Recipient.to("person1@domain.com"));
         message.setFrom("person2@domain.com");
@@ -234,7 +233,7 @@ public class EmailWorkItemHandlerTest extends AbstractBaseTest {
 
 
 
-        TemplatedMessage message = new TemplatedMessage();
+        Message message = new Message();
         TypedWorkItemImpl<Message, Object> workItem = new TypedWorkItemImpl<>(message);
         message.getRecipients().addRecipient(Recipient.to("person1@domain.com"));
         message.setFrom("person2@domain.com");
@@ -245,7 +244,6 @@ public class EmailWorkItemHandlerTest extends AbstractBaseTest {
         Map<String, Object> params = new HashMap<>();
         params.put("Name", "John Doe");
 
-        message.setTemplateManager(TemplateManager.get());
         message.setTemplate("basic-email");
         message.setTemplateParameters(params);
 

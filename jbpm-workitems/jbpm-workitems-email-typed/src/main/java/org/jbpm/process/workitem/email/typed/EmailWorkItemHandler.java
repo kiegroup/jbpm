@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2018 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,14 +12,15 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package org.jbpm.process.workitem.email;
+package org.jbpm.process.workitem.email.typed;
 
 import org.drools.core.process.instance.impl.TypedWorkItemImpl;
 import org.jbpm.process.workitem.core.AbstractLogOrThrowTypedWorkItemHandler;
 import org.kie.api.runtime.process.TypedWorkItem;
-import org.kie.api.runtime.process.TypedWorkItemHandler;
+import org.kie.api.runtime.process.WorkItem;
 import org.kie.api.runtime.process.WorkItemManager;
 
 /**
@@ -50,6 +51,11 @@ public class EmailWorkItemHandler extends AbstractLogOrThrowTypedWorkItemHandler
 
     public EmailWorkItemHandler(String host, String port, String userName, String password, String startTls) {
         setConnection(host, port, userName, password, startTls);
+    }
+
+    @Override
+    public TypedWorkItem<Message, Object> createTypedWorkItem() {
+        return new TypedWorkItemImpl<>(new Message(), new Object());
     }
 
     public void setConnection(String host, String port, String userName, String password) {
@@ -100,11 +106,6 @@ public class EmailWorkItemHandler extends AbstractLogOrThrowTypedWorkItemHandler
     @Override
     public void abortWorkItem(TypedWorkItem<Message, Object> workItem, WorkItemManager manager) {
 
-    }
-
-    @Override
-    public TypedWorkItem<Message, Object> createTypedWorkItem() {
-        return new TypedWorkItemImpl<>(new SimpleMessage(), new Object());
     }
 
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2018 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,9 +12,10 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package org.jbpm.process.workitem.email;
+package org.jbpm.process.workitem.email.typed;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,32 +23,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public class TemplatedMessage implements Message {
+public class Message {
 
     private Recipients recipients;
     private String from;
     private String replyTo;
     private String subject;
-    private String bodyTemplate;
+    private String body;
     private String documentFormat = "html";
     private List<String> attachments;
 
     private TemplateManager templateManager;
     private Map<String, Object> templateParameters;
+    private String template;
 
-    public TemplatedMessage(TemplateManager templateManager) {
+    public Message() {
         this.recipients = new Recipients();
-        this.setAttachments(new ArrayList<String>());
-        this.templateManager = templateManager;
+        this.setAttachments(new ArrayList<>());
+        this.templateManager = TemplateManager.get();
         this.templateParameters = new HashMap<>();
-    }
-
-    public TemplatedMessage() {
-        this(null);
-    }
-
-    public void setTemplateManager(TemplateManager templateManager) {
-        this.templateManager = templateManager;
     }
 
     public Recipients getRecipients() {
@@ -56,6 +50,46 @@ public class TemplatedMessage implements Message {
 
     public void setRecipients(Recipients recipients) {
         this.recipients = recipients;
+    }
+
+    public void setTo(String to) {
+        if ( to == null || to.trim().length() == 0 ) {
+            throw new RuntimeException( "Email must have one or more to adresses" );
+        }
+        for (String s: to.split(";")) {
+            if (s != null && !"".equals(s)) {
+                Recipient recipient = new Recipient();
+                recipient.setEmail(s);
+                recipient.setType( "To" );
+                recipients.addRecipient(recipient);
+            }
+        }
+    }
+
+    public void setBcc(String bcc) {
+        if ( bcc != null && bcc.trim().length() > 0 ) {
+            for (String s: bcc.split(";")) {
+                if (s != null && !"".equals(s)) {
+                    Recipient recipient = new Recipient();
+                    recipient.setEmail(s);
+                    recipient.setType( "Bcc" );
+                    recipients.addRecipient(recipient);
+                }
+            }
+        }
+    }
+
+    public void setCc(String cc) {
+        if ( cc != null && cc.trim().length() > 0 ) {
+            for (String s: cc.split(";")) {
+                if (s != null && !"".equals(s)) {
+                    Recipient recipient = new Recipient();
+                    recipient.setEmail(s);
+                    recipient.setType( "Cc" );
+                    recipients.addRecipient(recipient);
+                }
+            }
+        }
     }
 
     public String getFrom() {
@@ -90,22 +124,23 @@ public class TemplatedMessage implements Message {
         this.subject = subject;
     }
 
-    public String getTemplate() {
-        return bodyTemplate;
+    public String getBody() {
+        return body;
+    }
+
+    public void setBody(String body) {
+        this.body = body;
     }
 
     public void setTemplate(String bodyTemplate) {
-        this.bodyTemplate = bodyTemplate;
+        this.template = bodyTemplate;
     }
 
     public void setTemplateParameters(Map<String, Object> params) {
-        this.templateParameters.putAll(params);
-    }
-
-    @Override
-    public String getBody() {
         Objects.requireNonNull(templateManager, "TemplateManager should be set");
-        return templateManager.render(this.bodyTemplate, this.templateParameters);
+        Objects.requireNonNull(template, "Template should be set");
+        this.templateParameters.putAll(params);
+        setBody(templateManager.render(this.template, this.templateParameters));
     }
 
     public List<String> getAttachments() {
@@ -123,7 +158,7 @@ public class TemplatedMessage implements Message {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((bodyTemplate == null) ? 0 : bodyTemplate.hashCode());
+        result = prime * result + ((body == null) ? 0 : body.hashCode());
         result = prime * result + ((documentFormat == null) ? 0 : documentFormat.hashCode());
         result = prime * result + ((from == null) ? 0 : from.hashCode());
         result = prime * result + ((recipients == null) ? 0 : recipients.hashCode());
@@ -144,50 +179,53 @@ public class TemplatedMessage implements Message {
             return false;
         }
         final Message other = (Message) obj;
-
-        if (!getBody().equals(other.getBody())) {
+        if (body == null) {
+            if (other.body != null) {
+                return false;
+            }
+        } else if (!body.equals(other.body)) {
             return false;
         }
         if (documentFormat == null) {
-            if (other.getDocumentFormat() != null) {
+            if (other.documentFormat != null) {
                 return false;
             }
-        } else if (!documentFormat.equals(other.getDocumentFormat())) {
+        } else if (!documentFormat.equals(other.documentFormat)) {
             return false;
         }
         if (from == null) {
-            if (other.getFrom() != null) {
+            if (other.from != null) {
                 return false;
             }
-        } else if (!from.equals(other.getFrom())) {
+        } else if (!from.equals(other.from)) {
             return false;
         }
         if (recipients == null) {
-            if (other.getRecipients() != null) {
+            if (other.recipients != null) {
                 return false;
             }
-        } else if (!recipients.equals(other.getRecipients())) {
+        } else if (!recipients.equals(other.recipients)) {
             return false;
         }
         if (replyTo == null) {
-            if (other.getReplyTo() != null) {
+            if (other.replyTo != null) {
                 return false;
             }
-        } else if (!replyTo.equals(other.getReplyTo())) {
+        } else if (!replyTo.equals(other.replyTo)) {
             return false;
         }
         if (subject == null) {
-            if (other.getSubject() != null) {
+            if (other.subject != null) {
                 return false;
             }
-        } else if (!subject.equals(other.getSubject())) {
+        } else if (!subject.equals(other.subject)) {
             return false;
         }
         if (attachments == null) {
-            if (other.getAttachments() != null) {
+            if (other.attachments != null) {
                 return false;
             }
-        } else if (!attachments.equals(other.getAttachments())) {
+        } else if (!attachments.equals(other.attachments)) {
             return false;
         }
         return true;

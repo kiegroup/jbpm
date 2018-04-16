@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2018 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,14 +12,14 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package org.jbpm.process.workitem.email;
+package org.jbpm.process.workitem.email.typed;
 
 import java.util.Random;
 
 import org.drools.core.process.instance.impl.TypedWorkItemImpl;
-import org.drools.core.process.instance.impl.WorkItemImpl;
 import org.jbpm.test.AbstractBaseTest;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -69,7 +69,7 @@ public class SendHtmlRealTest extends AbstractBaseTest {
         String testMethodName = Thread.currentThread().getStackTrace()[1].getMethodName();
         logger.info("{} : {}", testMethodName, uniqueTestNum);
 
-        SimpleMessage message = new SimpleMessage();
+        Message message = new Message();
         TypedWorkItemImpl<Message, Object> workItem = new TypedWorkItemImpl<>(message);
         message.getRecipients().addRecipient(Recipient.to(toAddress));
         message.setFrom(fromAddress );

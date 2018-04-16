@@ -17,6 +17,7 @@
     <module>jbpm-workitems-core</module>
     <module>jbpm-workitems-bpmn2</module>
     <module>jbpm-workitems-email</module>
+    <module>jbpm-workitems-email-typed</module>
     <module>jbpm-workitems-jms</module>
     <module>jbpm-workitems-rest</module>
     <module>jbpm-workitems-webservice</module>

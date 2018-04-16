@@ -15,6 +15,9 @@
  */
 package org.jbpm.process.workitem.core;
 
+import org.kie.api.runtime.process.TypedWorkItem;
+import org.kie.api.runtime.process.TypedWorkItemHandler;
+
 public abstract class AbstractLogOrThrowTypedWorkItemHandler<W extends TypedWorkItem<?, ?>> extends AbstractLogOrThrowHandler implements TypedWorkItemHandler<W> {
 
 }
