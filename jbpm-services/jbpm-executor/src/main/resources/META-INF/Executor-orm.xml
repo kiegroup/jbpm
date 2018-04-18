@@ -102,7 +102,7 @@
     
     <named-native-query name="NativePendingRequestsForProcessing">
         <query>
-            SELECT id
+            SELECT id,status
             FROM
                 RequestInfo where id in  (SELECT requestinf0_.id
                                           FROM (SELECT requestinf1_.id

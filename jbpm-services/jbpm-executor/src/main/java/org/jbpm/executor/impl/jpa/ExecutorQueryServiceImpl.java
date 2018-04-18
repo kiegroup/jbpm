@@ -236,9 +236,12 @@ public class ExecutorQueryServiceImpl implements ExecutorQueryService {
 
                 if ("org.jbpm.persistence.jpa.hibernate.DisabledFollowOnLockOracle10gDialect".equals(ctx.get("hibernate.dialect"))) {
 
-                    Number lockedRequest = ctx.nativeQueryAndLockWithParametersInTransaction("NativePendingRequestsForProcessing", params, true, Number.class);
-                    if (lockedRequest != null) {
-                        request = ctx.find(org.jbpm.executor.entities.RequestInfo.class, lockedRequest.longValue());
+                    Object[] lockedRequest = (Object[])ctx.nativeQueryAndLockWithParametersInTransaction("NativePendingRequestsForProcessing", params, true, Object.class);
+                    if (lockedRequest != null && lockedRequest.length > 0) {
+                        try {
+                            request = ctx.find(org.jbpm.executor.entities.RequestInfo.class, ((Number)lockedRequest[0]).longValue());
+                        } catch(NumberFormatException nfe) {
+                        }
                     }
                 } else {
                     params.put("firstResult", 0);
