@@ -34,7 +34,8 @@ import org.kie.api.executor.STATUS;
 import org.kie.api.runtime.query.QueryContext;
 import org.kie.internal.command.Context;
 import org.kie.internal.executor.api.ExecutorQueryService;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -44,6 +45,7 @@ import org.kie.internal.executor.api.ExecutorQueryService;
  */
 public class ExecutorQueryServiceImpl implements ExecutorQueryService {
 
+    private static final Logger logger = LoggerFactory.getLogger(ExecutorQueryServiceImpl.class);
     private CommandService commandService;
    
     public ExecutorQueryServiceImpl(boolean active) {
@@ -236,9 +238,13 @@ public class ExecutorQueryServiceImpl implements ExecutorQueryService {
 
                 if ("org.jbpm.persistence.jpa.hibernate.DisabledFollowOnLockOracle10gDialect".equals(ctx.get("hibernate.dialect"))) {
 
-                    Number lockedRequest = ctx.nativeQueryAndLockWithParametersInTransaction("NativePendingRequestsForProcessing", params, true, Number.class);
-                    if (lockedRequest != null) {
-                        request = ctx.find(org.jbpm.executor.entities.RequestInfo.class, lockedRequest.longValue());
+                    Object[] lockedRequest = (Object[])ctx.nativeQueryAndLockWithParametersInTransaction("NativePendingRequestsForProcessing", params, true, Object.class);
+                    if (lockedRequest != null && lockedRequest.length > 0) {
+                        try {
+                            request = ctx.find(org.jbpm.executor.entities.RequestInfo.class, ((Number)lockedRequest[0]).longValue());
+                        } catch(NumberFormatException nfe) {
+                            logger.error("Error while retrieving request id", nfe);
+                        }
                     }
                 } else {
                     params.put("firstResult", 0);
