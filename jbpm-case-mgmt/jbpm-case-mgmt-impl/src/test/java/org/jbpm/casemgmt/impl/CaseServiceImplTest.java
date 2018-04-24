@@ -2109,6 +2109,28 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
 
             caseService.addDataToCaseFile(caseId, "anotherDataItem", "first version");
 
+            caseFileItems = caseRuntimeDataService.getCaseInstanceDataItemsByType(caseId, Collections.singletonList("boolean"), new QueryContext());
+            assertNotNull(caseFileItems);
+            assertEquals(0, caseFileItems.size());
+
+            caseFileItems = caseRuntimeDataService.getCaseInstanceDataItemsByType(caseId, Collections.singletonList(Boolean.class.getName()), new QueryContext());
+            assertNotNull(caseFileItems);
+            assertEquals(1, caseFileItems.size());
+
+            dataItem = caseFileItems.iterator().next();
+            assertNotNull(dataItem);
+            assertEquals(caseId, dataItem.getCaseId());
+            assertEquals("dataComplete", dataItem.getName());
+
+            caseFileItems = caseRuntimeDataService.getCaseInstanceDataItemsByType(caseId, Collections.singletonList(String.class.getName()), new QueryContext());
+            assertNotNull(caseFileItems);
+            assertEquals(1, caseFileItems.size());
+
+            dataItem = caseFileItems.iterator().next();
+            assertNotNull(dataItem);
+            assertEquals(caseId, dataItem.getCaseId());
+            assertEquals("anotherDataItem", dataItem.getName());
+
             caseFileItems = caseRuntimeDataService.getCaseInstanceDataItems(caseId, new QueryContext());
             assertNotNull(caseFileItems);
             assertEquals(2, caseFileItems.size());
@@ -2123,6 +2145,25 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
             assertNotNull(dataItem.getLastModified());
 
             caseService.addDataToCaseFile(caseId, "anotherDataItem", "second version");
+
+            caseFileItems = caseRuntimeDataService.getCaseInstanceDataItemsByType(caseId, Arrays.asList(Boolean.class.getName(), String.class.getName()), new QueryContext());
+            assertNotNull(caseFileItems);
+            assertEquals(2, caseFileItems.size());
+
+            caseFileItems = caseRuntimeDataService.getCaseInstanceDataItemsByName(caseId, Arrays.asList("anotherDataItem", "dataComplete"), new QueryContext());
+            assertNotNull(caseFileItems);
+            assertEquals(2, caseFileItems.size());
+
+            Iterator<CaseFileItem> it = caseFileItems.iterator();
+            dataItem = it.next();
+            assertNotNull(dataItem);
+            assertEquals(caseId, dataItem.getCaseId());
+            assertEquals("anotherDataItem", dataItem.getName());
+
+            dataItem = it.next();
+            assertNotNull(dataItem);
+            assertEquals(caseId, dataItem.getCaseId());
+            assertEquals("dataComplete", dataItem.getName());
 
             caseFileItems = caseRuntimeDataService.getCaseInstanceDataItems(caseId, new QueryContext());
             assertNotNull(caseFileItems);
@@ -2142,10 +2183,18 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
             assertNotNull(caseFileItems);
             assertEquals(1, caseFileItems.size());
 
+            caseFileItems = caseRuntimeDataService.getCaseInstanceDataItemsByName(caseId, Collections.singletonList("anotherDataItem"), new QueryContext());
+            assertNotNull(caseFileItems);
+            assertTrue(caseFileItems.isEmpty());
+
+            caseFileItems = caseRuntimeDataService.getCaseInstanceDataItemsByType(caseId, Collections.singletonList(String.class.getName()), new QueryContext());
+            assertNotNull(caseFileItems);
+            assertTrue(caseFileItems.isEmpty());
+
             identityProvider.setName("mary");
             caseFileItems = caseRuntimeDataService.getCaseInstanceDataItems(caseId, new QueryContext());
             assertNotNull(caseFileItems);
-            // mary is not involved in case isntance
+            // mary is not involved in case instance
             assertEquals(0, caseFileItems.size());
         } catch (Exception e) {
             logger.error("Unexpected error {}", e.getMessage(), e);
