@@ -2226,20 +2226,20 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
 
             caseService.addDataToCaseFile(caseId, "dataComplete", true);
 
-            Collection<CaseInstance> byCaseData = caseRuntimeDataService.getCaseInstancesByDateItem("dataComplete", Arrays.asList(CaseStatus.OPEN), new QueryContext());
+            Collection<CaseInstance> byCaseData = caseRuntimeDataService.getCaseInstancesByDataItem("dataComplete", Arrays.asList(CaseStatus.OPEN), new QueryContext());
             assertNotNull(byCaseData);
             assertEquals(1, byCaseData.size());
 
-            byCaseData = caseRuntimeDataService.getCaseInstancesByDateItemAndValue("dataComplete", "false", Arrays.asList(CaseStatus.OPEN), new QueryContext());
+            byCaseData = caseRuntimeDataService.getCaseInstancesByDataItemAndValue("dataComplete", "false", Arrays.asList(CaseStatus.OPEN), new QueryContext());
             assertNotNull(byCaseData);
             assertEquals(0, byCaseData.size());
 
-            byCaseData = caseRuntimeDataService.getCaseInstancesByDateItemAndValue("dataComplete", "true", Arrays.asList(CaseStatus.OPEN), new QueryContext());
+            byCaseData = caseRuntimeDataService.getCaseInstancesByDataItemAndValue("dataComplete", "true", Arrays.asList(CaseStatus.OPEN), new QueryContext());
             assertNotNull(byCaseData);
             assertEquals(1, byCaseData.size());
 
             identityProvider.setName("mary");
-            byCaseData = caseRuntimeDataService.getCaseInstancesByDateItem("dataComplete", Arrays.asList(CaseStatus.OPEN), new QueryContext());
+            byCaseData = caseRuntimeDataService.getCaseInstancesByDataItem("dataComplete", Arrays.asList(CaseStatus.OPEN), new QueryContext());
             assertNotNull(byCaseData);
             // mary is not part of the case instance
             assertEquals(0, byCaseData.size());
@@ -2272,20 +2272,20 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
             assertEquals(FIRST_CASE_ID, cInstance.getCaseId());
             assertEquals(deploymentUnit.getIdentifier(), cInstance.getDeploymentId());
 
-            Collection<CaseInstance> byCaseData = caseRuntimeDataService.getCaseInstancesByDateItem("dataComplete", Arrays.asList(CaseStatus.OPEN), new QueryContext());
+            Collection<CaseInstance> byCaseData = caseRuntimeDataService.getCaseInstancesByDataItem("dataComplete", Arrays.asList(CaseStatus.OPEN), new QueryContext());
             assertNotNull(byCaseData);
             assertEquals(1, byCaseData.size());
 
-            byCaseData = caseRuntimeDataService.getCaseInstancesByDateItemAndValue("dataComplete", "false", Arrays.asList(CaseStatus.OPEN), new QueryContext());
+            byCaseData = caseRuntimeDataService.getCaseInstancesByDataItemAndValue("dataComplete", "false", Arrays.asList(CaseStatus.OPEN), new QueryContext());
             assertNotNull(byCaseData);
             assertEquals(0, byCaseData.size());
 
-            byCaseData = caseRuntimeDataService.getCaseInstancesByDateItemAndValue("dataComplete", "true", Arrays.asList(CaseStatus.OPEN), new QueryContext());
+            byCaseData = caseRuntimeDataService.getCaseInstancesByDataItemAndValue("dataComplete", "true", Arrays.asList(CaseStatus.OPEN), new QueryContext());
             assertNotNull(byCaseData);
             assertEquals(1, byCaseData.size());
 
             identityProvider.setName("mary");
-            byCaseData = caseRuntimeDataService.getCaseInstancesByDateItem("dataComplete", Arrays.asList(CaseStatus.OPEN), new QueryContext());
+            byCaseData = caseRuntimeDataService.getCaseInstancesByDataItem("dataComplete", Arrays.asList(CaseStatus.OPEN), new QueryContext());
             assertNotNull(byCaseData);
             // mary is not part of the case instance
             assertEquals(0, byCaseData.size());
