@@ -55,12 +55,11 @@ public class CaseAssignmentServiceImplTest extends AbstractCaseServicesBaseTest 
         return processes;
     }
 
-    
     @Test
     public void testProperRoleAssignedAutoStart() {
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("actorRole", new UserImpl("john"));
-        roleAssignments.put("groupRole", new GroupImpl("managers"));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("actorRole", new OrganizationalEntity[] { new UserImpl("john") });
+        roleAssignments.put("groupRole", new OrganizationalEntity[] { new GroupImpl("managers") });
 
         Map<String, Object> data = new HashMap<>();
         CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), CASE_X_P_ID, data, roleAssignments);
@@ -88,9 +87,9 @@ public class CaseAssignmentServiceImplTest extends AbstractCaseServicesBaseTest 
     
     @Test
     public void testRoleAssignedMissingUserAutoStart() {
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("actorRole", new UserImpl("john"));
-        roleAssignments.put("groupRole", new GroupImpl("managers"));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("actorRole", new OrganizationalEntity[] { new UserImpl("john") });
+        roleAssignments.put("groupRole", new OrganizationalEntity[] { new GroupImpl("managers") });
 
         Map<String, Object> data = new HashMap<>();
         CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), CASE_X_P_ID, data, roleAssignments);
@@ -106,9 +105,9 @@ public class CaseAssignmentServiceImplTest extends AbstractCaseServicesBaseTest 
     
     @Test
     public void testRoleAssignedMissingGroupAutoStart() {
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("actorRole", new UserImpl("john"));
-        roleAssignments.put("groupRole", new GroupImpl("managers"));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("actorRole", new OrganizationalEntity[] { new UserImpl("john") });
+        roleAssignments.put("groupRole", new OrganizationalEntity[] { new GroupImpl("managers") });
 
         Map<String, Object> data = new HashMap<>();
         CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), CASE_X_P_ID, data, roleAssignments);
@@ -124,9 +123,9 @@ public class CaseAssignmentServiceImplTest extends AbstractCaseServicesBaseTest 
     
     @Test
     public void testProperRoleAssigned() {
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("actorRole", new UserImpl("mary"));
-        roleAssignments.put("groupRole", new GroupImpl("managers"));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("actorRole", new OrganizationalEntity[] { new UserImpl("mary") });
+        roleAssignments.put("groupRole", new OrganizationalEntity[] { new GroupImpl("managers") });
 
         Map<String, Object> data = new HashMap<>();
         CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), CASE_Y_P_ID, data, roleAssignments);
@@ -163,12 +162,11 @@ public class CaseAssignmentServiceImplTest extends AbstractCaseServicesBaseTest 
         }
     }
     
-    
     @Test
     public void testRoleAssignedMissingUser() {
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("actorRole", new UserImpl("mary"));
-        roleAssignments.put("groupRole", new GroupImpl("managers"));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("actorRole", new OrganizationalEntity[] { new UserImpl("mary") });
+        roleAssignments.put("groupRole", new OrganizationalEntity[] { new GroupImpl("managers") });
 
         Map<String, Object> data = new HashMap<>();
         CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), CASE_Y_P_ID, data, roleAssignments);
@@ -208,18 +206,47 @@ public class CaseAssignmentServiceImplTest extends AbstractCaseServicesBaseTest 
     
     @Test
     public void testRoleAssignedMissingRole() {
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        
-        roleAssignments.put("groupRole", new GroupImpl("managers"));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("groupRole", new OrganizationalEntity[] { new GroupImpl("managers") });
 
         Map<String, Object> data = new HashMap<>();
         CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), CASE_Y_P_ID, data, roleAssignments);
-        
-        
-        assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> { 
+
+        assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> {
             caseService.startCase(deploymentUnit.getIdentifier(), CASE_Y_P_ID, caseFile); })
         .withMessageContaining("Case role 'actorRole' has no matching assignments");
-                          
+    }
+
+    @Test
+    public void testMultipleAssignmentsPerRole() {
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("groupRole", new OrganizationalEntity[] { new GroupImpl("suppliers"), new GroupImpl("managers") });
+        roleAssignments.put("actorRole", new OrganizationalEntity[] { new UserImpl("mary"), new UserImpl("john") });
+
+        CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), CASE_Y_P_ID, new HashMap<>(), roleAssignments);
+
+        String caseId = caseService.startCase(deploymentUnit.getIdentifier(), CASE_Y_P_ID, caseFile);
+        assertNotNull(caseId);
+        assertEquals(FIRST_CASE_ID, caseId);
+        try {
+            CaseInstance cInstance = caseService.getCaseInstance(caseId);
+            assertNotNull(cInstance);
+            assertEquals(FIRST_CASE_ID, cInstance.getCaseId());
+            assertEquals(deploymentUnit.getIdentifier(), cInstance.getDeploymentId());
+
+            List<TaskSummary> tasks = caseRuntimeDataService.getCaseTasksAssignedAsPotentialOwner(caseId, "mary", null, new QueryContext());
+            assertEquals(5, tasks.size());
+
+            tasks = caseRuntimeDataService.getCaseTasksAssignedAsPotentialOwner(caseId, "john", null, new QueryContext());
+            assertEquals(1, tasks.size());
+        } catch (Exception e) {
+            logger.error("Unexpected error {}", e.getMessage(), e);
+            fail("Unexpected exception " + e.getMessage());
+        } finally {
+            if (caseId != null) {
+                caseService.cancelCase(caseId);
+            }
+        }
     }
 
 }

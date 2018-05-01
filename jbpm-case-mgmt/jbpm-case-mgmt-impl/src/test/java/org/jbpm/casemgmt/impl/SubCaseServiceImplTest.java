@@ -70,9 +70,9 @@ public class SubCaseServiceImplTest extends AbstractCaseServicesBaseTest {
     @Test
     public void testStartCaseWithSubCaseDestroySubCase() {
         
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("owner", new UserImpl("john"));
-        roleAssignments.put("manager", new UserImpl("mary"));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new OrganizationalEntity[] { new UserImpl("john") });
+        roleAssignments.put("manager", new OrganizationalEntity[] { new UserImpl("mary") });
         
         Map<String, Object> data = new HashMap<>();
         data.put("name", "John Doe");
@@ -432,10 +432,9 @@ public class SubCaseServiceImplTest extends AbstractCaseServicesBaseTest {
     
     @Test
     public void testStartCaseWithSubCaseAbortProcessInstanceOfSubCase() {
-        
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("owner", new UserImpl("john"));
-        roleAssignments.put("manager", new UserImpl("mary"));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new OrganizationalEntity[] { new UserImpl("john") });
+        roleAssignments.put("manager", new OrganizationalEntity[] { new UserImpl("mary") });
         
         Map<String, Object> data = new HashMap<>();
         data.put("name", "John Doe");

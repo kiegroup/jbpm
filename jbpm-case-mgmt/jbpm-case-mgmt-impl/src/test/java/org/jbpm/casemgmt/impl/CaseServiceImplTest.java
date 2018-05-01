@@ -336,8 +336,8 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
 
     @Test
     public void testAddUserTaskToCaseWithStage() {
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("owner", new UserImpl("john"));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new OrganizationalEntity[] { new UserImpl("john") });
 
         Map<String, Object> data = new HashMap<>();
         CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), USER_TASK_CASE_P_ID, data, roleAssignments);
@@ -528,8 +528,8 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
 
     @Test
     public void testAddSubprocessToCaseWithStage() {
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("owner", new UserImpl("john"));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new OrganizationalEntity[] { new UserImpl("john") });
 
         Map<String, Object> data = new HashMap<>();
         CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), USER_TASK_CASE_P_ID, data, roleAssignments);
@@ -581,8 +581,8 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
 
     @Test
     public void testTriggerTaskAndMilestoneInCase() {
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("owner", new UserImpl("john"));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new OrganizationalEntity[] { new UserImpl("john") });
 
         Map<String, Object> data = new HashMap<>();
         data.put("s", "description");
@@ -702,8 +702,8 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
 
     @Test
     public void testCaseRolesWithDynamicTask() {
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("owner", new UserImpl("john"));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new OrganizationalEntity[] { new UserImpl("john") });
 
         Map<String, Object> data = new HashMap<>();
         data.put("s", "description");
@@ -764,8 +764,8 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
 
     @Test
     public void testCaseWithStageAutoStartNodes() {
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("owner", new UserImpl("john"));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new OrganizationalEntity[] { new UserImpl("john") });
 
         Map<String, Object> data = new HashMap<>();
         CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), USER_TASK_STAGE_AUTO_START_CASE_P_ID, data, roleAssignments);
@@ -796,8 +796,8 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
 
     @Test
     public void testCaseWithComments() {
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("owner", new UserImpl("john"));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new OrganizationalEntity[] { new UserImpl("john") });
 
         Map<String, Object> data = new HashMap<>();
         CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), USER_TASK_STAGE_AUTO_START_CASE_P_ID, data, roleAssignments);
@@ -874,8 +874,8 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
     
     @Test
     public void testCaseWithCommentsPagination() {
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("owner", new UserImpl("john"));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new OrganizationalEntity[] { new UserImpl("john") });
 
         Map<String, Object> data = new HashMap<>();
         CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), USER_TASK_STAGE_AUTO_START_CASE_P_ID, data, roleAssignments);
@@ -1487,8 +1487,8 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
 
     @Test
     public void testUserTaskToCaseWithStageComplete() {
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("owner", new UserImpl("john"));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new OrganizationalEntity[] { new UserImpl("john") });
 
         Map<String, Object> data = new HashMap<>();
         CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), USER_TASK_CASE_P_ID, data, roleAssignments);
@@ -1584,9 +1584,9 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
 
     @Test
     public void testCaseRolesWithQueries() {
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("owner", new UserImpl("john"));
-        roleAssignments.put("contact", new GroupImpl("HR"));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new OrganizationalEntity[] { new UserImpl("john") });
+        roleAssignments.put("contact", new OrganizationalEntity[] { new GroupImpl("HR") });
 
         Map<String, Object> data = new HashMap<>();
         data.put("s", "description");
@@ -1651,9 +1651,9 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
 
     @Test
     public void testCaseAuthorization() {
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("owner", new UserImpl("john"));
-        roleAssignments.put("contact", new GroupImpl("HR"));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new OrganizationalEntity[] { new UserImpl("john") });
+        roleAssignments.put("contact", new OrganizationalEntity[] { new GroupImpl("HR") });
 
         Map<String, Object> data = new HashMap<>();
         data.put("s", "description");
@@ -1711,8 +1711,8 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
     @Test
     public void testCaseAuthorizationImplicitOwner() {
         String expectedCaseId = "UniqueID-0000000001";
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("patient", new UserImpl("john"));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("patient", new OrganizationalEntity[] { new UserImpl("john") });
 
         Map<String, Object> data = new HashMap<>();
         data.put("s", "description");
@@ -1764,8 +1764,8 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
     @Test
     public void testTriggerNotExistingAdHocFragment() {
         String expectedCaseId = "UniqueID-0000000001";
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("patient", new UserImpl("john"));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("patient", new OrganizationalEntity[] { new UserImpl("john") });
 
         Map<String, Object> data = new HashMap<>();
         data.put("s", "description");
@@ -1809,8 +1809,8 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
     @Test
     public void testTriggerAdHocTasksFromCurrentAndNextStage() {
         identityProvider.setName("john");
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("owner", new UserImpl("john"));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new OrganizationalEntity[] { new UserImpl("john") });
 
         Map<String, Object> data = new HashMap<>();
         data.put("customData", "none");
@@ -1887,8 +1887,8 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
     @Test
     public void testTriggerMultipleAdHocTasks() {
         identityProvider.setName("john");
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("owner", new UserImpl("john"));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new OrganizationalEntity[] { new UserImpl("john") });
 
         Map<String, Object> data = new HashMap<>();
         data.put("customData", "none");
@@ -1994,8 +1994,8 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
 
     @Test
     public void testStartEmptyCaseUsingCaseFileOwner() {
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("owner", new UserImpl("john"));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new OrganizationalEntity[] { new UserImpl("john") });
 
         Map<String, Object> data = new HashMap<>();
         data.put("name", "my first case");
@@ -2030,8 +2030,8 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
 
     @Test
     public void testStartEmptyCaseUsingCaseFileOwnerAsLoggedInUser() {
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("owner", new UserImpl("mary"));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new OrganizationalEntity[] { new UserImpl("mary") });
 
         Map<String, Object> data = new HashMap<>();
         data.put("name", "my first case");
@@ -2065,8 +2065,8 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
 
     @Test
     public void testUserTaskToCaseWithStageCompleteCaseDataItem() {
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("owner", new UserImpl("john"));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new OrganizationalEntity[] { new UserImpl("john") });
 
         Map<String, Object> data = new HashMap<>();
         CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), USER_TASK_CASE_P_ID, data, roleAssignments);
@@ -2209,8 +2209,8 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
 
     @Test
     public void testUserTaskToCaseSearchByCaseFileData() {
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("owner", new UserImpl("john"));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new OrganizationalEntity[] { new UserImpl("john") });
 
         Map<String, Object> data = new HashMap<>();
         CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), USER_TASK_CASE_P_ID, data, roleAssignments);
@@ -2256,8 +2256,8 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
     
     @Test
     public void testUserTaskCaseSearchByInitialCaseFileData() {
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("owner", new UserImpl("john"));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new OrganizationalEntity[] { new UserImpl("john") });
 
         Map<String, Object> data = new HashMap<>();
         data.put("dataComplete", true);
@@ -2302,8 +2302,8 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
 
     @Test
     public void testCaseRolesCardinality() {
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("owner", new UserImpl("john"));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new OrganizationalEntity[] { new UserImpl("john") });
 
         Map<String, Object> data = new HashMap<>();
         data.put("s", "description");
@@ -2315,6 +2315,28 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
             caseService.assignToCaseRole(caseId, "contact", new UserImpl("mary"));
             caseService.assignToCaseRole(caseId, "contact", new UserImpl("steve"));
 
+            Throwable error = Assertions.catchThrowable(() -> caseService.assignToCaseRole(caseId, "contact", new UserImpl("jack")));
+            assertThat(error).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("Cannot add more users for role contact, maximum cardinality 2 already reached");
+        } finally {
+            if (caseId != null) {
+                caseService.cancelCase(caseId);
+            }
+        }
+    }
+
+    @Test
+    public void testCaseRolesMultipleAssignments() {
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new OrganizationalEntity[] { new UserImpl("john") });
+        roleAssignments.put("contact", new OrganizationalEntity[] { new UserImpl("mary"), new UserImpl("steve")});
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("s", "description");
+        CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), USER_TASK_CASE_P_ID, data, roleAssignments);
+
+        String caseId = caseService.startCase(deploymentUnit.getIdentifier(), USER_TASK_CASE_P_ID, caseFile);
+
+        try {
             Throwable error = Assertions.catchThrowable(() -> caseService.assignToCaseRole(caseId, "contact", new UserImpl("jack")));
             assertThat(error).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("Cannot add more users for role contact, maximum cardinality 2 already reached");
         } finally {
@@ -2438,9 +2460,9 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
     
     @Test
     public void testCaseWithCommentsWithRestrictions() {
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("owner", new UserImpl("john"));
-        roleAssignments.put("participant", new UserImpl("mary"));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new OrganizationalEntity[] { new UserImpl("john") });
+        roleAssignments.put("participant", new OrganizationalEntity[] { new UserImpl("mary") });
 
         Map<String, Object> data = new HashMap<>();
         CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), USER_TASK_STAGE_AUTO_START_CASE_P_ID, data, roleAssignments);
@@ -2560,9 +2582,9 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
     
     @Test
     public void testUserTaskCaseDataItemWithRestrictions() {
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("owner", new UserImpl("john"));
-        roleAssignments.put("participant", new UserImpl("mary"));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new OrganizationalEntity[] { new UserImpl("john") });
+        roleAssignments.put("participant", new OrganizationalEntity[] { new UserImpl("mary") });
 
         Map<String, Object> data = new HashMap<>();
         data.put("contactInfo", "main street 10, NYC");
@@ -2694,9 +2716,9 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
     
     @Test
     public void testCaseWithDefinedDataRestrictions() {
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("owner", new UserImpl("john"));
-        roleAssignments.put("participant", new UserImpl("mary"));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new OrganizationalEntity[] { new UserImpl("john") });
+        roleAssignments.put("participant", new OrganizationalEntity[] { new UserImpl("mary") });
         
         Map<String, Object> data = new HashMap<>();
         data.put("contactInfo", "main street 10, NYC");
@@ -2796,9 +2818,9 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
     
     @Test
     public void testCaseWithDefinedDataRestrictionsSetViaUserTask() {
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("owner", new UserImpl("john"));
-        roleAssignments.put("participant", new UserImpl("mary"));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new OrganizationalEntity[] { new UserImpl("john") });
+        roleAssignments.put("participant", new OrganizationalEntity[] { new UserImpl("mary") });
         
         Map<String, Object> data = new HashMap<>();
         data.put("contactInfo", "main street 10, NYC");
@@ -2855,9 +2877,9 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
     
     @Test
     public void testInclusiveGatewayWithDynamicActivity() {
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("actorRole", new UserImpl("john"));
-        roleAssignments.put("groupRole", new GroupImpl("managers"));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("actorRole", new OrganizationalEntity[] { new UserImpl("john") });
+        roleAssignments.put("groupRole", new OrganizationalEntity[] { new GroupImpl("managers") });
 
         Map<String, Object> data = new HashMap<>();
         CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), "InclusiveGatewayCase", data, roleAssignments);
@@ -2905,9 +2927,9 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
 
     @Test
     public void testSystemUserCaseAuthorization() {
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("owner", new UserImpl("john"));
-        roleAssignments.put("contact", new GroupImpl("HR"));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new OrganizationalEntity[] { new UserImpl("john") });
+        roleAssignments.put("contact", new OrganizationalEntity[] { new GroupImpl("HR") });
 
         Map<String, Object> data = new HashMap<>();
         data.put("s", "description");
@@ -2972,9 +2994,9 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
 
     @Test
     public void testSystemUserCaseDataAuthorization() {
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("owner", new UserImpl("john"));
-        roleAssignments.put("participant", new UserImpl("mary"));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new OrganizationalEntity[] { new UserImpl("john") });
+        roleAssignments.put("participant", new OrganizationalEntity[] { new UserImpl("mary") });
 
         Map<String, Object> data = new HashMap<>();
         data.put("contactInfo", "main street 10, NYC");
@@ -3056,9 +3078,9 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
 
     @Test
     public void testSystemUserCaseCommentsAuthorization() {
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("owner", new UserImpl("john"));
-        roleAssignments.put("participant", new UserImpl("mary"));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new OrganizationalEntity[] { new UserImpl("john") });
+        roleAssignments.put("participant", new OrganizationalEntity[] { new UserImpl("mary") });
 
         Map<String, Object> data = new HashMap<>();
         CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), USER_TASK_STAGE_AUTO_START_CASE_P_ID, data, roleAssignments);

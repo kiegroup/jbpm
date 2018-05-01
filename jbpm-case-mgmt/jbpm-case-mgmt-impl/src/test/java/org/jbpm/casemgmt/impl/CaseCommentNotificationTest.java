@@ -87,8 +87,8 @@ public class CaseCommentNotificationTest extends AbstractCaseServicesBaseTest {
 
     @Test
     public void testCommentsNotificationWithoutTemplate() {
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("owner", new UserImpl("john"));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new OrganizationalEntity[] { new UserImpl("john") });
         
         TestNotificationPublisher publisher = new TestNotificationPublisher(true);
         CommentNotificationEventListener listener = CommentNotificationEventListenerFactory.get("test");
@@ -151,8 +151,8 @@ public class CaseCommentNotificationTest extends AbstractCaseServicesBaseTest {
     
     @Test
     public void testCommentsNotificationWithTemplate() {
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("owner", new UserImpl("john"));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new OrganizationalEntity[] { new UserImpl("john") });
         
         TestNotificationPublisher publisher = new TestNotificationPublisher(false);
         CommentNotificationEventListener listener = CommentNotificationEventListenerFactory.get("test");

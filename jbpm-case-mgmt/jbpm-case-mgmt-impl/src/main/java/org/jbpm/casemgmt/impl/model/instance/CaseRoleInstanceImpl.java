@@ -60,12 +60,10 @@ public class CaseRoleInstanceImpl implements CaseRoleInstance, Serializable {
             }
         }
         this.roleAssignments.add(entity);
-
     }
 
     public void removeRoleAssignment(OrganizationalEntity entity) {
         this.roleAssignments.remove(entity);
-
     }
 
     @Override

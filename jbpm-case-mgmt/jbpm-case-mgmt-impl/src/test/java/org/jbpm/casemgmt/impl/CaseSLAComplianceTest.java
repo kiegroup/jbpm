@@ -81,9 +81,9 @@ public class CaseSLAComplianceTest extends AbstractCaseServicesBaseTest {
 
     @Test
     public void testStartCaseWithSLAEscalation() {
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("owner", new UserImpl("john"));
-        roleAssignments.put("admin", new UserImpl("mary"));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new OrganizationalEntity[] { new UserImpl("john") });
+        roleAssignments.put("admin", new OrganizationalEntity[] { new UserImpl("mary") });
 
         Map<String, Object> data = new HashMap<>();
         data.put("s", "Case with SLA");
@@ -130,9 +130,9 @@ public class CaseSLAComplianceTest extends AbstractCaseServicesBaseTest {
     
     @Test
     public void testStartCaseWithSLANotification() {
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("owner", new UserImpl("john"));
-        roleAssignments.put("admin", new UserImpl("mary"));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new OrganizationalEntity[] { new UserImpl("john") });
+        roleAssignments.put("admin", new OrganizationalEntity[] { new UserImpl("mary") });
 
         Map<String, Object> data = new HashMap<>();
         data.put("s", "Case with SLA");
@@ -184,9 +184,9 @@ public class CaseSLAComplianceTest extends AbstractCaseServicesBaseTest {
     
     @Test
     public void testStartCaseWithSLASubprocess() {
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("owner", new UserImpl("john"));
-        roleAssignments.put("admin", new UserImpl("mary"));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new OrganizationalEntity[] { new UserImpl("john") });
+        roleAssignments.put("admin", new OrganizationalEntity[] { new UserImpl("mary") });
 
         Map<String, Object> data = new HashMap<>();
         data.put("s", "Case with SLA");
@@ -235,9 +235,9 @@ public class CaseSLAComplianceTest extends AbstractCaseServicesBaseTest {
     
     @Test
     public void testStartCaseWithSLAForGoldCustomerByRules() {
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("owner", new UserImpl("john"));
-        roleAssignments.put("admin", new UserImpl("mary"));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new OrganizationalEntity[] { new UserImpl("john") });
+        roleAssignments.put("admin", new OrganizationalEntity[] { new UserImpl("mary") });
 
         Map<String, Object> data = new HashMap<>();
         data.put("s", "Case with SLA");
@@ -280,9 +280,9 @@ public class CaseSLAComplianceTest extends AbstractCaseServicesBaseTest {
     
     @Test
     public void testStartCaseWithSLAForSilverCustomerByRules() {
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("owner", new UserImpl("john"));
-        roleAssignments.put("admin", new UserImpl("mary"));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new OrganizationalEntity[] { new UserImpl("john") });
+        roleAssignments.put("admin", new OrganizationalEntity[] { new UserImpl("mary") });
 
         Map<String, Object> data = new HashMap<>();
         data.put("s", "Case with SLA");
@@ -325,9 +325,9 @@ public class CaseSLAComplianceTest extends AbstractCaseServicesBaseTest {
     
     @Test
     public void testStartCaseWithSLAForNewCustomerByRules() {
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("owner", new UserImpl("john"));
-        roleAssignments.put("admin", new UserImpl("mary"));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new OrganizationalEntity[] { new UserImpl("john") });
+        roleAssignments.put("admin", new OrganizationalEntity[] { new UserImpl("mary") });
 
         Map<String, Object> data = new HashMap<>();
         data.put("s", "Case with SLA");
