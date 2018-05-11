@@ -38,12 +38,16 @@ import org.kie.api.task.TaskService;
 import org.kie.api.task.UserGroupCallback;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
 import org.kie.internal.runtime.manager.context.EmptyContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Since version 6.0 this class is deprecated. Instead <code>RuntimeManager</code> should be used directly.
  * See documentation on how to use <code>RuntimeManager</code>
  */
 public final class JBPMHelper {
+
+    private static final Logger log = LoggerFactory.getLogger(JBPMHelper.class);
 
     public static String[] processStateName = {"PENDING", "ACTIVE", "COMPLETED", "ABORTED", "SUSPENDED"};
     public static String[] txStateName = {"ACTIVE",
@@ -89,12 +93,14 @@ public final class JBPMHelper {
         }
     }
 
-    public static PoolingDataSource setupDataSource() {
+    public static  org.jbpm.test.util.PoolingDataSource setupDataSource() {
+
         Properties properties = getProperties();
         // create data source
-        PoolingDataSource pds = new PoolingDataSource();
-        pds.setUniqueName(properties.getProperty("persistence.datasource.name", "jdbc/jbpm-ds"));
-        pds.setClassName("org.h2.jdbcx.JdbcDataSource");
+        final String dsName = properties.getProperty("persistence.datasource.name", "jdbc/jbpm-ds");
+        final String dsClassName = "org.h2.jdbcx.JdbcDataSource";
+        PoolingDataSource pds = new PoolingDataSource(dsName, dsClassName);
+
         pds.getDriverProperties().put("user", properties.getProperty("persistence.datasource.user", "sa"));
         pds.getDriverProperties().put("password", properties.getProperty("persistence.datasource.password", ""));
         pds.getDriverProperties().put("url", properties.getProperty("persistence.datasource.url", "jdbc:h2:tcp://localhost/~/jbpm-db;MVCC=TRUE"));

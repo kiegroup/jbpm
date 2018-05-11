@@ -77,7 +77,7 @@ public abstract class AbstractKieServicesBaseTest extends AbstractKieServicesTes
             fail("Thread 1's barrier was broken while waiting for the other threads!");
         }
     }
-    
+
     protected KieFileSystem createKieFileSystemWithKProject(KieServices ks) {
         KieModuleModel kproj = ks.newKieModuleModel();
 
@@ -102,12 +102,102 @@ public abstract class AbstractKieServicesBaseTest extends AbstractKieServicesTes
 
         KieFileSystem kfs = ks.newKieFileSystem();
         kfs.writeKModuleXML(kproj.toXML());
-        
+
         kfs.write("src/main/resources/forms/DefaultProcess.ftl", ResourceFactory.newClassPathResource("repo/globals/forms/DefaultProcess.ftl"));
         kfs.write("src/main/resources/forms/DefaultProcess.form", ResourceFactory.newClassPathResource("repo/globals/forms/DefaultProcess.form"));
         kfs.write("src/main/resources/forms/DefaultProcess.frm", ResourceFactory.newClassPathResource("repo/globals/forms/DefaultProcess.frm"));
 
         return kfs;
+    }
+
+    protected void buildDatasource() {
+    	ds = new PoolingDataSource("jdbc/testDS1", "org.h2.jdbcx.JdbcDataSource");
+
+        //NON XA CONFIGS
+        ds.getDriverProperties().put("user", "sa");
+        ds.getDriverProperties().put("password", "sasa");
+        ds.getDriverProperties().put("URL", "jdbc:h2:mem:mydb");
+
+        ds.init();
+    }
+
+    protected void closeDataSource() {
+    	if (ds != null) {
+    		ds.close();
+    	}
+    }
+
+    public static void cleanupSingletonSessionId() {
+        File tempDir = new File(System.getProperty("java.io.tmpdir"));
+        if (tempDir.exists()) {
+
+            String[] jbpmSerFiles = tempDir.list(new FilenameFilter() {
+
+                @Override
+                public boolean accept(File dir, String name) {
+
+                    return name.endsWith("-jbpmSessionId.ser");
+                }
+            });
+            for (String file : jbpmSerFiles) {
+                logger.debug("Temp dir to be removed {} file {}",tempDir, file);
+                new File(tempDir, file).delete();
+            }
+        }
+    }
+
+    protected boolean createDescriptor() {
+        return false;
+    }
+
+    protected List<ObjectModel> getProcessListeners() {
+        return new ArrayList<>();
+    }
+
+    protected List<ObjectModel> getTaskListeners() {
+        return new ArrayList<>();
+    }
+
+	public void setDeploymentService(DeploymentService deploymentService) {
+		this.deploymentService = deploymentService;
+	}
+
+	public void setBpmn2Service(DefinitionService bpmn2Service) {
+		this.bpmn2Service = bpmn2Service;
+	}
+
+	public void setRuntimeDataService(RuntimeDataService runtimeDataService) {
+		this.runtimeDataService = runtimeDataService;
+	}
+
+	public void setProcessService(ProcessService processService) {
+		this.processService = processService;
+	}
+
+	public void setUserTaskService(UserTaskService userTaskService) {
+		this.userTaskService = userTaskService;
+	}
+
+    public void setQueryService(QueryService queryService) {
+        this.queryService = queryService;
+    }
+
+    public void setIdentityProvider(TestIdentityProvider identityProvider) {
+        this.identityProvider = identityProvider;
+    }
+
+    public void setUserGroupCallback(TestUserGroupCallbackImpl userGroupCallback) {
+        this.userGroupCallback = userGroupCallback;
+    }
+
+    protected static void waitForTheOtherThreads(CyclicBarrier barrier) {
+        try {
+            barrier.await();
+        } catch( InterruptedException e ) {
+            fail( "Thread 1 was interrupted while waiting for the other threads!");
+        } catch( BrokenBarrierException e ) {
+            fail( "Thread 1's barrier was broken while waiting for the other threads!");
+        }
     }
 
 }

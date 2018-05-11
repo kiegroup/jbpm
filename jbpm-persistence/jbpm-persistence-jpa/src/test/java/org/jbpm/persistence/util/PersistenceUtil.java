@@ -167,12 +167,8 @@ public class PersistenceUtil {
      * @return PoolingDataSource that has been set up but _not_ initialized.
      */
     public static PoolingDataSource setupPoolingDataSource(Properties dsProps, String datasourceName, boolean startServer) {
-        PoolingDataSource pds = new PoolingDataSource();
-
         // The name must match what's in the persistence.xml!
-        pds.setUniqueName(datasourceName);
-
-        pds.setClassName(dsProps.getProperty("className"));
+        PoolingDataSource pds = new PoolingDataSource(datasourceName, dsProps.getProperty("className"));
 
         for (String propertyName : new String[] { "user", "password" }) {
             pds.getDriverProperties().put(propertyName, dsProps.getProperty(propertyName));
@@ -195,7 +191,6 @@ public class PersistenceUtil {
                 pds.getDriverProperties().put(propertyName, dsProps.getProperty(propertyName));
             }
         } else {
-            pds.setClassName(dsProps.getProperty("className"));
             if (driverClass.startsWith("oracle")) {
                 pds.getDriverProperties().put("driverType", "thin");
                 pds.getDriverProperties().put("URL", dsProps.getProperty("url"));

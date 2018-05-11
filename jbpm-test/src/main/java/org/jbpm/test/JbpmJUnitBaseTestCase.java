@@ -854,9 +854,7 @@ public abstract class JbpmJUnitBaseTestCase {
     }
 
     protected PoolingDataSource setupPoolingDataSource() {
-        PoolingDataSource pds = new PoolingDataSource();
-        pds.setUniqueName("jdbc/jbpm-ds");
-        pds.setClassName("org.h2.jdbcx.JdbcDataSource");
+        PoolingDataSource pds = new PoolingDataSource("jdbc/jbpm-ds", "org.h2.jdbcx.JdbcDataSource");
         pds.getDriverProperties().put("user", "sa");
         pds.getDriverProperties().put("password", "");
         pds.getDriverProperties().put("url", "jdbc:h2:mem:jbpm-db;MVCC=true");
@@ -871,9 +869,7 @@ public abstract class JbpmJUnitBaseTestCase {
                 // ignore
             }
             logger.debug("DBPOOL_MGR: attempting to create db pool again...");
-            pds = new PoolingDataSource();
-            pds.setUniqueName("jdbc/jbpm-ds");
-            pds.setClassName("org.h2.jdbcx.JdbcDataSource");
+            pds = new PoolingDataSource("jdbc/jbpm-ds", "org.h2.jdbcx.JdbcDataSource");
             pds.getDriverProperties().put("user", "sa");
             pds.getDriverProperties().put("password", "");
             pds.getDriverProperties().put("url", "jdbc:h2:mem:jbpm-db;MVCC=true");

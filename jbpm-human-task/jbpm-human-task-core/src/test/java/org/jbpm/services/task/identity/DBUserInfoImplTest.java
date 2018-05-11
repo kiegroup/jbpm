@@ -48,9 +48,7 @@ public class DBUserInfoImplTest {
 
         Properties dsProps = loadDataSourceProperties();
 
-        pds = new PoolingDataSource();
-        pds.setUniqueName("jdbc/jbpm-ds");
-        pds.setClassName(dsProps.getProperty("className"));
+        pds = new PoolingDataSource("jdbc/jbpm-ds", dsProps.getProperty("className"));
         for (String propertyName : new String[]{"user", "password"}) {
             pds.getDriverProperties().put(propertyName, dsProps.getProperty(propertyName));
         }
