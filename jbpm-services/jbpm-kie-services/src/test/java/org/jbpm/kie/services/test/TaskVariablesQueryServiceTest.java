@@ -130,11 +130,8 @@ public class TaskVariablesQueryServiceTest extends AbstractKieServicesBaseTest {
     }
     
     protected void buildDatasource() {
-        ds = new PoolingDataSource();
-        ds.setUniqueName("jdbc/testDS1");
+        ds = new PoolingDataSource("jdbc/testDS1", "org.postgresql.xa.PGXADataSource");
 
-
-        ds.setClassName("org.postgresql.xa.PGXADataSource");
         ds.getDriverProperties().put("user", "bpms");
         ds.getDriverProperties().put("password", "bpms");
         ds.getDriverProperties().put("serverName", "localhost");

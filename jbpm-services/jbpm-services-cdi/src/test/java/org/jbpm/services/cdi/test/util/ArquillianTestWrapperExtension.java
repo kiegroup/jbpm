@@ -35,12 +35,7 @@ public class ArquillianTestWrapperExtension implements LoadableExtension {
         private PoolingDataSource ds;
         
         public void init(@Observes BeforeSuite event, ContainerRegistry registry) {
-            ds = new PoolingDataSource();
-            ds.setUniqueName("jdbc/testDS1");
-            
-            
-            //NON XA CONFIGS
-            ds.setClassName("org.h2.jdbcx.JdbcDataSource");
+            ds = new PoolingDataSource("jdbc/testDS1", "org.h2.jdbcx.JdbcDataSource");
             ds.getDriverProperties().put("user", "sa");
             ds.getDriverProperties().put("password", "sasa");
             ds.getDriverProperties().put("URL", "jdbc:h2:mem:mydb");
