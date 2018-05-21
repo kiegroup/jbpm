@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 public class DefaultSignalManager implements SignalManager {
 	
@@ -51,6 +52,7 @@ public class DefaultSignalManager implements SignalManager {
 	}
 
 	public void addEventListener(String type, EventListener eventListener) {
+	    System.out.println("**************add event listener, type: " + type + ", listener: " + eventListener);
 		List<EventListener> eventListeners = processEventListeners.get(type);
 		//this first "if" is not pretty, but allows to synchronize only when needed
 		if (eventListeners == null) {
@@ -66,6 +68,7 @@ public class DefaultSignalManager implements SignalManager {
 	}
 	
 	public void removeEventListener(String type, EventListener eventListener) {
+	    System.out.println("**************remove event listener, type: " + type + ", listener: " + eventListener);
 		if (processEventListeners != null) {
 			List<EventListener> eventListeners = processEventListeners.get(type);
 			if (eventListeners != null) {
@@ -83,9 +86,12 @@ public class DefaultSignalManager implements SignalManager {
 	}
 	
 	public void internalSignalEvent(String type, Object event) {
+	    System.out.println("**************internalSignalEvent, type: " + type);
 		if (processEventListeners != null) {
+		    System.out.println("**************internalSignalEvent-non null processEventListeners: " + processEventListeners.keySet().toString());
 			List<EventListener> eventListeners = processEventListeners.get(type);
 			if (eventListeners != null) {
+			    System.out.println("**************internalSignalEvent-eventListeners: " + eventListeners.toString());
 				for (EventListener eventListener: eventListeners) {
 					eventListener.signalEvent(type, event);
 				}

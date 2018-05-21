@@ -103,6 +103,7 @@ public class EventNodeInstance extends ExtendedNodeInstanceImpl implements Event
 	@Override
 	public void addEventListeners() {
 	    String eventType = getEventType();
+	    System.out.println("XXXXXXXX event type: " + eventType);
 	    if (isVariableExpression(getEventNode().getType())) {
 	        getProcessInstance().addEventListener(eventType, new VariableExternalEventListener(eventType), true);
 	    } else {

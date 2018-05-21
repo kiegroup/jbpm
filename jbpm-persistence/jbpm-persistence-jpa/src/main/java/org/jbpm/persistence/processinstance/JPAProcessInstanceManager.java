@@ -97,6 +97,7 @@ public class JPAProcessInstanceManager
     }
     
     public void internalAddProcessInstance(ProcessInstance processInstance) {
+        System.out.println("XXXXXXXX add process instance " + processInstance.getId());
         if( ((ConcurrentHashMap<Long, ProcessInstance>) processInstances)
                 .putIfAbsent(processInstance.getId(), processInstance) 
                 != null ) { 
@@ -119,7 +120,9 @@ public class JPAProcessInstanceManager
         org.jbpm.process.instance.ProcessInstance processInstance = null;
         processInstance = (org.jbpm.process.instance.ProcessInstance) this.processInstances.get(id);
         if (processInstance != null) {
+            System.out.println("XXXXXXXX process instance " + id + " found");
             if (((WorkflowProcessInstanceImpl) processInstance).isPersisted() && !readOnly) {
+                System.out.println("XXXXXXXX process instance persisted");
             	ProcessPersistenceContextManager ppcm 
         	    = (ProcessPersistenceContextManager) this.kruntime.getEnvironment().get( EnvironmentName.PERSISTENCE_CONTEXT_MANAGER );
             	ppcm.beginCommandScopedEntityManager();
@@ -138,6 +141,8 @@ public class JPAProcessInstanceManager
         	return processInstance;
         }
 
+        System.out.println("XXXXXXXX process instance " + id + " not found");
+
     	// Make sure that the cmd scoped entity manager has started
     	ProcessPersistenceContextManager ppcm 
     	    = (ProcessPersistenceContextManager) this.kruntime.getEnvironment().get( EnvironmentName.PERSISTENCE_CONTEXT_MANAGER );
@@ -148,6 +153,7 @@ public class JPAProcessInstanceManager
         if ( processInstanceInfo == null ) {
             return null;
         }
+        System.out.println("XXXXXXXX getProcessInstance");
         processInstance = (org.jbpm.process.instance.ProcessInstance)
         	processInstanceInfo.getProcessInstance(kruntime, this.kruntime.getEnvironment(), readOnly);
         if (!readOnly) {

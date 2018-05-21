@@ -432,10 +432,13 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
     }
 
 	public void reconnect() {
+	    System.out.println("XXXXXXXX reconnecting process instance, node instances " + nodeInstances.size());
         validate();
 	    super.reconnect();
 		for (NodeInstance nodeInstance : nodeInstances) {
+		    System.out.println("XXXXXXXX node instance ");
 			if (nodeInstance instanceof EventBasedNodeInstanceInterface) {
+			    System.out.println("XXXXXXXX adding listeners");
 				((EventBasedNodeInstanceInterface) nodeInstance)
 						.addEventListeners();
 			}
@@ -443,16 +446,16 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 		registerExternalEventNodeListeners();
 	}
 
-	public String toString() {
-		final StringBuilder sb = new StringBuilder("WorkflowProcessInstance");
-		sb.append(getId());
-		sb.append(" [processId=");
-		sb.append(getProcessId());
-		sb.append(",state=");
-		sb.append(getState());
-		sb.append("]");
-		return sb.toString();
-	}
+//	public String toString() {
+//		final StringBuilder sb = new StringBuilder("WorkflowProcessInstance");
+//		sb.append(getId());
+//		sb.append(" [processId=");
+//		sb.append(getProcessId());
+//		sb.append(",state=");
+//		sb.append(getState());
+//		sb.append("]");
+//		return sb.toString();
+//	}
 
 	public void start() {
 		start(null);
@@ -730,6 +733,7 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 	public void addEventListener(String type, EventListener listener, boolean external) {
 		Map<String, List<EventListener>> eventListeners = external ? this.externalEventListeners : this.eventListeners;
 		List<EventListener> listeners = eventListeners.get(type);
+		System.out.println("XXXXXXXX listeners value: " + listeners + " is external: " + external + " in WPI " + this);
 		if (listeners == null) {
 			listeners = new CopyOnWriteArrayList<EventListener>();
 			eventListeners.put(type, listeners);
@@ -737,6 +741,10 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 				((InternalProcessRuntime) getKnowledgeRuntime().getProcessRuntime())
 					.getSignalManager().addEventListener(type, this);
 			}
+		} else {
+		    for(EventListener eventListener : listeners) {
+		        System.out.println("XXXXXXXX what is inside: " + eventListener);
+		    }
 		}
 		listeners.add(listener);
 	}
@@ -744,8 +752,13 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 	public void removeEventListener(String type, EventListener listener, boolean external) {
 		Map<String, List<EventListener>> eventListeners = external ? this.externalEventListeners : this.eventListeners;
 		List<EventListener> listeners = eventListeners.get(type);
+		System.out.println("XXXXXXXXD listeners value: " + listeners + " is external: " + external + " in WPI " + this);
 		if (listeners != null) {
-		    listeners.remove(listener);
+		    boolean remove = listeners.remove(listener);
+		    if (!remove) {
+		        System.out.println("XXXXXXXX remove event listener unsuccessful: " + listener);
+		    }
+		    System.out.println("XXXXXXXXD listeners after removal value: " + listeners + " is external: " + external + " in WPI " + this);
 			if (listeners.isEmpty()) {
 				eventListeners.remove(type);
 				if (external) {
