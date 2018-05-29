@@ -134,8 +134,8 @@ public class CaseRuntimeDataServiceImplTest extends AbstractCaseServicesBaseTest
 
     @Test
     public void testUserTasksInCase() {
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("owner", new UserImpl(USER));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new OrganizationalEntity[] { new UserImpl(USER) });
 
         Map<String, Object> data = new HashMap<>();
         CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), USER_TASK_CASE_P_ID, data, roleAssignments);
@@ -205,8 +205,8 @@ public class CaseRuntimeDataServiceImplTest extends AbstractCaseServicesBaseTest
 
     @Test
     public void testUserTasksInCaseWithSubprocess() {
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("owner", new UserImpl(USER));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new OrganizationalEntity[] { new UserImpl(USER) });
 
         Map<String, Object> data = new HashMap<>();
         CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), USER_TASK_CASE_P_ID, data, roleAssignments);
@@ -267,8 +267,8 @@ public class CaseRuntimeDataServiceImplTest extends AbstractCaseServicesBaseTest
 
     @Test
     public void testUserTasksInCaseAdBusinessAdmin() {
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("owner", new UserImpl(USER));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new OrganizationalEntity[] { new UserImpl(USER) });
 
         Map<String, Object> data = new HashMap<>();
         CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), USER_TASK_CASE_P_ID, data, roleAssignments);
@@ -335,8 +335,8 @@ public class CaseRuntimeDataServiceImplTest extends AbstractCaseServicesBaseTest
 
     @Test
     public void testUserTasksInCaseAdStakeholder() {
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("owner", new UserImpl(USER));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new OrganizationalEntity[] { new UserImpl(USER) });
 
         Map<String, Object> data = new HashMap<>();
         CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), USER_TASK_CASE_P_ID, data, roleAssignments);
@@ -436,8 +436,8 @@ public class CaseRuntimeDataServiceImplTest extends AbstractCaseServicesBaseTest
 
     @Test
     public void testTransitionBetweenStagesInCase() {
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("owner", new UserImpl(USER));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new OrganizationalEntity[] { new UserImpl(USER) });
 
         Map<String, Object> data = new HashMap<>();
         CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), TWO_STAGES_CASE_P_ID, data, roleAssignments);
@@ -576,8 +576,8 @@ public class CaseRuntimeDataServiceImplTest extends AbstractCaseServicesBaseTest
 
     @Test
     public void testTransitionBetweenStagesWithConditionsInCase() {
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("owner", new UserImpl(USER));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new OrganizationalEntity[] { new UserImpl(USER) });
 
         Map<String, Object> data = new HashMap<>();
         data.put("customData", "none");
@@ -665,8 +665,8 @@ public class CaseRuntimeDataServiceImplTest extends AbstractCaseServicesBaseTest
 
     @Test
     public void testTransitionBetweenStagesInCaseWithActiveElements() {
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("owner", new UserImpl(USER));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new OrganizationalEntity[] { new UserImpl(USER) });
 
         Map<String, Object> data = new HashMap<>();
         CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), TWO_STAGES_CASE_P_ID, data, roleAssignments);

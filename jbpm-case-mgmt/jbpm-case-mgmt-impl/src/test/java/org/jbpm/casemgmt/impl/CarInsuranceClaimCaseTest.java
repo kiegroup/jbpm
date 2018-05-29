@@ -578,10 +578,10 @@ public class CarInsuranceClaimCaseTest extends AbstractCaseServicesBaseTest {
     }
 
     protected String startAndAssertCaseInstance(String deploymentId, String insured, String insuranceRepresentative) {
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
-        roleAssignments.put("insured", new UserImpl(insured));
-        roleAssignments.put("insuranceRepresentative", new UserImpl(insuranceRepresentative));
-        roleAssignments.put("assessor", new UserImpl("krisv"));
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
+        roleAssignments.put("insured", new OrganizationalEntity[] { new UserImpl(insured) });
+        roleAssignments.put("insuranceRepresentative", new OrganizationalEntity[] { new UserImpl(insuranceRepresentative) });
+        roleAssignments.put("assessor", new OrganizationalEntity[] { new UserImpl("krisv") });
 
         // start new instance of a case with data and role assignment
         Map<String, Object> data = new HashMap<>();

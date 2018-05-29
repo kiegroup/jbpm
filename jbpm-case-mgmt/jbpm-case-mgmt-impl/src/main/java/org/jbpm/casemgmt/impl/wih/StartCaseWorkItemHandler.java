@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.drools.core.ClassObjectFilter;
 import org.drools.core.process.instance.impl.WorkItemImpl;
 import org.jbpm.casemgmt.api.CaseNotFoundException;
@@ -110,7 +111,7 @@ public class StartCaseWorkItemHandler implements WorkItemHandler {
         
         Map<String, Object> caseFileData = new HashMap<>();
         Map<String, List<String>> accessRestrictions = new HashMap<>();
-        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
+        Map<String, OrganizationalEntity[]> roleAssignments = new HashMap<>();
         
         parseParameters(workItem, caseFileData, roleAssignments, accessRestrictions);        
        
@@ -190,7 +191,7 @@ public class StartCaseWorkItemHandler implements WorkItemHandler {
         return caseFile;
     }
     
-    protected void parseParameters(WorkItem workItem, Map<String, Object> caseFileData, Map<String, OrganizationalEntity> roleAssignments, Map<String, List<String>> accessRestrictions) {
+    protected void parseParameters(WorkItem workItem, Map<String, Object> caseFileData, Map<String, OrganizationalEntity[]> roleAssignments, Map<String, List<String>> accessRestrictions) {
         TaskModelFactory taskModelFactory = TaskModelProvider.getFactory(); 
         CaseFileInstance caseFile = getCaseFile(ksession);
         
@@ -216,8 +217,13 @@ public class StartCaseWorkItemHandler implements WorkItemHandler {
                     } catch (IllegalArgumentException e) { 
                         logger.debug("no such role {} or there is no user found for given role name", name);
                     }
-                } 
-                roleAssignments.put(name, user);
+                }
+                if (roleAssignments.containsKey(name)) {
+                    OrganizationalEntity[] oes = roleAssignments.get(name);
+                    roleAssignments.put(name, ArrayUtils.addAll(oes, user));
+                } else {
+                    roleAssignments.put(name, new OrganizationalEntity[]{ user });
+                }
                 logger.debug("Added user {} as assignment to the role {}", entry.getValue(), entry.getKey());
                 
             } else if (entry.getKey().startsWith(GROUP_ROLE_PREFIX)) {
@@ -236,7 +242,12 @@ public class StartCaseWorkItemHandler implements WorkItemHandler {
                         logger.debug("no such role {} or there is no group found for given role name", name); 
                     }
                 } 
-                roleAssignments.put(name, group);
+                if (roleAssignments.containsKey(name)) {
+                    OrganizationalEntity[] oes = roleAssignments.get(name);
+                    roleAssignments.put(name, ArrayUtils.addAll(oes, group));
+                } else {
+                    roleAssignments.put(name, new OrganizationalEntity[]{ group });
+                }
                 logger.debug("Added group {} as assignment to the role {}", entry.getValue(), entry.getKey());
                 
             } else if (entry.getKey().startsWith(DATA_ACCESS_PREFIX)) {

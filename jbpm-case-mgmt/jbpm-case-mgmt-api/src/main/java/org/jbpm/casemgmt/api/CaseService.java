@@ -430,7 +430,7 @@ public interface CaseService {
      * @param rolesAssignment initial role assignment
      * @return returns new instance (not associated with case) of CaseFileInstance populated with given data
      */
-    CaseFileInstance newCaseFileInstance(String deploymentId, String caseDefinition, Map<String, Object> data, Map<String, OrganizationalEntity> rolesAssignment);
+    CaseFileInstance newCaseFileInstance(String deploymentId, String caseDefinition, Map<String, Object> data, Map<String, OrganizationalEntity[]> rolesAssignment);
     
     /**
      * Builds and returns new CaseFileInstance with given data and roles assignments. Not yet associated with any case
@@ -441,7 +441,7 @@ public interface CaseService {
      * @param accessRestrictions access restrictions to data that defines what case roles are allowed to add and manipulate given data
      * @return returns new instance (not associated with case) of CaseFileInstance populated with given data
      */
-    CaseFileInstance newCaseFileInstanceWithRestrictions(String deploymentId, String caseDefinition, Map<String, Object> data, Map<String, OrganizationalEntity> rolesAssignment, Map<String, List<String>> accessRestrictions);
+    CaseFileInstance newCaseFileInstanceWithRestrictions(String deploymentId, String caseDefinition, Map<String, Object> data, Map<String, OrganizationalEntity[]> rolesAssignment, Map<String, List<String>> accessRestrictions);
 
     /**
      * Returns new TaskSpecification describing user task so it can be created as dynamic task. All string
