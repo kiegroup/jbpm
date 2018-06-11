@@ -22,6 +22,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +33,7 @@ import org.jbpm.services.task.deadlines.notifications.impl.MockNotificationListe
 import org.jbpm.services.task.impl.factories.TaskFactory;
 import org.jbpm.services.task.util.CountDownTaskEventListener;
 import org.jbpm.services.task.utils.ContentMarshallerHelper;
+import org.junit.Assert;
 import org.junit.Test;
 import org.kie.api.task.model.OrganizationalEntity;
 import org.kie.api.task.model.Status;
@@ -462,5 +464,39 @@ public abstract class DeadlinesBaseTest extends HumanTaskServicesBaseTest {
           assertEquals(Status.Completed, task.getTaskData().getStatus());
           assertEquals(0, ((InternalTask) task).getDeadlines().getStartDeadlines().size());
           assertEquals(0, ((InternalTask) task).getDeadlines().getEndDeadlines().size());
+      }
+
+      @Test
+      public void testTaskReassign() throws Exception { 
+          Reader reader = new InputStreamReader(getClass().getResourceAsStream(MvelFilePath.DeadlineWithMultipleReassignment));
+          Map<String, Object> vars = new HashMap<String, Object>();
+          vars.put("now", new Date());
+          Task task = (InternalTask) TaskFactory.evalTask(reader, vars);
+
+          Map<String, Object> inputVars = new HashMap<String, Object>();
+          inputVars.put("NotCompletedReassign", "[users:Tony Stark,Bobba Fet,Jabba Hutt|groups:]@[500ms]");
+          taskService.addTask(task, inputVars);
+
+          long taskId = task.getId();
+
+          task = taskService.getTaskById(taskId);
+
+          String []owners = new String[] {
+             "Tony Stark", "Bobba Fet", "Jabba Hutt"
+          };
+
+          Thread.sleep(1000);
+          for(String owner : owners) {
+              taskService.claim(taskId, owner);
+              task = taskService.getTaskById(taskId);
+              Assert.assertEquals(task.getTaskData().getActualOwner().getId(), owner);
+
+              Thread.sleep(1000);
+              task = taskService.getTaskById(taskId);
+              Assert.assertNull("it was not reclaimed", task.getTaskData().getActualOwner());
+          }
+          taskService.claim(taskId, "Bobba Fet");
+          taskService.start(taskId, "Bobba Fet");
+          taskService.complete(taskId, "Bobba Fet", Collections.<String, Object>emptyMap());
       }
 }

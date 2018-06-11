@@ -109,9 +109,8 @@ public class AddTaskCommand extends UserGroupCallbackTaskCommand<Long> {
             ((InternalTaskData)taskImpl.getTaskData()).setTaskInputVariables(params);
         	taskId = context.getTaskInstanceService().addTask(taskImpl, params);
         }      
-    	
-    	scheduleDeadlinesForTask((InternalTask) taskImpl, context.getTaskDeadlinesService());
-    	
+
+        scheduleDeadlinesForTask((InternalTask) task, context.getTaskDeadlinesService());
     	return taskId;
     }
 
@@ -152,37 +151,7 @@ public class AddTaskCommand extends UserGroupCallbackTaskCommand<Long> {
         this.data = data;
     }
     
-    private void scheduleDeadlinesForTask(final InternalTask task, TaskDeadlinesService deadlineService) {
-        final long now = System.currentTimeMillis();
 
-        Deadlines deadlines = task.getDeadlines();
-        
-        if (deadlines != null) {
-            final List<? extends Deadline> startDeadlines = deadlines.getStartDeadlines();
-    
-            if (startDeadlines != null) {
-                scheduleDeadlines(startDeadlines, now, task.getId(), DeadlineType.START, deadlineService);
-            }
-    
-            final List<? extends Deadline> endDeadlines = deadlines.getEndDeadlines();
-    
-            if (endDeadlines != null) {
-                scheduleDeadlines(endDeadlines, now, task.getId(), DeadlineType.END, deadlineService);
-            }
-        }
-    }
-
-    private void scheduleDeadlines(final List<? extends Deadline> deadlines, final long now, 
-    		final long taskId, DeadlineType type, TaskDeadlinesService deadlineService) {
-        for (Deadline deadline : deadlines) {
-            if (!deadline.isEscalated()) {
-                // only escalate when true - typically this would only be true
-                // if the user is requested that the notification should never be escalated
-                Date date = deadline.getDate();
-                deadlineService.schedule(taskId, deadline.getId(), date.getTime() - now, type);
-            }
-        }
-    }
     
     private void initializeTask(Task task){
         Status assignedStatus = null;

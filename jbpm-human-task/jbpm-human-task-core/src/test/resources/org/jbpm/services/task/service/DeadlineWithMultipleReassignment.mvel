@@ -17,7 +17,7 @@ with ( new Task() ) {
                         name = "My Start Escalation",
                         constraints = [new BooleanExpression( "mvel", "true" )],
                         reassignments = [(with ( new Reassignment() ) {
-                            potentialOwners = [new User('Tony Stark'), new User('Bobba Fet'), new User('Jabba Hutt')]
+                            potentialOwners = [new User('Bobba Fet'), new User('Jabba Hutt')]
                         })]
                     }) 
                 ]

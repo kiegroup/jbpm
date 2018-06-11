@@ -24,6 +24,7 @@ import java.util.Collections;
 
 import org.drools.core.process.instance.WorkItem;
 import org.drools.core.process.instance.impl.WorkItemImpl;
+import org.jbpm.services.task.impl.util.HumanTaskHandlerHelper;
 import org.jbpm.test.util.AbstractBaseTest;
 import org.junit.Test;
 import org.kie.internal.task.api.TaskModelProvider;
@@ -43,7 +44,7 @@ public class HumanTaskHandlerHelperTest extends AbstractBaseTest {
 		workItem.setParameter("NotStartedReassign", "[users:john]@[4h]");
 		
 		@SuppressWarnings("unchecked")
-		Deadlines deadlines = HumanTaskHandlerHelper.setDeadlines(workItem, Collections.EMPTY_LIST, null);
+		Deadlines deadlines = HumanTaskHandlerHelper.setDeadlines(workItem.getParameters(), Collections.EMPTY_LIST, null);
 		assertNotNull(deadlines);
 		assertEquals(1, deadlines.getStartDeadlines().size());
 		assertEquals(0, deadlines.getEndDeadlines().size());
@@ -71,7 +72,7 @@ public class HumanTaskHandlerHelperTest extends AbstractBaseTest {
 		workItem.setParameter("NotStartedReassign", "[users:john|groups:sales]@[4h]");
 		
 		@SuppressWarnings("unchecked")
-		Deadlines deadlines = HumanTaskHandlerHelper.setDeadlines(workItem, Collections.EMPTY_LIST, null);
+		Deadlines deadlines = HumanTaskHandlerHelper.setDeadlines(workItem.getParameters(), Collections.EMPTY_LIST, null);
 		assertNotNull(deadlines);
 		assertEquals(1, deadlines.getStartDeadlines().size());
 		assertEquals(0, deadlines.getEndDeadlines().size());
@@ -100,7 +101,7 @@ public class HumanTaskHandlerHelperTest extends AbstractBaseTest {
 		workItem.setParameter("NotStartedReassign", "[users:john]@[4h,6h]");
 		
 		@SuppressWarnings("unchecked")
-		Deadlines deadlines = HumanTaskHandlerHelper.setDeadlines(workItem, Collections.EMPTY_LIST, null);
+		Deadlines deadlines = HumanTaskHandlerHelper.setDeadlines(workItem.getParameters(), Collections.EMPTY_LIST, null);
 		assertNotNull(deadlines);
 		assertEquals(2, deadlines.getStartDeadlines().size());
 		assertEquals(0, deadlines.getEndDeadlines().size());
@@ -143,7 +144,7 @@ public class HumanTaskHandlerHelperTest extends AbstractBaseTest {
 		workItem.setParameter("NotCompletedReassign", "[users:john]@[4h]");
 		
 		@SuppressWarnings("unchecked")
-		Deadlines deadlines = HumanTaskHandlerHelper.setDeadlines(workItem, Collections.EMPTY_LIST, null);
+		Deadlines deadlines = HumanTaskHandlerHelper.setDeadlines(workItem.getParameters(), Collections.EMPTY_LIST, null);
 		assertNotNull(deadlines);
 		assertEquals(1, deadlines.getEndDeadlines().size());
 		assertEquals(0, deadlines.getStartDeadlines().size());
@@ -171,7 +172,7 @@ public class HumanTaskHandlerHelperTest extends AbstractBaseTest {
 		workItem.setParameter("NotCompletedReassign", "[users:john|groups:sales]@[4h]");
 		
 		@SuppressWarnings("unchecked")
-		Deadlines deadlines = HumanTaskHandlerHelper.setDeadlines(workItem, Collections.EMPTY_LIST, null);
+		Deadlines deadlines = HumanTaskHandlerHelper.setDeadlines(workItem.getParameters(), Collections.EMPTY_LIST, null);
 		assertNotNull(deadlines);
 		assertEquals(1, deadlines.getEndDeadlines().size());
 		assertEquals(0, deadlines.getStartDeadlines().size());
@@ -200,7 +201,7 @@ public class HumanTaskHandlerHelperTest extends AbstractBaseTest {
 		workItem.setParameter("NotCompletedReassign", "[users:john]@[4h,6h]");
 		
 		@SuppressWarnings("unchecked")
-		Deadlines deadlines = HumanTaskHandlerHelper.setDeadlines(workItem, Collections.EMPTY_LIST, null);
+		Deadlines deadlines = HumanTaskHandlerHelper.setDeadlines(workItem.getParameters(), Collections.EMPTY_LIST, null);
 		assertNotNull(deadlines);
 		assertEquals(2, deadlines.getEndDeadlines().size());
 		assertEquals(0, deadlines.getStartDeadlines().size());
@@ -242,7 +243,7 @@ public class HumanTaskHandlerHelperTest extends AbstractBaseTest {
 		workItem.setParameter("NotStartedNotify", "[tousers:john|subject:Test of notification|body:And here is the body]@[4h]");
 		
 		@SuppressWarnings("unchecked")
-		Deadlines deadlines = HumanTaskHandlerHelper.setDeadlines(workItem, Collections.EMPTY_LIST, null);
+		Deadlines deadlines = HumanTaskHandlerHelper.setDeadlines(workItem.getParameters(), Collections.EMPTY_LIST, null);
 		assertNotNull(deadlines);
 		assertEquals(1, deadlines.getStartDeadlines().size());
 		assertEquals(0, deadlines.getEndDeadlines().size());
@@ -281,7 +282,7 @@ public class HumanTaskHandlerHelperTest extends AbstractBaseTest {
 		workItem.setParameter("NotStartedNotify", "[from:mike|tousers:john,mary|togroups:sales,hr|replyto:mike|subject:Test of notification|body:And here is the body]@[4h]");
 		
 		@SuppressWarnings("unchecked")
-		Deadlines deadlines = HumanTaskHandlerHelper.setDeadlines(workItem, Collections.EMPTY_LIST, null);
+		Deadlines deadlines = HumanTaskHandlerHelper.setDeadlines(workItem.getParameters(), Collections.EMPTY_LIST, null);
 		assertNotNull(deadlines);
 		assertEquals(1, deadlines.getStartDeadlines().size());
 		assertEquals(0, deadlines.getEndDeadlines().size());
@@ -325,7 +326,7 @@ public class HumanTaskHandlerHelperTest extends AbstractBaseTest {
 		workItem.setParameter("NotStartedNotify", "[tousers:john|subject:Test of notification|body:And here is the body]@[4h,6h]");
 		
 		@SuppressWarnings("unchecked")
-		Deadlines deadlines = HumanTaskHandlerHelper.setDeadlines(workItem, Collections.EMPTY_LIST, null);
+		Deadlines deadlines = HumanTaskHandlerHelper.setDeadlines(workItem.getParameters(), Collections.EMPTY_LIST, null);
 		assertNotNull(deadlines);
 		assertEquals(2, deadlines.getStartDeadlines().size());
 		assertEquals(0, deadlines.getEndDeadlines().size());
@@ -399,7 +400,7 @@ public class HumanTaskHandlerHelperTest extends AbstractBaseTest {
 			  "&lt;/html&gt;]@[4h]");
 		
 		@SuppressWarnings("unchecked")
-		Deadlines deadlines = HumanTaskHandlerHelper.setDeadlines(workItem, Collections.EMPTY_LIST, null);
+		Deadlines deadlines = HumanTaskHandlerHelper.setDeadlines(workItem.getParameters(), Collections.EMPTY_LIST, null);
 		assertNotNull(deadlines);
 		assertEquals(1, deadlines.getStartDeadlines().size());
 		assertEquals(0, deadlines.getEndDeadlines().size());

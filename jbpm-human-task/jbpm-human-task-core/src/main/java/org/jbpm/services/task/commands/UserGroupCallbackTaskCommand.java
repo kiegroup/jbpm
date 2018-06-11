@@ -17,8 +17,10 @@ package org.jbpm.services.task.commands;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -39,6 +41,8 @@ import org.kie.api.task.model.Status;
 import org.kie.api.task.model.User;
 import org.kie.internal.command.Context;
 import org.kie.internal.task.api.TaskContext;
+import org.kie.internal.task.api.TaskDeadlinesService;
+import org.kie.internal.task.api.TaskDeadlinesService.DeadlineType;
 import org.kie.internal.task.api.TaskModelProvider;
 import org.kie.internal.task.api.TaskPersistenceContext;
 import org.kie.internal.task.api.model.Deadline;
@@ -48,6 +52,7 @@ import org.kie.internal.task.api.model.InternalAttachment;
 import org.kie.internal.task.api.model.InternalComment;
 import org.kie.internal.task.api.model.InternalOrganizationalEntity;
 import org.kie.internal.task.api.model.InternalPeopleAssignments;
+import org.kie.internal.task.api.model.InternalTask;
 import org.kie.internal.task.api.model.InternalTaskData;
 import org.kie.internal.task.api.model.Notification;
 import org.kie.internal.task.api.model.Reassignment;
@@ -524,4 +529,73 @@ public class UserGroupCallbackTaskCommand<T> extends TaskCommand<T> {
 	    throw new UnsupportedOperationException("The " + this.getClass().getSimpleName() + " is not a standalone command that can be executed.");
 	}
 
+
+    protected void scheduleDeadlinesForTask(final InternalTask task, TaskDeadlinesService deadlineService) {
+        final long now = System.currentTimeMillis();
+
+        Deadlines deadlines = task.getDeadlines();
+        
+        if (deadlines != null) {
+            final List<? extends Deadline> startDeadlines = deadlines.getStartDeadlines();
+    
+            if (startDeadlines != null) {
+                scheduleDeadlines(startDeadlines, now, task.getId(), DeadlineType.START, deadlineService);
+            }
+
+            final List<? extends Deadline> endDeadlines = deadlines.getEndDeadlines();
+
+            if (endDeadlines != null) {
+                scheduleDeadlines(endDeadlines, now, task.getId(), DeadlineType.END, deadlineService);
+            }
+        }
+    }
+
+    private void scheduleDeadlines(final List<? extends Deadline> deadlines, final long now, 
+            final long taskId, DeadlineType type, TaskDeadlinesService deadlineService) {
+        for (Deadline deadline : deadlines) {
+            if (!deadline.isEscalated()) {
+                // only escalate when true - typically this would only be true
+                // if the user is requested that the notification should never be escalated
+                Date date = deadline.getDate();
+                deadlineService.schedule(taskId, deadline.getId(), date.getTime() - now, type);
+            }
+        }
+    }
+
+    protected void unscheduleDeadlinesForTask(final InternalTask task, TaskDeadlinesService deadlineService,
+            final TaskPersistenceContext persistenceContext, boolean removeStartDeadlines, boolean removeEndDeadlines) {
+
+        Deadlines deadlines = task.getDeadlines();
+        
+        if (deadlines != null) {
+            final List<? extends Deadline> startDeadlines = deadlines.getStartDeadlines();
+
+            if (startDeadlines != null && removeStartDeadlines) {
+                unscheduleDeadlines(startDeadlines, task.getId(), DeadlineType.START, deadlineService,
+                        persistenceContext);
+            }
+
+            final List<? extends Deadline> endDeadlines = deadlines.getEndDeadlines();
+
+            if (endDeadlines != null && removeEndDeadlines) {
+                unscheduleDeadlines(endDeadlines, task.getId(), DeadlineType.END, deadlineService,
+                        persistenceContext);
+            }
+        }
+    }
+
+    protected void unscheduleDeadlines(final List<? extends Deadline> deadlines, 
+            final long taskId, DeadlineType type, TaskDeadlinesService deadlineService,
+            final TaskPersistenceContext persistenceContext) {
+
+        if (deadlines != null) {
+            deadlineService.unschedule(taskId, type);
+            Iterator<? extends Deadline> it = deadlines.iterator();
+            while (it.hasNext()) {
+
+                persistenceContext.removeDeadline(it.next());
+                it.remove();
+            }
+        }
+    }
 }

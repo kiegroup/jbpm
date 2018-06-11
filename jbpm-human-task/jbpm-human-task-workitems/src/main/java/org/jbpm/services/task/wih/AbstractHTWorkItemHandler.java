@@ -25,7 +25,6 @@ import org.drools.core.process.instance.impl.WorkItemImpl;
 import org.jbpm.process.core.timer.DateTimeUtils;
 import org.jbpm.services.task.utils.ContentMarshallerHelper;
 import org.jbpm.services.task.utils.OnErrorAction;
-import org.jbpm.services.task.wih.util.HumanTaskHandlerHelper;
 import org.jbpm.services.task.wih.util.PeopleAssignmentHelper;
 import org.kie.api.runtime.Environment;
 import org.kie.api.runtime.KieSession;
@@ -184,7 +183,7 @@ public abstract class AbstractHTWorkItemHandler implements WorkItemHandler {
         
         taskData.initialize();
         task.setTaskData(taskData);
-        task.setDeadlines(HumanTaskHandlerHelper.setDeadlines(workItem, businessAdministrators, session.getEnvironment()));
+        task.setDeadlines(org.jbpm.services.task.impl.util.HumanTaskHandlerHelper.setDeadlines(workItem.getParameters(), businessAdministrators, session.getEnvironment()));
         return task;
     }
 

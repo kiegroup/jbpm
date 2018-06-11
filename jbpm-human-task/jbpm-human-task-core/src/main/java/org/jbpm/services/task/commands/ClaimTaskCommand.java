@@ -15,11 +15,23 @@
  */
 package org.jbpm.services.task.commands;
 
+import java.util.List;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.jbpm.services.task.impl.util.HumanTaskHandlerHelper;
+import org.jbpm.services.task.utils.ContentMarshallerHelper;
+import org.kie.api.runtime.Environment;
+import org.kie.api.task.model.OrganizationalEntity;
+import org.kie.api.task.model.PeopleAssignments;
 import org.kie.internal.command.Context;
+import org.kie.internal.task.api.ContentMarshallerContext;
+import org.kie.internal.task.api.TaskPersistenceContext;
+import org.kie.internal.task.api.model.Deadline;
+import org.kie.internal.task.api.model.Deadlines;
+import org.kie.internal.task.api.model.InternalTask;
 
 /**
  * Operation.Claim 
@@ -49,10 +61,39 @@ public class ClaimTaskCommand extends UserGroupCallbackTaskCommand<Void> {
         doCallbackUserOperation(userId, context, true);
         groupIds = doUserGroupCallbackOperation(userId, null, context);
         context.set("local:groups", groupIds);
-    	context.getTaskInstanceService().claim(taskId, userId);
-    	return null;
-        
+        InternalTask task = (InternalTask) context.getPersistenceContext().findTask(taskId);
+
+        context.getTaskInstanceService().claim(taskId, userId);
+
+        recalculateDeadlines(context, task);
+        scheduleDeadlinesForTask(task, context.getTaskDeadlinesService());
+        return null;
+
     }
 
+    private void recalculateDeadlines(TaskContext taskContext, InternalTask task) {
+
+        Environment environmnet = taskContext.getTaskContentService().getMarshallerContext(task).getEnvironment();
+
+        taskContext.loadTaskVariables(task);
+        TaskPersistenceContext persistenceContext = taskContext.getPersistenceContext();
+
+        PeopleAssignments peopleAssignments = task.getPeopleAssignments();
+        List<OrganizationalEntity> businessAdministrators = peopleAssignments.getBusinessAdministrators();
+        
+        Deadlines deadlines = HumanTaskHandlerHelper.setDeadlines(task.getTaskData().getTaskInputVariables(), businessAdministrators, environmnet);
+
+        // add new deadlines
+        for(Deadline deadline : deadlines.getStartDeadlines()) {
+            task.getDeadlines().getStartDeadlines().add(deadline);
+            persistenceContext.persistDeadline(deadline);
+        }
+
+        for(Deadline deadline : deadlines.getEndDeadlines()) {
+            task.getDeadlines().getEndDeadlines().add(deadline);
+            persistenceContext.persistDeadline(deadline);
+        }
+        persistenceContext.updateTask(task);
+   }
    
 }
