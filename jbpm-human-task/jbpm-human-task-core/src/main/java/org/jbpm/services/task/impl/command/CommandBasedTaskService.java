@@ -165,7 +165,10 @@ public class CommandBasedTaskService implements InternalTaskService, EventServic
 	}
 
 	public void claim(long taskId, String userId) {
-		executor.execute(new ClaimTaskCommand(taskId, userId));
+        executor.execute(new CompositeCommand<Void>(
+             new ClaimTaskCommand(taskId, userId), // this is executed last
+             new CancelDeadlineCommand(taskId, true, true)
+             ));
 	}
 
 	// TODO: does not filter on language

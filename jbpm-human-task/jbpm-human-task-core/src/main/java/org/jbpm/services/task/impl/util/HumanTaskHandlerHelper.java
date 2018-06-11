@@ -13,7 +13,7 @@
  * limitations under the License.
 */
 
-package org.jbpm.services.task.wih.util;
+package org.jbpm.services.task.impl.util;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -55,11 +55,11 @@ public class HumanTaskHandlerHelper {
 	
 	private static final String[] KNOWN_KEYS = {"users", "groups", "from", "tousers", "togroups", "replyto", "subject","body"}; 
 	
-	public static Deadlines setDeadlines(WorkItem workItem, List<OrganizationalEntity> businessAdministrators, Environment environment) {
-		String notStartedReassign = (String) workItem.getParameter("NotStartedReassign");
-		String notStartedNotify = (String) workItem.getParameter("NotStartedNotify");
-		String notCompletedReassign = (String) workItem.getParameter("NotCompletedReassign");
-		String notCompletedNotify = (String) workItem.getParameter("NotCompletedNotify");
+	public static Deadlines setDeadlines(Map<String, Object> params, List<OrganizationalEntity> businessAdministrators, Environment environment) {
+		String notStartedReassign = (String) params.get("NotStartedReassign");
+		String notStartedNotify = (String) params.get("NotStartedNotify");
+		String notCompletedReassign = (String) params.get("NotCompletedReassign");
+		String notCompletedNotify = (String) params.get("NotCompletedNotify");
 		
 
 	    Deadlines deadlinesTotal = TaskModelProvider.getFactory().newDeadlines();
