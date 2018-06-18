@@ -17,13 +17,17 @@ package org.jbpm.test.functional.task;
 
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.jbpm.process.core.timer.BusinessCalendar;
 import org.jbpm.process.core.timer.BusinessCalendarImpl;
+import org.jbpm.services.task.events.DefaultTaskEventListener;
+import org.jbpm.services.task.lifecycle.listeners.TaskLifeCycleEventListener;
 import org.jbpm.test.JbpmTestCase;
 import org.junit.After;
 import org.junit.Before;
@@ -31,6 +35,7 @@ import org.junit.Test;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.runtime.manager.RuntimeManager;
+import org.kie.api.task.TaskEvent;
 import org.kie.api.task.TaskService;
 import org.kie.api.task.model.OrganizationalEntity;
 import org.kie.api.task.model.Task;
@@ -47,13 +52,249 @@ public class HumanTaskReassignmentTest extends JbpmTestCase {
     private TaskService taskService;
     private RuntimeManager runtimeManager;
     private RuntimeEngine engine;
+    
+    final List<Long> list;
 
     public HumanTaskReassignmentTest() {
         super(true, true);
+        list = new ArrayList<Long>();
     }
 
     @Before
     public void init() {
+        list.clear();
+        TaskLifeCycleEventListener listener = new TaskLifeCycleEventListener() {
+
+            @Override
+            public void afterTaskActivatedEvent(TaskEvent arg0) {
+               
+                
+            }
+
+            @Override
+            public void afterTaskAddedEvent(TaskEvent arg0) {
+                
+                
+            }
+
+            @Override
+            public void afterTaskClaimedEvent(TaskEvent arg0) {
+                
+                
+            }
+
+            @Override
+            public void afterTaskCompletedEvent(TaskEvent arg0) {
+                
+                
+            }
+
+            @Override
+            public void afterTaskDelegatedEvent(TaskEvent arg0) {
+                
+                
+            }
+
+            @Override
+            public void afterTaskExitedEvent(TaskEvent arg0) {
+                
+                
+            }
+
+            @Override
+            public void afterTaskFailedEvent(TaskEvent arg0) {
+                
+                
+            }
+
+            @Override
+            public void afterTaskForwardedEvent(TaskEvent arg0) {
+                
+                
+            }
+
+            @Override
+            public void afterTaskNominatedEvent(TaskEvent arg0) {
+                
+                
+            }
+
+            @Override
+            public void afterTaskReleasedEvent(TaskEvent arg0) {
+                
+                
+            }
+
+            @Override
+            public void afterTaskResumedEvent(TaskEvent arg0) {
+                
+                
+            }
+
+            @Override
+            public void afterTaskSkippedEvent(TaskEvent arg0) {
+                
+                
+            }
+
+            @Override
+            public void afterTaskStartedEvent(TaskEvent arg0) {
+                
+                
+            }
+
+            @Override
+            public void afterTaskStoppedEvent(TaskEvent arg0) {
+                
+                
+            }
+
+            @Override
+            public void afterTaskSuspendedEvent(TaskEvent arg0) {
+                
+                
+            }
+
+            @Override
+            public void beforeTaskActivatedEvent(TaskEvent arg0) {
+                
+                
+            }
+
+            @Override
+            public void beforeTaskAddedEvent(TaskEvent arg0) {
+                
+                
+            }
+
+            @Override
+            public void beforeTaskClaimedEvent(TaskEvent arg0) {
+                
+                
+            }
+
+            @Override
+            public void beforeTaskCompletedEvent(TaskEvent arg0) {
+                
+                
+            }
+
+            @Override
+            public void beforeTaskDelegatedEvent(TaskEvent arg0) {
+                
+                
+            }
+
+            @Override
+            public void beforeTaskExitedEvent(TaskEvent arg0) {
+                
+                
+            }
+
+            @Override
+            public void beforeTaskFailedEvent(TaskEvent arg0) {
+                
+                
+            }
+
+            @Override
+            public void beforeTaskForwardedEvent(TaskEvent arg0) {
+                
+                
+            }
+
+            @Override
+            public void beforeTaskNominatedEvent(TaskEvent arg0) {
+                
+                
+            }
+
+            @Override
+            public void beforeTaskReleasedEvent(TaskEvent arg0) {
+                
+                
+            }
+
+            @Override
+            public void beforeTaskResumedEvent(TaskEvent arg0) {
+                
+                
+            }
+
+            @Override
+            public void beforeTaskSkippedEvent(TaskEvent arg0) {
+                
+                
+            }
+
+            @Override
+            public void beforeTaskStartedEvent(TaskEvent arg0) {
+                
+                
+            }
+
+            @Override
+            public void beforeTaskStoppedEvent(TaskEvent arg0) {
+                
+                
+            }
+
+            @Override
+            public void beforeTaskSuspendedEvent(TaskEvent arg0) {
+                
+                
+            }
+
+            @Override
+            public void beforeTaskUpdatedEvent(TaskEvent event) {
+                
+                
+            }
+
+            @Override
+            public void afterTaskUpdatedEvent(TaskEvent event) {
+                
+                
+            }
+
+            @Override
+            public void beforeTaskReassignedEvent(TaskEvent event) {
+                
+                list.add(event.getTask().getId());
+            }
+
+            @Override
+            public void afterTaskReassignedEvent(TaskEvent event) {
+                
+                list.add(event.getTask().getId());
+            }
+
+            @Override
+            public void beforeTaskNotificationEvent(TaskEvent event) {
+                
+                
+            }
+
+            @Override
+            public void afterTaskNotificationEvent(TaskEvent event) {
+                
+                
+            }
+
+            @Override
+            public void afterTaskInputVariableChangedEvent(TaskEvent event, Map<String, Object> variables) {
+                
+                
+            }
+
+            @Override
+            public void afterTaskOutputVariableChangedEvent(TaskEvent event, Map<String, Object> variables) {
+                
+                
+            }
+            
+        };
+        addTaskEventListener(listener);
         runtimeManager = createRuntimeManager(PROCESS_FILE);
         engine = getRuntimeEngine();
         ksession = engine.getKieSession();
@@ -93,6 +334,14 @@ public class HumanTaskReassignmentTest extends JbpmTestCase {
     public void testTimeoutNonBusinessHour() throws InterruptedException {
         configureBusinessCalendar(false);
         testTimeout(false);
+    }
+    
+    @Test
+    public void testTimeoutWithEventListener() throws InterruptedException {
+        
+        testTimeout(true);
+        
+        assertEquals(2, list.size());
     }
 
     private String getTaskPotentialOwner(long taskId) {
