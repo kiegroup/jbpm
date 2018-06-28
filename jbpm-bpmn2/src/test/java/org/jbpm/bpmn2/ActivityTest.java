@@ -68,6 +68,7 @@ import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.process.WorkItem;
 import org.kie.api.runtime.process.WorkItemManager;
 import org.kie.api.runtime.process.WorkflowProcessInstance;
+import org.kie.api.runtime.rule.ConsequenceException;
 import org.kie.api.runtime.Context;
 import org.kie.internal.persistence.jpa.JPAKnowledgeService;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
@@ -1994,5 +1995,23 @@ public class ActivityTest extends JbpmBpmn2TestCase {
             ksession.startProcess("BPMN2-BusinessRuleTask", parameters);
         })
         .withMessageContaining("Fire rule limit reached 5");        
+    }
+    
+    @Test
+    public void testBusinessRuleTaskException() throws Exception {
+        KieBase kbase = createKnowledgeBaseWithoutDumper("BPMN2-BusinessRuleTask.bpmn2",
+                "BPMN2-BusinessRuleTaskWithException.drl");
+        ksession = createKnowledgeSession(kbase);
+        ksession.insert(new Person());
+        assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> { 
+            ksession.startProcess("BPMN2-BusinessRuleTask");
+        })
+        .withMessageContaining("On purpose")
+        .satisfies((RuntimeException re) -> {
+            assertNotNull(re.getCause());
+            assertTrue(re.getCause() instanceof ConsequenceException);
+            assertNotNull(re.getCause().getCause());
+            assertTrue(re.getCause().getCause() instanceof RuntimeException);
+        });        
     }
 }
