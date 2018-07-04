@@ -21,12 +21,17 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.TimeZone;
 
 import javax.persistence.EntityManagerFactory;
 
@@ -346,9 +351,11 @@ public class TimerMigrationManagerTest extends AbstractBaseTest {
         
         RuntimeEngine runtime = managerV1.getRuntimeEngine(EmptyContext.get());
         KieSession ksession = runtime.getKieSession();
-        assertNotNull(ksession); 
-        
-        ProcessInstance pi1 = ksession.startProcess(CYCLE_TIMER_ID_V1);
+        assertNotNull(ksession);
+
+        String formattedDate = formatToISO(new Date());
+        Map<String, Object> params = Collections.singletonMap("startTime", (Object) formattedDate);
+        ProcessInstance pi1 = ksession.startProcess(CYCLE_TIMER_ID_V1, params);
         assertNotNull(pi1);
         assertEquals(ProcessInstance.STATE_ACTIVE, pi1.getState()); 
         JPAAuditLogService auditService = new JPAAuditLogService(emf);
@@ -387,8 +394,71 @@ public class TimerMigrationManagerTest extends AbstractBaseTest {
         
         ksession.signalEvent("endMe", null, pi1.getId());
                 
-        managerV2.disposeRuntimeEngine(runtime);  
+        managerV2.disposeRuntimeEngine(runtime);
         
+        log = auditService.findProcessInstance(pi1.getId());
+        auditService.dispose();
+        assertNotNull(log);
+        assertEquals(CYCLE_TIMER_ID_V2, log.getProcessId());
+        assertEquals(DEPLOYMENT_ID_V2, log.getExternalId());
+        assertEquals(ProcessInstance.STATE_COMPLETED, log.getStatus().intValue());
+
+    }
+
+    @Test(timeout=20000)
+    public void testMigrateTimerCycleProcessInstanceBeforeFirstTrigger() throws Exception {
+        CountDownProcessEventListener countdownListener = new CountDownProcessEventListener("print smt", 3);
+        createRuntimeManagers("migration/v1/BPMN2-TimerCycle-v1.bpmn2", "migration/v2/BPMN2-TimerCycle-v2.bpmn2", countdownListener);
+        assertNotNull(managerV1);
+        assertNotNull(managerV2);
+
+        RuntimeEngine runtime = managerV1.getRuntimeEngine(EmptyContext.get());
+        KieSession ksession = runtime.getKieSession();
+        assertNotNull(ksession);
+
+        // Delay first firing to have enough time for migration
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.SECOND, 3);
+        String formattedDate = formatToISO(cal.getTime());
+
+        Map<String, Object> params = Collections.singletonMap("startTime", (Object) formattedDate);
+        ProcessInstance pi1 = ksession.startProcess(CYCLE_TIMER_ID_V1, params);
+        assertNotNull(pi1);
+        assertEquals(ProcessInstance.STATE_ACTIVE, pi1.getState());
+        JPAAuditLogService auditService = new JPAAuditLogService(emf);
+        ProcessInstanceLog log = auditService.findProcessInstance(pi1.getId());
+        assertNotNull(log);
+        assertEquals(CYCLE_TIMER_ID_V1, log.getProcessId());
+        assertEquals(DEPLOYMENT_ID_V1, log.getExternalId());
+
+        managerV1.disposeRuntimeEngine(runtime);
+
+        MigrationSpec migrationSpec = new MigrationSpec(DEPLOYMENT_ID_V1, pi1.getId(), DEPLOYMENT_ID_V2, CYCLE_TIMER_ID_V2);
+
+        MigrationManager migrationManager = new MigrationManager(migrationSpec);
+        MigrationReport report = migrationManager.migrate();
+
+        assertNotNull(report);
+        assertTrue(report.isSuccessful());
+
+        log = auditService.findProcessInstance(pi1.getId());
+        assertNotNull(log);
+        assertEquals(CYCLE_TIMER_ID_V2, log.getProcessId());
+        assertEquals(DEPLOYMENT_ID_V2, log.getExternalId());
+        assertEquals(ProcessInstance.STATE_ACTIVE, log.getStatus().intValue());
+
+        // wait till timer fires 3 times, reset the counter to be sure all timer triggers fired after migration
+        countdownListener.reset(3);
+        countdownListener.waitTillCompleted();
+
+        runtime = managerV2.getRuntimeEngine(ProcessInstanceIdContext.get(pi1.getId()));
+        ksession = runtime.getKieSession();
+        assertNotNull(ksession);
+
+        ksession.signalEvent("endMe", null, pi1.getId());
+
+        managerV2.disposeRuntimeEngine(runtime);
+
         log = auditService.findProcessInstance(pi1.getId());
         auditService.dispose();
         assertNotNull(log);
@@ -474,5 +544,12 @@ public class TimerMigrationManagerTest extends AbstractBaseTest {
         } 
         assertNotNull(managerV1);
         assertNotNull(managerV2);
+    }
+
+    private String formatToISO(Date date) {
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
+        df.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+        return df.format(date);
     }
 }
