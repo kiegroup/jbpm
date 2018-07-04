@@ -34,7 +34,8 @@ import org.kie.api.executor.STATUS;
 import org.kie.api.runtime.query.QueryContext;
 import org.kie.internal.command.Context;
 import org.kie.internal.executor.api.ExecutorQueryService;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -44,6 +45,7 @@ import org.kie.internal.executor.api.ExecutorQueryService;
  */
 public class ExecutorQueryServiceImpl implements ExecutorQueryService {
 
+    private static final Logger logger = LoggerFactory.getLogger(ExecutorQueryServiceImpl.class);
     private CommandService commandService;
    
     public ExecutorQueryServiceImpl(boolean active) {
@@ -241,6 +243,7 @@ public class ExecutorQueryServiceImpl implements ExecutorQueryService {
                         try {
                             request = ctx.find(org.jbpm.executor.entities.RequestInfo.class, ((Number)lockedRequest[0]).longValue());
                         } catch(NumberFormatException nfe) {
+                            logger.error("Error while retrieving request id", nfe);
                         }
                     }
                 } else {
