@@ -50,7 +50,6 @@ public class LocalTransactions {
 
     public static final String LOCAL_TRANSACTIONS_PATH = "org/jbpm/test/container/archive/localtransactions/";
 
-
     private WebArchive war;
 
     public WebArchive buildArchive() {
@@ -90,6 +89,8 @@ public class LocalTransactions {
 
         war.addAsWebResource(getClass().getResource("localtransactions/tomcat-context.xml"),
                 ArchivePaths.create("META-INF/context.xml"));
+        war.addAsWebInfResource(getClass().getResource("localtransactions/web.xml"),
+                ArchivePaths.create("web.xml"));
 
         war.addAsResource(getClass().getResource("localtransactions/jbossts-properties.xml"), ArchivePaths.create("jbossts-properties.xml"));
 
