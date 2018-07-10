@@ -212,7 +212,6 @@ public abstract class AbstractAvailableJobsExecutor {
                 }
                 
                 request.setTime(new Date(System.currentTimeMillis() + retryAdd));
-                request.setExecutions(request.getExecutions() + 1);
                 logger.info("Retrying request ( with id {}) - delay configured, next retry at {}", request.getId(), request.getTime());
             }
             

@@ -412,8 +412,9 @@ public abstract class BasicExecutorBaseTest {
         assertEquals(1, inErrorRequests.size());
 
         List<ErrorInfo> errors = executorService.getAllErrors(new QueryContext());
-        // Three retries means 4 executions in total 1(regular) + 2(retries)
+        // Three retries means 3 executions in total 1(regular) + 2(retries)
         assertEquals(3, errors.size());
+        assertEquals(3, inErrorRequests.get(0).getExecutions());
         
         long firstError = errors.get(0).getTime().getTime();
         long secondError = errors.get(1).getTime().getTime();
