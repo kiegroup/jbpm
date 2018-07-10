@@ -316,6 +316,12 @@ public class MigrationManager {
         InternalRuntimeManager manager = (InternalRuntimeManager) RuntimeManagerRegistry.get().getManager(migrationSpec.getToDeploymentId());
         if (manager.getEnvironment().getKieBase().getProcess(migrationSpec.getToProcessId()) == null) {
             report.addEntry(Type.ERROR, "No process found for " + migrationSpec.getToProcessId() + " in deployment " + migrationSpec.getToDeploymentId());
+        }        
+
+        // verify that source and target runtime manager is of the same type - represent the same runtime strategy
+        InternalRuntimeManager sourceManager = (InternalRuntimeManager) RuntimeManagerRegistry.get().getManager(migrationSpec.getDeploymentId());
+        if (!sourceManager.getClass().isAssignableFrom(manager.getClass())) {
+            report.addEntry(Type.ERROR, "Source (" + sourceManager.getClass().getName() + ") and target (" + manager.getClass().getName() + ") deployments are of different type (they represent different runtime strategies)");
         }
 
         String auditPu = manager.getDeploymentDescriptor().getAuditPersistenceUnit();
@@ -373,6 +379,14 @@ public class MigrationManager {
     private void updateNodeInstances(NodeInstanceContainer nodeInstanceContainer, Map<String, String> nodeMapping, NodeContainer nodeContainer, EntityManager em) {
 
         for (NodeInstance nodeInstance : nodeInstanceContainer.getNodeInstances()) {
+            if (nodeInstance.getNode() == null) {
+                continue;
+            }
+            
+            if (nodeInstance instanceof NodeInstanceContainer) {
+                updateNodeInstances((NodeInstanceContainer) nodeInstance, nodeMapping, nodeContainer, em);
+            }
+            
             Long upgradedNodeId = null;
             String oldNodeId = (String) ((NodeImpl) ((org.jbpm.workflow.instance.NodeInstance) nodeInstance).getNode()).getMetaData().get("UniqueId");
             String newNodeId = nodeMapping.get(oldNodeId);
@@ -450,9 +464,7 @@ public class MigrationManager {
                 }
             }
 
-            if (nodeInstance instanceof NodeInstanceContainer) {
-                updateNodeInstances((NodeInstanceContainer) nodeInstance, nodeMapping, nodeContainer, em);
-            }
+            
         }
 
     }
