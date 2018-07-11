@@ -30,6 +30,7 @@ import org.jbpm.executor.impl.ExecutorServiceImpl;
 import org.jbpm.test.util.ExecutorTestUtil;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.kie.api.executor.CommandContext;
 import org.kie.api.executor.ExecutorQueryService;
@@ -65,6 +66,7 @@ import bitronix.tm.resource.jdbc.PoolingDataSource;
  * -Dmaven.jdbc.url=jdbc:oracle:thin:@localhost:1521/ORCLPDB1 
  * -Dmaven.jdbc.schema=jboss
  */
+@Ignore("RHBPMS-5154: Test is not suitable for running as DisabledFollowOnLockOracle10gDialect is not supported by default")
 public class ExecutorQueryServiceTest {
 
 	protected ExecutorService executorService;
