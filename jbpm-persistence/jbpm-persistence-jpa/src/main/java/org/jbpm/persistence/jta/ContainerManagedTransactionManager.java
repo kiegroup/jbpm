@@ -69,6 +69,11 @@ public class ContainerManagedTransactionManager implements TransactionManager {
         return TransactionManager.STATUS_ACTIVE;
     }
 
+    @Override
+    public void registerTransactionSynchronization(TransactionSynchronization ts, boolean interposed) {
+        registerTransactionSynchronization(ts);
+    }
+
     public void registerTransactionSynchronization(TransactionSynchronization arg0) {
         
         if (txSyncRegistry != null) {

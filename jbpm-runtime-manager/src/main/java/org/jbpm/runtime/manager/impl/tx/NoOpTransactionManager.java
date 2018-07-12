@@ -29,6 +29,10 @@ public class NoOpTransactionManager implements TransactionManager {
     @Override
     public void registerTransactionSynchronization(TransactionSynchronization ts) {                
     }
+
+    @Override
+    public void registerTransactionSynchronization(TransactionSynchronization ts, boolean interposed) {
+    }
     
     @Override
     public void putResource(Object key, Object resource) {                
