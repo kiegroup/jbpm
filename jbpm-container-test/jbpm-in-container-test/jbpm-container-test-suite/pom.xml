@@ -487,15 +487,15 @@
 
   <profiles>
     <profile>
-      <id>wildfly10</id>
+      <id>wildfly11</id>
       <activation>
         <property>
           <name>container.profile</name>
-          <value>wildfly10</value>
+          <value>wildfly11</value>
         </property>
       </activation>
       <properties>
-        <container.id>wildfly10x</container.id>
+        <container.id>wildfly11x</container.id>
         <container.port>8080</container.port>
         <org.jbpm.persistence.ds>java:/jdbc/jbpm</org.jbpm.persistence.ds>
         <container.tm>org.hibernate.service.jta.platform.internal.JBossAppServerJtaPlatform</container.tm>
@@ -512,7 +512,7 @@
                   <artifactInstaller>
                     <groupId>org.wildfly</groupId>
                     <artifactId>wildfly-dist</artifactId>
-                    <version>${version.wildfly10}</version>
+                    <version>${version.wildfly11}</version>
                   </artifactInstaller>
                   <dependencies>
                     <dependency>
@@ -553,7 +553,7 @@
           <dependency>
             <groupId>org.wildfly.arquillian</groupId>
             <artifactId>wildfly-arquillian-container-remote</artifactId>
-            <version>1.1.0.Final</version>
+            <version>2.1.0.Final</version>
           </dependency>
         </dependencies>
       </dependencyManagement>
@@ -579,7 +579,7 @@
         </property>
       </activation>
       <properties>
-        <container.id>wildfly10x</container.id>
+        <container.id>wildfly11x</container.id>
         <container.port>8080</container.port>
         <org.jbpm.persistence.ds>java:/jdbc/jbpm</org.jbpm.persistence.ds>
         <container.tm>org.hibernate.service.jta.platform.internal.JBossAppServerJtaPlatform</container.tm>
@@ -636,7 +636,7 @@
           <dependency>
             <groupId>org.wildfly.arquillian</groupId>
             <artifactId>wildfly-arquillian-container-remote</artifactId>
-            <version>1.1.0.Final</version>
+            <version>2.1.0.Final</version>
           </dependency>
         </dependencies>
       </dependencyManagement>
