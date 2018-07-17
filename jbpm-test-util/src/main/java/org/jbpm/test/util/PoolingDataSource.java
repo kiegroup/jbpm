@@ -135,6 +135,13 @@ public class PoolingDataSource implements DataSource {
             XADataSource xaDataSource = (XADataSource) Class.forName(className).newInstance();
             String url = driverProperties.getProperty("url", driverProperties.getProperty("URL"));
 
+            if (isH2()) {
+                final String username = driverProperties.getProperty("user");
+                final String password = driverProperties.getProperty("password");
+                xaDataSource.getClass().getMethod("setPassword", new Class[]{String.class}).invoke(xaDataSource, password);
+                xaDataSource.getClass().getMethod("setUser", new Class[]{String.class}).invoke(xaDataSource, username);
+            }
+
             if (!(className.startsWith("com.ibm.db2") || className.startsWith("com.sybase"))) {
                 try {
                     xaDataSource.getClass().getMethod("setUrl", new Class[]{String.class}).invoke(xaDataSource, url);
