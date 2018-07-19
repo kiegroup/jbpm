@@ -97,7 +97,7 @@ public class PoolingDataSource implements DataSource {
                 jtaPropertyManager.getJTAEnvironmentBean().getTransactionSynchronizationRegistry();
 
 
-        final DataSourceXAConnectionFactory xaConnectionFactory = resolveDataSourceXAConnectionFactory(tm, xaDataSource);
+        final DataSourceXAConnectionFactory xaConnectionFactory = resolveDataSourceXAConnectionFactory(tm, xaDataSource, tsr);
         managedDataSource = createManagedDataSource(xaConnectionFactory, xaDataSource, environment);
 
         try {
@@ -113,14 +113,15 @@ public class PoolingDataSource implements DataSource {
     }
 
     private DataSourceXAConnectionFactory resolveDataSourceXAConnectionFactory(final TransactionManager tm,
-                                                                               final XADataSource xaDataSource) {
+                                                                               final XADataSource xaDataSource,
+                                                                               final TransactionSynchronizationRegistry tsr) {
         final DataSourceXAConnectionFactory xaConnectionFactory;
         if (isH2()) {
-            xaConnectionFactory = new DataSourceXAConnectionFactory(tm, xaDataSource);
+            xaConnectionFactory = new DataSourceXAConnectionFactory(tm, xaDataSource, tsr);
         } else {
             final String username = driverProperties.getProperty("user");
             final String password = driverProperties.getProperty("password");
-            xaConnectionFactory = new DataSourceXAConnectionFactory(tm, xaDataSource, username, password);
+            xaConnectionFactory = new DataSourceXAConnectionFactory(tm, xaDataSource, username, password, tsr);
         }
 
         return xaConnectionFactory;
