@@ -260,15 +260,14 @@ public class ExecutionErrorHandlingRuntimeManagerTest extends AbstractBaseTest {
 
             @Override
             public void afterProcessStarted(ProcessStartedEvent event) {
-                pds.close();
+               emf.close();
             }
-            
         });
         
         try {
             ksession1.startProcess("UserTaskWithRollback");
             fail("Start process should fail due to data base error");
-        } catch (Throwable e) {
+        } catch (Exception e) {
             // expected
         }
         int expectedErrors = 1;
