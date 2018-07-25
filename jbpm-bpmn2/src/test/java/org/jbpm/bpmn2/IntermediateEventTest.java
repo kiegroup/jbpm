@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -76,6 +77,7 @@ import org.kie.internal.persistence.jpa.JPAKnowledgeService;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 @RunWith(Parameterized.class)
 public class IntermediateEventTest extends JbpmBpmn2TestCase {
@@ -147,6 +149,43 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
         assertProcessInstanceFinished(processInstance2, ksession);
 
         assertProcessInstanceFinished(processInstance, ksession);
+    }
+
+    @Test
+    public void testSignalBoundaryNonEffectiveEvent() throws Exception {
+        final String signal = "signalTest";
+        final AtomicBoolean eventAfterNodeLeftTriggered = new AtomicBoolean(false);
+        KieBase kbase = createKnowledgeBase(
+                "BPMN2-BoundaryEventWithNonEffectiveSignal.bpmn2");
+        StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
+        TestWorkItemHandler handler = new TestWorkItemHandler();
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task",
+                handler);
+
+        ksession.addEventListener(new DefaultProcessEventListener() {
+            @Override
+            public void afterNodeLeft(ProcessNodeLeftEvent event) {
+                // BoundaryEventNodeInstance
+                if(signal.equals(event.getNodeInstance().getNodeName())) {
+                	eventAfterNodeLeftTriggered.set(true);
+                }
+            }
+        });
+        ProcessInstance processInstance = ksession
+                .startProcess("BoundaryEventWithNonEffectiveSignal");
+
+        ksession.signalEvent(signal, signal);
+
+        // outer human work
+        ksession.getWorkItemManager().completeWorkItem(
+                handler.getWorkItem().getId(), null);
+
+        // inner human task
+        ksession.getWorkItemManager().completeWorkItem(
+                handler.getWorkItem().getId(), null);
+
+        assertProcessInstanceFinished(processInstance, ksession);
+        assertFalse(eventAfterNodeLeftTriggered.get());
     }
 
     @Test
