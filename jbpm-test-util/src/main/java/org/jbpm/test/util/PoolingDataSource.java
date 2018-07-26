@@ -43,6 +43,7 @@ import com.arjuna.ats.jta.common.jtaPropertyManager;
 import com.arjuna.ats.jta.recovery.XAResourceRecoveryHelper;
 import org.apache.tomcat.dbcp.dbcp2.PoolableConnection;
 import org.apache.tomcat.dbcp.dbcp2.PoolableConnectionFactory;
+import org.apache.tomcat.dbcp.dbcp2.Utils;
 import org.apache.tomcat.dbcp.dbcp2.managed.DataSourceXAConnectionFactory;
 import org.apache.tomcat.dbcp.dbcp2.managed.ManagedDataSource;
 import org.apache.tomcat.dbcp.pool2.impl.AbandonedConfig;
@@ -121,7 +122,7 @@ public class PoolingDataSource implements DataSource {
         } else {
             final String username = driverProperties.getProperty("user");
             final String password = driverProperties.getProperty("password");
-            xaConnectionFactory = new DataSourceXAConnectionFactory(tm, xaDataSource, username, password, tsr);
+            xaConnectionFactory = new DataSourceXAConnectionFactory(tm, xaDataSource, username, Utils.toCharArray(password), tsr);
         }
 
         return xaConnectionFactory;
