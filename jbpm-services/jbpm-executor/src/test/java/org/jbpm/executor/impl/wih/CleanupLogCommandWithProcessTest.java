@@ -56,6 +56,7 @@ import org.kie.api.runtime.manager.RuntimeManagerFactory;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.process.WorkItemHandler;
 import org.kie.api.task.UserGroupCallback;
+import org.kie.api.task.model.TaskSummary;
 import org.kie.internal.io.ResourceFactory;
 import org.kie.internal.runtime.manager.RuntimeManagerRegistry;
 import org.kie.internal.runtime.manager.context.EmptyContext;
@@ -320,7 +321,115 @@ public class CleanupLogCommandWithProcessTest extends AbstractExecutorBaseTest {
         assertEquals(0, getVariableLogSize("UserTask"));
         assertEquals(0, getTaskVariableLogSize("UserTask"));
     }
-    
+
+    @Test
+    public void testCleanupLogOfCallActivitySubProcess() throws Exception {
+        // JBPM-7377
+        CountDownAsyncJobListener countDownListener = configureListener(1);
+        RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get().newDefaultBuilder()
+                .userGroupCallback(userGroupCallback)
+                .entityManagerFactory(emf)
+                .addAsset(ResourceFactory.newClassPathResource("BPMN2-CallActivityWithUserTask.bpmn2"), ResourceType.BPMN2)
+                .addAsset(ResourceFactory.newClassPathResource("BPMN2-UserTaskWithSLA.bpmn2"), ResourceType.BPMN2)
+                .get();
+
+        manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);
+        assertNotNull(manager);
+
+        RuntimeEngine runtime = manager.getRuntimeEngine(EmptyContext.get());
+        KieSession ksession = runtime.getKieSession();
+        assertNotNull(ksession);
+
+        assertEquals(0, getProcessLogSize("ParentProcessWithUserTask"));
+        assertEquals(0, getNodeInstanceLogSize("ParentProcessWithUserTask"));
+        assertEquals(0, getTaskLogSize("ParentProcessWithUserTask"));
+        assertEquals(0, getVariableLogSize("ParentProcessWithUserTask"));
+        assertEquals(0, getTaskVariableLogSize("ParentProcessWithUserTask"));
+
+        ProcessInstance processInstance = ksession.startProcess("ParentProcessWithUserTask");
+        assertEquals(ProcessInstance.STATE_ACTIVE, processInstance.getState());
+
+        assertEquals(1, getProcessLogSize("ParentProcessWithUserTask"));
+        assertEquals(3, getNodeInstanceLogSize("ParentProcessWithUserTask"));
+        assertEquals(0, getTaskLogSize("ParentProcessWithUserTask"));
+        assertEquals(0, getVariableLogSize("ParentProcessWithUserTask"));
+        assertEquals(0, getTaskVariableLogSize("ParentProcessWithUserTask"));
+
+        assertEquals(1, getProcessLogSize("UserTask"));
+        assertEquals(3, getNodeInstanceLogSize("UserTask"));
+        assertEquals(1, getTaskLogSize("UserTask"));
+        assertEquals(0, getVariableLogSize("UserTask"));
+        assertEquals(0, getTaskVariableLogSize("UserTask"));
+
+        List<TaskSummary> tasks = runtime.getTaskService().getTasksAssignedAsPotentialOwner("john", "en-UK");
+        assertEquals(1, tasks.size());
+
+        long taskId = tasks.get(0).getId();
+
+        runtime.getTaskService().start(taskId, "john");
+
+        Map<String, Object> results = new HashMap<>();
+        results.put("test", "testvalue");
+        runtime.getTaskService().complete(taskId, "john", results); // subprocess finished
+
+        assertEquals(1, getProcessLogSize("ParentProcessWithUserTask"));
+        assertEquals(5, getNodeInstanceLogSize("ParentProcessWithUserTask"));
+        assertEquals(1, getTaskLogSize("ParentProcessWithUserTask"));
+        assertEquals(0, getVariableLogSize("ParentProcessWithUserTask"));
+        assertEquals(3, getTaskVariableLogSize("ParentProcessWithUserTask"));
+
+        assertEquals(1, getProcessLogSize("UserTask"));
+        assertEquals(6, getNodeInstanceLogSize("UserTask"));
+        assertEquals(1, getTaskLogSize("UserTask"));
+        assertEquals(0, getVariableLogSize("UserTask"));
+        assertEquals(1, getTaskVariableLogSize("UserTask"));
+
+        Thread.sleep(1000);
+
+        scheduleLogCleanup(false, false, false, new Date(), null, "yyyy-MM-dd HH:mm:ss", manager.getIdentifier());
+        countDownListener.reset(1);
+        countDownListener.waitTillCompleted();
+
+        assertEquals(1, getProcessLogSize("ParentProcessWithUserTask"));
+        assertEquals(5, getNodeInstanceLogSize("ParentProcessWithUserTask"));
+        assertEquals(1, getTaskLogSize("ParentProcessWithUserTask"));
+        assertEquals(0, getVariableLogSize("ParentProcessWithUserTask"));
+        assertEquals(3, getTaskVariableLogSize("ParentProcessWithUserTask"));
+
+        // Don't want to clean up logs while parent process is alive
+        assertEquals(1, getProcessLogSize("UserTask"));
+        assertEquals(6, getNodeInstanceLogSize("UserTask"));
+        assertEquals(1, getTaskLogSize("UserTask"));
+        assertEquals(0, getVariableLogSize("UserTask"));
+        assertEquals(1, getTaskVariableLogSize("UserTask"));
+
+        List<TaskSummary> tasksInParent = runtime.getTaskService().getTasksAssignedAsPotentialOwner("mary", "en-UK");
+        assertEquals(1, tasksInParent.size());
+
+        long taskIdInParent = tasksInParent.get(0).getId();
+
+        runtime.getTaskService().start(taskIdInParent, "mary");
+        runtime.getTaskService().complete(taskIdInParent, "mary", null); // parent process finished
+
+        Thread.sleep(1000);
+
+        scheduleLogCleanup(false, false, false, new Date(), null, "yyyy-MM-dd HH:mm:ss", manager.getIdentifier());
+        countDownListener.reset(1);
+        countDownListener.waitTillCompleted();
+
+        assertEquals(0, getProcessLogSize("ParentProcessWithUserTask"));
+        assertEquals(0, getNodeInstanceLogSize("ParentProcessWithUserTask"));
+        assertEquals(0, getTaskLogSize("ParentProcessWithUserTask"));
+        assertEquals(0, getVariableLogSize("ParentProcessWithUserTask"));
+        assertEquals(0, getTaskVariableLogSize("ParentProcessWithUserTask"));
+
+        assertEquals(0, getProcessLogSize("UserTask"));
+        assertEquals(0, getNodeInstanceLogSize("UserTask"));
+        assertEquals(0, getTaskLogSize("UserTask"));
+        assertEquals(0, getVariableLogSize("UserTask"));
+        assertEquals(0, getTaskVariableLogSize("UserTask"));
+    }
+
     private ExecutorService buildExecutorService() {        
         emf = EntityManagerFactoryManager.get().getOrCreate("org.jbpm.persistence.complete");
 
