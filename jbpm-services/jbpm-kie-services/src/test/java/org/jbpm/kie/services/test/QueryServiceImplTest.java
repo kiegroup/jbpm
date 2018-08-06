@@ -990,7 +990,7 @@ public class QueryServiceImplTest extends AbstractKieServicesBaseTest {
         roles.add("managers");
         identityProvider.setRoles(roles);
 
-        query = new SqlQueryDefinition("getAllProcessInstances", dataSourceJNDIname, Target.FILTERED_PROCESS);
+        query = new SqlQueryDefinition("getAllProcessInstances", dataSourceJNDIname, Target.CUSTOM);
         query.setExpression("select * from processinstancelog");
 
         queryService.registerQuery(query);
@@ -1019,15 +1019,6 @@ public class QueryServiceImplTest extends AbstractKieServicesBaseTest {
         assertEquals(1, instances.size());
         assertEquals(1, (int) instances.iterator().next().getState());
 
-        // let's now change the roles so user should not see instances
-        roles.clear();
-        roles.add("employees");
-        identityProvider.setRoles(roles);
-        identityProvider.setName("anotherUser2");
-
-        instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new QueryContext());
-        assertNotNull(instances);
-        assertEquals(0, instances.size());
     }
 
     @Test
