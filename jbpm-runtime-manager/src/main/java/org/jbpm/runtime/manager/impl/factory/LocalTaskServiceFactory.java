@@ -29,14 +29,14 @@ import org.kie.internal.runtime.manager.TaskServiceFactory;
 /**
  * A regular <code>TaskServiceFactory</code> implementation that is intended to be used in non CDI environments.
  * This creates a new <code>TaskService</code> instance for every call to the factory.
- * The <code>TaskService</code> instance will be equipped with a <code>JbpmJTATransactionManager</code> 
+ * The <code>TaskService</code> instance will be equipped with a <code>JbpmJTATransactionManager</code>
  * for transaction management. This is mandatory as it must participate in already active
  * transaction if such exists.
  */
 public class LocalTaskServiceFactory implements TaskServiceFactory {
 
     private RuntimeEnvironment runtimeEnvironment;
-    
+
     public LocalTaskServiceFactory(RuntimeEnvironment runtimeEnvironment) {
         this.runtimeEnvironment = runtimeEnvironment;
     }
@@ -48,17 +48,19 @@ public class LocalTaskServiceFactory implements TaskServiceFactory {
     	if (providedTaskService != null) {
     		return providedTaskService;
     	}
-    	
+
         EntityManagerFactory emf = ((SimpleRuntimeEnvironment)runtimeEnvironment).getEmf();
         if (emf != null) {
-        	
+
         	HumanTaskConfigurator configurator = HumanTaskServiceFactory.newTaskServiceConfigurator()
-            		.environment(runtimeEnvironment.getEnvironment())
-            		.entityManagerFactory(emf)                     
-                    .userGroupCallback(runtimeEnvironment.getUserGroupCallback());
-        	
+
+                    .environment(runtimeEnvironment.getEnvironment())
+                    .entityManagerFactory(emf)
+                    .userGroupCallback(runtimeEnvironment.getUserGroupCallback())
+                    .userInfo(runtimeEnvironment.getUserInfo());
+
             TaskService internalTaskService = configurator.getTaskService();
-                                  
+
             return internalTaskService;
         } else {
             return null;
@@ -67,7 +69,7 @@ public class LocalTaskServiceFactory implements TaskServiceFactory {
 
     @Override
     public void close() {
-        
+
     }
 
 }

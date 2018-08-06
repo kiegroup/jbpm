@@ -44,6 +44,7 @@ import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.manager.RegisterableItemsFactory;
 import org.kie.api.runtime.manager.RuntimeEnvironmentBuilderFactory;
 import org.kie.api.task.UserGroupCallback;
+import org.kie.api.task.UserInfo;
 import org.kie.internal.runtime.conf.DeploymentDescriptor;
 import org.kie.internal.runtime.conf.MergeMode;
 import org.kie.internal.runtime.conf.NamedObjectModel;
@@ -374,6 +375,15 @@ public class RuntimeEnvironmentBuilder implements RuntimeEnvironmentBuilderFacto
             return this;
         }
         this.runtimeEnvironment.setUserGroupCallback(callback);
+
+        return this;
+    }
+
+    public RuntimeEnvironmentBuilder userInfo(UserInfo userInfo) {
+    	if (userInfo == null) {
+            return this;
+        }
+        this.runtimeEnvironment.setUserInfo(userInfo);
 
         return this;
     }
