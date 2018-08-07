@@ -75,6 +75,7 @@ public class ProcessInstanceMigrationServiceImplTest extends AbstractKieServices
         List<String> processes = new ArrayList<String>();
         processes.add("migration/v1/AddTaskAfterActive-v1.bpmn2");
         processes.add("migration/v1/RemoveActiveTask-v1.bpmn2");
+        processes.add("migration/v1/RecreateActiveTask-v1.bpmn2");
 
         InternalKieModule kJar1 = createKieJar(ks, releaseId, processes);
         File pom = new File("target/migration-v1", "pom.xml");
@@ -94,6 +95,8 @@ public class ProcessInstanceMigrationServiceImplTest extends AbstractKieServices
         processes = new ArrayList<String>();
         processes.add("migration/v2/AddTaskAfterActive-v2.bpmn2");
         processes.add("migration/v2/RemoveActiveTask-v2.bpmn2");
+        processes.add("migration/v2/RecreateActiveTask-v2.bpmn2");
+
         InternalKieModule kJar2 = createKieJar(ks, releaseId2, processes);
         File pom2 = new File("target/migration-v2", "pom.xml");
         pom2.getParentFile().mkdirs();
@@ -244,6 +247,31 @@ public class ProcessInstanceMigrationServiceImplTest extends AbstractKieServices
       
             assertMigratedProcessInstance(REMOVEACTIVETASK_ID_V2, processInstanceId, ProcessInstance.STATE_COMPLETED);
         }
+    }
+    
+    private static final String RECREATEACTIVETASK_ID_V1 = "process-migration-testv1.RecreateActiveTask";
+    private static final String RECREATEACTIVETASK_ID_V2 = "process-migration-testv2.RecreateActiveTask";
+    
+    @Test
+    public void testMigrateSingleProcessInstanceWithoutNodeMappingWithNodeOrderChange() {
+        
+        // JBPM-7598
+        // RECREATEACTIVETASK_ID_V2 was modified from RECREATEACTIVETASK_ID_V1
+        // Remove the UserTask and recreate the same UserTask so they look same but
+        //  - NodeId is different
+        //  - The order of userTask in bpmn2 file is different
+        
+        long processInstanceId = processService.startProcess(deploymentUnitV1.getIdentifier(), RECREATEACTIVETASK_ID_V1);
+        assertNotNull(processInstanceId);
+        
+        MigrationReport report = migrationService.migrate(deploymentUnitV1.getIdentifier(), processInstanceId, deploymentUnitV2.getIdentifier(), RECREATEACTIVETASK_ID_V2);
+        assertNotNull(report);
+        assertTrue(report.isSuccessful());
+        assertMigratedProcessInstance(RECREATEACTIVETASK_ID_V2, processInstanceId, ProcessInstance.STATE_ACTIVE);
+        
+        assertMigratedTaskAndComplete(RECREATEACTIVETASK_ID_V2, processInstanceId, "Active Task");
+        
+        assertMigratedProcessInstance(RECREATEACTIVETASK_ID_V2, processInstanceId, ProcessInstance.STATE_COMPLETED);
     }
     
     /*
