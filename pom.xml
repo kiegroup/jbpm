@@ -189,6 +189,12 @@
         <artifactId>simple-jndi</artifactId>
         <version>0.11.4.1</version>
       </dependency>
+      <!-- Temporary override to check tomcat-dbcp snapshot before it's released -->
+      <dependency>
+        <groupId>org.apache.tomcat</groupId>
+        <artifactId>tomcat-dbcp</artifactId>
+        <version>9.0-SNAPSHOT</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
