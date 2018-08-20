@@ -60,6 +60,7 @@ import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.query.QueryContext;
 import org.kie.api.task.TaskService;
 import org.kie.api.task.UserGroupCallback;
+import org.kie.api.task.model.Comment;
 import org.kie.api.task.model.Status;
 import org.kie.api.task.model.TaskSummary;
 import org.kie.internal.identity.IdentityProvider;
@@ -1127,6 +1128,24 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
             }
         }
         return taskEvents;
+    }
+
+    @Override
+    public List<Comment> getTaskComments(long taskId, QueryFilter filter) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("taskId", taskId);
+        applyQueryContext(params, filter);
+        applyQueryFilter(params, filter);
+        List<Comment> comments = commandService.execute(
+                new QueryNameCommand<List<Comment>>("CommentsByTaskId", params));
+
+        if(comments == null || comments.isEmpty()) {
+            UserTaskInstanceDesc task = getTaskById(taskId);
+            if (task == null) {
+                throw new TaskNotFoundException( MessageFormat.format(TASK_NOT_FOUND, taskId) );
+            }
+        }
+        return comments;
     }
 
     /*
