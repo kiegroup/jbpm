@@ -29,6 +29,7 @@ import org.kie.api.definition.process.Process;
 import org.kie.api.runtime.process.NodeInstance;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.query.QueryContext;
+import org.kie.api.task.model.Comment;
 import org.kie.api.task.model.Status;
 import org.kie.api.task.model.TaskSummary;
 import org.kie.internal.process.CorrelationKey;
@@ -553,6 +554,14 @@ public interface RuntimeDataService {
      * @return
      */
     List<TaskEvent> getTaskEvents(long taskId, QueryFilter filter);
+
+    /**
+     * Gets a list of comments for given task
+     * @param taskId
+     * @param filter
+     * @return
+     */
+    List<Comment> getTaskComments(long taskId, QueryFilter filter);
 
     /**
      * Query on {@link TaskSummary} instaances.

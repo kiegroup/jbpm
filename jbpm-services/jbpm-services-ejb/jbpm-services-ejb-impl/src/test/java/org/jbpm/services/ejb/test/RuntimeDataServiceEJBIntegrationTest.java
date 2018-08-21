@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,6 +57,7 @@ import org.kie.api.builder.ReleaseId;
 import org.kie.api.runtime.process.NodeInstance;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.query.QueryContext;
+import org.kie.api.task.model.Comment;
 import org.kie.api.task.model.Status;
 import org.kie.api.task.model.TaskSummary;
 import org.kie.internal.KieInternalServices;
@@ -1049,7 +1051,49 @@ public class RuntimeDataServiceEJBIntegrationTest extends AbstractTestSupport {
     	assertEquals(2, auditTasks.size());
     	assertEquals(TaskEvent.TaskEventType.ADDED, auditTasks.get(0).getType());
     	assertEquals(TaskEvent.TaskEventType.STARTED, auditTasks.get(1).getType());
+    }
 
+    @Test
+    public void testGetTaskCommentsById() {
+        processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument");
+        assertNotNull(processInstanceId);
+
+        ProcessInstance instance = processService.getProcessInstance(processInstanceId);
+        assertNotNull(instance);
+
+        List<Long> taskIds = runtimeDataService.getTasksByProcessInstanceId(processInstanceId);
+        assertNotNull(taskIds);
+        assertEquals(1, taskIds.size());
+
+        Long taskId = taskIds.get(0);
+
+        UserTaskInstanceDesc userTask = runtimeDataService.getTaskById(taskId);
+        assertNotNull(userTask);
+        assertEquals(processInstanceId, userTask.getProcessInstanceId());
+        assertEquals("Write a Document", userTask.getName());
+
+        final String user = "salaboy";
+        userTaskService.start(userTask.getTaskId(), user);
+
+        List<Comment> comments = runtimeDataService.getTaskComments(userTask.getTaskId(), new QueryFilter());
+        assertEquals(0, comments.size());
+
+        final Date addedOn = new Date();
+        final String text = "new comment";
+        userTaskService.addComment(userTask.getTaskId(), text, user, addedOn);
+
+        comments = runtimeDataService.getTaskComments(userTask.getTaskId(), new QueryFilter());
+        assertEquals(1, comments.size());
+
+        Comment comment = comments.get(0);
+        assertNotNull(comment);
+        assertNotNull(comment.getId());
+        assertEquals(user, comment.getAddedBy());
+        assertEquals(addedOn, comment.getAddedAt());
+        assertEquals(text, comment.getText());
+
+        processService.abortProcessInstance(processInstanceId);
+        processInstanceId = null;
     }
 
     @Test
