@@ -22,6 +22,10 @@ import java.util.List;
 import org.jbpm.process.core.datatype.impl.type.ObjectDataType;
 import org.jbpm.process.core.Context;
 import org.jbpm.process.core.context.AbstractContext;
+import org.jbpm.process.instance.ProcessInstance;
+import org.jbpm.process.instance.ProcessVariables;
+import org.jbpm.process.instance.context.variable.VariableScopeInstance;
+import org.jbpm.process.instance.impl.ProcessInstanceImpl;
 
 /**
  * 
@@ -89,7 +93,7 @@ public class VariableScope extends AbstractContext {
         throw new IllegalArgumentException(
             "VariableScopes can only resolve variable names: " + param);
     }
-    
+
 	public void validateVariable(String processName, String name, Object value) {
 		if (!variableStrictEnabled) {
 			return;

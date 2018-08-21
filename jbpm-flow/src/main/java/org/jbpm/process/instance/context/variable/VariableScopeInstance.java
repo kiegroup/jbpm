@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2018 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,40 +20,47 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.drools.core.ClassObjectFilter;
 import org.drools.core.event.ProcessEventSupport;
+import org.jbpm.process.core.context.variable.CaseVariableInstance;
+import org.jbpm.process.core.context.variable.ReferenceVariableInstance;
+import org.jbpm.process.core.context.variable.ValueReference;
 import org.jbpm.process.core.context.variable.Variable;
+import org.jbpm.process.core.context.variable.VariableInstance;
 import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.instance.ContextInstanceContainer;
 import org.jbpm.process.instance.InternalProcessRuntime;
+import org.jbpm.process.instance.ProcessInstance;
 import org.jbpm.process.instance.context.AbstractContextInstance;
 import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.instance.node.CompositeContextNodeInstance;
-import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.CaseData;
-import org.kie.api.runtime.rule.FactHandle;
 
 /**
- * 
+ *
  */
 public class VariableScopeInstance extends AbstractContextInstance {
 
-    private static final long serialVersionUID = 510l;    
-    
-    private Map<String, Object> variables = new HashMap<String, Object>();
-    private transient String variableIdPrefix = null;
-    private transient String variableInstanceIdPrefix = null;
+    private static final long serialVersionUID = 510l;
+
+    private Map<String, VariableInstance<?>> variables = new HashMap<>();
+    private String variableIdPrefix = null;
+    private String variableInstanceIdPrefix = null;
 
     public String getContextType() {
         return VariableScope.VARIABLE_SCOPE;
     }
 
     public Object getVariable(String name) {
-                
-        Object value = variables.get(name);
-        if (value != null) {
-            return value;
+        VariableInstance<Object> variableInstance = getVariableInstance(name);
+
+        if (variableInstance != null) {
+            Object value = variableInstance.get();
+            if (value != null) {
+                return value;
+            }
         }
 
         // support for processInstanceId and parentProcessInstanceId
@@ -62,11 +69,10 @@ public class VariableScopeInstance extends AbstractContextInstance {
         } else if ("parentProcessInstanceId".equals(name) && getProcessInstance() != null) {
             return getProcessInstance().getParentProcessInstanceId();
         }
-        
 
         if (getProcessInstance() != null && getProcessInstance().getKnowledgeRuntime() != null) {
             // support for globals
-            value = getProcessInstance().getKnowledgeRuntime().getGlobal(name);
+            Object value = getProcessInstance().getKnowledgeRuntime().getGlobal(name);
             if (value != null) {
                 return value;
             }
@@ -81,76 +87,177 @@ public class VariableScopeInstance extends AbstractContextInstance {
                     return caseFile.getData(lookUpName);
                 }
             }
-            
-        }    
+        }
 
         return null;
     }
 
     public Map<String, Object> getVariables() {
-        return Collections.unmodifiableMap(variables);
+        Map<String, Object> result = new HashMap<>();
+        variables.values().stream()
+                .filter(v -> !(v instanceof CaseVariableInstance))
+                .forEach(v -> result.put(v.name(), v.getReference().get()));
+        return Collections.unmodifiableMap(result);
     }
 
     public void setVariable(String name, Object value) {
         if (name == null) {
             throw new IllegalArgumentException(
-                "The name of a variable may not be null!");
+                    "The name of a variable may not be null!");
         }
-        Object oldValue = variables.get(name);
-        if (oldValue == null) {
-        	if (value == null) {
-        		return;
-        	}
-        } 
-        ProcessEventSupport processEventSupport = ((InternalProcessRuntime) getProcessInstance()
-    		.getKnowledgeRuntime().getProcessRuntime()).getProcessEventSupport();
-    	processEventSupport.fireBeforeVariableChanged(
-			(variableIdPrefix == null ? "" : variableIdPrefix + ":") + name,
-			(variableInstanceIdPrefix == null? "" : variableInstanceIdPrefix + ":") + name,
-			oldValue, value, getProcessInstance(),
-			getProcessInstance().getKnowledgeRuntime());
-        internalSetVariable(name, value);
-        processEventSupport.fireAfterVariableChanged(
-			(variableIdPrefix == null ? "" : variableIdPrefix + ":") + name,
-			(variableInstanceIdPrefix == null? "" : variableInstanceIdPrefix + ":") + name,
-    		oldValue, value, getProcessInstance(),
-			getProcessInstance().getKnowledgeRuntime());
-    }
-    
-    public void internalSetVariable(String name, Object value) {
-        if (name.startsWith(VariableScope.CASE_FILE_PREFIX)) {
-            String nameInCaseFile = name.replaceFirst(VariableScope.CASE_FILE_PREFIX, "");            
-            // store it under case file rather regular variables
-            @SuppressWarnings("unchecked")
-            Collection<CaseData> caseFiles = (Collection<CaseData>) getProcessInstance().getKnowledgeRuntime().getObjects(new ClassObjectFilter(CaseData.class));
-            if (caseFiles.size() == 1) {
-                CaseData caseFile = (CaseData) caseFiles.iterator().next();
-                FactHandle factHandle = getProcessInstance().getKnowledgeRuntime().getFactHandle(caseFile);
-                
-                caseFile.add(nameInCaseFile, value);
-                getProcessInstance().getKnowledgeRuntime().update(factHandle, caseFile);
-                ((KieSession)getProcessInstance().getKnowledgeRuntime()).fireAllRules();
-                return;
-            }
-            
-        }
-        // not a case, store it in normal variables
-    	variables.put(name, value);
-    }
-    
-    public VariableScope getVariableScope() {
-    	return (VariableScope) getContext();
-    }
-    
-    public void setContextInstanceContainer(ContextInstanceContainer contextInstanceContainer) {
-    	super.setContextInstanceContainer(contextInstanceContainer);
-    	for (Variable variable : getVariableScope().getVariables()) {
-            setVariable(variable.getName(), variable.getValue());
-        }
-    	if (contextInstanceContainer instanceof CompositeContextNodeInstance) {
-    		this.variableIdPrefix = ((Node) ((CompositeContextNodeInstance) contextInstanceContainer).getNode()).getUniqueId();
-    		this.variableInstanceIdPrefix = ((CompositeContextNodeInstance) contextInstanceContainer).getUniqueId();
-    	}
-	}
 
+        VariableInstance<Object> variableInstance = getVariableInstance(name);
+        if (variableInstance == null) {
+            if (value == null) {
+                return;
+            } else {
+                variableInstance = addVariableInstance(name);
+            }
+        }
+        variableInstance.set(value);
+    }
+
+    public void internalSetVariable(String name, Object value) {
+        // TODO store it in normal variables (skipping checks)
+        getVariableInstance(name).set(value);
+    }
+
+    public <T> VariableInstance<T> getVariableInstance(String name) {
+        VariableInstance<T> variableInstance = (VariableInstance<T>) variables.get(name);
+        if (variableInstance == null) {
+            variableInstance = addVariableInstance(name);
+            if (variableInstance == null) {
+                return null;
+            }
+        }
+        return variableInstance;
+    }
+
+    private <T> VariableInstance<T> addVariableInstance(String name) {
+        VariableInstance<T> variableInstance = createVariableInstance(new Variable(name));
+        variables.put(name, variableInstance);
+        return variableInstance;
+    }
+
+    public VariableScope getVariableScope() {
+        return (VariableScope) getContext();
+    }
+
+    public void setContextInstanceContainer(ContextInstanceContainer contextInstanceContainer) {
+        super.setContextInstanceContainer(contextInstanceContainer);
+        if (contextInstanceContainer instanceof CompositeContextNodeInstance) {
+            this.variableIdPrefix = ((Node) ((CompositeContextNodeInstance) contextInstanceContainer).getNode()).getUniqueId();
+            this.variableInstanceIdPrefix = ((CompositeContextNodeInstance) contextInstanceContainer).getUniqueId();
+        }
+
+        createVariableInstances();
+    }
+
+    private void createVariableInstances() {
+        getVariableScope().getVariables().stream()
+                .map(this::createVariableInstance)
+                .forEach(v -> variables.put(v.name(), v));
+    }
+
+    private <T> VariableInstance<T> createCaseVariableInstance(Variable variable) {
+        String name = variable.getName();
+        if (name.startsWith(VariableScope.CASE_FILE_PREFIX)) {
+            return new CaseVariableInstance<>(this, variable);
+        } else {
+            return null;
+        }
+    }
+
+    private <T> VariableInstance<T> createVariableInstance(Variable variable) {
+        VariableInstance<T> caseVar = createCaseVariableInstance(variable);
+        if (caseVar != null) {
+            return caseVar;
+        } else {
+            String name = variable.getName();
+            return new ReferenceVariableInstance<>(
+                    this,
+                    variable,
+                    new Handler<>(
+                            getProcessEventSupport(),
+                            getProcessInstance(),
+                            name,
+                            prefixed(name),
+                            instancePrefixed(name)
+                    ));
+        }
+    }
+
+    protected ProcessEventSupport getProcessEventSupport() {
+        return ((InternalProcessRuntime) getProcessInstance()
+                .getKnowledgeRuntime()
+                .getProcessRuntime())
+                .getProcessEventSupport();
+    }
+
+    private static class Handler<T> implements ReferenceVariableInstance.OnSetHandler<T> {
+
+        transient final ProcessEventSupport processEventSupport;
+        transient final ProcessInstance processInstance;
+        final String name;
+        private final String prefixed;
+        private final String instancePrefixed;
+
+        public Handler(ProcessEventSupport processEventSupport, ProcessInstance processInstance, String name, String prefixed, String instancePrefixed) {
+            this.processEventSupport = processEventSupport;
+            this.processInstance = processInstance;
+            this.name = name;
+            this.prefixed = prefixed;
+            this.instancePrefixed = instancePrefixed;
+        }
+
+        @Override
+        public void before(Object oldValue, Object newValue) {
+            processEventSupport.fireBeforeVariableChanged(
+                    prefixed,
+                    instancePrefixed,
+                    oldValue,
+                    newValue,
+                    processInstance,
+                    processInstance.getKnowledgeRuntime());
+        }
+
+        @Override
+        public void after(Object oldValue, Object newValue) {
+            processEventSupport.fireAfterVariableChanged(
+                    prefixed,
+                    instancePrefixed,
+                    oldValue,
+                    newValue,
+                    processInstance,
+                    processInstance.getKnowledgeRuntime());
+        }
+    }
+
+    /**
+     * Assign a value reference to a declared variable instance.
+     * @throws IllegalArgumentException if the given variableName has not been declared in the process
+     */
+    public VariableInstance<?> assignVariableInstance(String variableName, ValueReference reference) {
+        VariableScope variableScope = getVariableScope();
+        Variable variable = variableScope.findVariable(variableName);
+        if (variable == null) {
+            variable = new Variable(variableName);
+            variable.setMetaData("on-the-fly", true);
+        }
+        variableScope.validateVariable(
+                getProcessInstance().getProcessName(),
+                variableName,
+                reference.get());
+        VariableInstance<?> instance = addVariableInstance(variableName);
+        instance.setReference(reference);
+        return instance;
+    }
+
+    private String instancePrefixed(String name) {
+        return (variableInstanceIdPrefix == null ? "" : variableInstanceIdPrefix + ":") + name;
+    }
+
+    private String prefixed(String name) {
+        return (variableIdPrefix == null ? "" : variableIdPrefix + ":") + name;
+    }
 }

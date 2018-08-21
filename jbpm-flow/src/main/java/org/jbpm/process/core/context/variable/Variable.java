@@ -42,6 +42,12 @@ public class Variable implements TypeObject, ValueObject, Serializable {
         this.type = UndefinedDataType.getInstance();
     }
 
+    public Variable(String name) {
+        this.name = name;
+        this.type = UndefinedDataType.getInstance();
+    }
+
+
     public String getName() {
         return this.name;
     }

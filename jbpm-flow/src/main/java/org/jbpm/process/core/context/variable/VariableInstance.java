@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2018 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,17 @@
  * limitations under the License.
  */
 
-package org.jbpm.process.instance;
+package org.jbpm.process.core.context.variable;
 
-import org.drools.core.common.InternalKnowledgeRuntime;
-import org.kie.api.definition.process.Process;
-import org.kie.internal.process.CorrelationKey;
+public interface VariableInstance<T> {
 
-/**
- * 
- */
-public interface ProcessInstanceFactory {
-    
-    ProcessInstance createProcessInstance(
-            Process process,
-            CorrelationKey correlationKey,
-            InternalKnowledgeRuntime kruntime,
-            ProcessVariables variables);
+    String name();
 
+    T get();
+
+    void set(T value);
+
+    void setReference(ValueReference<T> value);
+
+    ValueReference<T> getReference();
 }

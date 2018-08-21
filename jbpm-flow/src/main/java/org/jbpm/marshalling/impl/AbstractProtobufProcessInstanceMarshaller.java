@@ -30,6 +30,7 @@ import org.jbpm.marshalling.impl.JBPMMessages.ProcessInstance.NodeInstanceType;
 import org.jbpm.process.core.Context;
 import org.jbpm.process.core.context.exclusive.ExclusiveGroup;
 import org.jbpm.process.core.context.swimlane.SwimlaneContext;
+import org.jbpm.process.core.context.variable.VariableInstance;
 import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.instance.ContextInstance;
 import org.jbpm.process.instance.context.exclusive.ExclusiveGroupInstance;
@@ -574,7 +575,7 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
             for ( JBPMMessages.Variable _variable : _instance.getVariableList() ) {
                 try {
                     Object _value = ProtobufProcessMarshaller.unmarshallVariableValue( context, _variable );
-                    variableScopeInstance.internalSetVariable( _variable.getName(), 
+                    variableScopeInstance.internalSetVariable( _variable.getName(),
                                                                _value );
                 } catch ( ClassNotFoundException e ) {
                     throw new IllegalArgumentException( "Could not reload variable " + _variable.getName() );

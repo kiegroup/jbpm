@@ -16,12 +16,8 @@
 
 package org.jbpm.process.instance;
 
-import java.util.Map;
-
 import org.drools.core.common.InternalKnowledgeRuntime;
-import org.jbpm.process.core.ContextContainer;
-import org.jbpm.process.core.context.variable.VariableScope;
-import org.jbpm.process.instance.context.variable.VariableScopeInstance;
+import org.jbpm.process.instance.impl.ProcessInstanceImpl;
 import org.kie.api.definition.process.Process;
 import org.kie.internal.process.CorrelationKey;
 import org.kie.internal.runtime.manager.InternalRuntimeManager;
@@ -30,8 +26,9 @@ public abstract class AbstractProcessInstanceFactory implements ProcessInstanceF
 	
 	public ProcessInstance createProcessInstance(Process process, CorrelationKey correlationKey, 
 			                                     InternalKnowledgeRuntime kruntime,
-			                                     Map<String, Object> parameters) {
-		ProcessInstance processInstance = (ProcessInstance) createProcessInstance();
+			                                     ProcessVariables processVariables) {
+
+	    ProcessInstanceImpl processInstance = (ProcessInstanceImpl) createProcessInstance();
 		processInstance.setKnowledgeRuntime( kruntime );
         processInstance.setProcess( process );
         
@@ -42,27 +39,14 @@ public abstract class AbstractProcessInstanceFactory implements ProcessInstanceF
         if (manager != null) {
             processInstance.setDeploymentId(manager.getIdentifier());
         }
-        
-        ((InternalProcessRuntime) kruntime.getProcessRuntime()).getProcessInstanceManager()
+
+        InternalProcessRuntime processRuntime =
+                (InternalProcessRuntime) kruntime.getProcessRuntime();
+        processRuntime.getProcessInstanceManager()
     		.addProcessInstance( processInstance, correlationKey );
 
-        // set variable default values
-        // TODO: should be part of processInstanceImpl?
-        VariableScope variableScope = (VariableScope) ((ContextContainer) process).getDefaultContext( VariableScope.VARIABLE_SCOPE );
-        VariableScopeInstance variableScopeInstance = (VariableScopeInstance) processInstance.getContextInstance( VariableScope.VARIABLE_SCOPE );
-        // set input parameters
-        if ( parameters != null ) {
-            if ( variableScope != null ) {
-                for ( Map.Entry<String, Object> entry : parameters.entrySet() ) {
-                	
-                	variableScope.validateVariable(process.getName(), entry.getKey(), entry.getValue());
-                    variableScopeInstance.setVariable( entry.getKey(), entry.getValue() );
-                }
-            } else {
-                throw new IllegalArgumentException( "This process does not support parameters!" );
-            }
-        }
-        
+        processInstance.assign(processVariables);
+
         return processInstance;
 	}
 	
