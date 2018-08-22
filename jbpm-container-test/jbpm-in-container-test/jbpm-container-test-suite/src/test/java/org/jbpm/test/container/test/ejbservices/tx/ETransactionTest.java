@@ -16,6 +16,8 @@
 
 package org.jbpm.test.container.test.ejbservices.tx;
 
+import static org.assertj.core.api.Assertions.*;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -121,6 +123,18 @@ public class ETransactionTest extends AbstractRuntimeEJBServicesTest {
             LOGGER.error("Non-XA database thrown NPE on process started before rollback", npe);
         }
     }
+
+    @Test
+    public void testStartProcessWithExceptionRollback() throws Throwable {
+ 
+        Long processInstanceId = startProcessInstance(SCRIPT_THROW_EXCEPTION_TASK_PROCESS_ID);
+
+        checkProcessInstanceIsActive(processInstanceId);
+        // the root cause is not instance of
+        assertThat(catchRootCause(() -> { startAndCompleteHumanTask(processInstanceId); })).isNotInstanceOf(NullPointerException.class);
+    }
+
+
 
     @Test
     public void testAbortProcessCommit() throws Exception {
