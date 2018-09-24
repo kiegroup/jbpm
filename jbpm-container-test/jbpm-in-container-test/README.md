@@ -15,14 +15,14 @@ Tests are run very easily using the command
 ```mvn clean install -Dcontainer.profile=<container-profile> <container-specific-params>```
 
 where `<container-profile>` is simply a particular container. Another container-specific parameters may also be configured (see the table below).
-WildFly11, EAP 7 and Tomcat 9 do not have to be pre-installed, they will be downloaded automatically (in case of EAP 7, download URL has to be provided).
+WildFly14, EAP 7 and Tomcat 9 do not have to be pre-installed, they will be downloaded automatically (in case of EAP 7, download URL has to be provided).
 Oracle WebLogic 12 and IBM WebSphere 9 have to be pre-installed and the installation path has to be provided using a Maven property `weblogic.home` or `websphere.home` respectively.
 
 The following table lists all currently supported combinations of parameters:
 
 | Container to run    | \<container-profile\> | \<container-specific params\>                                                   |
 | -----------------   | --------------------- | ------------------------------------------------------------------------------- |
-|     WildFly11       | wildfly11             | *none*                                                                          |
+|     WildFly14       | wildfly14             | *none*                                                                          |
 |     EAP 7           | eap7                  | eap7.download.url                                                               |
 |     Tomcat 9        | tomcat9               | *none*                                                                          |
 | Oracle WebLogic 12  | oracle-wls-12         | weblogic.home                                                                   |
