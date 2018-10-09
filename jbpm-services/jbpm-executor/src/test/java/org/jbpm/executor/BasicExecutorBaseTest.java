@@ -849,11 +849,10 @@ public abstract class BasicExecutorBaseTest {
     }
 
     @Test(timeout=10000)
-    public void testRequeueWithMilliseconds() throws Exception {
-        // JBPM-7837
+    public void testRequeueWithSeconds() throws Exception {
         CountDownAsyncJobListener countDownListener = configureListener(1);
 
-        // simulate a job which was left RUNNING (e.g. node crush)
+        // simulate a job which was left RUNNING (e.g. node crash)
         UserTransaction ut = InitialContext.doLookup("java:comp/UserTransaction");
         ut.begin();
         EntityManager em = emf.createEntityManager();
@@ -865,7 +864,8 @@ public abstract class BasicExecutorBaseTest {
         requestInfo.setCommandName("org.jbpm.executor.commands.PrintOutCommand");
         requestInfo.setKey(businessKey);
         requestInfo.setStatus(STATUS.RUNNING);
-        requestInfo.setTime(new Date());
+        Date originalScheduledTime = new Date();
+        requestInfo.setTime(originalScheduledTime);
         requestInfo.setMessage("Ready to execute");
         requestInfo.setDeploymentId(null);
         requestInfo.setRetries(0);
@@ -879,19 +879,19 @@ public abstract class BasicExecutorBaseTest {
         em.close();
         ut.commit();
 
-        ((RequeueAware) executorService).requeue(EXTRA_TIME); // requeue older than 2000ms
-        countDownListener.waitTillCompleted(1000);
+        ((RequeueAware) executorService).requeue(2L); // Executor's default time unit is SECOND
+        countDownListener.waitTillCompleted(EXTRA_TIME);
 
         List<RequestInfo> requests = executorService.getRequestsByBusinessKey(businessKey, new QueryContext());
         RequestInfo requestInfoAfterFirstRequeue = requests.get(0);
 
-        assertTrue("The job should not be requeued yet", requestInfoAfterFirstRequeue.getStatus() == STATUS.RUNNING);
+        assertEquals("The job should not be requeued yet", STATUS.RUNNING, requestInfoAfterFirstRequeue.getStatus());
+        // To be sure that the job is not running yet we have to check the time of the last execution
+        assertEquals("The job should not be requeued yet", originalScheduledTime, requestInfoAfterFirstRequeue.getTime());
 
-        Thread.sleep(EXTRA_TIME);
+        ((RequeueAware) executorService).requeue(2L); // Executor's default time unit is SECOND
 
-        ((RequeueAware) executorService).requeue(EXTRA_TIME); // requeue older than 2000ms
-
-        countDownListener.waitTillCompleted(1000);
+        countDownListener.waitTillCompleted(EXTRA_TIME);
 
         requests = executorService.getRequestsByBusinessKey(businessKey, new QueryContext());
         RequestInfo requestInfoAfterSecondRequeue = requests.get(0);
