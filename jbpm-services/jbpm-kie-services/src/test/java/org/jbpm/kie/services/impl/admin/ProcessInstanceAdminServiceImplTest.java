@@ -415,6 +415,33 @@ public class ProcessInstanceAdminServiceImplTest extends AbstractKieServicesBase
         assertTrue(error.isAcknowledged());
     }
 
+    @Test
+    public void testErrorByDeploymentId() {
+
+        try {
+            processService.startProcess(deploymentUnit.getIdentifier(), "BrokenScriptTask");
+        } catch (Exception e) {
+            // expected as this is broken script process
+        }
+
+        List<ExecutionError> errors = processAdminService.getErrors(true, new QueryContext());
+        assertNotNull(errors);
+        assertEquals(1, errors.size());
+
+        ExecutionError error = errors.get(0);
+        assertNotNull(error);
+
+        // try non empty deploymentId
+        String deploymentId = error.getDeploymentId();
+        errors = processAdminService.getErrorsByDeploymentId(deploymentId, true, new QueryContext());
+        assertNotNull(errors);
+        assertEquals(1, errors.size());
+
+        // try empty deploymentId
+        errors = processAdminService.getErrorsByDeploymentId("empty-deployment-id", true, new QueryContext());
+        assertNotNull(errors);
+        assertEquals(0, errors.size());
+    }
     /*
      * Helper methods 
      */
