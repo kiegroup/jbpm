@@ -17,6 +17,7 @@
 package org.jbpm.process.core.context.variable;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
 
@@ -48,9 +49,11 @@ public class ReferenceVariableInstance<T> implements VariableInstance<T>, Serial
     @Override
     public void set(T value) {
         T oldValue = delegate.get();
+        if (value == null && oldValue == null) return;
         onSet.before(oldValue, value);
         delegate.set(value);
         onSet.after(oldValue, value);
+
     }
 
     public void setReference(ValueReference<T> delegate) {
