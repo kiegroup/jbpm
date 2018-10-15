@@ -119,7 +119,7 @@ public class VariableScopeInstance extends AbstractContextInstance {
 
     public void internalSetVariable(String name, Object value) {
         // TODO store it in normal variables (skipping checks)
-        getVariableInstance(name).set(value);
+        getVariableInstance(name).getReference().set(value);
     }
 
     public <T> VariableInstance<T> getVariableInstance(String name) {

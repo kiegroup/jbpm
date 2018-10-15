@@ -17,8 +17,6 @@
 package org.jbpm.process.instance.context.variable;
 
 import org.drools.core.event.ProcessEventSupport;
-import org.drools.core.impl.StatefulKnowledgeSessionImpl;
-import org.jbpm.process.core.Context;
 import org.jbpm.process.core.context.variable.SimpleValueReference;
 import org.jbpm.process.core.context.variable.Variable;
 import org.jbpm.process.core.context.variable.VariableInstance;
@@ -26,21 +24,30 @@ import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.core.datatype.DataType;
 import org.jbpm.process.core.datatype.impl.type.IntegerDataType;
 import org.jbpm.process.core.impl.ProcessImpl;
-import org.jbpm.process.instance.InternalProcessRuntime;
 import org.jbpm.ruleflow.instance.RuleFlowProcessInstance;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.Assert.fail;
+
 
 public class VariableScopeInstanceTest {
 
+    private static boolean defaultVariableStrictSetting =
+            Boolean.parseBoolean(System.getProperty("org.jbpm.variable.strict", "false"));
+
+
     @Before
     public void setUp() {
-        System.setProperty("org.jbpm.variable.strict", "true");
+        VariableScope.setVariableStrictOption(true);
+    }
+
+    @After
+    public void tearDown() {
+        VariableScope.setVariableStrictOption(defaultVariableStrictSetting);
     }
 
     @Test
