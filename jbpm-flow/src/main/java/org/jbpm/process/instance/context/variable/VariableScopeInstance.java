@@ -95,6 +95,7 @@ public class VariableScopeInstance extends AbstractContextInstance {
         Map<String, Object> result = new HashMap<>();
         variables.values().stream()
                 .filter(v -> !(v instanceof CaseVariableInstance))
+                .filter(v -> v.getReference().get() != null)
                 .forEach(v -> result.put(v.name(), v.getReference().get()));
         return Collections.unmodifiableMap(result);
     }

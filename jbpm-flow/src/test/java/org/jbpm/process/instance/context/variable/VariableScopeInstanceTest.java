@@ -16,6 +16,8 @@
 
 package org.jbpm.process.instance.context.variable;
 
+import java.util.Collections;
+
 import org.drools.core.event.ProcessEventSupport;
 import org.jbpm.process.core.context.variable.SimpleValueReference;
 import org.jbpm.process.core.context.variable.Variable;
@@ -29,7 +31,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -78,7 +79,7 @@ public class VariableScopeInstanceTest {
     public void assignMismatchedType() {
         VariableScope scope = new VariableScope();
         // declare a variable
-        scope.setVariables(asList(
+        scope.setVariables(Collections.singletonList(
                 createVariable("my-var", new IntegerDataType())));
 
         VariableScopeInstance vsi = createVariableScopeInstance(scope);
@@ -90,6 +91,29 @@ public class VariableScopeInstanceTest {
         SimpleValueReference<Integer> ref = new SimpleValueReference<>(100);
         vsi.assignVariableInstance("my-var", ref);
         assertThat(vsi.getVariableInstance("my-var").getReference()).isSameAs(ref);
+    }
+
+    @Test
+    public void getVariables() {
+        String myVar = "my-var";
+        VariableScope scope = new VariableScope();
+        // declare a variable
+        scope.setVariables(Collections.singletonList(
+                createVariable("my-var", new IntegerDataType())));
+
+        VariableScopeInstance vsi = createVariableScopeInstance(scope);
+
+        vsi.setVariable(myVar, 10);
+        assertThat(vsi.getVariables())
+                .as("Non-Null variables should be returned in getVariables()")
+                .size().isEqualTo(1);
+
+        vsi.setVariable(myVar, null);
+
+        assertThat(vsi.getVariables())
+                .as("Null variables should not be returned in getVariables()")
+                .isEmpty();
+
     }
 
     private Variable createVariable(String name, DataType dataType) {
