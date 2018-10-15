@@ -24,12 +24,10 @@ import org.jbpm.process.instance.context.variable.VariableScopeInstance;
 public class ReferenceVariableInstance<T> implements VariableInstance<T>, Serializable {
 
     transient private final Variable variableDescriptor;
-    transient private final VariableScopeInstance parentScopeInstance;
     transient private final OnSetHandler<T> onSet;
     private ValueReference<T> delegate;
 
-    public ReferenceVariableInstance(VariableScopeInstance parentScopeInstance, Variable variableDescriptor, OnSetHandler<T> handler) {
-        this.parentScopeInstance = parentScopeInstance;
+    public ReferenceVariableInstance(Variable variableDescriptor, OnSetHandler<T> handler) {
         this.variableDescriptor = variableDescriptor;
         this.onSet = handler;
         this.delegate = new SimpleValueReference<>(null);

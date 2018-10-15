@@ -20,7 +20,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import org.drools.core.ClassObjectFilter;
 import org.drools.core.event.ProcessEventSupport;
@@ -118,7 +117,7 @@ public class VariableScopeInstance extends AbstractContextInstance {
     }
 
     public void internalSetVariable(String name, Object value) {
-        // TODO store it in normal variables (skipping checks)
+        // skip checks, go straight to value reference
         getVariableInstance(name).getReference().set(value);
     }
 
@@ -134,6 +133,10 @@ public class VariableScopeInstance extends AbstractContextInstance {
     }
 
     private <T> VariableInstance<T> addVariableInstance(String name) {
+        if (variables.containsKey(name)) {
+            throw new IllegalStateException(String.format(
+                    "Cannot add variable named '%s'. The same variable already exists.", name));
+        }
         VariableInstance<T> variableInstance = createVariableInstance(new Variable(name));
         variables.put(name, variableInstance);
         return variableInstance;
@@ -175,7 +178,6 @@ public class VariableScopeInstance extends AbstractContextInstance {
         } else {
             String name = variable.getName();
             return new ReferenceVariableInstance<>(
-                    this,
                     variable,
                     new Handler<>(
                             getProcessEventSupport(),
@@ -248,7 +250,7 @@ public class VariableScopeInstance extends AbstractContextInstance {
                 getProcessInstance().getProcessName(),
                 variableName,
                 reference.get());
-        VariableInstance<?> instance = addVariableInstance(variableName);
+        VariableInstance<?> instance = getVariableInstance(variableName);
         instance.setReference(reference);
         return instance;
     }
