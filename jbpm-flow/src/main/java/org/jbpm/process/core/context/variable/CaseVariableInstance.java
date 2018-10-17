@@ -84,14 +84,11 @@ public class CaseVariableInstance<T> implements VariableInstance<T> {
 
     @Override
     public void setReference(ValueReference<T> value) {
-        // shall we log this? "Cannot setReference on a CaseVariableInstance". will set(value.get())
         set(value.get());
     }
 
     @Override
     public ValueReference<T> getReference() {
-        // fixme: is a CaseVariable really an InstanceVariable? Shall we use a ValueReference?
-//        throw new UnsupportedOperationException("Cannot get reference from a Case variable");
         return valueReference;
     }
 

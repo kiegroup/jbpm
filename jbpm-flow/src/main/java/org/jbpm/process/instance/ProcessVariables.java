@@ -103,10 +103,6 @@ public abstract class ProcessVariables implements Serializable {
             this.parameters = parameters;
         }
 
-        public Map<String, Object> parameters() {
-            return parameters;
-        }
-
         public Map<String, ValueReference<?>> variables() {
             Set<Map.Entry<String, Object>> entries = parameters.entrySet();
             HashMap<String, ValueReference<?>> result = new HashMap<>();
