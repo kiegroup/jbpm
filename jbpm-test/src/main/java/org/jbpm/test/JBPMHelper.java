@@ -99,13 +99,7 @@ public final class JBPMHelper {
         // create data source
         final String dsName = properties.getProperty("persistence.datasource.name", "jdbc/jbpm-ds");
         final String dsClassName = "org.h2.jdbcx.JdbcDataSource";
-        PoolingDataSource pds = new PoolingDataSource(dsName, dsClassName);
-
-        pds.getDriverProperties().put("user", properties.getProperty("persistence.datasource.user", "sa"));
-        pds.getDriverProperties().put("password", properties.getProperty("persistence.datasource.password", ""));
-        pds.getDriverProperties().put("url", properties.getProperty("persistence.datasource.url", "jdbc:h2:tcp://localhost/~/jbpm-db;MVCC=TRUE"));
-        pds.getDriverProperties().put("driverClassName", properties.getProperty("persistence.datasource.driverClassName", "org.h2.Driver"));
-        pds.init();
+        PoolingDataSource pds = new PoolingDataSource(dsName, dsClassName, properties);
         return pds;
     }
 

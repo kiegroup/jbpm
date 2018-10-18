@@ -19,6 +19,8 @@ package org.jbpm.kie.test.util;
 import static org.junit.Assert.fail;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 
@@ -111,14 +113,11 @@ public abstract class AbstractKieServicesBaseTest extends AbstractKieServicesTes
     }
 
     protected void buildDatasource() {
-    	ds = new PoolingDataSource("jdbc/testDS1", "org.h2.jdbcx.JdbcDataSource");
-
-        //NON XA CONFIGS
-        ds.getDriverProperties().put("user", "sa");
-        ds.getDriverProperties().put("password", "sasa");
-        ds.getDriverProperties().put("URL", "jdbc:h2:mem:mydb");
-
-        ds.init();
+        Properties driverProperties = new Properties();
+        driverProperties.put("user", "sa");
+        driverProperties.put("password", "sasa");
+        driverProperties.put("URL", "jdbc:h2:mem:mydb");
+    	ds = new PoolingDataSource("jdbc/testDS1", "org.h2.jdbcx.JdbcDataSource", driverProperties);
     }
 
     protected void closeDataSource() {

@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Random;
 
 import org.jbpm.kie.services.impl.KModuleDeploymentUnit;
@@ -130,15 +131,13 @@ public class TaskVariablesQueryServiceTest extends AbstractKieServicesBaseTest {
     }
     
     protected void buildDatasource() {
-        ds = new PoolingDataSource("jdbc/testDS1", "org.postgresql.xa.PGXADataSource");
-
-        ds.getDriverProperties().put("user", "bpms");
-        ds.getDriverProperties().put("password", "bpms");
-        ds.getDriverProperties().put("serverName", "localhost");
-        ds.getDriverProperties().put("portNumber", "5432");
-        ds.getDriverProperties().put("databaseName", "bpms");
-
-        ds.init();
+        Properties driverProperties = new Properties();
+        driverProperties.put("user", "bpms");
+        driverProperties.put("password", "bpms");
+        driverProperties.put("serverName", "localhost");
+        driverProperties.put("portNumber", "5432");
+        driverProperties.put("databaseName", "bpms");
+        ds = new PoolingDataSource("jdbc/testDS1", "org.postgresql.xa.PGXADataSource", driverProperties);
     }
 
     

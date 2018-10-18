@@ -104,19 +104,12 @@ public class ParallelAsyncJobsTest extends JbpmAsyncJobTestCase {
     }
     
     @Override
-    protected PoolingDataSource setupPoolingDataSource() {        
-        
+    protected PoolingDataSource setupPoolingDataSource() {
         Properties dsProps = PersistenceUtil.getDatasourceProperties();
-        String jdbcUrl = dsProps.getProperty("url");
-        String driverClass = dsProps.getProperty("driverClassName");        
+        dsProps.setProperty("POOL_CONNECTIONS", "false");
 
         // Setup the datasource
-        PoolingDataSource ds1 = PersistenceUtil.setupPoolingDataSource(dsProps, "jdbc/jbpm-ds", false);
-        if (driverClass.startsWith("org.h2")) {
-            ds1.getDriverProperties().setProperty("url", jdbcUrl);
-        }
-        ds1.getDriverProperties().setProperty("POOL_CONNECTIONS", "false");
-        ds1.init();
+        PoolingDataSource ds1 = PersistenceUtil.setupPoolingDataSource(dsProps, "jdbc/jbpm-ds");
         return ds1;
     }
 

@@ -45,16 +45,9 @@ public class DBUserInfoImplTest {
 
     @Before
     public void setup() {
-
         Properties dsProps = loadDataSourceProperties();
-
-        pds = new PoolingDataSource("jdbc/jbpm-ds", dsProps.getProperty("className"));
-        for (String propertyName : new String[]{"user", "password"}) {
-            pds.getDriverProperties().put(propertyName, dsProps.getProperty(propertyName));
-        }
-        setDatabaseSpecificDataSourceProperties(pds, dsProps);
-
-        pds.init();
+        String className = dsProps.getProperty("className");
+        pds = new PoolingDataSource("jdbc/jbpm-ds", className, dsProps);
 
         prepareDb();
 
@@ -196,9 +189,5 @@ public class DBUserInfoImplTest {
         
         String id = userInfo.getEntityForEmail("john@jbpm.org");
         Assertions.assertThat(id).isEqualTo(JOHN.getId());
-    }
-
-    private void setDatabaseSpecificDataSourceProperties(PoolingDataSource pds, Properties dsProps) {
-        PersistenceUtil.setDatabaseSpecificDataSourceProperties(pds, dsProps);
     }
 }

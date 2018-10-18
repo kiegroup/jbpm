@@ -45,8 +45,7 @@ public class ExecutorTestUtil {
     
     public static PoolingDataSource setupPoolingDataSource() {
         Properties dsProps = getDatasourceProperties();
-        PoolingDataSource pds = PersistenceUtil.setupPoolingDataSource(dsProps, "jdbc/jbpm-ds", false);
-        pds.init();
+        PoolingDataSource pds = PersistenceUtil.setupPoolingDataSource(dsProps, "jdbc/jbpm-ds");
         
         return pds;
     }

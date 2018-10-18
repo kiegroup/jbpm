@@ -61,19 +61,14 @@ public abstract class TimerBaseTest extends AbstractBaseTest {
     
     public static PoolingDataSource setupPoolingDataSource() {
         Properties dsProps = getDatasourceProperties();
-        PoolingDataSource pds = PersistenceUtil.setupPoolingDataSource(dsProps, "jdbc/jbpm-ds", false);
+        PoolingDataSource pds = null;
         try {
-        	pds.init();
+        	pds = PersistenceUtil.setupPoolingDataSource(dsProps, "jdbc/jbpm-ds");
         } catch (Exception e) {
         	logger.warn("DBPOOL_MGR:Looks like there is an issue with creating db pool because of " + e.getMessage() + " cleaing up...");
-            try {
-                pds.close();
-            } catch (Exception ex) {
-                // ignore
-            }
         	logger.info("DBPOOL_MGR: attempting to create db pool again...");
-        	pds = PersistenceUtil.setupPoolingDataSource(dsProps, "jdbc/jbpm-ds", false);
-        	pds.init();        	
+        	pds = PersistenceUtil.setupPoolingDataSource(dsProps, "jdbc/jbpm-ds");
+
         	logger.info("DBPOOL_MGR:Pool created after cleanup of leftover resources");
         }
         

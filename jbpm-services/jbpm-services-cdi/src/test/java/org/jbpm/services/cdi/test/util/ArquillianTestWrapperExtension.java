@@ -15,6 +15,8 @@
  */
 package org.jbpm.services.cdi.test.util;
 
+import java.util.Properties;
+
 import org.jboss.arquillian.container.spi.ContainerRegistry;
 import org.jboss.arquillian.core.api.annotation.Observes;
 import org.jboss.arquillian.core.spi.LoadableExtension;
@@ -35,12 +37,12 @@ public class ArquillianTestWrapperExtension implements LoadableExtension {
         private PoolingDataSource ds;
         
         public void init(@Observes BeforeSuite event, ContainerRegistry registry) {
-            ds = new PoolingDataSource("jdbc/testDS1", "org.h2.jdbcx.JdbcDataSource");
-            ds.getDriverProperties().put("user", "sa");
-            ds.getDriverProperties().put("password", "sasa");
-            ds.getDriverProperties().put("URL", "jdbc:h2:mem:mydb");
-             
-            ds.init();
+            Properties driverProperties = new Properties();
+            driverProperties.put("user", "sa");
+            driverProperties.put("password", "sasa");
+            driverProperties.put("URL", "jdbc:h2:mem:mydb");
+            
+            ds = new PoolingDataSource("jdbc/testDS1", "org.h2.jdbcx.JdbcDataSource", driverProperties);
         }
         
         public void close(@Observes AfterSuite event, ContainerRegistry registry) {

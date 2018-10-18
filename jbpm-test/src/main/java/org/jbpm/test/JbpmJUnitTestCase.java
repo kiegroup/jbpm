@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -119,12 +120,13 @@ public abstract class JbpmJUnitTestCase extends AbstractBaseTest {
     }
 
     public static PoolingDataSource setupPoolingDataSource() {
-        PoolingDataSource pds = new PoolingDataSource("jdbc/jbpm-ds", "org.h2.jdbcx.JdbcDataSource");
-        pds.getDriverProperties().put("user", "sa");
-        pds.getDriverProperties().put("password", "");
-        pds.getDriverProperties().put("url", "jdbc:h2:tcp://localhost/~/jbpm-db;MVCC=true");
-        pds.getDriverProperties().put("driverClassName", "org.h2.Driver");
-        pds.init();
+        Properties driverProperties = new Properties();
+        driverProperties.put("user", "sa");
+        driverProperties.put("password", "");
+        driverProperties.put("url", "jdbc:h2:tcp://localhost/~/jbpm-db;MVCC=true");
+        driverProperties.put("driverClassName", "org.h2.Driver");
+        
+        PoolingDataSource pds = new PoolingDataSource("jdbc/jbpm-ds", "org.h2.jdbcx.JdbcDataSource", driverProperties);
         return pds;
     }
 

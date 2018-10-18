@@ -43,16 +43,9 @@ public class DBUserGroupCallbackImplTest {
 
     @Before
     public void setup() {
-
         Properties dsProps = loadDataSourceProperties();
-
-        pds = new PoolingDataSource("jdbc/jbpm-ds", dsProps.getProperty("className"));
-        for (String propertyName : new String[]{"user", "password"}) {
-            pds.getDriverProperties().put(propertyName, dsProps.getProperty(propertyName));
-        }
-        setDatabaseSpecificDataSourceProperties(pds, dsProps);
-
-        pds.init();
+        String className = dsProps.getProperty("className");
+        pds = new PoolingDataSource("jdbc/jbpm-ds", className, dsProps);
 
         prepareDb();
 
@@ -210,9 +203,5 @@ public class DBUserGroupCallbackImplTest {
         callback.getGroupsForUser(null);
         fail("Should fail as it does not have valid configuration");
 
-    }
-
-    private void setDatabaseSpecificDataSourceProperties(PoolingDataSource pds, Properties dsProps) {
-        PersistenceUtil.setDatabaseSpecificDataSourceProperties(pds, dsProps);
     }
 }

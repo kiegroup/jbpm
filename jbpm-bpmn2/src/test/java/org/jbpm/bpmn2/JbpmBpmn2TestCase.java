@@ -187,16 +187,7 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
 
     public static PoolingDataSource setupPoolingDataSource() {
         Properties dsProps = PersistenceUtil.getDatasourceProperties();
-        String jdbcUrl = dsProps.getProperty("url");
-        String driverClass = dsProps.getProperty("driverClassName");
-
-        // Setup the datasource
-        PoolingDataSource ds1 = PersistenceUtil.setupPoolingDataSource(dsProps, "jdbc/testDS1", false);
-        if( driverClass.startsWith("org.h2") ) { 
-            ds1.getDriverProperties().setProperty("url", jdbcUrl);
-        }
-        ds1.init();
-        return ds1;
+        return PersistenceUtil.setupPoolingDataSource(dsProps, "jdbc/testDS1");
     }
 
     public void setPersistence(boolean sessionPersistence) {

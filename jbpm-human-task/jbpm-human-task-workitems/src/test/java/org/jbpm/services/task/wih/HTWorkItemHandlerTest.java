@@ -16,6 +16,8 @@
 
 package org.jbpm.services.task.wih;
 
+import java.util.Properties;
+
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
@@ -62,12 +64,13 @@ public class HTWorkItemHandlerTest extends HTWorkItemHandlerBaseTest {
     }
 
     protected PoolingDataSource setupPoolingDataSource() {
-        PoolingDataSource pds = new PoolingDataSource("jdbc/jbpm-ds", "org.h2.jdbcx.JdbcDataSource");
-        pds.getDriverProperties().put("user", "sa");
-        pds.getDriverProperties().put("password", "");
-        pds.getDriverProperties().put("url", "jdbc:h2:mem:jbpm-db;MVCC=true");
-        pds.getDriverProperties().put("driverClassName", "org.h2.Driver");
-        pds.init();
+        Properties driverProperties = new Properties();
+        driverProperties.put("user", "sa");
+        driverProperties.put("password", "");
+        driverProperties.put("url", "jdbc:h2:mem:jbpm-db;MVCC=true");
+        driverProperties.put("driverClassName", "org.h2.Driver");
+
+        PoolingDataSource pds = new PoolingDataSource("jdbc/jbpm-ds", "org.h2.jdbcx.JdbcDataSource", driverProperties);
         return pds;
     }
 }
