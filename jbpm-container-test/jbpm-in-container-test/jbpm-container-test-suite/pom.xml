@@ -765,10 +765,6 @@
                       <groupId>org.jboss.logging</groupId>
                       <artifactId>jboss-logging</artifactId>
                     </dependency>
-                    <dependency>
-                      <groupId>org.apache.tomcat</groupId>
-                      <artifactId>tomcat-dbcp</artifactId>
-                    </dependency>
                   </dependencies>
                 </container>
                 <configuration>
@@ -858,6 +854,33 @@
           <artifactId>jboss-logging</artifactId>
           <scope>test</scope>
         </dependency>
+      </dependencies>
+    </profile>
+
+    <!-- A temporary workaround until tomcat 9.0.13 is released -->
+    <profile>
+      <id>override-tomcat-dbcp</id>
+      <build>
+        <pluginManagement>
+          <plugins>
+            <plugin>
+              <groupId>org.codehaus.cargo</groupId>
+              <artifactId>cargo-maven2-plugin</artifactId>
+              <configuration>
+                <container>
+                    <dependencies>
+                      <dependency>
+                        <groupId>org.apache.tomcat</groupId>
+                        <artifactId>tomcat-dbcp</artifactId>
+                      </dependency>
+                    </dependencies>
+                </container>
+              </configuration>
+            </plugin>
+          </plugins>
+        </pluginManagement>
+      </build>
+      <dependencies>
         <dependency>
           <groupId>org.apache.tomcat</groupId>
           <artifactId>tomcat-dbcp</artifactId>
