@@ -393,6 +393,7 @@
               <settings.localRepository>${settings.localRepository}</settings.localRepository>
               <!--Container port for as-client tests-->
               <container.port>${container.port}</container.port>
+              <container.id>${container.id}</container.id>
             </systemPropertyVariables>
           </configuration>
         </plugin>
