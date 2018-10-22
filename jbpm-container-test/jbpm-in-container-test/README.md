@@ -42,7 +42,3 @@ This adapter's source code is available on [GitHub](https://github.com/arquillia
 ## Running a single test
 If you want to run a single test, just specify it via an additional parameter ```-Dit.test=<test-name>``` and add ```-DfailIfNoTests=false```.
 The latter has to be provided because of maven failsafe plugin which will fail by default if no tests are run on other modules.
-
-## Running tests with Tomcat 9
-To avoid failing tests due to [JWS-1028](https://issues.jboss.org/browse/JWS-1028), activate profile *override-tomcat-dbcp*, which uses a patched version of tomcat-dbcp.
-Once Tomcat 9.0.13 is released and this test suite updated to use this version, this profile won't be needed anymore.
