@@ -1,7 +1,7 @@
 jBPM in container tests
 =====================
 
-**This test suite tests the jBPM engine inside various containers, namely WildFly 11, EAP 7, Tomcat 9,
+**This test suite tests the jBPM engine inside various containers, namely WildFly 14, EAP 7, Tomcat 9,
 Oracle WebLogic 12 and IBM WebSphere 9, using Maven Cargo and Arquillian.** Tests are focused on various aspects of jBPM engine 
 such as transactions, EJB APIs, tasks, REST and WebServices integration.
 
