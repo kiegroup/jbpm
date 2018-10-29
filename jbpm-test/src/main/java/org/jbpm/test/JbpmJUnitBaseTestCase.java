@@ -46,7 +46,8 @@ import org.jbpm.runtime.manager.impl.DefaultRegisterableItemsFactory;
 import org.jbpm.runtime.manager.impl.SimpleRegisterableItemsFactory;
 import org.jbpm.runtime.manager.impl.jpa.EntityManagerFactoryManager;
 import org.jbpm.services.task.identity.JBossUserGroupCallbackImpl;
-import org.jbpm.test.util.PoolingDataSource;
+import org.kie.test.util.db.DataSourceFactory;
+import org.kie.test.util.db.PoolingDataSourceWrapper;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 import org.junit.After;
 import org.junit.Before;
@@ -128,7 +129,7 @@ public abstract class JbpmJUnitBaseTestCase {
     private String persistenceUnitName;
 
     private EntityManagerFactory emf;
-    private PoolingDataSource ds;
+    private PoolingDataSourceWrapper ds;
 
     private TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
 
@@ -854,20 +855,21 @@ public abstract class JbpmJUnitBaseTestCase {
         return this.ds;
     }
 
-    protected PoolingDataSource setupPoolingDataSource() {
+    protected PoolingDataSourceWrapper setupPoolingDataSource() {
         Properties driverProperties = new Properties();
         driverProperties.put("user", "sa");
         driverProperties.put("password", "");
         driverProperties.put("url", "jdbc:h2:mem:jbpm-db;MVCC=true");
         driverProperties.put("driverClassName", "org.h2.Driver");
+        driverProperties.put("className", "org.h2.jdbcx.JdbcDataSource");
         
-        PoolingDataSource pds = null;
+        PoolingDataSourceWrapper pds = null;
         try {
-            pds = new PoolingDataSource("jdbc/jbpm-ds", "org.h2.jdbcx.JdbcDataSource", driverProperties);
+            pds = DataSourceFactory.setupPoolingDataSource("jdbc/jbpm-ds", driverProperties);
         } catch (Exception e) {
             logger.warn("DBPOOL_MGR:Looks like there is an issue with creating db pool because of " + e.getMessage() + " cleaing up...");
             logger.debug("DBPOOL_MGR: attempting to create db pool again...");
-            pds = new PoolingDataSource("jdbc/jbpm-ds", "org.h2.jdbcx.JdbcDataSource", driverProperties);
+            pds = DataSourceFactory.setupPoolingDataSource("jdbc/jbpm-ds", driverProperties);
             logger.debug("DBPOOL_MGR:Pool created after cleanup of leftover resources");
         }
         return pds;

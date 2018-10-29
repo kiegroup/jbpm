@@ -18,7 +18,7 @@ package org.jbpm.test;
 
 import org.assertj.core.api.Assertions;
 import org.jbpm.persistence.util.PersistenceUtil;
-import org.jbpm.test.util.PoolingDataSource;
+import org.kie.test.util.db.PoolingDataSourceWrapper;
 import org.junit.Rule;
 import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
@@ -80,11 +80,11 @@ public abstract class JbpmTestCase extends JbpmJUnitBaseTestCase {
     );
 
     @Override
-    protected PoolingDataSource setupPoolingDataSource() {
+    protected PoolingDataSourceWrapper setupPoolingDataSource() {
         Properties dsProps = PersistenceUtil.getDatasourceProperties();
         dsProps.setProperty("POOL_CONNECTIONS", "false");
         // Setup the datasource
-        PoolingDataSource ds1 = PersistenceUtil.setupPoolingDataSource(dsProps, "jdbc/jbpm-ds");
+        PoolingDataSourceWrapper ds1 = PersistenceUtil.setupPoolingDataSource(dsProps, "jdbc/jbpm-ds");
         return ds1;
     }
 

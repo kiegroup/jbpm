@@ -39,7 +39,7 @@ import org.jbpm.services.api.model.DeploymentUnit;
 import org.jbpm.services.api.model.ProcessDefinition;
 import org.jbpm.services.api.model.UserTaskInstanceWithVarsDesc;
 import org.jbpm.services.api.query.model.QueryDefinition.Target;
-import org.jbpm.test.util.PoolingDataSource;
+import org.kie.test.util.db.DataSourceFactory;
 import org.jbpm.services.api.query.model.QueryParam;
 import org.junit.After;
 import org.junit.Before;
@@ -137,7 +137,8 @@ public class TaskVariablesQueryServiceTest extends AbstractKieServicesBaseTest {
         driverProperties.put("serverName", "localhost");
         driverProperties.put("portNumber", "5432");
         driverProperties.put("databaseName", "bpms");
-        ds = new PoolingDataSource("jdbc/testDS1", "org.postgresql.xa.PGXADataSource", driverProperties);
+        driverProperties.put("className", "org.postgresql.xa.PGXADataSource");
+        ds = DataSourceFactory.setupPoolingDataSource("jdbc/testDS1", driverProperties);
     }
 
     

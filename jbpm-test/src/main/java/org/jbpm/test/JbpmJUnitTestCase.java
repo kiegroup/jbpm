@@ -49,7 +49,8 @@ import org.jbpm.process.instance.impl.DefaultProcessInstanceManagerFactory;
 import org.jbpm.services.task.HumanTaskServiceFactory;
 import org.jbpm.services.task.identity.JBossUserGroupCallbackImpl;
 import org.jbpm.services.task.identity.MvelUserGroupCallbackImpl;
-import org.jbpm.test.util.PoolingDataSource;
+import org.kie.test.util.db.DataSourceFactory;
+import org.kie.test.util.db.PoolingDataSourceWrapper;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 import org.junit.After;
 import org.junit.Before;
@@ -92,7 +93,7 @@ public abstract class JbpmJUnitTestCase extends AbstractBaseTest {
     private boolean setupDataSource = false;
     private boolean sessionPersistence = false;
     private EntityManagerFactory emf;
-    private PoolingDataSource ds;
+    private PoolingDataSourceWrapper ds;
     private H2Server server = new H2Server();
     private TaskService taskService;
     private TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
@@ -119,14 +120,15 @@ public abstract class JbpmJUnitTestCase extends AbstractBaseTest {
         this.setupDataSource = setupDataSource;
     }
 
-    public static PoolingDataSource setupPoolingDataSource() {
+    public static PoolingDataSourceWrapper setupPoolingDataSource() {
         Properties driverProperties = new Properties();
         driverProperties.put("user", "sa");
         driverProperties.put("password", "");
         driverProperties.put("url", "jdbc:h2:tcp://localhost/~/jbpm-db;MVCC=true");
         driverProperties.put("driverClassName", "org.h2.Driver");
+        driverProperties.put("className", "org.h2.jdbcx.JdbcDataSource");
         
-        PoolingDataSource pds = new PoolingDataSource("jdbc/jbpm-ds", "org.h2.jdbcx.JdbcDataSource", driverProperties);
+        PoolingDataSourceWrapper pds = DataSourceFactory.setupPoolingDataSource("jdbc/jbpm-ds", driverProperties);
         return pds;
     }
 
@@ -563,7 +565,7 @@ public abstract class JbpmJUnitTestCase extends AbstractBaseTest {
         }
     }
 
-    public PoolingDataSource getDs() {
+    public PoolingDataSourceWrapper getDs() {
         return ds;
     }
 

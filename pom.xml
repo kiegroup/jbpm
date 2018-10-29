@@ -189,11 +189,6 @@
         <artifactId>simple-jndi</artifactId>
         <version>0.11.4.1</version>
       </dependency>
-      <dependency>
-        <groupId>org.apache.tomcat</groupId>
-        <artifactId>tomcat-dbcp</artifactId>
-        <version>9.0.12</version>
-      </dependency>
     </dependencies>
   </dependencyManagement>
 

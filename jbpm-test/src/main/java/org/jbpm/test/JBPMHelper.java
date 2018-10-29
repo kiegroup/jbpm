@@ -28,7 +28,8 @@ import javax.persistence.Persistence;
 import org.h2.tools.Server;
 import org.jbpm.services.task.HumanTaskConfigurator;
 import org.jbpm.services.task.identity.JBossUserGroupCallbackImpl;
-import org.jbpm.test.util.PoolingDataSource;
+import org.kie.test.util.db.DataSourceFactory;
+import org.kie.test.util.db.PoolingDataSourceWrapper;
 import org.kie.api.KieBase;
 import org.kie.api.runtime.EnvironmentName;
 import org.kie.api.runtime.manager.RuntimeEnvironmentBuilder;
@@ -93,13 +94,13 @@ public final class JBPMHelper {
         }
     }
 
-    public static  org.jbpm.test.util.PoolingDataSource setupDataSource() {
+    public static PoolingDataSourceWrapper setupDataSource() {
 
         Properties properties = getProperties();
+        properties.put("className", "org.h2.jdbcx.JdbcDataSource");
         // create data source
         final String dsName = properties.getProperty("persistence.datasource.name", "jdbc/jbpm-ds");
-        final String dsClassName = "org.h2.jdbcx.JdbcDataSource";
-        PoolingDataSource pds = new PoolingDataSource(dsName, dsClassName, properties);
+        PoolingDataSourceWrapper pds = DataSourceFactory.setupPoolingDataSource(dsName, properties);
         return pds;
     }
 

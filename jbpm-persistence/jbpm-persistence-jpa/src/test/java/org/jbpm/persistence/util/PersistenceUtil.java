@@ -15,13 +15,6 @@
  */
 package org.jbpm.persistence.util;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
-import static org.kie.api.runtime.EnvironmentName.ENTITY_MANAGER_FACTORY;
-import static org.kie.api.runtime.EnvironmentName.GLOBALS;
-import static org.kie.api.runtime.EnvironmentName.TRANSACTION;
-import static org.kie.api.runtime.EnvironmentName.TRANSACTION_MANAGER;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
@@ -41,15 +34,24 @@ import org.h2.tools.DeleteDbFiles;
 import org.h2.tools.Server;
 import org.jbpm.process.instance.event.DefaultSignalManagerFactory;
 import org.jbpm.process.instance.impl.DefaultProcessInstanceManagerFactory;
-import org.jbpm.test.util.PoolingDataSource;
+import org.kie.test.util.db.PoolingDataSourceWrapper;
 import org.junit.Assert;
 import org.kie.api.KieBase;
 import org.kie.api.runtime.Environment;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.KieSessionConfiguration;
 import org.kie.internal.runtime.conf.ForceEagerActivationOption;
+import org.kie.test.util.db.DataSourceFactory;
+import org.kie.test.util.db.PoolingDataSourceWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+import static org.kie.api.runtime.EnvironmentName.ENTITY_MANAGER_FACTORY;
+import static org.kie.api.runtime.EnvironmentName.GLOBALS;
+import static org.kie.api.runtime.EnvironmentName.TRANSACTION;
+import static org.kie.api.runtime.EnvironmentName.TRANSACTION_MANAGER;
 
 public class PersistenceUtil {
 
@@ -102,7 +104,7 @@ public class PersistenceUtil {
         }
 
         // Setup the datasource
-        PoolingDataSource ds1 = setupPoolingDataSource(dsProps, dataSourceName);
+        PoolingDataSourceWrapper ds1 = setupPoolingDataSource(dsProps, dataSourceName);
         context.put(DATASOURCE, ds1);
 
         // Setup persistence
@@ -137,7 +139,7 @@ public class PersistenceUtil {
             Object ds1Object = context.remove(DATASOURCE);
             if (ds1Object != null) {
                 try {
-                    PoolingDataSource ds1 = (PoolingDataSource) ds1Object;
+                    PoolingDataSourceWrapper ds1 = (PoolingDataSourceWrapper) ds1Object;
                     ds1.close();
                 } catch (Throwable t) {
                     t.printStackTrace();
@@ -150,80 +152,20 @@ public class PersistenceUtil {
     
     /**
      * This method uses the "jdbc/testDS1" datasource, which is the default.
-     * @param dsProps The properties used to setup the data source. 
-     * @return a PoolingDataSource
+     * @param dsProps The properties used to setup the data source.
+     * @return a PoolingDataSourceWrapper
      */
-    public static PoolingDataSource setupPoolingDataSource(Properties dsProps) { 
+    public static PoolingDataSourceWrapper setupPoolingDataSource(Properties dsProps) {
        return setupPoolingDataSource(dsProps, "jdbc/testDS1");
     }
     
     /**
-     * This sets up a PoolingDataSource.
+     * This sets up a PoolingDataSourceWrapper.
      * 
-     * @return PoolingDataSource that has been set up but _not_ initialized.
+     * @return PoolingDataSourceWrapper that has been set up but _not_ initialized.
      */
-    public static PoolingDataSource setupPoolingDataSource(Properties dsProps, String datasourceName) {
-        Properties driverProperties = setDatabaseSpecificDataSourceProperties(dsProps);
-        for (String propertyName : new String[] { "user", "password" }) {
-            driverProperties.put(propertyName, dsProps.getProperty(propertyName));
-        }
-
-        String dsClassName = dsProps.getProperty("className");
-        PoolingDataSource pds = new PoolingDataSource(datasourceName, dsClassName, driverProperties, new Properties());
-        return pds;
-    }
-
-    private static Properties setDatabaseSpecificDataSourceProperties(Properties dsProps) {
-        Properties sanitizedProperties = new Properties();
-        String driverClass = dsProps.getProperty("driverClassName");
-        if (driverClass.startsWith("org.h2") || driverClass.startsWith("org.hsqldb")) {
-            for (String propertyName : new String[] { "url", "driverClassName"}) {
-                sanitizedProperties.put(propertyName, dsProps.getProperty(propertyName));
-            }
-        } else {
-            if (driverClass.startsWith("oracle")) {
-                sanitizedProperties.put("driverType", "thin");
-                sanitizedProperties.put("URL", dsProps.getProperty("url"));
-            } else if (driverClass.startsWith("com.ibm.db2")) {
-                // http://docs.codehaus.org/display/BTM/JdbcXaSupportEvaluation#JdbcXaSupportEvaluation-IBMDB2
-                sanitizedProperties.put("databaseName", dsProps.getProperty("databaseName"));
-                sanitizedProperties.put("driverType", "4");
-                sanitizedProperties.put("serverName", dsProps.getProperty("serverName"));
-                sanitizedProperties.put("portNumber", dsProps.getProperty("portNumber"));
-                sanitizedProperties.put("currentSchema", dsProps.getProperty("defaultSchema"));
-                sanitizedProperties.put("url", dsProps.getProperty("url"));
-            } else if (driverClass.startsWith("com.microsoft")) {
-                for (String propertyName : new String[] { "serverName", "portNumber", "databaseName" }) {
-                    sanitizedProperties.put(propertyName, dsProps.getProperty(propertyName));
-                }
-                sanitizedProperties.put("URL", dsProps.getProperty("url"));
-                sanitizedProperties.put("selectMethod", "cursor");
-                sanitizedProperties.put("InstanceName", "MSSQL01");
-            } else if (driverClass.startsWith("com.mysql")) {
-                for (String propertyName : new String[] { "databaseName", "serverName", "portNumber", "url" }) {
-                    sanitizedProperties.put(propertyName, dsProps.getProperty(propertyName));
-                }
-            } else if (driverClass.startsWith("org.mariadb")) {
-                for (String propertyName : new String[]{"databaseName", "serverName", "portNumber", "url"}) {
-                    sanitizedProperties.put(propertyName, dsProps.getProperty(propertyName));
-                }
-            } else if (driverClass.startsWith("com.sybase")) {
-                for (String propertyName : new String[] { "databaseName", "portNumber", "serverName", "url" }) {
-                    sanitizedProperties.put(propertyName, dsProps.getProperty(propertyName));
-                }
-                sanitizedProperties.put("REQUEST_HA_SESSION", "false");
-                sanitizedProperties.put("networkProtocol", "Tds");
-                // com.edb is Postgres Plus.
-            } else if (driverClass.startsWith("org.postgresql") || driverClass.startsWith("com.edb")) {
-                for (String propertyName : new String[] { "databaseName", "portNumber", "serverName", "url" }) {
-                    sanitizedProperties.put(propertyName, dsProps.getProperty(propertyName));
-                }
-            } else {
-                throw new RuntimeException("Unknown driver class: " + driverClass);
-            }
-        }
-
-        return sanitizedProperties;
+    public static PoolingDataSourceWrapper setupPoolingDataSource(Properties dsProps, String datasourceName) {
+        return DataSourceFactory.setupPoolingDataSource(datasourceName, dsProps);
     }
 
     /**

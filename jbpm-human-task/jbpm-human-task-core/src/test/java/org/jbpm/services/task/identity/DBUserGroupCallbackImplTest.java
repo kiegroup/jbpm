@@ -29,8 +29,8 @@ import java.sql.PreparedStatement;
 import java.util.List;
 import java.util.Properties;
 
-import org.jbpm.persistence.util.PersistenceUtil;
-import org.jbpm.test.util.PoolingDataSource;
+import org.kie.test.util.db.DataSourceFactory;
+import org.kie.test.util.db.PoolingDataSourceWrapper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,14 +38,13 @@ import org.junit.Test;
 public class DBUserGroupCallbackImplTest {
 
     protected static final String DATASOURCE_PROPERTIES = "/datasource.properties";
-    private PoolingDataSource pds;
+    private PoolingDataSourceWrapper pds;
     private Properties props;
 
     @Before
     public void setup() {
         Properties dsProps = loadDataSourceProperties();
-        String className = dsProps.getProperty("className");
-        pds = new PoolingDataSource("jdbc/jbpm-ds", className, dsProps);
+        pds = DataSourceFactory.setupPoolingDataSource("jdbc/jbpm-ds", dsProps);
 
         prepareDb();
 

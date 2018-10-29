@@ -32,7 +32,7 @@ import javax.sql.DataSource;
 import org.jbpm.persistence.util.PersistenceUtil;
 import org.jbpm.runtime.manager.impl.DefaultRegisterableItemsFactory;
 import org.jbpm.test.AbstractBaseTest;
-import org.jbpm.test.util.PoolingDataSource;
+import org.kie.test.util.db.PoolingDataSourceWrapper;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
 public abstract class TimerBaseTest extends AbstractBaseTest {
     private static final Logger logger = LoggerFactory.getLogger(TimerBaseTest.class);
 	
-	private static PoolingDataSource pds;
+	private static PoolingDataSourceWrapper pds;
     
     protected static final String DATASOURCE_PROPERTIES = "/datasource.properties";
     
@@ -59,9 +59,9 @@ public abstract class TimerBaseTest extends AbstractBaseTest {
     protected static final String PASSWORD = "password";
     protected static final String JDBC_URL = "url";
     
-    public static PoolingDataSource setupPoolingDataSource() {
+    public static PoolingDataSourceWrapper setupPoolingDataSource() {
         Properties dsProps = getDatasourceProperties();
-        PoolingDataSource pds = null;
+        PoolingDataSourceWrapper pds = null;
         try {
         	pds = PersistenceUtil.setupPoolingDataSource(dsProps, "jdbc/jbpm-ds");
         } catch (Exception e) {
