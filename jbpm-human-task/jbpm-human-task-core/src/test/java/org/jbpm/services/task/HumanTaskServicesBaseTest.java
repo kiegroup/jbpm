@@ -186,7 +186,6 @@ public abstract class HumanTaskServicesBaseTest {
     protected static final String JDBC_URL = "url";
 
     protected static PoolingDataSourceWrapper setupPoolingDataSource() {
-        //Properties dsProps = getDatasourceProperties();
         Properties dsProps = PersistenceUtil.getDatasourceProperties();
         PoolingDataSourceWrapper pds = PersistenceUtil.setupPoolingDataSource(dsProps, "jdbc/jbpm-ds");
 
