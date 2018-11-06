@@ -16,6 +16,8 @@
 
 package org.jbpm.process.workitem.rest;
 
+import static org.junit.Assert.assertEquals;
+
 import java.net.HttpURLConnection;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,13 +25,10 @@ import java.util.Map;
 import org.drools.core.process.instance.WorkItemManager;
 import org.drools.core.process.instance.impl.DefaultWorkItemManager;
 import org.drools.core.process.instance.impl.WorkItemImpl;
-import org.jbpm.test.AbstractBaseTest;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
-public class RestGeoCodeApiCallWorkItemHandlerTest extends AbstractBaseTest {
+public class RestGeoCodeApiCallWorkItemHandlerTest {
 
     @Test
     @Ignore
