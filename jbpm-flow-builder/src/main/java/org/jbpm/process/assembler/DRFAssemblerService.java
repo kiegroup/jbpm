@@ -18,32 +18,16 @@
 package org.jbpm.process.assembler;
 
 import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
-import org.drools.compiler.compiler.BPMN2ProcessFactory;
-import org.drools.compiler.compiler.ProcessBuilder;
-import org.drools.compiler.compiler.ProcessBuilderFactory;
-import org.kie.api.internal.assembler.KieAssemblerService;
-import org.kie.api.io.Resource;
-import org.kie.api.io.ResourceConfiguration;
 import org.kie.api.io.ResourceType;
 
-public class DRFAssemblerService implements KieAssemblerService {
+public class DRFAssemblerService extends AbstractProcessAssembler {
 
     @Override
     public ResourceType getResourceType() {
         return ResourceType.DRF;
     }
 
-    public void addResource(
-            Object kbuilder,
-            Resource resource,
-            ResourceType type,
-            ResourceConfiguration configuration) throws Exception {
-
-        KnowledgeBuilderImpl kb = (KnowledgeBuilderImpl) kbuilder;
-        ProcessBuilder processBuilder =
-                ProcessBuilderFactory.newProcessBuilder(kb);
-//        BPMN2ProcessFactory.configurePackageBuilder(kb);
-        processBuilder.addProcessFromXml(resource);
+    @Override
+    protected void configurePackageBuilder(KnowledgeBuilderImpl kb) {
     }
-
 }

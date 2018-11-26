@@ -15,21 +15,22 @@
  * limitations under the License.
  */
 
-package org.jbpm.process.assembler;
+package org.jbpm.casemgmt.cmmn.assembler;
 
 import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
-import org.drools.compiler.compiler.BPMN2ProcessFactory;
+import org.drools.compiler.compiler.CMMNCaseFactory;
+import org.jbpm.process.assembler.AbstractProcessAssembler;
 import org.kie.api.io.ResourceType;
 
-public class BPMN2AssemblerService extends AbstractProcessAssembler {
+public class CMMNAssemblerService extends AbstractProcessAssembler {
 
     @Override
     public ResourceType getResourceType() {
-        return ResourceType.BPMN2;
+        return ResourceType.CMMN;
     }
 
     @Override
     protected void configurePackageBuilder(KnowledgeBuilderImpl kb) {
-        BPMN2ProcessFactory.configurePackageBuilder(kb);
+        CMMNCaseFactory.configurePackageBuilder(kb);
     }
 }
