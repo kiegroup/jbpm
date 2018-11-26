@@ -23,6 +23,7 @@ import org.drools.compiler.lang.descr.BaseDescr;
 import org.drools.compiler.lang.descr.ProcessDescr;
 import org.drools.compiler.rule.builder.PackageBuildContext;
 import org.drools.core.definitions.InternalKnowledgePackage;
+import org.jbpm.process.assembler.ProcessPackage;
 import org.kie.api.definition.process.Process;
 
 public class ProcessBuildContext extends PackageBuildContext {

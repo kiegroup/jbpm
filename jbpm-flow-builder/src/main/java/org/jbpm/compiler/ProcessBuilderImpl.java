@@ -42,6 +42,7 @@ import org.drools.core.definitions.InternalKnowledgePackage;
 import org.jbpm.compiler.xml.ProcessSemanticModule;
 import org.jbpm.compiler.xml.XmlProcessReader;
 import org.jbpm.compiler.xml.processes.RuleFlowMigrator;
+import org.jbpm.process.assembler.ProcessPackage;
 import org.jbpm.process.builder.ProcessBuildContext;
 import org.jbpm.process.builder.ProcessNodeBuilder;
 import org.jbpm.process.builder.ProcessNodeBuilderRegistry;
@@ -76,7 +77,9 @@ import org.kie.api.definition.process.Node;
 import org.kie.api.definition.process.NodeContainer;
 import org.kie.api.definition.process.Process;
 import org.kie.api.definition.process.WorkflowProcess;
+import org.kie.api.internal.io.ResourceTypePackage;
 import org.kie.api.io.Resource;
+import org.kie.api.io.ResourceType;
 import org.kie.internal.builder.KnowledgeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -149,9 +152,18 @@ public class ProcessBuilderImpl implements org.drools.compiler.compiler.ProcessB
 
             PackageRegistry pkgRegistry = this.knowledgeBuilder.getPackageRegistry(process.getPackageName());
 			if (pkgRegistry != null) {
-				InternalKnowledgePackage p = pkgRegistry.getPackage();
+                InternalKnowledgePackage p = pkgRegistry.getPackage();
+                Map<ResourceType, ResourceTypePackage> resourceTypePackages = p.getResourceTypePackages();
+                ResourceType resourceType = process.getResource().getResourceType();
+                ProcessPackage rpkg = (ProcessPackage)
+                        resourceTypePackages
+                                .get(resourceType);
 
-				if (p != null) {
+                if (rpkg == null) {
+                    resourceTypePackages.put(resourceType, new ProcessPackage(resourceType));
+                }
+
+                if (rpkg != null) {
 				    if( validator != null ) {
 				        // NPE for validator
 				        if (validator.compilationSupported()) {
@@ -176,7 +188,7 @@ public class ProcessBuilderImpl implements org.drools.compiler.compiler.ProcessB
 				                buildNodes( (WorkflowProcess) process, buildContext );
 				            }
 				        }
-				        Process duplicateProcess = p.getRuleFlows().get(process.getId());
+				        Process duplicateProcess = rpkg.getRuleFlows().get(process.getId());
 				        if (duplicateProcess != null) {
 				            Resource duplicatedResource = duplicateProcess.getResource();
 				            if (resource == null || duplicatedResource == null || duplicatedResource.getSourcePath() == null ||
@@ -190,7 +202,7 @@ public class ProcessBuilderImpl implements org.drools.compiler.compiler.ProcessB
 				                        -1 ) );
 				            }
 				        }
-				        p.addProcess( process );
+				        rpkg.addProcess( process );
 				        // NPE for validator
 				        if (validator.compilationSupported()) {
 				            pkgRegistry.compileAll();
