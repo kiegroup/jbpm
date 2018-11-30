@@ -36,6 +36,7 @@ import org.drools.compiler.compiler.PackageRegistry;
 import org.drools.compiler.compiler.ParserError;
 import org.drools.compiler.compiler.ProcessLoadError;
 import org.drools.compiler.lang.descr.ActionDescr;
+import org.drools.compiler.lang.descr.PackageDescr;
 import org.drools.compiler.lang.descr.ProcessDescr;
 import org.drools.compiler.rule.builder.dialect.java.JavaDialect;
 import org.drools.core.definitions.InternalKnowledgePackage;
@@ -150,7 +151,7 @@ public class ProcessBuilderImpl implements org.drools.compiler.compiler.ProcessB
                 logger.error("DroolsParserException during addPackageFromDRL", e);
             }
 
-            PackageRegistry pkgRegistry = this.knowledgeBuilder.getPackageRegistry(process.getPackageName());
+            PackageRegistry pkgRegistry = this.knowledgeBuilder.getOrCreatePackageRegistry(new PackageDescr("$$PROCESS$$"));
 			if (pkgRegistry != null) {
                 InternalKnowledgePackage p = pkgRegistry.getPackage();
                 Map<ResourceType, ResourceTypePackage> resourceTypePackages = p.getResourceTypePackages();
@@ -160,56 +161,55 @@ public class ProcessBuilderImpl implements org.drools.compiler.compiler.ProcessB
                                 .get(resourceType);
 
                 if (rpkg == null) {
-                    resourceTypePackages.put(resourceType, new ProcessPackage(resourceType));
+                    rpkg = new ProcessPackage(resourceType);
+                    resourceTypePackages.put(resourceType, rpkg);
                 }
 
-                if (rpkg != null) {
-				    if( validator != null ) {
-				        // NPE for validator
-				        if (validator.compilationSupported()) {
-				            ProcessDescr processDescr = new ProcessDescr();
-				            processDescr.setName(process.getPackageName() + "." + process.getName());
-				            processDescr.setResource( resource );
-				            processDescr.setProcessId( process.getId() );
-				            DialectCompiletimeRegistry dialectRegistry = pkgRegistry.getDialectCompiletimeRegistry();
-				            Dialect dialect = dialectRegistry.getDialect( "java" );
-				            dialect.init(processDescr);
+                if( validator != null ) {
+                    // NPE for validator
+                    if (validator.compilationSupported()) {
+                        ProcessDescr processDescr = new ProcessDescr();
+                        processDescr.setName(process.getPackageName() + "." + process.getName());
+                        processDescr.setResource( resource );
+                        processDescr.setProcessId( process.getId() );
+                        DialectCompiletimeRegistry dialectRegistry = pkgRegistry.getDialectCompiletimeRegistry();
+                        Dialect dialect = dialectRegistry.getDialect( "java" );
+                        dialect.init(processDescr);
 
-				            ProcessBuildContext buildContext = new ProcessBuildContext(
-				                    this.knowledgeBuilder,
-				                    p,
-				                    process,
-				                    processDescr,
-				                    dialectRegistry,
-				                    dialect);
+                        ProcessBuildContext buildContext = new ProcessBuildContext(
+                                this.knowledgeBuilder,
+                                p,
+                                process,
+                                processDescr,
+                                dialectRegistry,
+                                dialect);
 
-				            buildContexts( ( ContextContainer ) process, buildContext );
-				            if (process instanceof WorkflowProcess) {
-				                buildNodes( (WorkflowProcess) process, buildContext );
-				            }
-				        }
-				        Process duplicateProcess = rpkg.getRuleFlows().get(process.getId());
-				        if (duplicateProcess != null) {
-				            Resource duplicatedResource = duplicateProcess.getResource();
-				            if (resource == null || duplicatedResource == null || duplicatedResource.getSourcePath() == null ||
-				                    duplicatedResource.getSourcePath().equals(resource.getSourcePath())) {
-				                this.errors.add(new DuplicateProcess(process,
-				                        this.knowledgeBuilder.getBuilderConfiguration()));
-				            } else {
-				                this.errors.add( new ParserError( resource,
-				                        "Process with same id already exists: " + process.getId(),
-				                        -1,
-				                        -1 ) );
-				            }
-				        }
-				        rpkg.addProcess( process );
-				        // NPE for validator
-				        if (validator.compilationSupported()) {
-				            pkgRegistry.compileAll();
-				            pkgRegistry.getDialectRuntimeRegistry().onBeforeExecute();
-				        }
-				    }
-				}
+                        buildContexts( ( ContextContainer ) process, buildContext );
+                        if (process instanceof WorkflowProcess) {
+                            buildNodes( (WorkflowProcess) process, buildContext );
+                        }
+                    }
+                    Process duplicateProcess = rpkg.getRuleFlows().get(process.getId());
+                    if (duplicateProcess != null) {
+                        Resource duplicatedResource = duplicateProcess.getResource();
+                        if (resource == null || duplicatedResource == null || duplicatedResource.getSourcePath() == null ||
+                                duplicatedResource.getSourcePath().equals(resource.getSourcePath())) {
+                            this.errors.add(new DuplicateProcess(process,
+                                    this.knowledgeBuilder.getBuilderConfiguration()));
+                        } else {
+                            this.errors.add( new ParserError( resource,
+                                    "Process with same id already exists: " + process.getId(),
+                                    -1,
+                                    -1 ) );
+                        }
+                    }
+                    rpkg.addProcess( process );
+                    // NPE for validator
+                    if (validator.compilationSupported()) {
+                        pkgRegistry.compileAll();
+                        pkgRegistry.getDialectRuntimeRegistry().onBeforeExecute();
+                    }
+                }
 	        } else {
 				// invalid package registry..there is an issue with the package
 				// name of the process

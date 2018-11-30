@@ -21,11 +21,16 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import org.drools.core.SessionConfiguration;
 import org.drools.core.common.InternalKnowledgeRuntime;
 import org.drools.core.common.InternalWorkingMemory;
 import org.drools.core.common.WorkingMemoryAction;
+import org.drools.core.definitions.InternalKnowledgePackage;
+import org.drools.core.definitions.impl.KnowledgePackageImpl;
 import org.drools.core.definitions.rule.impl.RuleImpl;
 import org.drools.core.event.ProcessEventSupport;
 import org.drools.core.impl.InternalKnowledgeBase;
@@ -38,6 +43,7 @@ import org.drools.core.time.TimerService;
 import org.drools.core.time.impl.CommandServiceTimerJobFactoryManager;
 import org.drools.core.time.impl.CronExpression;
 import org.drools.core.time.impl.ThreadSafeTrackableTimeJobFactoryManager;
+import org.jbpm.process.assembler.ProcessPackage;
 import org.jbpm.process.core.event.EventFilter;
 import org.jbpm.process.core.event.EventTransformer;
 import org.jbpm.process.core.event.EventTypeFilter;
@@ -60,6 +66,7 @@ import org.kie.api.event.process.ProcessEventListener;
 import org.kie.api.event.rule.DefaultAgendaEventListener;
 import org.kie.api.event.rule.MatchCreatedEvent;
 import org.kie.api.event.rule.RuleFlowGroupDeactivatedEvent;
+import org.kie.api.io.ResourceType;
 import org.kie.api.runtime.Context;
 import org.kie.api.runtime.EnvironmentName;
 import org.kie.api.runtime.KieSession;
@@ -74,6 +81,8 @@ import org.kie.internal.runtime.StatefulKnowledgeSession;
 import org.kie.internal.runtime.manager.context.CaseContext;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 import org.kie.internal.utils.CompositeClassLoader;
+
+import static java.util.stream.Collectors.toList;
 
 public class ProcessRuntimeImpl implements InternalProcessRuntime {
 	
@@ -105,7 +114,7 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
 	
 	public void initStartTimers() {
 	    KieBase kbase = kruntime.getKieBase();
-        Collection<Process> processes = kbase.getProcesses();
+        Collection<Process> processes = getProcesses();
         for (Process process : processes) {
             RuleFlowProcess p = (RuleFlowProcess) process;
             List<StartNode> startNodes = p.getTimerStart();
@@ -115,7 +124,24 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
         }
     }
 
-	public ProcessRuntimeImpl(InternalWorkingMemory workingMemory) {
+    private Stream<Process> getProcessStream() {
+        return kruntime.getKieBase().getKiePackages().stream()
+                .map(InternalKnowledgePackage.class::cast)
+                .map(pkg -> pkg.getResourceTypePackages().get(ResourceType.BPMN2))
+                .filter(Objects::nonNull)
+                .map(ProcessPackage.class::cast)
+                .flatMap(ppkg -> ppkg.getRuleFlows().values().stream());
+    }
+
+    protected Collection<Process> getProcesses() {
+        return getProcessStream().collect(toList());
+    }
+
+    protected Process getProcess(String processId) {
+        return getProcessStream().filter(p -> p.getId().equals(processId)).findFirst().orElse(null);
+    }
+
+    public ProcessRuntimeImpl(InternalWorkingMemory workingMemory) {
         TimerService timerService = workingMemory.getTimerService();
         if ( !(timerService.getTimerJobFactoryManager() instanceof CommandServiceTimerJobFactoryManager) ) {
             timerService.setTimerJobFactoryManager( new ThreadSafeTrackableTimeJobFactoryManager() );
@@ -235,7 +261,7 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
         try {
             kruntime.startOperation();
 
-            final Process process = kruntime.getKieBase().getProcess( processId );
+            final Process process = getProcess(processId);
             if ( process == null ) {
                 throw new IllegalArgumentException( "Unknown process ID: " + processId );
             }
@@ -292,13 +318,13 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
     }
     
     public void initProcessEventListeners() {
-        for ( Process process : kruntime.getKieBase().getProcesses() ) {
+        for ( Process process : getProcesses()) {
             initProcessEventListener(process);
         }
     }
     
     public void removeProcessEventListeners() {
-        for ( Process process : kruntime.getKieBase().getProcesses() ) {
+        for ( Process process : getProcesses()) {
             removeProcessEventListener(process);
         }
     }

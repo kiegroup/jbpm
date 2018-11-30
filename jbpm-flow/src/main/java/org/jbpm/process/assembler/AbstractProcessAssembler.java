@@ -3,18 +3,15 @@ package org.jbpm.process.assembler;
 import java.util.List;
 
 import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
-import org.drools.compiler.compiler.BPMN2ProcessFactory;
 import org.drools.compiler.compiler.BaseKnowledgeBuilderResultImpl;
 import org.drools.compiler.compiler.ProcessBuilder;
 import org.drools.compiler.compiler.ProcessLoadError;
 import org.drools.core.impl.InternalKnowledgeBase;
-import org.kie.api.cdi.KBase;
 import org.kie.api.definition.process.Process;
 import org.kie.api.internal.assembler.KieAssemblerService;
 import org.kie.api.io.Resource;
 import org.kie.api.io.ResourceConfiguration;
 import org.kie.api.io.ResourceType;
-import org.kie.internal.builder.ResourceChange;
 
 public abstract class AbstractProcessAssembler implements KieAssemblerService {
 
