@@ -29,4 +29,16 @@
     <module>jbpm-container-test-suite</module>
   </modules>
 
+  <dependencies>
+    <dependency>
+      <groupId>javax.xml.ws</groupId>
+      <artifactId>jaxws-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.sun.xml.ws</groupId>
+      <artifactId>jaxws-tools</artifactId>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
 </project>
