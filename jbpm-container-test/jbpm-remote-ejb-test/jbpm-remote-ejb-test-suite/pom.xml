@@ -314,10 +314,16 @@
       <groupId>javax.xml.ws</groupId>
       <artifactId>jaxws-api</artifactId>
       <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>javax.xml.bind</groupId>
+          <artifactId>jaxb-api</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
-      <groupId>com.sun.xml.ws</groupId>
-      <artifactId>jaxws-tools</artifactId>
+      <groupId>javax.jws</groupId>
+      <artifactId>javax.jws-api</artifactId>
       <scope>provided</scope>
     </dependency>
   </dependencies>
