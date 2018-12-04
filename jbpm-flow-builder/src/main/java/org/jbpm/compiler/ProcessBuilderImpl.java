@@ -40,10 +40,11 @@ import org.drools.compiler.lang.descr.PackageDescr;
 import org.drools.compiler.lang.descr.ProcessDescr;
 import org.drools.compiler.rule.builder.dialect.java.JavaDialect;
 import org.drools.core.definitions.InternalKnowledgePackage;
+import org.drools.core.definitions.ProcessPackage;
+import org.drools.core.definitions.ResourceTypePackageRegistry;
 import org.jbpm.compiler.xml.ProcessSemanticModule;
 import org.jbpm.compiler.xml.XmlProcessReader;
 import org.jbpm.compiler.xml.processes.RuleFlowMigrator;
-import org.jbpm.process.assembler.ProcessPackage;
 import org.jbpm.process.builder.ProcessBuildContext;
 import org.jbpm.process.builder.ProcessNodeBuilder;
 import org.jbpm.process.builder.ProcessNodeBuilderRegistry;
@@ -78,7 +79,6 @@ import org.kie.api.definition.process.Node;
 import org.kie.api.definition.process.NodeContainer;
 import org.kie.api.definition.process.Process;
 import org.kie.api.definition.process.WorkflowProcess;
-import org.kie.api.internal.io.ResourceTypePackage;
 import org.kie.api.io.Resource;
 import org.kie.api.io.ResourceType;
 import org.kie.internal.builder.KnowledgeBuilder;
@@ -154,7 +154,7 @@ public class ProcessBuilderImpl implements org.drools.compiler.compiler.ProcessB
             PackageRegistry pkgRegistry = this.knowledgeBuilder.getOrCreatePackageRegistry(new PackageDescr("$$PROCESS$$"));
 			if (pkgRegistry != null) {
                 InternalKnowledgePackage p = pkgRegistry.getPackage();
-                Map<ResourceType, ResourceTypePackage> resourceTypePackages = p.getResourceTypePackages();
+                ResourceTypePackageRegistry resourceTypePackages = p.getResourceTypePackages();
                 ResourceType resourceType = process.getResource().getResourceType();
                 ProcessPackage rpkg = (ProcessPackage)
                         resourceTypePackages
@@ -306,7 +306,7 @@ public class ProcessBuilderImpl implements org.drools.compiler.compiler.ProcessB
                 }
             } else {
                 // @TODO could we maybe add something a bit more informative about what is wrong with the XML ?
-                this.errors.add( new ProcessLoadError( resource, "unable to parse xml", null ) );
+                this.errors.add( new ProcessLoadError(resource, "unable to parse xml", null ) );
             }
         } catch ( FactoryConfigurationError e1 ) {
             this.errors.add( new ProcessLoadError( resource, "FactoryConfigurationError ", e1.getException()) );
@@ -319,7 +319,6 @@ public class ProcessBuilderImpl implements org.drools.compiler.compiler.ProcessB
 
         return processes;
     }
-
 
     /*************************************************************************
      * Converts a drools version 4 .rf or .rfm ruleflow to a version 5 .rf.
