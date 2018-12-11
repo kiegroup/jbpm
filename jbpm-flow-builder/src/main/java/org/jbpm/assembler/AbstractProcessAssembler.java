@@ -16,10 +16,12 @@
 
 package org.jbpm.assembler;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
 import org.drools.compiler.compiler.BaseKnowledgeBuilderResultImpl;
+import org.drools.compiler.compiler.PackageRegistry;
 import org.drools.compiler.compiler.ProcessLoadError;
 import org.drools.core.impl.InternalKnowledgeBase;
 import org.jbpm.compiler.ProcessBuilderImpl;
@@ -28,6 +30,7 @@ import org.kie.api.internal.assembler.KieAssemblerService;
 import org.kie.api.io.Resource;
 import org.kie.api.io.ResourceConfiguration;
 import org.kie.api.io.ResourceType;
+import org.kie.internal.builder.KnowledgeBuilderResult;
 
 public abstract class AbstractProcessAssembler implements KieAssemblerService {
 
@@ -62,7 +65,13 @@ public abstract class AbstractProcessAssembler implements KieAssemblerService {
             kb.addBuilderResult(new ProcessLoadError(resource, "Unable to load process.", e));
         }
 
-
+        // propagate dialect errors to process building errors
+        for (PackageRegistry pkg : kb.getPackageRegistry().values()) {
+            // addResults() method, contrary to what could be expectations,
+            // *adds* the result to the *given* list
+            List<KnowledgeBuilderResult> es = pkg.getDialectCompiletimeRegistry().addResults(null);
+            es.forEach(kb::addBuilderResult);
+        }
 
     }
 
