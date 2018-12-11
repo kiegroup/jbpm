@@ -151,19 +151,11 @@ public class ProcessBuilderImpl implements org.drools.compiler.compiler.ProcessB
                 logger.error("DroolsParserException during addPackageFromDRL", e);
             }
 
-            PackageRegistry pkgRegistry = this.knowledgeBuilder.getOrCreatePackageRegistry(new PackageDescr("$$PROCESS$$"));
+            PackageRegistry pkgRegistry = this.knowledgeBuilder.getOrCreatePackageRegistry(new PackageDescr(process.getPackageName()));
 			if (pkgRegistry != null) {
                 InternalKnowledgePackage p = pkgRegistry.getPackage();
                 ResourceTypePackageRegistry resourceTypePackages = p.getResourceTypePackages();
-                ResourceType resourceType = process.getResource().getResourceType();
-                ProcessPackage rpkg = (ProcessPackage)
-                        resourceTypePackages
-                                .get(resourceType);
-
-                if (rpkg == null) {
-                    rpkg = new ProcessPackage(resourceType);
-                    resourceTypePackages.put(resourceType, rpkg);
-                }
+                ProcessPackage rpkg = ProcessPackage.getOrCreate(resourceTypePackages);
 
                 if( validator != null ) {
                     // NPE for validator
@@ -203,7 +195,7 @@ public class ProcessBuilderImpl implements org.drools.compiler.compiler.ProcessB
                                     -1 ) );
                         }
                     }
-                    rpkg.addProcess( process );
+                    rpkg.add( process );
                     // NPE for validator
                     if (validator.compilationSupported()) {
                         pkgRegistry.compileAll();

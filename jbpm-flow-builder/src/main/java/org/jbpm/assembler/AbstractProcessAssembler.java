@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package org.jbpm.process.assembler;
+package org.jbpm.assembler;
 
 import java.util.List;
 
 import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
 import org.drools.compiler.compiler.BaseKnowledgeBuilderResultImpl;
-import org.drools.compiler.compiler.ProcessBuilder;
 import org.drools.compiler.compiler.ProcessLoadError;
 import org.drools.core.impl.InternalKnowledgeBase;
+import org.jbpm.compiler.ProcessBuilderImpl;
 import org.kie.api.definition.process.Process;
 import org.kie.api.internal.assembler.KieAssemblerService;
 import org.kie.api.io.Resource;
@@ -38,7 +38,7 @@ public abstract class AbstractProcessAssembler implements KieAssemblerService {
             ResourceConfiguration configuration) throws Exception {
 
         KnowledgeBuilderImpl kb = (KnowledgeBuilderImpl) kbuilder;
-        ProcessBuilder processBuilder = kb.getProcessBuilder();
+        ProcessBuilderImpl processBuilder = (ProcessBuilderImpl) kb.getProcessBuilder();
         configurePackageBuilder(kb);
         processBuilder.addProcessFromXml(resource);
 
@@ -50,9 +50,7 @@ public abstract class AbstractProcessAssembler implements KieAssemblerService {
             if (errors.isEmpty()) {
                 if (kBase != null && processes != null) {
                     for (Process process : processes) {
-                        //if (kb.filterAccepts(ResourceChange.Type.PROCESS, process.getNamespace(), process.getId())) {
-                            kBase.addProcess(process);
-                        //}
+                        kBase.addProcess(process);
                     }
                 }
             } else {

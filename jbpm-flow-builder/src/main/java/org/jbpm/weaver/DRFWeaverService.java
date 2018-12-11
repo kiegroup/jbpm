@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.jbpm.process.weaver;
+package org.jbpm.weaver;
 
 import org.kie.api.io.ResourceType;
 

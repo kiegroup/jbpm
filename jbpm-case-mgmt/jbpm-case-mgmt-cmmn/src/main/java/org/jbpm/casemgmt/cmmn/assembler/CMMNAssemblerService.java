@@ -18,7 +18,7 @@ package org.jbpm.casemgmt.cmmn.assembler;
 
 import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
 import org.drools.compiler.compiler.CMMNCaseFactory;
-import org.jbpm.process.assembler.AbstractProcessAssembler;
+import org.jbpm.assembler.AbstractProcessAssembler;
 import org.kie.api.io.ResourceType;
 
 public class CMMNAssemblerService extends AbstractProcessAssembler {
