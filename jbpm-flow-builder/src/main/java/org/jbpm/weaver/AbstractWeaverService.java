@@ -26,9 +26,8 @@ public abstract class AbstractWeaverService implements KieWeaverService<ProcessP
 
     @Override
     public void merge(KieBase kieBase, KiePackage kiePkg, ProcessPackage processPkg) {
-        ProcessPackage existing = ((InternalKnowledgePackage) kiePkg).getResourceTypePackages().computeIfAbsent(
-                processPkg.getResourceType(), ProcessPackage::new);
-
+        ProcessPackage existing =
+                ProcessPackage.getOrCreate(((InternalKnowledgePackage) kiePkg).getResourceTypePackages());
         existing.getRuleFlows().putAll(processPkg.getRuleFlows());
     }
 
