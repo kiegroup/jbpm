@@ -40,14 +40,12 @@ public abstract class AbstractProcessAssembler implements KieAssemblerService {
         KnowledgeBuilderImpl kb = (KnowledgeBuilderImpl) kbuilder;
         ProcessBuilderImpl processBuilder = (ProcessBuilderImpl) kb.getProcessBuilder();
         configurePackageBuilder(kb);
-        processBuilder.addProcessFromXml(resource);
-
-        InternalKnowledgeBase kBase = kb.getKnowledgeBase();
 
         try {
             List<Process> processes = processBuilder.addProcessFromXml(resource);
             List<BaseKnowledgeBuilderResultImpl> errors = processBuilder.getErrors();
             if (errors.isEmpty()) {
+                InternalKnowledgeBase kBase = kb.getKnowledgeBase();
                 if (kBase != null && processes != null) {
                     for (Process process : processes) {
                         kBase.addProcess(process);
