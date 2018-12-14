@@ -296,6 +296,52 @@ public class WidProcessorTest {
                     "}"
     );
 
+    private static final JavaFileObject source3ServiceWithModelAndVersion = JavaFileObjects.forSourceLines(
+            "org.jbpm.process.workitem.core.util.MyTestClass",
+            "package org.jbpm.process.workitem.core.util;\n" +
+                    "\n" +
+                    "import org.jbpm.process.workitem.core.util.Wid;\n" +
+                    "import org.jbpm.process.workitem.core.util.WidParameter;\n" +
+                    "import org.jbpm.process.workitem.core.util.WidResult;\n" +
+                    "import org.jbpm.process.workitem.core.util.WidMavenDepends;\n" +
+                    "import org.jbpm.process.workitem.core.util.service.WidService;\n" +
+                    "import org.jbpm.process.workitem.core.util.service.WidAction;\n" +
+                    "import org.jbpm.process.workitem.core.util.service.WidAuth;\n" +
+                    "\n" +
+                    "@Wid(widfile = \"mywidfile.wid\", name = \"MyTest\",\n" +
+                    "        displayName = \"My Test Class\", icon = \"/my/icons/myicon.png\",\n" +
+                    "        defaultHandler = \"mvel: new com.sample.MyWorkItemHandler(\\\"testAccessToken\\\")\",\n" +
+                    "        module = \"testModule\", version = \"1.0-SNAPSHOT\",\n" +
+                    "        parameters = {\n" +
+                    "                @WidParameter(name = \"sampleParam\", required = true),\n" +
+                    "                @WidParameter(name = \"sampleParamTwo\", required = true)\n" +
+                    "        },\n" +
+                    "        parameterValues = {\n" +
+                    "                @WidParameterValues(parameterName = \"sampleParam\", values = \"a,b,c,d,e\"),\n" +
+                    "                @WidParameterValues(parameterName = \"sampleParamTwo\", values = \"1,2,3,4,5\")\n" +
+                    "        },\n" +
+                    "        results = {\n" +
+                    "                @WidResult(name = \"sampleResult\")\n" +
+                    "        },\n" +
+                    "        mavenDepends = {\n" +
+                    "                @WidMavenDepends(group = \"org.jboss\", artifact = \"myworkitem\", version = \"1.0\")\n" +
+                    "        },\n" +
+                    "        serviceInfo = @WidService(category = \"testService\",\n" +
+                    "                description = \"testServiceDescription\",\n" +
+                    "                keywords = \"a,b,c,d,e\",\n" +
+                    "                action = @WidAction(title = \"testServiceAction\", description = \"testServiceActionDesc\", requiredFieldsOnly = false),\n" +
+                    "                authinfo = @WidAuth(required = true, params = {\"testAccessToken\"},\n" +
+                    "                        paramsdescription = {\"Test access token\"},\n" +
+                    "                        description = \"test description\",\n" +
+                    "                        referencesite = \"https://test.developer.com\")" +
+                    "        )\n" +
+                    "\n" +
+                    ")\n" +
+                    "public class MyTestClass {\n" +
+                    "    // do nothing\n" +
+                    "}"
+    );
+
     private WidProcessor widProcessor = new WidProcessor();
 
     @Test
@@ -952,6 +998,140 @@ public class WidProcessorTest {
                      widInfoObj.getDefaultHandlerNoType());
         assertEquals("new com.sample.MyWorkItemHandler(\"testAccessToken\")",
                      widInfoObj.getDefaultHandlerNoTypeUnEscaped());
+    }
+
+    @Test
+    public void testWidAnnotationResultsWithModelAndVersion() throws Exception {
+        Map<String, List<Wid>> processingResults = new HashMap<>();
+
+        widProcessor.setProcessingResults(processingResults);
+        widProcessor.setResetResults(false);
+
+        Compiler compiler = compileWithGenerator();
+        compiler.compile(source3ServiceWithModelAndVersion);
+
+        assertNotNull(processingResults);
+        assertEquals(1,
+                     processingResults.keySet().size());
+
+        List<Wid> widInfoList = processingResults.get("org.jbpm.process.workitem.core.util.MyTestClass");
+        assertNotNull(widInfoList);
+        assertEquals(1,
+                     widInfoList.size());
+
+        Wid widInfo = widInfoList.get(0);
+        assertEquals("MyTest",
+                     widInfo.name());
+        assertEquals("My Test Class",
+                     widInfo.displayName());
+        assertEquals("/my/icons/myicon.png",
+                     widInfo.icon());
+        assertEquals("mywidfile.wid",
+                     widInfo.widfile());
+        assertEquals("mvel: new com.sample.MyWorkItemHandler(\"testAccessToken\")",
+                     widInfo.defaultHandler());
+
+        WidParameter[] widParameters = widInfo.parameters();
+        assertEquals(2,
+                     widParameters.length);
+        assertEquals("sampleParam",
+                     widParameters[0].name());
+        assertTrue(widParameters[0].required());
+        assertEquals("new StringDataType()",
+                     widParameters[0].type());
+        assertEquals("String",
+                     widParameters[0].runtimeType());
+        assertEquals("sampleParamTwo",
+                     widParameters[1].name());
+        assertTrue(widParameters[1].required());
+        assertEquals("new StringDataType()",
+                     widParameters[1].type());
+        assertEquals("String",
+                     widParameters[1].runtimeType());
+
+        WidResult[] widResults = widInfo.results();
+        assertEquals(1,
+                     widResults.length);
+        assertEquals("sampleResult",
+                     widResults[0].name());
+        assertEquals("new StringDataType()",
+                     widResults[0].type());
+        assertEquals("String",
+                     widParameters[0].runtimeType());
+
+        WidParameterValues[] widParameterValues = widInfo.parameterValues();
+        assertEquals(2,
+                     widParameterValues.length);
+        assertEquals("sampleParam",
+                     widParameterValues[0].parameterName());
+        assertEquals("a,b,c,d,e",
+                     widParameterValues[0].values());
+        assertEquals("sampleParamTwo",
+                     widParameterValues[1].parameterName());
+        assertEquals("1,2,3,4,5",
+                     widParameterValues[1].values());
+
+        WidMavenDepends[] widMavenDepends = widInfo.mavenDepends();
+        assertEquals(1,
+                     widMavenDepends.length);
+        assertEquals("org.jboss",
+                     widMavenDepends[0].group());
+        assertEquals("myworkitem",
+                     widMavenDepends[0].artifact());
+        assertEquals("1.0",
+                     widMavenDepends[0].version());
+
+        // no service info specified - test for defaults
+        WidService service = widInfo.serviceInfo();
+        assertEquals("testService",
+                     service.category());
+        assertEquals("testServiceDescription",
+                     service.description());
+        assertEquals("a,b,c,d,e",
+                     service.keywords());
+
+        assertNotNull(service.trigger());
+        assertNotNull(service.action());
+
+        assertEquals("",
+                     service.trigger().title());
+        assertEquals("",
+                     service.trigger().description());
+
+        assertEquals("testServiceAction",
+                     service.action().title());
+        assertEquals("testServiceActionDesc",
+                     service.action().description());
+        assertFalse(service.action().requiredFieldsOnly());
+
+        assertTrue(service.authinfo().required());
+        assertNotNull(service.authinfo().params());
+        assertEquals(1,
+                     service.authinfo().params().length);
+        assertNotNull(service.authinfo().paramsdescription());
+        assertEquals(1,
+                     service.authinfo().paramsdescription().length);
+        assertNotNull(service.authinfo().description());
+        assertEquals("test description",
+                     service.authinfo().description());
+        assertNotNull(service.authinfo().referencesite());
+        assertEquals("https://test.developer.com",
+                     service.authinfo().referencesite());
+
+        WidInfo widInfoObj = new WidInfo(widInfoList);
+        assertNotNull(widInfoObj);
+        assertEquals("mvel: new com.sample.MyWorkItemHandler(\\\"testAccessToken\\\")",
+                     widInfoObj.getDefaultHandler());
+        assertEquals("mvel: new com.sample.MyWorkItemHandler(\"testAccessToken\")",
+                     widInfoObj.getDefaultHandlerUnEscaped());
+        assertEquals("new com.sample.MyWorkItemHandler(\\\"testAccessToken\\\")",
+                     widInfoObj.getDefaultHandlerNoType());
+        assertEquals("new com.sample.MyWorkItemHandler(\"testAccessToken\")",
+                     widInfoObj.getDefaultHandlerNoTypeUnEscaped());
+
+
+        assertEquals("testModule", widInfo.module());
+        assertEquals("1.0-SNAPSHOT", widInfo.version());
     }
 
     private Compiler compileWithGenerator() {

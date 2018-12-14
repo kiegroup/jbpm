@@ -50,6 +50,10 @@ public @interface Wid {
 
     String documentation() default "";
 
+    String module() default "";
+
+    String version() default "";
+
     WidParameter[] parameters() default {};
 
     WidParameterValues[] parameterValues() default {};
