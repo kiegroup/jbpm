@@ -71,7 +71,9 @@ public class JBossUserGroupCallbackImpl extends AbstractUserGroupInfo implements
 		while (it.hasNext()) {
 			String userId = (String) it.next();
 			
-			groups = Arrays.asList(userGroups.getProperty(userId, "").split(separator));
+			String[] groupsArray = userGroups.getProperty(userId, "").split(separator);
+			groups = new ArrayList();
+			Collections.addAll(groups, groupsArray);
 			groupStore.put(userId, groups);
 			allgroups.addAll(groups);
 			
