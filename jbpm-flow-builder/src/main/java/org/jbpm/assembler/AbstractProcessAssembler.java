@@ -16,7 +16,6 @@
 
 package org.jbpm.assembler;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
@@ -38,7 +37,7 @@ public abstract class AbstractProcessAssembler implements KieAssemblerService {
             Object kbuilder,
             Resource resource,
             ResourceType type,
-            ResourceConfiguration configuration) throws Exception {
+            ResourceConfiguration configuration) {
 
         KnowledgeBuilderImpl kb = (KnowledgeBuilderImpl) kbuilder;
         ProcessBuilderImpl processBuilder = (ProcessBuilderImpl) kb.getProcessBuilder();
@@ -60,7 +59,7 @@ public abstract class AbstractProcessAssembler implements KieAssemblerService {
             }
         } catch (Exception e) {
             if (e instanceof RuntimeException) {
-                throw e;
+                throw (RuntimeException) e;
             }
             kb.addBuilderResult(new ProcessLoadError(resource, "Unable to load process.", e));
         }
@@ -72,9 +71,7 @@ public abstract class AbstractProcessAssembler implements KieAssemblerService {
             List<KnowledgeBuilderResult> es = pkg.getDialectCompiletimeRegistry().addResults(null);
             es.forEach(kb::addBuilderResult);
         }
-
     }
 
     protected abstract void configurePackageBuilder(KnowledgeBuilderImpl kb);
-
 }

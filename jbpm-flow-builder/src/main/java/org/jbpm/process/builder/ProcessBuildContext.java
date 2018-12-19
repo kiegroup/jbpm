@@ -31,7 +31,7 @@ public class ProcessBuildContext extends PackageBuildContext {
     private ProcessDescr processDescr;
     private DialectCompiletimeRegistry dialectRegistry;
 
-    public ProcessBuildContext(final DroolsAssemblerContext pkgBuilder,
+    public ProcessBuildContext(final DroolsAssemblerContext assemblerContext,
                                final InternalKnowledgePackage pkg,
                                final Process process,
                                final BaseDescr processDescr,
@@ -40,7 +40,7 @@ public class ProcessBuildContext extends PackageBuildContext {
         this.process = process;
         this.processDescr = (ProcessDescr) processDescr;
         this.dialectRegistry = dialectRegistry;
-        init( pkgBuilder,
+        init( assemblerContext,
               pkg,
               processDescr,
               dialectRegistry,
