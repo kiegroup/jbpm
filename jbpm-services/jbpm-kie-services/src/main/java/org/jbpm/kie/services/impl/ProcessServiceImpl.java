@@ -190,21 +190,33 @@ public class ProcessServiceImpl implements ProcessService, VariablesAware {
         	disposeRuntimeEngine(manager, engine);
         }
 	}
-	
-	@Override
-    public void abortProcessInstances(List<Long> processInstanceIds) {
-	    for (long processInstanceId : processInstanceIds) {
-            abortProcessInstance(processInstanceId);
-        }
-	}
 
-	@Override
-	public void abortProcessInstances(String deploymentId, List<Long> processInstanceIds) {
-		for (long processInstanceId : processInstanceIds) {
-			abortProcessInstance(deploymentId, processInstanceId);
-		}
-	}
-	
+    @Override
+    public void abortProcessInstances(List<Long> processInstanceIds) {
+        processInstanceIds.stream().filter(processInstanceId -> !hasParentProcessInProcessInstanceList(null, processInstanceId, processInstanceIds))
+                .forEach(processInstanceId -> abortProcessInstance(processInstanceId));
+    }
+
+    @Override
+    public void abortProcessInstances(String deploymentId, List<Long> processInstanceIds) {
+        processInstanceIds.stream().filter(processInstanceId -> !hasParentProcessInProcessInstanceList(deploymentId, processInstanceId, processInstanceIds))
+                .forEach(processInstanceId -> abortProcessInstance(deploymentId, processInstanceId));
+    }
+
+    private boolean hasParentProcessInProcessInstanceList(String deploymentId, long processInstanceId, List<Long> processInstanceIds) {
+        ProcessInstance processInstance = null;
+        if (deploymentId !=null && "".equals(deploymentId)) {
+            processInstance = getProcessInstance(deploymentId, processInstanceId);
+        } else {
+            processInstance = getProcessInstance(processInstanceId);
+        }
+        if (processInstance != null && processInstance.getParentProcessInstanceId() > 0) {
+            boolean result  = processInstanceIds.contains(processInstance.getParentProcessInstanceId());
+            return result;
+        }
+        return false;
+    }
+
 	@Override
     public void signalProcessInstance(Long processInstanceId, String signalName, Object event) {
         ProcessInstanceDesc piDesc = dataService.getProcessInstanceById(processInstanceId);
