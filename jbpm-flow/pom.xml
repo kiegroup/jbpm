@@ -53,6 +53,12 @@
         </plugins>
       </build>
     </profile>
+    <profile>
+      <id>sonarcloud-analysis</id>
+      <properties>
+        <sonar.exclusions>**/JBPMMessages.java</sonar.exclusions>
+      </properties>
+    </profile>
   </profiles>
 
   <build>
