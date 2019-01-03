@@ -193,26 +193,40 @@ public class ProcessServiceImpl implements ProcessService, VariablesAware {
 
     @Override
     public void abortProcessInstances(List<Long> processInstanceIds) {
-        processInstanceIds.stream().filter(processInstanceId -> !hasParentProcessInProcessInstanceList(null, processInstanceId, processInstanceIds))
+        processInstanceIds.stream().filter(processInstanceId -> !hasAbortedParentProcessInProcessInstanceList(null,
+                                                                                                              processInstanceId,
+                                                                                                              processInstanceIds))
                 .forEach(processInstanceId -> abortProcessInstance(processInstanceId));
     }
 
     @Override
     public void abortProcessInstances(String deploymentId, List<Long> processInstanceIds) {
-        processInstanceIds.stream().filter(processInstanceId -> !hasParentProcessInProcessInstanceList(deploymentId, processInstanceId, processInstanceIds))
+        processInstanceIds.stream().filter(processInstanceId -> !hasAbortedParentProcessInProcessInstanceList(deploymentId,
+                                                                                                              processInstanceId,
+                                                                                                              processInstanceIds))
                 .forEach(processInstanceId -> abortProcessInstance(deploymentId, processInstanceId));
     }
 
-    private boolean hasParentProcessInProcessInstanceList(String deploymentId, long processInstanceId, List<Long> processInstanceIds) {
+    protected boolean hasAbortedParentProcessInProcessInstanceList(String deploymentId, long processInstanceId, List<Long> processInstanceIds) {
+        ProcessInstanceDesc parentProcessInstance = null;
         ProcessInstance processInstance = null;
-        if (deploymentId !=null && "".equals(deploymentId)) {
+
+        if (deploymentId != null && "".equals(deploymentId)) {
             processInstance = getProcessInstance(deploymentId, processInstanceId);
         } else {
             processInstance = getProcessInstance(processInstanceId);
         }
-        if (processInstance != null && processInstance.getParentProcessInstanceId() > 0) {
-            boolean result  = processInstanceIds.contains(processInstance.getParentProcessInstanceId());
-            return result;
+
+        if (processInstance == null) {
+            return true;
+        }
+
+        if (processInstance.getParentProcessInstanceId() > 0) {
+            parentProcessInstance = dataService.getProcessInstanceById(processInstance.getParentProcessInstanceId());
+        }
+
+        if (parentProcessInstance != null && (parentProcessInstance.getState() == ProcessInstance.STATE_ABORTED) || parentProcessInstance.getState() == ProcessInstance.STATE_COMPLETED) {
+            return processInstanceIds.contains(parentProcessInstance.getId());
         }
         return false;
     }
