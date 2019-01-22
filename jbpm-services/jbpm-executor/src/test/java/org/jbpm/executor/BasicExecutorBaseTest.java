@@ -622,7 +622,11 @@ public abstract class BasicExecutorBaseTest {
         assertNotNull(executedLow);
         assertEquals("low priority", executedLow.getKey());
         
-        assertTrue(executedLow.getTime().getTime() > executedHigh.getTime().getTime());
+        logger.info("executedLow: {}", executedLow.getTime().getTime());
+        logger.info("executedHigh: {}", executedHigh.getTime().getTime());
+        logger.info("exec difference: {}", (executedLow.getTime().getTime() - executedHigh.getTime().getTime()));
+        
+        assertTrue(executedLow.getTime().getTime() >= executedHigh.getTime().getTime());
     }
     
     @Test(timeout=10000)
