@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2019 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.jbpm.process.workitem.bpmn2;
 
 import java.util.ArrayList;
@@ -24,6 +23,11 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import org.jbpm.process.workitem.core.AbstractLogOrThrowWorkItemHandler;
+import org.jbpm.process.workitem.core.util.Wid;
+import org.jbpm.process.workitem.core.util.WidMavenDepends;
+import org.jbpm.process.workitem.core.util.WidParameter;
+import org.jbpm.process.workitem.core.util.service.WidAction;
+import org.jbpm.process.workitem.core.util.service.WidService;
 import org.kie.api.KieServices;
 import org.kie.api.builder.KieScanner;
 import org.kie.api.command.BatchExecutionCommand;
@@ -70,6 +74,25 @@ import org.slf4j.LoggerFactory;
  * DRL handling is based on same names for data input and output as that is then used as correlation.<br/>
  * DMN handling receives all data from DMNResult.<br/>
  */
+
+@Wid(widfile = "BusinessRuleTaskDefinitions.wid", name = "BusinessRuleTask",
+        displayName = "BusinessRuleTask",
+        defaultHandler = "mvel: new org.jbpm.process.workitem.bpmn2.BusinessRuleTaskHandler(\"groupId\", \"artifactId\", \"version\")",
+        documentation = "${artifactId}/index.html",
+        category = "${artifactId}",
+        icon = "BusinessRuleTask.png",
+        parameters = {
+                @WidParameter(name = "Language", required = true),
+                @WidParameter(name = "KieSessionName", required = true),
+                @WidParameter(name = "KieSessionType")
+        },
+        mavenDepends = {
+                @WidMavenDepends(group = "${groupId}", artifact = "${artifactId}", version = "${version}")
+        },
+        serviceInfo = @WidService(category = "${name}", description = "${description}",
+                keywords = "business,rule,task",
+                action = @WidAction(title = "Execute a business rule task")
+        ))
 public class BusinessRuleTaskHandler extends AbstractLogOrThrowWorkItemHandler implements Cacheable {
 
     private static final Logger logger = LoggerFactory.getLogger(BusinessRuleTaskHandler.class);
