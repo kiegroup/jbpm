@@ -46,6 +46,11 @@ public class DeploymentServiceWrapper implements DeploymentService {
 	}
 
 	@Override
+	public void undeploy(DeploymentUnit unit, boolean abortInstances) {
+		remote.undeploy(unit.getIdentifier(), abortInstances);
+	}
+
+	@Override
 	public RuntimeManager getRuntimeManager(String deploymentUnitId) {
 		throw new UnsupportedOperationException("Not supported");
 	}

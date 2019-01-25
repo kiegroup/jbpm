@@ -222,12 +222,12 @@ public class KModuleDeploymentService extends AbstractDeploymentService {
     }
 
     @Override
-	public void undeploy(DeploymentUnit unit) {
+	public void undeploy(DeploymentUnit unit, boolean abortInstances) {
     	if (!(unit instanceof KModuleDeploymentUnit)) {
             throw new IllegalArgumentException("Invalid deployment unit provided - " + unit.getClass().getName());
         }
         KModuleDeploymentUnit kmoduleUnit = (KModuleDeploymentUnit) unit;
-		super.undeploy(unit);
+		super.undeploy(unit, abortInstances);
 
         formManagerService.unRegisterForms( unit.getIdentifier() );
 

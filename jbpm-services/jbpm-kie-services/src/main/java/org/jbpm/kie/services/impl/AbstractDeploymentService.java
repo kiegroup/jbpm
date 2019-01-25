@@ -43,6 +43,8 @@ import org.jbpm.services.api.model.DeployedUnit;
 import org.jbpm.services.api.model.DeploymentUnit;
 import org.jbpm.services.api.model.ProcessInstanceDesc;
 import org.kie.api.runtime.KieContainer;
+import org.kie.api.runtime.KieSession;
+import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.runtime.manager.RuntimeEnvironment;
 import org.kie.api.runtime.manager.RuntimeManager;
 import org.kie.api.runtime.manager.RuntimeManagerFactory;
@@ -51,6 +53,7 @@ import org.kie.api.runtime.query.QueryContext;
 import org.kie.internal.identity.IdentityProvider;
 import org.kie.internal.runtime.conf.DeploymentDescriptor;
 import org.kie.internal.runtime.manager.InternalRuntimeManager;
+import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -176,19 +179,36 @@ public abstract class AbstractDeploymentService implements DeploymentService, Li
     
     @Override
     public void undeploy(DeploymentUnit unit) {
-        List<Integer> states = new ArrayList<Integer>();
-        states.add(ProcessInstance.STATE_ACTIVE);
-        states.add(ProcessInstance.STATE_PENDING);
-        states.add(ProcessInstance.STATE_SUSPENDED);
-        Collection<ProcessInstanceDesc> activeProcesses = runtimeDataService.getProcessInstancesByDeploymentId(unit.getIdentifier(), states, new QueryContext());
-        if (!activeProcesses.isEmpty()) {
-            throw new IllegalStateException("Undeploy forbidden - there are active processes instances for deployment " 
-                                            + unit.getIdentifier());
-        }
+        undeploy(unit, false);
+    }
+
+    @Override
+    public void undeploy(DeploymentUnit unit, boolean abortInstances) {
+
         synchronized (this) {
             DeployedUnit deployed = deploymentsMap.remove(unit.getIdentifier());
+
             if (deployed != null) {
+
                 RuntimeManager manager = deployed.getRuntimeManager();
+
+                if(abortInstances) {
+                    List<Integer> states = new ArrayList<>();
+                    states.add(ProcessInstance.STATE_ACTIVE);
+                    states.add(ProcessInstance.STATE_PENDING);
+                    states.add(ProcessInstance.STATE_SUSPENDED);
+                    Collection<ProcessInstanceDesc> activeProcesses = runtimeDataService.getProcessInstancesByDeploymentId(unit.getIdentifier(), states, new QueryContext());
+
+                    if (!activeProcesses.isEmpty()) {
+
+                        activeProcesses.stream().forEach(processInstanceDesc -> {
+                            RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstanceDesc.getId()));
+                            KieSession ksession = engine.getKieSession();
+                            ksession.abortProcessInstance(processInstanceDesc.getId());
+                        });
+                    }
+                }
+
                 ((AbstractRuntimeManager)manager).close(true);
             }
             notifyOnUnDeploy(unit, deployed);
@@ -261,8 +281,8 @@ public abstract class AbstractDeploymentService implements DeploymentService, Li
     public void setIdentityProvider(IdentityProvider identityProvider) {
 		this.identityProvider = identityProvider;
 	}
-	
-	protected AuditEventBuilder setupAuditLogger(IdentityProvider identityProvider, String deploymentUnitId) { 
+
+    protected AuditEventBuilder setupAuditLogger(IdentityProvider identityProvider, String deploymentUnitId) {
 	       
         ServicesAwareAuditEventBuilder auditEventBuilder = new ServicesAwareAuditEventBuilder();
         auditEventBuilder.setIdentityProvider(identityProvider);

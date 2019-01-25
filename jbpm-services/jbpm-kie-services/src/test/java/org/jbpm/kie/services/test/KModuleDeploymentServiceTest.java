@@ -30,6 +30,7 @@ import org.jbpm.kie.test.util.AbstractKieServicesBaseTest;
 import org.jbpm.services.api.model.DeployedUnit;
 import org.jbpm.services.api.model.DeploymentUnit;
 import org.jbpm.services.api.model.ProcessDefinition;
+import org.jbpm.services.api.model.ProcessInstanceDesc;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -223,6 +224,17 @@ public class KModuleDeploymentServiceTest extends AbstractKieServicesBaseTest {
     @Test
     public void testUnDeploymentWithActiveProcesses() {
 
+        testUndeploymentWithActiveInstances(false);
+    }
+
+    @Test
+    public void testUnDeploymentWithActiveProcessesAborting() {
+
+        testUndeploymentWithActiveInstances(true);
+    }
+
+    private void testUndeploymentWithActiveInstances(boolean abortInstances) {
+
         assertNotNull(deploymentService);
 
         DeploymentUnit deploymentUnit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
@@ -244,17 +256,14 @@ public class KModuleDeploymentServiceTest extends AbstractKieServicesBaseTest {
         ProcessInstance processInstance = engine.getKieSession().startProcess("org.jbpm.writedocument", params);
 
         assertEquals(ProcessInstance.STATE_ACTIVE, processInstance.getState());
-        try {
-            // undeploy should fail due to active process instances
-            deploymentService.undeploy(deploymentUnit);
-            fail("Should fail due to active process instance");
-        } catch (IllegalStateException e) {
 
-        }
+        deploymentService.undeploy(deploymentUnit, abortInstances);
 
-        engine.getKieSession().abortProcessInstance(processInstance.getId());
+        ProcessInstanceDesc processInstanceDesc = runtimeDataService.getProcessInstanceById(processInstance.getId());
 
-        checkFormsDeployment( deploymentUnit.getIdentifier() );
+        int expectedState = abortInstances ? ProcessInstance.STATE_ABORTED : ProcessInstance.STATE_ACTIVE;
+
+        assertEquals(expectedState, processInstanceDesc.getState().intValue());
     }
 
     @Test

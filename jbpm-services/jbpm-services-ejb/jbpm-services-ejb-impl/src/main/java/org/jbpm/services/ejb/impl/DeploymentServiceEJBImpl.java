@@ -172,8 +172,16 @@ public class DeploymentServiceEJBImpl extends KModuleDeploymentService implement
 			super.undeploy(deployed.getDeploymentUnit());
 		}
 	}
-	
-	protected void addAsyncHandler(KModuleDeploymentUnit unit) {
+
+    @Override
+    public void undeploy(String deploymentId, boolean abortInstances) {
+        DeployedUnit deployed = getDeployedUnit(deploymentId);
+        if (deployed != null) {
+            super.undeploy(deployed.getDeploymentUnit(), abortInstances);
+        }
+    }
+
+    protected void addAsyncHandler(KModuleDeploymentUnit unit) {
 		// add async only when the executor component is not disabled
 		if (isExecutorAvailable) {
 			DeploymentDescriptor descriptor = unit.getDeploymentDescriptor();
