@@ -40,7 +40,7 @@ public interface DeploymentService {
     /**
 	 * Performs undeployment operation of given <code>unit</code>.
 	 * @param unit deployment unit to be undeployed from runtime
-	 * @throws RuntimeException in case of problems encountered while deploying unit
+	 * @throws RuntimeException in case of problems encountered while undeploying unit
 	 */
     void undeploy(DeploymentUnit unit);
 
@@ -48,7 +48,7 @@ public interface DeploymentService {
      * Performs undeployment operation of given <code>unit</code> aborting existing process instances if needed.
      * @param unit deployment unit to be undeployed from runtime
      * @param abortInstances determines if existing process instances should be aborted or not.
-     * @throws RuntimeException in case of problems encountered while deploying unit
+     * @throws RuntimeException in case of problems encountered while undeploying unit
      */
     void undeploy(DeploymentUnit unit, boolean abortInstances);
     

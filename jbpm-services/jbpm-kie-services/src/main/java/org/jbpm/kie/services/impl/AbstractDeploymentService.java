@@ -185,6 +185,16 @@ public abstract class AbstractDeploymentService implements DeploymentService, Li
     @Override
     public void undeploy(DeploymentUnit unit, boolean abortInstances) {
 
+        List<Integer> states = new ArrayList<Integer>();
+        states.add(ProcessInstance.STATE_ACTIVE);
+        states.add(ProcessInstance.STATE_PENDING);
+        states.add(ProcessInstance.STATE_SUSPENDED);
+        Collection<ProcessInstanceDesc> activeProcesses = runtimeDataService.getProcessInstancesByDeploymentId(unit.getIdentifier(), states, new QueryContext());
+        if (!abortInstances && !activeProcesses.isEmpty()) {
+            throw new IllegalStateException("Undeploy forbidden - there are active processes instances for deployment "
+                                                    + unit.getIdentifier());
+        }
+
         synchronized (this) {
             DeployedUnit deployed = deploymentsMap.remove(unit.getIdentifier());
 
@@ -192,19 +202,19 @@ public abstract class AbstractDeploymentService implements DeploymentService, Li
 
                 RuntimeManager manager = deployed.getRuntimeManager();
 
-                if(abortInstances) {
-                    List<Integer> states = new ArrayList<>();
-                    states.add(ProcessInstance.STATE_ACTIVE);
-                    states.add(ProcessInstance.STATE_PENDING);
-                    states.add(ProcessInstance.STATE_SUSPENDED);
-                    Collection<ProcessInstanceDesc> activeProcesses = runtimeDataService.getProcessInstancesByDeploymentId(unit.getIdentifier(), states, new QueryContext());
-
+                if(abortInstances && !activeProcesses.isEmpty()) {
+                    activeProcesses = runtimeDataService.getProcessInstancesByDeploymentId(unit.getIdentifier(), states, new QueryContext(0, -1));
                     if (!activeProcesses.isEmpty()) {
-
-                        activeProcesses.stream().forEach(processInstanceDesc -> {
+                        activeProcesses.forEach(processInstanceDesc -> {
                             RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstanceDesc.getId()));
-                            KieSession ksession = engine.getKieSession();
-                            ksession.abortProcessInstance(processInstanceDesc.getId());
+                            try {
+                                KieSession ksession = engine.getKieSession();
+                                ksession.abortProcessInstance(processInstanceDesc.getId());
+                            } catch (Exception ex) {
+                                logger.error("Error aborting process instance {} due to: {}", processInstanceDesc.getId(), ex.getMessage());
+                            } finally {
+                                manager.disposeRuntimeEngine(engine);
+                            }
                         });
                     }
                 }
