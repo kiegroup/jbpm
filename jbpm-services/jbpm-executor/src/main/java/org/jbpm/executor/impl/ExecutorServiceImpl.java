@@ -16,10 +16,16 @@
 
 package org.jbpm.executor.impl;
 
+import java.lang.management.ManagementFactory;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 
 import org.jbpm.executor.AsynchronousJobListener;
 import org.jbpm.executor.ExecutorNotStartedException;
@@ -37,6 +43,8 @@ import org.kie.api.executor.RequestInfo;
 import org.kie.api.executor.STATUS;
 import org.kie.api.runtime.query.QueryContext;
 import org.kie.internal.executor.api.ExecutorService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Entry point of the executor component. Application should always talk
@@ -45,6 +53,8 @@ import org.kie.internal.executor.api.ExecutorService;
  */
 public class ExecutorServiceImpl implements ExecutorService, RequeueAware {
 	
+    private static final Logger logger = LoggerFactory.getLogger(ExecutorServiceImpl.class);
+
     private long maxRunningTime = Long.parseLong(System.getProperty("org.kie.executor.running.max", "600"));
     
     private Executor executor;
@@ -146,6 +156,15 @@ public class ExecutorServiceImpl implements ExecutorService, RequeueAware {
     
     public void init() {
     	if (!executorStarted) {
+            try {
+                MBeanServer server = ManagementFactory.getPlatformMBeanServer();
+                ObjectName state = ObjectName.getInstance("jboss.root:type=state");
+                server.addNotificationListener(state, new StateNotificationListener(this), null, null);
+                logger.info("Container provides state listener. registering state listener");
+            } catch (MalformedObjectNameException | NullPointerException | InstanceNotFoundException e) {
+                logger.info("Container does not provide state listener");
+            }
+
     		if (maxRunningTime > -1) {
     			requeue(maxRunningTime);
     		}
@@ -160,7 +179,8 @@ public class ExecutorServiceImpl implements ExecutorService, RequeueAware {
     }
     
     
-    public void destroy() {  
+    public void destroy() {
+        logger.info("ExecutorService destroy event");
     	if (executorStarted) {
     		ExecutorServiceFactory.resetExecutorService(this);
 	    	this.executorStarted = false;
