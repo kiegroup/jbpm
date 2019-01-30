@@ -37,7 +37,10 @@ public class FormManagerServiceImpl implements FormManagerService {
 
     @Override
     public void unRegisterForms( String deploymentId ) {
-        formsRegistry.remove( deploymentId );
+		if (formsRegistry.get(deploymentId) != null) {
+			formsRegistry.get(deploymentId).clear();
+			formsRegistry.remove(deploymentId);
+		}
     }
 
     @Override
