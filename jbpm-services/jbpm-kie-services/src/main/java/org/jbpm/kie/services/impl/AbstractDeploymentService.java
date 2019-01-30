@@ -202,21 +202,19 @@ public abstract class AbstractDeploymentService implements DeploymentService, Li
 
                 RuntimeManager manager = deployed.getRuntimeManager();
 
-                if(abortInstances && !activeProcesses.isEmpty()) {
+                if (abortInstances && !activeProcesses.isEmpty()) {
                     activeProcesses = runtimeDataService.getProcessInstancesByDeploymentId(unit.getIdentifier(), states, new QueryContext(0, -1));
-                    if (!activeProcesses.isEmpty()) {
-                        activeProcesses.forEach(processInstanceDesc -> {
-                            RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstanceDesc.getId()));
-                            try {
-                                KieSession ksession = engine.getKieSession();
-                                ksession.abortProcessInstance(processInstanceDesc.getId());
-                            } catch (Exception ex) {
-                                logger.error("Error aborting process instance {} due to: {}", processInstanceDesc.getId(), ex.getMessage());
-                            } finally {
-                                manager.disposeRuntimeEngine(engine);
-                            }
-                        });
-                    }
+                    activeProcesses.forEach(processInstanceDesc -> {
+                        RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstanceDesc.getId()));
+                        try {
+                            KieSession ksession = engine.getKieSession();
+                            ksession.abortProcessInstance(processInstanceDesc.getId());
+                        } catch (Exception ex) {
+                            logger.error("Error aborting process instance {} due to: {}", processInstanceDesc.getId(), ex.getMessage());
+                        } finally {
+                            manager.disposeRuntimeEngine(engine);
+                        }
+                    });
                 }
 
                 ((AbstractRuntimeManager)manager).close(true);

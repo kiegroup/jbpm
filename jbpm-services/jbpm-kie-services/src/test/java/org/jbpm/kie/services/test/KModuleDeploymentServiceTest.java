@@ -151,6 +151,8 @@ public class KModuleDeploymentServiceTest extends AbstractKieServicesBaseTest {
 
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
 
+        manager.disposeRuntimeEngine(engine);
+
         checkFormsDeployment(deploymentUnit.getIdentifier());
     }
 
@@ -199,6 +201,8 @@ public class KModuleDeploymentServiceTest extends AbstractKieServicesBaseTest {
         ProcessInstance processInstance = engine.getKieSession().startProcess("customtask", params);
 
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
+
+        manager.disposeRuntimeEngine(engine);
 
         checkFormsDeployment(deploymentUnit.getIdentifier());
     }
@@ -253,30 +257,9 @@ public class KModuleDeploymentServiceTest extends AbstractKieServicesBaseTest {
 
         engine.getKieSession().abortProcessInstance(processInstance.getId());
 
+        manager.disposeRuntimeEngine(engine);
+
         checkFormsDeployment(deploymentUnit.getIdentifier());
-    }
-
-    @Test
-    public void testUnDeploymentWithoutActiveProcesses() {
-
-        assertNotNull(deploymentService);
-
-        DeploymentUnit deploymentUnit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
-        deploymentService.deploy(deploymentUnit);
-        units.add(deploymentUnit);
-        DeployedUnit deployedGeneral = deploymentService.getDeployedUnit(deploymentUnit.getIdentifier());
-
-        assertNotNull(deployedGeneral);
-        assertNotNull(deployedGeneral.getDeploymentUnit());
-        assertNotNull(deployedGeneral.getRuntimeManager());
-
-        RuntimeManager manager = deploymentService.getRuntimeManager(deploymentUnit.getIdentifier());
-        assertNotNull(manager);
-
-        RuntimeEngine engine = manager.getRuntimeEngine(EmptyContext.get());
-        assertNotNull(engine);
-
-        deploymentService.undeploy(deploymentUnit);
     }
 
     @Test
@@ -308,6 +291,8 @@ public class KModuleDeploymentServiceTest extends AbstractKieServicesBaseTest {
         ProcessInstanceDesc processInstanceDesc = runtimeDataService.getProcessInstanceById(processInstance.getId());
 
         assertEquals(ProcessInstance.STATE_ABORTED, processInstanceDesc.getState().intValue());
+
+        manager.disposeRuntimeEngine(engine);
     }
 
     @Test
@@ -335,7 +320,10 @@ public class KModuleDeploymentServiceTest extends AbstractKieServicesBaseTest {
 
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
 
+        manager.disposeRuntimeEngine(engine);
+
         checkFormsDeployment(deploymentUnit.getIdentifier());
+
     }
 
     @Test
@@ -473,7 +461,11 @@ public class KModuleDeploymentServiceTest extends AbstractKieServicesBaseTest {
         RuntimeManager manager = deploymentService.getRuntimeManager(deploymentUnit.getIdentifier());
         assertNotNull(manager);
 
-        manager.getRuntimeEngine(EmptyContext.get());
+        RuntimeEngine engine = manager.getRuntimeEngine(EmptyContext.get());
+
+        assertNotNull(engine);
+
+        manager.disposeRuntimeEngine(engine);
 
         checkFormsDeployment(deploymentUnit.getIdentifier());
     }
@@ -546,6 +538,7 @@ public class KModuleDeploymentServiceTest extends AbstractKieServicesBaseTest {
         ProcessInstance processInstance = engine.getKieSession().startProcess("customtask", params);
 
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
+
         manager.disposeRuntimeEngine(engine);
 
         checkFormsDeployment(deploymentUnit.getIdentifier());
