@@ -16,20 +16,22 @@
 
 package org.jbpm.kie.services.impl;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
 import javax.persistence.EntityManagerFactory;
 
 import org.jbpm.kie.services.api.DeploymentIdResolver;
 import org.jbpm.kie.services.impl.audit.ServicesAwareAuditEventBuilder;
 import org.jbpm.kie.services.impl.security.IdentityRolesSecurityManager;
+import org.jbpm.kie.services.impl.utils.PreUndeployOperations;
 import org.jbpm.persistence.api.integration.EventManagerProvider;
 import org.jbpm.process.audit.event.AuditEventBuilder;
 import org.jbpm.runtime.manager.impl.AbstractRuntimeManager;
@@ -41,19 +43,13 @@ import org.jbpm.services.api.ListenerSupport;
 import org.jbpm.services.api.RuntimeDataService;
 import org.jbpm.services.api.model.DeployedUnit;
 import org.jbpm.services.api.model.DeploymentUnit;
-import org.jbpm.services.api.model.ProcessInstanceDesc;
 import org.kie.api.runtime.KieContainer;
-import org.kie.api.runtime.KieSession;
-import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.runtime.manager.RuntimeEnvironment;
 import org.kie.api.runtime.manager.RuntimeManager;
 import org.kie.api.runtime.manager.RuntimeManagerFactory;
-import org.kie.api.runtime.process.ProcessInstance;
-import org.kie.api.runtime.query.QueryContext;
 import org.kie.internal.identity.IdentityProvider;
 import org.kie.internal.runtime.conf.DeploymentDescriptor;
 import org.kie.internal.runtime.manager.InternalRuntimeManager;
-import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -176,50 +172,30 @@ public abstract class AbstractDeploymentService implements DeploymentService, Li
         }
         
     }
-    
+
     @Override
     public void undeploy(DeploymentUnit unit) {
-        undeploy(unit, false);
+        undeploy(unit, PreUndeployOperations.checkActiveProcessInstances(runtimeDataService));
     }
 
     @Override
-    public void undeploy(DeploymentUnit unit, boolean abortInstances) {
+    public void undeploy(DeploymentUnit unit, Function<DeploymentUnit, Boolean> beforeUndeploy) {
 
-        List<Integer> states = new ArrayList<Integer>();
-        states.add(ProcessInstance.STATE_ACTIVE);
-        states.add(ProcessInstance.STATE_PENDING);
-        states.add(ProcessInstance.STATE_SUSPENDED);
-        Collection<ProcessInstanceDesc> activeProcesses = runtimeDataService.getProcessInstancesByDeploymentId(unit.getIdentifier(), states, new QueryContext());
-        if (!abortInstances && !activeProcesses.isEmpty()) {
-            throw new IllegalStateException("Undeploy forbidden - there are active processes instances for deployment "
-                                                    + unit.getIdentifier());
-        }
+        Function<DeploymentUnit, Boolean> beforeUpdate = Optional.ofNullable(beforeUndeploy).orElse(PreUndeployOperations.checkActiveProcessInstances(runtimeDataService));
 
-        synchronized (this) {
-            DeployedUnit deployed = deploymentsMap.remove(unit.getIdentifier());
+        if (Boolean.TRUE.equals(beforeUpdate.apply(unit))) {
+            synchronized (this) {
+                DeployedUnit deployed = deploymentsMap.remove(unit.getIdentifier());
 
-            if (deployed != null) {
-
-                RuntimeManager manager = deployed.getRuntimeManager();
-
-                if (abortInstances && !activeProcesses.isEmpty()) {
-                    activeProcesses = runtimeDataService.getProcessInstancesByDeploymentId(unit.getIdentifier(), states, new QueryContext(0, -1));
-                    activeProcesses.forEach(processInstanceDesc -> {
-                        RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstanceDesc.getId()));
-                        try {
-                            KieSession ksession = engine.getKieSession();
-                            ksession.abortProcessInstance(processInstanceDesc.getId());
-                        } catch (Exception ex) {
-                            logger.error("Error aborting process instance {} due to: {}", processInstanceDesc.getId(), ex.getMessage());
-                        } finally {
-                            manager.disposeRuntimeEngine(engine);
-                        }
-                    });
+                if (deployed != null) {
+                    RuntimeManager manager = deployed.getRuntimeManager();
+                    ((AbstractRuntimeManager) manager).close(true);
                 }
-
-                ((AbstractRuntimeManager)manager).close(true);
+                notifyOnUnDeploy(unit, deployed);
             }
-            notifyOnUnDeploy(unit, deployed);
+        } else {
+            logger.warn("Couldn't undeploy unit '{}'", unit.getIdentifier());
+            throw new IllegalStateException("Couldn't undeploy unit '" + unit.getIdentifier() + "'");
         }
     }
 

@@ -16,7 +16,11 @@
 
 package org.jbpm.services.ejb.api;
 
+import java.util.function.Function;
+
 import javax.ejb.Remote;
+
+import org.jbpm.services.api.model.DeploymentUnit;
 
 @Remote
 public interface DeploymentServiceEJBRemote  {
@@ -62,9 +66,10 @@ public interface DeploymentServiceEJBRemote  {
 	/**
 	 * Undeploys currently active deployment unit identified by given deploymentId
 	 * @param deploymentId unique identifier of the deployment
-	 * @param abortInstances determines if existing process instances should be aborted or not.
+	 * @param beforeUndeploy a function to run custom actions before undeploying a given {@link DeploymentUnit}.
+	 * It should return if the unit can be undeployed or not determining if the deployment can continue.
 	 */
-	void undeploy(String deploymentId, boolean abortInstances);
+	void undeploy(String deploymentId, Function<DeploymentUnit, Boolean> beforeUndeploy);
 
     /**
      * Activates given deployment by making sure it will be available for execution.

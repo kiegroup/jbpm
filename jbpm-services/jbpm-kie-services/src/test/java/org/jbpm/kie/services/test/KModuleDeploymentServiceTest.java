@@ -26,6 +26,7 @@ import java.util.Map;
 
 import org.drools.compiler.kie.builder.impl.InternalKieModule;
 import org.jbpm.kie.services.impl.KModuleDeploymentUnit;
+import org.jbpm.kie.services.impl.utils.PreUndeployOperations;
 import org.jbpm.kie.test.util.AbstractKieServicesBaseTest;
 import org.jbpm.services.api.model.DeployedUnit;
 import org.jbpm.services.api.model.DeploymentUnit;
@@ -96,7 +97,7 @@ public class KModuleDeploymentServiceTest extends AbstractKieServicesBaseTest {
         cleanupSingletonSessionId();
         if (units != null && !units.isEmpty()) {
             for (DeploymentUnit unit : units) {
-                deploymentService.undeploy(unit);
+                deploymentService.undeploy(unit, deploymentUnit-> true);
             }
             units.clear();
         }
@@ -263,7 +264,8 @@ public class KModuleDeploymentServiceTest extends AbstractKieServicesBaseTest {
     }
 
     @Test
-    public void testUnDeploymentWithActiveProcessesAborting() {
+    public void testUnDeploymentWithActiveProcessesSkippingCheck() {
+
         assertNotNull(deploymentService);
 
         DeploymentUnit deploymentUnit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
@@ -286,13 +288,77 @@ public class KModuleDeploymentServiceTest extends AbstractKieServicesBaseTest {
 
         assertEquals(ProcessInstance.STATE_ACTIVE, processInstance.getState());
 
-        deploymentService.undeploy(deploymentUnit, true);
+        deploymentService.undeploy(deploymentUnit, PreUndeployOperations.doNothing());
 
-        ProcessInstanceDesc processInstanceDesc = runtimeDataService.getProcessInstanceById(processInstance.getId());
+        ProcessInstanceDesc instance = runtimeDataService.getProcessInstanceById(processInstance.getId());
 
-        assertEquals(ProcessInstance.STATE_ABORTED, processInstanceDesc.getState().intValue());
+        assertEquals(ProcessInstance.STATE_ACTIVE, instance.getState().intValue());
 
         manager.disposeRuntimeEngine(engine);
+    }
+
+    @Test
+    public void testUnDeploymentWithActiveProcessesAbortingInstances() {
+
+        assertNotNull(deploymentService);
+
+        DeploymentUnit deploymentUnit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
+        deploymentService.deploy(deploymentUnit);
+        units.add(deploymentUnit);
+        DeployedUnit deployedGeneral = deploymentService.getDeployedUnit(deploymentUnit.getIdentifier());
+        assertNotNull(deployedGeneral);
+        assertNotNull(deployedGeneral.getDeploymentUnit());
+        assertNotNull(deployedGeneral.getRuntimeManager());
+
+        RuntimeManager manager = deploymentService.getRuntimeManager(deploymentUnit.getIdentifier());
+        assertNotNull(manager);
+
+        RuntimeEngine engine = manager.getRuntimeEngine(EmptyContext.get());
+        assertNotNull(engine);
+
+        Map<String, Object> params = new HashMap<String, Object>();
+
+        ProcessInstance processInstance = engine.getKieSession().startProcess("org.jbpm.writedocument", params);
+
+        assertEquals(ProcessInstance.STATE_ACTIVE, processInstance.getState());
+
+        deploymentService.undeploy(deploymentUnit, PreUndeployOperations.abortUnitActiveProcessInstances(runtimeDataService, deploymentService));
+
+        ProcessInstanceDesc instance = runtimeDataService.getProcessInstanceById(processInstance.getId());
+
+        assertEquals(ProcessInstance.STATE_ABORTED, instance.getState().intValue());
+
+        manager.disposeRuntimeEngine(engine);
+    }
+
+    @Test
+    public void testUnSuccesfullUnDeployment() {
+
+        assertNotNull(deploymentService);
+
+        DeploymentUnit deploymentUnit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
+        deploymentService.deploy(deploymentUnit);
+        units.add(deploymentUnit);
+        DeployedUnit deployedGeneral = deploymentService.getDeployedUnit(deploymentUnit.getIdentifier());
+        assertNotNull(deployedGeneral);
+        assertNotNull(deployedGeneral.getDeploymentUnit());
+        assertNotNull(deployedGeneral.getRuntimeManager());
+
+        RuntimeManager manager = deploymentService.getRuntimeManager(deploymentUnit.getIdentifier());
+        assertNotNull(manager);
+
+        RuntimeEngine engine = manager.getRuntimeEngine(EmptyContext.get());
+        assertNotNull(engine);
+
+        try {
+            // undeploy should fail due to the false returned by the predicate
+            deploymentService.undeploy(deploymentUnit, unit -> false);
+            fail("Should fail due to active process instance");
+        } catch (IllegalStateException e) {
+        }
+
+        manager.disposeRuntimeEngine(engine);
+        checkFormsDeployment(deploymentUnit.getIdentifier());
     }
 
     @Test

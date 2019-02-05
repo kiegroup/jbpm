@@ -17,6 +17,7 @@
 package org.jbpm.services.ejb.client.helper;
 
 import java.util.Collection;
+import java.util.function.Function;
 
 import org.jbpm.kie.services.impl.KModuleDeploymentUnit;
 import org.jbpm.services.api.DeploymentService;
@@ -46,8 +47,8 @@ public class DeploymentServiceWrapper implements DeploymentService {
 	}
 
 	@Override
-	public void undeploy(DeploymentUnit unit, boolean abortInstances) {
-		remote.undeploy(unit.getIdentifier(), abortInstances);
+	public void undeploy(DeploymentUnit unit, Function<DeploymentUnit, Boolean> beforeUndeploy) {
+		remote.undeploy(unit.getIdentifier(), beforeUndeploy);
 	}
 
 	@Override

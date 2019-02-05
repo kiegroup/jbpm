@@ -71,7 +71,7 @@
         },
         {
           "code": "java.method.addedToInterface",
-          "new": "method void org.jbpm.services.api.DeploymentService::undeploy(org.jbpm.services.api.model.DeploymentUnit, boolean)",
+          "new": "method void org.jbpm.services.api.DeploymentService::undeploy(org.jbpm.services.api.model.DeploymentUnit, java.util.function.Function<org.jbpm.services.api.model.DeploymentUnit, java.lang.Boolean>)",
           "package": "org.jbpm.services.api",
           "classSimpleName": "DeploymentService",
           "methodName": "undeploy",
