@@ -39,7 +39,7 @@
       <include name="log4j*.jar"/>
       <include name="commons-logging*.jar"/>
       <include name="commons-collections*.jar"/>
-      <include name="dom4j-1.6.1.jar"/>
+      <include name="dom4j-2.1.1.jar"/>
       <include name="antlr-2.7.7.jar"/>
       <include name="javax.persistence-api*.jar"/>
       <include name="jta-1.1.jar"/>
