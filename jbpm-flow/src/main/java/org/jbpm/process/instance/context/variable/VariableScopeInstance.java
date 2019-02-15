@@ -32,6 +32,7 @@ import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.instance.node.CompositeContextNodeInstance;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.CaseData;
+import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.rule.FactHandle;
 
 /**
@@ -132,8 +133,11 @@ public class VariableScopeInstance extends AbstractContextInstance {
                 } else {
                     caseFile.add(nameInCaseFile, value);
                 }
-                getProcessInstance().getKnowledgeRuntime().update(factHandle, caseFile);
-                ((KieSession)getProcessInstance().getKnowledgeRuntime()).fireAllRules();
+                // case data fire rules only if the state is not pending (active)
+                if (getProcessInstance().getState() != ProcessInstance.STATE_PENDING) {
+                    getProcessInstance().getKnowledgeRuntime().update(factHandle, caseFile);
+                    ((KieSession) getProcessInstance().getKnowledgeRuntime()).fireAllRules();
+                }
                 return;
             }
             

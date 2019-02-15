@@ -22,7 +22,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.EntityManager;
+
 import org.assertj.core.api.Assertions;
+import org.hamcrest.CustomMatcher;
 import org.jbpm.casemgmt.api.model.CaseFileItem;
 import org.jbpm.casemgmt.api.model.CaseStatus;
 import org.jbpm.casemgmt.api.model.instance.CaseFileInstance;
@@ -30,6 +33,8 @@ import org.jbpm.casemgmt.api.model.instance.CaseInstance;
 import org.jbpm.casemgmt.impl.marshalling.CaseMarshallerFactory;
 import org.jbpm.casemgmt.impl.objects.Patient;
 import org.jbpm.casemgmt.impl.util.AbstractCaseServicesBaseTest;
+import org.jbpm.process.audit.VariableInstanceLog;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.kie.api.runtime.query.QueryContext;
 import org.kie.internal.runtime.conf.DeploymentDescriptor;
@@ -43,8 +48,10 @@ import org.slf4j.LoggerFactory;
 
 import static java.util.stream.Collectors.toMap;
 import static org.assertj.core.api.Assertions.fail;
+import static org.hamcrest.CoreMatchers.hasItem;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 
 public class CaseWithJPADataTest extends AbstractCaseServicesBaseTest {
 
@@ -54,6 +61,7 @@ public class CaseWithJPADataTest extends AbstractCaseServicesBaseTest {
     protected List<String> getProcessDefinitionFiles() {
         List<String> processes = new ArrayList<String>();
         processes.add("cases/EmptyCase.bpmn2");
+        processes.add("cases/CaseExecutionInOneGo.bpmn2");
         return processes;
     }
 
@@ -72,24 +80,24 @@ public class CaseWithJPADataTest extends AbstractCaseServicesBaseTest {
             CaseInstance cInstance = caseService.getCaseInstance(caseId, true, false, false, false);
             assertNotNull(cInstance);
             assertEquals(deploymentUnit.getIdentifier(), cInstance.getDeploymentId());
-            
+
             Patient patientFromCase = (Patient) cInstance.getCaseFile().getData("patient");
             Assertions.assertThat(patientFromCase).isNotNull();
             Assertions.assertThat(patient.getName()).isEqualTo(patientFromCase.getName());
-            
+
             Collection<CaseFileItem> logs = caseRuntimeDataService.getCaseInstanceDataItems(caseId, new QueryContext());
             Assertions.assertThat(logs).hasSize(3);
-            
+
             Map<String, CaseFileItem> mappedLogs = logs.stream().collect(toMap(CaseFileItem::getName, t -> t));
             // there is special org.jbpm.casemgmt.impl.audit.PatientCaseVariableIndexer so it produces multiple entries for single variable
             Assertions.assertThat(mappedLogs).containsKey("patient");
             Assertions.assertThat(mappedLogs).containsKey("patient_name");
-            
+
             caseService.removeDataFromCaseFile(caseId, "patient");
-            
+
             logs = caseRuntimeDataService.getCaseInstanceDataItems(caseId, new QueryContext());
             Assertions.assertThat(logs).hasSize(1);
-            
+
             mappedLogs = logs.stream().collect(toMap(CaseFileItem::getName, t -> t));
             Assertions.assertThat(mappedLogs).doesNotContainKeys("patient", "patient_name");
 
@@ -106,29 +114,77 @@ public class CaseWithJPADataTest extends AbstractCaseServicesBaseTest {
             }
         }
     }
-    
+
+    @Test
+    public void testStartCaseInOneGoWithJPAData() {
+        Map<String, Object> data = new HashMap<>();
+        data.put("inputData", "Hello request inputData!");
+
+        CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), EXECUTION_IN_ONE_GO, data);
+
+        String caseId = caseService.startCase(deploymentUnit.getIdentifier(), EXECUTION_IN_ONE_GO, caseFile);
+        assertNotNull(caseId);
+        assertEquals(FIRST_CASE_ID, caseId);
+        try {
+            CaseInstance cInstance = caseService.getCaseInstance(caseId, true, false, false, false);
+            assertNotNull(cInstance);
+            assertEquals(deploymentUnit.getIdentifier(), cInstance.getDeploymentId());
+
+            EntityManager em = this.emf.createEntityManager();
+            List<VariableInstanceLog> logs = em.createQuery("SELECT A FROM VariableInstanceLog A", VariableInstanceLog.class).getResultList();
+
+            assertThat(logs, hasItem(var("caseFile_inputData")));
+            assertThat(logs, hasItem(var("CaseId")));
+            assertThat(logs, hasItem(var("initiator")));
+            assertThat(logs, hasItem(var("caseFile_assignedData")));
+
+            CaseInstance instance = caseService.getCaseInstance(caseId);
+            Assertions.assertThat(instance.getStatus()).isEqualTo(CaseStatus.CLOSED.getId());
+            caseId = null;
+        } catch (Exception e) {
+            logger.error("Unexpected error {}", e.getMessage(), e);
+            fail("Unexpected exception " + e.getMessage());
+        }
+    }
+
+    public static class isVar extends CustomMatcher<VariableInstanceLog> {
+
+        private String varName;
+
+        public isVar(String varName) {
+            super("isVariable");
+            this.varName = varName;
+        }
+
+        @Override
+        public boolean matches(Object item) {
+            VariableInstanceLog log = (VariableInstanceLog) item;
+            return log.getVariableId().equals(varName);
+        }
+    }
+
+    public static isVar var(String varName) {
+        return new isVar(varName);
+    }
+
     protected DeploymentDescriptor createDeploymentDescriptor() {
         //add this listener by default
         listenerMvelDefinitions.add("new org.jbpm.casemgmt.impl.util.TrackingCaseEventListener()");
 
         DeploymentDescriptor customDescriptor = new DeploymentDescriptorImpl("org.jbpm.domain");
         DeploymentDescriptorBuilder ddBuilder = customDescriptor.getBuilder()
-                .runtimeStrategy(RuntimeStrategy.PER_CASE)
-                .addMarshalingStrategy(new ObjectModel("mvel", CaseMarshallerFactory.builder().withDoc().withJpa("org.jbpm.persistence.patient.example").toString()))
-                .addWorkItemHandler(new NamedObjectModel("mvel", "StartCaseInstance", "new org.jbpm.casemgmt.impl.wih.StartCaseWorkItemHandler(ksession)"));
+                                                                .runtimeStrategy(RuntimeStrategy.PER_CASE)
+                                                                .addMarshalingStrategy(new ObjectModel("mvel", CaseMarshallerFactory.builder().withDoc().withJpa("org.jbpm.persistence.patient.example").toString()))
+                                                                .addWorkItemHandler(new NamedObjectModel("mvel", "StartCaseInstance", "new org.jbpm.casemgmt.impl.wih.StartCaseWorkItemHandler(ksession)"));
 
         listenerMvelDefinitions.forEach(
-                listenerDefinition -> ddBuilder.addEventListener(new ObjectModel("mvel", listenerDefinition))
-        );
+                                        listenerDefinition -> ddBuilder.addEventListener(new ObjectModel("mvel", listenerDefinition)));
 
         getProcessListeners().forEach(
-                listener -> ddBuilder.addEventListener(listener)
-        );
-        
-        getWorkItemHandlers().forEach(
-               listener -> ddBuilder.addWorkItemHandler(listener)
-        );
+                                      listener -> ddBuilder.addEventListener(listener));
 
+        getWorkItemHandlers().forEach(
+                                      listener -> ddBuilder.addWorkItemHandler(listener));
 
         return customDescriptor;
     }
