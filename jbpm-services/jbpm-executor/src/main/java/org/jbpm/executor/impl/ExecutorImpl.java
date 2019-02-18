@@ -40,7 +40,9 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import javax.naming.Context;
 import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
 import org.apache.commons.io.input.ClassLoaderObjectInputStream;
 import org.drools.core.process.instance.WorkItem;
@@ -51,8 +53,8 @@ import org.jbpm.executor.entities.RequestInfo;
 import org.jbpm.executor.impl.concurrent.LoadAndScheduleRequestsTask;
 import org.jbpm.executor.impl.concurrent.PrioritisedScheduledThreadPoolExecutor;
 import org.jbpm.executor.impl.concurrent.ScheduleTaskTransactionSynchronization;
-import org.jbpm.executor.impl.event.ExecutorEventSupportImpl;
 import org.jbpm.executor.impl.event.ExecutorEventSupport;
+import org.jbpm.executor.impl.event.ExecutorEventSupportImpl;
 import org.kie.api.executor.CommandContext;
 import org.kie.api.executor.ExecutorStoreService;
 import org.kie.api.executor.STATUS;
@@ -88,6 +90,7 @@ public class ExecutorImpl implements Executor {
 
     private static final Logger logger = LoggerFactory.getLogger(ExecutorImpl.class);
 
+    private static final String USE_JMS = "org.kie.executor.jms";
     private static final int DEFAULT_PRIORITY = 5;
     private static final int MAX_PRIORITY = 9;
     private static final int MIN_PRIORITY = 0;
@@ -101,7 +104,7 @@ public class ExecutorImpl implements Executor {
     private TimeUnit timeunit = TimeUnit.valueOf(System.getProperty("org.kie.executor.timeunit", "SECONDS"));
 
     // jms related instances
-    private boolean useJMS = Boolean.parseBoolean(System.getProperty("org.kie.executor.jms", "true"));
+    private boolean useJMS;
     private String connectionFactoryName = System.getProperty("org.kie.executor.jms.cf", "java:/JmsXA");
     private String queueName = System.getProperty("org.kie.executor.jms.queue", "queue/KIE.EXECUTOR");
     private boolean transacted = Boolean.parseBoolean(System.getProperty("org.kie.executor.jms.transacted", "false"));
@@ -115,6 +118,27 @@ public class ExecutorImpl implements Executor {
     private AvailableJobsExecutor jobProcessor;
     private TransactionManager transactionManager;
 
+    {
+        // In any case if the property is set we cannot overwrite the property.
+        // other cases: use jms by default only if there is a Java EE container underneath.
+        if (System.getProperty(USE_JMS) != null) {
+            useJMS = Boolean.parseBoolean(System.getProperty(USE_JMS));
+        } else {
+            logger.info(USE_JMS + " property not set. trying to detect proper default value.");
+            Context context = null;
+            try {
+                context = new InitialContext();
+                String myApplicationName = (String) context.lookup("java:app/AppName");
+                logger.info("Java EE deployment detected {}. Setting JMS executor default value to true", myApplicationName);
+                useJMS = true;
+                context.close();
+            } catch (NamingException e) {
+                logger.info("Java EE deployment not detected. Setting JMS executor default value to false");
+                useJMS = false;
+            }
+        }
+
+    }
     public ExecutorImpl() {}
 
     public void setEventSupport(ExecutorEventSupport eventSupport) {
@@ -248,6 +272,9 @@ public class ExecutorImpl implements Executor {
 
             if (useJMS) {
                 try {
+                    if(connectionFactoryName.isEmpty() || queueName.isEmpty()) {
+                        throw new IllegalArgumentException("org.kie.executor.jms.cf or org.kie.executor.jms.queue system properties are empty");
+                    }
                     InitialContext ctx = new InitialContext();
                     if (this.connectionFactory == null) {
                         this.connectionFactory = (ConnectionFactory) ctx.lookup(connectionFactoryName);
@@ -257,10 +284,10 @@ public class ExecutorImpl implements Executor {
                     }
                     logger.info("Executor JMS based support successfully activated on queue {}", queue);
                 } catch (Exception e) {
-                    logger.warn("Disabling JMS support in executor because: unable to initialize JMS configuration for executor due to {}", e.getMessage());
+                    logger.error("JMS executor error. Unable to initialize JMS configuration for executor due to {}", e.getMessage());
                     logger.debug("JMS support executor failed due to {}", e.getMessage(), e);
-                    // since it cannot be initialized disable jms
-                    useJMS = false;
+                    // since it cannot be initialized we stop the executor
+                    throw new IllegalStateException("Unable to initialize JMS configuration for executor");
                 }
             }
             
