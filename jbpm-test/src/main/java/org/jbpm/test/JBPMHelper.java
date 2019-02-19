@@ -28,8 +28,6 @@ import javax.persistence.Persistence;
 import org.h2.tools.Server;
 import org.jbpm.services.task.HumanTaskConfigurator;
 import org.jbpm.services.task.identity.JBossUserGroupCallbackImpl;
-import org.kie.test.util.db.DataSourceFactory;
-import org.kie.test.util.db.PoolingDataSourceWrapper;
 import org.kie.api.KieBase;
 import org.kie.api.runtime.EnvironmentName;
 import org.kie.api.runtime.manager.RuntimeEnvironmentBuilder;
@@ -39,13 +37,17 @@ import org.kie.api.task.TaskService;
 import org.kie.api.task.UserGroupCallback;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
 import org.kie.internal.runtime.manager.context.EmptyContext;
+import org.kie.test.util.db.DataSourceFactory;
+import org.kie.test.util.db.PoolingDataSourceWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Since version 6.0 this class is deprecated. Instead <code>RuntimeManager</code> should be used directly.
  * See documentation on how to use <code>RuntimeManager</code>
+ * @see org.kie.test.util.db.PersistenceUtil
  */
+@Deprecated
 public final class JBPMHelper {
 
     private static final Logger log = LoggerFactory.getLogger(JBPMHelper.class);
