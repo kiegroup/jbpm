@@ -24,8 +24,6 @@ public class TaskLifeCycleEventConstants {
     public static final List<String> SKIPPED_TASK_VARIABLES = Arrays.asList(new String[]{"ActorId", 
                                                                                         "TaskName", 
                                                                                         "NodeName", 
-                                                                                        "GroupId",
-                                                                                        "Skippable",
                                                                                         "NotStartedReassign",
                                                                                         "NotStartedNotify",
                                                                                         "NotCompletedReassign",

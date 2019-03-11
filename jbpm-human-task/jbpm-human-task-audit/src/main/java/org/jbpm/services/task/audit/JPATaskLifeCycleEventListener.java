@@ -756,7 +756,7 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
                 continue;
             }
             List<TaskVariable> taskVars = manager.index(task, variable.getKey(), variable.getValue());
-            
+
             if (taskVars != null) {
                 for (TaskVariable tVariable : taskVars) {
                     tVariable.setType(type);

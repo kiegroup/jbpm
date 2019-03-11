@@ -16,10 +16,6 @@
 
 package org.jbpm.services.task.audit.service;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -27,12 +23,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
 import org.assertj.core.api.Assertions;
 import org.jbpm.services.task.HumanTaskServicesBaseTest;
+import org.jbpm.services.task.audit.TaskLifeCycleEventConstants;
 import org.jbpm.services.task.audit.commands.DeleteAuditEventsCommand;
 import org.jbpm.services.task.audit.commands.DeleteBAMTaskSummariesCommand;
 import org.jbpm.services.task.audit.commands.GetAuditEventsCommand;
@@ -54,6 +50,8 @@ import org.kie.internal.task.api.TaskVariable.VariableType;
 import org.kie.internal.task.api.model.InternalTaskData;
 import org.kie.internal.task.api.model.TaskEvent;
 import org.kie.internal.task.api.model.TaskEvent.TaskEventType;
+
+import static org.junit.Assert.*;
 
 public abstract class TaskAuditBaseTest extends HumanTaskServicesBaseTest {
 
@@ -570,6 +568,28 @@ public abstract class TaskAuditBaseTest extends HumanTaskServicesBaseTest {
     }
 
     @Test
+    public void testVariableSkip() {
+        Task task = new TaskFluent().setName("This is my task name")
+                .addPotentialGroup("Knights Templer")
+                .setAdminUser("Administrator")
+                .getTask();
+
+        Map<String, Object> inputVariables = new HashMap<String, Object>();
+        TaskLifeCycleEventConstants.SKIPPED_TASK_VARIABLES.forEach(var -> inputVariables.put(var,""));
+        inputVariables.put("Skippable","true");
+        inputVariables.put("GroupId","Admins");
+
+        taskService.addTask(task, inputVariables);
+        long taskId = task.getId();
+
+        List<TaskVariable> variables = taskAuditService.taskVariableQuery()
+                .taskId(taskId).intersect().build().getResultList();
+        assertEquals(2, variables.size());
+        assertEquals("true", variables.stream().filter(v -> "Skippable".equals(v.getName())).findFirst().get().getValue());
+        assertEquals("Admins", variables.stream().filter(v -> "GroupId".equals(v.getName())).findFirst().get().getValue());
+    }
+
+    @Test
     public void testVariableIndexInputAndOutput() {
         Task task = new TaskFluent().setName("This is my task name")
                 .addPotentialGroup("Knights Templer")
@@ -727,7 +747,7 @@ public abstract class TaskAuditBaseTest extends HumanTaskServicesBaseTest {
     }
 
     @Test
-    public void testVariableIndexInputAndOutputWithCustomIdexer() {
+    public void testVariableIndexInputAndOutputWithCustomIndexer() {
         Task task = new TaskFluent().setName("This is my task name")
                 .addPotentialGroup("Knights Templer")
                 .setAdminUser("Administrator")
@@ -925,7 +945,7 @@ public abstract class TaskAuditBaseTest extends HumanTaskServicesBaseTest {
     }
 
     @Test
-    public void testVariableIndexInputAndOutputWitlLongText() {
+    public void testVariableIndexInputAndOutputWithLongText() {
         Task task = new TaskFluent().setName("This is my task name")
                 .addPotentialGroup("Knights Templer")
                 .setAdminUser("Administrator")
@@ -999,7 +1019,7 @@ public abstract class TaskAuditBaseTest extends HumanTaskServicesBaseTest {
     }
 
     @Test
-    public void testVariableIndexInputAndOutputWitlLongTextTrimmed() {
+    public void testVariableIndexInputAndOutputWithLongTextTrimmed() {
         System.setProperty("org.jbpm.task.var.log.length", "10");
         try {
             Task task = new TaskFluent().setName("This is my task name")
