@@ -27,6 +27,12 @@
   <name>jBPM :: XES Exporter</name>
   <description>jBPM XES Exporter</description>
   <artifactId>jbpm-xes</artifactId>
+  
+  <properties>
+    <version.commons-cli>1.4</version.commons-cli>
+    <version.com.h2database>1.4.193</version.com.h2database>
+  </properties>
+   
 
   <dependencies>
 
@@ -104,14 +110,8 @@
     </dependency>
 
     <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-dbcp2</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>commons-logging</groupId>
-          <artifactId>commons-logging</artifactId>
-        </exclusion>
-      </exclusions>
+      <groupId>org.apache.tomcat</groupId>
+      <artifactId>tomcat-dbcp</artifactId>
     </dependency>
 
     <dependency>
@@ -157,7 +157,7 @@
 
   </dependencies>
 
-  <build>
+  <build> 
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>

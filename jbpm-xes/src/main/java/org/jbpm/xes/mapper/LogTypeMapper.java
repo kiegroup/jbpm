@@ -35,14 +35,14 @@ public class LogTypeMapper implements BiFunction<String, String, LogType> {
         log.setXesFeatures("");
         log.setXesVersion("2.0");
         log.getExtension().addAll(getExtensions());
-        log.getClassifier().add(new ClassifierType("By Node Name",
-                                                   "concept:name"));
-        log.getClassifier().add(new ClassifierType("By Node Id",
-                                                   "jbpm:nodeid"));
-        log.getClassifier().add(new ClassifierType("By Name and Transition",
-                                                   "concept:name lifecycle:transition"));
-        log.getClassifier().add(new ClassifierType("By Resource",
-                                                   "org:resource"));
+        log.getClassifier().add(new ClassifierType("ByNodeName",
+                                                   "concept:name", "event"));
+        log.getClassifier().add(new ClassifierType("ByNodeId",
+                                                   "jbpm:nodeid", "event"));
+        log.getClassifier().add(new ClassifierType("ByNameAndTransition",
+                                                   "concept:name lifecycle:transition", "event"));
+        log.getClassifier().add(new ClassifierType("ByResource",
+                                                   "org:resource", "event"));
         log.getGlobal().addAll(getGlobals());
         log.addStringType("source",
                           "jBPM");

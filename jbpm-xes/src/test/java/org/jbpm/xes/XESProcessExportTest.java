@@ -19,7 +19,7 @@ package org.jbpm.xes;
 import java.util.Arrays;
 import java.util.stream.IntStream;
 
-import org.apache.commons.dbcp2.BasicDataSource;
+import org.apache.tomcat.dbcp.dbcp2.BasicDataSource;
 import org.jbpm.process.audit.NodeInstanceLog;
 import org.jbpm.test.JbpmJUnitBaseTestCase;
 import org.jbpm.xes.dataset.DataSetService;
