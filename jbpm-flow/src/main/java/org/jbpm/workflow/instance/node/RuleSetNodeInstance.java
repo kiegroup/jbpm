@@ -274,7 +274,7 @@ public class RuleSetNodeInstance extends StateBasedNodeInstance implements Event
         factHandles.clear();
 	}
 	
-	private void processOutputs(Map<String, Object> objects) {
+	protected void processOutputs(Map<String, Object> objects) {
 	    RuleSetNode ruleSetNode = getRuleSetNode();
         if (ruleSetNode != null) {
             for (Iterator<DataAssociation> iterator = ruleSetNode.getOutAssociations().iterator(); iterator.hasNext(); ) {
