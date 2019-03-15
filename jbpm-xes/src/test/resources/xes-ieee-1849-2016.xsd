@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+	<xs:element name="log" type="LogType"/>
+	<!-- Attributables -->
+	<xs:group name="AttributableGroup">
+		<xs:sequence>
+			<xs:choice minOccurs="0" maxOccurs="unbounded">
+				<xs:element name="string" type="AttributeStringType"/>
+				<xs:element name="date" type="AttributeDateType"/>
+				<xs:element name="int" type="AttributeIntType"/>
+				<xs:element name="float" type="AttributeFloatType"/>
+				<xs:element name="boolean" type="AttributeBooleanType"/>
+				<xs:element name="id" type="AttributeIDType"/>
+				<xs:element name="list" type="AttributeListType"/>
+			</xs:choice>
+		</xs:sequence>
+	</xs:group>
+	<xs:complexType name="AttributableType">
+		<xs:group ref="AttributableGroup"/>
+	</xs:complexType>
+	<!-- String attribute -->
+	<xs:complexType name="AttributeStringType">
+		<xs:complexContent>
+			<xs:extension base="AttributeType">
+				<xs:attribute name="value" type="xs:string" use="required"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<!-- Date attribute -->
+	<xs:complexType name="AttributeDateType">
+		<xs:complexContent>
+			<xs:extension base="AttributeType">
+				<xs:attribute name="value" type="xs:dateTime" use="required"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<!-- Integer attribute -->
+	<xs:complexType name="AttributeIntType">
+		<xs:complexContent>
+			<xs:extension base="AttributeType">
+				<xs:attribute name="value" type="xs:long" use="required"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<!-- Floating-point attribute -->
+	<xs:complexType name="AttributeFloatType">
+		<xs:complexContent>
+			<xs:extension base="AttributeType">
+				<xs:attribute name="value" type="xs:double" use="required"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<!-- Boolean attribute -->
+	<xs:complexType name="AttributeBooleanType">
+		<xs:complexContent>
+			<xs:extension base="AttributeType">
+				<xs:attribute name="value" type="xs:boolean" use="required"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<!-- ID attribute -->
+	<xs:complexType name="AttributeIDType">
+		<xs:complexContent>
+			<xs:extension base="AttributeType">
+				<xs:attribute name="value" type="xs:string" use="required"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<!-- List attribute -->
+	<xs:complexType name="AttributeListType">
+		<xs:complexContent>
+			<xs:extension base="AttributeType">
+				<xs:sequence>
+					<xs:element name="values" type="AttributeType"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<!-- Extension definition -->
+	<xs:complexType name="ExtensionType">
+		<xs:attribute name="name" type="xs:NCName" use="required"/>
+		<xs:attribute name="prefix" type="xs:NCName" use="required"/>
+		<xs:attribute name="uri" type="xs:anyURI" use="required"/>
+	</xs:complexType>
+	<!-- Globals definition -->
+	<xs:complexType name="GlobalsType">
+		<xs:group ref="AttributableGroup"/>
+		<xs:attribute name="scope" type="xs:NCName" use="required"/>
+	</xs:complexType>
+	<!-- Classifier definition -->
+	<xs:complexType name="ClassifierType">
+		<xs:attribute name="name" type="xs:NCName" use="required"/>
+		<xs:attribute name="scope" type="xs:NCName" use="required"/>
+		<xs:attribute name="keys" type="xs:token" use="required"/>
+	</xs:complexType>
+	<!-- Attribute -->
+	<xs:complexType name="AttributeType">
+		<xs:complexContent>
+			<xs:extension base="AttributableType">
+				<xs:attribute name="key" type="xs:Name" use="required"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<!-- Logs are elements that may contain traces -->
+	<xs:complexType name="LogType">
+		<xs:sequence>
+			<xs:element name="extension" type="ExtensionType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="global" type="GlobalsType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="classifier" type="ClassifierType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:group ref="AttributableGroup"/>
+			<xs:element name="trace" type="TraceType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="event" type="EventType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="xes.version" type="xs:decimal" use="required"/>
+		<xs:attribute name="xes.features" type="xs:token"/>
+	</xs:complexType>
+	<!-- Traces are elements that may contain events -->
+	<xs:complexType name="TraceType">
+		<xs:sequence>
+			<xs:group ref="AttributableGroup"/>
+			<xs:element name="event" type="EventType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- Events are elements -->
+	<xs:complexType name="EventType">
+		<xs:group ref="AttributableGroup"/>
+	</xs:complexType>
+</xs:schema>

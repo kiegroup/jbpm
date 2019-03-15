@@ -20,7 +20,6 @@ import java.util.Arrays;
 import java.util.Date;
 
 import org.dashbuilder.dataset.ColumnType;
-import org.dashbuilder.dataset.filter.ColumnFilter;
 import org.dashbuilder.dataset.impl.DataSetImpl;
 import org.jbpm.process.audit.NodeInstanceLog;
 import org.jbpm.xes.dataset.DataSetService;

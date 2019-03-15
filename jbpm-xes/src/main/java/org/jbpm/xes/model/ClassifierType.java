@@ -53,14 +53,39 @@ public class ClassifierType {
     @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
     @XmlSchemaType(name = "token")
     protected String keys;
+    @XmlAttribute(name = "scope", required = true)
+    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+    @XmlSchemaType(name = "NCName")
+    protected String scope;
+
+    
+    /**
+     * Gets the value of the scope property.
+     * @return possible object is
+     * {@link String }
+     */
+    public String getScope() {
+        return scope;
+    }
+
+    /**
+     * Sets the value of the scope property.
+     * @param value allowed object is
+     * {@link String }
+     */
+    public void setScope(String value) {
+        this.scope = value;
+    }
 
     public ClassifierType() {
     }
 
     public ClassifierType(String name,
-                          String keys) {
+                          String keys,
+                          String scope) {
         this.name = name;
         this.keys = keys;
+        this.scope = scope;
     }
 
     /**

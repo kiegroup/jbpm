@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.cli.*;
-import org.apache.commons.dbcp2.BasicDataSource;
+import org.apache.tomcat.dbcp.dbcp2.BasicDataSource;
 import org.apache.commons.io.FileUtils;
 import org.jbpm.xes.dataset.DataSetService;
 import org.jbpm.xes.dataset.DataSetServiceImpl;
@@ -79,7 +79,7 @@ public class XESExportMain {
 
             final String xml = service.export(filter.build());
             if (line.hasOption("file")) {
-                FileUtils.write(new File(line.getOptionValue("file")), xml);
+                FileUtils.write(new File(line.getOptionValue("file")), xml, "UTF-8");
             } else {
                 System.out.println(xml);
             }
@@ -104,7 +104,7 @@ public class XESExportMain {
         options.addOption(Option.builder("file").argName("file").hasArg().desc("File name to save result XES. Default will print in the console.").build());
         options.addOption(Option.builder("process").argName("process").required().hasArg().desc("Process Id to export").build());
         options.addOption(Option.builder("version").argName("version").hasArg().desc("Process version to export").build());
-        options.addOption(Option.builder("status").argName("status").numberOfArgs(4).desc("Process status to export").build());
+        options.addOption(Option.builder("status").argName("status").hasArgs().valueSeparator(',').desc("Process status to export. Valid status are from 0 to 4, comma separated.").build());
         options.addOption(Option.builder("nodetypes").argName("a").desc("Export all node type. Default will only export relevant activities.").build());
         options.addOption(Option.builder("logtype").argName("logtype").hasArg().desc("Use 0 for node entered events or 1 for exit events. Default will export all types.").build());
         return options;
