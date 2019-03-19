@@ -123,6 +123,10 @@ public class QueryServiceImpl implements QueryService, DeploymentEventListener {
         this.dataSetDefRegistry = dataSetDefRegistry;
     }
 
+    public DataSetDefRegistry getDataSetDefRegistry() {
+        return dataSetDefRegistry;
+    }
+
     public void setProviderRegistry(DataSetProviderRegistry providerRegistry) {
         this.providerRegistry = providerRegistry;
     }

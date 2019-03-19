@@ -24,11 +24,13 @@ import java.util.ServiceLoader;
 import org.jbpm.process.instance.impl.NoOpExecutionErrorHandler;
 import org.kie.internal.runtime.error.ExecutionErrorFilter;
 import org.kie.internal.runtime.error.ExecutionErrorHandler;
+import org.kie.internal.runtime.error.ExecutionErrorListener;
 import org.kie.internal.runtime.error.ExecutionErrorManager;
 import org.kie.internal.runtime.error.ExecutionErrorStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static java.util.Collections.unmodifiableList;
 
 public class ExecutionErrorManagerImpl implements ExecutionErrorManager {
 
@@ -37,6 +39,8 @@ public class ExecutionErrorManagerImpl implements ExecutionErrorManager {
     private static ThreadLocal<ExecutionErrorHandler> handler = new ThreadLocal<>();
     
     private List<ExecutionErrorFilter> filters = new ArrayList<>();
+    private List<ExecutionErrorListener> listeners = new ArrayList<>();
+
     private ExecutionErrorStorage storage;
             
 
@@ -51,6 +55,11 @@ public class ExecutionErrorManagerImpl implements ExecutionErrorManager {
         
         this.storage = storage;
         logger.debug("Execution error storage {}", this.storage);
+
+        ServiceLoader<ExecutionErrorListener> discoveredListeners = ServiceLoader.load(ExecutionErrorListener.class);
+
+        logger.debug("Error event listeners {}", discoveredListeners);
+        discoveredListeners.forEach(listener -> listeners.add(listener));
     }
     
     @Override
@@ -69,7 +78,7 @@ public class ExecutionErrorManagerImpl implements ExecutionErrorManager {
     
     public ExecutionErrorHandler createHandler() {
         if (handler.get() == null) {        
-            handler.set(new ExecutionErrorHandlerImpl(Collections.unmodifiableList(filters), storage));
+            handler.set(new ExecutionErrorHandlerImpl(unmodifiableList(filters), storage, unmodifiableList(listeners)));
         }
         return getHandler();
     }

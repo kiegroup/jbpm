@@ -20,11 +20,7 @@ import java.util.List;
 
 import org.kie.api.runtime.process.NodeInstance;
 import org.kie.api.task.model.Task;
-import org.kie.internal.runtime.error.ExecutionError;
-import org.kie.internal.runtime.error.ExecutionErrorContext;
-import org.kie.internal.runtime.error.ExecutionErrorFilter;
-import org.kie.internal.runtime.error.ExecutionErrorHandler;
-import org.kie.internal.runtime.error.ExecutionErrorStorage;
+import org.kie.internal.runtime.error.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +30,8 @@ public class ExecutionErrorHandlerImpl implements ExecutionErrorHandler {
     private static final Logger logger = LoggerFactory.getLogger(ExecutionErrorHandlerImpl.class);   
     
     private List<ExecutionErrorFilter> filters;
+    private List<ExecutionErrorListener> listeners;
+
     private ExecutionErrorStorage storage;
     
     private NodeInstance firstExecutedNode;
@@ -41,11 +39,12 @@ public class ExecutionErrorHandlerImpl implements ExecutionErrorHandler {
     private NodeInstance lastExecutedNode;
     
     private Task lastExecutedTask;
-    
-    public ExecutionErrorHandlerImpl(List<ExecutionErrorFilter> filters, ExecutionErrorStorage storage) {
+
+    public ExecutionErrorHandlerImpl(List<ExecutionErrorFilter> filters, ExecutionErrorStorage storage, List<ExecutionErrorListener> listeners) {
         super();
         this.filters = filters;
         this.storage = storage;
+        this.listeners = listeners;
     }
 
     @Override
@@ -94,6 +93,7 @@ public class ExecutionErrorHandlerImpl implements ExecutionErrorHandler {
                     try {
                         storage.store(error);
                         logger.debug("Error event {} stored successfully in {}", error, storage);
+                        listeners.forEach( listener -> listener.onExecutionError(error));
                     } catch (Throwable e) {
                         logger.warn("Could not persist execution error {} due to {}", error, e.getMessage());
                         logger.debug("Stack trace ", e);
