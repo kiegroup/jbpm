@@ -28,6 +28,7 @@ import org.jbpm.process.core.context.exception.CompensationHandler;
 import org.jbpm.process.core.context.exception.CompensationScope;
 import org.jbpm.process.core.context.exception.ExceptionHandler;
 import org.jbpm.process.instance.ProcessInstance;
+import org.jbpm.ruleflow.core.RuleFlowProcess;
 import org.jbpm.workflow.core.impl.NodeImpl;
 import org.jbpm.workflow.core.node.BoundaryEventNode;
 import org.jbpm.workflow.core.node.EventSubProcessNode;
@@ -70,8 +71,17 @@ public class CompensationScopeInstance extends ExceptionScopeInstance  {
             while( iter.hasPrevious() ) {
                 String completedId = iter.previous();
                 ExceptionHandler handler = handlers.get(completedId);
-                if( handler != null ) { 
+                if( handler != null ) {
                     handleException(handler, completedId, null);
+                } else {
+                    // check if its a process level compensation
+                    String processId = ((WorkflowProcessInstanceImpl) getProcessInstance()).getProcessId();
+                    if(handlers.get(processId) != null) {
+                        ExceptionHandler phandler = handlers.get(processId);
+                        if(phandler != null) {
+                            handleException(phandler, processId, null);
+                        }
+                    }
                 }
             }
         } else { 
@@ -107,14 +117,28 @@ public class CompensationScopeInstance extends ExceptionScopeInstance  {
                 } else if (handlerNode instanceof EventSubProcessNode ) {
                     // Check that subprocess parent has completed. 
                     List<String> completedIds = processInstance.getCompletedNodeIds();
-                    if( completedIds.contains(((NodeImpl) handlerNode.getNodeContainer()).getMetaData("UniqueId")) ) { 
-                        NodeInstance subProcessNodeInstance 
-                            = ((NodeInstanceContainer) nodeInstanceContainer).getNodeInstance((Node) handlerNode.getNodeContainer());
-                        compensationInstances.add(subProcessNodeInstance);
-                        NodeInstance compensationHandlerNodeInstance 
-                            = ((NodeInstanceContainer) subProcessNodeInstance).getNodeInstance(handlerNode);
-                        compensationInstances.add(compensationHandlerNodeInstance); 
-                        EventSubProcessNodeInstance eventNodeInstance = (EventSubProcessNodeInstance) compensationHandlerNodeInstance;
+
+                    boolean constainsId = false;
+                    if(handlerNode.getNodeContainer() instanceof NodeImpl) {
+                        constainsId = completedIds.contains(((NodeImpl) handlerNode.getNodeContainer()).getMetaData("UniqueId"));
+                    } else if(handlerNode.getNodeContainer() instanceof RuleFlowProcess) {
+                        // process level compensation - no completed ids need to be checked
+                        constainsId = true;
+                    }
+                    if( constainsId ) {
+                        NodeInstance compensationHandlerNodeInstance = null;
+                        EventSubProcessNodeInstance eventNodeInstance = null;
+                        if(handlerNode.getNodeContainer() instanceof NodeImpl) {
+                            NodeInstance subProcessNodeInstance = ((NodeInstanceContainer) nodeInstanceContainer).getNodeInstance((Node) handlerNode.getNodeContainer());
+                            compensationInstances.add(subProcessNodeInstance);
+                            compensationHandlerNodeInstance
+                                    = ((NodeInstanceContainer) subProcessNodeInstance).getNodeInstance(handlerNode);
+                        } else if(handlerNode.getNodeContainer() instanceof RuleFlowProcess) {
+                            compensationHandlerNodeInstance = nodeInstanceContainer.getNodeInstance(handlerNode);
+                        }
+
+                        compensationInstances.add(compensationHandlerNodeInstance);
+                        eventNodeInstance = (EventSubProcessNodeInstance) compensationHandlerNodeInstance;
                         eventNodeInstance.signalEvent("Compensation", compensationActivityRef);
                     }
                 } 

@@ -154,7 +154,7 @@ public class CompensationTest extends JbpmBpmn2TestCase {
     }
     
     @Test
-    public void compensationViaEventSubProcess() throws Exception {
+    public void subprocessLevelCompensationViaEventSubProcess() throws Exception {
         KieSession ksession = createKnowledgeSession("compensation/BPMN2-Compensation-EventSubProcess.bpmn2");
         TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
         ksession.getWorkItemManager().registerWorkItemHandler("Human Task", workItemHandler);
@@ -166,6 +166,17 @@ public class CompensationTest extends JbpmBpmn2TestCase {
         assertProcessInstanceActive(processInstance.getId(), ksession);
         ksession.getWorkItemManager().completeWorkItem(workItemHandler.getWorkItem().getId(), null);
         
+        assertProcessVarValue(processInstance, "x", "1");
+    }
+
+    @Test
+    public void processLevelCompensationViaEventSubProcess() throws Exception {
+        KieSession ksession = createKnowledgeSession("compensation/BPMN2-Compensation-EventSubProcess2.bpmn2");
+
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("x", "0");
+        ProcessInstance processInstance = ksession.startProcess("CompensationEventSubProcess", params);
+
         assertProcessVarValue(processInstance, "x", "1");
     }
     

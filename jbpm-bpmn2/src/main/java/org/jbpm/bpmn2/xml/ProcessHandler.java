@@ -815,27 +815,29 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
                                             	exceptionScope.setExceptionHandler(faultCode, exceptionHandler);
                                             }
                                         } else if( type.equals("Compensation") ) { 
-                                            // 1. Find the parent sub-process to this event sub-process
-                                            NodeContainer parentSubProcess;  
+                                            // Find the parent sub-process to this event sub-process
+                                            NodeContainer parent = null;
                                             NodeContainer subProcess = eventSubProcessNode.getNodeContainer();
                                             Object isForCompensationObj = eventSubProcessNode.getMetaData("isForCompensation");
                                             if( isForCompensationObj == null ) { 
                                                 eventSubProcessNode.setMetaData("isForCompensation", true );
                                                 logger.warn( "Overriding empty or false value of \"isForCompensation\" attribute on Event Sub-Process [" 
                                                         + eventSubProcessNode.getMetaData("UniqueId") + "] and setting it to true.");
-                                            } 
-                                            if( subProcess instanceof RuleFlowProcess ) { 
-                                                // If jBPM deletes the process (instance) as soon as the process completes.. 
-                                                // ..how do you expect to signal compensation on the completed process (instance)?!?
-                                                throw new IllegalArgumentException("Compensation Event Sub-Processes at the process level are not supported.");
                                             }
-                                            parentSubProcess = ((Node) subProcess).getNodeContainer();
 
-                                            // 2. The event filter (never fires, purely for dumping purposes) has already been added
+                                            String compensationHandlerId = "";
 
-                                            // 3. Add compensation scope
-                                            String compensationHandlerId = (String) ((CompositeNode) subProcess).getMetaData("UniqueId");
-                                            addCompensationScope(process, eventSubProcessNode, parentSubProcess, compensationHandlerId);
+                                            if( subProcess instanceof RuleFlowProcess ) {
+                                                parent = subProcess;
+                                                compensationHandlerId = ((RuleFlowProcess) subProcess).getId();
+                                            }
+
+                                            if(subProcess instanceof  Node) {
+                                                parent = ((Node) subProcess).getNodeContainer();
+                                                compensationHandlerId = (String) ((CompositeNode) subProcess).getMetaData("UniqueId");
+                                            }
+
+                                            addCompensationScope(process, eventSubProcessNode, parent, compensationHandlerId);
                                         }
                                     }
                                 }
@@ -964,7 +966,7 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
     }
     
     protected void handleIntermediateOrEndThrowCompensationEvent(ExtendedNodeImpl throwEventNode ) { 
-        if( throwEventNode.getMetaData("compensation-activityRef") != null ) { 
+        if( throwEventNode.getMetaData("compensation-activityRef") != null ) {
             String activityRef = (String) throwEventNode.getMetaData().remove("compensation-activityRef");
 
             NodeContainer nodeParent = (NodeContainer) throwEventNode.getNodeContainer();
