@@ -382,7 +382,11 @@ public abstract class NodeInstanceImpl implements org.jbpm.workflow.instance.Nod
     protected void triggerNodeInstance(org.jbpm.workflow.instance.NodeInstance nodeInstance, String type) {
         triggerNodeInstance(nodeInstance, type, true);
     }
-    
+
+    protected NodeInstance getFrom() {
+        return this;
+    }
+
     protected void triggerNodeInstance(org.jbpm.workflow.instance.NodeInstance nodeInstance, String type, boolean fireEvents) {
         triggerTime = new Date();
     	boolean hidden = false;
@@ -395,7 +399,7 @@ public abstract class NodeInstanceImpl implements org.jbpm.workflow.instance.Nod
     			.getProcessEventSupport().fireBeforeNodeLeft(this, kruntime);
     	}
     	// trigger next node
-        nodeInstance.trigger(this, type);
+        nodeInstance.trigger(getFrom(), type);
         Collection<Connection> outgoing = getNode().getOutgoingConnections(type);
         for (Connection conn : outgoing) {
             if (conn.getTo().getId() == nodeInstance.getNodeId()) {

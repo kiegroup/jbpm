@@ -16,12 +16,11 @@
 
 package org.jbpm.workflow.instance;
 
-import org.kie.api.definition.process.Node;
-
 import java.util.Date;
 import java.util.Map;
 
 import org.jbpm.process.instance.ContextInstance;
+import org.kie.api.definition.process.Node;
 
 /**
  * Represents a node instance in a RuleFlow. This is the runtime counterpart
@@ -31,6 +30,8 @@ import org.jbpm.process.instance.ContextInstance;
  * 
  */
 public interface NodeInstance extends org.kie.api.runtime.process.NodeInstance {
+
+    public static final String METADATA_WRAP_ASYNC_NODE = "WRAP_ASYNC_NODE";
 
     void trigger(org.kie.api.runtime.process.NodeInstance from, String type);
 

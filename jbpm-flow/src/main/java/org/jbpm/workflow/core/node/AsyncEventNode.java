@@ -32,7 +32,19 @@ public class AsyncEventNode extends EventNode {
     public AsyncEventNode(Node node) {
         this.node = node;        
     }
-    
+
+    public Node getPreviousNode() {
+        return getPreviousNode(NodeImpl.CONNECTION_DEFAULT_TYPE);
+    }
+
+    public Node getPreviousNode(String type) {
+        Node currentNode = getActualNode();
+        if (!node.getIncomingConnections(type).isEmpty()) {
+            return currentNode.getIncomingConnections(type).get(0).getFrom();
+        }
+        return null;
+    }
+
     public Node getActualNode() {
         return node;
     }

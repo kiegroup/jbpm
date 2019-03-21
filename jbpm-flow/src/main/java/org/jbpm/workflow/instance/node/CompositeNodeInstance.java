@@ -16,8 +16,6 @@
 
 package org.jbpm.workflow.instance.node;
 
-import static org.jbpm.workflow.instance.impl.DummyEventListener.EMPTY_EVENT_LISTENER;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -47,6 +45,8 @@ import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 import org.kie.api.definition.process.Connection;
 import org.kie.api.definition.process.Node;
 import org.kie.api.definition.process.NodeContainer;
+
+import static org.jbpm.workflow.instance.impl.DummyEventListener.EMPTY_EVENT_LISTENER;
 
 /**
  * Runtime counterpart of a composite node.
@@ -122,9 +122,10 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
 	        List<Connection> connections = nodeAndType.getNode().getIncomingConnections(nodeAndType.getType());
 	        for (Iterator<Connection> iterator = connections.iterator(); iterator.hasNext(); ) {
 	            Connection connection = iterator.next();
+
 	            if ((connection.getFrom() instanceof CompositeNode.CompositeNodeStart) &&
-	            		(from == null ||
-	    				((CompositeNode.CompositeNodeStart) connection.getFrom()).getInNode().getId() == from.getNodeId())) {
+                    (from == null ||
+                     ((CompositeNode.CompositeNodeStart) connection.getFrom()).getInNode().getId() == from.getNodeId())) {
 	                NodeInstance nodeInstance = getNodeInstance(connection.getFrom());
 	                ((org.jbpm.workflow.instance.NodeInstance) nodeInstance).trigger(null, nodeAndType.getType());
 	                return;
@@ -243,6 +244,7 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
         return null;
     }
 
+    @Override
     public NodeInstance getNodeInstance(final Node node) {
         // TODO do this cleaner for start / end of composite?
         if (node instanceof CompositeNode.CompositeNodeStart) {
@@ -429,6 +431,9 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
     }
 
     protected boolean useAsync(final Node node) {
+        if (node.getMetaData().containsKey(NodeInstance.METADATA_WRAP_ASYNC_NODE)) {
+            return ((Boolean) node.getMetaData().get(NodeInstance.METADATA_WRAP_ASYNC_NODE));
+        }
         if (!(node instanceof EventSubProcessNode) && (node instanceof ActionNode || node instanceof StateBasedNode || node instanceof EndNode)) {  
             boolean asyncMode = Boolean.parseBoolean((String)node.getMetaData().get("customAsync"));
             if (asyncMode) {
