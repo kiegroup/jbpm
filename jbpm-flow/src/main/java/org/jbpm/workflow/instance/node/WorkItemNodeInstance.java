@@ -88,7 +88,7 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
     private Map<String, List<ContextInstance>> subContextInstances = new HashMap<String, List<ContextInstance>>();
 
     private long workItemId = -1;
-    private transient WorkItem workItem;
+    protected transient WorkItem workItem;
     
     private long exceptionHandlingProcessInstanceId = -1;
 
@@ -138,9 +138,9 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
             addWorkItemListener();
         }
         String deploymentId = (String) getProcessInstance().getKnowledgeRuntime().getEnvironment().get(EnvironmentName.DEPLOYMENT_ID);
-        ((WorkItem) workItem).setDeploymentId(deploymentId);
-        ((WorkItem) workItem).setNodeInstanceId(this.getId());
-        ((WorkItem) workItem).setNodeId(getNodeId());
+        workItem.setDeploymentId(deploymentId);
+        workItem.setNodeInstanceId(this.getId());
+        workItem.setNodeId(getNodeId());
         if (isInversionOfControl()) {
             ((ProcessInstance) getProcessInstance()).getKnowledgeRuntime()
                                                     .update(((ProcessInstance) getProcessInstance()).getKnowledgeRuntime().getFactHandle(this), this);
@@ -175,14 +175,24 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
     protected WorkItem createWorkItem(WorkItemNode workItemNode) {
         Work work = workItemNode.getWork();
         workItem = new WorkItemImpl();
-        ((WorkItem) workItem).setName(work.getName());
-        ((WorkItem) workItem).setProcessInstanceId(getProcessInstance().getId());
-        ((WorkItem) workItem).setParameters(new HashMap<String, Object>(work.getParameters()));
+        workItem.setName(work.getName());
+        workItem.setProcessInstanceId(getProcessInstance().getId());
+        workItem.setParameters(new HashMap<String, Object>(work.getParameters()));
         // if there are any dynamic parameters add them
         if (dynamicParameters != null) {
-            ((WorkItem) workItem).getParameters().putAll(dynamicParameters);
+            workItem.getParameters().putAll(dynamicParameters);
         }
 
+        setWorkItemParameters(workItemNode);
+        return workItem;
+    }
+
+    protected void setWorkItemParameters(WorkItemNode workItemNode) {
+        setWorkItemParametersFromDataAssociations(workItemNode);
+        setWorkItemParametersFromStringReplacement(workItemNode);
+    }
+
+    protected void setWorkItemParametersFromDataAssociations(WorkItemNode workItemNode) {
         for (Iterator<DataAssociation> iterator = workItemNode.getInAssociations().iterator(); iterator.hasNext();) {
             DataAssociation association = iterator.next();
             if (association.getTransformation() != null) {
@@ -191,7 +201,7 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
                 if (transformer != null) {
                     Object parameterValue = transformer.transform(transformation.getCompiledExpression(), getSourceParameters(association));
                     if (parameterValue != null) {
-                        ((WorkItem) workItem).setParameter(association.getTarget(), parameterValue);
+                        workItem.setParameter(association.getTarget(), parameterValue);
                     }
                 }
             } else if (association.getAssignments() == null || association.getAssignments().isEmpty()) {
@@ -204,12 +214,12 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
                         parameterValue = MVELSafeHelper.getEvaluator().eval(association.getSources().get(0), new NodeInstanceResolverFactory(this));
                     } catch (Throwable t) {
                         logger.error("Could not find variable scope for variable {}", association.getSources().get(0));
-                        logger.error("when trying to execute Work Item {}", work.getName());
+                        logger.error("when trying to execute Work Item {}", workItemNode.getWork().getName());
                         logger.error("Continuing without setting parameter.");
                     }
                 }
                 if (parameterValue != null) {
-                    ((WorkItem) workItem).setParameter(association.getTarget(), parameterValue);
+                    workItem.setParameter(association.getTarget(), parameterValue);
                 }
             } else {
                 for (Iterator<Assignment> it = association.getAssignments().iterator(); it.hasNext();) {
@@ -218,6 +228,9 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
             }
         }
 
+    }
+	
+    protected void setWorkItemParametersFromStringReplacement(WorkItemNode workItemNode) {
         for (Map.Entry<String, Object> entry : workItem.getParameters().entrySet()) {
             if (entry.getValue() instanceof String) {
                 String s = (String) entry.getValue();
@@ -238,7 +251,7 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
                                 replacements.put(paramName, variableValueString);
                             } catch (Throwable t) {
                                 logger.error("Could not find variable scope for variable {}", paramName);
-                                logger.error("when trying to replace variable in string for Work Item {}", work.getName());
+                                logger.error("when trying to replace variable in string for Work Item {}", workItemNode.getWork().getName());
                                 logger.error("Continuing without setting parameter.");
                             }
                         }
@@ -248,11 +261,10 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
                 for (Map.Entry<String, String> replacement : replacements.entrySet()) {
                     s = s.replace("#{" + replacement.getKey() + "}", replacement.getValue());
                 }
-                ((WorkItem) workItem).setParameter(entry.getKey(), s);
+                workItem.setParameter(entry.getKey(), s);
 
             }
         }
-        return workItem;
     }
 
     private void handleAssignment(Assignment assignment) {
@@ -271,66 +283,7 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
         WorkItemNode workItemNode = getWorkItemNode();
 
         if (workItemNode != null && workItem.getState() == WorkItem.COMPLETED) {
-            validateWorkItemResultVariable(getProcessInstance().getProcessName(), workItemNode.getOutAssociations(), workItem);
-            for (Iterator<DataAssociation> iterator = getWorkItemNode().getOutAssociations().iterator(); iterator.hasNext();) {
-                DataAssociation association = iterator.next();
-                if (association.getTransformation() != null) {
-                    Transformation transformation = association.getTransformation();
-                    DataTransformer transformer = DataTransformerRegistry.get().find(transformation.getLanguage());
-                    if (transformer != null) {
-                        Object parameterValue = transformer.transform(transformation.getCompiledExpression(), workItem.getResults());
-                        VariableScopeInstance variableScopeInstance = (VariableScopeInstance) resolveContextInstance(VariableScope.VARIABLE_SCOPE, association.getTarget());
-                        if (variableScopeInstance != null && parameterValue != null) {
-
-                            variableScopeInstance.getVariableScope().validateVariable(getProcessInstance().getProcessName(), association.getTarget(), parameterValue);
-
-                            variableScopeInstance.setVariable(association.getTarget(), parameterValue);
-                        } else {
-                            logger.warn("Could not find variable scope for variable {}", association.getTarget());
-                            logger.warn("when trying to complete Work Item {}", workItem.getName());
-                            logger.warn("Continuing without setting variable.");
-                        }
-                        if (parameterValue != null) {
-                            ((WorkItem) workItem).setParameter(association.getTarget(), parameterValue);
-                        }
-                    }
-                } else if (association.getAssignments() == null || association.getAssignments().isEmpty()) {
-                    VariableScopeInstance variableScopeInstance = (VariableScopeInstance) resolveContextInstance(VariableScope.VARIABLE_SCOPE, association.getTarget());
-                    if (variableScopeInstance != null) {
-                        Object value = workItem.getResult(association.getSources().get(0));
-                        if (value == null) {
-                            try {
-                                value = MVELSafeHelper.getEvaluator().eval(association.getSources().get(0), new WorkItemResolverFactory(workItem));
-                            } catch (Throwable t) {
-                                // do nothing
-                            }
-                        }
-                        Variable varDef = variableScopeInstance.getVariableScope().findVariable(association.getTarget());
-                        DataType dataType = varDef.getType();
-                        // exclude java.lang.Object as it is considered unknown type
-                        if (!dataType.getStringType().endsWith("java.lang.Object") &&
-                            !dataType.getStringType().endsWith("Object") && value instanceof String) {
-                            value = dataType.readValue((String) value);
-                        } else {
-                            variableScopeInstance.getVariableScope().validateVariable(getProcessInstance().getProcessName(), association.getTarget(), value);
-                        }
-                        variableScopeInstance.setVariable(association.getTarget(), value);
-                    } else {
-                        logger.warn("Could not find variable scope for variable {}", association.getTarget());
-                        logger.warn("when trying to complete Work Item {}", workItem.getName());
-                        logger.warn("Continuing without setting variable.");
-                    }
-
-                } else {
-                    try {
-                        for (Iterator<Assignment> it = association.getAssignments().iterator(); it.hasNext();) {
-                            handleAssignment(it.next());
-                        }
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            }
+            updateVariablesFromResult(workItem, workItemNode);
         }
         // handle dynamic nodes
         if (getNode() == null) {
@@ -346,6 +299,68 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
         }
     }
 
+    protected void updateVariablesFromResult(WorkItem workItem, WorkItemNode workItemNode) {
+        validateWorkItemResultVariable(getProcessInstance().getProcessName(), workItemNode.getOutAssociations(), workItem);
+        for (Iterator<DataAssociation> iterator = getWorkItemNode().getOutAssociations().iterator(); iterator.hasNext();) {
+            DataAssociation association = iterator.next();
+            if (association.getTransformation() != null) {
+                Transformation transformation = association.getTransformation();
+                DataTransformer transformer = DataTransformerRegistry.get().find(transformation.getLanguage());
+                if (transformer != null) {
+                    Object parameterValue = transformer.transform(transformation.getCompiledExpression(), workItem.getResults());
+                    VariableScopeInstance variableScopeInstance = (VariableScopeInstance) resolveContextInstance(VariableScope.VARIABLE_SCOPE, association.getTarget());
+                    if (variableScopeInstance != null && parameterValue != null) {
+
+                        variableScopeInstance.getVariableScope().validateVariable(getProcessInstance().getProcessName(), association.getTarget(), parameterValue);
+
+                        variableScopeInstance.setVariable(association.getTarget(), parameterValue);
+                    } else {
+                        logger.warn("Could not find variable scope for variable {}", association.getTarget());
+                        logger.warn("when trying to complete Work Item {}", workItem.getName());
+                        logger.warn("Continuing without setting variable.");
+                    }
+                    if (parameterValue != null) {
+                        workItem.setParameter(association.getTarget(), parameterValue);
+                    }
+                }
+            } else if (association.getAssignments() == null || association.getAssignments().isEmpty()) {
+                VariableScopeInstance variableScopeInstance = (VariableScopeInstance) resolveContextInstance(VariableScope.VARIABLE_SCOPE, association.getTarget());
+                if (variableScopeInstance != null) {
+                    Object value = workItem.getResult(association.getSources().get(0));
+                    if (value == null) {
+                        try {
+                            value = MVELSafeHelper.getEvaluator().eval(association.getSources().get(0), new WorkItemResolverFactory(workItem));
+                        } catch (Throwable t) {
+                            // do nothing
+                        }
+                    }
+                    Variable varDef = variableScopeInstance.getVariableScope().findVariable(association.getTarget());
+                    DataType dataType = varDef.getType();
+                    // exclude java.lang.Object as it is considered unknown type
+                    if (!dataType.getStringType().endsWith("java.lang.Object") &&
+                        !dataType.getStringType().endsWith("Object") && value instanceof String) {
+                        value = dataType.readValue((String) value);
+                    } else {
+                        variableScopeInstance.getVariableScope().validateVariable(getProcessInstance().getProcessName(), association.getTarget(), value);
+                    }
+                    variableScopeInstance.setVariable(association.getTarget(), value);
+                } else {
+                    logger.warn("Could not find variable scope for variable {}", association.getTarget());
+                    logger.warn("when trying to complete Work Item {}", workItem.getName());
+                    logger.warn("Continuing without setting variable.");
+                }
+
+            } else {
+                try {
+                    for (Iterator<Assignment> it = association.getAssignments().iterator(); it.hasNext();) {
+                        handleAssignment(it.next());
+                    }
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+    }
     public void cancel() {
         WorkItem workItem = getWorkItem();
         if (workItem != null &&
