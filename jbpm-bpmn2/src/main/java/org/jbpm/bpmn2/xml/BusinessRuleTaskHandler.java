@@ -40,6 +40,7 @@ public class BusinessRuleTaskHandler extends AbstractNodeHandler {
     private static final String NAMESPACE_PROP = "namespace";
     private static final String MODEL_PROP = "model";
     private static final String DECISION_PROP = "decision";
+    private static final String DECISION_SERVICE_PROP = "decisionService";
 	private DataTransformerRegistry transformerRegistry = DataTransformerRegistry.get();
     
     protected Node createNode(Attributes attrs) {
@@ -80,7 +81,8 @@ public class BusinessRuleTaskHandler extends AbstractNodeHandler {
 		ruleSetNode.setNamespace((String) ruleSetNode.removeParameter(NAMESPACE_PROP));
 		ruleSetNode.setModel((String) ruleSetNode.removeParameter(MODEL_PROP));
 		ruleSetNode.setDecision((String) ruleSetNode.removeParameter(DECISION_PROP));
-		
+		ruleSetNode.setDecisionService((String) ruleSetNode.removeParameter(DECISION_SERVICE_PROP));
+
         handleScript(ruleSetNode, element, "onEntry");
         handleScript(ruleSetNode, element, "onExit");
 	}

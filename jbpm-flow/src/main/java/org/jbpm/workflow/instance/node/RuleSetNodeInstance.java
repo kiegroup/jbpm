@@ -108,6 +108,7 @@ public class RuleSetNodeInstance extends StateBasedNodeInstance implements Event
                 String namespace = resolveVariable(ruleSetNode.getNamespace());
                 String model = resolveVariable(ruleSetNode.getModel());
                 String decision = resolveVariable(ruleSetNode.getDecision());
+                String decisionService = resolveVariable(ruleSetNode.getDecisionService());
 
                 DMNRuntime runtime = ((KieSession) kruntime).getKieRuntime(DMNRuntime.class);
                 DMNModel dmnModel = runtime.getModel(namespace, model);
@@ -128,6 +129,8 @@ public class RuleSetNodeInstance extends StateBasedNodeInstance implements Event
 
                 if (decision != null && !decision.isEmpty()) {
                     dmnResult = runtime.evaluateByName(dmnModel, context, decision);
+                } else if (decisionService != null && !decisionService.isEmpty()) {
+                    dmnResult = runtime.evaluateDecisionService(dmnModel, context, decisionService);
                 } else {
                     dmnResult = runtime.evaluateAll(dmnModel, context);
                 }
@@ -321,10 +324,10 @@ public class RuleSetNodeInstance extends StateBasedNodeInstance implements Event
                     }
 
                 }               
+                }
             }
-        }
         
-    }
+        }
 
     protected Map<String, Object> evaluateParameters(RuleSetNode ruleSetNode) {
 	    Map<String, Object> replacements = new HashMap<String, Object>();

@@ -51,7 +51,8 @@ public class RuleSetNode extends StateBasedNode implements ContextContainer {
     private String namespace;
     private String model;
     private String decision;
-    
+    private String decisionService;
+
     private List<DataAssociation> inMapping = new LinkedList<DataAssociation>();
     private List<DataAssociation> outMapping = new LinkedList<DataAssociation>();
     
@@ -96,6 +97,15 @@ public class RuleSetNode extends StateBasedNode implements ContextContainer {
     public void setDecision(String decision) {
         this.decision = decision;
     }
+
+    public String getDecisionService() {
+        return decisionService;
+    }
+
+    public void setDecisionService(String decisionService) {
+        this.decisionService = decisionService;
+    }
+
 
     public void validateAddIncomingConnection(final String type, final Connection connection) {
         super.validateAddIncomingConnection(type, connection);

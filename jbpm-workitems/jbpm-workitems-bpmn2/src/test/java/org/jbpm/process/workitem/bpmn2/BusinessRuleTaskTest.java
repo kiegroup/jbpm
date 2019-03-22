@@ -167,6 +167,34 @@ public class BusinessRuleTaskTest {
                      output);
     }
 
+    @Test
+    public void testCallingDecisionService() throws Exception {
+        //This test make sure that null variables are passed to the DMN execution context, otherwise DMN will throw an exception that an input requirement is missing
+        KieBase kbase = readKnowledgeBase();
+        KieSession ksession = createSession(kbase);
+
+        BusinessRuleTaskHandler handler = new BusinessRuleTaskHandler(GROUP_ID,
+                                                                      ARTIFACT_ID,
+                                                                      VERSION);
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("Input",
+                   "Hello World");
+
+        WorkflowProcessInstance processInstance = (WorkflowProcessInstance) ksession.startProcess("CallDecision",
+                                                                                                  params);
+        Object output = processInstance.getVariable("Output Decision");
+        //This is mapped with data associations to Output Decision in the DMN model	
+        assertEquals("Hello World",
+                     output);
+
+        Object encapsulatedOutput = processInstance.getVariable("Encapsulated Output");
+
+        //This is mapped with data associations to Encapsulated Output in the DMN model	 and should not be part of the returned model because encapsulated decisions are not returned
+        assertEquals(null,
+                     encapsulatedOutput);
+
+    }
+
     private static KieBase readKnowledgeBase() throws Exception {
         ProcessBuilderFactory.setProcessBuilderFactoryService(new ProcessBuilderFactoryServiceImpl());
         ProcessRuntimeFactory.setProcessRuntimeFactoryService(new ProcessRuntimeFactoryServiceImpl());
@@ -178,6 +206,10 @@ public class BusinessRuleTaskTest {
         kbuilder.add(ResourceFactory.newClassPathResource("string-passthru.dmn"),
                      ResourceType.DMN);
         kbuilder.add(ResourceFactory.newClassPathResource("calling-dmn-passthru.bpmn2"),
+                     ResourceType.BPMN2);
+        kbuilder.add(ResourceFactory.newClassPathResource("decision-service.dmn"),
+                     ResourceType.DMN);
+        kbuilder.add(ResourceFactory.newClassPathResource("calling-dmn-decision-service.bpmn2"),
                      ResourceType.BPMN2);
         return kbuilder.newKieBase();
     }
