@@ -33,6 +33,7 @@ import org.jbpm.process.core.timer.impl.GlobalTimerService.DisposableCommandServ
 import org.kie.api.runtime.Environment;
 import org.kie.api.runtime.EnvironmentName;
 import org.kie.api.runtime.ExecutableRunner;
+import org.kie.internal.runtime.manager.InternalRuntimeManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,12 +67,14 @@ public class GlobalJpaTimerJobInstance extends JpaTimerJobInstance {
         boolean success = false;
         try { 
             JDKCallableJobCommand command = new JDKCallableJobCommand( this );
-            if (scheduler == null) {
+
+            if (scheduler == null || ((GlobalTimerService) scheduler).getRuntimeManager().isClosed()) {
                 scheduler = (InternalSchedulerService) TimerServiceRegistry.getInstance().get(timerServiceId);
             }
             if (scheduler == null) {
             	throw new RuntimeException("No scheduler found for " + timerServiceId);
             }
+
             jtaTm = startTxIfNeeded(((GlobalTimerService) scheduler).getRuntimeManager().getEnvironment().getEnvironment());
 
 			runner = ((GlobalTimerService) scheduler).getRunner( getJobContext() );
