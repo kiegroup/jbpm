@@ -131,9 +131,6 @@ public class BusinessRuleTaskTest {
         KieBase kbase = readKnowledgeBase();
         KieSession ksession = createSession(kbase);
 
-        BusinessRuleTaskHandler handler = new BusinessRuleTaskHandler(GROUP_ID,
-                                                                      ARTIFACT_ID,
-                                                                      VERSION);
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("Input",
                    null);
@@ -152,9 +149,6 @@ public class BusinessRuleTaskTest {
         KieBase kbase = readKnowledgeBase();
         KieSession ksession = createSession(kbase);
 
-        BusinessRuleTaskHandler handler = new BusinessRuleTaskHandler(GROUP_ID,
-                                                                      ARTIFACT_ID,
-                                                                      VERSION);
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("Input",
                    "Hello World");
@@ -173,9 +167,6 @@ public class BusinessRuleTaskTest {
         KieBase kbase = readKnowledgeBase();
         KieSession ksession = createSession(kbase);
 
-        BusinessRuleTaskHandler handler = new BusinessRuleTaskHandler(GROUP_ID,
-                                                                      ARTIFACT_ID,
-                                                                      VERSION);
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("Input",
                    "Hello World");
