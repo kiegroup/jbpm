@@ -174,6 +174,7 @@ public class JPAProcessInstanceManager
                 ((ProcessInstanceImpl) processInstance).reconnect();
                 if (readOnly) {
                     internalRemoveProcessInstance(processInstance);
+                    ((ProcessInstanceImpl) processInstance).disconnect();
                 }
             }
             return processInstance;
