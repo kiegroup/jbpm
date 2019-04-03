@@ -125,6 +125,7 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
         }
         this.executionErrorManager = new ExecutionErrorManagerImpl(storage);
         ((SimpleRuntimeEnvironment)environment).getEnvironmentTemplate().set(EnvironmentName.EXEC_ERROR_MANAGER, executionErrorManager);
+        logger.info("{} is created for {}", this.getClass().getSimpleName(), identifier);
     }
     
     private void internalSetDeploymentDescriptor() {
