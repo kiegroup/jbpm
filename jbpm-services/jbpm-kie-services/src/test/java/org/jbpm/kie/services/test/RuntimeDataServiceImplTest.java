@@ -1035,6 +1035,9 @@ public class RuntimeDataServiceImplTest extends AbstractKieServicesBaseTest {
     	assertEquals(processInstanceId, userTask.getProcessInstanceId());
     	assertEquals("Write a Document", userTask.getName());
 
+    	NodeInstanceDesc nodeInstanceDesc = runtimeDataService.getNodeInstanceForWorkItem(userTask.getWorkItemId());
+		assertEquals(nodeInstanceDesc.getSlaCompliance(), userTask.getSlaCompliance());
+		assertEquals(nodeInstanceDesc.getSlaDueDate(), userTask.getSlaDueDate());
     }
 
     @Test

@@ -46,4 +46,10 @@ public interface UserTaskInstanceDesc {
 	String getDeploymentId();
 	
 	String getFormName();
+
+	Long getWorkItemId();
+
+	Integer getSlaCompliance();
+
+	Date getSlaDueDate();
 }
