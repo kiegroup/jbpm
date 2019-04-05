@@ -18,11 +18,12 @@ package org.jbpm.document;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAnyElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -34,6 +35,8 @@ public class Documents implements Serializable {
 
 	private static final long serialVersionUID = 6962662228758156488L;
 	
+	@XmlElementWrapper
+	@XmlAnyElement(lax=true)
 	private List<Document> documents = new ArrayList<>();
 
 	public Documents() {
@@ -48,7 +51,7 @@ public class Documents implements Serializable {
 	}
 	
 	public List<Document> getDocuments() {
-		return Collections.unmodifiableList(documents);
+	    return documents;
 	}	
 	
 }
