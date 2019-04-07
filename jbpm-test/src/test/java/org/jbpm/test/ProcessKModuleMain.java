@@ -24,7 +24,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
 import org.jbpm.services.task.identity.JBossUserGroupCallbackImpl;
-import org.jbpm.test.JBPMHelper;
+import org.jbpm.test.util.SetupExamplesDatasource;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.runtime.manager.RuntimeEnvironmentBuilder;
@@ -65,9 +65,8 @@ public class ProcessKModuleMain {
 
    private static RuntimeManager createRuntimeManager() {
 	   cleanupSingletonSessionId();
-       JBPMHelper.startH2Server();
-       JBPMHelper.setupDataSource();
-       EntityManagerFactory emf = Persistence.createEntityManagerFactory("org.jbpm.persistence.jpa");
+	   SetupExamplesDatasource.setupPoolingDataSource();
+	   EntityManagerFactory emf = Persistence.createEntityManagerFactory("org.jbpm.persistence.jpa");
        RuntimeEnvironmentBuilder builder = RuntimeEnvironmentBuilder.Factory.get()
            .newClasspathKmoduleDefaultBuilder()
            .entityManagerFactory(emf)

@@ -127,6 +127,8 @@ public abstract class JbpmJUnitBaseTestCase {
         PROCESS_INSTANCE;
     }
 
+    protected static String[] processStateName = {"PENDING", "ACTIVE", "COMPLETED", "ABORTED", "SUSPENDED"};
+    
     private static final Logger logger = LoggerFactory.getLogger(JbpmJUnitBaseTestCase.class);
 
     protected boolean setupDataSource = false;
