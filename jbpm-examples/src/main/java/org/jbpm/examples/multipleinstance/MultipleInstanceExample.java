@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jbpm.test.JBPMHelper;
+import org.jbpm.examples.utils.SetupExamplesDatasource;
 import org.kie.api.KieServices;
 import org.kie.api.io.ResourceType;
 import org.kie.api.runtime.KieSession;
@@ -67,12 +67,11 @@ public class MultipleInstanceExample {
 
     private static RuntimeManager getRuntimeManager(String process) {
         // load up the knowledge base
-    	JBPMHelper.startH2Server();
-    	JBPMHelper.setupDataSource();
-        RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get().newDefaultBuilder()
+    	SetupExamplesDatasource.setupPoolingDataSource();
+    	RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get().newDefaultBuilder()
             .addAsset(KieServices.Factory.get().getResources().newClassPathResource(process), ResourceType.BPMN2)
             .get();
         return RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);
-    }
+    }    
     
 }

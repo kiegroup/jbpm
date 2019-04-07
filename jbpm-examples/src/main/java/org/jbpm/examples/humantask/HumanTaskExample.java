@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jbpm.test.JBPMHelper;
+import org.jbpm.examples.utils.SetupExamplesDatasource;
 import org.kie.api.KieServices;
 import org.kie.api.io.ResourceType;
 import org.kie.api.runtime.KieSession;
@@ -36,7 +36,7 @@ import org.kie.api.task.model.TaskSummary;
 
 public class HumanTaskExample {
 
-    public static final void main(String[] args) {
+	public static final void main(String[] args) {
         try {
             RuntimeManager manager = getRuntimeManager("humantask/HumanTask.bpmn");        
             RuntimeEngine runtime = manager.getRuntimeEngine(null);
@@ -97,8 +97,7 @@ public class HumanTaskExample {
 
     private static RuntimeManager getRuntimeManager(String process) {
         // load up the knowledge base
-    	JBPMHelper.startH2Server();
-    	JBPMHelper.setupDataSource();
+    	SetupExamplesDatasource.setupPoolingDataSource();
         RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get().newDefaultBuilder()
             .userGroupCallback(new UserGroupCallback() {
     			public List<String> getGroupsForUser(String userId) {
@@ -121,5 +120,5 @@ public class HumanTaskExample {
             .get();
         return RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);
     }
-    
+	    
 }

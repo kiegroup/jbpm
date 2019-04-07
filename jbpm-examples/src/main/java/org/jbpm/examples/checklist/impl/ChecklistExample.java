@@ -21,7 +21,7 @@ import java.util.List;
 
 import org.jbpm.examples.checklist.ChecklistItem;
 import org.jbpm.examples.checklist.ChecklistManager;
-import org.jbpm.test.JBPMHelper;
+import org.jbpm.examples.utils.SetupExamplesDatasource;
 import org.kie.api.KieServices;
 import org.kie.api.io.ResourceType;
 import org.kie.api.runtime.manager.RuntimeEnvironment;
@@ -33,8 +33,7 @@ public class ChecklistExample {
 	public static void main(String[] args) {
 		try {
 			
-			JBPMHelper.startH2Server();
-			JBPMHelper.setupDataSource();
+	    	SetupExamplesDatasource.setupPoolingDataSource();
 			RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get().newDefaultBuilder()
 	            .userGroupCallback(new UserGroupCallback() {
 	    			public List<String> getGroupsForUser(String userId) {
