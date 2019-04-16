@@ -110,6 +110,7 @@ public class ExecutionErrorHandlingRuntimeManagerTest extends AbstractBaseTest {
         userGroupCallback = new JBossUserGroupCallbackImpl(properties);
         
         createRuntimeManager();
+        CountExecutionErrorListener.reset();
     }
     
     @After
@@ -157,7 +158,7 @@ public class ExecutionErrorHandlingRuntimeManagerTest extends AbstractBaseTest {
         assertNotNull(errors);
         assertEquals(1, errors.size());
         assertExecutionError(errors.get(0), "Process", "BrokenScriptTask", "Hello");
-      
+        assertEquals(1, CountExecutionErrorListener.getCount().intValue());
     }
     
     @Test
@@ -201,7 +202,7 @@ public class ExecutionErrorHandlingRuntimeManagerTest extends AbstractBaseTest {
         assertNotNull(errors);
         assertEquals(1, errors.size());
         assertExecutionError(errors.get(0), "Process", "UserTaskWithRollback", "Script Task 1");
-   
+        assertEquals(1, CountExecutionErrorListener.getCount().intValue());
     }
     
     
@@ -246,7 +247,7 @@ public class ExecutionErrorHandlingRuntimeManagerTest extends AbstractBaseTest {
         assertNotNull(errors);
         assertEquals(1, errors.size());        
         assertExecutionError(errors.get(0), "Task", "UserTaskWithRollback", "Hello");
-
+        assertEquals(1, CountExecutionErrorListener.getCount().intValue());
     }
         
     @Test
@@ -284,8 +285,8 @@ public class ExecutionErrorHandlingRuntimeManagerTest extends AbstractBaseTest {
         List<ExecutionError> errors = storage.list(0, 10);
         assertNotNull(errors);
         assertTrue(errors.size() >= expectedErrors);
-        assertExecutionError(errors.get(0), "DB", "UserTaskWithRollback", "Hello");      
-
+        assertExecutionError(errors.get(0), "DB", "UserTaskWithRollback", "Hello");
+        assertEquals(expectedErrors, CountExecutionErrorListener.getCount().intValue());
     }
     
     @Test
@@ -331,6 +332,7 @@ public class ExecutionErrorHandlingRuntimeManagerTest extends AbstractBaseTest {
         assertExecutionError(errors.get(0), "Process", "UserTaskWithCustomTask", "Manual Task 2");
         String errorMessage = errors.get(0).getErrorMessage();
         assertTrue(errorMessage.contains("Could not find work item handler for Manual Task"));
+        assertEquals(1, CountExecutionErrorListener.getCount().intValue());
     }
     
     private RuntimeEnvironment createEnvironment() {
