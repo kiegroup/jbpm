@@ -25,7 +25,9 @@ import java.io.ObjectOutputStream;
 import org.drools.core.common.InternalKnowledgeRuntime;
 import org.drools.core.runtime.process.InternalProcessRuntime;
 import org.drools.persistence.api.TransactionManager;
+import org.jbpm.process.core.timer.GlobalSchedulerService;
 import org.jbpm.process.instance.ProcessRuntimeImpl;
+import org.jbpm.runtime.manager.api.SchedulerProvider;
 import org.jbpm.services.task.impl.TaskContentRegistry;
 import org.kie.api.command.ExecutableCommand;
 import org.kie.api.runtime.KieSession;
@@ -80,6 +82,19 @@ public class SingletonRuntimeManager extends AbstractRuntimeManager {
         this.factory = factory;
         this.taskServiceFactory = taskServiceFactory;
         this.identifier = identifier;
+
+        if (environment instanceof SchedulerProvider) {
+            GlobalSchedulerService schedulerService = ((SchedulerProvider) environment).getSchedulerService();
+            Class<?> clazz;
+            try {
+                clazz = Class.forName("org.jbpm.services.ejb.timer.EjbSchedulerService");
+                if (schedulerService != null && schedulerService.getClass().equals(clazz)) {
+                    logger.warn("Singleton with EJB Timer Service is not recommended as it's not stable under load");
+                }
+            } catch (ClassNotFoundException e) {
+                // ignore
+            }
+        }
     }
     
     public void init() {
