@@ -16,9 +16,6 @@
 
 package org.jbpm.bpmn2.handler;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,6 +35,9 @@ import org.kie.api.runtime.process.ProcessWorkItemHandlerException.HandlingStrat
 import org.kie.api.runtime.process.WorkItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class WorkItemHandlerExceptionHandlingTest extends JbpmBpmn2TestCase {
 
@@ -206,5 +206,21 @@ public class WorkItemHandlerExceptionHandlingTest extends JbpmBpmn2TestCase {
         ksession.getWorkItemManager().completeWorkItem(receiveWorkItem.getId(), results);
         assertProcessVarValue(processInstance, "isChecked", "true");
               
+    }
+
+    @Test
+    public void testErrornousHandlerWithStrategyMultipleRetry() throws Exception {
+        KieBase kbase = createKnowledgeBaseWithoutDumper("handler/BPMN2-UserTaskWithBooleanOutput.bpmn2", "handler/BPMN2-ScriptTask.bpmn2");
+
+        KieSession ksession = createKnowledgeSession(kbase);
+        RetryMultipleWorkItemHandler workItemHandler = new RetryMultipleWorkItemHandler("ScriptTask", HandlingStrategy.RETRY);
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task", workItemHandler);
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("isChecked", false);
+        ProcessInstance processInstance = ksession.startProcess("com.sample.boolean", params);
+        assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
+        assertProcessVarValue(processInstance, "isChecked", "true");
+        assertEquals(3, workItemHandler.getCounter());
     }
 }

@@ -92,6 +92,8 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
     
     private long exceptionHandlingProcessInstanceId = -1;
 
+    private int triggerCount = 0;
+
     protected WorkItemNode getWorkItemNode() {
         return (WorkItemNode) getNode();
     }
@@ -127,34 +129,44 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
         if (getNodeInstanceContainer().getNodeInstance(getId()) == null) {
             return;
         }
-        // TODO this should be included for ruleflow only, not for BPEL
-        //        if (!Node.CONNECTION_DEFAULT_TYPE.equals(type)) {
-        //            throw new IllegalArgumentException(
-        //                "A WorkItemNode only accepts default incoming connections!");
-        //        }
+
         WorkItemNode workItemNode = getWorkItemNode();
         createWorkItem(workItemNode);
         if (workItemNode.isWaitForCompletion()) {
             addWorkItemListener();
         }
+
+        WorkItemManager workItemManager = (WorkItemManager) ((ProcessInstance) getProcessInstance()).getKnowledgeRuntime().getWorkItemManager();
         String deploymentId = (String) getProcessInstance().getKnowledgeRuntime().getEnvironment().get(EnvironmentName.DEPLOYMENT_ID);
         workItem.setDeploymentId(deploymentId);
         workItem.setNodeInstanceId(this.getId());
         workItem.setNodeId(getNodeId());
+
+        processWorkItemHandler(() -> workItemManager.internalExecuteWorkItem((org.drools.core.process.instance.WorkItem) workItem));
+
+        if (!workItemNode.isWaitForCompletion()) {
+            triggerCompleted();
+        }
+        this.workItemId = workItem.getId();
+    }
+
+    private void processWorkItemHandler(Runnable handler) {
         if (isInversionOfControl()) {
             ((ProcessInstance) getProcessInstance()).getKnowledgeRuntime()
                                                     .update(((ProcessInstance) getProcessInstance()).getKnowledgeRuntime().getFactHandle(this), this);
         } else {
             try {
-                ((WorkItemManager) ((ProcessInstance) getProcessInstance())
-                                                                           .getKnowledgeRuntime().getWorkItemManager()).internalExecuteWorkItem(
-                                                                                                                                                (org.drools.core.process.instance.WorkItem) workItem);
+                handler.run();
             } catch (WorkItemHandlerNotFoundException wihnfe) {
                 getProcessInstance().setState(ProcessInstance.STATE_ABORTED);
                 throw wihnfe;
             } catch (ProcessWorkItemHandlerException handlerException) {
-                this.workItemId = workItem.getId();
-                handleWorkItemHandlerException(handlerException, workItem);
+                if (triggerCount++ < handlerException.getRetries() + 1) {
+                    this.workItemId = workItem.getId();
+                    handleWorkItemHandlerException(handlerException, workItem);
+                } else {
+                    throw handlerException;
+                }
             } catch (Exception e) {
                 String exceptionName = e.getClass().getName();
                 ExceptionScopeInstance exceptionScopeInstance = (ExceptionScopeInstance) resolveContextInstance(ExceptionScope.EXCEPTION_SCOPE, exceptionName);
@@ -166,10 +178,6 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
                 exceptionScopeInstance.handleException(exceptionName, e);
             }
         }
-        if (!workItemNode.isWaitForCompletion()) {
-            triggerCompleted();
-        }
-        this.workItemId = workItem.getId();
     }
 
     protected WorkItem createWorkItem(WorkItemNode workItemNode) {
@@ -415,7 +423,6 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
         } else if (("processInstanceCompleted:" + exceptionHandlingProcessInstanceId).equals(type)) {
             exceptionHandlingCompleted((ProcessInstance) event, null);
         } else if (type.equals("RuleFlow-Activate" + getProcessInstance().getProcessId() + "-" + getNode().getMetaData().get("UniqueId"))) {
-
             trigger(null, org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE);
         } else {
             super.signalEvent(type, event);
@@ -587,9 +594,10 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
         ((ProcessInstanceImpl) processInstance).setParentProcessInstanceId(getProcessInstance().getId());
         ((ProcessInstanceImpl) processInstance).setSignalCompletion(true);
 
+
         kruntime.startProcessInstance(processInstance.getId());
-        if (processInstance.getState() == ProcessInstance.STATE_COMPLETED
-                || processInstance.getState() == ProcessInstance.STATE_ABORTED) {
+
+        if (processInstance.getState() == ProcessInstance.STATE_COMPLETED || processInstance.getState() == ProcessInstance.STATE_ABORTED) {
             exceptionHandlingCompleted(processInstance, handlerException);
         } else {
             addExceptionProcessListener();
@@ -597,7 +605,6 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
     }
 
     private void exceptionHandlingCompleted(ProcessInstance processInstance, ProcessWorkItemHandlerException handlerException) {
-        
         if (handlerException == null) {
             handlerException = (ProcessWorkItemHandlerException) ((WorkflowProcessInstance)processInstance).getVariable("Error");
         }
@@ -620,9 +627,8 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
                 Map<String, Object> parameters = new HashMap<>(getWorkItem().getParameters());
                 
                 parameters.putAll(((WorkflowProcessInstanceImpl)processInstance).getVariables());
-                
-                ((WorkItemManager) ((ProcessInstance) getProcessInstance())
-                        .getKnowledgeRuntime().getWorkItemManager()).retryWorkItem(getWorkItem().getId(), parameters);
+                WorkItemManager workItemManager = ((WorkItemManager) ((ProcessInstance) getProcessInstance()).getKnowledgeRuntime().getWorkItemManager());
+                processWorkItemHandler(() -> workItemManager.retryWorkItem(getWorkItem().getId(), parameters));
                 break;
             case COMPLETE:
                 
