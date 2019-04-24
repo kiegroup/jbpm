@@ -52,7 +52,12 @@ import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+/**
+ * Web Service Work Item Handler that performs a WebService call.
+ * It is not supported out of the box on JDK11+ when running inside WildFly/EAP container
+ * with JDK11+ due to Apache CXF not properly resolving classpath.
+ * @see https://issues.apache.org/jira/browse/CXF-7925
+ */
 @Wid(widfile = "WebServiceDefinitions.wid", name = "WebService",
         displayName = "WebService",
         defaultHandler = "mvel: new org.jbpm.process.workitem.webservice.WebServiceWorkItemHandler()",
