@@ -16,8 +16,6 @@
 
 package org.jbpm.kie.services.impl;
 
-import static org.kie.scanner.MavenRepository.getMavenRepository;
-
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Annotation;
@@ -82,6 +80,8 @@ import org.reflections.util.ConfigurationBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
+
+import static org.kie.scanner.MavenRepository.getMavenRepository;
 
 
 public class KModuleDeploymentService extends AbstractDeploymentService {
@@ -401,7 +401,7 @@ public class KModuleDeploymentService extends AbstractDeploymentService {
 	private void addClassToDeployedUnit(Class deploymentClass, DeployedUnitImpl deployedUnit) {
         if( deploymentClass != null ) {
             DeploymentUnit unit = deployedUnit.getDeploymentUnit();
-            Boolean limitClasses = false;
+            Boolean limitClasses = true;
             if( unit != null ) {
                 DeploymentDescriptor depDesc = ((KModuleDeploymentUnit) unit).getDeploymentDescriptor();
                 if( depDesc != null ) {
