@@ -17,7 +17,7 @@
 package org.jbpm.document.audit;
 
 import org.jbpm.document.Document;
-import org.jbpm.document.Documents;
+import org.jbpm.document.DocumentCollection;
 import org.kie.api.runtime.manager.audit.VariableInstanceLog;
 import org.kie.internal.process.ProcessVariableIndexer;
 
@@ -26,23 +26,23 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class DocumentsVariableIndexer implements ProcessVariableIndexer {
+public class DocumentCollectionVariableIndexer implements ProcessVariableIndexer {
 
     private static final String PATTERN = "{0} ({1}/{2})";
 
     @Override
     public boolean accept(Object variable) {
-        return variable instanceof Documents;
+        return variable instanceof DocumentCollection;
     }
 
     @Override
     public List<VariableInstanceLog> index(String name, Object variable) {
-        Documents documents = (Documents) variable;
+        DocumentCollection<? extends Document> documentCollection = (DocumentCollection<? extends Document>) variable;
 
-        int max = documents.getDocuments().size();
+        int max = documentCollection.getDocuments().size();
 
         return IntStream.range(0, max)
-                .mapToObj(index -> toVariableLog(name, index, max, documents.getDocuments().get(index)))
+                .mapToObj(index -> toVariableLog(name, index, max, documentCollection.getDocuments().get(index)))
                 .collect(Collectors.toList());
     }
 

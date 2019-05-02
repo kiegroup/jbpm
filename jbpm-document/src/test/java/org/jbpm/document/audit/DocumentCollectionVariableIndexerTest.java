@@ -21,8 +21,8 @@ import java.util.Date;
 import java.util.List;
 
 import org.assertj.core.api.Assertions;
-import org.jbpm.document.Document;
 import org.jbpm.document.Documents;
+import org.jbpm.document.service.impl.DocumentCollectionImpl;
 import org.jbpm.document.service.impl.DocumentImpl;
 import org.junit.Test;
 import org.kie.api.runtime.manager.audit.VariableInstanceLog;
@@ -30,7 +30,7 @@ import org.kie.api.runtime.manager.audit.VariableInstanceLog;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class DocumentsVariableIndexerTest {
+public class DocumentCollectionVariableIndexerTest {
 
     private static final String VARIABLE_NAME = "dox";
 
@@ -38,7 +38,7 @@ public class DocumentsVariableIndexerTest {
     private static final String DOC_2 = "doc_2";
     private static final String DOC_3 = "doc_3";
 
-    private DocumentsVariableIndexer indexer = new DocumentsVariableIndexer();
+    private DocumentCollectionVariableIndexer indexer = new DocumentCollectionVariableIndexer();
 
     @Test
     public void testAccept() {
@@ -59,11 +59,11 @@ public class DocumentsVariableIndexerTest {
     @Test
     public void testIndex() {
 
-        Document doc1 = new DocumentImpl(DOC_1, DOC_1, 1024, new Date());
-        Document doc2 = new DocumentImpl(DOC_2, DOC_3, 1024, new Date());
-        Document doc3 = new DocumentImpl(DOC_3, DOC_3, 1024, new Date());
+        DocumentImpl doc1 = new DocumentImpl(DOC_1, DOC_1, 1024, new Date());
+        DocumentImpl doc2 = new DocumentImpl(DOC_2, DOC_3, 1024, new Date());
+        DocumentImpl doc3 = new DocumentImpl(DOC_3, DOC_3, 1024, new Date());
 
-        List<VariableInstanceLog> indexed = indexer.index(VARIABLE_NAME, new Documents(Arrays.asList(doc1, doc2, doc3)));
+        List<VariableInstanceLog> indexed = indexer.index(VARIABLE_NAME, new DocumentCollectionImpl(Arrays.asList(doc1, doc2, doc3)));
 
         Assertions.assertThat(indexed)
                 .hasSize(3);
@@ -74,7 +74,7 @@ public class DocumentsVariableIndexerTest {
 
     }
 
-    private void testDocument(int index, int max, VariableInstanceLog log, Document document) {
+    private void testDocument(int index, int max, VariableInstanceLog log, DocumentImpl document) {
         Assertions.assertThat(log)
                 .hasFieldOrPropertyWithValue("variableId", VARIABLE_NAME + " (" + (index + 1) + "/" + max + ")")
                 .hasFieldOrPropertyWithValue("value", document.toString());
