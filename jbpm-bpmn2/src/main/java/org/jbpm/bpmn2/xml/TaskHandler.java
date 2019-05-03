@@ -286,7 +286,7 @@ public class TaskHandler extends AbstractNodeHandler {
 				node = forEachNode;
 				handleForEachNode(node, element, uri, localName, parser);
 				// remove output collection data output of for each to avoid problems when running in variable strict mode
-				if (orignalNode instanceof WorkItemNode) {
+				if (orignalNode instanceof WorkItemNode && forEachNode.getOutputCollectionExpression() != null) {
 					((WorkItemNode)orignalNode).adjustOutMapping(forEachNode.getOutputCollectionExpression());
 				}
 								
