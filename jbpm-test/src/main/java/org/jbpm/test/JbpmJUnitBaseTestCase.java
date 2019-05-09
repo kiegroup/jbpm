@@ -156,6 +156,19 @@ public abstract class JbpmJUnitBaseTestCase {
 
     private final Map<String, Object> persistenceProperties = new HashMap<String, Object>();
 
+	public static String[] txStateName = {"ACTIVE",
+	"MARKED_ROLLBACK",
+	"PREPARED",
+	"COMMITTED",
+	"ROLLEDBACK",
+	"UNKNOWN",
+	"NO_TRANSACTION",
+	"PREPARING",
+	"COMMITTING",
+	"ROLLING_BACK"};
+
+	public static String[] processStateName = {"PENDING", "ACTIVE", "COMPLETED", "ABORTED", "SUSPENDED"};
+
     /**
      * The most simple test case configuration:
      * <ul>
