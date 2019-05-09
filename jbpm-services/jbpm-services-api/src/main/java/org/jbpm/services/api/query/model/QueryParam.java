@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2019 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,130 +54,284 @@ public class QueryParam implements Serializable {
         this.operator = operator;
         this.value = value;
     }
-    
+
+    /**
+     * Returns "is null" query parameter for given column.
+     * @param column
+     * @return @{@link QueryParam} query parameters
+     */
     public static QueryParam isNull(String column) {
         return new QueryParam(column, "IS_NULL", null);
     }
-    
+
+    /**
+     * Returns "is not null" query parameter for given column.
+     * @param column
+     * @return @{@link QueryParam} query parameter
+     */
     public static QueryParam isNotNull(String column) {
         return new QueryParam(column, "NOT_NULL", null);
     }
-    
+
+    /**
+     * Returns "equal" query parameter for given column and set of values.
+     * @param column
+     * @param values
+     * @return @{@link QueryParam} query parameter
+     */
     public static QueryParam equalsTo(String column, Comparable<?>...values) {
         return new QueryParam(column, "EQUALS_TO", Arrays.asList(values));
     }
-    
+
+    /**
+     * Returns the "not equals to" query parameter for given column and set of values
+     * @param column
+     * @param values
+     * @return @{@link QueryParam} query parameter
+     */
     public static QueryParam notEqualsTo(String column, Comparable<?>...values) {
         return new QueryParam(column, "NOT_EQUALS_TO", Arrays.asList(values));
     }
-    
+
+    /**
+     * Returns the "like to" query parameter for given column, case sensitivity and set of values.
+     * @param column
+     * @param caseSensitive
+     * @param value
+     * @return @{@link QueryParam} query param
+     */
     @SuppressWarnings("unchecked")
     public static QueryParam likeTo(String column, boolean caseSensitive, Comparable<?> value) {
         return new QueryParam(column, "LIKE_TO", Arrays.asList(value, caseSensitive));
     }
-    
+
+    /**
+     * Returns the "greater than" query parameter for given column and set of values.
+     * @param column
+     * @param value
+     * @return @{@link QueryParam} query param
+     */
     @SuppressWarnings("unchecked")
     public static QueryParam greaterThan(String column, Comparable<?> value) {
         return new QueryParam(column, "GREATER_THAN", Arrays.asList(value));
     }
-    
+
+    /**
+     * Returns the "greater than or equal" query parameter for given column and set of values.
+     * @param column
+     * @param value
+     * @return @{@link QueryParam} query param
+     */
     @SuppressWarnings("unchecked")
     public static QueryParam greaterOrEqualTo(String column, Comparable<?> value) {
         return new QueryParam(column, "GREATER_OR_EQUALS_TO", Arrays.asList(value));
     }
-    
+
+    /**
+     * Returns the "lower than" query parameter for given column and set of values.
+     * @param column
+     * @param value
+     * @return @{@link QueryParam} query param
+     */
     @SuppressWarnings("unchecked")
     public static QueryParam lowerThan(String column, Comparable<?> value) {
         return new QueryParam(column, "LOWER_THAN", Arrays.asList(value));
     }
-    
+
+    /**
+     * Returns the "loqer or equal to" query parameter for given column and set of values.
+     * @param column
+     * @param value
+     * @return @{@link QueryParam} query param
+     */
     @SuppressWarnings("unchecked")
     public static QueryParam lowerOrEqualTo(String column, Comparable<?> value) {
         return new QueryParam(column, "LOWER_OR_EQUALS_TO", Arrays.asList(value));
     }
-    
+
+    /**
+     * Returns the "between" query parameter for given column, start and end.
+     * @param column
+     * @param start
+     * @param end
+     * @return @{@link QueryParam} query param
+     */
     @SuppressWarnings("unchecked")
     public static QueryParam between(String column, Comparable<?> start, Comparable<?> end) {
         return new QueryParam(column, "BETWEEN", Arrays.asList(start, end));
     }
-        
+
+    /**
+     * Returns the "in" query parameter for given column and set of values.
+     * @param column
+     * @param values
+     * @return @{@link QueryParam} query param
+     */
     public static QueryParam in(String column, List<?> values) {
         return new QueryParam(column, "IN", values);
     }
-    
+
+    /**
+     * Returns the "not in" query parameter for given column and set of values.
+     * @param column
+     * @param values
+     * @return @{@link QueryParam} query param
+     */
     public static QueryParam notIn(String column, List<?> values) {
         return new QueryParam(column, "NOT_IN", values);
     }
-    
+
+    /**
+     * Returns the "count" query parameter for given column.
+     * @param column
+     * @return @{@link QueryParam} query param
+     */
     public static QueryParam count(String column) {
         return new QueryParam(column, "COUNT", Arrays.asList(column));
     }
-    
+
+    /**
+     * Returns the "distinct" query parameter for given column.
+     * @param column
+     * @return @{@link QueryParam} query param
+     */
     public static QueryParam distinct(String column) {
         return new QueryParam(column, "DISTINCT", Arrays.asList(column));
     }
-    
+
+    /**
+     * Returns the "average" query parameter for given column.
+     * @param column
+     * @return @{@link QueryParam} query param
+     */
     public static QueryParam average(String column) {
         return new QueryParam(column, "AVERAGE", Arrays.asList(column));
     }
-    
+
+    /**
+     * Returns the "sum" query parameter for given column.
+     * @param column
+     * @return @{@link QueryParam} query param
+     */
     public static QueryParam sum(String column) {
         return new QueryParam(column, "SUM", Arrays.asList(column));
     }
-    
+
+    /**
+     * Returns the "min" query parameter for given column.
+     * @param column
+     * @return @{@link QueryParam} query param
+     */
     public static QueryParam min(String column) {
         return new QueryParam(column, "MIN", Arrays.asList(column));
     }
-    
+
+    /**
+     * Returns the "max" query parameter for given column.
+     * @param column
+     * @return @{@link QueryParam} query param
+     */
     public static QueryParam max(String column) {
         return new QueryParam(column, "MAX", Arrays.asList(column));
     }
-    
+
+    /**
+     * Returns the "group by" query parameters for given column.
+     * @param column
+     * @return @{@link QueryParam} query params
+     */
     public static QueryParam[] groupBy(String column) {
         return new QueryParam[] {new QueryParam(column, "group", Arrays.asList(column)), new QueryParam(column, null, Arrays.asList(column))};
     }
-    
+
+    /**
+     * Returns the "group by" query parameters for given column, interval size and max interval.
+     * @param column
+     * @param intervalSize
+     * @param maxInterval
+     * @return @{@link QueryParam} query params
+     */
     public static QueryParam[] groupBy(String column, String intervalSize, int maxInterval) {
         return new QueryParam[] {new QueryParam(column, "group", Arrays.asList(column, intervalSize, maxInterval)), new QueryParam(column, null, Arrays.asList(column))};
     }
-    
+
+    /**
+     * Returns the column.
+     * @return column
+     */
     public String getColumn() {
         return column;
     }
-    
+
+    /**
+     * Sets the column.
+     * @param column
+     */
     public void setColumn(String column) {
         this.column = column;
     }
-    
+
+    /**
+     * Returns the operator.
+     * @return operator
+     */
     public String getOperator() {
         return operator;
     }
-    
+
+    /**
+     * Sets the operator.
+     * @param operator
+     */
     public void setOperator(String operator) {
         this.operator = operator;
     }
-    
+
+    /**
+     * Returns list of values.
+     * @return values
+     */
     public List<?> getValue() {
         return value;
     }
-    
+
+    /**
+     * Sets the value.
+     * @param value
+     */
     public void setValue(List<?> value) {
         this.value = value;
     }
-    
+
+    /**
+     * Returns the builder.
+     * @return @{@link Builder} builder
+     */
     public static Builder getBuilder() {
         return new Builder();
     }
-    
+
+    /**
+     * Query Parameter Builder.
+     */
     public static class Builder {
         private List<QueryParam> parameters = new ArrayList<QueryParam>();
-        
+
+        /**
+         * Appends new query parameters to existing ones.
+         * @param params
+         * @return
+         */
         public Builder append(QueryParam...params) {
             this.parameters.addAll(Arrays.asList(params));
             
             return this;
         }
-        
+
+        /**
+         * Returns query parameters.
+         * @return query parameters
+         */
         public QueryParam[] get() {
             return this.parameters.toArray(new QueryParam[this.parameters.size()]);
         }

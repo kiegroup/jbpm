@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2019 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,41 +26,49 @@ public interface TaskNotification extends Serializable {
 
     /**
      * Returns unique id of the task notification
+     * @return task notification id
      */
     Long getId();
     
     /**
      * Returns optional name of the notification
+     * @return notification name
      */
     String getName();
     
     /**
      * Returns date that the notification is schedule to happen
+     * @return time notification is scheduled
      */
     Date getDate();
     
     /**
      * Returns list of recipients that notification will be sent to
+     * @return list of recipients
      */
     List<OrganizationalEntity> getRecipients();
     
     /**
      * Returns list of business admins that notification will be sent to
+     * @return business admin list
      */
     List<OrganizationalEntity> getBusinessAdministrators();
     
     /**
      * Returns the subject line for this notification
+     * @return notification subject
      */
     String getSubject();
     
     /**
      * Returns the content for this notification
+     * @return notification content
      */
     String getContent();
     
     /**
      * Returns if given notification is active
+     * @return active
      */
     boolean isActive();
 

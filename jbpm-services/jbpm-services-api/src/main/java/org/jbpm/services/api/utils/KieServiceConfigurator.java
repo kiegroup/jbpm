@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2019 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,30 +27,85 @@ import org.jbpm.services.api.query.QueryService;
 import org.kie.api.task.UserGroupCallback;
 import org.kie.internal.identity.IdentityProvider;
 
+/**
+ * Configurator for kie service.
+ */
 public interface KieServiceConfigurator {
-    
+
+    /**
+     * Configures a new kie service.
+     * @param puName
+     * @param identityProvider
+     * @param userGroupCallback
+     */
     void configureServices(String puName, IdentityProvider identityProvider, UserGroupCallback userGroupCallback);
-    
+
+    /**
+     * Created a new deployment unit
+     * @param groupId
+     * @param artifactid
+     * @param version
+     * @return @{@link DeploymentUnit} deployment unit
+     */
     DeploymentUnit createDeploymentUnit(String groupId, String artifactid, String version);
-    
+
+    /**
+     * Closes the configurator.
+     */
     void close();
 
+    /**
+     * Returns the deployment service.
+     * @return @{@link DeploymentService} deployment service
+     */
     DeploymentService getDeploymentService();
 
+    /**
+     * Returns the definition service.
+     * @return @{@link DefinitionService} definition service
+     */
     DefinitionService getBpmn2Service();
 
+    /**
+     * Returns the runtime data service.
+     * @return @{@link RuntimeDataService} runtime data service
+     */
     RuntimeDataService getRuntimeDataService();
 
+    /**
+     * Returns the process service.
+     * @return @{@link ProcessService} process service
+     */
     ProcessService getProcessService();
 
+    /**
+     * Returns the user task service.
+     * @return @{@link UserTaskService} user task service
+     */
     UserTaskService getUserTaskService();
 
+    /**
+     * Returns the query service
+     * @return @{@link QueryService} query service
+     */
     QueryService getQueryService();
-    
+
+    /**
+     * Returns the process instance admin service
+     * @return @{@link ProcessInstanceAdminService} process intstance admin service
+     */
     ProcessInstanceAdminService getProcessAdminService();
 
+    /**
+     * Returns the identity provider.
+     * @return @{@link IdentityProvider} identity provider
+     */
     IdentityProvider getIdentityProvider();
 
+    /**
+     * Returns the user group callback.
+     * @return @{@link UserGroupCallback} user group callback
+     */
     UserGroupCallback getUserGroupCallback();    
 
 }

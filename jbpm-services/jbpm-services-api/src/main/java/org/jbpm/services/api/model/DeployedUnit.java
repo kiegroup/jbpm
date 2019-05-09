@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2019 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,15 +22,39 @@ import org.kie.api.runtime.manager.RuntimeManager;
 
 public interface DeployedUnit {
 
+    /**
+     * Returns the deployed unit.
+     * @return @{@link DeploymentUnit} deploymentunit
+     */
     DeploymentUnit getDeploymentUnit();
-    
+
+    /**
+     * Returns the deployed asset location.
+     * @return asset location
+     */
     String getDeployedAssetLocation(String assetId);
-    
-    Collection<DeployedAsset> getDeployedAssets(); 
-    
-    Collection<Class<?>> getDeployedClasses(); 
-    
+
+    /**
+     * Returns the deployed assets.
+     * @return @{@link DeployedAsset} assets
+     */
+    Collection<DeployedAsset> getDeployedAssets();
+
+    /**
+     * Returns the deployed classes.
+     * @return @{@link Class} classes
+     */
+    Collection<Class<?>> getDeployedClasses();
+
+    /**
+     * Returns the runtime manager.
+     * @return @{@link RuntimeManager} runtime manager
+     */
     RuntimeManager getRuntimeManager();
-    
+
+    /**
+     * Returns the active state of the deployment unit.
+     * @return active
+     */
     boolean isActive();
 }

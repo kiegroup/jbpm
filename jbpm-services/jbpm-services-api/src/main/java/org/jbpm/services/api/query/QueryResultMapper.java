@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2019 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,23 +20,22 @@ import java.io.Serializable;
 import java.util.Map;
 
 /**
- * Maps raw data set into object instances
- *
+ * Maps raw data set into object instances.
  * @param <T> type of the object this mapper will produce
  */
 public interface QueryResultMapper<T> extends Serializable {
 
     /**
      * Based on raw data set returns mapped/transformed data. Usually it will get set of raw data
-     * and return list (or collection in general) of custom object like ProcessInstance or UserTaskInstance
+     * and return list (or collection in general) of custom object like ProcessInstance or UserTaskInstance.
      * @param result raw data set in custom format
      * @return mapped result of raw data set
      */
     T map(Object result);
     
     /**
-     * Returns unique name of this query result mapper implementation
-     * @return
+     * Returns unique name of this query result mapper implementation.
+     * @return name
      */
     String getName();
     
@@ -47,7 +46,7 @@ public interface QueryResultMapper<T> extends Serializable {
      * <code>
      *  List&lt;ProcessInstanceDesc&gt; returned type should be ProcessInstanceDesc.class
      * </code>
-     * @return
+     * @return type
      */
     Class<?> getType();
     

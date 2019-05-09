@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2019 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,17 +20,45 @@ import java.util.Date;
 
 public interface VariableDesc {
 
+    /**
+     * Returns the variable id.
+     * @return id
+     */
     String getVariableId();
 
+    /**
+     * Returns the variable instance id.
+     * @return instance id
+     */
     String getVariableInstanceId();
 
+    /**
+     * Returns the variable old value.
+     * @return old value
+     */
     String getOldValue();
 
+    /**
+     * Returns the variable new value.
+     * @return new value
+     */
     String getNewValue();
 
+    /**
+     * Returns the deployment id.
+     * @return deployment id
+     */
     String getDeploymentId();
 
+    /**
+     * Returns the process instance id.
+     * @return process instance id
+     */
     Long getProcessInstanceId();
 
+    /**
+     * Returns the variable data timestamp.
+     * @return data time stamp
+     */
     Date getDataTimeStamp();
 }

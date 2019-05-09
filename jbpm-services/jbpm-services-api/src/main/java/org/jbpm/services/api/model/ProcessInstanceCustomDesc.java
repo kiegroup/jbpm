@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2019 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,11 @@ import java.util.Date;
 import java.util.Map;
 
 public interface ProcessInstanceCustomDesc extends ProcessInstanceWithVarsDesc {
-    
+
+    /**
+     * Returns the process instance custom description last modification date.
+     * @return last modification date
+     */
     Date getLastModificationDate();
     
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2019 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package org.jbpm.services.api.query.model;
 import java.util.Map;
 
 /**
- * Definition of a query that can be registered in the query service
+ * Definition of a query that can be registered in the query service.
  *
  */
 public interface QueryDefinition {
@@ -38,51 +38,52 @@ public interface QueryDefinition {
     }
 
     /**
-     * Return unique name of this query
-     * @return
+     * Return unique name of this query.
+     * @return unique name
      */
     String getName();
     
     /**
-     * Sets unique name for this query definition
-     * @param name
+     * Sets unique name for this query definition.
+     * @param name unique name
      */
     void setName(String name);
     
     /**
      * Returns source location of this query 
-     * Depends on exact type of the query definition (e.g. data base location - data source name) 
-     * @return
+     * Depends on exact type of the query definition (e.g. data base location - data source name).
+     * @return source
      */
     String getSource();
     
     /**
      * Sets source location of this query
      * Depends on exact type of the query definition (e.g. data base location - data source name) 
-     * @param source
+     * @param source source location
      */
     void setSource(String source);
     
     /**
-     * Returns expression used to collect/fetch data as part of the query
-     * @return
+     * Returns expression used to collect/fetch data as part of the query.
+     * @return expression
      */
     String getExpression();
     
     /**
-     * Sets expression used to collect/fetch data as part of the query
+     * Sets expression used to collect/fetch data as part of the query.
      * @param expression
      */
     void setExpression(String expression);
     
     /**
-     * Returns target of this query definition
-     * @return
+     * Returns target of this query definition.
+     * @return target
      */
     Target getTarget();
     
     /**
      * Returns resolved columns types once the query was successfully registered.
+     * @return columns
      */
     Map<String, String> getColumns();
 }

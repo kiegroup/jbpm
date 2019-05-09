@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2019 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,39 +21,38 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Represents complete migration report to provide all required details 
- * about performed steps during process instance migration. 
- *
+ * MigrationReport that provides details
+ * about performed steps during process instance migration.
  */
 public interface MigrationReport extends Serializable {
 
     /**
      * Indicates if the migration was successful or not
-     * @return
+     * @return migration success
      */
     boolean isSuccessful();
 
     /**
      * Timestamp representing start time of the migration
-     * @return
+     * @return migration start time
      */
     Date getStartDate();
 
     /**
      * Timestamp representing end time of the migration
-     * @return
+     * @return migration end time
      */
     Date getEndDate();
     
     /**
      * Returns process instance id that was migrated
-     * @return
+     * @return process instance id
      */
     Long getProcessInstanceId();
 
     /**
      * Returns complete list of migration entries (steps performed) with details about them
-     * @return
+     * @return migration entries
      */
     List<MigrationEntry> getEntries();
 }

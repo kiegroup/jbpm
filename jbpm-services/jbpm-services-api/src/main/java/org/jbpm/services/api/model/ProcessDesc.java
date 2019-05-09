@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2019 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,15 +21,39 @@ import java.util.Map;
 
 public interface ProcessDesc extends DeployedAsset {
 
+	/**
+	 * Return the process description package name.
+	 * @return package name
+	 */
 	String getPackageName();
 
+	/**
+	 * Return the process description namespace.
+	 * @return namespace
+	 */
 	String getNamespace();
 
+	/**
+	 * Return the process description deployment id.
+	 * @return deployment id
+	 */
 	String getDeploymentId();
 
+	/**
+	 * Return the encoded process source.
+	 * @return encoded process source
+	 */
 	String getEncodedProcessSource();
 
+	/**
+	 * Return the process description forms.
+	 * @return forms
+	 */
 	Map<String, String> getForms();
 
+	/**
+	 * Return the process description roles.
+	 * @return roles
+	 */
 	List<String> getRoles();
 }

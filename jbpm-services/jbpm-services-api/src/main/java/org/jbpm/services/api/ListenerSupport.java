@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2019 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,11 +18,26 @@ package org.jbpm.services.api;
 
 import java.util.Collection;
 
+/**
+ * Provides means to add deployment event listeners to deployment service.
+ */
 public interface ListenerSupport {
 
+    /**
+     * Adds a new deployment listener.
+     * @param listener
+     */
 	void addListener(DeploymentEventListener listener);
 
+    /**
+     * Removes an existing deployment listener.
+     * @param listener
+     */
     void removeListener(DeploymentEventListener listener);
-   
+
+    /**
+     * Returns all deployment listeners
+     * @return deployment listeners
+     */
     Collection<DeploymentEventListener> getListeners();
 }

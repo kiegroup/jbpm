@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2019 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,11 +18,27 @@ package org.jbpm.services.api.model;
 
 public interface NodeDesc {
 
+    /**
+     * Returns the node description id.
+     * @return id
+     */
     Long getId();
 
+    /**
+     * Returns the node description name.
+     * @return name
+     */
     String getName();
 
+    /**
+     * Returns the node description node type.
+     * @return node type
+     */
     String getNodeType();
 
+    /**
+     * Returns the node description unique id.
+     * @return id
+     */
     String getUniqueId();
 }

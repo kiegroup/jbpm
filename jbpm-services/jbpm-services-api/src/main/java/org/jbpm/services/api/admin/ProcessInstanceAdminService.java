@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2019 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,9 +27,8 @@ import org.kie.api.runtime.query.QueryContext;
 import org.kie.internal.runtime.error.ExecutionError;
 
 /**
- * Administrative operations for process instances to allow runtime modifications
- * to active process instances.
- *
+ * Admin Service - provides runtime modifications capabilities
+ * for active process instances.
  */
 public interface ProcessInstanceAdminService {
     

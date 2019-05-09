@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2019 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -219,8 +219,8 @@ public interface ProcessService {
     /**
 	 * Sets a process variable.
 	 * @param processInstanceId The process instance's unique identifier.
-	 * @param variableName The variable name to set.
-	 * @param variable The variable value.
+	 * @param variableId The variable id to set.
+	 * @param value The variable value.
 	 * @throws DeploymentNotFoundException in case deployment unit was not found
 	 * @throws ProcessInstanceNotFoundException in case process instance with given id was not found
 	 */
@@ -231,8 +231,8 @@ public interface ProcessService {
      * 
      * @param deploymentId deployment that process instance belongs to
      * @param processInstanceId The process instance's unique identifier.
-     * @param variableName The variable name to set.
-     * @param variable The variable value.
+     * @param variableId The variable id to set.
+     * @param value The variable value.
      * @throws DeploymentNotFoundException in case deployment unit was not found
      * @throws ProcessInstanceNotFoundException in case process instance with given id was not found
      */

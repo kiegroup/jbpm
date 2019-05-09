@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2019 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,35 @@ import java.util.List;
 import java.util.Map;
 import org.kie.api.task.model.Task;
 
+/**
+ * Service for adding and updating ad-hoc user tasks.
+ */
 public interface AdHocUserTaskService {
 
+    /**
+     * Adds a new ad-hoc task.
+     * @param task
+     * @param params
+     * @return task identifier
+     */
     long addTask(Task task, Map<String, Object> params);
-    
+
+    /**
+     * Adds a new ad-hoc task.
+     * @param taskName
+     * @param priority
+     * @param dueDate
+     * @param users
+     * @param groups
+     * @param identity
+     * @param taskformName
+     * @param deploymentId
+     * @param processInstanceId
+     * @param params
+     * @param autoStart
+     * @param autoClaim
+     * @return task identifier
+     */
     long addTask(
             final String taskName, int priority,
             Date dueDate, final List<String> users, List<String> groups, String identity,
@@ -31,6 +56,13 @@ public interface AdHocUserTaskService {
             boolean autoStart,
             boolean autoClaim);
 
+    /**
+     * Updates and existing task.
+     * @param taskId
+     * @param priority
+     * @param taskDescription
+     * @param dueDate
+     */
     void updateTask(long taskId, int priority, String taskDescription,
             Date dueDate);
 

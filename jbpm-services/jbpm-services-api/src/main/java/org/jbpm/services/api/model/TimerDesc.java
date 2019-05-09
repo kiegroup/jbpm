@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2019 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,11 +18,27 @@ package org.jbpm.services.api.model;
 
 public interface TimerDesc {
 
+    /**
+     * Returns the timer description id.
+     * @return id
+     */
     Long getId();
 
+    /**
+     * Returns the timer description node id.
+     * @return node id
+     */
     Long getNodeId();
 
+    /**
+     * Returns the timer description node name.
+     * @return node name
+     */
     String getNodeName();
 
+    /**
+     * Returns the timer description unique id.
+     * @return unique id
+     */
     String getUniqueId();
 }

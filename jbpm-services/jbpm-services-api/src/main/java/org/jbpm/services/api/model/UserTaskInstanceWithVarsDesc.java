@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2019 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,10 @@ import java.util.Map;
 
 
 public interface UserTaskInstanceWithVarsDesc extends UserTaskInstanceDesc{
-	
+
+    /**
+     * Returns the uer task variables
+     * @return variables
+     */
     Map<String, Object> getVariables();
 }
