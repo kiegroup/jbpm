@@ -16,40 +16,44 @@
 
 package org.jbpm.document;
 
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.jbpm.document.service.impl.DocumentCollectionImpl;
+
 /**
  * A collection of {@link Document Documents}.
+ * 
+ * @deprecated This class is deprecated because of potential issues with marshalling and unmarshalling this type when used in RESTful APIs.
+ *             When you want to represent a collection of {@link Document documents), please use the {@link DocumentCollection} interface and the
+ *             {@link DocumentCollectionImpl} implementation class. 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "documents-object")
-public class Documents implements Serializable {
+@Deprecated
+public class Documents implements DocumentCollection<Document> {
 
-	private static final long serialVersionUID = 6962662228758156488L;
-	
-	private List<Document> documents = new ArrayList<>();
+    private static final long serialVersionUID = 6962662228758156488L;
 
-	public Documents() {
-	}
+    private List<Document> documents = new ArrayList<>();
 
-	public Documents(List<Document> documents) {
-		this.documents = new ArrayList<Document>(documents);
-	}
-	
-	public void addDocument(Document document) {
-		documents.add(document);
-	}
-	
-	public List<Document> getDocuments() {
-		return Collections.unmodifiableList(documents);
-	}	
-	
+    public Documents() {
+    }
+
+    public Documents(List<Document> documents) {
+        this.documents = new ArrayList<Document>(documents);
+    }
+
+    public void addDocument(Document document) {
+        documents.add(document);
+    }
+
+    public List<Document> getDocuments() {
+        return documents;
+    }
+
 }
-

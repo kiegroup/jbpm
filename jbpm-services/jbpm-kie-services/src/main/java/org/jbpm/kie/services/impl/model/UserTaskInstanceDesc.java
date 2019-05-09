@@ -38,8 +38,22 @@ public class UserTaskInstanceDesc implements org.jbpm.services.api.model.UserTas
 	private Date createdOn;
 	private Date dueDate;
 	private String formName;
-	
-    public UserTaskInstanceDesc(Long taskId, String status,
+	private Long workItemId;
+	private Date slaDueDate;
+	private Integer slaCompliance;
+
+	public UserTaskInstanceDesc(Long taskId, String status, Date activationTime, String name, String description,
+								Integer priority, String actualOwner, String createdBy, String deploymentId,
+								String processId, Long processInstanceId, Date createdOn, Date dueDate, Long workItemId,
+								Date slaDueDate, Integer slaCompliance) {
+		this(taskId, status, activationTime, name, description, priority, actualOwner, createdBy, deploymentId,
+			 processId, processInstanceId, createdOn, dueDate);
+		this.workItemId = workItemId;
+		this.slaDueDate = slaDueDate;
+		this.slaCompliance = slaCompliance;
+	}
+
+	public UserTaskInstanceDesc(Long taskId, String status,
 			Date activationTime, String name, String description,
 			Integer priority, String actualOwner, String createdBy,
 			String deploymentId, String processId, Long processInstanceId,
@@ -69,7 +83,7 @@ public class UserTaskInstanceDesc implements org.jbpm.services.api.model.UserTas
         this.dueDate = dueDate;
         this.formName = formName;
     }
-    
+
     public UserTaskInstanceDesc(Long taskId, String status, String actualOwner, 
             String name, Integer priority, String createdBy, String processId, 
             Long processInstanceId, Date createdOn, String formName, 
@@ -172,8 +186,21 @@ public class UserTaskInstanceDesc implements org.jbpm.services.api.model.UserTas
     public String getFormName() {
         return formName;
     }
-    
-    public void setFormName(String formName) {
+
+	@Override
+	public Long getWorkItemId() {
+		return workItemId;
+	}
+
+	public Date getSlaDueDate() {
+		return slaDueDate;
+	}
+
+	public Integer getSlaCompliance() {
+		return slaCompliance;
+	}
+
+	public void setFormName(String formName) {
         this.formName = formName;
     }
 	
@@ -197,7 +224,8 @@ public class UserTaskInstanceDesc implements org.jbpm.services.api.model.UserTas
 	public String toString() {
 		return "UserTaskInstanceDesc [taskId=" + taskId + ", name=" + name
 				+ ", deploymentId=" + deploymentId + ", processInstanceId="
-				+ processInstanceId + "]";
+				+ processInstanceId +  ", workItemId=" + workItemId
+				+ ", slaCompliance=" + slaCompliance + ", slaDueDate=" + slaDueDate +"]";
 	}
 
 }

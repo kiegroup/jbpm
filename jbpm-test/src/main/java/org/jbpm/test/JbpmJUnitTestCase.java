@@ -232,7 +232,7 @@ public abstract class JbpmJUnitTestCase extends AbstractBaseTest {
         String changeSet =
                 "<change-set xmlns='http://drools.org/drools-5.0/change-set'" + EOL
                 + "            xmlns:xs='http://www.w3.org/2001/XMLSchema-instance'" + EOL
-                + "            xs:schemaLocation='http://drools.org/drools-5.0/change-set http://anonsvn.jboss.org/repos/labs/labs/jbossrules/trunk/drools-api/src/main/resources/change-set-1.0.0.xsd' >" + EOL
+                + "            xs:schemaLocation='http://drools.org/drools-5.0/change-set https://anonsvn.jboss.org/repos/labs/labs/jbossrules/trunk/drools-api/src/main/resources/change-set-1.0.0.xsd' >" + EOL
                 + "    <add>" + EOL;
         for (String a : assets) {
             if (a.indexOf(".bpmn") >= 0) {
@@ -253,7 +253,7 @@ public abstract class JbpmJUnitTestCase extends AbstractBaseTest {
         String changeSet =
                 "<change-set xmlns='http://drools.org/drools-5.0/change-set'" + EOL
                 + "            xmlns:xs='http://www.w3.org/2001/XMLSchema-instance'" + EOL
-                + "            xs:schemaLocation='http://drools.org/drools-5.0/change-set http://anonsvn.jboss.org/repos/labs/labs/jbossrules/trunk/drools-api/src/main/resources/change-set-1.0.0.xsd' >" + EOL
+                + "            xs:schemaLocation='http://drools.org/drools-5.0/change-set https://anonsvn.jboss.org/repos/labs/labs/jbossrules/trunk/drools-api/src/main/resources/change-set-1.0.0.xsd' >" + EOL
                 + "    <add>" + EOL;
         for (String p : packages) {
             changeSet += "        <resource source='" + url + "/rest/packages/" + p + "/binary' type='PKG' basicAuthentication=\"enabled\" username=\"" + username + "\" password=\"" + password + "\" />" + EOL;

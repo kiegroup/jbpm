@@ -49,5 +49,7 @@ public interface NodeInstance extends org.kie.api.runtime.process.NodeInstance {
     Date getSlaDueDate();
     
     Long getSlaTimerId();
+
+    Date getTriggerTime();
     
 }

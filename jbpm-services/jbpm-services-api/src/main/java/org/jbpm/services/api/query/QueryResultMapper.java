@@ -100,6 +100,8 @@ public interface QueryResultMapper<T> extends Serializable {
     public static final String COLUMN_TASK_STATUS = "STATUS";
     public static final String COLUMN_TASKID = "TASKID";
     public static final String COLUMN_WORKITEMID = "WORKITEMID";
+    public static final String COLUMN_TASK_SLA_DUE_DATE = "SLA_DUE_DATE";
+    public static final String COLUMN_TASK_SLA_COMPLIANCE = "SLACOMPLIANCE";
     public static final String COLUMN_ORGANIZATIONAL_ENTITY = "ID";
     public static final String COLUMN_EXCLUDED_OWNER = "ENTITY_ID";
     public static final String COLUMN_EXPIRATIONTIME = "EXPIRATIONDATE";

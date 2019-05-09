@@ -16,6 +16,8 @@
 
 package org.jbpm.remote.ejb.test.task;
 
+import static org.junit.Assume.assumeTrue;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +49,12 @@ public class EWebServiceTaskTest extends RemoteEjbTest {
 
     @BeforeClass
     public static void startWebService() {
+        //Ignore tests fot JDK11+
+        String javaVersion = System.getProperty("java.version");
+        String firstNumber = javaVersion.substring(0, javaVersion.indexOf('.'));
+        int major = Integer.parseInt(firstNumber);
+        assumeTrue(major < 11);
+
         WebService.start();
     }
 
