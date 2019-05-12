@@ -31,8 +31,7 @@ import org.kie.api.executor.ExecutorService;
 
 /**
  * Single ServiceRegistry that allows any service to register itself 
- * so other components can easily look them up
- *
+ * so other components can easily look them up.
  */
 public class ServiceRegistry {
     private static ServiceRegistry INSTANCE = new ServiceRegistry();

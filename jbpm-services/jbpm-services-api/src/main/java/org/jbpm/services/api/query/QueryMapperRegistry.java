@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2019 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,14 +47,14 @@ public class QueryMapperRegistry {
     
     /**
      * Returns instance of the registry that is already populated with known mappers.
-     * @return
+     * @return @{@link QueryMapperRegistry} registry
      */
     public static QueryMapperRegistry get() {
         return INSTANCE;
     }
     
     /**
-     * Returns mapper for given name if found
+     * Returns mapper for given name if found.
      * @param name unique name that mapper is bound to
      * @param columnMapping provides column mapping (name to type) that can be 
      * shipped to mapper for improved transformation - can be null (accepted types: string, long, integer, date, double)
@@ -73,7 +73,7 @@ public class QueryMapperRegistry {
     }
     
     /**
-     * Discovers and adds all <code>QueryResultMappers</code> to the known set
+     * Discovers and adds all <code>QueryResultMappers</code> to the known set.
      * @param cl class laoder used to discover mappers
      * @return returns list of added (not previously existing) mappers
      */
@@ -93,7 +93,11 @@ public class QueryMapperRegistry {
         
         return added;
     }
-    
+
+    /**
+     * Adds a new query results mapper
+     * @param mapper
+     */
     public void addMapper(QueryResultMapper<?> mapper) {
         QueryResultMapper<?> existed = knownMappers.putIfAbsent(mapper.getName(), mapper);
         if (existed == null) {
@@ -102,7 +106,11 @@ public class QueryMapperRegistry {
             logger.debug("Mapper {} already existing in the registry", mapper.getName());
         }
     }
-    
+
+    /**
+     * Removes a query results mapper.
+     * @param mapperName
+     */
     public void removeMapper(String mapperName) {
         QueryResultMapper<?> existed = knownMappers.remove(mapperName);
         if (existed != null) {

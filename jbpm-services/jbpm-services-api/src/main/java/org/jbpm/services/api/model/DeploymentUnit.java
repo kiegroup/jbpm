@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2019 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,16 @@ package org.jbpm.services.api.model;
 import org.kie.internal.runtime.conf.RuntimeStrategy;
 
 public interface DeploymentUnit {
-    
+
+    /**
+     * Returns the deployment unit identifier.
+     * @return identifier
+     */
     String getIdentifier();
-    
+
+    /**
+     * Returns the deployment unit runtime strategy.
+     * @return @{@link RuntimeStrategy} runtime strategy
+     */
     RuntimeStrategy getStrategy();
 }

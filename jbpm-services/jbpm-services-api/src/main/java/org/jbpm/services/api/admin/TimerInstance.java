@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2019 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,56 +27,67 @@ public interface TimerInstance extends Serializable {
 
     /**
      * Returns name of the timer - taken from timer node in the process
+     * @return timer name
      */
     String getTimerName();
 
     /**
      * Returns id of the timer
+     * @return timer id
      */
     long getId();
 
     /**
      * Returns unique id of the timer
+     * @return timer unique id
      */
     long getTimerId();
 
     /**
      * Returns date when the timer was activated/created
+     * @return timer activation/creation date
      */
     Date getActivationTime();
 
     /**
      * Returns date when the timer was fired last time, can be null
+     * @return timer last fire time
      */
     Date getLastFireTime();
 
     /**
      * Returns next date when the timer is expected to fire
+     * @return timer next fire time
      */
     Date getNextFireTime();
 
     /**
      * Returns delay that comes from definition
+     * @return timer delay
      */
     long getDelay();
 
     /**
      * Returns period that comes from definition - only for repeatable timers
+     * @return timer period
      */
     long getPeriod();
 
     /**
      * Returns repeat limit that comes from definition - only for repeatable timers
+     * @return timer repeat limit
      */
     int getRepeatLimit();
 
     /**
      * Returns process instance id that timer belongs to
+     * @return process instance id
      */
     long getProcessInstanceId();
 
     /**
      * Returns session id that was used to create the timer
+     * @return session id
      */
     long getSessionId();
 }

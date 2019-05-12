@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2019 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,7 +76,7 @@ public interface UserTaskService {
      * 
      * @param taskId
      * @param userId
-     * @param data
+     * @param params
      * @throws TaskNotFoundException in case task with given id was not found
      */
     void complete(Long taskId, String userId, Map<String, Object> params);
@@ -87,7 +87,7 @@ public interface UserTaskService {
      * @param deploymentId
      * @param taskId
      * @param userId
-     * @param data
+     * @param params
      * @throws TaskNotFoundException in case task with given id was not found or is not associated with given deployment id
      */
     void complete(String deploymentId, Long taskId, String userId, Map<String, Object> params);
@@ -98,7 +98,7 @@ public interface UserTaskService {
      * 
      * @param taskId
      * @param userId
-     * @param data
+     * @param params
      * @throws TaskNotFoundException in case task with given id was not found
      */
     void completeAutoProgress(Long taskId, String userId, Map<String, Object> params);
@@ -109,7 +109,7 @@ public interface UserTaskService {
      * @param deploymentId
      * @param taskId
      * @param userId
-     * @param data
+     * @param params
      * @throws TaskNotFoundException in case task with given id was not found or is not associated with given deployment id
      */
     void completeAutoProgress(String deploymentId, Long taskId, String userId, Map<String, Object> params);

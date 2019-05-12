@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2019 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,24 +20,64 @@ import java.util.Collection;
 import java.util.Map;
 
 public interface UserTaskDefinition {
-    
+
+    /**
+     * Returns the user task definition id.
+     * @return id
+     */
     String getId();
-    
+
+    /**
+     * Returns the user task definition name.
+     * @return name
+     */
     String getName();
 
+    /**
+     * Returns the user task definition priority.
+     * @return priority
+     */
     Integer getPriority();
-    
+
+    /**
+     * Returns the user task definition comment.
+     * @return comment
+     */
     String getComment();
-    
+
+    /**
+     * Returns the user task created by.
+     * @return created by
+     */
     String getCreatedBy();
-    
+
+    /**
+     * Returns the user task skippable.
+     * @return skippable
+     */
     boolean isSkippable();
-    
+
+    /**
+     * Returns the user task definition form name.
+     * @return form name
+     */
     String getFormName();
-    
+
+    /**
+     * Returns the user task definition associated entities.
+     * @return entities
+     */
     Collection<String> getAssociatedEntities();
-    
+
+    /**
+     * Returns the user task definition task input mappings.
+     * @return task input mappings
+     */
     Map<String, String> getTaskInputMappings();
-    
+
+    /**
+     * Returns the user task definition task output mappings.
+     * @return task output mappings
+     */
     Map<String, String> getTaskOutputMappings();
 }

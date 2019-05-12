@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2019 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,21 +25,25 @@ public interface ProcessNode extends Serializable {
 
     /**
      * Returns name of the node
+	 * @return node name
      */
     String getNodeName();
 
     /**
      * Returns unique id of the node
+	 * @return node id
      */
 	long getNodeId();	
 	
 	/**
      * Returns type of the node
+	 * @return node type
      */
 	String getNodeType();
 	
 	/**
 	 * Returns process id node belongs to
+	 * @return process id
 	 */
 	String getProcessId();	
 }

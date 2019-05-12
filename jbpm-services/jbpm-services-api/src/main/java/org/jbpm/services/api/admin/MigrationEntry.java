@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2019 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,27 +20,27 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * Single migration step information that comes with
- * message, timestamp and type (INFO, WARN, ERROR)
- *
+ * Single migration step information.
+ * Includes message, timestamp
+ * and type (INFO, WARN, ERROR)
  */
 public interface MigrationEntry extends Serializable {
     
     /**
      * Return timestamp of the entry - when it was created
-     * @return
+     * @return entry timestamp
      */
     Date getTimestamp();
     
     /**
      * Returns actual message of the entry
-     * @return
+     * @return entry message
      */
     String getMessage();
     
     /**
      * Returns type of the entry - INFO, WARN, ERROR
-     * @return
+     * @return entry
      */
     String getType();
 }

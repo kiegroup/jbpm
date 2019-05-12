@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2019 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,37 +19,106 @@ package org.jbpm.services.api.model;
 import java.util.Date;
 
 public interface UserTaskInstanceDesc {
+
+	/**
+	 * Returns the user task instance task id.
+	 * @return task id
+	 */
 	Long getTaskId();
 
+	/**
+	 * Returns the user task instance status.
+	 * @return status
+	 */
 	String getStatus();
 
+	/**
+	 * Returns the user task instance activation time.
+	 * @return activation time
+	 */
 	Date getActivationTime();
 
+	/**
+	 * Returns the user task instance name.
+	 * @return name
+	 */
 	String getName();
 
+	/**
+	 * Returns the user task instance description.
+	 * @return description
+	 */
 	String getDescription();
 
+	/**
+	 * Returns the user task instance priority.
+	 * @return priority
+	 */
 	Integer getPriority();
 
+	/**
+	 * Returns the user task instance created by.
+	 * @return created by
+	 */
 	String getCreatedBy();
 
+	/**
+	 * Returns the user task instance created on date.
+	 * @return created on
+	 */
 	Date getCreatedOn();
 
+	/**
+	 * Returns the user task instance due date.
+	 * @return due date
+	 */
 	Date getDueDate();
 
+	/**
+	 * Returns the user task instance process instance id.
+	 * @return process instance id
+	 */
 	Long getProcessInstanceId();
 
+	/**
+	 * Returns the user task process id.
+	 * @return process id
+	 */
 	String getProcessId();
 
+	/**
+	 * Returns the user task actual owner.
+	 * @return actual owner
+	 */
 	String getActualOwner();
 
+	/**
+	 * Returns the user task deployment id.
+	 * @return deployment id
+	 */
 	String getDeploymentId();
-	
+
+	/**
+	 * Returns the user task form name.
+	 * @return form name
+	 */
 	String getFormName();
 
+	/**
+	 * Returns the user task workitem id.
+	 * @return workitem id
+	 */
 	Long getWorkItemId();
 
+	/**
+	 * Returns the user task SLA compliance.
+	 * @return SLA compliance
+	 */
 	Integer getSlaCompliance();
 
+	/**
+	 * Returns the user task SLA due date.
+	 * @return SLA due date
+	 */
 	Date getSlaDueDate();
 }

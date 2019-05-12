@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2019 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,34 @@ package org.jbpm.services.api.model;
 
 public interface DeployedAsset {
 
+    /**
+     * Returns the deployed asset id.
+     * @return id
+     */
     public String getId();
 
+    /**
+     * Returns the deployed asset name.
+     * @return name
+     */
     public String getName();
 
+    /**
+     * Returns the deployed asset version.
+     * @return version
+     */
     public String getVersion();
 
+    /**
+     * Returns the deployed asset knowledge type.
+     * @return knowledge type
+     */
     public String getKnowledgeType();
-    
+
+    /**
+     * Returns the deployed asset original path.
+     * @return path
+     */
     public String getOriginalPath();
     
 }

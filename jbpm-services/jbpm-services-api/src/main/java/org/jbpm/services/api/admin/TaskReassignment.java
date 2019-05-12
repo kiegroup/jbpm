@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2019 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,26 +26,31 @@ public interface TaskReassignment extends Serializable {
 
     /**
      * Returns unique id of the task reassignment
+     * @return reassignment id
      */
     Long getId();
     
     /**
      * Returns optional name of the reassignment
+     * @return reassignment name
      */
     String getName();
     
     /**
      * Returns date that the reassignment is schedule to happen
+     * @return reassignment schedule date
      */
     Date getDate();
     
     /**
      * Returns list of potential owners to be set after reassignment
+     * @return potential owners
      */
     List<OrganizationalEntity> getPotentialOwners();
     
     /**
      * Returns if given reassignment is active
+     * @return active
      */
     boolean isActive();
 }
