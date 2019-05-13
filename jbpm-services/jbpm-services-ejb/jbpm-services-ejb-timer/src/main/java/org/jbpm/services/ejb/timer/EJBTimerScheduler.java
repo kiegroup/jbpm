@@ -38,6 +38,11 @@ import javax.ejb.TimerConfig;
 import org.drools.core.time.JobHandle;
 import org.drools.core.time.impl.TimerJobInstance;
 import org.jbpm.process.core.timer.TimerServiceRegistry;
+import org.jbpm.process.core.timer.impl.GlobalTimerService;
+import org.jbpm.runtime.manager.impl.SingletonRuntimeManager;
+import org.kie.api.runtime.manager.RuntimeEngine;
+import org.kie.internal.runtime.manager.InternalRuntimeManager;
+import org.kie.internal.runtime.manager.context.EmptyContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,7 +78,7 @@ public class EJBTimerScheduler {
 		
 		// handle overdue timers as ejb timer service might start before all deployments are ready		
 		long time = 0;
-        while (TimerServiceRegistry.getInstance().get(timerServiceId) == null) {
+        while (!isTimerServiceReady(timerServiceId)) {
         	logger.debug("waiting for timer service to be available, elapsed time {} ms", time);
             try {
 				Thread.sleep(500);
@@ -94,7 +99,22 @@ public class EJBTimerScheduler {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
+    private boolean isTimerServiceReady(String timerServiceId) {
+        org.drools.core.time.TimerService droolsTimerService = TimerServiceRegistry.getInstance().get(timerServiceId);
+        if (droolsTimerService == null) {
+            return false;
+        }
+        InternalRuntimeManager runtimeManager = ((GlobalTimerService)droolsTimerService).getRuntimeManager();
+        if (runtimeManager instanceof SingletonRuntimeManager) {
+            RuntimeEngine runtimeEngine = runtimeManager.getRuntimeEngine(EmptyContext.get());
+            if (runtimeEngine == null) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 	public void internalSchedule(TimerJobInstance timerJobInstance) {
 		TimerConfig config = new TimerConfig(new EjbTimerJob(timerJobInstance), true);
 		Date expirationTime = timerJobInstance.getTrigger().hasNextFireTime();
