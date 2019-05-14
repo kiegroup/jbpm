@@ -49,12 +49,12 @@ import org.jbpm.examples.checklist.ChecklistContextConstraint;
 import org.jbpm.examples.checklist.ChecklistItem;
 import org.jbpm.examples.checklist.ChecklistItem.Status;
 import org.jbpm.examples.checklist.ChecklistManager;
-import org.jbpm.test.JBPMHelper;
 import org.kie.api.KieServices;
 import org.kie.api.io.ResourceType;
 import org.kie.api.runtime.manager.RuntimeEnvironment;
 import org.kie.api.runtime.manager.RuntimeEnvironmentBuilder;
 import org.kie.api.task.UserGroupCallback;
+import org.kie.test.util.db.PersistenceUtil;
 
 public class ChecklistUI extends JFrame {
 
@@ -88,8 +88,7 @@ public class ChecklistUI extends JFrame {
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         initializeComponent();
         
-		JBPMHelper.startH2Server();
-		JBPMHelper.setupDataSource();
+        PersistenceUtil.setupPoolingDataSource();
 		RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get().newDefaultBuilder()
             .userGroupCallback(new UserGroupCallback() {
     			public List<String> getGroupsForUser(String userId) {

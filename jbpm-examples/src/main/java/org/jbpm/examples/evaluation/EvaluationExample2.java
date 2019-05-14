@@ -21,7 +21,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jbpm.test.JBPMHelper;
 import org.kie.api.KieServices;
 import org.kie.api.io.ResourceType;
 import org.kie.api.runtime.KieSession;
@@ -33,6 +32,7 @@ import org.kie.api.runtime.manager.RuntimeManagerFactory;
 import org.kie.api.task.TaskService;
 import org.kie.api.task.UserGroupCallback;
 import org.kie.api.task.model.TaskSummary;
+import org.kie.test.util.db.PersistenceUtil;
 
 /**
  * This is a sample file to launch a process.
@@ -93,8 +93,7 @@ public class EvaluationExample2 {
 
     private static RuntimeManager getRuntimeManager(String process) {
         // load up the knowledge base
-    	JBPMHelper.startH2Server();
-    	JBPMHelper.setupDataSource();
+        PersistenceUtil.setupPoolingDataSource();
         RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get().newDefaultBuilder()
             .userGroupCallback(new UserGroupCallback() {
     			public List<String> getGroupsForUser(String userId) {

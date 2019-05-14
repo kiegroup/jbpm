@@ -16,7 +16,7 @@
 
 package org.jbpm.test.functional.timer;
 
-import static org.jbpm.test.JBPMHelper.processStateName;
+import static org.jbpm.test.JbpmJUnitBaseTestCase.processStateName;
 import static org.junit.Assert.*;
 
 import java.util.HashMap;
