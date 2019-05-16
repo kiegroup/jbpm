@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2019 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import org.jbpm.services.task.assignment.AssignmentService;
 import org.jbpm.services.task.assignment.AssignmentServiceProvider;
 import org.jbpm.services.task.deadlines.notifications.impl.NotificationListenerManager;
 import org.jbpm.services.task.events.TaskEventSupport;
-import org.jbpm.services.task.impl.util.DeadlineSchedulerHelper;
 import org.jbpm.services.task.utils.ContentMarshallerHelper;
 import org.kie.api.runtime.Context;
 import org.kie.api.runtime.EnvironmentName;
@@ -102,8 +101,7 @@ public class ExecuteDeadlinesCommand extends TaskCommand<Void> {
 	            // check if task is still in valid status
 	            if (type.isValidStatus(taskData.getStatus())) {
 	                Map<String, Object> variables = null;
-	
-	
+
 	                    Content content = persistenceContext.findContent(taskData.getDocumentContentId());
 	
 	                    if (content != null) {
@@ -171,10 +169,10 @@ public class ExecuteDeadlinesCommand extends TaskCommand<Void> {
 	        }
 	        
 	        deadline.setEscalated(true);
-	        persistenceContext.updateDeadline(deadline);
-	        persistenceContext.updateTask(task);
-            DeadlineSchedulerHelper.rescheduleDeadlinesForTask((InternalTask) task, ctx, type);
-        } catch (Exception e) {
+
+			persistenceContext.updateDeadline(deadline);
+			persistenceContext.updateTask(task);
+		} catch (Exception e) {
 
         	logger.error("Error when executing deadlines", e);
         }

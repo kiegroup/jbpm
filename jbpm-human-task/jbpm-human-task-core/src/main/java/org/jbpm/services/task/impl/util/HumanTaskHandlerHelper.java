@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2019 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,15 @@
 
 package org.jbpm.services.task.impl.util;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.drools.core.time.TimeUtils;
 import org.jbpm.process.core.timer.BusinessCalendar;
+import org.jbpm.process.core.timer.DateTimeUtils;
 import org.kie.api.runtime.Environment;
 import org.kie.api.task.model.Group;
 import org.kie.api.task.model.I18NText;
@@ -43,7 +44,6 @@ import org.kie.internal.task.api.model.Reassignment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class HumanTaskHandlerHelper {
     private static final Logger logger = LoggerFactory.getLogger(HumanTaskHandlerHelper.class);
 	
@@ -53,8 +53,8 @@ public class HumanTaskHandlerHelper {
 	private static final String ATTRIBUTES_ELEMENTS_SEPARATOR = ",";
 	private static final String KEY_VALUE_SEPARATOR = ":";
 	
-	private static final String[] KNOWN_KEYS = {"users", "groups", "from", "tousers", "togroups", "replyto", "subject","body"}; 
-	
+	private static final String[] KNOWN_KEYS = {"users", "groups", "from", "tousers", "togroups", "replyto", "subject","body"};
+
 	public static Deadlines setDeadlines(Map<String, Object> parameters, List<OrganizationalEntity> businessAdministrators, Environment environment) {
 		String notStartedReassign = (String) parameters.get("NotStartedReassign");
 		String notStartedNotify = (String) parameters.get("NotStartedNotify");
@@ -82,7 +82,7 @@ public class HumanTaskHandlerHelper {
 		return deadlinesTotal;
 	}
 	
-	protected static List<Deadline> parseDeadlineString(String deadlineInfo, List<OrganizationalEntity> businessAdministrators, Environment environment) {
+	public static List<Deadline> parseDeadlineString(String deadlineInfo, List<OrganizationalEntity> businessAdministrators, Environment environment) {
 		if (deadlineInfo == null || deadlineInfo.length() == 0) {
 			return new ArrayList<Deadline>();
 		}
@@ -101,29 +101,25 @@ public class HumanTaskHandlerHelper {
 	            String expireComponents = mainComponents[1].substring(1, mainComponents[1].length()-1);
 	 
 	            String[] expireElements = expireComponents.split(ATTRIBUTES_ELEMENTS_SEPARATOR);
-	            Deadline taskDeadline = null;
-	            
+
 	            for (String expiresAt : expireElements) {
-	            	logger.debug("Expires at is {}", expiresAt);
-	                taskDeadline = TaskModelProvider.getFactory().newDeadline();
-	                if (businessCalendar != null) {
-	                	taskDeadline.setDate(businessCalendar.calculateBusinessTimeAsDate(expiresAt));
-	                } else {
-	                	taskDeadline.setDate(new Date(System.currentTimeMillis() + TimeUtils.parseTimeString(expiresAt)));
-	                }
-	                logger.debug("Calculated date of execution is {} and current date {}", taskDeadline.getDate(), new Date());
-	                List<Escalation> escalations = new ArrayList<Escalation>();
-	                
-	                Escalation escalation = TaskModelProvider.getFactory().newEscalation();
-	                escalations.add(escalation);
-	                
-	                escalation.setName("Default escalation");
-	                
-	                taskDeadline.setEscalations(escalations);
-	                escalation.setReassignments(parseReassignment(actionComponent));
-	                escalation.setNotifications(parseNotifications(actionComponent, businessAdministrators));
-	                
-	                deadlines.add(taskDeadline);
+	            	if(businessCalendar != null) {
+						deadlines.add(getNewDeadline(expiresAt, businessCalendar.calculateBusinessTimeAsDate(expiresAt.trim()), actionComponent, businessAdministrators));
+					} else {
+						if (DateTimeUtils.isRepeatable(expiresAt.trim())) {
+							int repeatLimit = getDeadlineRepeatLimit(expiresAt.trim());
+							if(repeatLimit > 0) {
+								for(int i=0; i < repeatLimit; i++) {
+									Date durationDate = getDeadlineDurationDate(expiresAt.trim(), i);
+									deadlines.add(getNewDeadline(expiresAt, durationDate, actionComponent, businessAdministrators));
+								}
+							} else {
+								deadlines.add(getNewDeadline(expiresAt, getDeadlineDurationDate(expiresAt.trim(), 0), actionComponent, businessAdministrators));
+							}
+						} else {
+							deadlines.add(getNewDeadline(expiresAt, getDeadlineDurationDate(expiresAt.trim(), 0), actionComponent, businessAdministrators));
+						}
+					}
 	            }
 	        } else {
 	            logger.warn("Incorrect syntax of deadline property {}", deadlineInfo);
@@ -131,6 +127,25 @@ public class HumanTaskHandlerHelper {
         }
         return deadlines;
     }
+
+    protected static Deadline getNewDeadline(String expiresAt, Date deadlineDate, String actionComponent, List<OrganizationalEntity> businessAdministrators) {
+		logger.debug("Expires at is {}", expiresAt);
+		Deadline taskDeadline = TaskModelProvider.getFactory().newDeadline();
+		taskDeadline.setDate(deadlineDate);
+		logger.debug("Calculated date of execution is {} and current date {}", taskDeadline.getDate(), new Date());
+		List<Escalation> escalations = new ArrayList<Escalation>();
+
+		Escalation escalation = TaskModelProvider.getFactory().newEscalation();
+		escalations.add(escalation);
+
+		escalation.setName("Default escalation");
+
+		taskDeadline.setEscalations(escalations);
+		escalation.setReassignments(parseReassignment(actionComponent));
+		escalation.setNotifications(parseNotifications(actionComponent, businessAdministrators));
+
+		return taskDeadline;
+	}
     
 	protected static List<Notification> parseNotifications(String notificationString, List<OrganizationalEntity> businessAdministrators) {
 
@@ -199,6 +214,66 @@ public class HumanTaskHandlerHelper {
 		}
 
 		return notifications;
+	}
+
+	protected static int getDeadlineRepeatLimit(String deadlineStr) {
+		String[] repeatableParts = DateTimeUtils.parseISORepeatable(deadlineStr);
+		String repeatLimit = repeatableParts[0];
+		if (!repeatLimit.isEmpty()) {
+			return Integer.parseInt(repeatLimit);
+		} else {
+			return -1;
+		}
+	}
+
+	protected static Date getDeadlineDurationDate(String durationStr, int repeatCount) {
+		// handles iso repetable and both period and date notation
+		try {
+
+			if (DateTimeUtils.isRepeatable(durationStr)) {
+				String[] repeatableParts = DateTimeUtils.parseISORepeatable(durationStr);
+				String tempTimeDelay = repeatableParts[1];
+				String tempDateTimeStr = repeatableParts[2];
+
+				Date deadlineDate;
+
+				if (DateTimeUtils.isPeriod((tempDateTimeStr))) {
+					// e.g R/start/duration
+					deadlineDate = new Date(DateTimeUtils.parseDateTime(tempTimeDelay) + repeatDuration(tempDateTimeStr, repeatCount));
+				} else if(DateTimeUtils.isPeriod(tempTimeDelay)) {
+					// e.g R/duration/end
+					long firstRet = DateTimeUtils.parseDateTime(tempDateTimeStr) -  Duration.parse(tempTimeDelay).toMillis();
+					deadlineDate =  new Date(firstRet + repeatDuration(tempTimeDelay, repeatCount));
+				} else {
+					// e.g R/start/end
+					// duration is end - start
+					long duration = DateTimeUtils.parseDateTime(tempDateTimeStr) - DateTimeUtils.parseDateTime(tempTimeDelay);
+					deadlineDate =  new Date(DateTimeUtils.parseDateTime(tempTimeDelay) + repeatDuration(duration, repeatCount));
+				}
+
+				return deadlineDate;
+			} else {
+				if (DateTimeUtils.isPeriod((durationStr))) {
+					return new Date(System.currentTimeMillis() + Duration.parse(durationStr).toMillis());
+				} else {
+					return new Date(System.currentTimeMillis() + DateTimeUtils.parseDateAsDuration(durationStr));
+				}
+			}
+		} catch(Exception e) {
+			throw new IllegalArgumentException("Unable to parse duration string: " + durationStr + " : " + e.getMessage());
+		}
+
+	}
+
+	protected static long repeatDuration(String durationStr, int repeatCount) {
+		return Duration.parse(durationStr).toMillis() * repeatCount;
+	}
+
+	protected static long repeatDuration(long duration, int repeatCount) {
+		for(int i = 0; i < repeatCount; i++) {
+			duration += duration;
+		}
+		return duration;
 	}
 
     protected static List<Reassignment> parseReassignment(String reassignString) {
