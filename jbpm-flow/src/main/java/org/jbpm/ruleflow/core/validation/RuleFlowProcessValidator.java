@@ -36,6 +36,7 @@ import org.jbpm.process.core.timer.DateTimeUtils;
 import org.jbpm.process.core.timer.Timer;
 import org.jbpm.process.core.validation.ProcessValidationError;
 import org.jbpm.process.core.validation.ProcessValidator;
+import org.jbpm.process.core.validation.impl.ProcessNodeValidationErrorImpl;
 import org.jbpm.process.core.validation.impl.ProcessValidationErrorImpl;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
 import org.jbpm.workflow.core.WorkflowProcess;
@@ -1013,10 +1014,9 @@ public class RuleFlowProcessValidator implements ProcessValidator {
                                    Node node,
                                    List<ProcessValidationError> errors,
                                    String message) {
-        String error = String.format("Node '%s' [%d] " + message,
-                                     node.getName(),
-                                     node.getId());
-        errors.add(new ProcessValidationErrorImpl(process,
-                                                  error));
+
+        errors.add(new ProcessNodeValidationErrorImpl(process,
+                                                  message,
+												  node));
     }
 }

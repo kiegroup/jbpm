@@ -125,10 +125,7 @@ public class ProcessBuilderImpl implements org.drools.compiler.compiler.ProcessB
             if ( errors.length != 0 ) {
                 hasErrors = true;
                 for ( int i = 0; i < errors.length; i++ ) {
-                    this.errors.add( new ParserError( resource,
-                                                      errors[i].toString(),
-                                                      -1,
-                                                      -1 ) );
+                    this.errors.add( newParserError(resource, errors[i], -1, -1));
                 }
             }
         }
@@ -208,6 +205,13 @@ public class ProcessBuilderImpl implements org.drools.compiler.compiler.ProcessB
 			}
         }
     }
+
+	protected ParserError newParserError(Resource resource, ProcessValidationError error, int row, int col){
+		return new ParserError( resource,
+                                error.toString(),
+                                row,
+								col );
+	}
 
     public void buildContexts(ContextContainer contextContainer, ProcessBuildContext buildContext) {
     	List<Context> exceptionScopes = contextContainer.getContexts(ExceptionScope.EXCEPTION_SCOPE);
