@@ -16,6 +16,7 @@
 
 package org.jbpm.executor.impl.jpa;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -47,7 +48,9 @@ public class ExecutorQueryServiceImpl implements ExecutorQueryService {
 
     private static final Logger logger = LoggerFactory.getLogger(ExecutorQueryServiceImpl.class);
     private CommandService commandService;
-   
+
+    private long pollingDelay = Long.parseLong(System.getProperty("org.kie.executor.polling.delay", "0"));
+
     public ExecutorQueryServiceImpl(boolean active) {
         QueryManager.get().addNamedQueries("META-INF/Executor-orm.xml");
     }
@@ -230,7 +233,16 @@ public class ExecutorQueryServiceImpl implements ExecutorQueryService {
 		@Override
 		public RequestInfo execute(Context context) {
             Map<String, Object> params = new HashMap<String, Object>();
-            params.put("now", new Date());
+            Date now = new Date();
+            if (pollingDelay > 0) {
+                // RHBPMS-5231 : Don't pick up very recent job in order to avoid race condition against KieExecutorMDB query (LockAndUpdateRequestInfoByIdCommand)
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(now);
+                calendar.add(Calendar.MILLISECOND, (int)-pollingDelay); // minus
+                now = calendar.getTime();
+                logger.debug("modified now = " + now);
+            }
+            params.put("now", now);
             params.put("owner", ExecutorService.EXECUTOR_ID);
             RequestInfo request = null;
             try {
@@ -252,6 +264,13 @@ public class ExecutorQueryServiceImpl implements ExecutorQueryService {
                     request = ctx.queryAndLockWithParametersInTransaction("PendingRequestsForProcessing", params, true, RequestInfo.class);
                 }
                 if (request != null) {
+                    // RHBPMS-5231: confirm the status by Id
+                    RequestInfo requestCheck = ctx.find(org.jbpm.executor.entities.RequestInfo.class, request.getId());
+                    if (requestCheck.getStatus() == STATUS.RUNNING) {
+                        logger.info("request is already RUNNING. Skipping: id = " + request.getId());
+                        return null;
+                    }
+
                     request.setStatus(STATUS.RUNNING);
                     // update date on when it was started to be executed
                     ((org.jbpm.executor.entities.RequestInfo) request).setTime(new Date());
