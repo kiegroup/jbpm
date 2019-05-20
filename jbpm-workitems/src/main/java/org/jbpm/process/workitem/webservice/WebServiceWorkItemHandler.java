@@ -30,6 +30,8 @@ import org.apache.cxf.endpoint.ClientCallback;
 import org.apache.cxf.endpoint.dynamic.DynamicClientFactory;
 import org.apache.cxf.jaxws.endpoint.dynamic.JaxWsDynamicClientFactory;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.transport.http.HTTPConduit;
+import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.drools.core.process.instance.impl.WorkItemImpl;
 import org.jbpm.bpmn2.core.Bpmn2Import;
 import org.jbpm.process.workitem.AbstractLogOrThrowWorkItemHandler;
@@ -49,6 +51,9 @@ public class WebServiceWorkItemHandler extends AbstractLogOrThrowWorkItemHandler
     
     public static final String WSDL_IMPORT_TYPE = "http://schemas.xmlsoap.org/wsdl/";
     
+    private final Long defaultJbpmCxfClientConnectionTimeout = Long.parseLong(System.getProperty("org.jbpm.cxf.client.connectionTimeout", "30000"));
+    private final Long defaultJbpmCxfClientReceiveTimeout = Long.parseLong(System.getProperty("org.jbpm.cxf.client.receiveTimeout", "60000"));
+
     private static Logger logger = LoggerFactory.getLogger(WebServiceWorkItemHandler.class);
     
     private ConcurrentHashMap<String, Client> clients = new ConcurrentHashMap<String, Client>();
@@ -199,6 +204,7 @@ public class WebServiceWorkItemHandler extends AbstractLogOrThrowWorkItemHandler
         if (importLocation != null && importLocation.trim().length() > 0 
         		&& importNamespace != null && importNamespace.trim().length() > 0) {
         	Client client = getDynamicClientFactory().createClient(importLocation, new QName(importNamespace, interfaceRef), getInternalClassLoader(), null);
+            setClientTimeout(workItem, client);
             clients.put(interfaceRef, client);
             return client;
         }
@@ -214,6 +220,7 @@ public class WebServiceWorkItemHandler extends AbstractLogOrThrowWorkItemHandler
                 if (WSDL_IMPORT_TYPE.equalsIgnoreCase(importObj.getType())) {
                     try {
                         client = getDynamicClientFactory().createClient(importObj.getLocation(), new QName(importObj.getNamespace(), interfaceRef), getInternalClassLoader(), null);
+                        setClientTimeout(workItem, client);
                         clients.put(interfaceRef, client);
                         return client;
                     } catch (Exception e) {
@@ -224,6 +231,26 @@ public class WebServiceWorkItemHandler extends AbstractLogOrThrowWorkItemHandler
             }
         }
         return null;
+    }
+
+    private void setClientTimeout(WorkItem workItem, Client client) {
+        HTTPConduit conduit = (HTTPConduit) client.getConduit();
+        HTTPClientPolicy policy = conduit.getClient();
+
+        long connectionTimeout = defaultJbpmCxfClientConnectionTimeout;
+        String connectionTimeoutStr = (String) workItem.getParameter("ConnectionTimeout");
+        if (connectionTimeoutStr != null && !connectionTimeoutStr.trim().isEmpty()) {
+            connectionTimeout = Long.valueOf(connectionTimeoutStr);
+        }
+        long receiveTimeout = defaultJbpmCxfClientReceiveTimeout;
+        String receiveTimeoutStr = (String) workItem.getParameter("ReceiveTimeout");
+        if (receiveTimeoutStr != null && !receiveTimeoutStr.trim().isEmpty()) {
+            receiveTimeout = Long.valueOf(receiveTimeoutStr);
+        }
+
+        logger.debug("connectionTimeout = {}, receiveTimeout = {}", connectionTimeout, receiveTimeout);
+        policy.setConnectionTimeout(connectionTimeout);
+        policy.setReceiveTimeout(receiveTimeout);
     }
     
     protected synchronized DynamicClientFactory getDynamicClientFactory() {

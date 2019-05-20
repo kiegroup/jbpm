@@ -15,11 +15,7 @@
 
 package org.jbpm.process.workitem.bpmn2;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
+import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -43,18 +39,24 @@ import org.jbpm.test.util.CountDownProcessEventListener;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.kie.api.KieBase;
 import org.kie.api.io.ResourceType;
+import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.KieSessionConfiguration;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.process.WorkflowProcessInstance;
-import org.kie.internal.KnowledgeBase;
 import org.kie.internal.KnowledgeBaseFactory;
 import org.kie.internal.builder.KnowledgeBuilder;
 import org.kie.internal.builder.KnowledgeBuilderFactory;
 import org.kie.internal.io.ResourceFactory;
-import org.kie.internal.runtime.StatefulKnowledgeSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class JaxWSServiceTaskTest extends AbstractBaseTest {
     
@@ -77,8 +79,8 @@ public class JaxWSServiceTaskTest extends AbstractBaseTest {
     @Test
     public void testServiceInvocation() throws Exception {
         KnowledgeBaseFactory.setKnowledgeBaseServiceFactory(new KnowledgeBaseFactoryServiceImpl());
-        KnowledgeBase kbase = readKnowledgeBase();
-        StatefulKnowledgeSession ksession = createSession(kbase);
+        KieBase kbase = readKnowledgeBase();
+        KieSession ksession = createSession(kbase);
         ksession.getWorkItemManager().registerWorkItemHandler("Service Task", new ServiceTaskHandler(ksession));
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("s", "john");
@@ -94,8 +96,8 @@ public class JaxWSServiceTaskTest extends AbstractBaseTest {
     public void testAsyncServiceInvocation() throws Exception {
         CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("Service Task", 1);
         KnowledgeBaseFactory.setKnowledgeBaseServiceFactory(new KnowledgeBaseFactoryServiceImpl());
-        KnowledgeBase kbase = readKnowledgeBase();
-        StatefulKnowledgeSession ksession = createSession(kbase);
+        KieBase kbase = readKnowledgeBase();
+        KieSession ksession = createSession(kbase);
         ksession.addEventListener(countDownListener);
         ksession.getWorkItemManager().registerWorkItemHandler("Service Task", new ServiceTaskHandler(ksession));
         Map<String, Object> params = new HashMap<String, Object>();
@@ -113,8 +115,8 @@ public class JaxWSServiceTaskTest extends AbstractBaseTest {
     @Test
     public void testOneWayServiceInvocation() throws Exception {
         KnowledgeBaseFactory.setKnowledgeBaseServiceFactory(new KnowledgeBaseFactoryServiceImpl());
-        KnowledgeBase kbase = readKnowledgeBase();
-        StatefulKnowledgeSession ksession = createSession(kbase);
+        KieBase kbase = readKnowledgeBase();
+        KieSession ksession = createSession(kbase);
         ksession.getWorkItemManager().registerWorkItemHandler("Service Task", new ServiceTaskHandler(ksession));
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("s", "john");
@@ -131,8 +133,8 @@ public class JaxWSServiceTaskTest extends AbstractBaseTest {
     @Test
     public void testServiceInvocationWithErrorHandled() throws Exception {
         KnowledgeBaseFactory.setKnowledgeBaseServiceFactory(new KnowledgeBaseFactoryServiceImpl());
-        KnowledgeBase kbase = readKnowledgeBase();
-        StatefulKnowledgeSession ksession = createSession(kbase);
+        KieBase kbase = readKnowledgeBase();
+        KieSession ksession = createSession(kbase);
         ksession.getWorkItemManager().registerWorkItemHandler("Service Task", new ServiceTaskHandler(ksession));
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("s", "john");
@@ -148,8 +150,8 @@ public class JaxWSServiceTaskTest extends AbstractBaseTest {
     @Test(timeout=10000)
     public void testServiceInvocationProcessWith2WSImports() throws Exception {
         KnowledgeBaseFactory.setKnowledgeBaseServiceFactory(new KnowledgeBaseFactoryServiceImpl());
-        KnowledgeBase kbase = readKnowledgeBase();
-        StatefulKnowledgeSession ksession = createSession(kbase);
+        KieBase kbase = readKnowledgeBase();
+        KieSession ksession = createSession(kbase);
         ksession.getWorkItemManager().registerWorkItemHandler("Service Task", new ServiceTaskHandler(ksession));
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("s", "john");
@@ -164,8 +166,8 @@ public class JaxWSServiceTaskTest extends AbstractBaseTest {
     @Test(timeout=10000)
     public void testServiceInvocationProcessWith2WSImportsWSHandler() throws Exception {
         KnowledgeBaseFactory.setKnowledgeBaseServiceFactory(new KnowledgeBaseFactoryServiceImpl());
-        KnowledgeBase kbase = readKnowledgeBase();
-        StatefulKnowledgeSession ksession = createSession(kbase);
+        KieBase kbase = readKnowledgeBase();
+        KieSession ksession = createSession(kbase);
         ksession.getWorkItemManager().registerWorkItemHandler("Service Task", new WebServiceWorkItemHandler(ksession));
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("s", "john");
@@ -180,8 +182,8 @@ public class JaxWSServiceTaskTest extends AbstractBaseTest {
     @Test
     public void testServiceInvocationWithMultipleParams() throws Exception {
         KnowledgeBaseFactory.setKnowledgeBaseServiceFactory(new KnowledgeBaseFactoryServiceImpl());
-        KnowledgeBase kbase = readKnowledgeBase();
-        StatefulKnowledgeSession ksession = createSession(kbase);
+        KieBase kbase = readKnowledgeBase();
+        KieSession ksession = createSession(kbase);
         ksession.getWorkItemManager().registerWorkItemHandler("Service Task", new WebServiceWorkItemHandler(ksession));
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("s", new String[]{"john", "doe"});
@@ -196,8 +198,8 @@ public class JaxWSServiceTaskTest extends AbstractBaseTest {
     @Test
     public void testServiceInvocationWithMultipleIntParams() throws Exception {
         KnowledgeBaseFactory.setKnowledgeBaseServiceFactory(new KnowledgeBaseFactoryServiceImpl());
-        KnowledgeBase kbase = readKnowledgeBase();
-        StatefulKnowledgeSession ksession = createSession(kbase);
+        KieBase kbase = readKnowledgeBase();
+        KieSession ksession = createSession(kbase);
         ksession.getWorkItemManager().registerWorkItemHandler("Service Task", new WebServiceWorkItemHandler(ksession));
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("s", new int[]{2, 3});
@@ -207,6 +209,62 @@ public class JaxWSServiceTaskTest extends AbstractBaseTest {
         String variable = (String) processInstance.getVariable("s2");
         assertEquals("Hello 2, 3", variable);
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
+    }
+
+    @Test
+    public void testTimeoutViaSystemProperty() throws Exception {
+        System.setProperty("org.jbpm.cxf.client.connectionTimeout", "10");
+        System.setProperty("org.jbpm.cxf.client.receiveTimeout", "10");
+        try {
+            KieBase kbase = readKnowledgeBase();
+            KieSession ksession = createSession(kbase);
+            ksession.getWorkItemManager().registerWorkItemHandler("Service Task",
+                                                                  new WebServiceWorkItemHandler(ksession));
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put("s",
+                       "john");
+            params.put("mode",
+                       "sync");
+
+            ksession.startProcess("org.jboss.qa.jbpm.CallWS", params);
+            fail("should throw Read Timeout error");
+        } catch (Exception e) {
+            assertTrue(isCausedBySocketTimeoutException(e));
+        } finally {
+            System.clearProperty("org.jbpm.cxf.client.connectionTimeout");
+            System.clearProperty("org.jbpm.cxf.client.receiveTimeout");
+        }
+    }
+
+    @Test
+    public void testTimeoutViaParameters() throws Exception {
+        try {
+            KieBase kbase = readKnowledgeBase();
+            KieSession ksession = createSession(kbase);
+            ksession.getWorkItemManager().registerWorkItemHandler("Service Task",
+                                                                  new WebServiceWorkItemHandler(ksession));
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put("s",
+                       "john");
+            params.put("mode",
+                       "sync");
+
+            ksession.startProcess("org.jboss.qa.jbpm.CallWS2", params);
+            fail("should throw Read Timeout error");
+        } catch (Exception e) {
+            assertTrue(isCausedBySocketTimeoutException(e));
+        }
+    }
+
+    private boolean isCausedBySocketTimeoutException(Exception e) {
+        while (e.getCause() != null) {
+            Exception cause = (Exception) e.getCause();
+            if (cause instanceof SocketTimeoutException) {
+                return true;
+            }
+            e = cause;
+        }
+        return false;
     }
     
     private void startWebService() {
@@ -220,7 +278,7 @@ public class JaxWSServiceTaskTest extends AbstractBaseTest {
         this.endpoint2.stop();
     }
     
-    private static KnowledgeBase readKnowledgeBase() throws Exception {
+    private static KieBase readKnowledgeBase() throws Exception {
         ProcessBuilderFactory.setProcessBuilderFactoryService(new ProcessBuilderFactoryServiceImpl());
         ProcessMarshallerFactory.setProcessMarshallerFactoryService(new ProcessMarshallerFactoryServiceImpl());
         ProcessRuntimeFactory.setProcessRuntimeFactoryService(new ProcessRuntimeFactoryServiceImpl());
@@ -231,15 +289,16 @@ public class JaxWSServiceTaskTest extends AbstractBaseTest {
         kbuilder.add(ResourceFactory.newClassPathResource("BPMN2-TwoWebServiceImports.bpmn"), ResourceType.BPMN2);
         kbuilder.add(ResourceFactory.newClassPathResource("BPMN2-MultipleParamsWebService.bpmn"), ResourceType.BPMN2);
         kbuilder.add(ResourceFactory.newClassPathResource("BPMN2-MultipleIntParamsWebService.bpmn"), ResourceType.BPMN2);
+        kbuilder.add(ResourceFactory.newClassPathResource("BPMN2-TwoWebServiceImportsWithTimeout.bpmn"), ResourceType.BPMN2);
         return kbuilder.newKnowledgeBase();
     }
     
-    private static StatefulKnowledgeSession createSession(KnowledgeBase kbase) {
+    private static KieSession createSession(KieBase kbase) {
         Properties properties = new Properties();
         properties.put("drools.processInstanceManagerFactory", "org.jbpm.process.instance.impl.DefaultProcessInstanceManagerFactory");
         properties.put("drools.processSignalManagerFactory", "org.jbpm.process.instance.event.DefaultSignalManagerFactory");
         KieSessionConfiguration config = KnowledgeBaseFactory.newKnowledgeSessionConfiguration(properties);
-        return kbase.newStatefulKnowledgeSession(config, EnvironmentFactory.newEnvironment());
+        return kbase.newKieSession(config, EnvironmentFactory.newEnvironment());
     }
 
 }
