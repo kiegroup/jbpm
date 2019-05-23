@@ -50,6 +50,8 @@ public class EJBTimerScheduler {
 	private static final Logger logger = LoggerFactory.getLogger(EJBTimerScheduler.class);
 
 	private static final Integer OVERDUE_WAIT_TIME = Integer.parseInt(System.getProperty("org.jbpm.overdue.timer.wait", "20000"));
+
+	private static final boolean USE_LOCAL_CACHE = Boolean.parseBoolean(System.getProperty("org.jbpm.ejb.timer.local.cache", "true"));
 	
 	private ConcurrentMap<String, TimerJobInstance> localCache = new ConcurrentHashMap<String, TimerJobInstance>();
 	
@@ -60,6 +62,7 @@ public class EJBTimerScheduler {
 	public void setup() {
 	    // disable auto init of timers since ejb timer service supports persistence of timers
 	    System.setProperty("org.jbpm.rm.init.timer", "false");
+	    logger.info("Using local cache for EJB timers: {}", USE_LOCAL_CACHE);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -102,7 +105,9 @@ public class EJBTimerScheduler {
 		if (expirationTime != null) {
 			timerService.createSingleActionTimer(expirationTime, config);
 			logger.debug("Timer scheduled {} on {} scheduler service", timerJobInstance);
-			localCache.putIfAbsent(((EjbGlobalJobHandle) timerJobInstance.getJobHandle()).getUuid(), timerJobInstance);
+			if (USE_LOCAL_CACHE) {
+				localCache.putIfAbsent(((EjbGlobalJobHandle) timerJobInstance.getJobHandle()).getUuid(), timerJobInstance);
+			}
 		} else {
 			logger.info("Timer that was to be scheduled has already expired");
 		}
@@ -120,7 +125,9 @@ public class EJBTimerScheduler {
     				EjbGlobalJobHandle handle = (EjbGlobalJobHandle) job.getTimerJobInstance().getJobHandle();
     				if (handle.getUuid().equals(ejbHandle.getUuid())) {
     					logger.debug("Job handle {} does match timer and is going to be canceled", jobHandle);
-    					localCache.remove(handle.getUuid());
+    					if (USE_LOCAL_CACHE) {
+    						localCache.remove(handle.getUuid());
+    					}
     					try {
     					    timer.cancel();
     					} catch (Throwable e) {
@@ -139,11 +146,12 @@ public class EJBTimerScheduler {
 	}
 	
 	public TimerJobInstance getTimerByName(String jobName) {
-	    
-	    if (localCache.containsKey(jobName)) {
-	        logger.debug("Found job {} in cache returning", jobName);
-	        return localCache.get(jobName);
-	    }
+    	if (USE_LOCAL_CACHE) {
+    		if (localCache.containsKey(jobName)) {
+    			logger.debug("Found job {} in cache returning", jobName);
+    			return localCache.get(jobName);
+    		}
+    	}
 	    TimerJobInstance found = null;
 	    
 		for (Timer timer : timerService.getTimers()) {
@@ -153,7 +161,9 @@ public class EJBTimerScheduler {
     				EjbTimerJob job = (EjbTimerJob) info;
     				
     				EjbGlobalJobHandle handle = (EjbGlobalJobHandle) job.getTimerJobInstance().getJobHandle();
-    				localCache.putIfAbsent(jobName, handle.getTimerJobInstance());
+    				if (USE_LOCAL_CACHE) {
+    					localCache.putIfAbsent(jobName, handle.getTimerJobInstance());
+    				}
     				if (handle.getUuid().equals(jobName)) {
     					logger.debug("Job  {} does match timer and is going to be returned", jobName);
     					found = handle.getTimerJobInstance();
