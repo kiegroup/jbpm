@@ -35,6 +35,8 @@ public abstract class AbstractLogOrThrowWorkItemHandler implements WorkItemHandl
     protected String handlingProcessId;
     protected String handlingStrategy;
 
+    protected int retries = 3;
+
     public void setLogThrownException(boolean logException) {
         this.logThrownException = logException;
     }
@@ -47,7 +49,7 @@ public abstract class AbstractLogOrThrowWorkItemHandler implements WorkItemHandl
     protected void handleException(Throwable cause,
                                    Map<String, Object> handlerInfoMap) {
         if (handlingProcessId != null && handlingStrategy != null) {
-            throw new ProcessWorkItemHandlerException(handlingProcessId, handlingStrategy, cause);
+            throw new ProcessWorkItemHandlerException(handlingProcessId, handlingStrategy, cause, retries);
         }
         
         
