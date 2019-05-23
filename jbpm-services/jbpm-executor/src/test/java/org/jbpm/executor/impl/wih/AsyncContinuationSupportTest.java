@@ -16,10 +16,6 @@
 
 package org.jbpm.executor.impl.wih;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -47,8 +43,6 @@ import org.jbpm.test.listener.process.NodeLeftCountDownProcessEventListener;
 import org.jbpm.test.listener.process.NodeTriggeredCountDownProcessEventListener;
 import org.jbpm.test.util.AbstractExecutorBaseTest;
 import org.jbpm.test.util.ExecutorTestUtil;
-import org.kie.api.executor.STATUS;
-import org.kie.test.util.db.PoolingDataSourceWrapper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -57,6 +51,7 @@ import org.kie.api.event.process.ProcessEventListener;
 import org.kie.api.event.process.ProcessNodeTriggeredEvent;
 import org.kie.api.executor.ExecutorService;
 import org.kie.api.executor.RequestInfo;
+import org.kie.api.executor.STATUS;
 import org.kie.api.io.ResourceType;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.RuntimeEngine;
@@ -73,8 +68,13 @@ import org.kie.api.task.model.TaskSummary;
 import org.kie.internal.io.ResourceFactory;
 import org.kie.internal.runtime.manager.RuntimeManagerRegistry;
 import org.kie.internal.runtime.manager.context.EmptyContext;
+import org.kie.test.util.db.PoolingDataSourceWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 public class AsyncContinuationSupportTest extends AbstractExecutorBaseTest {
 
@@ -1205,10 +1205,10 @@ public class AsyncContinuationSupportTest extends AbstractExecutorBaseTest {
 
     }
 
-    @Test(timeout=10000)
+    @Test(timeout = 10000)
     public void testAsyncModeWithInclusiveGateway() throws Exception {
-        // JBPM-7414
-        final NodeLeftCountDownProcessEventListener countDownListener = new NodeLeftCountDownProcessEventListener("EndProcess", 1);
+        // JBPM-7414 // there are two paths for end process , therefore it is executed twice
+        final NodeLeftCountDownProcessEventListener countDownListener = new NodeLeftCountDownProcessEventListener("EndProcess", 2);
         final NodeTriggerCountListener triggerListener = new NodeTriggerCountListener("ScriptTask-4");
 
         RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get().newDefaultBuilder()
@@ -1252,7 +1252,7 @@ public class AsyncContinuationSupportTest extends AbstractExecutorBaseTest {
         processInstance = runtime.getKieSession().getProcessInstance(processInstanceId);
         assertNull(processInstance);
 
-        assertEquals(1, triggerListener.getCount().intValue());
+        assertEquals(2, triggerListener.getCount().intValue());
     }
 
     private static class NodeTriggerCountListener extends DefaultProcessEventListener {

@@ -28,11 +28,11 @@ import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.core.NodeContainer;
 import org.jbpm.workflow.core.impl.NodeImpl;
-import org.jbpm.workflow.core.node.ActionNode;
 import org.jbpm.workflow.core.node.CompositeContextNode;
 import org.jbpm.workflow.core.node.EventSubProcessNode;
 import org.jbpm.workflow.core.node.ForEachNode;
 import org.jbpm.workflow.core.node.StartNode;
+import org.jbpm.workflow.instance.NodeInstance;
 import org.kie.api.definition.process.Connection;
 import org.w3c.dom.Element;
 import org.xml.sax.Attributes;
@@ -70,7 +70,8 @@ public class SubProcessHandler extends AbstractNodeHandler {
             final ExtensibleXmlParser parser) throws SAXException {
 		final Element element = parser.endElementBuilder();
 		Node node = (Node) parser.getCurrent();	
-		
+
+
 		// determine type of event definition, so the correct type of node can be generated
 		boolean found = false;		
 		org.w3c.dom.Node xmlNode = element.getFirstChild();
@@ -80,6 +81,8 @@ public class SubProcessHandler extends AbstractNodeHandler {
 			    Boolean isAsync = Boolean.parseBoolean((String)node.getMetaData().get("customAsync"));
 				// create new timerNode
 				ForEachNode forEachNode = new ForEachNode();
+                // indirect to the real node if it is an async event node
+                forEachNode.getCompositeNode().getMetaData().put(NodeInstance.METADATA_WRAP_ASYNC_NODE, false);
 				forEachNode.setId(node.getId());
 				forEachNode.setName(node.getName());
 				forEachNode.setSequential(Boolean.parseBoolean(((Element) xmlNode).getAttribute("isSequential")));
