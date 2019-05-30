@@ -881,7 +881,7 @@ public class HumanTaskHandlerHelperTest extends AbstractBaseTest {
 		assertNotNull(deadlines.getEndDeadlines().get(0).getDate());
 		long expirationTime = deadlines.getEndDeadlines().get(0).getDate().getTime() - System.currentTimeMillis();
 
-		assertEquals(0, roundExpirationTime(expirationTime));
+		assertEquals(4, roundExpirationTime(expirationTime));
 
 		// verify reassignment
 		reassignment = deadlines.getEndDeadlines().get(1).getEscalations().get(0).getReassignments().get(0);
@@ -1700,7 +1700,8 @@ public class HumanTaskHandlerHelperTest extends AbstractBaseTest {
 		String repeatable1 = "[users:john]@[R2/PT4H]";
 		List<Deadline> deadlines = HumanTaskHandlerHelper.parseDeadlineString(repeatable1,
 																			  null,
-																			  null);
+																			  null,
+																			  false);
 		assertNotNull(deadlines);
 		assertEquals(2,
 					 deadlines.size());
@@ -1722,7 +1723,8 @@ public class HumanTaskHandlerHelperTest extends AbstractBaseTest {
 		String repeatable1 = "[users:john]@[R2/2019-05-27T13:00:00Z/PT4H]";
 		List<Deadline> deadlines = HumanTaskHandlerHelper.parseDeadlineString(repeatable1,
 																			  null,
-																			  null);
+																			  null,
+                                                                              false);
 		assertNotNull(deadlines);
 		assertEquals(2,
 					 deadlines.size());
@@ -1739,7 +1741,8 @@ public class HumanTaskHandlerHelperTest extends AbstractBaseTest {
 		String repeatable1 = "[users:john]@[R2/PT4H/2019-05-27T13:00:00Z]";
 		List<Deadline> deadlines = HumanTaskHandlerHelper.parseDeadlineString(repeatable1,
 																			  null,
-																			  null);
+																			  null,
+                                                                              false);
 		assertNotNull(deadlines);
 		assertEquals(2,
 					 deadlines.size());
@@ -1756,7 +1759,8 @@ public class HumanTaskHandlerHelperTest extends AbstractBaseTest {
 		String repeatable1 = "[users:john]@[R2/2019-05-27T13:00:00Z/2019-05-27T17:00:00Z]";
 		List<Deadline> deadlines = HumanTaskHandlerHelper.parseDeadlineString(repeatable1,
 																			  null,
-																			  null);
+																			  null,
+                                                                              false);
 		assertNotNull(deadlines);
 		assertEquals(2,
 					 deadlines.size());

@@ -56,6 +56,10 @@ public class HumanTaskHandlerHelper {
 	private static final String[] KNOWN_KEYS = {"users", "groups", "from", "tousers", "togroups", "replyto", "subject","body"};
 
 	public static Deadlines setDeadlines(Map<String, Object> parameters, List<OrganizationalEntity> businessAdministrators, Environment environment) {
+	    return setDeadlines(parameters, businessAdministrators, environment, false);
+	}
+	
+	public static Deadlines setDeadlines(Map<String, Object> parameters, List<OrganizationalEntity> businessAdministrators, Environment environment, boolean unboundRepeatableOnly) {
 		String notStartedReassign = (String) parameters.get("NotStartedReassign");
 		String notStartedNotify = (String) parameters.get("NotStartedNotify");
 		String notCompletedReassign = (String) parameters.get("NotCompletedReassign");
@@ -65,11 +69,11 @@ public class HumanTaskHandlerHelper {
 	    Deadlines deadlinesTotal = TaskModelProvider.getFactory().newDeadlines();
 	    
 	    List<Deadline> startDeadlines = new ArrayList<Deadline>();
-	    startDeadlines.addAll(parseDeadlineString(notStartedNotify, businessAdministrators, environment));
-	    startDeadlines.addAll(parseDeadlineString(notStartedReassign, businessAdministrators, environment));
+	    startDeadlines.addAll(parseDeadlineString(notStartedNotify, businessAdministrators, environment, unboundRepeatableOnly));
+	    startDeadlines.addAll(parseDeadlineString(notStartedReassign, businessAdministrators, environment, unboundRepeatableOnly));
 	    List<Deadline> endDeadlines = new ArrayList<Deadline>();
-	    endDeadlines.addAll(parseDeadlineString(notCompletedNotify, businessAdministrators, environment));
-	    endDeadlines.addAll(parseDeadlineString(notCompletedReassign, businessAdministrators, environment));
+	    endDeadlines.addAll(parseDeadlineString(notCompletedNotify, businessAdministrators, environment, unboundRepeatableOnly));
+	    endDeadlines.addAll(parseDeadlineString(notCompletedReassign, businessAdministrators, environment, unboundRepeatableOnly));
 	    
 	    
 	    if(!startDeadlines.isEmpty()) {
@@ -82,7 +86,7 @@ public class HumanTaskHandlerHelper {
 		return deadlinesTotal;
 	}
 	
-	public static List<Deadline> parseDeadlineString(String deadlineInfo, List<OrganizationalEntity> businessAdministrators, Environment environment) {
+	public static List<Deadline> parseDeadlineString(String deadlineInfo, List<OrganizationalEntity> businessAdministrators, Environment environment, boolean unboundRepeatableOnly) {
 		if (deadlineInfo == null || deadlineInfo.length() == 0) {
 			return new ArrayList<Deadline>();
 		}
@@ -103,6 +107,11 @@ public class HumanTaskHandlerHelper {
 	            String[] expireElements = expireComponents.split(ATTRIBUTES_ELEMENTS_SEPARATOR);
 
 	            for (String expiresAt : expireElements) {
+	                // if unbound repeatable only flag is set then parse only deadlines that are of such type (ISO format)
+	                if (unboundRepeatableOnly && !expiresAt.startsWith("R/")) {
+	                    continue;
+	                }
+	                	                
 	            	if(businessCalendar != null) {
 						deadlines.add(getNewDeadline(expiresAt, businessCalendar.calculateBusinessTimeAsDate(expiresAt.trim()), actionComponent, businessAdministrators));
 					} else {
@@ -114,10 +123,10 @@ public class HumanTaskHandlerHelper {
 									deadlines.add(getNewDeadline(expiresAt, durationDate, actionComponent, businessAdministrators));
 								}
 							} else {
-								deadlines.add(getNewDeadline(expiresAt, getDeadlineDurationDate(expiresAt.trim(), 0), actionComponent, businessAdministrators));
+								deadlines.add(getNewDeadline(expiresAt, getDeadlineDurationDate(expiresAt.trim(), 1), actionComponent, businessAdministrators));
 							}
 						} else {
-							deadlines.add(getNewDeadline(expiresAt, getDeadlineDurationDate(expiresAt.trim(), 0), actionComponent, businessAdministrators));
+							deadlines.add(getNewDeadline(expiresAt, getDeadlineDurationDate(expiresAt.trim(), 1), actionComponent, businessAdministrators));
 						}
 					}
 	            }
@@ -249,8 +258,7 @@ public class HumanTaskHandlerHelper {
 					// duration is end - start
 					long duration = DateTimeUtils.parseDateTime(tempDateTimeStr) - DateTimeUtils.parseDateTime(tempTimeDelay);
 					deadlineDate =  new Date(DateTimeUtils.parseDateTime(tempTimeDelay) + repeatDuration(duration, repeatCount));
-				}
-
+				}				
 				return deadlineDate;
 			} else {
 				if (DateTimeUtils.isPeriod((durationStr))) {

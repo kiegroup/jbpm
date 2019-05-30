@@ -35,7 +35,7 @@ import org.kie.internal.task.api.model.InternalTask;
 public class DeadlineSchedulerHelper {
 
 
-    public static void rescheduleDeadlinesForTask(final InternalTask task, TaskContext taskContext, DeadlineType ...types) {
+    public static void rescheduleDeadlinesForTask(final InternalTask task, TaskContext taskContext, boolean unboundRepeatableOnly, DeadlineType ...types) {
         Environment environment = taskContext.getTaskContentService().getMarshallerContext(task).getEnvironment();
         TaskPersistenceContext persistenceContext = taskContext.getPersistenceContext();
         taskContext.loadTaskVariables(task);
@@ -43,7 +43,7 @@ public class DeadlineSchedulerHelper {
         List<OrganizationalEntity> businessAdministrators = peopleAssignments.getBusinessAdministrators();
         List<DeadlineType> deadlineTypes = Arrays.asList(types);
 
-        Deadlines deadlines = HumanTaskHandlerHelper.setDeadlines(task.getTaskData().getTaskInputVariables(), businessAdministrators, environment);
+        Deadlines deadlines = HumanTaskHandlerHelper.setDeadlines(task.getTaskData().getTaskInputVariables(), businessAdministrators, environment, unboundRepeatableOnly);
         if(deadlineTypes.contains(DeadlineType.START)) {
             for(Deadline deadline : deadlines.getStartDeadlines()) {
                 task.getDeadlines().getStartDeadlines().add(deadline);

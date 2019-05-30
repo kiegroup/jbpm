@@ -479,7 +479,7 @@ public abstract class DeadlinesBaseTest extends HumanTaskServicesBaseTest {
 
         Map<String, Object> inputVars = new HashMap<String, Object>();
         inputVars.put("NotStartedReassign", "[users:Tony Stark,Bobba Fet,Jabba Hutt|groups:]@[R/PT2S]");
-        ((InternalTask) task).setDeadlines(HumanTaskHandlerHelper.setDeadlines(inputVars, Collections.emptyList(), environment));
+        ((InternalTask) task).setDeadlines(HumanTaskHandlerHelper.setDeadlines(inputVars, Collections.emptyList(), environment, false));
 
         taskService.addTask(task, inputVars);
 
@@ -519,7 +519,7 @@ public abstract class DeadlinesBaseTest extends HumanTaskServicesBaseTest {
         Environment environment = EnvironmentFactory.newEnvironment();
         Map<String, Object> inputVars = new HashMap<String, Object>();
         inputVars.put("NotCompletedReassign", "[users:Tony Stark,Bobba Fet,Jabba Hutt|groups:]@[R/PT2S]");
-        ((InternalTask) task).setDeadlines(HumanTaskHandlerHelper.setDeadlines(inputVars, Collections.emptyList(), environment));
+        ((InternalTask) task).setDeadlines(HumanTaskHandlerHelper.setDeadlines(inputVars, Collections.emptyList(), environment, false));
 
         taskService.addTask(task, inputVars);
 

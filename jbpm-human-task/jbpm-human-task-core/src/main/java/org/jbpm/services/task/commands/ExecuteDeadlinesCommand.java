@@ -16,10 +16,23 @@
 
 package org.jbpm.services.task.commands;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSchemaType;
+
 import org.jbpm.services.task.assignment.AssignmentService;
 import org.jbpm.services.task.assignment.AssignmentServiceProvider;
 import org.jbpm.services.task.deadlines.notifications.impl.NotificationListenerManager;
 import org.jbpm.services.task.events.TaskEventSupport;
+import org.jbpm.services.task.impl.util.DeadlineSchedulerHelper;
 import org.jbpm.services.task.utils.ContentMarshallerHelper;
 import org.kie.api.runtime.Context;
 import org.kie.api.runtime.EnvironmentName;
@@ -43,17 +56,6 @@ import org.kie.internal.task.api.model.NotificationType;
 import org.kie.internal.task.api.model.Reassignment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSchemaType;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @XmlRootElement(name="execute-deadlines-command")
 @XmlAccessorType(XmlAccessType.NONE)
@@ -172,6 +174,7 @@ public class ExecuteDeadlinesCommand extends TaskCommand<Void> {
 
 			persistenceContext.updateDeadline(deadline);
 			persistenceContext.updateTask(task);
+			DeadlineSchedulerHelper.rescheduleDeadlinesForTask((InternalTask) task, ctx, true, type);
 		} catch (Exception e) {
 
         	logger.error("Error when executing deadlines", e);
