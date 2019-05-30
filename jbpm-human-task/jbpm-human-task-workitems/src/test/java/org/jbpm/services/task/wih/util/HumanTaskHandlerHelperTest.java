@@ -144,10 +144,12 @@ public class HumanTaskHandlerHelperTest extends AbstractBaseTest {
 		assertEquals("john", reassignment.getPotentialOwners().get(0).getId());
 
 		// check deadline expiration time
-		assertNotNull(deadlines.getStartDeadlines().get(0).getDate());
-		long expirationTime = deadlines.getStartDeadlines().get(0).getDate().getTime() - System.currentTimeMillis();
-
-		assertEquals(0, roundExpirationTime(expirationTime));
+		for (int i = 0; i < 3; i++) {
+			assertNotNull(deadlines.getStartDeadlines().get(i).getDate());
+			long expirationTime = deadlines.getStartDeadlines().get(i).getDate().getTime() - System.currentTimeMillis();
+			// Deadlines are separated 4 hours within each other, first starts at T+4
+			assertEquals((i + 1) * 4, roundExpirationTime(expirationTime));
+		}
 	}
 
 	@Test
@@ -174,10 +176,12 @@ public class HumanTaskHandlerHelperTest extends AbstractBaseTest {
 		assertEquals("john", reassignment.getPotentialOwners().get(0).getId());
 
 		// check deadline expiration time
-		assertNotNull(deadlines.getStartDeadlines().get(0).getDate());
-		long expirationTime = deadlines.getStartDeadlines().get(0).getDate().getTime() - System.currentTimeMillis();
-
-		assertEquals(4, roundExpirationTime(expirationTime));
+		for (int i = 0; i < 3; i++) {
+			assertNotNull(deadlines.getStartDeadlines().get(i).getDate());
+			long expirationTime = deadlines.getStartDeadlines().get(i).getDate().getTime() - System.currentTimeMillis();
+			// Deadlines are separated 4 hours within each other, first starts at T
+			assertEquals(i * 4, roundExpirationTime(expirationTime));
+		}
 	}
 
 	@Test
@@ -203,10 +207,12 @@ public class HumanTaskHandlerHelperTest extends AbstractBaseTest {
 		assertEquals("john", reassignment.getPotentialOwners().get(0).getId());
 
 		// check deadline expiration time
-		assertNotNull(deadlines.getStartDeadlines().get(0).getDate());
-		long expirationTime = deadlines.getStartDeadlines().get(0).getDate().getTime() - System.currentTimeMillis();
-
-		assertEquals(4, roundExpirationTime(expirationTime));
+		for (int i = 0; i < 3; i++) {
+			assertNotNull(deadlines.getStartDeadlines().get(i).getDate());
+			long expirationTime = deadlines.getStartDeadlines().get(i).getDate().getTime() - System.currentTimeMillis();
+			// Deadlines are separated 2 seconds within each other (so basically within the same hour), first starts at cca T+4
+			assertEquals(4, roundExpirationTime(expirationTime));
+		}
 	}
 	
 	@Test
@@ -314,10 +320,12 @@ public class HumanTaskHandlerHelperTest extends AbstractBaseTest {
 		assertEquals("sales", reassignment.getPotentialOwners().get(1).getId());
 
 		// check deadline expiration time
-		assertNotNull(deadlines.getStartDeadlines().get(0).getDate());
-		long expirationTime = deadlines.getStartDeadlines().get(0).getDate().getTime() - System.currentTimeMillis();
-
-		assertEquals(0, roundExpirationTime(expirationTime));
+		for (int i = 0; i < 5; i++) {
+			assertNotNull(deadlines.getStartDeadlines().get(i).getDate());
+			long expirationTime = deadlines.getStartDeadlines().get(i).getDate().getTime() - System.currentTimeMillis();
+			// Deadlines are separated 4 hours within each other, first starts at T+4
+			assertEquals((i + 1) * 4, roundExpirationTime(expirationTime));
+		}
 	}
 	
 	@Test
@@ -476,10 +484,12 @@ public class HumanTaskHandlerHelperTest extends AbstractBaseTest {
 		assertEquals("john", reassignment.getPotentialOwners().get(0).getId());
 
 		// check deadline expiration time
-		assertNotNull(deadlines.getStartDeadlines().get(0).getDate());
-		long expirationTime = deadlines.getStartDeadlines().get(0).getDate().getTime() - System.currentTimeMillis();
-
-		assertEquals(0, roundExpirationTime(expirationTime));
+		for (int i = 0; i < 3; i++) {
+			assertNotNull(deadlines.getStartDeadlines().get(i).getDate());
+			long expirationTime = deadlines.getStartDeadlines().get(i).getDate().getTime() - System.currentTimeMillis();
+			// Deadlines are separated 4 hours within each other, first starts at T+4
+			assertEquals((i + 1) * 4, roundExpirationTime(expirationTime));
+		}
 
 		// verify reassignment
 		reassignment = deadlines.getStartDeadlines().get(1).getEscalations().get(0).getReassignments().get(0);
@@ -487,10 +497,12 @@ public class HumanTaskHandlerHelperTest extends AbstractBaseTest {
 		assertEquals("john", reassignment.getPotentialOwners().get(0).getId());
 
 		// check deadline expiration time
-		assertNotNull(deadlines.getStartDeadlines().get(1).getDate());
-		expirationTime = deadlines.getStartDeadlines().get(1).getDate().getTime() - System.currentTimeMillis();
-
-		assertEquals(4, roundExpirationTime(expirationTime));
+		for (int i = 3; i < 6; i++) {
+			assertNotNull(deadlines.getStartDeadlines().get(i).getDate());
+			long expirationTime = deadlines.getStartDeadlines().get(i).getDate().getTime() - System.currentTimeMillis();
+			// Deadlines are separated 6 hours within each other, first starts at T+6
+			assertEquals((i - 3 + 1) * 6, roundExpirationTime(expirationTime));
+		}
 
 	}
 	
@@ -599,11 +611,12 @@ public class HumanTaskHandlerHelperTest extends AbstractBaseTest {
 		assertEquals("john", reassignment.getPotentialOwners().get(0).getId());
 
 		// check deadline expiration time
-		assertNotNull(deadlines.getEndDeadlines().get(0).getDate());
-		long expirationTime = deadlines.getEndDeadlines().get(0).getDate().getTime() - System.currentTimeMillis();
-
-		assertEquals(0, roundExpirationTime(expirationTime));
-
+		for (int i = 0; i < 3; i++) {
+			assertNotNull(deadlines.getEndDeadlines().get(i).getDate());
+			long expirationTime = deadlines.getEndDeadlines().get(i).getDate().getTime() - System.currentTimeMillis();
+			// Deadlines are separated 4 hours within each other, first starts at T+4
+			assertEquals((i + 1) * 4, roundExpirationTime(expirationTime));
+		}
 	}
 	
 	@Test //JBPM-4291
@@ -715,10 +728,12 @@ public class HumanTaskHandlerHelperTest extends AbstractBaseTest {
 		assertEquals("sales", reassignment.getPotentialOwners().get(1).getId());
 
 		// check deadline expiration time
-		assertNotNull(deadlines.getEndDeadlines().get(0).getDate());
-		long expirationTime = deadlines.getEndDeadlines().get(0).getDate().getTime() - System.currentTimeMillis();
-
-		assertEquals(0, roundExpirationTime(expirationTime));
+		for (int i = 0; i < 3; i++) {
+			assertNotNull(deadlines.getEndDeadlines().get(i).getDate());
+			long expirationTime = deadlines.getEndDeadlines().get(i).getDate().getTime() - System.currentTimeMillis();
+			// Deadlines are separated 4 hours within each other, first starts at T+4
+			assertEquals((i + 1) * 4, roundExpirationTime(expirationTime));
+		}
 
 	}
 	
@@ -889,10 +904,12 @@ public class HumanTaskHandlerHelperTest extends AbstractBaseTest {
 		assertEquals("john", reassignment.getPotentialOwners().get(0).getId());
 
 		// check deadline expiration time
-		assertNotNull(deadlines.getEndDeadlines().get(1).getDate());
-		expirationTime = deadlines.getEndDeadlines().get(1).getDate().getTime() - System.currentTimeMillis();
-
-		assertEquals(0, roundExpirationTime(expirationTime));
+		for (int i = 1; i < 4; i++) {
+			assertNotNull(deadlines.getEndDeadlines().get(i).getDate());
+			expirationTime = deadlines.getEndDeadlines().get(i).getDate().getTime() - System.currentTimeMillis();
+			// Deadlines are separated 6 hours within each other, first starts at cca T+6
+			assertEquals((i - 1 + 1) * 6, roundExpirationTime(expirationTime));
+		}
 
 	}
 	
@@ -1049,10 +1066,12 @@ public class HumanTaskHandlerHelperTest extends AbstractBaseTest {
 		assertEquals("And here is the body", header.getBody());
 
 		// check deadline expiration time
-		assertNotNull(deadlines.getStartDeadlines().get(0).getDate());
-		long expirationTime = deadlines.getStartDeadlines().get(0).getDate().getTime() - System.currentTimeMillis();
-
-		assertEquals(0, roundExpirationTime(expirationTime));
+		for (int i = 0; i < 3; i++) {
+			assertNotNull(deadlines.getStartDeadlines().get(i).getDate());
+			long expirationTime = deadlines.getStartDeadlines().get(i).getDate().getTime() - System.currentTimeMillis();
+			// Deadlines are separated 4 hours within each other, first starts at cca T+4
+			assertEquals((i + 1) * 4, roundExpirationTime(expirationTime));
+		}
 	}
 	
 	@Test
@@ -1229,10 +1248,12 @@ public class HumanTaskHandlerHelperTest extends AbstractBaseTest {
 		assertEquals("mike", header.getReplyTo());
 
 		// check deadline expiration time
-		assertNotNull(deadlines.getStartDeadlines().get(0).getDate());
-		long expirationTime = deadlines.getStartDeadlines().get(0).getDate().getTime() - System.currentTimeMillis();
-
-		assertEquals(0, roundExpirationTime(expirationTime));
+		for (int i = 0; i < 3; i++) {
+			assertNotNull(deadlines.getStartDeadlines().get(i).getDate());
+			long expirationTime = deadlines.getStartDeadlines().get(i).getDate().getTime() - System.currentTimeMillis();
+			// Deadlines are separated 4 hours within each other, first starts at cca T+4
+			assertEquals((i + 1) * 4, roundExpirationTime(expirationTime));
+		}
 	}
 	
 	@Test
@@ -1462,10 +1483,12 @@ public class HumanTaskHandlerHelperTest extends AbstractBaseTest {
 		assertEquals("And here is the body", header.getBody());
 
 		// check deadline expiration time
-		assertNotNull(deadlines.getStartDeadlines().get(0).getDate());
-		long expirationTime = deadlines.getStartDeadlines().get(0).getDate().getTime() - System.currentTimeMillis();
-
-		assertEquals(0, roundExpirationTime(expirationTime));
+		for (int i = 0; i < 4; i++) {
+			assertNotNull(deadlines.getStartDeadlines().get(i).getDate());
+			long expirationTime = deadlines.getStartDeadlines().get(i).getDate().getTime() - System.currentTimeMillis();
+			// Deadlines are separated 4 hours within each other, first starts at cca T+4
+			assertEquals((i + 1) * 4, roundExpirationTime(expirationTime));
+		}
 
 		// verify notification
 		notification = deadlines.getStartDeadlines().get(1).getEscalations().get(0).getNotifications().get(0);
@@ -1486,10 +1509,12 @@ public class HumanTaskHandlerHelperTest extends AbstractBaseTest {
 		assertEquals("And here is the body", header.getBody());
 
 		// check deadline expiration time
-		assertNotNull(deadlines.getStartDeadlines().get(1).getDate());
-		expirationTime = deadlines.getStartDeadlines().get(1).getDate().getTime() - System.currentTimeMillis();
-
-		assertEquals(4, roundExpirationTime(expirationTime));
+		for (int i = 4; i < 8; i++) {
+			assertNotNull(deadlines.getStartDeadlines().get(i).getDate());
+			long expirationTime = deadlines.getStartDeadlines().get(i).getDate().getTime() - System.currentTimeMillis();
+			// Deadlines are separated 6 hours within each other, first starts at cca T+6
+			assertEquals((i - 4 + 1) * 6, roundExpirationTime(expirationTime));
+		}
 	}
 	
 	
@@ -1686,10 +1711,12 @@ public class HumanTaskHandlerHelperTest extends AbstractBaseTest {
 		assertTrue((header.getBody().indexOf("http://localhost:8080/taskserver-url") != -1));
 
 		// check deadline expiration time
-		assertNotNull(deadlines.getStartDeadlines().get(0).getDate());
-		long expirationTime = deadlines.getStartDeadlines().get(0).getDate().getTime() - System.currentTimeMillis();
-
-		assertEquals(0, roundExpirationTime(expirationTime));
+		for (int i = 0; i < 2; i++) {
+			assertNotNull(deadlines.getStartDeadlines().get(i).getDate());
+			long expirationTime = deadlines.getStartDeadlines().get(i).getDate().getTime() - System.currentTimeMillis();
+			// Deadlines are separated 4 hours within each other, first starts at cca T+4
+			assertEquals((i + 1) * 4, roundExpirationTime(expirationTime));
+		}
 	}
 
 	@Test
@@ -1708,13 +1735,13 @@ public class HumanTaskHandlerHelperTest extends AbstractBaseTest {
 		long firstDiff = Math.abs(deadlines.get(0).getDate().getTime() - currentTimeInMillis);
 		long firstDiffHours = TimeUnit.HOURS.convert(firstDiff,
 													 TimeUnit.MILLISECONDS);
-		assertEquals(firstDiffHours,
-					 0);
+		assertEquals(4,
+					firstDiffHours);
 		long secondDiff = Math.abs(deadlines.get(1).getDate().getTime() - deadlines.get(0).getDate().getTime());
 		long secondDiffHours = TimeUnit.HOURS.convert(secondDiff,
 													  TimeUnit.MILLISECONDS);
-		assertEquals(secondDiffHours,
-					 4);
+		assertEquals(4,
+					secondDiffHours);
 	}
 
 	@Test

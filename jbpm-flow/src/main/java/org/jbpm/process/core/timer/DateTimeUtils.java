@@ -81,9 +81,10 @@ public class DateTimeUtils extends TimeUtils {
             result[0] = elements[0].substring(1);
             result[1] = elements[1];
             result[2] = elements[2];
-        } else {
+
+        } else { // R/duration -> R/now + duration/duration
             result[0] = elements[0].substring(1);
-            result[1] = OffsetDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME);
+            result[1] = OffsetDateTime.now().plus(Duration.parse(elements[1])).format(DateTimeFormatter.ISO_DATE_TIME);
             result[2] = elements[1];
         }
         

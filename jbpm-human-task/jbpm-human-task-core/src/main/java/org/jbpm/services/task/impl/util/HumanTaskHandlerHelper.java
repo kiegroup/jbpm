@@ -123,10 +123,10 @@ public class HumanTaskHandlerHelper {
 									deadlines.add(getNewDeadline(expiresAt, durationDate, actionComponent, businessAdministrators));
 								}
 							} else {
-								deadlines.add(getNewDeadline(expiresAt, getDeadlineDurationDate(expiresAt.trim(), 1), actionComponent, businessAdministrators));
+								deadlines.add(getNewDeadline(expiresAt, getDeadlineDurationDate(expiresAt.trim(), 0), actionComponent, businessAdministrators));
 							}
 						} else {
-							deadlines.add(getNewDeadline(expiresAt, getDeadlineDurationDate(expiresAt.trim(), 1), actionComponent, businessAdministrators));
+							deadlines.add(getNewDeadline(expiresAt, getDeadlineDurationDate(expiresAt.trim(), 0), actionComponent, businessAdministrators));
 						}
 					}
 	            }
@@ -248,16 +248,16 @@ public class HumanTaskHandlerHelper {
 
 				if (DateTimeUtils.isPeriod((tempDateTimeStr))) {
 					// e.g R/start/duration
-					deadlineDate = new Date(DateTimeUtils.parseDateTime(tempTimeDelay) + repeatDuration(tempDateTimeStr, repeatCount));
+					deadlineDate = new Date(DateTimeUtils.parseDateTime(tempTimeDelay) + DateTimeUtils.parseDuration(tempDateTimeStr) * repeatCount);
 				} else if(DateTimeUtils.isPeriod(tempTimeDelay)) {
 					// e.g R/duration/end
 					long firstRet = DateTimeUtils.parseDateTime(tempDateTimeStr) -  Duration.parse(tempTimeDelay).toMillis();
-					deadlineDate =  new Date(firstRet + repeatDuration(tempTimeDelay, repeatCount));
+					deadlineDate =  new Date(firstRet + DateTimeUtils.parseDuration(tempTimeDelay) * repeatCount);
 				} else {
 					// e.g R/start/end
 					// duration is end - start
 					long duration = DateTimeUtils.parseDateTime(tempDateTimeStr) - DateTimeUtils.parseDateTime(tempTimeDelay);
-					deadlineDate =  new Date(DateTimeUtils.parseDateTime(tempTimeDelay) + repeatDuration(duration, repeatCount));
+					deadlineDate =  new Date(DateTimeUtils.parseDateTime(tempTimeDelay) + duration * repeatCount);
 				}				
 				return deadlineDate;
 			} else {
@@ -271,17 +271,6 @@ public class HumanTaskHandlerHelper {
 			throw new IllegalArgumentException("Unable to parse duration string: " + durationStr + " : " + e.getMessage());
 		}
 
-	}
-
-	protected static long repeatDuration(String durationStr, int repeatCount) {
-		return Duration.parse(durationStr).toMillis() * repeatCount;
-	}
-
-	protected static long repeatDuration(long duration, int repeatCount) {
-		for(int i = 0; i < repeatCount; i++) {
-			duration += duration;
-		}
-		return duration;
 	}
 
     protected static List<Reassignment> parseReassignment(String reassignString) {
