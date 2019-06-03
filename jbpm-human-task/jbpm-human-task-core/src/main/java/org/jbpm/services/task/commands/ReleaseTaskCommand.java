@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2019 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,16 @@
  */
 package org.jbpm.services.task.commands;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import org.jbpm.services.task.impl.util.DeadlineSchedulerHelper;
 import org.kie.api.runtime.Context;
 import org.kie.api.task.model.Status;
 import org.kie.api.task.model.Task;
 import org.kie.internal.task.api.TaskDeadlinesService.DeadlineType;
 import org.kie.internal.task.api.model.InternalTask;
-
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Operation.Release 
@@ -57,7 +57,7 @@ public class ReleaseTaskCommand extends UserGroupCallbackTaskCommand<Void> {
         context.getTaskInstanceService().release(taskId, userId);
         Task task = context.getPersistenceContext().findTask(taskId);
         if(task.getTaskData().getPreviousStatus().equals(Status.InProgress)) {
-            DeadlineSchedulerHelper.rescheduleDeadlinesForTask((InternalTask) task, context, DeadlineType.START);
+            DeadlineSchedulerHelper.rescheduleDeadlinesForTask((InternalTask) task, context, false, DeadlineType.START);
         }
         return null;
 

@@ -15,6 +15,8 @@
  */
 package org.jbpm.services.task.commands;
 
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -36,8 +38,11 @@ import org.kie.api.task.model.OrganizationalEntity;
 import org.kie.api.task.model.Status;
 import org.kie.api.task.model.Task;
 import org.kie.api.task.model.User;
+import org.kie.internal.task.api.TaskDeadlinesService;
 import org.kie.internal.task.api.TaskDeadlinesService.DeadlineType;
 import org.kie.internal.task.api.model.ContentData;
+import org.kie.internal.task.api.model.Deadline;
+import org.kie.internal.task.api.model.Deadlines;
 import org.kie.internal.task.api.model.InternalPeopleAssignments;
 import org.kie.internal.task.api.model.InternalTask;
 import org.kie.internal.task.api.model.InternalTaskData;
@@ -112,8 +117,8 @@ public class AddTaskCommand extends UserGroupCallbackTaskCommand<Long> {
         } else {
             ((InternalTaskData)taskImpl.getTaskData()).setTaskInputVariables(params);
         	taskId = context.getTaskInstanceService().addTask(taskImpl, params);
-        }      
-    	
+        }
+
         DeadlineSchedulerHelper.scheduleDeadlinesForTask((InternalTask) taskImpl, context, DeadlineType.values());
     	
     	return taskId;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2019 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,7 +73,7 @@ public class DateTimeUtils extends TimeUtils {
             return TimeUtils.parseTimeString(dateTimeStr);
         }
     }
-    
+
     public static String[] parseISORepeatable(String isoString) {
         String[] result = new String[3];
         String[] elements = isoString.split("/");
@@ -81,9 +81,10 @@ public class DateTimeUtils extends TimeUtils {
             result[0] = elements[0].substring(1);
             result[1] = elements[1];
             result[2] = elements[2];
-        } else {
+
+        } else { // R/duration -> R/now + duration/duration
             result[0] = elements[0].substring(1);
-            result[1] = OffsetDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME);
+            result[1] = OffsetDateTime.now().plus(Duration.parse(elements[1])).format(DateTimeFormatter.ISO_DATE_TIME);
             result[2] = elements[1];
         }
         

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2019 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,15 +35,15 @@ import org.kie.internal.task.api.model.InternalTask;
 public class DeadlineSchedulerHelper {
 
 
-    public static void rescheduleDeadlinesForTask(final InternalTask task, TaskContext taskContext, DeadlineType ...types) {
+    public static void rescheduleDeadlinesForTask(final InternalTask task, TaskContext taskContext, boolean unboundRepeatableOnly, DeadlineType ...types) {
         Environment environment = taskContext.getTaskContentService().getMarshallerContext(task).getEnvironment();
         TaskPersistenceContext persistenceContext = taskContext.getPersistenceContext();
         taskContext.loadTaskVariables(task);
         PeopleAssignments peopleAssignments = task.getPeopleAssignments();
         List<OrganizationalEntity> businessAdministrators = peopleAssignments.getBusinessAdministrators();
         List<DeadlineType> deadlineTypes = Arrays.asList(types);
-        
-        Deadlines deadlines = HumanTaskHandlerHelper.setDeadlines(task.getTaskData().getTaskInputVariables(), businessAdministrators, environment);
+
+        Deadlines deadlines = HumanTaskHandlerHelper.setDeadlines(task.getTaskData().getTaskInputVariables(), businessAdministrators, environment, unboundRepeatableOnly);
         if(deadlineTypes.contains(DeadlineType.START)) {
             for(Deadline deadline : deadlines.getStartDeadlines()) {
                 task.getDeadlines().getStartDeadlines().add(deadline);
