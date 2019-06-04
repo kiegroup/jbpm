@@ -302,7 +302,7 @@ public class DeploymentDescriptorMergerTest {
 		assertEquals(0, outcome.getGlobals().size());
 		assertEquals(0, outcome.getTaskEventListeners().size());
 		assertEquals(0, outcome.getWorkItemHandlers().size());
-		assertTrue(outcome.getLimitSerializationClasses());
+		assertFalse(outcome.getLimitSerializationClasses());
 	}
 
 	@Test
@@ -545,12 +545,9 @@ public class DeploymentDescriptorMergerTest {
 
         Matcher matcher = jarLocRegex.matcher(projectVersionStr);
         assertTrue( "Fix regular expression: " + jarLocRegexStr, matcher.matches() );
-        double jarVersion = Double.parseDouble(matcher.group(1));
 
 	    DeploymentDescriptorImpl depDesc = new DeploymentDescriptorImpl();
 
-	    assertTrue( "The default value of 'limitSerializationClasses is FALSE in 6.x and TRUE in 7.x",
-	            jarVersion < 7.0d && ! depDesc.getLimitSerializationClasses()
-	            || jarVersion >= 7.0d && depDesc.getLimitSerializationClasses() );
+	    assertTrue( "The default value of 'limitSerializationClasses is TRUE", depDesc.getLimitSerializationClasses() );
 	}
 }

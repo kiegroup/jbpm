@@ -108,7 +108,7 @@ public class DeploymentDescriptorImpl implements DeploymentDescriptor, Serializa
 	private List<String> classes = new ArrayList<String>();
 
 	@XmlElement(name="limit-serialization-classes")
-	private Boolean limitSerializationClasses = false;
+	private Boolean limitSerializationClasses = true;
 
 	@XmlTransient
 	private Map<String, Set<String>> mappedRoles;
@@ -428,7 +428,7 @@ public class DeploymentDescriptorImpl implements DeploymentDescriptor, Serializa
         if (classes != null && !classes.isEmpty()) {
             return false;
         }
-        if (limitSerializationClasses) {
+        if (!limitSerializationClasses) {
             return false;
         }
 
