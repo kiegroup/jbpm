@@ -28,6 +28,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.dashbuilder.DataSetCore;
+import org.dashbuilder.dataset.def.DataSetDef;
+import org.dashbuilder.dataset.def.SQLDataSetDef;
 import org.drools.compiler.kie.builder.impl.InternalKieModule;
 import org.jbpm.kie.services.impl.KModuleDeploymentUnit;
 import org.jbpm.kie.services.impl.query.QueryServiceImpl;
@@ -226,6 +229,14 @@ public class QueryServiceImplTest extends AbstractKieServicesBaseTest {
         query.setExpression("select * from processinstancelog");
 
         queryService.registerQuery(query);
+
+        final SQLDataSetDef dataSetDef = (SQLDataSetDef) DataSetCore.get().getDataSetDefRegistry().getDataSetDef(query.getName());
+        assertNotNull(dataSetDef);
+        assertEquals(query.getName(), dataSetDef.getUUID());
+        assertEquals(query.getName() + "::" + query.getTarget().toString(), dataSetDef.getName());
+        assertEquals(query.getSource(), dataSetDef.getDataSource());
+        assertEquals(query.getExpression(), dataSetDef.getDbSQL());
+        assertEquals(false, dataSetDef.isEstimateSize());
 
         List<QueryDefinition> queries = queryService.getQueries(new QueryContext());
         assertNotNull(queries);
