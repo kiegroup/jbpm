@@ -196,7 +196,8 @@ public class QueryServiceImpl implements QueryService, DeploymentEventListener {
                     .uuid(sqlQueryDefinition.getName())
                     .name(sqlQueryDefinition.getName() + "::" + sqlQueryDefinition.getTarget().toString())
                     .dataSource(sqlQueryDefinition.getSource())
-                    .dbSQL(sqlQueryDefinition.getExpression(), true);
+                    .dbSQL(sqlQueryDefinition.getExpression(), true)
+                    .estimateSize(false);
 
             DataSetDef sqlDef = builder.buildDef();
             try {
