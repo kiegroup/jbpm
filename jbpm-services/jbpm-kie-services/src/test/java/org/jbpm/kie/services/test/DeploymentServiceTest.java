@@ -270,7 +270,7 @@ public class DeploymentServiceTest extends AbstractKieServicesBaseTest {
         assertNotNull(deployed3.getDeploymentUnit());
         assertNotNull(deployed3.getRuntimeManager());
 
-        assertEquals(1, ((DeployedUnitImpl) deployed3).getDeployedClasses().size());
+        assertEquals(0, deployed3.getDeployedClasses().size());
 
         assertNotNull(runtimeDataService);
         Collection<ProcessDefinition> processes = runtimeDataService.getProcesses(new QueryContext());
@@ -353,7 +353,7 @@ public class DeploymentServiceTest extends AbstractKieServicesBaseTest {
         assertNotNull(deployed3.getDeploymentUnit());
         assertNotNull(deployed3.getRuntimeManager());
 
-        assertEquals(1, ((DeployedUnitImpl) deployed3).getDeployedClasses().size());
+        assertEquals(0, deployed3.getDeployedClasses().size());
         try {
 			assertNotNull(Class.forName("org.pkg1.Message", true, ((InternalRuntimeManager)deployed3.getRuntimeManager()).getEnvironment().getClassLoader()));
 		} catch (ClassNotFoundException e) {

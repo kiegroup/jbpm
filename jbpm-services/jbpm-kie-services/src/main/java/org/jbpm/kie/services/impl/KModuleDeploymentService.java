@@ -435,7 +435,7 @@ public class KModuleDeploymentService extends AbstractDeploymentService {
 	protected void addClassToDeployedUnit(Class deploymentClass, DeployedUnitImpl deployedUnit) {
         if( deploymentClass != null ) {
             DeploymentUnit unit = deployedUnit.getDeploymentUnit();
-            Boolean limitClasses = false;
+            Boolean limitClasses = true;
             if( unit != null ) {
                 DeploymentDescriptor depDesc = ((KModuleDeploymentUnit) unit).getDeploymentDescriptor();
                 if( depDesc != null ) {
