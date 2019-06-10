@@ -5,7 +5,6 @@ import static org.junit.Assert.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
-import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 
 import javax.xml.bind.JAXBContext;
@@ -50,13 +49,5 @@ public class FilterClassesAddedToDeployedUnitTest {
 
         assertNotEquals( parent.child.grandChild.greatGrandChild.og,
                       copyParent.child.grandChild.greatGrandChild.og );
-
-
-        String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
-        Method method = getClass().getDeclaredMethods()[0];
-        assertEquals( methodName, method.getName());
-
-        Class returnType = method.getReturnType();
-        assertEquals( void.class, returnType );
     }
 }
