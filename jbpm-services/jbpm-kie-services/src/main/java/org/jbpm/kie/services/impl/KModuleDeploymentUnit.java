@@ -39,7 +39,7 @@ public class KModuleDeploymentUnit implements DeploymentUnit, AttributesAware, S
     private String kbaseName;
     private String ksessionName;
 
-    private RuntimeStrategy strategy = RuntimeStrategy.SINGLETON;
+    private RuntimeStrategy strategy = RuntimeStrategy.PER_PROCESS_INSTANCE;
     private MergeMode mergeMode = MergeMode.MERGE_COLLECTIONS;
     
     private DeploymentDescriptor deploymentDescriptor;

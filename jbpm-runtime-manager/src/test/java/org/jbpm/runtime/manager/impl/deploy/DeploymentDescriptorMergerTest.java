@@ -54,7 +54,7 @@ public class DeploymentDescriptorMergerTest {
 		assertEquals("org.jbpm.domain", master.getAuditPersistenceUnit());
 		assertEquals(AuditMode.JPA, master.getAuditMode());
 		assertEquals(PersistenceMode.JPA, master.getPersistenceMode());
-		assertEquals(RuntimeStrategy.SINGLETON, master.getRuntimeStrategy());
+		assertEquals(RuntimeStrategy.PER_PROCESS_INSTANCE, master.getRuntimeStrategy());
 		assertEquals(1, master.getMarshallingStrategies().size());
 		assertEquals(0, master.getConfiguration().size());
 		assertEquals(0, master.getEnvironmentEntries().size());
@@ -121,7 +121,7 @@ public class DeploymentDescriptorMergerTest {
 		assertEquals("org.jbpm.domain", master.getAuditPersistenceUnit());
 		assertEquals(AuditMode.JPA, master.getAuditMode());
 		assertEquals(PersistenceMode.JPA, master.getPersistenceMode());
-		assertEquals(RuntimeStrategy.SINGLETON, master.getRuntimeStrategy());
+		assertEquals(RuntimeStrategy.PER_PROCESS_INSTANCE, master.getRuntimeStrategy());
 		assertEquals(1, master.getMarshallingStrategies().size());
 		assertEquals(0, master.getConfiguration().size());
 		assertEquals(0, master.getEnvironmentEntries().size());
@@ -188,7 +188,7 @@ public class DeploymentDescriptorMergerTest {
 		assertEquals("org.jbpm.domain", master.getAuditPersistenceUnit());
 		assertEquals(AuditMode.JPA, master.getAuditMode());
 		assertEquals(PersistenceMode.JPA, master.getPersistenceMode());
-		assertEquals(RuntimeStrategy.SINGLETON, master.getRuntimeStrategy());
+		assertEquals(RuntimeStrategy.PER_PROCESS_INSTANCE, master.getRuntimeStrategy());
 		assertEquals(1, master.getMarshallingStrategies().size());
 		assertEquals(0, master.getConfiguration().size());
 		assertEquals(0, master.getEnvironmentEntries().size());
@@ -255,7 +255,7 @@ public class DeploymentDescriptorMergerTest {
 		assertEquals("org.jbpm.domain", master.getAuditPersistenceUnit());
 		assertEquals(AuditMode.JPA, master.getAuditMode());
 		assertEquals(PersistenceMode.JPA, master.getPersistenceMode());
-		assertEquals(RuntimeStrategy.SINGLETON, master.getRuntimeStrategy());
+		assertEquals(RuntimeStrategy.PER_PROCESS_INSTANCE, master.getRuntimeStrategy());
 		assertEquals(1, master.getMarshallingStrategies().size());
 		assertEquals(0, master.getConfiguration().size());
 		assertEquals(0, master.getEnvironmentEntries().size());
@@ -322,7 +322,7 @@ public class DeploymentDescriptorMergerTest {
 		assertEquals("org.jbpm.domain", master.getAuditPersistenceUnit());
 		assertEquals(AuditMode.JPA, master.getAuditMode());
 		assertEquals(PersistenceMode.JPA, master.getPersistenceMode());
-		assertEquals(RuntimeStrategy.SINGLETON, master.getRuntimeStrategy());
+		assertEquals(RuntimeStrategy.PER_PROCESS_INSTANCE, master.getRuntimeStrategy());
 		assertEquals(1, master.getMarshallingStrategies().size());
 		assertEquals(0, master.getConfiguration().size());
 		assertEquals(0, master.getEnvironmentEntries().size());
@@ -414,7 +414,7 @@ public class DeploymentDescriptorMergerTest {
 		assertEquals("org.jbpm.domain", master.getAuditPersistenceUnit());
 		assertEquals(AuditMode.JPA, master.getAuditMode());
 		assertEquals(PersistenceMode.JPA, master.getPersistenceMode());
-		assertEquals(RuntimeStrategy.SINGLETON, master.getRuntimeStrategy());
+		assertEquals(RuntimeStrategy.PER_PROCESS_INSTANCE, master.getRuntimeStrategy());
 		assertEquals(1, master.getMarshallingStrategies().size());
 		assertEquals(0, master.getConfiguration().size());
 		assertEquals(0, master.getEnvironmentEntries().size());
@@ -477,7 +477,7 @@ public class DeploymentDescriptorMergerTest {
 		assertEquals("org.jbpm.domain", master.getAuditPersistenceUnit());
 		assertEquals(AuditMode.JPA, master.getAuditMode());
 		assertEquals(PersistenceMode.JPA, master.getPersistenceMode());
-		assertEquals(RuntimeStrategy.SINGLETON, master.getRuntimeStrategy());
+		assertEquals(RuntimeStrategy.PER_PROCESS_INSTANCE, master.getRuntimeStrategy());
 		assertEquals(0, master.getMarshallingStrategies().size());
 		assertEquals(0, master.getConfiguration().size());
 		assertEquals(0, master.getEnvironmentEntries().size());

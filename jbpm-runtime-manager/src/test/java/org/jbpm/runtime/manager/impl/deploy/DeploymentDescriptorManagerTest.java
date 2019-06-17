@@ -72,7 +72,7 @@ public class DeploymentDescriptorManagerTest extends AbstractDeploymentDescripto
         assertEquals("org.jbpm.domain", descriptor.getAuditPersistenceUnit());
         assertEquals(AuditMode.JPA, descriptor.getAuditMode());
         assertEquals(PersistenceMode.JPA, descriptor.getPersistenceMode());
-        assertEquals(RuntimeStrategy.SINGLETON, descriptor.getRuntimeStrategy());
+        assertEquals(RuntimeStrategy.PER_PROCESS_INSTANCE, descriptor.getRuntimeStrategy());
         assertEquals(0, descriptor.getMarshallingStrategies().size());
         assertEquals(0, descriptor.getConfiguration().size());
         assertEquals(0, descriptor.getEnvironmentEntries().size());
@@ -155,7 +155,7 @@ public class DeploymentDescriptorManagerTest extends AbstractDeploymentDescripto
         assertEquals("org.jbpm.domain", descriptor.getAuditPersistenceUnit());
         assertEquals(AuditMode.JPA, descriptor.getAuditMode());
         assertEquals(PersistenceMode.JPA, descriptor.getPersistenceMode());
-        assertEquals(RuntimeStrategy.SINGLETON, descriptor.getRuntimeStrategy());
+        assertEquals(RuntimeStrategy.PER_PROCESS_INSTANCE, descriptor.getRuntimeStrategy());
         assertEquals(0, descriptor.getMarshallingStrategies().size());
         assertEquals(0, descriptor.getConfiguration().size());
         assertEquals(0, descriptor.getEnvironmentEntries().size());
@@ -213,7 +213,7 @@ public class DeploymentDescriptorManagerTest extends AbstractDeploymentDescripto
         assertEquals("org.jbpm.domain", descriptor.getAuditPersistenceUnit());
         assertEquals(AuditMode.JPA, descriptor.getAuditMode());
         assertEquals(PersistenceMode.JPA, descriptor.getPersistenceMode());
-        assertEquals(RuntimeStrategy.SINGLETON, descriptor.getRuntimeStrategy());
+        assertEquals(RuntimeStrategy.PER_PROCESS_INSTANCE, descriptor.getRuntimeStrategy());
         assertEquals(0, descriptor.getMarshallingStrategies().size());
         assertEquals(0, descriptor.getConfiguration().size());
         assertEquals(0, descriptor.getEnvironmentEntries().size());
@@ -305,7 +305,7 @@ public class DeploymentDescriptorManagerTest extends AbstractDeploymentDescripto
         assertEquals("org.jbpm.domain", descriptor.getAuditPersistenceUnit());
         assertEquals(AuditMode.JPA, descriptor.getAuditMode());
         assertEquals(PersistenceMode.JPA, descriptor.getPersistenceMode());
-        assertEquals(RuntimeStrategy.SINGLETON, descriptor.getRuntimeStrategy());
+        assertEquals(RuntimeStrategy.PER_PROCESS_INSTANCE, descriptor.getRuntimeStrategy());
         assertEquals(0, descriptor.getMarshallingStrategies().size());
         assertEquals(0, descriptor.getConfiguration().size());
         assertEquals(0, descriptor.getEnvironmentEntries().size());
@@ -398,7 +398,7 @@ public class DeploymentDescriptorManagerTest extends AbstractDeploymentDescripto
         assertEquals("org.jbpm.domain", descriptor.getAuditPersistenceUnit());
         assertEquals(AuditMode.JPA, descriptor.getAuditMode());
         assertEquals(PersistenceMode.JPA, descriptor.getPersistenceMode());
-        assertEquals(RuntimeStrategy.SINGLETON, descriptor.getRuntimeStrategy());
+        assertEquals(RuntimeStrategy.PER_PROCESS_INSTANCE, descriptor.getRuntimeStrategy());
         assertEquals(0, descriptor.getMarshallingStrategies().size());
         assertEquals(0, descriptor.getConfiguration().size());
         assertEquals(0, descriptor.getEnvironmentEntries().size());
