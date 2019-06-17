@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2017 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -128,8 +128,8 @@ public class DateTimeUtilsTest extends AbstractBaseTest {
         long[] parsedRepeatable = DateTimeUtils.parseRepeatableDateTime(isoString);
 
         assertEquals(-1L, parsedRepeatable[0]);
-        assertTrue("Parsed delay is bigger than " + MINUTE_IN_MILLISECONDS, parsedRepeatable[1] <= MINUTE_IN_MILLISECONDS);
-        assertTrue("Parsed delay is too low! Expected value is between " + MINUTE_IN_MILLISECONDS + " and " + FIFTY_NINE_SECONDS_IN_MILLISECONDS + " but is " + parsedRepeatable[1], parsedRepeatable[1] > FIFTY_NINE_SECONDS_IN_MILLISECONDS);
+        // Default delay time is 1000ms
+        assertEquals(1000L, parsedRepeatable[1]);
         assertEquals("Parsed period should be one minute in milliseconds but is " + parsedRepeatable[2], MINUTE_IN_MILLISECONDS, parsedRepeatable[2]);
     }
 }
