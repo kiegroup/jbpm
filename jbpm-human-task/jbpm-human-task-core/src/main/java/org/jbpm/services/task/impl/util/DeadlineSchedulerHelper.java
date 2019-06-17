@@ -44,6 +44,12 @@ public class DeadlineSchedulerHelper {
         List<DeadlineType> deadlineTypes = Arrays.asList(types);
 
         Deadlines deadlines = HumanTaskHandlerHelper.setDeadlines(task.getTaskData().getTaskInputVariables(), businessAdministrators, environment, unboundRepeatableOnly);
+
+        if (deadlines.getStartDeadlines().isEmpty() && deadlines.getEndDeadlines().isEmpty()) {
+            // If there are no deadlines to schedule, skip scheduling completely
+            return;
+        }
+
         if(deadlineTypes.contains(DeadlineType.START)) {
             for(Deadline deadline : deadlines.getStartDeadlines()) {
                 task.getDeadlines().getStartDeadlines().add(deadline);
