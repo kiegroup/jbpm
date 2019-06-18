@@ -108,8 +108,11 @@ public class HumanTaskHandlerHelper {
 
 	            for (String expiresAt : expireElements) {
 	                // if unbound repeatable only flag is set then parse only deadlines that are of such type (ISO format)
-	                if (unboundRepeatableOnly && !expiresAt.startsWith("R/")) {
-	                    continue;
+					// for backwards compatibility allow non-iso (simple) format to be parsed
+	                if (unboundRepeatableOnly && !DateTimeUtils.isUnboundRepeatable(expiresAt)) {
+	                	if(DateTimeUtils.isRepeatable(expiresAt) || DateTimeUtils.isPeriod(expiresAt)) {
+	                		continue;
+						}
 	                }
 	                	                
 	            	if(businessCalendar != null) {

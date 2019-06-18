@@ -32,6 +32,14 @@ public class DateTimeUtils extends TimeUtils {
         
         return false;
     }
+
+    public static boolean isUnboundRepeatable(String dateTimeStr) {
+        if (dateTimeStr != null && dateTimeStr.startsWith("R/")) {
+            return true;
+        }
+
+        return false;
+    }
     
     public static boolean isPeriod(String dateTimeStr) {
         if (dateTimeStr != null && dateTimeStr.startsWith("P")) {

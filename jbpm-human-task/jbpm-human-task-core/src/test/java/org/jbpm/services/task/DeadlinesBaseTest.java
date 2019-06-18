@@ -522,6 +522,56 @@ public abstract class DeadlinesBaseTest extends HumanTaskServicesBaseTest {
     }
 
     @Test(timeout = 15000)
+    public void testTaskNotStartedReassignSimpleFormat() throws Exception {
+        Reader reader = new InputStreamReader(getClass().getResourceAsStream(MvelFilePath.DeadlineWithMultipleReassignment));
+        Map<String, Object> vars = new HashMap<String, Object>();
+        vars.put("now", new Date());
+        Task task = (InternalTask) TaskFactory.evalTask(reader, vars);
+        Environment environment = EnvironmentFactory.newEnvironment();
+
+        Map<String, Object> inputVars = new HashMap<String, Object>();
+        inputVars.put("NotStartedReassign", "[users:Tony Stark,Bobba Fet,Jabba Hutt|groups:]@[2s]");
+        ((InternalTask) task).setDeadlines(HumanTaskHandlerHelper.setDeadlines(inputVars, Collections.emptyList(), environment, true));
+
+        taskService.addTask(task, inputVars);
+
+        AtomicInteger timersTriggeredCount = new AtomicInteger();
+        CountDownTaskEventListener countDownListener = new CountDownTaskEventListener(1, true, false) {
+            @Override
+            public void afterTaskReassignedEvent(TaskEvent event) {
+                super.afterTaskReassignedEvent(event);
+                timersTriggeredCount.incrementAndGet();
+            }
+        };
+        addCountDownListner(countDownListener);
+
+        long taskId = task.getId();
+
+        String []owners = new String[] {
+                "Tony Stark", "Bobba Fet", "Jabba Hutt"
+        };
+
+        for(String owner : owners) {
+            countDownListener.reset(1);
+
+            taskService.claim(taskId, owner);
+            task = taskService.getTaskById(taskId);
+            assertThat(task.getTaskData().getActualOwner().getId()).isEqualTo(owner);
+
+            countDownListener.waitTillCompleted();
+
+            task = taskService.getTaskById(taskId);
+            assertThat(task.getTaskData().getActualOwner()).as("Task was not reclaimed").isNull();
+        }
+
+        assertThat(timersTriggeredCount).as("Some deadlines have fired more than once!").hasValue(3);
+
+        taskService.claim(taskId, "Bobba Fet");
+        taskService.start(taskId, "Bobba Fet");
+        taskService.complete(taskId, "Bobba Fet", Collections.<String, Object>emptyMap());
+    }
+
+    @Test(timeout = 15000)
     public void testTaskNotCompletedReassign() throws Exception {
         Reader reader = new InputStreamReader(getClass().getResourceAsStream(MvelFilePath.DeadlineWithMultipleReassignment));
         Map<String, Object> vars = new HashMap<String, Object>();
@@ -532,6 +582,58 @@ public abstract class DeadlinesBaseTest extends HumanTaskServicesBaseTest {
         Map<String, Object> inputVars = new HashMap<String, Object>();
         inputVars.put("NotCompletedReassign", "[users:Tony Stark,Bobba Fet,Jabba Hutt|groups:]@[R/PT2S]");
         ((InternalTask) task).setDeadlines(HumanTaskHandlerHelper.setDeadlines(inputVars, Collections.emptyList(), environment, false));
+
+        taskService.addTask(task, inputVars);
+
+        AtomicInteger timersTriggeredCount = new AtomicInteger();
+        CountDownTaskEventListener countDownListener = new CountDownTaskEventListener(1, true, false) {
+            @Override
+            public void afterTaskReassignedEvent(TaskEvent event) {
+                super.afterTaskReassignedEvent(event);
+                timersTriggeredCount.incrementAndGet();
+            }
+        };
+        addCountDownListner(countDownListener);
+
+        long taskId = task.getId();
+
+        String []owners = new String[] {
+                "Tony Stark", "Bobba Fet", "Jabba Hutt"
+        };
+
+        for(String owner : owners) {
+            countDownListener.reset(1);
+
+            taskService.claim(taskId, owner);
+            task = (InternalTask) taskService.getTaskById(taskId);
+            assertThat(task.getTaskData().getActualOwner().getId()).isEqualTo(owner);
+
+            taskService.start(taskId, owner);
+
+            countDownListener.waitTillCompleted();
+
+            task = (InternalTask) taskService.getTaskById(taskId);
+            assertThat(task.getTaskData().getActualOwner()).as("Task was not reclaimed").isNull();
+        }
+
+        assertThat(timersTriggeredCount).as("Some deadlines have fired more than once!").hasValue(3);
+
+        taskService.claim(taskId, "Bobba Fet");
+        taskService.start(taskId, "Bobba Fet");
+        taskService.complete(taskId, "Bobba Fet", Collections.<String, Object>emptyMap());
+    }
+
+    @Test(timeout = 15000)
+    public void testTaskNotCompletedReassignSimpleFormat() throws Exception {
+        Reader reader = new InputStreamReader(getClass().getResourceAsStream(MvelFilePath.DeadlineWithMultipleReassignment));
+        Map<String, Object> vars = new HashMap<String, Object>();
+        vars.put("now", new Date());
+        InternalTask task = (InternalTask) TaskFactory.evalTask(reader, vars);
+
+        Environment environment = EnvironmentFactory.newEnvironment();
+        Map<String, Object> inputVars = new HashMap<String, Object>();
+        inputVars.put("NotCompletedReassign", "[users:Tony Stark,Bobba Fet,Jabba Hutt|groups:]@[2s]");
+        ((InternalTask) task).setDeadlines(HumanTaskHandlerHelper.setDeadlines(inputVars, Collections.emptyList(), environment, true));
 
         taskService.addTask(task, inputVars);
 
