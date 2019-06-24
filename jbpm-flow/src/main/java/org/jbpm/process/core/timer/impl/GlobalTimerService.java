@@ -172,9 +172,14 @@ public class GlobalTimerService implements TimerService, InternalSchedulerServic
         List<GlobalJobHandle> jobs = timerJobsPerSession.get(id); {
             if (jobs != null) {
                 for (GlobalJobHandle job : jobs) {
-                	if (job != null && schedulerService.isValid(job)) {
-                		timers.add(job.getTimerJobInstance());
-                	}
+                    if (job == null) {
+                        continue;
+                    }
+                    JobContext jobContext = job.getTimerJobInstance().getJobContext();
+                    jobContext = (jobContext instanceof SelfRemovalJobContext) ? ((SelfRemovalJobContext) jobContext).getJobContext() : jobContext;
+                    if (schedulerService.isValid(job) && jobContext instanceof ProcessJobContext) {
+                        timers.add(job.getTimerJobInstance());
+                    }
                 }
             }
         }   
@@ -189,6 +194,7 @@ public class GlobalTimerService implements TimerService, InternalSchedulerServic
             
             logger.debug("Size of timer jobs per session is {}", timerJobsPerSession.size());
             if (jobs != null) {
+
                 for (GlobalJobHandle handle : jobs) {
                     jobFactoryManager.removeTimerJobInstance(handle.getTimerJobInstance());
                 }
