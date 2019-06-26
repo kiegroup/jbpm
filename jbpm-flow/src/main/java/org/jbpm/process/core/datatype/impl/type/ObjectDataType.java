@@ -26,7 +26,7 @@ import com.thoughtworks.xstream.security.ExplicitTypePermission;
 import org.drools.core.common.ProjectClassLoader;
 import org.jbpm.process.core.datatype.DataType;
 
-import static org.kie.soup.commons.xstream.XStreamUtils.createXStream;
+import static org.kie.soup.commons.xstream.XStreamUtils.createTrustingXStream;
 
 /**
  * Representation of an object datatype.
@@ -100,7 +100,7 @@ public class ObjectDataType implements DataType {
     }
 
     private XStream getXStream() {
-        XStream xstream = createXStream();
+        XStream xstream = createTrustingXStream();
         if (classLoader != null) {
             xstream.setClassLoader(classLoader);
             if (classLoader instanceof ProjectClassLoader ) {

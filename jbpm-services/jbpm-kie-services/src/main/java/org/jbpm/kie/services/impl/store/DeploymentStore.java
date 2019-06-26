@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.thoughtworks.xstream.XStream;
 import org.jbpm.kie.services.api.AttributesAware;
 import org.jbpm.kie.services.impl.KModuleDeploymentUnit;
 import org.jbpm.services.api.model.DeploymentUnit;
@@ -34,9 +35,7 @@ import org.jbpm.shared.services.impl.commands.QueryNameCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.thoughtworks.xstream.XStream;
-
-import static org.kie.soup.commons.xstream.XStreamUtils.createXStream;
+import static org.kie.soup.commons.xstream.XStreamUtils.createTrustingXStream;
 
 public class DeploymentStore {
 	
@@ -48,7 +47,7 @@ public class DeploymentStore {
 	
 	private static final Logger logger = LoggerFactory.getLogger(DeploymentStore.class);
 
-	private final XStream xstream = createXStream();
+    private final XStream xstream = createTrustingXStream();
 	
 	
 	private TransactionalCommandService commandService;
