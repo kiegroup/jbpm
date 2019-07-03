@@ -34,6 +34,7 @@ import javax.ejb.Startup;
 import javax.ejb.Timeout;
 import javax.ejb.Timer;
 import javax.ejb.TimerConfig;
+import javax.ejb.TimerService;
 
 import org.drools.core.time.JobHandle;
 import org.drools.core.time.impl.TimerJobInstance;
@@ -54,7 +55,7 @@ public class EJBTimerScheduler {
 	private ConcurrentMap<String, TimerJobInstance> localCache = new ConcurrentHashMap<String, TimerJobInstance>();
 	
 	@Resource
-	private javax.ejb.TimerService timerService;
+	protected javax.ejb.TimerService timerService;
 	
 	@PostConstruct
 	public void setup() {
@@ -153,10 +154,13 @@ public class EJBTimerScheduler {
     				EjbTimerJob job = (EjbTimerJob) info;
     				
     				EjbGlobalJobHandle handle = (EjbGlobalJobHandle) job.getTimerJobInstance().getJobHandle();
-    				localCache.putIfAbsent(jobName, handle.getTimerJobInstance());
-    				if (handle.getUuid().equals(jobName)) {
-    					logger.debug("Job  {} does match timer and is going to be returned", jobName);
+    				
+    				if (handle.getUuid().equals(jobName)) {    					
     					found = handle.getTimerJobInstance();
+    					localCache.putIfAbsent(jobName, found);
+    					logger.debug("Job {} does match timer and is going to be returned {}", jobName, found);
+    					
+    					break;
     				}
     			}
 		    } catch (NoSuchObjectLocalException e) {
