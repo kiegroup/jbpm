@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd" id="WebApp_ID" version="3.1">
+
+  <display-name>REST</display-name>
+
+  <servlet>
+    <servlet-name>org.jbpm.test.container.archive.registerrestservice.RegisterApplication</servlet-name>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>org.jbpm.test.container.archive.registerrestservice.RegisterApplication</servlet-name>
+    <url-pattern>/*</url-pattern>
+  </servlet-mapping>
+
+  <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>Resteasy</web-resource-name>
+      <url-pattern>/PersonList/securedPing</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+      <role-name>admin</role-name>
+    </auth-constraint>
+  </security-constraint>
+
+  <login-config>
+    <auth-method>BASIC</auth-method>
+    <realm-name>ApplicationRealm</realm-name>
+  </login-config>
+
+  <security-role>
+    <role-name>admin</role-name>
+  </security-role>
+
+</web-app>
