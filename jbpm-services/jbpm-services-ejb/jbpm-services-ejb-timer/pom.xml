@@ -9,10 +9,8 @@
   <artifactId>jbpm-services-ejb-timer</artifactId>
   <name>jBPM :: EJB Timer</name>
   
-   <!--  skip tests from maven build for now as they require server installation -->
   <properties>
     <java.module.name>org.jbpm.services.ejb.timer</java.module.name>
-    <skipTests>true</skipTests>    
   </properties>
 
   <dependencies>
