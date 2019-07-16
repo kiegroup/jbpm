@@ -41,6 +41,7 @@ import org.jbpm.services.ejb.timer.EjbSchedulerService;
 import org.jbpm.services.task.identity.JBossUserGroupCallbackImpl;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.kie.api.event.process.DefaultProcessEventListener;
@@ -61,6 +62,7 @@ import org.kie.internal.task.api.UserGroupCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Ignore("Requires server installation")
 @RunWith(Arquillian.class)
 public class EjbTimerServiceIntegrationTest {
 	
