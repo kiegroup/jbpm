@@ -28,7 +28,6 @@ import org.jbpm.test.container.AbstractEJBTransactionsTest;
 import org.jbpm.test.container.JbpmContainerTest;
 import org.jbpm.test.container.listeners.TrackingProcessEventListener;
 import org.jbpm.test.container.test.EJBTransactionsTest;
-import org.jbpm.test.container.webspherefix.WebSphereFixedJtaPlatform;
 import org.jbpm.test.container.tools.IntegrationMavenResolver;
 import org.jbpm.test.container.tools.TrackingListenerAssert;
 import org.kie.api.KieServices;
@@ -68,8 +67,6 @@ public class EJBTransactions {
                 .addPackages(true, "org.jbpm.test.container.groups", EJB_TRANSACTIONS_PACKAGE)
                 .addClass(EJBTransactions.class)
                 .addClass(JbpmContainerTest.class)
-                // Workaroud for https://hibernate.atlassian.net/browse/HHH-11606
-                .addClass(WebSphereFixedJtaPlatform.class)
                 .addClass(AbstractEJBTransactionsTest.class)
                 .addClass(EJBTransactionsTest.class)
                 .addClass(TrackingProcessEventListener.class)

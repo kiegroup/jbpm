@@ -18,7 +18,6 @@ package org.jbpm.test.container.archive;
 
 import java.io.File;
 
-import org.jbpm.test.container.webspherefix.WebSphereFixedJtaPlatform;
 import org.jbpm.test.container.tools.IntegrationMavenResolver;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.ArchivePaths;
@@ -32,6 +31,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RegisterRestService {
+
+    private static final String CONTAINER_ID = System.getProperty("container.id", "");
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RegisterRestService.class);
 
@@ -54,7 +55,10 @@ public class RegisterRestService {
     public Archive<?> buildArchive() {
         System.out.println("### Building archive '" + ARCHIVE_NAME + ".war'");
 
-        PomEquippedResolveStage resolver = IntegrationMavenResolver.get("rest");
+        String[] mvnProfiles = isTomcat() ? new String[]{"rest"} : new String[0];
+        String webXmlFile = isTomcat() ? "web-non-ee.xml" : "web-ee.xml";
+
+        PomEquippedResolveStage resolver = IntegrationMavenResolver.get(mvnProfiles);
         File[] dependencies = resolver.importCompileAndRuntimeDependencies().resolve().withTransitivity().asFile();
         LOGGER.debug("Archive dependencies:");
         for (File d : dependencies) {
@@ -64,20 +68,16 @@ public class RegisterRestService {
         war = ShrinkWrap
                 .create(WebArchive.class, ARCHIVE_NAME + ".war")
                 .addPackage(REGISTER_REST_SERVICE_PACKAGE)
-                // Workaroud for https://hibernate.atlassian.net/browse/HHH-11606
-                .addClass(WebSphereFixedJtaPlatform.class)
-                .setWebXML(getClass().getResource("registerrestservice/WEB-INF/web.xml"))
+                .setWebXML(getClass().getResource("registerrestservice/WEB-INF/" + webXmlFile))
                 .addAsWebInfResource(getClass().getResource("registerrestservice/WEB-INF/weblogic.xml"),
                                 ArchivePaths.create("weblogic.xml"))
                 .addAsLibraries(dependencies);
 
-        // If we are on a WebSphere
-        if (System.getProperty("container.port").equals("9080")) {
+        if (isWebSphere()) {
             EnterpriseArchive ear = ShrinkWrap.create(EnterpriseArchive.class, ARCHIVE_NAME + ".ear");
 
             ear.addAsModule(war)
-                    .setApplicationXML(getClass().getResource("registerrestservice/application.xml"))
-                    .addAsLibraries(resolver.importCompileAndRuntimeDependencies().resolve().withTransitivity().asFile());
+                    .setApplicationXML(getClass().getResource("registerrestservice/application.xml"));
 
             // META-INF resources for WAS
             ear.addAsApplicationResource(getClass().getResource("registerrestservice/ibm-application-bnd.xml"),
@@ -106,4 +106,11 @@ public class RegisterRestService {
         this.war = war;
     }
 
+    private boolean isTomcat() {
+        return CONTAINER_ID.startsWith("tomcat");
+    }
+
+    private boolean isWebSphere() {
+        return CONTAINER_ID.startsWith("websphere");
+    }
 }

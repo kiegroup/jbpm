@@ -281,29 +281,6 @@
       <artifactId>xnio-api</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>org.jboss.resteasy</groupId>
-      <artifactId>resteasy-jaxrs</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>net.jcip</groupId>
-          <artifactId>jcip-annotations</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>commons-logging</groupId>
-          <artifactId>commons-logging</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>javax.activation</groupId>
-          <artifactId>activation</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.resteasy</groupId>
-      <artifactId>resteasy-jackson-provider</artifactId>
-    </dependency>
-
     <!-- In-memory web container for REST WIH testing -->
     <dependency>
       <groupId>org.jboss.resteasy</groupId>
@@ -995,7 +972,7 @@
         <!--WebSphere has to use this H2 driver class for pooling datasource-->
         <org.jbpm.datasource.driver.class>org.h2.jdbcx.JdbcDataSource</org.jbpm.datasource.driver.class>
         <org.jbpm.persistence.ds>jdbc/jbpm</org.jbpm.persistence.ds>
-        <container.tm>org.jbpm.test.container.webspherefix.WebSphereFixedJtaPlatform</container.tm>
+        <container.tm>org.hibernate.engine.transaction.jta.platform.internal.WebSphereJtaPlatform</container.tm>
         <!--Different web service URL for WebSphere has to be used-->
         <wsdl.token>/SimpleService.wsdl</wsdl.token>
       </properties>

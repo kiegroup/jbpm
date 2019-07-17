@@ -17,8 +17,8 @@
              <!-- jettison-*.jar -->
              <package-name>org.codehaus.jettison.*</package-name>
 
-             <!-- jsr311*.jar -->
-             <package-name>javax.ws.rs.*</package-name>
+             <!-- jsr311*.jar - commented in case we need to revert back to Resteasy in the future-->
+             <!--<package-name>javax.ws.rs.*</package-name>-->
 
              <!-- asm.jar -->
              <package-name>org.objectweb.asm.*</package-name>
