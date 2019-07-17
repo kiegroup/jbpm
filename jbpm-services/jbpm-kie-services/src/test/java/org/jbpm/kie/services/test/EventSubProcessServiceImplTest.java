@@ -46,6 +46,9 @@ import org.kie.api.runtime.process.WorkItem;
 import org.kie.api.runtime.query.QueryContext;
 import org.kie.api.task.model.TaskSummary;
 import org.kie.internal.query.QueryFilter;
+import org.kie.internal.runtime.conf.DeploymentDescriptor;
+import org.kie.internal.runtime.conf.RuntimeStrategy;
+import org.kie.internal.runtime.manager.deploy.DeploymentDescriptorImpl;
 import org.kie.scanner.KieMavenRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,6 +103,9 @@ public class EventSubProcessServiceImplTest extends AbstractKieServicesBaseTest 
         assertNotNull(deploymentService);
 
         KModuleDeploymentUnit deploymentUnit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
+        DeploymentDescriptor deploymentDescriptor = new DeploymentDescriptorImpl();
+        ((DeploymentDescriptorImpl) deploymentDescriptor).setRuntimeStrategy(RuntimeStrategy.SINGLETON);
+        ((KModuleDeploymentUnit) deploymentUnit).setDeploymentDescriptor(deploymentDescriptor);
 
         deploymentService.deploy(deploymentUnit);
         units.add(deploymentUnit);

@@ -50,13 +50,15 @@ import org.kie.api.runtime.manager.audit.VariableInstanceLog;
 import org.kie.api.runtime.process.CaseAssignment;
 import org.kie.api.runtime.process.CaseData;
 import org.kie.api.runtime.process.ProcessInstance;
+import org.kie.internal.runtime.conf.DeploymentDescriptor;
+import org.kie.internal.runtime.conf.RuntimeStrategy;
+import org.kie.internal.runtime.manager.deploy.DeploymentDescriptorImpl;
 import org.kie.scanner.KieMavenRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.*;
 import static org.kie.scanner.KieMavenRepository.getKieMavenRepository;
-
 
 public class BPMN2DataServicesReferencesTest extends AbstractKieServicesBaseTest {
 
@@ -152,7 +154,9 @@ public class BPMN2DataServicesReferencesTest extends AbstractKieServicesBaseTest
         assertNotNull(deploymentService);
 
         deploymentUnit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
-
+        DeploymentDescriptor deploymentDescriptor = new DeploymentDescriptorImpl();
+        ((DeploymentDescriptorImpl) deploymentDescriptor).setRuntimeStrategy(RuntimeStrategy.SINGLETON);
+        ((KModuleDeploymentUnit) deploymentUnit).setDeploymentDescriptor(deploymentDescriptor);
         deploymentService.deploy(deploymentUnit);
         units.add(deploymentUnit);
         deploymentId = deploymentUnit.getIdentifier();

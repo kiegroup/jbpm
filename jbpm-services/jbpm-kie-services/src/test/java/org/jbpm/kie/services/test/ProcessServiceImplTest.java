@@ -114,6 +114,14 @@ public class ProcessServiceImplTest extends AbstractKieServicesBaseTest {
         }
         repository = getKieMavenRepository();
         repository.deployArtifact(releaseId3, kJar3, pom3);
+
+        KModuleDeploymentUnit deploymentUnit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
+        DeploymentDescriptor deploymentDescriptor = new DeploymentDescriptorImpl();
+        ((DeploymentDescriptorImpl) deploymentDescriptor).setRuntimeStrategy(RuntimeStrategy.SINGLETON);
+        ((KModuleDeploymentUnit) deploymentUnit).setDeploymentDescriptor(deploymentDescriptor);
+        deploymentService.deploy(deploymentUnit);
+        units.add(deploymentUnit);
+
     }
 
     @After
@@ -136,10 +144,6 @@ public class ProcessServiceImplTest extends AbstractKieServicesBaseTest {
     public void testStartProcess() {
     	assertNotNull(deploymentService);
 
-        KModuleDeploymentUnit deploymentUnit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
-
-        deploymentService.deploy(deploymentUnit);
-        units.add(deploymentUnit);
     	assertNotNull(processService);
 
     	long processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "customtask");
@@ -153,10 +157,6 @@ public class ProcessServiceImplTest extends AbstractKieServicesBaseTest {
     public void testStartProcessWithParms() {
     	assertNotNull(deploymentService);
 
-        KModuleDeploymentUnit deploymentUnit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
-
-        deploymentService.deploy(deploymentUnit);
-        units.add(deploymentUnit);
     	assertNotNull(processService);
 
     	Map<String, Object> params = new HashMap<String, Object>();
@@ -173,10 +173,6 @@ public class ProcessServiceImplTest extends AbstractKieServicesBaseTest {
     public void testStartProcessWithCorrelationKey() {
     	assertNotNull(deploymentService);
 
-        KModuleDeploymentUnit deploymentUnit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
-
-        deploymentService.deploy(deploymentUnit);
-        units.add(deploymentUnit);
     	assertNotNull(processService);
 
     	CorrelationKey key = KieInternalServices.Factory.get().newCorrelationKeyFactory().newCorrelationKey("my business key");
@@ -192,10 +188,6 @@ public class ProcessServiceImplTest extends AbstractKieServicesBaseTest {
     public void testStartProcessWithParmsWithCorrelationKey() {
     	assertNotNull(deploymentService);
 
-        KModuleDeploymentUnit deploymentUnit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
-
-        deploymentService.deploy(deploymentUnit);
-        units.add(deploymentUnit);
     	assertNotNull(processService);
 
     	Map<String, Object> params = new HashMap<String, Object>();
@@ -214,10 +206,6 @@ public class ProcessServiceImplTest extends AbstractKieServicesBaseTest {
     public void testStartAndAbortProcess() {
     	assertNotNull(deploymentService);
 
-        KModuleDeploymentUnit deploymentUnit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
-
-        deploymentService.deploy(deploymentUnit);
-        units.add(deploymentUnit);
     	assertNotNull(processService);
 
     	boolean isDeployed = deploymentService.isDeployed(deploymentUnit.getIdentifier());
@@ -238,11 +226,6 @@ public class ProcessServiceImplTest extends AbstractKieServicesBaseTest {
     @Test
     public void testStartAndAbortProcesses() {
     	assertNotNull(deploymentService);
-
-        KModuleDeploymentUnit deploymentUnit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
-
-        deploymentService.deploy(deploymentUnit);
-        units.add(deploymentUnit);
 
         boolean isDeployed = deploymentService.isDeployed(deploymentUnit.getIdentifier());
     	assertTrue(isDeployed);
@@ -315,10 +298,6 @@ public class ProcessServiceImplTest extends AbstractKieServicesBaseTest {
     public void testAbortedParentProcessAndChildProcessInProcessInstanceListWithIndenpendentSubProcessOne() {
         assertNotNull(deploymentService);
 
-        KModuleDeploymentUnit deploymentUnit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
-
-        deploymentService.deploy(deploymentUnit);
-        units.add(deploymentUnit);
         assertNotNull(processService);
 
         boolean isDeployed = deploymentService.isDeployed(deploymentUnit.getIdentifier());
@@ -338,10 +317,6 @@ public class ProcessServiceImplTest extends AbstractKieServicesBaseTest {
     public void testAbortedParentProcessAndChildProcessInProcessInstanceListWithIndenpendentSubProcess() {
         assertNotNull(deploymentService);
 
-        KModuleDeploymentUnit deploymentUnit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
-
-        deploymentService.deploy(deploymentUnit);
-        units.add(deploymentUnit);
         assertNotNull(processService);
 
         boolean isDeployed = deploymentService.isDeployed(deploymentUnit.getIdentifier());
@@ -360,11 +335,6 @@ public class ProcessServiceImplTest extends AbstractKieServicesBaseTest {
     @Test
     public void testStartAndSignalProcess() {
     	assertNotNull(deploymentService);
-
-        KModuleDeploymentUnit deploymentUnit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
-
-        deploymentService.deploy(deploymentUnit);
-        units.add(deploymentUnit);
 
         boolean isDeployed = deploymentService.isDeployed(deploymentUnit.getIdentifier());
     	assertTrue(isDeployed);
@@ -423,11 +393,6 @@ public class ProcessServiceImplTest extends AbstractKieServicesBaseTest {
     public void testStartAndSignalProcesses() {
     	assertNotNull(deploymentService);
 
-        KModuleDeploymentUnit deploymentUnit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
-
-        deploymentService.deploy(deploymentUnit);
-        units.add(deploymentUnit);
-
         boolean isDeployed = deploymentService.isDeployed(deploymentUnit.getIdentifier());
     	assertTrue(isDeployed);
 
@@ -461,11 +426,6 @@ public class ProcessServiceImplTest extends AbstractKieServicesBaseTest {
     public void testStartAndSignal() {
         assertNotNull(deploymentService);
 
-        KModuleDeploymentUnit deploymentUnit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
-
-        deploymentService.deploy(deploymentUnit);
-        units.add(deploymentUnit);
-
         boolean isDeployed = deploymentService.isDeployed(deploymentUnit.getIdentifier());
         assertTrue(isDeployed);
 
@@ -494,11 +454,6 @@ public class ProcessServiceImplTest extends AbstractKieServicesBaseTest {
     @Test
     public void testStartProcessAndChangeVariables() {
     	assertNotNull(deploymentService);
-
-        KModuleDeploymentUnit deploymentUnit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
-
-        deploymentService.deploy(deploymentUnit);
-        units.add(deploymentUnit);
 
         boolean isDeployed = deploymentService.isDeployed(deploymentUnit.getIdentifier());
     	assertTrue(isDeployed);
@@ -562,11 +517,6 @@ public class ProcessServiceImplTest extends AbstractKieServicesBaseTest {
     public void testStartProcessAndCompleteWorkItem() {
     	assertNotNull(deploymentService);
 
-        KModuleDeploymentUnit deploymentUnit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
-
-        deploymentService.deploy(deploymentUnit);
-        units.add(deploymentUnit);
-
         boolean isDeployed = deploymentService.isDeployed(deploymentUnit.getIdentifier());
     	assertTrue(isDeployed);
 
@@ -606,11 +556,6 @@ public class ProcessServiceImplTest extends AbstractKieServicesBaseTest {
     public void testStartProcessAndAbortWorkItem() {
     	assertNotNull(deploymentService);
 
-        KModuleDeploymentUnit deploymentUnit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
-
-        deploymentService.deploy(deploymentUnit);
-        units.add(deploymentUnit);
-
         boolean isDeployed = deploymentService.isDeployed(deploymentUnit.getIdentifier());
     	assertTrue(isDeployed);
 
@@ -647,11 +592,6 @@ public class ProcessServiceImplTest extends AbstractKieServicesBaseTest {
     public void testStartProcessAndGetWorkItem() {
     	assertNotNull(deploymentService);
 
-        KModuleDeploymentUnit deploymentUnit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
-
-        deploymentService.deploy(deploymentUnit);
-        units.add(deploymentUnit);
-
         boolean isDeployed = deploymentService.isDeployed(deploymentUnit.getIdentifier());
     	assertTrue(isDeployed);
 
@@ -682,11 +622,6 @@ public class ProcessServiceImplTest extends AbstractKieServicesBaseTest {
     @Test
     public void testStartProcessAndGetWorkItems() {
     	assertNotNull(deploymentService);
-
-        KModuleDeploymentUnit deploymentUnit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
-
-        deploymentService.deploy(deploymentUnit);
-        units.add(deploymentUnit);
 
         boolean isDeployed = deploymentService.isDeployed(deploymentUnit.getIdentifier());
     	assertTrue(isDeployed);
@@ -719,11 +654,6 @@ public class ProcessServiceImplTest extends AbstractKieServicesBaseTest {
     @Test
     public void testStartProcessAndExecuteCmd() {
     	assertNotNull(deploymentService);
-
-        KModuleDeploymentUnit deploymentUnit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
-
-        deploymentService.deploy(deploymentUnit);
-        units.add(deploymentUnit);
 
         boolean isDeployed = deploymentService.isDeployed(deploymentUnit.getIdentifier());
     	assertTrue(isDeployed);
@@ -778,11 +708,6 @@ public class ProcessServiceImplTest extends AbstractKieServicesBaseTest {
     public void testStartProcessAfterDeactivation() {
     	assertNotNull(deploymentService);
 
-        KModuleDeploymentUnit deploymentUnit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
-
-        deploymentService.deploy(deploymentUnit);
-        units.add(deploymentUnit);
-
         boolean isDeployed = deploymentService.isDeployed(deploymentUnit.getIdentifier());
     	assertTrue(isDeployed);
 
@@ -802,11 +727,6 @@ public class ProcessServiceImplTest extends AbstractKieServicesBaseTest {
     @Test
     public void testStartProcessAndCompleteWorkItemAfterDeactivation() {
     	assertNotNull(deploymentService);
-
-        KModuleDeploymentUnit deploymentUnit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
-
-        deploymentService.deploy(deploymentUnit);
-        units.add(deploymentUnit);
 
         boolean isDeployed = deploymentService.isDeployed(deploymentUnit.getIdentifier());
     	assertTrue(isDeployed);
@@ -1037,10 +957,6 @@ public class ProcessServiceImplTest extends AbstractKieServicesBaseTest {
     public void testStartProcessCallActivity() {
         assertNotNull(deploymentService);
 
-        KModuleDeploymentUnit deploymentUnit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
-
-        deploymentService.deploy(deploymentUnit);
-        units.add(deploymentUnit);
         assertNotNull(processService);
 
         long processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "ParentProcess");
@@ -1079,10 +995,6 @@ public class ProcessServiceImplTest extends AbstractKieServicesBaseTest {
     public void testStartProcessCallActivityCheckNodes() {
         assertNotNull(deploymentService);
 
-        KModuleDeploymentUnit deploymentUnit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
-
-        deploymentService.deploy(deploymentUnit);
-        units.add(deploymentUnit);
         assertNotNull(processService);
 
         long processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "ParentProcess");
@@ -1195,10 +1107,6 @@ public class ProcessServiceImplTest extends AbstractKieServicesBaseTest {
     public void testGetProcessInstanceVariablesOfAbortedProcess() {
         assertNotNull(deploymentService);
 
-        KModuleDeploymentUnit deploymentUnit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
-
-        deploymentService.deploy(deploymentUnit);
-        units.add(deploymentUnit);
 
         boolean isDeployed = deploymentService.isDeployed(deploymentUnit.getIdentifier());
         assertTrue(isDeployed);
