@@ -19,6 +19,7 @@ package org.jbpm.kie.services.impl.admin.commands;
 import org.jbpm.ruleflow.instance.RuleFlowProcessInstance;
 import org.jbpm.services.api.NodeNotFoundException;
 import org.jbpm.services.api.ProcessInstanceNotFoundException;
+import org.jbpm.workflow.instance.NodeInstanceContainer;
 import org.kie.api.command.ExecutableCommand;
 import org.kie.api.definition.process.Node;
 import org.kie.api.runtime.Context;
@@ -43,28 +44,40 @@ public class TriggerNodeCommand implements ExecutableCommand<Void>, ProcessInsta
 
     public Void execute(Context context) {
     	KieSession kieSession = ((RegistryContext) context).lookup( KieSession.class );
-    	logger.debug("About to trigger (create) node instance for node {} in process instance {}", nodeId, processInstanceId); 
+    	logger.debug("About to trigger (create) node instance for node {} in process instance {}", nodeId, processInstanceId);
         RuleFlowProcessInstance wfp = (RuleFlowProcessInstance) kieSession.getProcessInstance(processInstanceId, false);
         if (wfp == null) {
             throw new ProcessInstanceNotFoundException("Process instance with id " + processInstanceId + " not found");
         }
-        
-        Node node = wfp.getRuleFlowProcess().getNodesRecursively().stream().filter(ni -> ni.getId() == nodeId).findFirst().orElse(null);
-        if (node == null) {
-            throw new NodeNotFoundException("Node instance with id " + nodeId + " not found");
+
+        Node node = null;
+        try {
+            node = wfp.getRuleFlowProcess().getNode(nodeId);
+        } catch (Exception e) {
+            logger.debug("Node with id {} not found, searching it in workflow containers", nodeId);
         }
-        
-        logger.debug("Triggering node {} on process instance {}", node, wfp);
-        wfp.getNodeInstance(node).trigger(null, org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE);
-        logger.debug("Node {} successfully triggered", node);
-        
+
+        if (node == null) { //search container node
+            node = wfp.getRuleFlowProcess().getNodesRecursively().stream().filter(ni -> ni.getId() == nodeId).findFirst().orElse(null);
+            if (node == null) {
+                throw new NodeNotFoundException("Node with id " + nodeId + " not found");
+            }
+            NodeInstanceContainer nodeInstanceContainerNode =
+                    ((NodeInstanceContainer) wfp.getNodeInstance(wfp.getRuleFlowProcess().getParentNode(nodeId)));
+            logger.debug("Triggering node {} on process instance {}", node, wfp);
+            nodeInstanceContainerNode.getNodeInstance(node).trigger(null, org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE);
+            logger.debug("Node {} successfully triggered", node);
+        } else {
+            logger.debug("Triggering node {} on process instance {}", node, wfp);
+            wfp.getNodeInstance(node).trigger(null, org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE);
+            logger.debug("Node {} successfully triggered", node);
+        }
         return null;
     }
 
     @Override
     public void setProcessInstanceId(Long procInstId) {
         this.processInstanceId = procInstId;
-        
     }
 
     @Override
