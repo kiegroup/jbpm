@@ -16,36 +16,8 @@
   },
   "ignores": {
     "revapi": {
-      "_comment": "Changes between 7.18.0.Final and the current branch. These changes are desired and thus ignored.",
-      "ignore": [
-        {
-          "code": "java.method.addedToInterface",
-          "new": "method java.lang.Long org.jbpm.services.api.model.UserTaskInstanceDesc::getWorkItemId()",
-          "package": "org.jbpm.services.api.model",
-          "classSimpleName": "UserTaskInstanceDesc",
-          "methodName": "getWorkItemId",
-          "elementKind": "method",
-          "justification": "JBPM-8116: It is not possible to see SLA violations in business central UI"
-        },
-        {
-          "code": "java.method.addedToInterface",
-          "new": "method java.lang.Integer org.jbpm.services.api.model.UserTaskInstanceDesc::getSlaCompliance()",
-          "package": "org.jbpm.services.api.model",
-          "classSimpleName": "UserTaskInstanceDesc",
-          "methodName": "getSlaCompliance",
-          "elementKind": "method",
-          "justification": "JBPM-8116: It is not possible to see SLA violations in business central UI"
-        },
-        {
-          "code": "java.method.addedToInterface",
-          "new": "method java.util.Date org.jbpm.services.api.model.UserTaskInstanceDesc::getSlaDueDate()",
-          "package": "org.jbpm.services.api.model",
-          "classSimpleName": "UserTaskInstanceDesc",
-          "methodName": "getSlaDueDate",
-          "elementKind": "method",
-          "justification": "JBPM-8116: It is not possible to see SLA violations in business central UI"
-        }
-      ]
+      "_comment": "Changes between 7.23.0.Final and the current branch. These changes are desired and thus ignored.",
+      "ignore": []
     }
   }
 }
