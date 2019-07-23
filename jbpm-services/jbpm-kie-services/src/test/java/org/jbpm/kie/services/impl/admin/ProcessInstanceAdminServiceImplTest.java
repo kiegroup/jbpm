@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -83,6 +84,7 @@ public class ProcessInstanceAdminServiceImplTest extends AbstractKieServicesBase
         processes.add("repo/processes/general/BPMN2-IntermediateCatchEventTimerDuration.bpmn2");
         processes.add("repo/processes/errors/BPMN2-BrokenScriptTask.bpmn2");
         processes.add("repo/processes/errors/BPMN2-UserTaskWithRollback.bpmn2");
+        processes.add("repo/processes/general/AdHocSubProcess.bpmn2");
 
         InternalKieModule kJar1 = createKieJar(ks, releaseId, processes);
         File pom = new File("target/admin", "pom.xml");
@@ -191,6 +193,45 @@ public class ProcessInstanceAdminServiceImplTest extends AbstractKieServicesBase
         assertEquals(1, tasks.size());
     }
     
+    @Test
+    public void testTriggerSubProcessNodeInstance() {
+        processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "AdHocSubProcess");
+        assertNotNull(processInstanceId);
+
+        Collection<NodeInstanceDesc> activeNodes = processAdminService.getActiveNodeInstances(processInstanceId);
+        assertNotNull(activeNodes);
+        assertEquals(1, activeNodes.size());
+
+        processService.signalProcessInstance(processInstanceId, "Hello1", null);
+
+        activeNodes = processAdminService.getActiveNodeInstances(processInstanceId);
+        assertNotNull(activeNodes);
+        assertEquals(2, activeNodes.size());
+
+        Collection<ProcessNode> processNodes = processAdminService.getProcessNodes(processInstanceId);
+        ProcessNode taskNode = processNodes.stream().filter(p -> p.getNodeName().equals("Hello1")).findFirst().orElse(null);
+        assertNotNull(taskNode);
+
+        processAdminService.triggerNode(processInstanceId, taskNode.getNodeId());
+
+        activeNodes = processAdminService.getActiveNodeInstances(processInstanceId);
+        assertNotNull(activeNodes);
+        assertEquals(3, activeNodes.size());
+
+        Iterator<NodeInstanceDesc> iterator = activeNodes.iterator();
+        NodeInstanceDesc nodeInstanceDesc= iterator.next();
+        assertEquals("DynamicNode",nodeInstanceDesc.getNodeType());
+        assertEquals("Hello",nodeInstanceDesc.getName());
+
+        nodeInstanceDesc= iterator.next();
+        assertEquals("HumanTaskNode",nodeInstanceDesc.getNodeType());
+        assertEquals("Hello1",nodeInstanceDesc.getName());
+
+        nodeInstanceDesc= iterator.next();
+        assertEquals("HumanTaskNode",nodeInstanceDesc.getNodeType());
+        assertEquals("Hello1",nodeInstanceDesc.getName());
+    }
+
     @Test
     public void testReTriggerNodeInstance() {
         processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument");
