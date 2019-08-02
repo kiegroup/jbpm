@@ -718,7 +718,7 @@
                   <artifactInstaller>
                     <groupId>org.apache.tomcat</groupId>
                     <artifactId>tomcat</artifactId>
-                    <version>${version.tomcat9}</version>
+                    <version>${version.tomcat}</version>
                   </artifactInstaller>
                   <systemProperties>
                     <tomcat.home>${project.build.directory}/cargo/configurations/tomcat9x</tomcat.home>
