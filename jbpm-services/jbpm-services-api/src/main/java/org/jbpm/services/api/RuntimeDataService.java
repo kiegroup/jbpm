@@ -370,6 +370,14 @@ public interface RuntimeDataService {
 	UserTaskInstanceDesc getTaskById(Long taskId);
 
 	/**
+	 * Return a task by its taskId with SLA data if the withSLA param is true.
+	 * @param taskId
+	 * @param withSLA
+	 * @return @{@link UserTaskInstanceDesc} task
+	 */
+	UserTaskInstanceDesc getTaskById(Long taskId, boolean withSLA);
+
+	/**
 	 * Return a list of assigned tasks as a Business Administrator. Business
 	 * administrators play the same role as task stakeholders but at task type
 	 * level. Therefore, business administrators can perform the exact same

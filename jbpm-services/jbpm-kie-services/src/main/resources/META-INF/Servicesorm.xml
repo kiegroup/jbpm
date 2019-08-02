@@ -715,16 +715,12 @@
 	      a.processInstanceId,
 	      a.createdOn,
 	      a.dueDate,
-    	      a.workItemId,
-    	      log.slaDueDate,
-    	      log.slaCompliance
+    	      a.workItemId
 	      )
         from 
-        	AuditTaskImpl a,
-            	NodeInstanceLog log
+        	AuditTaskImpl a
         where 
         	a.taskId = :taskId
-            	and log.workItemId = a.workItemId
     </query>
     <!-- hint name="org.hibernate.timeout" value="200"/ -->
   </named-query>
