@@ -350,6 +350,13 @@
       <scope>test</scope>
     </dependency>
 
+    <!-- Needed for JDK 11 -->
+    <dependency>
+      <groupId>com.sun.xml.bind</groupId>
+      <artifactId>jaxb-impl</artifactId>
+      <scope>test</scope>
+    </dependency>
+
   </dependencies>
 
   <build>
