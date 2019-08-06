@@ -47,10 +47,16 @@ public class UserTaskInstanceDesc implements org.jbpm.services.api.model.UserTas
 								String processId, Long processInstanceId, Date createdOn, Date dueDate, Long workItemId,
 								Date slaDueDate, Integer slaCompliance) {
 		this(taskId, status, activationTime, name, description, priority, actualOwner, createdBy, deploymentId,
-			 processId, processInstanceId, createdOn, dueDate);
-		this.workItemId = workItemId;
+			 processId, processInstanceId, createdOn, dueDate,workItemId);
 		this.slaDueDate = slaDueDate;
 		this.slaCompliance = slaCompliance;
+	}
+	public UserTaskInstanceDesc(Long taskId, String status, Date activationTime, String name, String description,
+								Integer priority, String actualOwner, String createdBy, String deploymentId,
+								String processId, Long processInstanceId, Date createdOn, Date dueDate, Long workItemId) {
+		this(taskId, status, activationTime, name, description, priority, actualOwner, createdBy, deploymentId,
+			 processId, processInstanceId, createdOn, dueDate);
+		this.workItemId = workItemId;
 	}
 
 	public UserTaskInstanceDesc(Long taskId, String status,
@@ -220,7 +226,17 @@ public class UserTaskInstanceDesc implements org.jbpm.services.api.model.UserTas
         this.dueDate = dueDate;
     }
 
-    @Override
+	@Override
+	public void setSlaDueDate(Date slaDueDate) {
+		this.slaDueDate = slaDueDate;
+	}
+
+	@Override
+	public void setSlaCompliance(Integer slaCompliance) {
+		this.slaCompliance = slaCompliance;
+	}
+
+	@Override
 	public String toString() {
 		return "UserTaskInstanceDesc [taskId=" + taskId + ", name=" + name
 				+ ", deploymentId=" + deploymentId + ", processInstanceId="

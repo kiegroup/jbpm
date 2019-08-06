@@ -121,4 +121,16 @@ public interface UserTaskInstanceDesc {
 	 * @return SLA due date
 	 */
 	Date getSlaDueDate();
+
+	/**
+	 * Set the user task SLA compliance.
+	 * @param slaCompliance SLA compliance value
+	 */
+	void setSlaCompliance(Integer slaCompliance);
+
+	/**
+	 * Set the user task SLA due date.
+	 * @param slaDueDate SLA due date
+	 */
+	void setSlaDueDate(Date slaDueDate);
 }

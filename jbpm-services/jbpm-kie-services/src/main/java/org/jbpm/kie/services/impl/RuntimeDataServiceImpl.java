@@ -811,6 +811,17 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
         return null;
 	}
 
+    @Override
+    public UserTaskInstanceDesc getTaskById(Long taskId, boolean withSLA){
+        UserTaskInstanceDesc taskInstanceDesc = getTaskById(taskId);
+        if(withSLA && (taskInstanceDesc != null && taskInstanceDesc.getWorkItemId() != null)) {
+            NodeInstanceDesc nodeInstanceDesc = getNodeInstanceForWorkItem(taskInstanceDesc.getWorkItemId());
+            taskInstanceDesc.setSlaCompliance(nodeInstanceDesc.getSlaCompliance());
+            taskInstanceDesc.setSlaDueDate(nodeInstanceDesc.getSlaDueDate());
+        }
+        return taskInstanceDesc;
+    }
+
 	@Override
 	public List<TaskSummary> getTasksAssignedAsBusinessAdministrator(String userId, QueryFilter filter) {
 	
