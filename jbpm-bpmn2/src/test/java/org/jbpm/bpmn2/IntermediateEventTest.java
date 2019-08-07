@@ -2920,4 +2920,18 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
         ksession.signalEvent("stopChild:999", null);
         assertProcessInstanceFinished(updatedChild, ksession);
     }
+
+    @Test
+    public void testIntermediateCatchEventConditionIdWithHyphen() throws Exception {
+        KieBase kbase = createKnowledgeBase("BPMN2-IntermediateCatchEventConditionIdWithHyphen.bpmn2");
+        ksession = createKnowledgeSession(kbase);
+        ProcessInstance processInstance = ksession.startProcess("Intermediate-Catch-Event");
+        assertProcessInstanceActive(processInstance);
+        ksession = restoreSession(ksession, true);
+        // now activate condition
+        Person person = new Person();
+        person.setName("Jack");
+        ksession.insert(person);
+        assertProcessInstanceFinished(processInstance, ksession);
+    }
 }
