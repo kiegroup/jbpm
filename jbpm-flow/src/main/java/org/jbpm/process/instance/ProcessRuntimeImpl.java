@@ -36,7 +36,6 @@ import org.drools.core.phreak.PropagationEntry;
 import org.drools.core.time.TimeUtils;
 import org.drools.core.time.TimerService;
 import org.drools.core.time.impl.CommandServiceTimerJobFactoryManager;
-import org.drools.core.time.impl.CronExpression;
 import org.drools.core.time.impl.ThreadSafeTrackableTimeJobFactoryManager;
 import org.jbpm.process.core.event.EventFilter;
 import org.jbpm.process.core.event.EventTransformer;
@@ -74,6 +73,9 @@ import org.kie.internal.runtime.StatefulKnowledgeSession;
 import org.kie.internal.runtime.manager.context.CaseContext;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 import org.kie.internal.utils.CompositeClassLoader;
+
+import static org.drools.core.time.TimeUtils.parseTimeString;
+import static org.kie.soup.commons.cron.CronExpression.isValidExpression;
 
 public class ProcessRuntimeImpl implements InternalProcessRuntime {
 	
@@ -425,13 +427,11 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
                     // new activations of the rule associate with a state node
                     // signal process instances of that state node
                     String ruleName = event.getMatch().getRule().getName();
-                    if ( ruleName.startsWith( "RuleFlowStateNode-" )) {
-                        int index = ruleName.indexOf( '-',
-                                                      18 );
-                        index = ruleName.indexOf( '-',
-                                                  index + 1 );
-                        String eventType = ruleName.substring( 0,
-                                                               index );
+                    String rulePrefix = "RuleFlowStateNode-";
+                    if (ruleName.startsWith(rulePrefix)) {
+                        int index = ruleName.lastIndexOf('-');
+                        index = ruleName.lastIndexOf('-', index - 1);
+                        String eventType = ruleName.substring(0, index);
 
                         kruntime.queueWorkingMemoryAction(new SignalManagerSignalAction(eventType, event));
                     } else if (ruleName.startsWith( "RuleFlowStateEventSubProcess-" ) 
@@ -464,7 +464,7 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
             }
         } );
     }
-    
+
     private void startProcessWithParamsAndTrigger(String processId, Map<String, Object> params, String type, boolean dispose) {
         RuntimeManager manager = (RuntimeManager) kruntime.getEnvironment().get(EnvironmentName.RUNTIME_MANAGER);
         if (manager != null) {
@@ -600,7 +600,7 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
             for (StartNode startNode : startNodes) {
                 if (startNode != null && startNode.getTimer() != null) {
                     TimerInstance timerInstance = null;
-                    if (startNode.getTimer().getDelay() != null && CronExpression.isValidExpression(startNode.getTimer().getDelay())) {
+                    if (startNode.getTimer().getDelay() != null && isValidExpression(startNode.getTimer().getDelay())) {
                         timerInstance = new TimerInstance();
                         timerInstance.setCronExpression(startNode.getTimer().getDelay());
                         
@@ -652,8 +652,7 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
                 } else {
                     timerInstance.setDelay(repeatValues[0]);
                     try {
-                    	long period = DateTimeUtils.parseTimeString(timer.getPeriod());
-                    	timerInstance.setPeriod(period);
+                        timerInstance.setPeriod(parseTimeString(timer.getPeriod()));
                     } catch (RuntimeException e) {
                     	timerInstance.setPeriod(repeatValues[0]);
                     }
