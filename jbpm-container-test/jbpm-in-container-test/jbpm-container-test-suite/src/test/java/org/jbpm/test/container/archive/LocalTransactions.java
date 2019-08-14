@@ -76,6 +76,8 @@ public class LocalTransactions {
                 .addClass(KieUtils.class);
 
         war.addPackages(true, "org.jbpm.test.container.groups");
+        // NodeCountDownProcessEventListener and its ancestors from jbpm-test-util
+        war.addPackages(true, "org.jbpm.test.listener.process");
 
         // WEB-INF resources
         war.addAsWebResource(getClass().getResource("/logback.xml"), ArchivePaths.create("logback.xml"));

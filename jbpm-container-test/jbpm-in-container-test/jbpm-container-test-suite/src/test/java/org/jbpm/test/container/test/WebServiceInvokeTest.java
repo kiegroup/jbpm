@@ -30,8 +30,10 @@ import org.jbpm.test.container.groups.WLS;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jbpm.process.workitem.webservice.WebServiceWorkItemHandler;
+import org.jbpm.test.listener.process.DefaultCountDownProcessEventListener;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.kie.api.event.process.ProcessCompletedEvent;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.process.WorkflowProcessInstance;
@@ -73,6 +75,15 @@ public class WebServiceInvokeTest extends JbpmContainerTest {
 
         KieSession ksession = getSession(hws.getResource(HelloWebService.BPMN_CALL_WEB_SERVICE_NO_INTERFACE));
         ksession.getWorkItemManager().registerWorkItemHandler("Service Task", new WebServiceWorkItemHandler(ksession));
+        DefaultCountDownProcessEventListener listener = new DefaultCountDownProcessEventListener(1) {
+            @Override
+            public void afterProcessCompleted(ProcessCompletedEvent event) {
+                if (HelloWebService.PROCESS_CALL_WEB_SERVICE.equals(event.getProcessInstance().getProcessId())) {
+                    countDown();
+                }
+            }
+        };
+        ksession.addEventListener(listener);
 
         HashMap<String, Object> arguments = new HashMap<String, Object>();
         arguments.put("parameter", "Fredy");
@@ -89,7 +100,7 @@ public class WebServiceInvokeTest extends JbpmContainerTest {
         /*
          * Wait for the process to complete
          */
-        Thread.sleep(4000);
+        listener.waitTillCompleted();
 
         /*
          * Make sure we got the response back.

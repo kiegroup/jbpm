@@ -44,6 +44,7 @@ import org.jbpm.test.container.handlers.ListWorkItemHandler;
 import org.jbpm.test.container.listeners.TrackingAgendaEventListener;
 import org.jbpm.test.container.listeners.TrackingProcessEventListener;
 import org.jbpm.test.container.tools.KieUtils;
+import org.jbpm.test.listener.process.NodeCountDownProcessEventListener;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,6 +53,7 @@ import org.kie.api.KieBase;
 import org.kie.api.KieServices;
 import org.kie.api.builder.KieBuilder;
 import org.kie.api.command.KieCommands;
+import org.kie.api.event.process.ProcessNodeTriggeredEvent;
 import org.kie.api.io.KieResources;
 import org.kie.api.io.Resource;
 import org.kie.api.persistence.jpa.KieStoreServices;
@@ -220,14 +222,12 @@ public class TransactionsTest extends JbpmContainerTest {
         ut.begin();
 
         ksession.signalEvent("start", "script", processId);
-        Thread.sleep(1000);
 
         Assertions.assertThat((long) ut.getStatus()).isEqualTo((long) Status.STATUS_ACTIVE);
         ut.commit();
 
         Assertions.assertThat(process.wasNodeLeft("script")).isTrue();
         ksession.signalEvent("finish", null, processId);
-        Thread.sleep(1000);
 
         Assertions.assertThat(process.wasProcessCompleted(LocalTransactions.PROCESS_TRANSACTIONS)).isTrue();
     }
@@ -249,7 +249,6 @@ public class TransactionsTest extends JbpmContainerTest {
         Assertions.assertThat(process.wasNodeLeft("rfg")).isTrue();
 
         ut.rollback();
-        Thread.sleep(600);
 
         process.clear();
         agenda.clear();
@@ -266,14 +265,12 @@ public class TransactionsTest extends JbpmContainerTest {
         ut.begin();
 
         ksession.signalEvent("start", "rfg", processId);
-        Thread.sleep(1000);
 
         ut.commit();
 
         Assertions.assertThat(process.wasNodeLeft("rfg")).isTrue();
         ksession.fireAllRules();
         ksession.signalEvent("finish", null, processId);
-        Thread.sleep(1000);
 
         Assertions.assertThat(agenda.isRuleFired("dummyRule")).isTrue();
         Assertions.assertThat(process.wasProcessCompleted(LocalTransactions.PROCESS_TRANSACTIONS)).isTrue();
@@ -295,11 +292,19 @@ public class TransactionsTest extends JbpmContainerTest {
 
         ut.rollback();
 
-        Thread.sleep(600);
 
         process.clear();
         ksession = reloadSession(ksession);
         ksession.addEventListener(process);
+        NodeCountDownProcessEventListener countDownListener = new NodeCountDownProcessEventListener("Finish", 1) {
+            @Override
+            public void afterNodeTriggered(ProcessNodeTriggeredEvent event) {
+                if (nodeName.equals(event.getNodeInstance().getNodeName())) {
+                    countDown();
+                }
+            }
+        };
+        ksession.addEventListener(countDownListener);
 
         ut = getUserTransaction();
         ut.begin();
@@ -307,7 +312,7 @@ public class TransactionsTest extends JbpmContainerTest {
         ksession.signalEvent("start", "timer", processId);
         ut.commit();
 
-        Thread.sleep(1000);
+        countDownListener.waitTillCompleted();
 
         Assertions.assertThat(process.wasNodeLeft("timer")).isTrue();
         ksession.signalEvent("finish", null, processId);
@@ -348,7 +353,6 @@ public class TransactionsTest extends JbpmContainerTest {
 
         ut.commit();
 
-        Thread.sleep(1000);
         Assertions.assertThat((long) handler.getWorkItems().size()).isEqualTo((long) 2);
 
         Assertions.assertThat((long) handler.getWorkItems().size()).isEqualTo((long) 2);
@@ -373,7 +377,6 @@ public class TransactionsTest extends JbpmContainerTest {
         ut.begin();
 
         ksession.signalEvent("start", "forloop", processId);
-        Thread.sleep(1000);
         Assertions.assertThat(process.wasNodeLeft("forloop")).isTrue();
 
         ut.rollback();
@@ -389,7 +392,6 @@ public class TransactionsTest extends JbpmContainerTest {
 
         ut.commit();
 
-        Thread.sleep(5000);
 
         Assertions.assertThat(process.wasNodeLeft("forloop")).isTrue();
         Assertions.assertThat(process.wasNodeLeft("Multiple Instances")).isTrue();
@@ -409,7 +411,6 @@ public class TransactionsTest extends JbpmContainerTest {
         ut.begin();
 
         ksession.signalEvent("start", "embedded", processId);
-        Thread.sleep(1000);
         Assertions.assertThat(process.wasNodeLeft("embedded")).isTrue();
 
         ut.rollback();
@@ -425,7 +426,6 @@ public class TransactionsTest extends JbpmContainerTest {
 
         ut.commit();
 
-        Thread.sleep(5000);
 
         Assertions.assertThat(process.wasNodeLeft("embedded")).isTrue();
         Assertions.assertThat(process.wasProcessCompleted(LocalTransactions.PROCESS_TRANSACTIONS)).isFalse();
