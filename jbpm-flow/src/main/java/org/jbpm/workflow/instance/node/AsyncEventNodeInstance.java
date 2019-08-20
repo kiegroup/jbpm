@@ -93,8 +93,10 @@ public class AsyncEventNodeInstance extends EventNodeInstance {
     @Override
     protected NodeInstance getFrom() {
         AsyncEventNode node = (AsyncEventNode) getNode();
+        int level = getLevel();
         org.jbpm.workflow.instance.NodeInstance instance = ((org.jbpm.workflow.instance.NodeInstanceContainer) getNodeInstanceContainer()).getNodeInstance(node.getPreviousNode());
         ((org.jbpm.workflow.instance.NodeInstanceContainer) getNodeInstanceContainer()).removeNodeInstance(instance);
+        ((org.jbpm.workflow.instance.impl.NodeInstanceImpl) instance).setLevel(level);
         return instance;
     }
 

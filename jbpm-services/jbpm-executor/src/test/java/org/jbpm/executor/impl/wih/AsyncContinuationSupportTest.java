@@ -1208,7 +1208,7 @@ public class AsyncContinuationSupportTest extends AbstractExecutorBaseTest {
     @Test(timeout = 10000)
     public void testAsyncModeWithInclusiveGateway() throws Exception {
         // JBPM-7414 // there are two paths for end process , therefore it is executed twice
-        final NodeLeftCountDownProcessEventListener countDownListener = new NodeLeftCountDownProcessEventListener("EndProcess", 2);
+        final NodeLeftCountDownProcessEventListener countDownListener = new NodeLeftCountDownProcessEventListener("EndProcess", 1);
         final NodeTriggerCountListener triggerListener = new NodeTriggerCountListener("ScriptTask-4");
 
         RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get().newDefaultBuilder()
@@ -1252,7 +1252,7 @@ public class AsyncContinuationSupportTest extends AbstractExecutorBaseTest {
         processInstance = runtime.getKieSession().getProcessInstance(processInstanceId);
         assertNull(processInstance);
 
-        assertEquals(2, triggerListener.getCount().intValue());
+        assertEquals(1, triggerListener.getCount().intValue());
     }
 
     private static class NodeTriggerCountListener extends DefaultProcessEventListener {
