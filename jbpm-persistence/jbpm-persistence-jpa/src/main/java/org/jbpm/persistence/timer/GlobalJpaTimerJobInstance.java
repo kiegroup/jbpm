@@ -33,7 +33,6 @@ import org.jbpm.process.core.timer.impl.GlobalTimerService.DisposableCommandServ
 import org.kie.api.runtime.Environment;
 import org.kie.api.runtime.EnvironmentName;
 import org.kie.api.runtime.ExecutableRunner;
-import org.kie.internal.runtime.manager.InternalRuntimeManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -100,6 +99,7 @@ public class GlobalJpaTimerJobInstance extends JpaTimerJobInstance {
         }
     }
     
+
     @Override
 	public String toString() {
 		return "GlobalJpaTimerJobInstance [timerServiceId=" + timerServiceId
