@@ -15,6 +15,9 @@
  */
 package org.jbpm.services.task.wih;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.jbpm.services.task.prediction.PredictionServiceRegistry;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.RuntimeEngine;
@@ -28,9 +31,6 @@ import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 import org.kie.internal.task.api.prediction.PredictionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.HashMap;
-import java.util.Map;
 
 
 public class ExternalTaskEventListener implements TaskLifeCycleEventListener {

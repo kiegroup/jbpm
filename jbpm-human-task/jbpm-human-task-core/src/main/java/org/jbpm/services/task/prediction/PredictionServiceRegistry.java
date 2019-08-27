@@ -16,11 +16,11 @@
 
 package org.jbpm.services.task.prediction;
 
-import org.kie.internal.task.api.prediction.PredictionService;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ServiceLoader;
+
+import org.kie.internal.task.api.prediction.PredictionService;
 
 public class PredictionServiceRegistry {
 

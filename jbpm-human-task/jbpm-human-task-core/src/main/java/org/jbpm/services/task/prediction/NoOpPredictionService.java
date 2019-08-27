@@ -16,11 +16,11 @@
 
 package org.jbpm.services.task.prediction;
 
+import java.util.Map;
+
 import org.kie.api.task.model.Task;
 import org.kie.internal.task.api.prediction.PredictionOutcome;
 import org.kie.internal.task.api.prediction.PredictionService;
-
-import java.util.Map;
 
 /**
  * Implementation of a no-op prediction service
