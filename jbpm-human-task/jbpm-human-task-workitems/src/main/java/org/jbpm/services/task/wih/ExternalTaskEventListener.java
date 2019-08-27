@@ -59,6 +59,7 @@ public class ExternalTaskEventListener implements TaskLifeCycleEventListener {
             if (taskOutcome != null) {
                 results.putAll(taskOutcome);
             }
+            results.put("ActorId", userId);
 
             predictionService.train(task, task.getTaskData().getTaskInputVariables(), results);
             session.getWorkItemManager().completeWorkItem(workItemId, results);
@@ -108,6 +109,8 @@ public class ExternalTaskEventListener implements TaskLifeCycleEventListener {
         long processInstanceId = task.getTaskData().getProcessInstanceId();
         if (processInstanceId <= 0) {
             return;
+        } else {
+            logger.error("EE: I've recieved an event but the session is not known by this handler ( "+task.getTaskData().getProcessSessionId()+")");
         }
         processTaskState(task);
     }
