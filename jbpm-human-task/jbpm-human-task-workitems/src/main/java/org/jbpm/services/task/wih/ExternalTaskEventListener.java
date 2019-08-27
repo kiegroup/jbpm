@@ -108,7 +108,6 @@ public class ExternalTaskEventListener implements TaskLifeCycleEventListener {
         KieSession session = runtime.getKieSession();
         if (session != null) {
             logger.debug(">> I've recieved an event for a known session (" + task.getTaskData().getProcessSessionId()+")");
-            processTaskState(task);
         } else {
             logger.error("EE: I've recieved an event but the session is not known by this handler ( "+task.getTaskData().getProcessSessionId()+")");
         }
