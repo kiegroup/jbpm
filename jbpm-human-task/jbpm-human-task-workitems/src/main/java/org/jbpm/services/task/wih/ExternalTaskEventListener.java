@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2019 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.jbpm.services.task.wih;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jbpm.services.task.prediction.PredictionServiceRegistry;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.runtime.manager.RuntimeManager;
@@ -27,6 +28,7 @@ import org.kie.api.task.model.Status;
 import org.kie.api.task.model.Task;
 import org.kie.internal.runtime.manager.RuntimeManagerRegistry;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
+import org.kie.internal.task.api.prediction.PredictionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +37,9 @@ public class ExternalTaskEventListener implements TaskLifeCycleEventListener {
 
     private RuntimeManagerRegistry registry = RuntimeManagerRegistry.get();
     private static final Logger logger = LoggerFactory.getLogger(ExternalTaskEventListener.class);
- 
+
+    private PredictionService predictionService = PredictionServiceRegistry.get().getService();
+
     public ExternalTaskEventListener() {
     }
 
@@ -46,20 +50,20 @@ public class ExternalTaskEventListener implements TaskLifeCycleEventListener {
         RuntimeManager manager = getManager(task);
         RuntimeEngine runtime = manager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstanceId));
         KieSession session = runtime.getKieSession();
-        
+
         if (task.getTaskData().getStatus() == Status.Completed) {
             String userId = task.getTaskData().getActualOwner().getId();
             Map<String, Object> results = new HashMap<String, Object>();
-            
+
             Map<String, Object> taskOutcome = task.getTaskData().getTaskOutputVariables();
             if (taskOutcome != null) {
                 results.putAll(taskOutcome);
-//                results.put("Result", taskOutcome);
             }
+            results.put("ActorId", userId);
 
-        	results.put("ActorId", userId);
+            predictionService.train(task, task.getTaskData().getTaskInputVariables(), results);
             session.getWorkItemManager().completeWorkItem(workItemId, results);
-            
+
         } else {
             session.getWorkItemManager().abortWorkItem(workItemId);
         }
@@ -74,7 +78,7 @@ public class ExternalTaskEventListener implements TaskLifeCycleEventListener {
     }
 
     public void afterTaskSkippedEvent(TaskEvent event) {
-    	Task task = event.getTask();
+        Task task = event.getTask();
         long processInstanceId = task.getTaskData().getProcessInstanceId();
         if (processInstanceId <= 0) {
             return;
@@ -91,7 +95,7 @@ public class ExternalTaskEventListener implements TaskLifeCycleEventListener {
     }
 
     public void afterTaskCompletedEvent(TaskEvent event) {
-    	Task task = event.getTask();
+        Task task = event.getTask();
         long processInstanceId = task.getTaskData().getProcessInstanceId();
         if (processInstanceId <= 0) {
             return;
@@ -108,10 +112,11 @@ public class ExternalTaskEventListener implements TaskLifeCycleEventListener {
         } else {
             logger.error("EE: I've recieved an event but the session is not known by this handler ( "+task.getTaskData().getProcessSessionId()+")");
         }
+
     }
 
     public void afterTaskFailedEvent(TaskEvent event) {
-    	Task task = event.getTask();
+        Task task = event.getTask();
         long processInstanceId = task.getTaskData().getProcessInstanceId();
         if (processInstanceId <= 0) {
             return;
@@ -120,181 +125,179 @@ public class ExternalTaskEventListener implements TaskLifeCycleEventListener {
     }
 
     public void afterTaskAddedEvent(TaskEvent event) {
-        
         // DO NOTHING
     }
 
     public void afterTaskExitedEvent(TaskEvent event) {
         // DO NOTHING
     }
-    
-    public RuntimeManager getManager(Task task) {           
+
+    public RuntimeManager getManager(Task task) {
         return registry.getManager(task.getTaskData().getDeploymentId());
-        
     }
 
 
     @Override
     public void afterTaskReleasedEvent(TaskEvent event) {
-        
+
     }
 
     @Override
     public void afterTaskResumedEvent(TaskEvent event) {
-        
+
     }
 
     @Override
     public void afterTaskSuspendedEvent(TaskEvent event) {
-        
+
     }
 
     @Override
     public void afterTaskForwardedEvent(TaskEvent event) {
-        
+
     }
 
     @Override
     public void afterTaskDelegatedEvent(TaskEvent event) {
-        
+
     }
 
-	@Override
-	public void beforeTaskActivatedEvent(TaskEvent event) {
-		
-		
-	}
+    @Override
+    public void beforeTaskActivatedEvent(TaskEvent event) {
 
-	@Override
-	public void beforeTaskClaimedEvent(TaskEvent event) {
-		
-		
-	}
 
-	@Override
-	public void beforeTaskSkippedEvent(TaskEvent event) {
-		
-		
-	}
+    }
 
-	@Override
-	public void beforeTaskStartedEvent(TaskEvent event) {
-		
-		
-	}
+    @Override
+    public void beforeTaskClaimedEvent(TaskEvent event) {
 
-	@Override
-	public void beforeTaskStoppedEvent(TaskEvent event) {
-		
-		
-	}
 
-	@Override
-	public void beforeTaskCompletedEvent(TaskEvent event) {
-		
-		
-	}
+    }
 
-	@Override
-	public void beforeTaskFailedEvent(TaskEvent event) {
-		
-		
-	}
+    @Override
+    public void beforeTaskSkippedEvent(TaskEvent event) {
 
-	@Override
-	public void beforeTaskAddedEvent(TaskEvent event) {
-		
-		
-	}
 
-	@Override
-	public void beforeTaskExitedEvent(TaskEvent event) {
-		
-		
-	}
+    }
 
-	@Override
-	public void beforeTaskReleasedEvent(TaskEvent event) {
-		
-		
-	}
+    @Override
+    public void beforeTaskStartedEvent(TaskEvent event) {
 
-	@Override
-	public void beforeTaskResumedEvent(TaskEvent event) {
-		
-		
-	}
 
-	@Override
-	public void beforeTaskSuspendedEvent(TaskEvent event) {
-		
-		
-	}
+    }
 
-	@Override
-	public void beforeTaskForwardedEvent(TaskEvent event) {
-		
-		
-	}
+    @Override
+    public void beforeTaskStoppedEvent(TaskEvent event) {
 
-	@Override
-	public void beforeTaskDelegatedEvent(TaskEvent event) {
-		
-		
-	}
 
-	@Override
-	public void afterTaskActivatedEvent(TaskEvent event) {
-		
-		
-	}
+    }
 
-	@Override
-	public void afterTaskClaimedEvent(TaskEvent event) {
-		
-		
-	}
+    @Override
+    public void beforeTaskCompletedEvent(TaskEvent event) {
 
-	@Override
-	public void afterTaskStartedEvent(TaskEvent event) {
-		
-		
-	}
 
-	@Override
-	public void afterTaskStoppedEvent(TaskEvent event) {
-		
-		
-	}
+    }
 
-	@Override
-	public void beforeTaskNominatedEvent(TaskEvent event) {
-		
-	}
+    @Override
+    public void beforeTaskFailedEvent(TaskEvent event) {
 
-	@Override
-	public void afterTaskNominatedEvent(TaskEvent event) {
 
-	}
-	
-	@Override
-	public boolean equals(Object obj) {
-		if ( this == obj ) 
-			return true;
-        if ( obj == null ) 
-        	return false;
-        if ( (obj instanceof ExternalTaskEventListener) ) 
-        	return true;
-        
+    }
+
+    @Override
+    public void beforeTaskAddedEvent(TaskEvent event) {
+
+
+    }
+
+    @Override
+    public void beforeTaskExitedEvent(TaskEvent event) {
+
+
+    }
+
+    @Override
+    public void beforeTaskReleasedEvent(TaskEvent event) {
+
+
+    }
+
+    @Override
+    public void beforeTaskResumedEvent(TaskEvent event) {
+
+
+    }
+
+    @Override
+    public void beforeTaskSuspendedEvent(TaskEvent event) {
+
+
+    }
+
+    @Override
+    public void beforeTaskForwardedEvent(TaskEvent event) {
+
+
+    }
+
+    @Override
+    public void beforeTaskDelegatedEvent(TaskEvent event) {
+
+
+    }
+
+    @Override
+    public void afterTaskActivatedEvent(TaskEvent event) {
+
+
+    }
+
+    @Override
+    public void afterTaskClaimedEvent(TaskEvent event) {
+
+
+    }
+
+    @Override
+    public void afterTaskStartedEvent(TaskEvent event) {
+
+
+    }
+
+    @Override
+    public void afterTaskStoppedEvent(TaskEvent event) {
+
+
+    }
+
+    @Override
+    public void beforeTaskNominatedEvent(TaskEvent event) {
+
+    }
+
+    @Override
+    public void afterTaskNominatedEvent(TaskEvent event) {
+
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if ((obj instanceof ExternalTaskEventListener))
+            return true;
+
         return false;
-	}
+    }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
+    @Override
+    public int hashCode() {
+        final int prime = 31;
         int result = 1;
         result = prime * result + this.getClass().getName().hashCode();
-        
+
         return result;
-	}
+    }
 }
