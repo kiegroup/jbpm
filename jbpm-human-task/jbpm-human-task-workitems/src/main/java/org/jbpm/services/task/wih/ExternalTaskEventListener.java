@@ -100,6 +100,18 @@ public class ExternalTaskEventListener implements TaskLifeCycleEventListener {
         if (processInstanceId <= 0) {
             return;
         }
+        RuntimeManager manager = getManager(task);
+        if (manager == null) {
+            throw new RuntimeException("No RuntimeManager registered with identifier: " + task.getTaskData().getDeploymentId());
+        }
+        RuntimeEngine runtime = manager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstanceId));
+        KieSession session = runtime.getKieSession();
+        if (session != null) {
+            logger.debug(">> I've recieved an event for a known session (" + task.getTaskData().getProcessSessionId()+")");
+            processTaskState(task);
+        } else {
+            logger.error("EE: I've recieved an event but the session is not known by this handler ( "+task.getTaskData().getProcessSessionId()+")");
+        }
         processTaskState(task);
 
     }
@@ -109,8 +121,6 @@ public class ExternalTaskEventListener implements TaskLifeCycleEventListener {
         long processInstanceId = task.getTaskData().getProcessInstanceId();
         if (processInstanceId <= 0) {
             return;
-        } else {
-            logger.error("EE: I've recieved an event but the session is not known by this handler ( "+task.getTaskData().getProcessSessionId()+")");
         }
         processTaskState(task);
     }
