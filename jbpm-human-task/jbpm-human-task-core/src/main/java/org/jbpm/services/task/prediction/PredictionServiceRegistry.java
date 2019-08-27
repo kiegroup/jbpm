@@ -25,8 +25,8 @@ import java.util.ServiceLoader;
 public class PredictionServiceRegistry {
 
     private static final ServiceLoader<PredictionService> foundServices = ServiceLoader.load(PredictionService.class, PredictionServiceRegistry.class.getClassLoader());
-    private String selectedService = System.getProperty("org.jbpm.task.prediction.service", NoOpPredictionService.IDENTIFIER);
-    private Map<String, PredictionService> predictionServices = new HashMap<>();
+    private static final String selectedService = System.getProperty("org.jbpm.task.prediction.service", NoOpPredictionService.IDENTIFIER);
+    private static final Map<String, PredictionService> predictionServices = new HashMap<>();
 
     private PredictionServiceRegistry() {
 
@@ -52,7 +52,7 @@ public class PredictionServiceRegistry {
     }
 
     public synchronized void addStrategy(PredictionService predictionService) {
-        this.predictionServices.put(predictionService.getIdentifier(), predictionService);
+        predictionServices.put(predictionService.getIdentifier(), predictionService);
 
     }
 }
