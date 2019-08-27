@@ -15,6 +15,10 @@
  */
 package org.jbpm.services.task.wih;
 
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
 import org.jbpm.services.task.exception.PermissionDeniedException;
 import org.jbpm.services.task.prediction.PredictionServiceRegistry;
 import org.jbpm.services.task.utils.OnErrorAction;
@@ -33,10 +37,6 @@ import org.kie.internal.task.api.prediction.PredictionService;
 import org.kie.internal.task.exception.TaskException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 
 public class LocalHTWorkItemHandler extends AbstractHTWorkItemHandler {
