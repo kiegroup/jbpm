@@ -339,11 +339,11 @@ public class ExecutorImpl implements Executor {
         if (ctx.getData("priority") != null) {
             priority = (Integer) ctx.getData("priority");
             if (priority < MIN_PRIORITY) {
-                logger.warn("Priority {} is not valid (cannot be less than {}) setting it to {}", MIN_PRIORITY, MIN_PRIORITY, priority);
+                logger.warn("Priority {} is not valid (cannot be less than {}) setting it to {}", priority, MIN_PRIORITY, MIN_PRIORITY);
                 priority = MIN_PRIORITY;
 
             } else if (priority > MAX_PRIORITY) {
-                logger.warn("Priority {} is not valid (cannot be more than {}) setting it to {}", MAX_PRIORITY, MAX_PRIORITY, priority);
+                logger.warn("Priority {} is not valid (cannot be more than {}) setting it to {}", priority, MAX_PRIORITY, MAX_PRIORITY);
                 priority = MAX_PRIORITY;
             }
 

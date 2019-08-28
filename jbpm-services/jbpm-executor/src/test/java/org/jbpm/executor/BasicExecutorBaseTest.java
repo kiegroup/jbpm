@@ -461,7 +461,7 @@ public abstract class BasicExecutorBaseTest {
         // Future execution is planned to be started 2 minutes and 20 seconds after last fail.
         // Time difference vary because of test thread sleeping for 10 seconds.
         diff = allRequests.get(0).getTime().getTime() - Calendar.getInstance().getTimeInMillis();
-        assertTrue(diff < 140000);
+        assertTrue(diff <= 140000);
         assertTrue(diff > 130000);
 
         executorService.clearAllRequests();
@@ -659,7 +659,7 @@ public abstract class BasicExecutorBaseTest {
         assertNotNull(executedLow);
         assertEquals("low priority", executedLow.getKey());
         
-        assertTrue(executedLow.getTime().getTime() > executedHigh.getTime().getTime());
+        assertTrue(executedLow.getTime().getTime() >= executedHigh.getTime().getTime());
     }
     
     @Test(timeout=10000)
