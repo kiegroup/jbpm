@@ -99,7 +99,7 @@ public class JBossUserGroupCallbackImpl extends AbstractUserGroupInfo implements
 		if( groups == null ) { 
 		    groups = new ArrayList<String>(0);
 		}
-		return groups;
+		return new java.util.ArrayList<String>(groups);
 	}
 	
 }
