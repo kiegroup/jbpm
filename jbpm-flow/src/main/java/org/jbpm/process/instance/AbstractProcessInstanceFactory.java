@@ -47,6 +47,9 @@ public abstract class AbstractProcessInstanceFactory implements ProcessInstanceF
     		.addProcessInstance( processInstance, correlationKey );
 
         // set variable default values
+        if (parameters != null && parameters.containsKey("ParentInstanceId")) {
+            processInstance.getMetaData().put("ParentProcessInstanceId", (Long) parameters.get("ParentInstanceId"));
+        }
         // TODO: should be part of processInstanceImpl?
         VariableScope variableScope = (VariableScope) ((ContextContainer) process).getDefaultContext( VariableScope.VARIABLE_SCOPE );
         VariableScopeInstance variableScopeInstance = (VariableScopeInstance) processInstance.getContextInstance( VariableScope.VARIABLE_SCOPE );

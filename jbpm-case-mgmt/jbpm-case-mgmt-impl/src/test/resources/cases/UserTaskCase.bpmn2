@@ -5,7 +5,7 @@
   <bpmn2:process id="UserTaskCase" tns:adHoc="true" name="Simple Case with User Tasks" isExecutable="true" processType="Private" tns:version="1.0" >
     <bpmn2:extensionElements>
       <tns:metaData name="customDescription">
-        <tns:metaValue>Case #{s}</tns:metaValue>
+        <tns:metaValue>Case </tns:metaValue>
       </tns:metaData>
       <tns:metaData name="customCaseRoles">
         <tns:metaValue>owner:1,contact:2,participant</tns:metaValue>

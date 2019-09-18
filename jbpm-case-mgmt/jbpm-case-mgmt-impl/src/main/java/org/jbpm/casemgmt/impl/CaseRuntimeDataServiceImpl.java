@@ -16,11 +16,6 @@
 
 package org.jbpm.casemgmt.impl;
 
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
-import static org.jbpm.kie.services.impl.CommonUtils.getAuthenticatedUserRoles;
-import static org.kie.internal.query.QueryParameterIdentifiers.FILTER;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -88,6 +83,11 @@ import org.kie.internal.KieInternalServices;
 import org.kie.internal.identity.IdentityProvider;
 import org.kie.internal.process.CorrelationKey;
 import org.kie.internal.process.CorrelationKeyFactory;
+
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+import static org.jbpm.kie.services.impl.CommonUtils.getAuthenticatedUserRoles;
+import static org.kie.internal.query.QueryParameterIdentifiers.FILTER;
 
 
 public class CaseRuntimeDataServiceImpl implements CaseRuntimeDataService, DeploymentEventListener {
@@ -437,6 +437,33 @@ public class CaseRuntimeDataServiceImpl implements CaseRuntimeDataService, Deplo
         return processInstances;
     }
 
+    @Override
+    public Collection<CaseInstance> getSubCaseInstancesByParentCaseId(String parentCaseId, List<CaseStatus> statuses, QueryContext queryContext) {
+        return getSubCases(Arrays.asList(parentCaseId), statuses, queryContext);
+    }
+
+    @Override
+    public Collection<CaseInstance> getAllDescendantSubCaseInstancesByParentCaseId(String parentCaseId, List<CaseStatus> statuses) {
+        // this will iterate foreach level. It will do as much queries as levels in the hierarchy
+        List<CaseInstance> cases = new ArrayList<>();
+        List<String> ids = Arrays.asList(parentCaseId);
+        do {
+            Collection<CaseInstance> processInstances = getSubCases(ids, statuses, null);
+            cases.addAll(processInstances);
+            ids = processInstances.stream().map(CaseInstance::getCaseId).collect(Collectors.toList());
+        } while (!ids.isEmpty()); // empty means there are not more leves to go
+
+        return cases;
+    }
+
+    private Collection<CaseInstance> getSubCases(List<String> parentCaseId, List<CaseStatus> statuses, QueryContext queryContext) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("parentCaseId", parentCaseId);
+        params.put("statuses", resolveCaseStatuses(statuses));
+        applyQueryContext(params, queryContext);
+        applyDeploymentFilter(params);
+        return commandService.execute(new QueryNameCommand<List<CaseInstance>>("getSubCaseInstancesByParentCaseIds", params));
+    }
 
     @Override
     public Collection<CaseInstance> getCaseInstancesByDeployment(String deploymentId, List<CaseStatus> statuses, QueryContext queryContext) {
@@ -885,5 +912,4 @@ public class CaseRuntimeDataServiceImpl implements CaseRuntimeDataService, Deplo
 
         return caseFileItems;
     }
-
 }
