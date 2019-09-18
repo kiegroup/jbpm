@@ -184,7 +184,22 @@ public interface CaseRuntimeDataService {
      *
      */
     Collection<CaseInstance> getCaseInstances(QueryContext queryContext);
-   
+
+    /**
+     * Returns all first level children cases given an parent id case.
+     * @param parentCaseId parent case
+     * @param statuses list of statuses that subcases should be in to match
+     * @param queryContext control parameters for the result e.g. sorting, paging
+     */
+    Collection<CaseInstance> getSubCaseInstancesByParentCaseId(String parentCaseId, List<CaseStatus> statuses, QueryContext queryContext);
+
+    /**
+     * Returns all subtree cases given an parent id case.
+     * @param parentCaseId parent case
+     * @param statuses list of statuses that subcases should be in to match
+     */
+    Collection<CaseInstance> getAllDescendantSubCaseInstancesByParentCaseId(String parentCaseId, List<CaseStatus> statuses);
+
     /**
      * Returns all available active case instances that match given statuses
      * @param statuses list of statuses that case should be in to match
