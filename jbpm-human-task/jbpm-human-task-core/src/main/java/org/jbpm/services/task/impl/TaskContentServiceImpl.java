@@ -61,6 +61,7 @@ public class TaskContentServiceImpl implements TaskContentService {
     
     @SuppressWarnings("unchecked")
 	public long addOutputContent(long taskId, Map<String, Object> params) {
+
         Task task = persistenceContext.findTask(taskId);
         loadTaskVariables(task);
         long outputContentId = task.getTaskData().getOutputContentId();
@@ -87,6 +88,7 @@ public class TaskContentServiceImpl implements TaskContentService {
                 
                 ((Map<String, Object>)unmarshalledObject).putAll(params);
             }
+
             ContentData outputContentData = ContentMarshallerHelper.marshal(task, unmarshalledObject, context.getEnvironment());
             ((InternalContent)outputContent).setContent(outputContentData.getContent());
             persistenceContext.persistContent(outputContent);

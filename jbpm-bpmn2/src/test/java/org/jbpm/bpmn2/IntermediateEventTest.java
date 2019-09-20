@@ -907,7 +907,7 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
 
     }
 
-    @Test(timeout=10000)
+    @Test
     public void testEventSubprocessMessageWithLocalVars() throws Exception {
         NodeLeftCountDownProcessEventListener countDownListener = new NodeLeftCountDownProcessEventListener("timer", 1);
 

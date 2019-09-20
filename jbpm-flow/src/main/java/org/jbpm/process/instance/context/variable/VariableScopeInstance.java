@@ -16,6 +16,7 @@
 
 package org.jbpm.process.instance.context.variable;
 
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -34,6 +35,7 @@ import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.CaseData;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.rule.FactHandle;
+import org.w3c.dom.Document;
 
 /**
  * 
@@ -50,11 +52,21 @@ public class VariableScopeInstance extends AbstractContextInstance {
         return VariableScope.VARIABLE_SCOPE;
     }
 
+
     public Object getVariable(String name) {
                 
         Object value = variables.get(name);
         if (value != null) {
-            return value;
+            if (shouldBeCloned(value)) {
+                try {
+                    Method clone = value.getClass().getMethod("clone");
+                    return clone.invoke(value);
+                } catch (Exception e) {
+                    return value;
+                }
+            } else {
+                return value;
+            }
         }
 
         // support for processInstanceId and parentProcessInstanceId
@@ -86,6 +98,10 @@ public class VariableScopeInstance extends AbstractContextInstance {
         }    
 
         return null;
+    }
+
+    private boolean shouldBeCloned(Object value) {
+        return value instanceof Cloneable && !(value instanceof Collection) && !(value instanceof Map) && !(value instanceof Document);
     }
 
     public Map<String, Object> getVariables() {
