@@ -28,14 +28,13 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-import org.jbpm.query.jpa.data.QueryWhere.QueryCriteriaType;
-import org.kie.internal.query.QueryParameterIdentifiers;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+import org.jbpm.query.jpa.data.QueryWhere.QueryCriteriaType;
+import org.kie.internal.query.QueryParameterIdentifiers;
 
 /**
  * This object contains the following information:
@@ -105,7 +104,7 @@ public class QueryCriteria {
         this.type = QueryCriteriaType.GROUP;
     }
 
-    private QueryCriteria(String listId, QueryCriteriaType type) {
+    public QueryCriteria(String listId, QueryCriteriaType type) {
         this.listId = listId;
         this.type = type;
     }

@@ -16,9 +16,6 @@
 
 package org.jbpm.services.task.audit.service;
 
-import static org.kie.internal.query.QueryParameterIdentifiers.CREATED_ON_LIST;
-import static org.kie.internal.query.QueryParameterIdentifiers.DEPLOYMENT_ID_LIST;
-
 import java.util.Date;
 
 import org.jbpm.process.audit.JPAAuditLogService;
@@ -26,6 +23,9 @@ import org.jbpm.process.audit.query.AbstractAuditDeleteBuilderImpl;
 import org.jbpm.services.task.audit.impl.model.AuditTaskImpl;
 import org.kie.api.runtime.CommandExecutor;
 import org.kie.internal.task.query.AuditTaskDeleteBuilder;
+
+import static org.kie.internal.query.QueryParameterIdentifiers.CREATED_ON_LIST;
+import static org.kie.internal.query.QueryParameterIdentifiers.DEPLOYMENT_ID_LIST;
 
 public class AuditTaskDeleteBuilderImpl extends AbstractAuditDeleteBuilderImpl<AuditTaskDeleteBuilder> implements AuditTaskDeleteBuilder {
 
@@ -88,9 +88,9 @@ public class AuditTaskDeleteBuilderImpl extends AbstractAuditDeleteBuilderImpl<A
     protected String getQueryBase() {
         return AUDIT_TASK_IMPL_DELETE;
     }
-    
+
     @Override
-    protected String getSubQuery() {
-        return ONLY_COMPLETED_PROCESS_INSTANCES;
+    protected boolean isSubquerySupported() {
+        return true;
     }
 }

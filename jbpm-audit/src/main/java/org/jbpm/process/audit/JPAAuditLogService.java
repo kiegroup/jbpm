@@ -16,50 +16,11 @@
 
 package org.jbpm.process.audit;
 
-import static org.jbpm.query.jpa.impl.QueryCriteriaUtil.convertListToInterfaceList;
-import static org.kie.internal.query.QueryParameterIdentifiers.CORRELATION_KEY_LIST;
-import static org.kie.internal.query.QueryParameterIdentifiers.DATE_LIST;
-import static org.kie.internal.query.QueryParameterIdentifiers.DURATION_LIST;
-import static org.kie.internal.query.QueryParameterIdentifiers.END_DATE_LIST;
-import static org.kie.internal.query.QueryParameterIdentifiers.EXTERNAL_ID_LIST;
-import static org.kie.internal.query.QueryParameterIdentifiers.FILTER;
-import static org.kie.internal.query.QueryParameterIdentifiers.FIRST_RESULT;
-import static org.kie.internal.query.QueryParameterIdentifiers.FLUSH_MODE;
-import static org.kie.internal.query.QueryParameterIdentifiers.IDENTITY_LIST;
-import static org.kie.internal.query.QueryParameterIdentifiers.LAST_VARIABLE_LIST;
-import static org.kie.internal.query.QueryParameterIdentifiers.MAX_RESULTS;
-import static org.kie.internal.query.QueryParameterIdentifiers.NODE_ID_LIST;
-import static org.kie.internal.query.QueryParameterIdentifiers.NODE_INSTANCE_ID_LIST;
-import static org.kie.internal.query.QueryParameterIdentifiers.NODE_NAME_LIST;
-import static org.kie.internal.query.QueryParameterIdentifiers.OLD_VALUE_LIST;
-import static org.kie.internal.query.QueryParameterIdentifiers.ORDER_BY;
-import static org.kie.internal.query.QueryParameterIdentifiers.ORDER_TYPE;
-import static org.kie.internal.query.QueryParameterIdentifiers.OUTCOME_LIST;
-import static org.kie.internal.query.QueryParameterIdentifiers.PROCESS_ID_LIST;
-import static org.kie.internal.query.QueryParameterIdentifiers.PROCESS_INSTANCE_ID_LIST;
-import static org.kie.internal.query.QueryParameterIdentifiers.PROCESS_INSTANCE_STATUS_LIST;
-import static org.kie.internal.query.QueryParameterIdentifiers.PROCESS_NAME_LIST;
-import static org.kie.internal.query.QueryParameterIdentifiers.PROCESS_VERSION_LIST;
-import static org.kie.internal.query.QueryParameterIdentifiers.START_DATE_LIST;
-import static org.kie.internal.query.QueryParameterIdentifiers.TYPE_LIST;
-import static org.kie.internal.query.QueryParameterIdentifiers.VALUE_LIST;
-import static org.kie.internal.query.QueryParameterIdentifiers.VARIABLE_ID_LIST;
-import static org.kie.internal.query.QueryParameterIdentifiers.VARIABLE_INSTANCE_ID_LIST;
-import static org.kie.internal.query.QueryParameterIdentifiers.VAR_VALUE_ID_LIST;
-import static org.kie.internal.query.QueryParameterIdentifiers.VAR_VAL_SEPARATOR;
-import static org.kie.internal.query.QueryParameterIdentifiers.WORK_ITEM_ID_LIST;
-
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -74,10 +35,7 @@ import org.jbpm.process.audit.query.ProcessInstanceLogDeleteBuilderImpl;
 import org.jbpm.process.audit.query.VarInstLogQueryBuilderImpl;
 import org.jbpm.process.audit.query.VarInstanceLogDeleteBuilderImpl;
 import org.jbpm.process.audit.strategy.PersistenceStrategyType;
-import org.jbpm.query.jpa.data.QueryCriteria;
 import org.jbpm.query.jpa.data.QueryWhere;
-import org.jbpm.query.jpa.data.QueryWhere.QueryCriteriaType;
-import org.jbpm.query.jpa.impl.QueryAndParameterAppender;
 import org.jbpm.query.jpa.impl.QueryCriteriaUtil;
 import org.kie.api.runtime.Environment;
 import org.kie.internal.runtime.manager.audit.query.NodeInstanceLogDeleteBuilder;
@@ -88,6 +46,40 @@ import org.kie.internal.runtime.manager.audit.query.VariableInstanceLogDeleteBui
 import org.kie.internal.runtime.manager.audit.query.VariableInstanceLogQueryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.jbpm.query.jpa.impl.QueryCriteriaUtil.convertListToInterfaceList;
+import static org.kie.internal.query.QueryParameterIdentifiers.CASE_FILE_DATA_LOG_LASTMODIFIED;
+import static org.kie.internal.query.QueryParameterIdentifiers.CORRELATION_KEY_LIST;
+import static org.kie.internal.query.QueryParameterIdentifiers.DATE_LIST;
+import static org.kie.internal.query.QueryParameterIdentifiers.DURATION_LIST;
+import static org.kie.internal.query.QueryParameterIdentifiers.END_DATE_LIST;
+import static org.kie.internal.query.QueryParameterIdentifiers.EXTERNAL_ID_LIST;
+import static org.kie.internal.query.QueryParameterIdentifiers.FILTER;
+import static org.kie.internal.query.QueryParameterIdentifiers.FIRST_RESULT;
+import static org.kie.internal.query.QueryParameterIdentifiers.FLUSH_MODE;
+import static org.kie.internal.query.QueryParameterIdentifiers.IDENTITY_LIST;
+import static org.kie.internal.query.QueryParameterIdentifiers.MAX_RESULTS;
+import static org.kie.internal.query.QueryParameterIdentifiers.NODE_ID_LIST;
+import static org.kie.internal.query.QueryParameterIdentifiers.NODE_INSTANCE_ID_LIST;
+import static org.kie.internal.query.QueryParameterIdentifiers.NODE_NAME_LIST;
+import static org.kie.internal.query.QueryParameterIdentifiers.OLD_VALUE_LIST;
+import static org.kie.internal.query.QueryParameterIdentifiers.ORDER_BY;
+import static org.kie.internal.query.QueryParameterIdentifiers.ORDER_TYPE;
+import static org.kie.internal.query.QueryParameterIdentifiers.OUTCOME_LIST;
+import static org.kie.internal.query.QueryParameterIdentifiers.PROCESS_ID_LIST;
+import static org.kie.internal.query.QueryParameterIdentifiers.PROCESS_INSTANCE_ID_LIST;
+import static org.kie.internal.query.QueryParameterIdentifiers.PROCESS_INSTANCE_STATUS_LIST;
+import static org.kie.internal.query.QueryParameterIdentifiers.PROCESS_NAME_LIST;
+import static org.kie.internal.query.QueryParameterIdentifiers.PROCESS_VERSION_LIST;
+import static org.kie.internal.query.QueryParameterIdentifiers.START_DATE_LIST;
+import static org.kie.internal.query.QueryParameterIdentifiers.SUBQUERY_CASE;
+import static org.kie.internal.query.QueryParameterIdentifiers.SUBQUERY_DEPLOYMENT;
+import static org.kie.internal.query.QueryParameterIdentifiers.SUBQUERY_STATUS;
+import static org.kie.internal.query.QueryParameterIdentifiers.TYPE_LIST;
+import static org.kie.internal.query.QueryParameterIdentifiers.VALUE_LIST;
+import static org.kie.internal.query.QueryParameterIdentifiers.VARIABLE_ID_LIST;
+import static org.kie.internal.query.QueryParameterIdentifiers.VARIABLE_INSTANCE_ID_LIST;
+import static org.kie.internal.query.QueryParameterIdentifiers.WORK_ITEM_ID_LIST;
 
 public class JPAAuditLogService extends JPAService implements AuditLogService {
 
@@ -350,7 +342,7 @@ public class JPAAuditLogService extends JPAService implements AuditLogService {
 
     private final AuditQueryCriteriaUtil queryUtil = new AuditQueryCriteriaUtil(this);
    
-    protected QueryCriteriaUtil getQueryCriteriaUtil(Class queryType) { 
+    protected QueryCriteriaUtil getQueryCriteriaUtil(Class<?> queryType) {
         return queryUtil;
     }
     
@@ -366,8 +358,7 @@ public class JPAAuditLogService extends JPAService implements AuditLogService {
    
     // Delete queries -------------------------------------------------------------------------------------------------------------
    
-    public static Map<String, String> criteriaFields = new ConcurrentHashMap<String, String>();
-    public static Map<String, Class<?>> criteriaFieldClasses = new ConcurrentHashMap<String, Class<?>>();
+
     
     static { 
         addCriteria(PROCESS_INSTANCE_ID_LIST, "l.processInstanceId", Long.class);
@@ -398,25 +389,28 @@ public class JPAAuditLogService extends JPAService implements AuditLogService {
         addCriteria(VALUE_LIST, "l.value", String.class);
         addCriteria(VARIABLE_ID_LIST, "l.variableId", String.class);
         addCriteria(VARIABLE_INSTANCE_ID_LIST, "l.variableInstanceId", String.class);
+
+        addCriteria(CASE_FILE_DATA_LOG_LASTMODIFIED, "l.lastModified", Date.class);
+        addCriteria(SUBQUERY_STATUS, "spl.status", Integer.class);
+        addCriteria(SUBQUERY_DEPLOYMENT, "spl.externalId", String.class);
+        addCriteria(SUBQUERY_CASE, "spl.processId", String.class);
        
     }
    
-    protected static void addCriteria( String listId, String fieldName, Class type ) { 
-        criteriaFields.put(listId, fieldName);
-        criteriaFieldClasses.put(listId, type );
+    protected static void addCriteria(String listId, String fieldName, Class<?> type) {
+        QueryHelper.addCriteria(listId, fieldName, type);
     }
     
-    public int doDelete(String queryBase, QueryWhere queryData, Class<?> resultType, String subQuery) { 
+    public int doDelete(String queryBase, QueryWhere queryData, String subQuery, Map<String, Object> queryParams) {
         // create query
-        
-        Map<String, Object> queryParams = new HashMap<String, Object>();
-        String queryString = createDeleteQuery(queryBase, queryData, queryParams, true, subQuery);
+
+        String queryString = QueryHelper.createQueryWithSubQuery(queryBase, queryData, queryParams, subQuery).toSQL();
         
         // logging
         logger.debug("DELETE statement:\n {}", queryString);
         if( logger.isDebugEnabled() ) {
             StringBuilder paramsStr = new StringBuilder("PARAMS:");
-            Map<String, Object> orderedParams = new TreeMap<String, Object>(queryParams);
+            Map<String, Object> orderedParams = new TreeMap<>(queryParams);
             for( Entry<String, Object> entry : orderedParams.entrySet() ) { 
                 paramsStr.append("\n " + entry.getKey() + " : '" + entry.getValue() + "'");
             }
@@ -436,154 +430,7 @@ public class JPAAuditLogService extends JPAService implements AuditLogService {
         return result;
     }
     
-    private static String createDeleteQuery(String queryBase, QueryWhere queryWhere, Map<String, Object> queryParams, boolean skipMetaParams, String subQuery) { 
-        // setup
-        StringBuilder queryBuilder = new StringBuilder(queryBase);
-        QueryAndParameterAppender queryAppender = new QueryAndParameterAppender(queryBuilder, queryParams);
 
-        boolean addLastCriteria = false;
-        List<Object[]> varValCriteriaList = new ArrayList<Object[]>();
-        List<QueryCriteria> queryWhereCriteriaList = queryWhere.getCriteria();
-        
-        // 3. apply normal query parameters
-        checkVarValCriteria(queryWhere, varValCriteriaList);
-                
-        // last criteria
-        Iterator<QueryCriteria> iter = queryWhereCriteriaList.iterator();
-        while(iter.hasNext()) { 
-            QueryCriteria criteria = iter.next();
-            if( criteria.getListId().equals(LAST_VARIABLE_LIST) ) { 
-                addLastCriteria = true;
-                iter.remove();
-            }
-        }
-                
-        for( QueryCriteria criteria : queryWhere.getCriteria() ) { 
-            String listId = criteria.getListId();
-            switch(criteria.getType()) {
-            case NORMAL:
-                queryAppender.addQueryParameters(
-                        criteria.getParameters(),
-                        listId, criteriaFieldClasses.get(listId), criteriaFields.get(listId), 
-                        criteria.isUnion());
-            break;
-            case RANGE:
-                queryAppender.addRangeQueryParameters(
-                        criteria.getParameters(),
-                        listId, criteriaFieldClasses.get(listId), criteriaFields.get(listId), 
-                        criteria.isUnion());
-                break;
-            case REGEXP:
-                List<String> stringParams = castToStringList(criteria.getParameters());
-                queryAppender.addRegexQueryParameters(
-                        stringParams,
-                        listId, criteriaFields.get(listId), 
-                        criteria.isUnion());
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown criteria type in delete query builder: " + criteria.getType().toString());
-            }
-        }
-                
-        while( queryAppender.getParenthesesNesting() > 0 ) { 
-            queryAppender.closeParentheses();
-        }
-        
-        // 6. Add special criteria 
-        boolean addWhereClause = ! queryAppender.hasBeenUsed();
-        if( ! varValCriteriaList.isEmpty() ) { 
-            addVarValCriteria(addWhereClause, queryAppender, "l", varValCriteriaList);
-            addWhereClause = false;
-        }
-        if( addLastCriteria ) { 
-            addLastInstanceCriteria(queryAppender);
-        }
-        if (subQuery != null && !subQuery.isEmpty()) {
-            queryAppender.addToQueryBuilder(subQuery, false);
-        }
-        
-
-        // meta criteria (order, asc/desc) does not apply to delete queries 
-        
-        // 8. return query
-        return queryBuilder.toString();
-    }
-
-    private static List<String> castToStringList(List<Object> objectList) { 
-       List<String> stringList = new ArrayList<String>(objectList.size());
-       for( Object obj : objectList ) { 
-           stringList.add(obj.toString());
-       }
-       return stringList;
-    }
-    
-    public static void checkVarValCriteria(QueryWhere queryWhere, List<Object[]> varValCriteriaList) { 
-        List<QueryCriteria> varValCriteria = new LinkedList<QueryCriteria>();
-        Iterator<QueryCriteria> iter = queryWhere.getCriteria().iterator();
-        while( iter.hasNext() ) { 
-            QueryCriteria criteria = iter.next();
-           if( criteria.getListId().equals(VAR_VALUE_ID_LIST) )  { 
-               varValCriteria.add(criteria);
-               iter.remove(); 
-           }
-        }
-        if( varValCriteria.isEmpty() ) { 
-            return;
-        }
-        for( QueryCriteria criteria : varValCriteria ) { 
-            for( Object varVal : criteria.getParameters() ) { 
-                String [] parts = ((String) varVal).split(VAR_VAL_SEPARATOR, 2);
-                String varId = parts[1].substring(0,Integer.parseInt(parts[0]));
-                String val = parts[1].substring(Integer.parseInt(parts[0])+1);
-                int type = ( criteria.isUnion() ? 0 : 1 ) + ( criteria.getType().equals(QueryCriteriaType.REGEXP) ? 2 : 0);
-                Object [] varValCrit = { type, varId, val };
-                varValCriteriaList.add(varValCrit);
-            }
-        }
-    }
-    
-    public static void addVarValCriteria(
-            boolean addWhereClause, 
-            QueryAndParameterAppender queryAppender, 
-            String tableId,
-            List<Object []> varValCriteriaList) { 
-        
-       // for each var/val criteria
-       for( Object [] varValCriteria : varValCriteriaList ) { 
-
-           boolean union = (((Integer) varValCriteria[0]) % 2 == 0);
-         
-           // var id: add query parameter
-           String varIdQueryParamName = queryAppender.generateParamName();
-           queryAppender.addNamedQueryParam(varIdQueryParamName, varValCriteria[1]);
-           // var id: append to the query
-           StringBuilder queryPhraseBuilder = new StringBuilder(" ( ")
-               .append(tableId).append(".variableId = :").append(varIdQueryParamName).append(" ");
-           
-           // val: append to the query
-           queryPhraseBuilder.append("AND ").append(tableId).append(".value ");
-           String valQueryParamName = queryAppender.generateParamName();
-           String val;
-           if( ((Integer) varValCriteria[0]) >= 2 ) { 
-               val = ((String) varValCriteria[2]).replace('*', '%').replace('.', '_');
-               queryPhraseBuilder.append("like :").append(valQueryParamName);
-           } else { 
-               val = (String) varValCriteria[2];
-              queryPhraseBuilder.append("= :").append(valQueryParamName);
-           }
-           queryPhraseBuilder.append(" ) ");
-      
-           String [] valArr = { val };
-           queryAppender.addToQueryBuilder(queryPhraseBuilder.toString(), union, valQueryParamName, Arrays.asList(valArr) );
-       }
-    }
-    
-    private static void addLastInstanceCriteria(QueryAndParameterAppender queryAppender) { 
-       String lastQueryPhrase = new StringBuilder("(l.id IN ")
-           .append("(SELECT MAX(ll.id) FROM VariableInstanceLog ll GROUP BY ll.variableId, ll.processInstanceId)")
-           .append(") ").toString();
-      queryAppender.addToQueryBuilder(lastQueryPhrase, false); 
-    }
     
     private void applyMetaQueryParameters(Map<String, Object> params, Query query) {
         if (params != null && !params.isEmpty()) {
