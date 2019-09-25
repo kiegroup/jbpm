@@ -12,7 +12,9 @@
     <mapping-file>META-INF/Executor-orm.xml</mapping-file>
     <mapping-file>META-INF/JBPMorm.xml</mapping-file>
     <mapping-file>META-INF/Taskorm.xml</mapping-file>
+    <mapping-file>META-INF/CaseMgmtorm.xml</mapping-file>
     <mapping-file>META-INF/TaskAuditorm.xml</mapping-file>
+    <mapping-file>META-INF/Servicesorm.xml</mapping-file>
 
     <class>org.jbpm.executor.entities.ErrorInfo</class>
     <class>org.jbpm.executor.entities.RequestInfo</class>
@@ -64,6 +66,12 @@
     <!-- error handling -->
     <class>org.jbpm.runtime.manager.impl.jpa.ExecutionErrorInfo</class>
 
+    <class>org.jbpm.casemgmt.impl.generator.CaseIdInfo</class>
+    <class>org.jbpm.casemgmt.impl.audit.CaseRoleAssignmentLog</class>
+    <class>org.jbpm.casemgmt.impl.audit.CaseFileDataLog</class>
+
+    <class>org.jbpm.kie.services.impl.query.persistence.QueryDefinitionEntity</class>
+    <class>org.jbpm.kie.services.impl.store.DeploymentStoreEntry</class>
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
     <properties>

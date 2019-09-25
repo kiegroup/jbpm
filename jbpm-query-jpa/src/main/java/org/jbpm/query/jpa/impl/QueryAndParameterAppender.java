@@ -49,12 +49,18 @@ public class QueryAndParameterAppender {
     private final StringBuilder queryBuilder;
     private final Map<String, Object> queryParams;
 
-    private int queryParamId = 0;
+    private int queryParamId;
+    private int queryParamIndex;
 
-    public QueryAndParameterAppender(StringBuilder queryBuilder, Map<String, Object> params) {
+    public QueryAndParameterAppender(StringBuilder queryBuilder, Map<String, Object> params, int queryParamId) {
         this.queryBuilder = queryBuilder;
         this.queryParams = params;
         this.noWhereClauseYet = ! queryBuilder.toString().contains("WHERE");
+        this.queryParamId = queryParamId;
+    }
+
+    public QueryAndParameterAppender(StringBuilder queryBuilder, Map<String, Object> params) {
+        this(queryBuilder, params, 0);
     }
 
     public boolean hasBeenUsed() {
@@ -304,9 +310,10 @@ public class QueryAndParameterAppender {
     }
 
     public String generateParamName() {
-        int id = queryParamId++ % 26;
-        char first = (char) ('A' + id);
-        return new String(first + String.valueOf(((id + 1) / 26) + 1));
+        // it generates A1, A2.... A10, A11....
+        Integer id = ++queryParamIndex;
+        char first = (char) ('A' + queryParamId);
+        return new String(first + id.toString());
     }
     
     public StringBuilder getQueryBuilder() { 
@@ -353,5 +360,13 @@ public class QueryAndParameterAppender {
        } catch( Exception e ) { 
            // ignore 
        }
+    }
+
+    public Map<String, Object> getQueryParams() {
+        return queryParams;
+    }
+
+    public String toSQL() {
+        return queryBuilder.toString();
     }
 }

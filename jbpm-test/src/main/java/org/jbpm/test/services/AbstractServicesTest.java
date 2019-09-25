@@ -16,8 +16,6 @@
 
 package org.jbpm.test.services;
 
-import static org.kie.scanner.KieMavenRepository.getKieMavenRepository;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
@@ -31,8 +29,6 @@ import org.drools.compiler.kie.builder.impl.InternalKieModule;
 import org.jbpm.runtime.manager.impl.jpa.EntityManagerFactoryManager;
 import org.jbpm.services.api.DeploymentService;
 import org.jbpm.services.api.model.DeploymentUnit;
-import org.kie.test.util.db.DataSourceFactory;
-import org.kie.test.util.db.PoolingDataSourceWrapper;
 import org.kie.api.KieServices;
 import org.kie.api.builder.KieBuilder;
 import org.kie.api.builder.KieFileSystem;
@@ -49,8 +45,12 @@ import org.kie.internal.runtime.conf.DeploymentDescriptor;
 import org.kie.internal.runtime.conf.NamedObjectModel;
 import org.kie.internal.runtime.conf.ObjectModel;
 import org.kie.scanner.KieMavenRepository;
+import org.kie.test.util.db.DataSourceFactory;
+import org.kie.test.util.db.PoolingDataSourceWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.kie.scanner.KieMavenRepository.getKieMavenRepository;
 
 public abstract class AbstractServicesTest {
 
@@ -179,6 +179,10 @@ public abstract class AbstractServicesTest {
         return kfs;
     }
 
+    protected String getJndiDatasourceName() {
+        return "jdbc/testDS1";
+    }
+
     protected void buildDatasource() {
         Properties driverProperties = new Properties();
         driverProperties.put("user", "sa");
@@ -187,7 +191,7 @@ public abstract class AbstractServicesTest {
         driverProperties.put("driverClassName", "org.h2.Driver");
         driverProperties.put("className", "org.h2.jdbcx.JdbcDataSource");
 
-        ds = DataSourceFactory.setupPoolingDataSource("jdbc/testDS1", driverProperties);
+        ds = DataSourceFactory.setupPoolingDataSource(getJndiDatasourceName(), driverProperties);
     }
 
     protected void closeDataSource() {

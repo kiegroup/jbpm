@@ -134,10 +134,14 @@ public abstract class AbstractCaseServicesTest extends AbstractServicesTest {
         closeDataSource();
     }
 
+    protected String getPersistenceUnitName() {
+        return "org.jbpm.domain";
+    }
+
     protected void configureServices() {
         buildDatasource();
         identityProvider = new TestIdentityProvider();
-        caseConfigurator.configureServices("org.jbpm.domain", identityProvider);
+        caseConfigurator.configureServices(getPersistenceUnitName(), identityProvider);
 
         authorizationManager = caseConfigurator.getAuthorizationManager();
 
@@ -174,9 +178,13 @@ public abstract class AbstractCaseServicesTest extends AbstractServicesTest {
         caseInstanceMigrationService = caseConfigurator.getCaseInstanceMigrationService();
     }
 
-    protected DeploymentDescriptor createDeploymentDescriptor() {
+    protected void registerDefaultListenerMvelDefinitions() {
         //add this listener by default
         listenerMvelDefinitions.add("new org.jbpm.casemgmt.impl.util.TrackingCaseEventListener()");
+    }
+
+    protected DeploymentDescriptor createDeploymentDescriptor() {
+        registerDefaultListenerMvelDefinitions();
 
         DeploymentDescriptor customDescriptor = new DeploymentDescriptorImpl("org.jbpm.domain");
         DeploymentDescriptorBuilder ddBuilder = customDescriptor.getBuilder().runtimeStrategy(RuntimeStrategy.PER_CASE).addMarshalingStrategy(new ObjectModel("mvel", "org.jbpm.casemgmt.impl.marshalling.CaseMarshallerFactory.builder().withDoc().get()")).addWorkItemHandler(new NamedObjectModel("mvel", "StartCaseInstance", "new org.jbpm.casemgmt.impl.wih.StartCaseWorkItemHandler(ksession)"));
