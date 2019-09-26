@@ -15,18 +15,11 @@
  */
 package org.jbpm.services.task.wih;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.drools.core.impl.EnvironmentFactory;
 import org.drools.core.process.instance.impl.WorkItemImpl;
 import org.jbpm.process.core.timer.DateTimeUtils;
 import org.jbpm.services.task.events.DefaultTaskEventListener;
@@ -49,6 +42,13 @@ import org.kie.api.task.model.TaskSummary;
 import org.kie.internal.task.api.EventService;
 import org.kie.internal.task.api.model.AccessType;
 import org.kie.internal.task.api.model.InternalTaskData;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 
 public abstract class HTWorkItemHandlerBaseTest extends AbstractBaseTest {
@@ -600,7 +600,7 @@ public abstract class HTWorkItemHandlerBaseTest extends AbstractBaseTest {
         assertEquals("Comment", task.getDescription());
         assertEquals(Status.Reserved, task.getStatus());
         assertEquals("Darth Vader", task.getActualOwner().getId());
-        assertEquals("Darth Vader", task.getCreatedBy().getId());
+        assertNull(task.getCreatedBy());
         assertEquals(10, task.getProcessInstanceId().intValue());
 
         taskService.start(task.getId(), "Darth Vader");

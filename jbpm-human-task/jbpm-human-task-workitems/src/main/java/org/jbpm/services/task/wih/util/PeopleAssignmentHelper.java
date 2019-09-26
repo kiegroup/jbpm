@@ -108,14 +108,6 @@ public class PeopleAssignmentHelper {
             processPeopleAssignments((String)actorIds, potentialOwners, true);
         }
 
-        // Set the first user as creator ID??? hmmm might be wrong
-        if (potentialOwners.size() > 0 && taskData.getCreatedBy() == null) {
-        	
-        	OrganizationalEntity firstPotentialOwner = potentialOwners.get(0);
-        	taskData.setCreatedBy((User) firstPotentialOwner);
-
-        }
-        
 	}
 	@SuppressWarnings("unchecked")
 	protected void assignGroups(WorkItem workItem, PeopleAssignments peopleAssignments) {
