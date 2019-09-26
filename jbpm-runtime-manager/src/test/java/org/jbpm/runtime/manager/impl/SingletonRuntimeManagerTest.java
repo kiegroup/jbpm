@@ -16,18 +16,24 @@
 
 package org.jbpm.runtime.manager.impl;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
 import org.drools.core.command.impl.CommandBasedStatefulKnowledgeSession;
 import org.drools.core.runtime.ChainableRunner;
 import org.drools.persistence.PersistableRunner;
 import org.drools.persistence.jpa.OptimisticLockRetryInterceptor;
 import org.drools.persistence.jta.TransactionLockInterceptor;
-import org.jbpm.process.instance.event.listeners.RuleAwareProcessEventLister;
+import org.jbpm.process.instance.event.listeners.RuleAwareProcessEventListener;
 import org.jbpm.runtime.manager.impl.error.ExecutionErrorHandlerInterceptor;
 import org.jbpm.runtime.manager.util.TestUtil;
 import org.jbpm.services.task.identity.JBossUserGroupCallbackImpl;
 import org.jbpm.test.listener.process.NodeLeftCountDownProcessEventListener;
 import org.jbpm.test.util.AbstractBaseTest;
-import org.kie.test.util.db.PoolingDataSourceWrapper;
 import org.jbpm.workflow.instance.WorkflowRuntimeException;
 import org.junit.After;
 import org.junit.Before;
@@ -55,15 +61,13 @@ import org.kie.internal.runtime.manager.InternalRuntimeManager;
 import org.kie.internal.runtime.manager.context.EmptyContext;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 import org.kie.internal.task.api.UserGroupCallback;
+import org.kie.test.util.db.PoolingDataSourceWrapper;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class SingletonRuntimeManagerTest extends AbstractBaseTest {
     
@@ -449,7 +453,7 @@ public class SingletonRuntimeManagerTest extends AbstractBaseTest {
         assertEquals(sessionId, ksession.getIdentifier());
         
         // start process
-        ksession.addEventListener(new RuleAwareProcessEventLister());
+        ksession.addEventListener(new RuleAwareProcessEventListener());
         ProcessInstance pi = ksession.startProcess("BPMN2-BusinessRuleTask");
         
         assertNull(ksession.getProcessInstance(pi.getId()));

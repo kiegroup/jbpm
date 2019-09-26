@@ -44,7 +44,7 @@ import org.jbpm.process.audit.NodeInstanceLog;
 import org.jbpm.process.audit.ProcessInstanceLog;
 import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.core.impl.DataTransformerRegistry;
-import org.jbpm.process.instance.event.listeners.RuleAwareProcessEventLister;
+import org.jbpm.process.instance.event.listeners.RuleAwareProcessEventListener;
 import org.jbpm.process.instance.event.listeners.TriggerRulesEventListener;
 import org.jbpm.process.instance.impl.demo.DoNothingWorkItemHandler;
 import org.jbpm.process.instance.impl.demo.SystemOutWorkItemHandler;
@@ -1363,7 +1363,7 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         KieBase kbase = createKnowledgeBaseWithoutDumper("BPMN2-BusinessRuleTask.bpmn2",
                 "BPMN2-BusinessRuleTask.drl");
         ksession = createKnowledgeSession(kbase);
-        ksession.addEventListener(new RuleAwareProcessEventLister());
+        ksession.addEventListener(new RuleAwareProcessEventListener());
         ProcessInstance processInstance = ksession
                 .startProcess("BPMN2-BusinessRuleTask");
         assertProcessInstanceFinished(processInstance, ksession);
@@ -1375,12 +1375,12 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         KieBase kbase = createKnowledgeBaseWithoutDumper("BPMN2-BusinessRuleTask.bpmn2",
                 "BPMN2-BusinessRuleTask.drl");
         ksession = createKnowledgeSession(kbase);
-        ksession.addEventListener(new RuleAwareProcessEventLister());
+        ksession.addEventListener(new RuleAwareProcessEventListener());
         ProcessInstance processInstance = ksession
                 .startProcess("BPMN2-BusinessRuleTask");
 
         ksession = restoreSession(ksession, true);
-        ksession.addEventListener(new RuleAwareProcessEventLister());
+        ksession.addEventListener(new RuleAwareProcessEventListener());
 
         assertProcessInstanceFinished(processInstance, ksession);
 
@@ -1392,7 +1392,7 @@ public class ActivityTest extends JbpmBpmn2TestCase {
                 "BPMN2-BusinessRuleTaskDynamic.bpmn2",
                 "BPMN2-BusinessRuleTask.drl");
         ksession = createKnowledgeSession(kbase);
-        ksession.addEventListener(new RuleAwareProcessEventLister());
+        ksession.addEventListener(new RuleAwareProcessEventListener());
 
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("dynamicrule", "MyRuleFlow");

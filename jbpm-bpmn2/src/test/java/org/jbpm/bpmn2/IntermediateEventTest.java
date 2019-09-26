@@ -45,7 +45,7 @@ import org.jbpm.persistence.api.ProcessPersistenceContext;
 import org.jbpm.persistence.api.ProcessPersistenceContextManager;
 import org.jbpm.process.instance.InternalProcessRuntime;
 import org.jbpm.process.instance.command.UpdateTimerCommand;
-import org.jbpm.process.instance.event.listeners.RuleAwareProcessEventLister;
+import org.jbpm.process.instance.event.listeners.RuleAwareProcessEventListener;
 import org.jbpm.process.instance.impl.demo.DoNothingWorkItemHandler;
 import org.jbpm.process.instance.impl.demo.SystemOutWorkItemHandler;
 import org.jbpm.process.instance.timer.TimerInstance;
@@ -2431,12 +2431,12 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
     public void testIntermediateCatchEventConditionSetVariableAfter() throws Exception {
         KieBase kbase = createKnowledgeBase("BPMN2-IntermediateCatchEventConditionSetVariableAfter.bpmn2");
         ksession = createKnowledgeSession(kbase);
-        ksession.addEventListener(new RuleAwareProcessEventLister());
+        ksession.addEventListener(new RuleAwareProcessEventListener());
         ProcessInstance processInstance = ksession
                 .startProcess("IntermediateCatchEvent");
         assertProcessInstanceActive(processInstance);
         ksession = restoreSession(ksession, true);
-        ksession.addEventListener(new RuleAwareProcessEventLister());
+        ksession.addEventListener(new RuleAwareProcessEventListener());
 
         Collection<? extends Object> processInstances = ksession.getObjects(new ObjectFilter() {
 
@@ -2475,12 +2475,12 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
     public void testIntermediateCatchEventConditionRemovePIAfter() throws Exception {
         KieBase kbase = createKnowledgeBase("BPMN2-IntermediateCatchEventCondition.bpmn2");
         ksession = createKnowledgeSession(kbase);
-        ksession.addEventListener(new RuleAwareProcessEventLister());
+        ksession.addEventListener(new RuleAwareProcessEventListener());
         ProcessInstance processInstance = ksession
                 .startProcess("IntermediateCatchEvent");
         assertProcessInstanceActive(processInstance);
         ksession = restoreSession(ksession, true);
-        ksession.addEventListener(new RuleAwareProcessEventLister());
+        ksession.addEventListener(new RuleAwareProcessEventListener());
 
         Collection<? extends Object> processInstances = ksession.getObjects(new ObjectFilter() {
 

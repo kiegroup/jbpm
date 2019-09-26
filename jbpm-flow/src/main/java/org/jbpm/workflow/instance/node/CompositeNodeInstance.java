@@ -111,6 +111,7 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
         return getCompositeNode();
     }
 
+    @Override
     public void internalTrigger(final org.kie.api.runtime.process.NodeInstance from, String type) {
     	super.internalTrigger(from, type);
     	// if node instance was cancelled, abort
@@ -175,6 +176,7 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
         }
     }
 
+    @Override
     public void cancel() {
         while (!nodeInstances.isEmpty()) {
             NodeInstance nodeInstance = (NodeInstance) nodeInstances.get(0);

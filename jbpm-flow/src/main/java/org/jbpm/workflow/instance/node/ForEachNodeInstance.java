@@ -42,47 +42,44 @@ import org.mvel2.integration.impl.SimpleValueResolver;
 
 /**
  * Runtime counterpart of a for each node.
- * 
  */
 public class ForEachNodeInstance extends CompositeContextNodeInstance {
 
-    private static final long serialVersionUID = 510l;
-   
+    private static final long serialVersionUID = 510L;
+
     private static final String TEMP_OUTPUT_VAR = "foreach_output";
     
     private int sequentialCounter = 0;
-    
+
     public ForEachNode getForEachNode() {
         return (ForEachNode) getNode();
     }
 
+    @Override
     public NodeInstance getNodeInstance(final Node node) {
-        // TODO do this cleaner for split / join of for each?
         if (node instanceof ForEachSplitNode) {
             ForEachSplitNodeInstance nodeInstance = new ForEachSplitNodeInstance();
             nodeInstance.setNodeId(node.getId());
             nodeInstance.setNodeInstanceContainer(this);
             nodeInstance.setProcessInstance(getProcessInstance());
             String uniqueID = (String) node.getMetaData().get("UniqueId");
-            assert uniqueID != null : node.getName() + " does not have a unique id.";
             if (uniqueID == null) {
-                uniqueID = node.getId()+"";
+                uniqueID = node.getId() + "";
             }
             int level = this.getLevelForNode(uniqueID);
             nodeInstance.setLevel(level);
             return nodeInstance;
         } else if (node instanceof ForEachJoinNode) {
             ForEachJoinNodeInstance nodeInstance = (ForEachJoinNodeInstance)
-                getFirstNodeInstance(node.getId());
+                    getFirstNodeInstance(node.getId());
             if (nodeInstance == null) {
                 nodeInstance = new ForEachJoinNodeInstance();
                 nodeInstance.setNodeId(node.getId());
                 nodeInstance.setNodeInstanceContainer(this);
                 nodeInstance.setProcessInstance(getProcessInstance());
                 String uniqueID = (String) node.getMetaData().get("UniqueId");
-                assert uniqueID != null : node.getName() + " does not have a unique id.";
                 if (uniqueID == null) {
-                    uniqueID = node.getId()+"";
+                    uniqueID = node.getId() + "";
                 }
                 int level = this.getLevelForNode(uniqueID);
                 nodeInstance.setLevel(level);
@@ -91,17 +88,16 @@ public class ForEachNodeInstance extends CompositeContextNodeInstance {
         }
         return super.getNodeInstance(node);
     }
-    
+
     @Override
     public ContextContainer getContextContainer() {
-        return (ContextContainer) getForEachNode().getCompositeNode();
+        return getForEachNode().getCompositeNode();
     }
-    
+
     private Collection<?> evaluateCollectionExpression(String collectionExpression) {
-        // TODO: should evaluate this expression using MVEL
-        Object collection = null;
+        Object collection;
         VariableScopeInstance variableScopeInstance = (VariableScopeInstance)
-            resolveContextInstance(VariableScope.VARIABLE_SCOPE, collectionExpression);
+                resolveContextInstance(VariableScope.VARIABLE_SCOPE, collectionExpression);
         if (variableScopeInstance != null) {
             collection = variableScopeInstance.getVariable(collectionExpression);
         } else {
@@ -109,49 +105,45 @@ public class ForEachNodeInstance extends CompositeContextNodeInstance {
                 collection = MVELSafeHelper.getEvaluator().eval(collectionExpression, new NodeInstanceResolverFactory(this));
             } catch (Throwable t) {
                 throw new IllegalArgumentException(
-                    "Could not find collection " + collectionExpression);
+                        "Could not find collection " + collectionExpression);
             }
-            
         }
         if (collection == null) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
         if (collection instanceof Collection<?>) {
             return (Collection<?>) collection;
         }
-        if (collection.getClass().isArray() ) {
-            List<Object> list = new ArrayList<Object>();
-            for (Object o: (Object[]) collection) {
-                list.add(o);
-            }
+        if (collection.getClass().isArray()) {
+            List<Object> list = new ArrayList<>();
+            Collections.addAll(list, (Object[]) collection);
             return list;
         }
         throw new IllegalArgumentException(
-            "Unexpected collection type: " + collection.getClass());
+                "Unexpected collection type: " + collection.getClass());
     }
-    
 
-    
     public class ForEachSplitNodeInstance extends NodeInstanceImpl {
 
         private static final long serialVersionUID = 510l;
-        
+
         public ForEachSplitNode getForEachSplitNode() {
             return (ForEachSplitNode) getNode();
         }
 
+        @Override
         public void internalTrigger(org.kie.api.runtime.process.NodeInstance fromm, String type) {
             String collectionExpression = getForEachNode().getCollectionExpression();
             Collection<?> collection = evaluateCollectionExpression(collectionExpression);
             ((NodeInstanceContainer) getNodeInstanceContainer()).removeNodeInstance(this);
             if (collection.isEmpty()) {
-            	ForEachNodeInstance.this.triggerCompleted(org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE, true);
+                ForEachNodeInstance.this.triggerCompleted(org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE, true);
             } else {
-            	List<NodeInstance> nodeInstances = new ArrayList<NodeInstance>();
+            	List<NodeInstance> nodeInstances = new ArrayList<>();
             	
             	for (Object o: collection) {
             		String variableName = getForEachNode().getVariableName();
-            		NodeInstance nodeInstance = (NodeInstance)
+            		NodeInstance nodeInstance =
             		((NodeInstanceContainer) getNodeInstanceContainer()).getNodeInstance(getForEachSplitNode().getTo().getTo());
             		VariableScopeInstance variableScopeInstance = (VariableScopeInstance)
             			nodeInstance.resolveContextInstance(VariableScope.VARIABLE_SCOPE, variableName);
@@ -165,53 +157,50 @@ public class ForEachNodeInstance extends CompositeContextNodeInstance {
             		}
             	}
             	for (NodeInstance nodeInstance: nodeInstances) {
-            	    logger.debug( "Triggering [{}] in multi-instance loop.", ((NodeInstanceImpl) nodeInstance).getNodeId() );
-            		((org.jbpm.workflow.instance.NodeInstance) nodeInstance).trigger(this, getForEachSplitNode().getTo().getToType());
+            	    logger.debug( "Triggering [{}] in multi-instance loop.", nodeInstance.getNodeId() );
+            		nodeInstance.trigger(this, getForEachSplitNode().getTo().getToType());
             	}
 	            if (!getForEachNode().isWaitForCompletion()) {
 	            	ForEachNodeInstance.this.triggerCompleted(org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE, false);
 	            }
             }
         }
-
-
     }
-    
+
     public class ForEachJoinNodeInstance extends NodeInstanceImpl {
 
         private static final long serialVersionUID = 510l;
-        
+
         public ForEachJoinNode getForEachJoinNode() {
             return (ForEachJoinNode) getNode();
         }
 
-        @SuppressWarnings({ "unchecked", "rawtypes" })
+        @Override
+        @SuppressWarnings({"unchecked", "rawtypes"})
         public void internalTrigger(org.kie.api.runtime.process.NodeInstance from, String type) {
-        	Map<String, Object> tempVariables = new HashMap<String, Object>();
+        	Map<String, Object> tempVariables = new HashMap<>();
             VariableScopeInstance subprocessVariableScopeInstance = null;
             if (getForEachNode().getOutputVariableName() != null) {
                 subprocessVariableScopeInstance = (VariableScopeInstance) getContextInstance(VariableScope.VARIABLE_SCOPE);
-                
+
                 Collection<Object> outputCollection = (Collection<Object>) subprocessVariableScopeInstance.getVariable(TEMP_OUTPUT_VAR);
                 if (outputCollection == null) {
-                    outputCollection = new ArrayList<Object>();
+                    outputCollection = new ArrayList<>();
                 }
-            
+
                 VariableScopeInstance variableScopeInstance = (VariableScopeInstance)
-                ((NodeInstanceImpl)from).resolveContextInstance(VariableScope.VARIABLE_SCOPE, getForEachNode().getOutputVariableName());
+                        ((NodeInstanceImpl) from).resolveContextInstance(VariableScope.VARIABLE_SCOPE, getForEachNode().getOutputVariableName());
                 Object outputVariable = null;
                 if (variableScopeInstance != null) {
                     outputVariable = variableScopeInstance.getVariable(getForEachNode().getOutputVariableName());
                 }
                 outputCollection.add(outputVariable);
-                
+
                 subprocessVariableScopeInstance.setVariable(TEMP_OUTPUT_VAR, outputCollection);
                 // add temp collection under actual mi output name for completion condition evaluation
                 tempVariables.put(getForEachNode().getOutputVariableName(), outputVariable);
                 String outputCollectionName = getForEachNode().getOutputCollectionExpression();
-                if (outputCollection != null) {
-                	tempVariables.put(outputCollectionName, outputCollection);
-                }
+                tempVariables.put(outputCollectionName, outputCollection);
             }
             boolean isCompletionConditionMet = evaluateCompletionCondition(getForEachNode().getCompletionConditionExpression(), tempVariables);
             
@@ -248,42 +237,39 @@ public class ForEachNodeInstance extends CompositeContextNodeInstance {
                     }
                     variableScopeInstance.setVariable(outputCollection, outputVariable);
                 }
-            	((NodeInstanceContainer) getNodeInstanceContainer()).removeNodeInstance(this);
+                ((NodeInstanceContainer) getNodeInstanceContainer()).removeNodeInstance(this);
                 if (getForEachNode().isWaitForCompletion()) {
-                	
-                	if (!"true".equals(System.getProperty("jbpm.enable.multi.con"))) {
-                		
-                		triggerConnection(getForEachJoinNode().getTo());
-                	} else {
-                	
-	                    List<Connection> connections = getForEachJoinNode().getOutgoingConnections(org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE);
-	                	for (Connection connection : connections) {
-	                	    triggerConnection(connection);
-	                	}
-                	}
+
+                    if (!"true".equals(System.getProperty("jbpm.enable.multi.con"))) {
+
+                        triggerConnection(getForEachJoinNode().getTo());
+                    } else {
+
+                        List<Connection> connections = getForEachJoinNode().getOutgoingConnections(org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE);
+                        for (Connection connection : connections) {
+                            triggerConnection(connection);
+                        }
+                    }
                 }
             }
             
         }
-        
+
         private boolean evaluateCompletionCondition(String expression, Map<String, Object> tempVariables) {
-        	if (expression == null || expression.isEmpty()) {
-        		return false;
-        	}
-        	try {
+            if (expression == null || expression.isEmpty()) {
+                return false;
+            }
+            try {
                 Object result = MVELSafeHelper.getEvaluator().eval(expression, new ForEachNodeInstanceResolverFactory(this, tempVariables));
-                if ( !(result instanceof Boolean) ) {
-                    throw new RuntimeException( "Completion condition expression must return boolean values: " + result 
-                    		+ " for expression " + expression);
+                if (!(result instanceof Boolean)) {
+                    throw new RuntimeException("Completion condition expression must return boolean values: " + result
+                                                       + " for expression " + expression);
                 }
                 return ((Boolean) result).booleanValue();
-                
             } catch (Throwable t) {
-            	t.printStackTrace();
-                throw new IllegalArgumentException("Could not evaluate completion condition  " + expression);
+                throw new IllegalArgumentException("Could not evaluate completion condition  " + expression, t);
             }
         }
-        
     }
 
     @Override
@@ -293,7 +279,7 @@ public class ForEachNodeInstance extends CompositeContextNodeInstance {
             contextInstance = resolveContextInstance(contextId, TEMP_OUTPUT_VAR);
             setContextInstance(contextId, contextInstance);
         }
-        
+
         return contextInstance;
     }
 
@@ -301,8 +287,8 @@ public class ForEachNodeInstance extends CompositeContextNodeInstance {
     public int getLevelForNode(String uniqueID) {
         // always 1 for for each
         return 1;
-    }  
-    
+    }
+
     public void setInternalSequentialCounter(int counter) {
         this.sequentialCounter = counter;
     }
@@ -313,28 +299,30 @@ public class ForEachNodeInstance extends CompositeContextNodeInstance {
     
     private class ForEachNodeInstanceResolverFactory extends NodeInstanceResolverFactory {
 
-		private static final long serialVersionUID = -8856846610671009685L;
+        private static final long serialVersionUID = -8856846610671009685L;
 
-		private Map<String, Object> tempVariables;
-		public ForEachNodeInstanceResolverFactory(NodeInstance nodeInstance, Map<String, Object> tempVariables) {
-			super(nodeInstance);
-			this.tempVariables = tempVariables;
-		}
-		@Override
-		public boolean isResolveable(String name) {
-			boolean result = tempVariables.containsKey(name);
-			if (result) {
-				return result;
-			}
-			return super.isResolveable(name);
-		}
-		@Override
-		public VariableResolver getVariableResolver(String name) {
-			if (tempVariables.containsKey(name)) {
-				return new SimpleValueResolver(tempVariables.get(name));
-			}
-			return super.getVariableResolver(name);
-		}
-    	
+        private Map<String, Object> tempVariables;
+
+        public ForEachNodeInstanceResolverFactory(NodeInstance nodeInstance, Map<String, Object> tempVariables) {
+            super(nodeInstance);
+            this.tempVariables = tempVariables;
+        }
+
+        @Override
+        public boolean isResolveable(String name) {
+            boolean result = tempVariables.containsKey(name);
+            if (result) {
+                return result;
+            }
+            return super.isResolveable(name);
+        }
+
+        @Override
+        public VariableResolver getVariableResolver(String name) {
+            if (tempVariables.containsKey(name)) {
+                return new SimpleValueResolver(tempVariables.get(name));
+            }
+            return super.getVariableResolver(name);
+        }
     }
 }
