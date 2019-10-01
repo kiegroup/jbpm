@@ -28,7 +28,7 @@ import org.drools.core.runtime.ChainableRunner;
 import org.drools.persistence.PersistableRunner;
 import org.drools.persistence.jpa.OptimisticLockRetryInterceptor;
 import org.drools.persistence.jta.TransactionLockInterceptor;
-import org.jbpm.process.instance.event.listeners.RuleAwareProcessEventListener;
+import org.jbpm.process.instance.event.listeners.RuleAwareProcessEventLister;
 import org.jbpm.runtime.manager.impl.error.ExecutionErrorHandlerInterceptor;
 import org.jbpm.runtime.manager.util.TestUtil;
 import org.jbpm.services.task.identity.JBossUserGroupCallbackImpl;
@@ -453,7 +453,7 @@ public class SingletonRuntimeManagerTest extends AbstractBaseTest {
         assertEquals(sessionId, ksession.getIdentifier());
         
         // start process
-        ksession.addEventListener(new RuleAwareProcessEventListener());
+        ksession.addEventListener(new RuleAwareProcessEventLister());
         ProcessInstance pi = ksession.startProcess("BPMN2-BusinessRuleTask");
         
         assertNull(ksession.getProcessInstance(pi.getId()));
