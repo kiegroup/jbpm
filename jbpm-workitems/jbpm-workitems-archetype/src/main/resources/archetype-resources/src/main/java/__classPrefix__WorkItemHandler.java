@@ -34,7 +34,7 @@ import org.jbpm.process.workitem.core.util.WidMavenDepends;
         defaultHandler="mvel: new ${package}.${classPrefix}WorkItemHandler()",
         documentation = "${artifactId}/index.html",
         category = "${artifactId}",
-        icon = "icon.png",
+        icon = "${classPrefix}Definitions.png",
         parameters={
             @WidParameter(name="SampleParam", required = true),
             @WidParameter(name="SampleParamTwo", required = true)

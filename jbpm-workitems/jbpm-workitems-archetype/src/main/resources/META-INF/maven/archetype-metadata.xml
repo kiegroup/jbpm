@@ -17,6 +17,7 @@
       <directory>src/main/resources</directory>
       <includes>
         <include>**/*.st</include>
+        <include>**/*.png</include>
       </includes>
     </fileSet>
     <fileSet filtered="true" encoding="UTF-8">
