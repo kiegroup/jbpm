@@ -16,7 +16,7 @@
 
 package org.jbpm.test.functional.service;
 
-import java.util.Date;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -97,7 +97,9 @@ public class ServiceTaskHandlerTest extends JbpmTestCase {
         Map<String, Object> params = new HashMap<String, Object>();
         
         params.put("IntegerVar", new Integer(12345));
-        params.put("DateVar", new Date());
+        Calendar c = Calendar.getInstance();
+        c.add(Calendar.DATE, -1); // Previous day      
+        params.put("DateVar", c.getTime());
         WorkflowProcessInstance processInstance = (WorkflowProcessInstance) ksession.startProcess(processName.replace("-", ""), params);
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
         assertEquals(Integer.valueOf(1), processInstance.getVariable("IntegerVar"));

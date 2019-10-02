@@ -120,11 +120,22 @@ public class ExecutorLogCleanTest extends JbpmAsyncJobTestCase {
                 .date(errorList.get(0).getTime())
                 .build()
                 .execute();
-        Assertions.assertThat(resultCount).isEqualTo(1);
+        
+        //normal scenario, i.e, errorList time is different for both
+        int deleted = 1;
+        int remaining = 1;
+        
+        //if both have the same time
+        if (errorList.get(0).getTime().equals(errorList.get(1).getTime())) {
+            deleted=2;
+            remaining=0;
+        }
+        
+        Assertions.assertThat(resultCount).isEqualTo(deleted);
 
         // Assert remaining records
-        Assertions.assertThat(getExecutorService().getAllErrors(new QueryContext())).hasSize(1);
-
+        Assertions.assertThat(getExecutorService().getAllErrors(new QueryContext())).hasSize(remaining);
+        
         // Abort running process instance
         ksession.abortProcessInstance(pi.getId());
     }
