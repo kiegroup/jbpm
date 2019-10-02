@@ -19,7 +19,9 @@ package org.jbpm.services.task.assignment;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -194,6 +196,23 @@ public class BusinessRuleAssignmentTest extends AbstractAssignmentTest {
         assertPotentialOwners(task, 0);
         User actualOwner = task.getTaskData().getActualOwner();
         Assertions.assertThat(actualOwner).isNull();
+    }
+    
+    @Test
+    public void testAssignmentAssignToBobbaFetBasedOnDataInput() {
+        String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
+        str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [new User('Darth Vader'), new User('Bobba Fet'), new User('Luke Cage')  ],businessAdministrators = [ new User('Administrator') ],}),";
+        str += "name =  'Bobbas dedicated tasks' })";
+        
+        Map<String, Object> input = new HashMap<>();
+        input.put("name", "Bobbas dedicated tasks");
+        
+        createAndAssertTask(str, "Bobba Fet", 3, input, "Bobba Fet", "Darth Vader", "Luke Cage"); 
+        
+        input.clear();
+        // another task
+        createAndAssertTask(str, null, 3, input, "Bobba Fet", "Darth Vader", "Luke Cage"); 
+         
     }
 
     protected void buildKJar() {

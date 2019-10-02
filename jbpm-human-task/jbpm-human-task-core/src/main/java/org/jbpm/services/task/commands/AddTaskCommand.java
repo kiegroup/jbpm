@@ -103,6 +103,7 @@ public class AddTaskCommand extends UserGroupCallbackTaskCommand<Long> {
 	    initializeTask(taskImpl);
 	    context.getTaskRuleService().executeRules(taskImpl, userId, data != null?data:params, TaskRuleService.ADD_TASK_SCOPE);     
         
+	    ((InternalTaskData)taskImpl.getTaskData()).setTaskInputVariables(params);
         // use assignment service to directly assign actual owner if enabled
         AssignmentService assignmentService = AssignmentServiceProvider.get();
         if (assignmentService.isEnabled()) {
@@ -115,7 +116,7 @@ public class AddTaskCommand extends UserGroupCallbackTaskCommand<Long> {
 	    if (data != null) {
 	    	taskId = context.getTaskInstanceService().addTask(taskImpl, data);
         } else {
-            ((InternalTaskData)taskImpl.getTaskData()).setTaskInputVariables(params);
+            
         	taskId = context.getTaskInstanceService().addTask(taskImpl, params);
         }
 
