@@ -15,10 +15,6 @@
  */
 package org.jbpm.services.task.wih.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,6 +32,11 @@ import org.kie.internal.task.api.TaskModelProvider;
 import org.kie.internal.task.api.model.InternalPeopleAssignments;
 import org.kie.internal.task.api.model.InternalTask;
 import org.kie.internal.task.api.model.InternalTaskData;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 
 public class PeopleAssignmentHelperTest  extends AbstractBaseTest {
@@ -124,7 +125,7 @@ public class PeopleAssignmentHelperTest  extends AbstractBaseTest {
 		OrganizationalEntity organizationalEntity1 = peopleAssignments.getPotentialOwners().get(0);
 		assertTrue(organizationalEntity1 instanceof User);
 		assertEquals(actorId, organizationalEntity1.getId());		
-		assertEquals(actorId, taskData.getCreatedBy().getId());
+        assertNull(taskData.getCreatedBy());
 		
 		workItem = new WorkItemImpl();
 		peopleAssignments = peopleAssignmentHelper.getNullSafePeopleAssignments(task);				
@@ -133,7 +134,7 @@ public class PeopleAssignmentHelperTest  extends AbstractBaseTest {
 		assertEquals(2, peopleAssignments.getPotentialOwners().size());
 		organizationalEntity1 = peopleAssignments.getPotentialOwners().get(0);
 		assertEquals(actorId, organizationalEntity1.getId());		
-		assertEquals(actorId, taskData.getCreatedBy().getId());
+        assertNull(taskData.getCreatedBy());
 		OrganizationalEntity organizationalEntity2 = peopleAssignments.getPotentialOwners().get(1);
 		assertEquals("drbug", organizationalEntity2.getId());
 
@@ -162,7 +163,7 @@ public class PeopleAssignmentHelperTest  extends AbstractBaseTest {
         OrganizationalEntity organizationalEntity1 = peopleAssignments.getPotentialOwners().get(0);
         assertTrue(organizationalEntity1 instanceof User);
         assertEquals("user1", organizationalEntity1.getId());       
-        assertEquals("user1", taskData.getCreatedBy().getId());
+        assertNull(taskData.getCreatedBy());
         
         OrganizationalEntity organizationalEntity2 = peopleAssignments.getPotentialOwners().get(1);
         assertTrue(organizationalEntity2 instanceof User);
@@ -175,7 +176,7 @@ public class PeopleAssignmentHelperTest  extends AbstractBaseTest {
         assertEquals(3, peopleAssignments.getPotentialOwners().size());
         organizationalEntity1 = peopleAssignments.getPotentialOwners().get(0);
         assertEquals("user1", organizationalEntity1.getId());       
-        assertEquals("user1", taskData.getCreatedBy().getId());
+        assertNull(taskData.getCreatedBy());
         organizationalEntity2 = peopleAssignments.getPotentialOwners().get(1);
         assertTrue(organizationalEntity2 instanceof User);
         assertEquals("user2", organizationalEntity2.getId()); 
@@ -206,7 +207,7 @@ public class PeopleAssignmentHelperTest  extends AbstractBaseTest {
         OrganizationalEntity organizationalEntity1 = peopleAssignments.getPotentialOwners().get(0);
         assertTrue(organizationalEntity1 instanceof User);
         assertEquals("user1", organizationalEntity1.getId());       
-        assertEquals("user1", taskData.getCreatedBy().getId());
+        assertNull(taskData.getCreatedBy());
         
         OrganizationalEntity organizationalEntity2 = peopleAssignments.getPotentialOwners().get(1);
         assertTrue(organizationalEntity2 instanceof User);
@@ -219,7 +220,7 @@ public class PeopleAssignmentHelperTest  extends AbstractBaseTest {
         assertEquals(3, peopleAssignments.getPotentialOwners().size());
         organizationalEntity1 = peopleAssignments.getPotentialOwners().get(0);
         assertEquals("user1", organizationalEntity1.getId());       
-        assertEquals("user1", taskData.getCreatedBy().getId());
+        assertNull(taskData.getCreatedBy());
         organizationalEntity2 = peopleAssignments.getPotentialOwners().get(1);
         assertTrue(organizationalEntity2 instanceof User);
         assertEquals("user2", organizationalEntity2.getId()); 
