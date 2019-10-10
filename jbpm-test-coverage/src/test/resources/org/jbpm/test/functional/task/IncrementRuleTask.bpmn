@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<definitions id="defs" targetNamespace="http://www.jboss.org/drools" xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:drools="http://www.jboss.org/drools"
+  xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd">
+    <process id="org.jbpm.test.functional.task.RuleTask">
+        <property id="fact" itemSubjectRef="factItem"/>
+
+        <startEvent id="start" name="start" />
+        <businessRuleTask id="first-rules" name="rules primary" drools:ruleFlowGroup="rule-task-group" >
+              <ioSpecification>
+                 <dataInput id="factInputId" name="factInput" />
+                 <dataOutput id="factOutputId" name="factOutput" />
+                 <inputSet>
+                     <dataInputRefs>factInputId</dataInputRefs>
+                 </inputSet>
+                 <outputSet>
+                     <dataOutputRefs>factOutputId</dataOutputRefs>
+                 </outputSet>
+              </ioSpecification> 
+              <dataInputAssociation>
+                  <sourceRef>fact</sourceRef>
+                  <targetRef>factInputId</targetRef>
+              </dataInputAssociation>
+              <dataOutputAssociation>
+                  <sourceRef>factOutputId</sourceRef>
+                  <targetRef>fact</targetRef>
+                  <transformation language="http://www.mvel.org/2.0">
+                        factInput
+                  </transformation>
+              </dataOutputAssociation>
+        </businessRuleTask>
+        <scriptTask id="script" drools:selectable="true" name="Initialization Script Task 1" scriptFormat="http://www.java.com/java">
+            <incoming>sf2</incoming>
+            <outgoing>sf3</outgoing>
+            <script>
+                System.out.println(&quot;Before RuleTask&quot;);
+            </script>
+        </scriptTask>
+        <businessRuleTask id="second-rules" name="rules secondary" drools:ruleFlowGroup="rule-task-group" >
+              <ioSpecification>
+                 <dataInput id="factInputId" name="factInput" />
+                 <dataOutput id="factOutputId" name="factOutput" />
+                 <inputSet>
+                     <dataInputRefs>factInputId</dataInputRefs>
+                 </inputSet>
+                 <outputSet>
+                     <dataOutputRefs>factOutputId</dataOutputRefs>
+                 </outputSet>
+              </ioSpecification> 
+              <dataInputAssociation>
+                  <sourceRef>fact</sourceRef>
+                  <targetRef>factInputId</targetRef>
+              </dataInputAssociation>
+              <dataOutputAssociation>
+                  <sourceRef>factOutputId</sourceRef>
+                  <targetRef>fact</targetRef>
+                  <transformation language="http://www.mvel.org/2.0">
+                        factInput
+                  </transformation>
+              </dataOutputAssociation>
+        </businessRuleTask> 
+        <endEvent id="end" name="end"/>
+        <sequenceFlow id="sf1" sourceRef="start" targetRef="first-rules"/>
+        <sequenceFlow id="sf2" sourceRef="first-rules" targetRef="script"/>
+        <sequenceFlow id="sf3" sourceRef="script" targetRef="second-rules"/>
+        <sequenceFlow id="sf4" sourceRef="second-rules" targetRef="end"/>
+    </process>
+</definitions>

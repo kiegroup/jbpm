@@ -16,12 +16,8 @@
 
 package org.jbpm.test.functional.task;
 
-import static org.jbpm.test.tools.IterableListenerAssert.assertNextNode;
-import static org.jbpm.test.tools.IterableListenerAssert.assertProcessCompleted;
-import static org.jbpm.test.tools.IterableListenerAssert.assertProcessStarted;
-import static org.junit.Assert.*;
-
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,12 +26,24 @@ import org.jbpm.test.JbpmTestCase;
 import org.jbpm.test.listener.IterableProcessEventListener;
 import org.junit.Test;
 import org.kie.api.command.Command;
+import org.kie.api.event.process.DefaultProcessEventListener;
+import org.kie.api.event.process.ProcessNodeTriggeredEvent;
+import org.kie.api.event.rule.DefaultRuleRuntimeEventListener;
+import org.kie.api.event.rule.ObjectInsertedEvent;
+import org.kie.api.event.rule.ObjectUpdatedEvent;
 import org.kie.api.io.ResourceType;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.process.WorkflowProcessInstance;
 import org.kie.internal.command.CommandFactory;
 import qa.tools.ikeeper.annotation.BZ;
+
+import static org.jbpm.test.tools.IterableListenerAssert.assertNextNode;
+import static org.jbpm.test.tools.IterableListenerAssert.assertProcessCompleted;
+import static org.jbpm.test.tools.IterableListenerAssert.assertProcessStarted;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Business rules task test. testing execution of rules with specified rule-flow group.
@@ -47,6 +55,12 @@ public class RuleTaskTest extends JbpmTestCase {
     private static final String RULE_TASK_ID =
             "org.jbpm.test.functional.task.RuleTask";
     private static final String RULE_TASK_DRL = "org/jbpm/test/functional/task/RuleTask.drl";
+
+    private static final String INCREMENT_RULE_TASK =
+            "org/jbpm/test/functional/task/IncrementRuleTask.bpmn";
+    private static final String INCREMENT_RULE_TASK_ID =
+            "org.jbpm.test.functional.task.RuleTask";
+    private static final String INCREMENT_RULE_TASK_DRL = "org/jbpm/test/functional/task/IncrementRuleTask.drl";
 
     private static final String RULE_TASK_2 =
             "org/jbpm/test/functional/task/RuleTask2.bpmn2";
@@ -156,6 +170,64 @@ public class RuleTaskTest extends JbpmTestCase {
             System.out.println(s);
         }
         assertEquals(2, executeRuleList.size());
+    }
+
+    public static class WrapValue {
+
+        private int value;
+
+        public WrapValue(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+        public void setValue(int value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return "[" + value + "]";
+        }
+    }
+
+    @Test
+    public void testTriggerTwiceRuleTask() {
+        Map<String, ResourceType> res = new HashMap<String, ResourceType>();
+        res.put(INCREMENT_RULE_TASK, ResourceType.BPMN2);
+        res.put(INCREMENT_RULE_TASK_DRL, ResourceType.DRL);
+        KieSession ksession = createKSession(res);
+        ksession.addEventListener(new DefaultProcessEventListener() {
+
+            @Override
+            public void beforeNodeTriggered(ProcessNodeTriggeredEvent event) {
+                System.out.println(event);
+            }
+        });
+        ksession.addEventListener(new DefaultRuleRuntimeEventListener() {
+
+            @Override
+            public void objectInserted(ObjectInsertedEvent event) {
+                System.out.println(event);
+            }
+
+            @Override
+            public void objectUpdated(ObjectUpdatedEvent event) {
+                System.out.println(event);
+            }
+        });
+        WrapValue value = new WrapValue(1);
+
+        WorkflowProcessInstance pi = (WorkflowProcessInstance) ksession.startProcess(INCREMENT_RULE_TASK_ID, Collections.singletonMap("fact", value));
+        assertNotNull(pi);
+        assertEquals(ProcessInstance.STATE_COMPLETED, pi.getState());
+        value = (WrapValue) pi.getVariable("fact");
+
+        assertEquals(3, value.getValue());
+
     }
 
     public KieSession createKSession(Map<String, ResourceType> res) {

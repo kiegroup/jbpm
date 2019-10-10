@@ -1,0 +1,15 @@
+package org.jbpm.test.functional.task;
+
+import org.jbpm.test.functional.task.RuleTaskTest.WrapValue;
+
+rule firstRule
+    ruleflow-group "rule-task-group"
+    no-loop  
+    when 
+        p :org.jbpm.test.functional.task.RuleTaskTest.WrapValue(value > 0);
+    then 
+        modify(p) {
+            setValue(p.getValue() + 1);
+        }
+end;
+
