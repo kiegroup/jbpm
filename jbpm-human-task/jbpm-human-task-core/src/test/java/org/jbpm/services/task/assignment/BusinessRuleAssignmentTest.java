@@ -214,6 +214,42 @@ public class BusinessRuleAssignmentTest extends AbstractAssignmentTest {
         createAndAssertTask(str, null, 3, input, "Bobba Fet", "Darth Vader", "Luke Cage"); 
          
     }
+    
+    @Test
+    public void testAssignmentAssignToLukeCageBasedOnDataInputAndDeadlines() {
+        String str = "with ( new Task() ) {priority = 51, taskData = (with( new TaskData()) { } ),";
+        str += "peopleAssignments = (with ( new PeopleAssignments() ) {";
+        str += "potentialOwners = [new User('Darth Vader'), new User('Bobba Fet')],";
+        str += "businessAdministrators = [ new User('Administrator') ],";
+        str += "}),";
+        str += "name = 'Simple Test Task',";
+        str += "deadlines = ( with ( new Deadlines() ) {";
+        str += "startDeadlines = [";
+        str += "(with (new Deadline()) {";
+        str += "date = new Date( now.time + 2000 ),";
+        str += "escalations = [";
+        str += "(with (new Escalation()) {";
+        str += "name = 'My Start Escalation',";
+        str += "constraints = [new BooleanExpression( 'mvel', 'true' )],";
+        str += "reassignments = [(with ( new Reassignment() ) {";
+        str += "potentialOwners = [new User('Luke Cage')]";
+        str += "})]";
+        str += "})";
+        str += "]";
+        str += "})";
+        str += "]";
+        str += "})";
+        str += "};";
+
+        HashMap<String, Object> input = new HashMap<String, Object>();
+        input.put("name", "Luke tasks");
+
+        createAndAssertAfterDeadline(str, "Luke Cage", 1, input, "Luke Cage");
+
+        input.clear();
+        // another task
+        createAndAssertAfterDeadline(str, null, 1, input, "Luke Cage");
+    }
 
     protected void buildKJar() {
         KieServices ks = KieServices.Factory.get();
