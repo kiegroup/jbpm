@@ -21,12 +21,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.jbpm.process.audit.JPAAuditLogService;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.Context;
-import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.runtime.manager.RuntimeManager;
 import org.kie.api.runtime.manager.audit.AuditService;
 import org.kie.api.task.TaskService;
 import org.kie.internal.runtime.manager.Disposable;
 import org.kie.internal.runtime.manager.DisposeListener;
+import org.kie.internal.runtime.manager.InternalRuntimeEngine;
 import org.kie.internal.runtime.manager.InternalRuntimeManager;
 
 /**
@@ -35,7 +35,7 @@ import org.kie.internal.runtime.manager.InternalRuntimeManager;
  * and work item handlers might be interested in receiving notification when the runtime engine is disposed of,
  * in order deactivate themselves too and not receive any other events.
  */
-public class RuntimeEngineImpl implements RuntimeEngine, Disposable {
+public class RuntimeEngineImpl implements InternalRuntimeEngine, Disposable {
 
 	private RuntimeEngineInitlializer initializer;
 	private Context<?> context;
@@ -45,7 +45,7 @@ public class RuntimeEngineImpl implements RuntimeEngine, Disposable {
     private TaskService taskService;
     private AuditService auditService;
     
-    private RuntimeManager manager;
+    protected RuntimeManager manager;
     
     private boolean disposed = false;
     private boolean afterCompletion = false;
@@ -69,9 +69,11 @@ public class RuntimeEngineImpl implements RuntimeEngine, Disposable {
             throw new IllegalStateException("This runtime is already diposed");
         }
         if (ksession == null && initializer != null) {
+            
         	ksession = initializer.initKieSession(context, (InternalRuntimeManager) manager, this);
         	this.kieSessionId = ksession.getIdentifier();
         }
+        ((AbstractRuntimeManager) manager).checkPermission();
         return this.ksession;
     }
 
@@ -83,6 +85,12 @@ public class RuntimeEngineImpl implements RuntimeEngine, Disposable {
         if (taskService == null) {
         	if (initializer != null) {
         		taskService = initializer.initTaskService(context, (InternalRuntimeManager) manager, this);
+        		// init ksession in case there is security manager configured
+        		if (((InternalRuntimeManager) manager).hasSecurityManager() && ksession == null && initializer != null) {
+                    
+                    ksession = initializer.initKieSession(context, (InternalRuntimeManager) manager, this);
+                    this.kieSessionId = ksession.getIdentifier();
+                }
         	}
         	if (taskService == null) {
         		throw new UnsupportedOperationException("TaskService was not configured");

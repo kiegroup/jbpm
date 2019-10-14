@@ -75,7 +75,7 @@ public class PerRequestRuntimeManager extends AbstractRuntimeManager {
     	if (isClosed()) {
     		throw new IllegalStateException("Runtime manager " + identifier + " is already closed");
     	}
-    	checkPermission();
+    	
     	RuntimeEngine runtime = null;
         if (local.get().get(identifier) != null) {
         	RuntimeEngine engine = local.get().get(identifier);
@@ -123,7 +123,7 @@ public class PerRequestRuntimeManager extends AbstractRuntimeManager {
     		throw new IllegalStateException("Runtime manager " + identifier + " is already closed");
     	}
         RuntimeEngine runtimeInUse = local.get().get(identifier);
-        if (runtimeInUse == null || runtimeInUse.getKieSession().getIdentifier() != ksession.getIdentifier()) {
+        if (runtimeInUse == null || ((RuntimeEngineImpl)runtimeInUse).getKieSessionId() != ksession.getIdentifier()) {
             throw new IllegalStateException("Invalid session was used for this context " + context);
         }
     }

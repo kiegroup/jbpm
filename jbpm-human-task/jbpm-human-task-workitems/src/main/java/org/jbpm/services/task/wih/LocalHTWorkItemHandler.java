@@ -30,6 +30,7 @@ import org.kie.api.runtime.process.WorkItemManager;
 import org.kie.api.task.model.Group;
 import org.kie.api.task.model.OrganizationalEntity;
 import org.kie.api.task.model.Task;
+import org.kie.internal.runtime.manager.InternalRuntimeEngine;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 import org.kie.internal.task.api.InternalTaskService;
 import org.kie.internal.task.api.prediction.PredictionOutcome;
@@ -61,7 +62,7 @@ public class LocalHTWorkItemHandler extends AbstractHTWorkItemHandler {
     public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
 
         RuntimeEngine runtime = runtimeManager.getRuntimeEngine(ProcessInstanceIdContext.get(workItem.getProcessInstanceId()));
-        KieSession ksessionById = runtime.getKieSession();
+        KieSession ksessionById = ((InternalRuntimeEngine) runtime).internalGetKieSession();
 
         Task task = createTaskBasedOnWorkItemParams(ksessionById, workItem);
         Map<String, Object> content = createTaskDataBasedOnWorkItemParams(ksessionById, workItem);

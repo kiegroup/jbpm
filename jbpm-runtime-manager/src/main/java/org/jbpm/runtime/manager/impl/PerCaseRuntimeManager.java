@@ -109,8 +109,7 @@ public class PerCaseRuntimeManager extends AbstractRuntimeManager {
     public RuntimeEngine getRuntimeEngine(Context<?> context) {
         if (isClosed()) {
             throw new IllegalStateException("Runtime manager " + identifier + " is already closed");
-        }
-        checkPermission();
+        }        
         RuntimeEngine runtime = null;
         Object contextId = context.getContextId();
 

@@ -37,6 +37,7 @@ import org.kie.api.event.rule.AgendaEventListener;
 import org.kie.api.event.rule.RuleRuntimeEventListener;
 import org.kie.api.runtime.Environment;
 import org.kie.api.runtime.EnvironmentName;
+import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.runtime.manager.RuntimeManager;
 import org.kie.api.runtime.process.WorkItemHandler;
@@ -49,6 +50,7 @@ import org.kie.internal.runtime.conf.NamedObjectModel;
 import org.kie.internal.runtime.conf.ObjectModel;
 import org.kie.internal.runtime.conf.ObjectModelResolver;
 import org.kie.internal.runtime.conf.ObjectModelResolverProvider;
+import org.kie.internal.runtime.manager.InternalRuntimeEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,19 +95,20 @@ public class DefaultRegisterableItemsFactory extends SimpleRegisterableItemsFact
 
 
     @Override
-    public List<ProcessEventListener> getProcessEventListeners(RuntimeEngine runtime) {    	
+    public List<ProcessEventListener> getProcessEventListeners(RuntimeEngine runtime) {
+        KieSession ksession = ((InternalRuntimeEngine) runtime).internalGetKieSession();
         List<ProcessEventListener> defaultListeners = new ArrayList<ProcessEventListener>();
         DeploymentDescriptor descriptor = getRuntimeManager().getDeploymentDescriptor();
         if (descriptor == null) {
         	// register JPAWorkingMemoryDBLogger
-	        AbstractAuditLogger logger = AuditLoggerFactory.newJPAInstance(runtime.getKieSession().getEnvironment());
+	        AbstractAuditLogger logger = AuditLoggerFactory.newJPAInstance(ksession.getEnvironment());
 	        logger.setBuilder(getAuditBuilder(runtime));
 	        defaultListeners.add(logger);
         } else if (descriptor.getAuditMode() == AuditMode.JPA) {
         	// register JPAWorkingMemoryDBLogger
         	AbstractAuditLogger logger = null;
         	if (descriptor.getPersistenceUnit().equals(descriptor.getAuditPersistenceUnit())) {
-        		logger = AuditLoggerFactory.newJPAInstance(runtime.getKieSession().getEnvironment());
+        		logger = AuditLoggerFactory.newJPAInstance(ksession.getEnvironment());
         	} else {
         		Environment env = EnvironmentFactory.newEnvironment();
         		env.set(EnvironmentName.ENTITY_MANAGER_FACTORY, EntityManagerFactoryManager.get().getOrCreate(descriptor.getAuditPersistenceUnit()));
@@ -242,7 +245,7 @@ public class DefaultRegisterableItemsFactory extends SimpleRegisterableItemsFact
     protected Map<String, Object> getParametersMap(RuntimeEngine runtime) {
         RuntimeManager manager = ((RuntimeEngineImpl)runtime).getManager();
         Map<String, Object> parameters = new HashMap<String, Object>();
-        parameters.put("ksession", runtime.getKieSession());
+        parameters.put("ksession", ((InternalRuntimeEngine) runtime).internalGetKieSession());
         
         try {
             parameters.put("taskService", runtime.getTaskService());
@@ -252,7 +255,7 @@ public class DefaultRegisterableItemsFactory extends SimpleRegisterableItemsFact
         parameters.put("runtimeManager", manager);
         parameters.put("classLoader", getRuntimeManager().getEnvironment().getClassLoader());
         parameters.put("entityManagerFactory", 
-        		runtime.getKieSession().getEnvironment().get(EnvironmentName.ENTITY_MANAGER_FACTORY));
+                ((InternalRuntimeEngine) runtime).internalGetKieSession().getEnvironment().get(EnvironmentName.ENTITY_MANAGER_FACTORY));
         parameters.put("kieContainer", getRuntimeManager().getKieContainer());
         
         return parameters;
