@@ -16,21 +16,25 @@
 
 package org.jbpm.services.task.assignment;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+
 import java.io.StringReader;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.jbpm.services.task.HumanTaskServicesBaseTest;
 import org.jbpm.services.task.impl.factories.TaskFactory;
+import org.jbpm.test.listener.task.CountDownTaskEventListener;
 import org.kie.api.task.model.OrganizationalEntity;
 import org.kie.api.task.model.Status;
 import org.kie.api.task.model.Task;
 import org.kie.api.task.model.User;
-
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.Assert.assertEquals;
+import org.kie.internal.task.api.model.InternalTask;
 
 public class AbstractAssignmentTest extends HumanTaskServicesBaseTest {
 
@@ -55,17 +59,55 @@ public class AbstractAssignmentTest extends HumanTaskServicesBaseTest {
     protected void assertNoActualOwner(Task task) {
         assertThat(task.getTaskData().getActualOwner()).as("Actual owner present when not expected").isNull();
     }
-
+    
     protected long createAndAssertTask(String taskExpression, String actualOwner, int expectedPotentialOwners,
-                                       String... expectedPotentialOwnerNames) {
+            Map<String, Object> params, String... expectedPotentialOwnerNames) {
         Task task = TaskFactory.evalTask(new StringReader(taskExpression));
         assertPotentialOwners(task, expectedPotentialOwners);
 
-        long taskId = taskService.addTask(task, Collections.emptyMap());
+        long taskId = taskService.addTask(task, params);
 
         task = taskService.getTaskById(taskId);
         assertPotentialOwners(task, expectedPotentialOwners, expectedPotentialOwnerNames);
-        assertActualOwner(task, actualOwner);
+        if (actualOwner != null) {
+            assertActualOwner(task, actualOwner);
+        } else
+            assertNoActualOwner(task);
+
+        return taskId;
+    }
+
+    protected long createAndAssertTask(String taskExpression, String actualOwner, int expectedPotentialOwners,
+                                       String... expectedPotentialOwnerNames) {
+        return createAndAssertTask(taskExpression, actualOwner, expectedPotentialOwners, Collections.emptyMap(), expectedPotentialOwnerNames);
+    }
+    
+    protected long createAndAssertAfterDeadline(String str,
+                                                String actualOwner,
+                                                int expectedPotOwners,
+                                                Map<String, Object> params,
+                                                String... expectedPotOwnerNames) {
+        CountDownTaskEventListener countDownListener = new CountDownTaskEventListener(1, true, false);
+        addCountDownListner(countDownListener);
+
+        Map<String, Object> vars = new HashMap<String, Object>();
+        vars.put("now", new Date());
+
+        Task task = (InternalTask) TaskFactory.evalTask(new StringReader(str), vars);
+
+        taskService.addTask(task, params);
+
+        // should have re-assigned by now
+        countDownListener.waitTillCompleted();
+
+        long taskId = task.getId();
+        task = taskService.getTaskById(taskId);
+
+        assertPotentialOwners(task, expectedPotOwners, expectedPotOwnerNames);
+        if (actualOwner != null) {
+            assertActualOwner(task, actualOwner);
+        } else
+            assertNoActualOwner(task);
 
         return taskId;
     }

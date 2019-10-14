@@ -18,6 +18,9 @@ package rules
 
 import org.kie.internal.task.api.assignment.Assignment;
 import org.kie.api.task.model.Task;
+import org.kie.api.task.model.PeopleAssignments;
+
+import org.jbpm.services.task.impl.model.*;
 
 rule "Always assign to Bobba Fet"
     when
@@ -40,6 +43,24 @@ rule "Low priority to Luke Cage"
         Task(priority <= 6)
     then
         System.out.println("Luke gets low priority tasks");
+        insert(new Assignment("Luke Cage"));
+end
+
+rule "Assign to Bobba Fet if task input name is set"
+    when
+        Task(taskData.taskInputVariables['name'] == "Bobbas dedicated tasks")
+    then
+        System.out.println("Selecting Bobba Fet as the name input says so");
+        insert(new Assignment("Bobba Fet"));
+end
+
+rule "Assign to Luke Cage if task input name is for him and potentialOwners contains Luke Cage"
+    when
+      $task : Task()
+      PeopleAssignments(potentialOwners contains new UserImpl('Luke Cage')) from $task.getPeopleAssignments()
+      Task(taskData.taskInputVariables['name'] == "Luke tasks")
+    then
+        System.out.println("Selecting Luke Cage as task name input is Luke Cage and potentialOwners contains him");
         insert(new Assignment("Luke Cage"));
 end
 

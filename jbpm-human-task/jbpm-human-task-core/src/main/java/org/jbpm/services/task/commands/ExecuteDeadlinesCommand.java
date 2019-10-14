@@ -150,6 +150,7 @@ public class ExecuteDeadlinesCommand extends TaskCommand<Void> {
 	                        // use assignment service to directly assign actual owner if enabled
 	                        AssignmentService assignmentService = AssignmentServiceProvider.get();
 	                        if (assignmentService.isEnabled()) {
+	                            ctx.loadTaskVariables(task);
 	                            assignmentService.assignTask(task, ctx);
 	                        }
 

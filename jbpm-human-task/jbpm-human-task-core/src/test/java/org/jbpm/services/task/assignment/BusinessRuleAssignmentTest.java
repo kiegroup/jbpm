@@ -19,7 +19,9 @@ package org.jbpm.services.task.assignment;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -28,6 +30,7 @@ import org.assertj.core.api.Assertions;
 import org.drools.compiler.kie.builder.impl.InternalKieModule;
 import org.jbpm.services.task.HumanTaskServiceFactory;
 import org.jbpm.services.task.assignment.impl.strategy.BusinessRuleAssignmentStrategy;
+import org.jbpm.services.task.impl.TaskDeadlinesServiceImpl;
 import org.jbpm.services.task.impl.factories.TaskFactory;
 import org.kie.test.util.db.PoolingDataSourceWrapper;
 import org.junit.After;
@@ -90,6 +93,8 @@ public class BusinessRuleAssignmentTest extends AbstractAssignmentTest {
 	    System.clearProperty("org.jbpm.task.assignment.rules.releaseId");
 	    System.clearProperty("org.jbpm.task.assignment.rules.scan");
 	    System.clearProperty("org.jbpm.task.assignment.rules.query");
+	    
+	    TaskDeadlinesServiceImpl.reset();
 	    
 	    AssignmentServiceProvider.clear();
 		if (emf != null) {
@@ -194,6 +199,59 @@ public class BusinessRuleAssignmentTest extends AbstractAssignmentTest {
         assertPotentialOwners(task, 0);
         User actualOwner = task.getTaskData().getActualOwner();
         Assertions.assertThat(actualOwner).isNull();
+    }
+    
+    @Test
+    public void testAssignmentAssignToBobbaFetBasedOnDataInput() {
+        String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
+        str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [new User('Darth Vader'), new User('Bobba Fet'), new User('Luke Cage')  ],businessAdministrators = [ new User('Administrator') ],}),";
+        str += "name =  'Bobbas dedicated tasks' })";
+        
+        Map<String, Object> input = new HashMap<>();
+        input.put("name", "Bobbas dedicated tasks");
+        
+        createAndAssertTask(str, "Bobba Fet", 3, input, "Bobba Fet", "Darth Vader", "Luke Cage"); 
+        
+        input.clear();
+        // another task
+        createAndAssertTask(str, null, 3, input, "Bobba Fet", "Darth Vader", "Luke Cage"); 
+         
+    }
+    
+    @Test(timeout=10000)
+    public void testAssignmentAssignToLukeCageBasedOnDataInputAndDeadlines() {
+        String str = "with ( new Task() ) {priority = 51, taskData = (with( new TaskData()) { } ),";
+        str += "peopleAssignments = (with ( new PeopleAssignments() ) {";
+        str += "potentialOwners = [new User('Darth Vader'), new User('Bobba Fet')],";
+        str += "businessAdministrators = [ new User('Administrator') ],";
+        str += "}),";
+        str += "name = 'Simple Test Task',";
+        str += "deadlines = ( with ( new Deadlines() ) {";
+        str += "startDeadlines = [";
+        str += "(with (new Deadline()) {";
+        str += "date = new Date( now.time + 2000 ),";
+        str += "escalations = [";
+        str += "(with (new Escalation()) {";
+        str += "name = 'My Start Escalation',";
+        str += "constraints = [new BooleanExpression( 'mvel', 'true' )],";
+        str += "reassignments = [(with ( new Reassignment() ) {";
+        str += "potentialOwners = [new User('Luke Cage')]";
+        str += "})]";
+        str += "})";
+        str += "]";
+        str += "})";
+        str += "]";
+        str += "})";
+        str += "};";
+
+        HashMap<String, Object> input = new HashMap<String, Object>();
+        input.put("name", "Luke tasks");
+
+        createAndAssertAfterDeadline(str, "Luke Cage", 1, input, "Luke Cage");
+
+        input.clear();
+        // another task
+        createAndAssertAfterDeadline(str, null, 1, input, "Luke Cage");
     }
 
     protected void buildKJar() {
