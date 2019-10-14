@@ -30,6 +30,7 @@ import org.assertj.core.api.Assertions;
 import org.drools.compiler.kie.builder.impl.InternalKieModule;
 import org.jbpm.services.task.HumanTaskServiceFactory;
 import org.jbpm.services.task.assignment.impl.strategy.BusinessRuleAssignmentStrategy;
+import org.jbpm.services.task.impl.TaskDeadlinesServiceImpl;
 import org.jbpm.services.task.impl.factories.TaskFactory;
 import org.kie.test.util.db.PoolingDataSourceWrapper;
 import org.junit.After;
@@ -92,6 +93,8 @@ public class BusinessRuleAssignmentTest extends AbstractAssignmentTest {
 	    System.clearProperty("org.jbpm.task.assignment.rules.releaseId");
 	    System.clearProperty("org.jbpm.task.assignment.rules.scan");
 	    System.clearProperty("org.jbpm.task.assignment.rules.query");
+	    
+	    TaskDeadlinesServiceImpl.reset();
 	    
 	    AssignmentServiceProvider.clear();
 		if (emf != null) {
@@ -215,7 +218,7 @@ public class BusinessRuleAssignmentTest extends AbstractAssignmentTest {
          
     }
     
-    @Test
+    @Test(timeout=10000)
     public void testAssignmentAssignToLukeCageBasedOnDataInputAndDeadlines() {
         String str = "with ( new Task() ) {priority = 51, taskData = (with( new TaskData()) { } ),";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) {";

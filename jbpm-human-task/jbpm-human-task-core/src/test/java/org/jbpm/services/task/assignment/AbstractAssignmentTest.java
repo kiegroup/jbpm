@@ -71,7 +71,8 @@ public class AbstractAssignmentTest extends HumanTaskServicesBaseTest {
         assertPotentialOwners(task, expectedPotentialOwners, expectedPotentialOwnerNames);
         if (actualOwner != null) {
             assertActualOwner(task, actualOwner);
-        }
+        } else
+            assertNoActualOwner(task);
 
         return taskId;
     }
