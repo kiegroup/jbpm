@@ -200,4 +200,20 @@ public class UserTaskWithSecurityTest extends AbstractKieServicesBaseTest {
  
     
     }
+    
+    @Test(expected=SecurityException.class)
+    public void testProcessDoesNotStartForRolesNotAllowed() {
+        
+        // managers role can not start process
+        List<String> roles = new ArrayList<String>();
+        roles.add("managers"); 
+        identityProvider.setName("salaboy");
+        identityProvider.setRoles(roles);
+        
+        Collection<ProcessInstanceDesc> instances = runtimeDataService.getProcessInstances(new QueryContext());
+        assertNotNull(instances);
+        assertEquals(0, instances.size());
+        
+        processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument");
+    }
 }

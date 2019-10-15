@@ -18,8 +18,14 @@ package org.jbpm.runtime.manager.impl.deploy;
 
 import static org.junit.Assert.assertNotNull;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
+import org.jbpm.runtime.manager.impl.SimpleRegisterableItemsFactory;
 import org.jbpm.runtime.manager.util.TestUtil;
 import org.jbpm.services.task.identity.JBossUserGroupCallbackImpl;
 import org.jbpm.test.util.AbstractBaseTest;
@@ -27,12 +33,21 @@ import org.kie.test.util.db.PoolingDataSourceWrapper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.kie.api.event.process.DefaultProcessEventListener;
+import org.kie.api.event.process.ProcessEventListener;
+import org.kie.api.event.rule.AgendaEventListener;
+import org.kie.api.event.rule.DefaultAgendaEventListener;
+import org.kie.api.event.rule.DefaultRuleRuntimeEventListener;
+import org.kie.api.event.rule.RuleRuntimeEventListener;
 import org.kie.api.io.ResourceType;
 import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.runtime.manager.RuntimeEnvironment;
 import org.kie.api.runtime.manager.RuntimeEnvironmentBuilder;
 import org.kie.api.runtime.manager.RuntimeManager;
 import org.kie.api.runtime.manager.RuntimeManagerFactory;
+import org.kie.api.runtime.process.WorkItem;
+import org.kie.api.runtime.process.WorkItemHandler;
+import org.kie.api.runtime.process.WorkItemManager;
 import org.kie.internal.io.ResourceFactory;
 import org.kie.internal.runtime.manager.InternalRuntimeManager;
 import org.kie.internal.runtime.manager.SecurityManager;
@@ -130,6 +145,34 @@ public class SecurityManagerTest extends AbstractBaseTest {
         manager.getRuntimeEngine(EmptyContext.get()).getKieSession();
 	}
     
+    @Test(expected=IllegalStateException.class)
+    public void testNoSessionAfterDispose() {
+        ProcessEventListener processListener = new DefaultProcessEventListener();
+        AgendaEventListener agendaListener = new DefaultAgendaEventListener();
+        RuleRuntimeEventListener workingMemoryListener = new DefaultRuleRuntimeEventListener();
+        Map<String,Object> globals = new HashMap<>();
+        final List<String> list = new ArrayList<String>();
+        globals.put("list", list);
+        
+        RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
+                .newEmptyBuilder()
+                .userGroupCallback(userGroupCallback)
+                .addAsset(ResourceFactory.newClassPathResource("BPMN2-BusinessRuleTaskWithGlobal.drl"), ResourceType.DRL)
+                .registerableItemsFactory(new TestRegisterableItemsFactory(processListener, 
+                                                                           agendaListener, 
+                                                                           workingMemoryListener,
+                                                                           globals))
+                .get();
+        
+        manager = RuntimeManagerFactory.Factory.get().newPerProcessInstanceRuntimeManager(environment);        
+        assertNotNull(manager);
+        RuntimeEngine runtime = manager.getRuntimeEngine(EmptyContext.get());
+        assertNotNull(runtime);
+        
+        manager.disposeRuntimeEngine(runtime);
+        runtime.getKieSession();
+    }
+    
     private class User {
     	private String name;
 
@@ -144,5 +187,73 @@ public class SecurityManagerTest extends AbstractBaseTest {
 		public void setName(String name) {
 			this.name = name;
 		}
+    }
+    
+    private class TestRegisterableItemsFactory extends SimpleRegisterableItemsFactory {
+        private ProcessEventListener plistener;
+        private AgendaEventListener alistener;
+        private RuleRuntimeEventListener rlistener;
+        private Map<String, Object> globals;
+        
+        public TestRegisterableItemsFactory(ProcessEventListener listener, 
+                                            AgendaEventListener alistener,
+                                            RuleRuntimeEventListener rlistener,
+                                            Map<String, Object> globals) {
+            this.plistener = listener;
+            this.alistener = alistener;
+            this.rlistener = rlistener;
+            this.globals = globals;
+        }
+        
+        @Override
+        public Map<String, WorkItemHandler> getWorkItemHandlers(RuntimeEngine runtime){
+            Map<String, WorkItemHandler> handlers = super.getWorkItemHandlers(runtime);
+            handlers.put("MyWIH", new WorkItemHandler() {
+                @Override
+                public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
+                }
+
+                @Override
+                public void abortWorkItem(WorkItem workItem, WorkItemManager manager) {
+                }});
+            
+            return handlers;
+        }
+        
+        @Override
+        public List<ProcessEventListener> getProcessEventListeners(RuntimeEngine runtime) {
+            List<ProcessEventListener> listeners = super.getProcessEventListeners(runtime);
+            if (plistener != null) {
+                listeners.addAll(Arrays.asList(plistener));
+            }
+            
+            return listeners;
+        }
+        @Override
+        public List<AgendaEventListener> getAgendaEventListeners(RuntimeEngine runtime) {
+            List<AgendaEventListener> alisteners = super.getAgendaEventListeners(runtime);
+            if (alistener != null) { 
+                alisteners.addAll(Arrays.asList(alistener));
+            }
+            return alisteners;
+        }
+        
+        @Override
+        public List<RuleRuntimeEventListener> getRuleRuntimeEventListeners(RuntimeEngine runtime) {
+            List<RuleRuntimeEventListener> rlisteners = super.getRuleRuntimeEventListeners(runtime);
+            if (rlistener != null) { 
+                rlisteners.addAll(Arrays.asList(rlistener));
+            }
+            return rlisteners;
+        }
+        
+        @Override
+        public Map<String, Object> getGlobals(RuntimeEngine runtime){
+            Map<String, Object> rglobals = super.getGlobals(runtime);
+            if (rglobals != null) {
+                rglobals.putAll(globals);
+            }
+            return globals;
+        }
     }
 }
