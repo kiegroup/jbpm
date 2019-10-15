@@ -29,24 +29,24 @@ import org.jbpm.process.instance.ProcessInstanceManager;
 
 public class DefaultProcessInstanceManager implements ProcessInstanceManager {
 
-    private Map<Long, ProcessInstance> processInstances = new ConcurrentHashMap<Long, ProcessInstance>();
-    private Map<CorrelationKey, ProcessInstance> processInstancesByCorrelationKey = new ConcurrentHashMap<CorrelationKey, ProcessInstance>();
+    private Map<Long, ProcessInstance> processInstances = new ConcurrentHashMap<>();
+    private Map<CorrelationKey, ProcessInstance> processInstancesByCorrelationKey = new ConcurrentHashMap<>();
     private AtomicLong processCounter = new AtomicLong(0);
 
     public void addProcessInstance(ProcessInstance processInstance, CorrelationKey correlationKey) {
         ((org.jbpm.process.instance.ProcessInstance) processInstance).setId(processCounter.incrementAndGet());
         internalAddProcessInstance(processInstance);
- 
-        if (correlationKey != null) {  
+
+        if (correlationKey != null) {
             if (processInstancesByCorrelationKey.containsKey(correlationKey)) {
                 throw new RuntimeException(correlationKey + " already exists");
             }
             processInstancesByCorrelationKey.put(correlationKey, processInstance);
         }
     }
-    
+
     public void internalAddProcessInstance(ProcessInstance processInstance) {
-    	processInstances.put(((ProcessInstance)processInstance).getId(), processInstance);
+        processInstances.put(processInstance.getId(), processInstance);
     }
 
     public Collection<ProcessInstance> getProcessInstances() {
@@ -54,11 +54,11 @@ public class DefaultProcessInstanceManager implements ProcessInstanceManager {
     }
 
     public ProcessInstance getProcessInstance(long id) {
-        return (ProcessInstance) processInstances.get(id);
+        return processInstances.get(id);
     }
 
     public ProcessInstance getProcessInstance(long id, boolean readOnly) {
-        return (ProcessInstance) processInstances.get(id);
+        return processInstances.get(id);
     }
 
     public void removeProcessInstance(ProcessInstance processInstance) {
@@ -66,20 +66,20 @@ public class DefaultProcessInstanceManager implements ProcessInstanceManager {
     }
 
     public void internalRemoveProcessInstance(ProcessInstance processInstance) {
-        processInstances.remove(((ProcessInstance)processInstance).getId());
+        processInstances.remove(processInstance.getId());
         for (Entry<CorrelationKey, ProcessInstance> entry : processInstancesByCorrelationKey.entrySet()) {
             if (entry.getValue().getId() == processInstance.getId()) {
                 processInstancesByCorrelationKey.remove(entry.getKey());
             }
         }
     }
-    
+
     public void clearProcessInstances() {
     	processInstances.clear();
     }
 
     public void clearProcessInstancesState() {
-        
+
     }
 
     @Override

@@ -123,6 +123,7 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
         return false;
     }
 
+    @Override
     public void internalTrigger(final NodeInstance from, String type) {
         super.internalTrigger(from, type);
         // if node instance was cancelled, abort
