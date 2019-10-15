@@ -530,10 +530,8 @@ public class KModuleDeploymentServiceTest extends AbstractKieServicesBaseTest {
         RuntimeEngine engine = manager.getRuntimeEngine(EmptyContext.get());
 
         assertNotNull(engine);
-
-        manager.disposeRuntimeEngine(engine);
-
-        checkFormsDeployment(deploymentUnit.getIdentifier());
+        
+        engine.getKieSession();
     }
 
     @Test

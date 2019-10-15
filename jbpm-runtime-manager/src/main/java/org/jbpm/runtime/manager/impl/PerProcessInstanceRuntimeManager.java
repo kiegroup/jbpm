@@ -572,7 +572,7 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
                 ksessionId = ksession.getIdentifier();                 
             } else {
                 RuntimeEngine localRuntime = ((PerProcessInstanceRuntimeManager)manager).findLocalRuntime(contextId);
-                if (localRuntime != null && ((RuntimeEngineImpl)engine).internalGetKieSession() != null) {
+                if (localRuntime != null && ((RuntimeEngineImpl)engine).getKieSessionId() != null) {
                     return localRuntime.getKieSession();
                 }
                 ksessionId = mapper.findMapping(context, manager.getIdentifier());

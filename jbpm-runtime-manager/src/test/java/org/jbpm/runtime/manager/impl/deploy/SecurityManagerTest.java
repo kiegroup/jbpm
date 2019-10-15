@@ -96,7 +96,7 @@ public class SecurityManagerTest extends AbstractBaseTest {
 				throw new SecurityException("Deny all on purpose");
 			}
           });
-          manager.getRuntimeEngine(EmptyContext.get());        
+          manager.getRuntimeEngine(EmptyContext.get()).getKieSession();        
   	}
     
     @Test(expected=SecurityException.class)
@@ -127,7 +127,7 @@ public class SecurityManagerTest extends AbstractBaseTest {
         manager.disposeRuntimeEngine(runtime);
         
         user.setName("mary");
-        manager.getRuntimeEngine(EmptyContext.get());
+        manager.getRuntimeEngine(EmptyContext.get()).getKieSession();
 	}
     
     private class User {

@@ -41,7 +41,7 @@ public class RuntimeEngineImpl implements InternalRuntimeEngine, Disposable {
 	private Context<?> context;
 
     private KieSession ksession;
-    private Long kieSessionId;
+    private Long kieSessionId = null;
     private TaskService taskService;
     private AuditService auditService;
     
@@ -65,18 +65,11 @@ public class RuntimeEngineImpl implements InternalRuntimeEngine, Disposable {
     
     @Override
     public KieSession getKieSession() {
-        if (this.disposed) {
-            throw new IllegalStateException("This runtime is already diposed");
-        }
-        if (ksession == null && initializer != null) {
-            
-        	ksession = initializer.initKieSession(context, (InternalRuntimeManager) manager, this);
-        	this.kieSessionId = ksession.getIdentifier();
-        }
+        internalGetKieSession();
         ((AbstractRuntimeManager) manager).checkPermission();
         return this.ksession;
     }
-
+    
     @Override
     public TaskService getTaskService() {
         if (this.disposed) {
@@ -156,7 +149,15 @@ public class RuntimeEngineImpl implements InternalRuntimeEngine, Disposable {
 	}
 	
 	public KieSession internalGetKieSession() {
-		return ksession;
+        if (this.disposed) {
+            throw new IllegalStateException("This runtime is already diposed");
+        }
+        if (ksession == null && initializer != null) {
+            
+            ksession = initializer.initKieSession(context, (InternalRuntimeManager) manager, this);
+            this.kieSessionId = ksession.getIdentifier();
+        }
+        return this.ksession;
 	}
 
 	public void internalSetKieSession(KieSession ksession) {

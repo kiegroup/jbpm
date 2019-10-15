@@ -218,7 +218,7 @@ public class PerRequestRuntimeManager extends AbstractRuntimeManager {
     	@Override
     	public KieSession initKieSession(Context<?> context, InternalRuntimeManager manager, RuntimeEngine engine) {
     		RuntimeEngine inUse = local.get().get(identifier);
-    		if (inUse != null && ((RuntimeEngineImpl) inUse).internalGetKieSession() != null) {
+    		if (inUse != null && ((RuntimeEngineImpl) inUse).getKieSessionId() != null) {
                 return inUse.getKieSession();
             }
     		KieSession ksession = factory.newKieSession();
