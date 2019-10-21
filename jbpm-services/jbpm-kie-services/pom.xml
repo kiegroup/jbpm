@@ -309,14 +309,6 @@
         </configuration>
       </plugin>
       <plugin>
-      <!-- we need to fork always as we have mixture of both arquillian tests and regular 
-          and to avoid clashing between them as both need to setup data source and bound it to JNDI -->
-        <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <forkMode>always</forkMode>
-        </configuration>
-      </plugin>
-      <plugin>
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
         <configuration>
