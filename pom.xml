@@ -57,6 +57,7 @@
 \*\/$
 ]]>
         </checkstyle.header.template>
+        <jacoco.agent.line/>
     </properties>
 
     <repositories>
