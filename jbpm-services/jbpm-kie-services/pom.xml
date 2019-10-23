@@ -288,11 +288,10 @@
         </configuration>
       </plugin>
       <plugin>
-      <!-- we need to fork always as we have mixture of both arquillian tests and regular 
-          and to avoid clashing between them as both need to setup data source and bound it to JNDI -->
+        <!-- We need to fork always as we have tests which are configured by system properties when a JVM starts -->
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
-          <forkMode>always</forkMode>
+          <reuseForks>false</reuseForks>
         </configuration>
       </plugin>
       <plugin>
