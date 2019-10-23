@@ -19,7 +19,7 @@ package org.jbpm.services.cdi.test.util;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 
-import org.jbpm.kie.services.test.objects.CoundDownDeploymentListener;
+import org.jbpm.kie.services.test.objects.CountDownDeploymentListener;
 import org.jbpm.services.api.DeploymentEvent;
 import org.jbpm.services.cdi.Activate;
 import org.jbpm.services.cdi.Deactivate;
@@ -27,7 +27,7 @@ import org.jbpm.services.cdi.Deploy;
 import org.jbpm.services.cdi.Undeploy;
 
 @ApplicationScoped
-public class CountDownDeploymentListenerCDIImpl extends CoundDownDeploymentListener {
+public class CountDownDeploymentListenerCDIImpl extends CountDownDeploymentListener {
 
     public CountDownDeploymentListenerCDIImpl() {
         super();

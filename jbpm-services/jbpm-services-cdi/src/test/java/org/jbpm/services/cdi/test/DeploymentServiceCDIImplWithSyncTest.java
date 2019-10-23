@@ -26,7 +26,7 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jbpm.kie.services.impl.store.DeploymentStore;
 import org.jbpm.kie.services.test.DeploymentServiceWithSyncTest;
-import org.jbpm.kie.services.test.objects.CoundDownDeploymentListener;
+import org.jbpm.kie.services.test.objects.CountDownDeploymentListener;
 import org.jbpm.services.api.DefinitionService;
 import org.jbpm.services.api.DeploymentService;
 import org.jbpm.services.api.ProcessService;
@@ -108,7 +108,7 @@ public class DeploymentServiceCDIImplWithSyncTest extends DeploymentServiceWithS
                 .addPackage("org.jbpm.services.cdi.test") // Identity Provider Test Impl here
                 .addClass("org.jbpm.services.cdi.test.util.CDITestHelperNoTaskService")
                 .addClass("org.jbpm.services.cdi.test.util.CountDownDeploymentListenerCDIImpl")
-                .addClass("org.jbpm.kie.services.test.objects.CoundDownDeploymentListener")
+                .addClass("org.jbpm.kie.services.test.objects.CountDownDeploymentListener")
                 .addAsResource("jndi.properties", "jndi.properties")
                 .addAsManifestResource("META-INF/persistence.xml", ArchivePaths.create("persistence.xml"))
                 .addAsManifestResource("META-INF/beans.xml", ArchivePaths.create("beans.xml"));
@@ -126,7 +126,7 @@ public class DeploymentServiceCDIImplWithSyncTest extends DeploymentServiceWithS
 	}
 
 	@Override
-    protected CoundDownDeploymentListener configureListener(int threads, boolean deploy, boolean undeploy, boolean activate, boolean deactivate) {
+    protected CountDownDeploymentListener configureListener(int threads, boolean deploy, boolean undeploy, boolean activate, boolean deactivate) {
         countDownListner.reset(threads);
         countDownListner.setDeploy(deploy);
         countDownListner.setUndeploy(undeploy);

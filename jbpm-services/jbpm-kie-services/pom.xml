@@ -309,6 +309,13 @@
         </configuration>
       </plugin>
       <plugin>
+        <!-- We need to fork always as we have tests which are configured by system properties when a JVM starts -->
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <reuseForks>false</reuseForks>
+        </configuration>
+      </plugin>
+      <plugin>
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
         <configuration>

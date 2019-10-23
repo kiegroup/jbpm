@@ -30,10 +30,9 @@ import org.jbpm.kie.services.impl.KModuleDeploymentUnit;
 import org.jbpm.kie.services.impl.store.DeploymentStore;
 import org.jbpm.kie.services.impl.store.DeploymentSyncInvoker;
 import org.jbpm.kie.services.impl.store.DeploymentSynchronizer;
-import org.jbpm.kie.services.test.objects.CoundDownDeploymentListener;
+import org.jbpm.kie.services.test.objects.CountDownDeploymentListener;
 import org.jbpm.kie.test.util.AbstractKieServicesBaseTest;
 import org.jbpm.services.api.DeploymentEvent;
-import org.jbpm.services.api.DeploymentEventListener;
 import org.jbpm.services.api.ListenerSupport;
 import org.jbpm.services.api.model.DeployedUnit;
 import org.jbpm.services.api.model.DeploymentUnit;
@@ -164,7 +163,8 @@ public class DeactivateDeploymentServiceWithSyncTest extends AbstractKieServices
         assertNotNull(deployed);
         assertEquals(0, deployed.size());
         
-        KModuleDeploymentUnit unit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);        
+        KModuleDeploymentUnit unit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
+        units.add(unit);
         deploymentService.deploy(unit);
         deploymentService.deactivate(unit.getIdentifier());
         
@@ -173,7 +173,7 @@ public class DeactivateDeploymentServiceWithSyncTest extends AbstractKieServices
         
         AtomicBoolean deploymentActive = new AtomicBoolean(true);
 
-        CoundDownDeploymentListener countDownListener = new CoundDownDeploymentListener(1) {
+        CountDownDeploymentListener countDownListener = new CountDownDeploymentListener(1) {
             @Override
             public void onDeploy(DeploymentEvent event) {
                 // This used to use a specific listener for setting the active state

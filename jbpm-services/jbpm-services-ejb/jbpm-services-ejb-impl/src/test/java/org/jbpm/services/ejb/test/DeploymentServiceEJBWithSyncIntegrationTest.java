@@ -30,7 +30,7 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jbpm.kie.services.impl.KModuleDeploymentUnit;
 import org.jbpm.kie.services.impl.store.DeploymentStore;
-import org.jbpm.kie.services.test.objects.CoundDownDeploymentListener;
+import org.jbpm.kie.services.test.objects.CountDownDeploymentListener;
 import org.jbpm.services.api.ListenerSupport;
 import org.jbpm.services.api.model.DeployedUnit;
 import org.jbpm.services.api.model.DeploymentUnit;
@@ -74,7 +74,7 @@ public class DeploymentServiceEJBWithSyncIntegrationTest extends AbstractTestSup
 		}
 		WebArchive war = ShrinkWrap.createFromZipFile(WebArchive.class, archive);
 		war.addPackage("org.jbpm.services.ejb.test");
-		war.addClass("org.jbpm.kie.services.test.objects.CoundDownDeploymentListener");// test cases
+		war.addClass("org.jbpm.kie.services.test.objects.CountDownDeploymentListener");// test cases
 
 		// deploy test kjar
 		deployKjar();
@@ -123,8 +123,8 @@ public class DeploymentServiceEJBWithSyncIntegrationTest extends AbstractTestSup
         repository.installArtifact(releaseIdSupport, kJar2, pom2);
 	}
 	
-    protected CoundDownDeploymentListener configureListener(int threads) {
-        CoundDownDeploymentListener countDownListener = new CoundDownDeploymentListener(threads);
+    protected CountDownDeploymentListener configureListener(int threads) {
+        CountDownDeploymentListener countDownListener = new CountDownDeploymentListener(threads);
         ((ListenerSupport)deploymentService).addListener(countDownListener);
         
         return countDownListener;
@@ -139,7 +139,7 @@ public class DeploymentServiceEJBWithSyncIntegrationTest extends AbstractTestSup
     @Test
     public void testDeploymentOfProcessesBySync() throws Exception {
         
-        CoundDownDeploymentListener countDownListener = configureListener(1);
+        CountDownDeploymentListener countDownListener = configureListener(1);
         
     	DeploymentStore store = new DeploymentStore();
 		store.setCommandService(commandService);
@@ -161,7 +161,7 @@ public class DeploymentServiceEJBWithSyncIntegrationTest extends AbstractTestSup
     
     @Test
     public void testUndeploymentOfProcessesBySync() throws Exception {
-        CoundDownDeploymentListener countDownListener = configureListener(2);
+        CountDownDeploymentListener countDownListener = configureListener(2);
         
     	DeploymentStore store = new DeploymentStore();
 		store.setCommandService(commandService);
@@ -190,7 +190,7 @@ public class DeploymentServiceEJBWithSyncIntegrationTest extends AbstractTestSup
     
     @Test
     public void testDeactivateAndActivateOfProcessesBySync() throws Exception {
-        CoundDownDeploymentListener countDownListener = configureListener(2);
+        CountDownDeploymentListener countDownListener = configureListener(2);
         
     	DeploymentStore store = new DeploymentStore();
 		store.setCommandService(commandService);

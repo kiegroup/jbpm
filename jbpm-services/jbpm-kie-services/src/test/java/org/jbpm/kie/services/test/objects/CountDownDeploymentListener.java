@@ -24,8 +24,8 @@ import org.jbpm.services.api.DeploymentEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CoundDownDeploymentListener implements DeploymentEventListener {
-    private static Logger logger = LoggerFactory.getLogger(CoundDownDeploymentListener.class);
+public class CountDownDeploymentListener implements DeploymentEventListener {
+    private static Logger logger = LoggerFactory.getLogger(CountDownDeploymentListener.class);
 
     private CountDownLatch latch;
     
@@ -34,11 +34,11 @@ public class CoundDownDeploymentListener implements DeploymentEventListener {
     private boolean activate;
     private boolean deactivate;
     
-    public CoundDownDeploymentListener() {
+    public CountDownDeploymentListener() {
         this.latch = new CountDownLatch(0);
     }
     
-    public CoundDownDeploymentListener(int threads) {
+    public CountDownDeploymentListener(int threads) {
         this.latch = new CountDownLatch(threads);
     }
     
