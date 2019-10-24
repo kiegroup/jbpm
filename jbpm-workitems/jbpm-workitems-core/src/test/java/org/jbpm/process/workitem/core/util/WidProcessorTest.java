@@ -45,6 +45,7 @@ public class WidProcessorTest {
                     "@Wid(widfile=\"mywidfile.wid\", name=\"MyTest\",\n" +
                     "        displayName=\"My Test Class\", icon=\"/my/icons/myicon.png\",\n" +
                     "        defaultHandler=\"mvel: new com.sample.MyWorkItemHandler()\",\n" +
+                    "        gav=\"org.jboss:myworkitem:1.0\",\n" +
                     "        parameters={\n" +
                     "                @WidParameter(name=\"sampleParam\", required = true),\n" +
                     "                @WidParameter(name=\"sampleParamTwo\", required = true)\n" +
@@ -328,6 +329,7 @@ public class WidProcessorTest {
                      widInfo.widfile());
         assertEquals("mvel: new com.sample.MyWorkItemHandler()",
                      widInfo.defaultHandler());
+        assertEquals("org.jboss:myworkitem:1.0", widInfo.gav());
 
         WidParameter[] widParameters = widInfo.parameters();
         assertEquals(2,

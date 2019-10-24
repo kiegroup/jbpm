@@ -35,6 +35,7 @@ public class WidInfo {
     private String defaultHandlerUnEscaped;
     private String defaultHandlerNoTypeUnEscaped;
     private String documentation;
+    private String gav;
     private Map<String, InternalWidParamsAndResults> parameters;
     private Map<String, InternalWidParameterValues> parameterValues;
     private Map<String, InternalWidParamsAndResults> results;
@@ -75,6 +76,8 @@ public class WidInfo {
 
             this.documentation = setParamValue(this.documentation,
                                                wid.documentation());
+
+            this.gav = setParamValue(this.gav, wid.gav());
 
             if (wid.parameters().length > 0) {
                 for (WidParameter widParam : wid.parameters()) {
@@ -617,5 +620,13 @@ public class WidInfo {
 
     public void setDefaultHandlerNoTypeUnEscaped(String defaultHandlerNoTypeUnEscaped) {
         this.defaultHandlerNoTypeUnEscaped = defaultHandlerNoTypeUnEscaped;
+    }
+
+    public String getGav() {
+        return gav;
+    }
+
+    public void setGav(String gav) {
+        this.gav = gav;
     }
 }
