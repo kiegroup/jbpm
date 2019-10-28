@@ -61,7 +61,10 @@ import org.kie.api.task.UserGroupCallback;
 import org.kie.internal.io.ResourceFactory;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 @RunWith(Parameterized.class)
 public class GlobalQuartzDBTimerServiceTest extends GlobalTimerServiceBaseTest {
@@ -407,6 +410,82 @@ public class GlobalQuartzDBTimerServiceTest extends GlobalTimerServiceBaseTest {
         countDownListener.waitTillCompleted(4000);
 
         assertEquals(5, timerExporations.size());
+    }
+
+    @Test(timeout = 20000)
+    public void testQuartzJobDeletionOnManagerCloseWithTimerStart() throws Exception {
+        NodeLeftCountDownProcessEventListener countDownListener = new NodeLeftCountDownProcessEventListener("StartProcess", 3);
+        QuartzSchedulerService additionalCopy = new QuartzSchedulerService();
+        additionalCopy.initScheduler(null);
+        // prepare listener to assert results
+        final List<Long> timerExporations = new ArrayList<Long>();
+        ProcessEventListener listener = new DefaultProcessEventListener() {
+
+            @Override
+            public void beforeProcessStarted(ProcessStartedEvent event) {
+                timerExporations.add(event.getProcessInstance().getId());
+            }
+
+        };
+
+        environment = RuntimeEnvironmentBuilder.Factory.get()
+                                                       .newDefaultBuilder()
+                                                       .entityManagerFactory(emf)
+                                                       .addAsset(ResourceFactory.newClassPathResource("org/jbpm/test/functional/timer/TimerStart2.bpmn2"), ResourceType.BPMN2)
+                                                       .schedulerService(globalScheduler)
+                                                       .registerableItemsFactory(new TestRegisterableItemsFactory(listener, countDownListener))
+                                                       .get();
+
+        manager = getManager(environment, false);
+        RuntimeEngine runtime = manager.getRuntimeEngine(ProcessInstanceIdContext.get());
+        KieSession ksession = runtime.getKieSession();
+
+        assertEquals(0, timerExporations.size());
+
+        countDownListener.waitTillCompleted();
+        manager.disposeRuntimeEngine(runtime);
+        int atDispose = timerExporations.size();
+        assertTrue(atDispose > 0);
+
+        ((AbstractRuntimeManager) manager).close(true);
+        countDownListener.reset(1);
+        countDownListener.waitTillCompleted(3000);
+        assertEquals(atDispose, timerExporations.size());
+
+        Connection connection = null;
+        Statement stmt = null;
+        try {
+            connection = ((DataSource) InitialContext.doLookup("jdbc/jbpm-ds")).getConnection();
+            stmt = connection.createStatement();
+
+            ResultSet resultSet = stmt.executeQuery("select JOB_NAME, JOB_GROUP from QRTZ_JOB_DETAILS");
+            while (resultSet.next()) {
+                String jobName = resultSet.getString(1);
+                String jobGroup = resultSet.getString(2);
+                fail("QRTZ_JOB_DETAILS table must be cleaned up. But a record exists :" + " jobName = " + jobName + ", jobGroup = " + jobGroup);
+            }
+
+            stmt.close();
+
+            stmt = connection.createStatement();
+
+            ResultSet resultSet2 = stmt.executeQuery("select TRIGGER_NAME, TRIGGER_GROUP from QRTZ_TRIGGERS");
+            while (resultSet2.next()) {
+                String triggerName = resultSet2.getString(1);
+                String triggerGroup = resultSet2.getString(2);
+                fail("QRTZ_TRIGGERS table must be cleaned up. But a record exists :" + " triggerName = " + triggerName + ", triggerGroup = " + triggerGroup);
+            }
+
+        } finally {
+            if (stmt != null) {
+                stmt.close();
+            }
+            if (connection != null) {
+                connection.close();
+            }
+        }
+
+        additionalCopy.shutdown();
     }
 
 }
