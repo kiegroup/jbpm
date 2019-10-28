@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.drools.core.command.SingleSessionCommandService;
@@ -39,6 +40,7 @@ import org.drools.core.time.impl.TimerJobInstance;
 import org.jbpm.process.core.timer.GlobalSchedulerService;
 import org.jbpm.process.core.timer.NamedJobContext;
 import org.jbpm.process.instance.timer.TimerManager.ProcessJobContext;
+import org.jbpm.process.instance.timer.TimerManager.StartProcessJobContext;
 import org.kie.api.runtime.Environment;
 import org.kie.api.runtime.Executable;
 import org.kie.api.runtime.ExecutableRunner;
@@ -59,6 +61,7 @@ public class GlobalTimerService implements TimerService, InternalSchedulerServic
     protected final GlobalSchedulerService schedulerService;
     protected final RuntimeManager manager;
     protected final ConcurrentHashMap<Long, List<GlobalJobHandle>> timerJobsPerSession = new ConcurrentHashMap<Long, List<GlobalJobHandle>>();
+    protected final ConcurrentSkipListSet<GlobalJobHandle> startTimerJobs = new ConcurrentSkipListSet<>((o1, o2) -> ((Long) o1.getId()).compareTo(o2.getId()));
  
     private String timerServiceId;
     
@@ -80,7 +83,14 @@ public class GlobalTimerService implements TimerService, InternalSchedulerServic
 
     @Override
     public JobHandle scheduleJob(Job job, JobContext ctx, Trigger trigger) {
-        if (ctx instanceof ProcessJobContext) {
+        if (ctx instanceof StartProcessJobContext) {
+            // no session for start process job context
+            GlobalJobHandle jobHandle = (GlobalJobHandle) this.schedulerService.scheduleJob(job, ctx, trigger);
+            if (jobHandle != null) {
+                startTimerJobs.add(jobHandle);
+            }
+            return jobHandle;
+        } else if (ctx instanceof ProcessJobContext) {
             ProcessJobContext processCtx = (ProcessJobContext) ctx; 
  
             List<GlobalJobHandle> jobHandles = timerJobsPerSession.get(processCtx.getSessionId());
@@ -113,7 +123,12 @@ public class GlobalTimerService implements TimerService, InternalSchedulerServic
         if (jobHandle == null) {
             return false;
         }
-        
+
+        if (startTimerJobs.contains(jobHandle)) {
+            logger.debug("Start Job timer handle found {} removed", jobHandle.getId());
+            return this.schedulerService.removeJob(jobHandle);
+        }
+
         long sessionId = ((GlobalJobHandle) jobHandle).getSessionId();
         List<GlobalJobHandle> handles = timerJobsPerSession.get(sessionId);
         if (handles == null) {
@@ -143,6 +158,7 @@ public class GlobalTimerService implements TimerService, InternalSchedulerServic
     public void reset() {
         schedulerService.initScheduler(this);
         timerJobsPerSession.clear();
+        startTimerJobs.clear();
         jobFactoryManager = initJobFactoryManager();
     }
 
@@ -159,6 +175,8 @@ public class GlobalTimerService implements TimerService, InternalSchedulerServic
                 this.schedulerService.removeJob(handle);
             }
         }
+
+        startTimerJobs.stream().forEach(handle -> this.schedulerService.removeJob(handle));
     }
 
     @Override
