@@ -50,11 +50,19 @@ public class DateTimeUtils extends TimeUtils {
     }
 
     public static long getMillis(String durationStr) {
-        if (durationStr.startsWith("PT")) { // ISO-8601 Hour(s), minute(s), second(s)
+        if (durationStr.startsWith("PT")) { // ISO-8601 PTnHnMn.nS
             return Duration.parse(durationStr).toMillis();
-        } else { // ISO-8601 Year(s), month(s), week(s), day(s)
-            LocalDateTime ldt = OffsetDateTime.now().toLocalDateTime();
-            return ldt.until(ldt.plus(Period.parse(durationStr)), ChronoUnit.MILLIS);
+        } else if (!durationStr.contains("T")) { // ISO-8601 PnYnMnWnD
+            Period period = Period.parse(durationStr);
+            OffsetDateTime now = OffsetDateTime.now();
+            return Duration.between(now, now.plus(period)).toMillis();
+        } else { // ISO-8601 PnYnMnWnDTnHnMn.nS
+            String[] elements = durationStr.split("T");
+            Period period = Period.parse(elements[0]);
+            Duration duration = Duration.parse("PT" + elements[1]);
+            OffsetDateTime now = OffsetDateTime.now();
+
+            return Duration.between(now, now.plus(period).plus(duration)).toMillis();
         }
     }
 

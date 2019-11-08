@@ -19,9 +19,11 @@ package org.jbpm.process.core.timer;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 
 import org.jbpm.test.util.AbstractBaseTest;
 import org.junit.Test;
@@ -131,5 +133,75 @@ public class DateTimeUtilsTest extends AbstractBaseTest {
         assertTrue("Parsed delay is bigger than " + MINUTE_IN_MILLISECONDS, parsedRepeatable[1] <= MINUTE_IN_MILLISECONDS);
         assertTrue("Parsed delay is too low! Expected value is between " + MINUTE_IN_MILLISECONDS + " and " + FIFTY_NINE_SECONDS_IN_MILLISECONDS + " but is " + parsedRepeatable[1], parsedRepeatable[1] > FIFTY_NINE_SECONDS_IN_MILLISECONDS);
         assertEquals("Parsed period should be one minute in milliseconds but is " + parsedRepeatable[2], MINUTE_IN_MILLISECONDS, parsedRepeatable[2]);
+    }
+
+    @Test
+    public void testParseRepeatableFullPeriodOnly() {
+        OffsetDateTime now = OffsetDateTime.now();
+        long expectedMillis = Duration.between(now, now.plus(10, ChronoUnit.YEARS).plus(10, ChronoUnit.MINUTES)).toMillis();
+        String isoString = "R/P10YT10M";
+
+        long[] parsedRepeatable = DateTimeUtils.parseRepeatableDateTime(isoString);
+
+        assertEquals(-1L, parsedRepeatable[0]);
+
+        assertTrue("Parsed delay is bigger than " + expectedMillis, parsedRepeatable[1] <= expectedMillis);
+        assertTrue(
+                "Parsed delay is too low! Expected value is between " + expectedMillis + " and " + (expectedMillis - 1000) + " but is " + parsedRepeatable[1],
+                parsedRepeatable[1] > expectedMillis - 1000);
+        assertEquals("Parsed period should be one minute in milliseconds but is " + parsedRepeatable[2], expectedMillis, parsedRepeatable[2]);
+    }
+
+    @Test
+    public void testParseRepeatableFullPeriodPTnHnMnOnly() {
+        OffsetDateTime now = OffsetDateTime.now();
+        long expectedMillis = Duration.between(now, now.plus(10, ChronoUnit.HOURS).plus(10, ChronoUnit.MINUTES).plus(10, ChronoUnit.SECONDS)).toMillis();
+        String isoString = "R/PT10H10M10S"; // ISO-8601 PTnHnMn.nS
+
+        long[] parsedRepeatable = DateTimeUtils.parseRepeatableDateTime(isoString);
+
+        assertEquals(-1L, parsedRepeatable[0]);
+
+        assertTrue("Parsed delay is bigger than " + expectedMillis, parsedRepeatable[1] <= expectedMillis);
+        assertTrue(
+                "Parsed delay is too low! Expected value is between " + expectedMillis + " and " + (expectedMillis - 1000) + " but is " + parsedRepeatable[1],
+                parsedRepeatable[1] > expectedMillis - 1000);
+        assertEquals("Parsed period should be one minute in milliseconds but is " + parsedRepeatable[2], expectedMillis, parsedRepeatable[2]);
+    }
+
+    @Test
+    public void testParseRepeatableFullPeriodPnYnMnWnDOnly() {
+        OffsetDateTime now = OffsetDateTime.now();
+        long expectedMillis = Duration
+                .between(now, now.plus(10, ChronoUnit.YEARS).plus(10, ChronoUnit.MONTHS).plus(10, ChronoUnit.WEEKS).plus(10, ChronoUnit.DAYS)).toMillis();
+        String isoString = "R/P10Y10M10W10D"; // ISO-8601 PnYnMnWnD
+
+        long[] parsedRepeatable = DateTimeUtils.parseRepeatableDateTime(isoString);
+
+        assertEquals(-1L, parsedRepeatable[0]);
+
+        assertTrue("Parsed delay is bigger than " + expectedMillis, parsedRepeatable[1] <= expectedMillis);
+        assertTrue(
+                "Parsed delay is too low! Expected value is between " + expectedMillis + " and " + (expectedMillis - 1000) + " but is " + parsedRepeatable[1],
+                parsedRepeatable[1] > expectedMillis - 1000);
+        assertEquals("Parsed period should be one minute in milliseconds but is " + parsedRepeatable[2], expectedMillis, parsedRepeatable[2]);
+    }
+
+    @Test
+    public void testParseRepeatableFullPeriodPnYnMnWnDTnHnMnOnly() {
+        OffsetDateTime now = OffsetDateTime.now();
+        long expectedMillis = Duration.between(now, now.plus(10, ChronoUnit.YEARS).plus(10, ChronoUnit.MONTHS).plus(10, ChronoUnit.WEEKS)
+                .plus(10, ChronoUnit.DAYS).plus(10, ChronoUnit.HOURS).plus(10, ChronoUnit.MINUTES).plus(10, ChronoUnit.SECONDS)).toMillis();
+        String isoString = "R/P10Y10M10W10DT10H10M10S"; // ISO-8601 PnYnMnWnDTnHnMn.nS
+
+        long[] parsedRepeatable = DateTimeUtils.parseRepeatableDateTime(isoString);
+
+        assertEquals(-1L, parsedRepeatable[0]);
+
+        assertTrue("Parsed delay is bigger than " + expectedMillis, parsedRepeatable[1] <= expectedMillis);
+        assertTrue(
+                "Parsed delay is too low! Expected value is between " + expectedMillis + " and " + (expectedMillis - 1000) + " but is " + parsedRepeatable[1],
+                parsedRepeatable[1] > expectedMillis - 1000);
+        assertEquals("Parsed period should be one minute in milliseconds but is " + parsedRepeatable[2], expectedMillis, parsedRepeatable[2]);
     }
 }
