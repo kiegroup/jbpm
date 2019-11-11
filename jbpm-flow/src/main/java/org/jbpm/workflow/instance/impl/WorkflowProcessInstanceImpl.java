@@ -256,13 +256,17 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 		return result;
 	}
 
-	@Override
-	public NodeInstance getNodeInstance(final Node node) {
+    @Override
+    public NodeInstance getNodeInstance(final Node node) {
+        return getNodeInstance(node, true);
+    }
+
+    public NodeInstance getNodeInstance(final Node node, boolean wrap) {
 	    Node actualNode = node;
 	    // async continuation handling
-	    if (node instanceof AsyncEventNode) {
+        if (node instanceof AsyncEventNode) {
             actualNode = ((AsyncEventNode) node).getActualNode();
-        } else if (useAsync(node)) {
+        } else if (wrap && useAsync(node)) {
             actualNode = new AsyncEventNode(node);
         }
 

@@ -29,12 +29,21 @@ import org.jbpm.workflow.instance.node.DynamicUtils;
 import org.junit.Test;
 import org.kie.api.command.Command;
 import org.kie.api.runtime.KieSession;
-import org.kie.api.runtime.process.*;
+import org.kie.api.runtime.process.ProcessInstance;
+import org.kie.api.runtime.process.WorkItem;
+import org.kie.api.runtime.process.WorkItemHandler;
+import org.kie.api.runtime.process.WorkItemManager;
+import org.kie.api.runtime.process.WorkflowProcessInstance;
 import org.kie.internal.command.CommandFactory;
 import qa.tools.ikeeper.annotation.BZ;
 
-import static org.jbpm.test.tools.TrackingListenerAssert.*;
-import static org.junit.Assert.*;
+import static org.jbpm.test.tools.TrackingListenerAssert.assertLeft;
+import static org.jbpm.test.tools.TrackingListenerAssert.assertProcessCompleted;
+import static org.jbpm.test.tools.TrackingListenerAssert.assertProcessStarted;
+import static org.jbpm.test.tools.TrackingListenerAssert.assertTriggered;
+import static org.jbpm.test.tools.TrackingListenerAssert.assertTriggeredAndLeft;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 public class AdHocSubProcessTest extends JbpmTestCase {
 
@@ -196,6 +205,8 @@ public class AdHocSubProcessTest extends JbpmTestCase {
         assertLeft(eventListener, "adhoc");
         assertProcessCompleted(eventListener, ADHOC_AUTOCOMPLETE2_ID);
     }
+
+
 
     /**
      * Same as {@link #testAdHocSubprocessAutocomplete()} but BPMN contains the
