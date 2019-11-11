@@ -119,6 +119,7 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
         processes.add("cases/InclusiveGatewayInDynamicCase.bpmn2");
         processes.add("cases/CaseMultiInstanceStage.bpmn2");
         processes.add("cases/UserTaskCaseData.bpmn2");
+        processes.add("cases/CaseWithStageAndBoundaryTimer.bpmn2");
         // add processes that can be used by cases but are not cases themselves
         processes.add("processes/DataVerificationProcess.bpmn2");
         return processes;
@@ -3694,6 +3695,37 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
         } finally {
             if (caseId != null) {
                 identityProvider.setName("john");
+                caseService.cancelCase(caseId);
+            }
+        }
+    }
+    
+    @Test
+    public void testCaseWithStageAndBoundaryTimerFired() throws InterruptedException {
+        String caseId = caseService.startCase(deploymentUnit.getIdentifier(), "CaseWithStageAndBoundaryTimer");
+        assertNotNull(caseId);
+        assertEquals(FIRST_CASE_ID, caseId);
+        
+        Thread.sleep(2000);
+        
+        try {
+            Collection<CaseStageInstance> stages = caseRuntimeDataService.getCaseInstanceStages(caseId, false, null);
+            assertThat(stages).isNotNull().hasSize(1);
+            Iterator<CaseStageInstance> iterator = stages.iterator();
+
+            CaseStageInstance stage1 = iterator.next();
+            assertThat(stage1.getName()).isEqualTo("Stage 1");
+            assertThat(stage1.getStatus()).isEqualTo(StageStatus.Completed);
+
+            caseService.cancelCase(caseId);
+            CaseInstance instance = caseService.getCaseInstance(caseId);
+            assertThat(instance.getStatus()).isEqualTo(CaseStatus.CANCELLED.getId());
+            caseId = null;
+        } catch (Exception e) {
+            logger.error("Unexpected error {}", e.getMessage(), e);
+            fail("Unexpected exception " + e.getMessage());
+        } finally {
+            if (caseId != null) {
                 caseService.cancelCase(caseId);
             }
         }

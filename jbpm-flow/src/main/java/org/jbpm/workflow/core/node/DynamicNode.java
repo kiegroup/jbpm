@@ -40,7 +40,7 @@ public class DynamicNode extends CompositeContextNode {
         }
 
         for (Node node : getNodes()) {
-            if (resolver.apply(node.getName()).contains(type) && node.getIncomingConnections().isEmpty()) {
+            if (node.getName()!=null && resolver.apply(node.getName()).contains(type) && node.getIncomingConnections().isEmpty()) {
                 return true;
             }
         }
