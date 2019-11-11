@@ -136,7 +136,7 @@ public class DateTimeUtilsTest extends AbstractBaseTest {
     }
 
     @Test
-    public void testParseRepeatableFullPeriodOnly() {
+    public void testParseRepeatablePeriodPnYTnMOnly() {
         OffsetDateTime now = OffsetDateTime.now();
         long expectedMillis = Duration.between(now, now.plus(10, ChronoUnit.YEARS).plus(10, ChronoUnit.MINUTES)).toMillis();
         String isoString = "R/P10YT10M";
@@ -149,11 +149,11 @@ public class DateTimeUtilsTest extends AbstractBaseTest {
         assertTrue(
                 "Parsed delay is too low! Expected value is between " + expectedMillis + " and " + (expectedMillis - 1000) + " but is " + parsedRepeatable[1],
                 parsedRepeatable[1] > expectedMillis - 1000);
-        assertEquals("Parsed period should be one minute in milliseconds but is " + parsedRepeatable[2], expectedMillis, parsedRepeatable[2]);
+        assertEquals("Parsed period should be 10 years and 10 minutes in milliseconds but is " + parsedRepeatable[2], expectedMillis, parsedRepeatable[2]);
     }
 
     @Test
-    public void testParseRepeatableFullPeriodPTnHnMnOnly() {
+    public void testParseRepeatablePeriodPTnHnMnOnly() {
         OffsetDateTime now = OffsetDateTime.now();
         long expectedMillis = Duration.between(now, now.plus(10, ChronoUnit.HOURS).plus(10, ChronoUnit.MINUTES).plus(10, ChronoUnit.SECONDS)).toMillis();
         String isoString = "R/PT10H10M10S"; // ISO-8601 PTnHnMn.nS
@@ -166,11 +166,11 @@ public class DateTimeUtilsTest extends AbstractBaseTest {
         assertTrue(
                 "Parsed delay is too low! Expected value is between " + expectedMillis + " and " + (expectedMillis - 1000) + " but is " + parsedRepeatable[1],
                 parsedRepeatable[1] > expectedMillis - 1000);
-        assertEquals("Parsed period should be one minute in milliseconds but is " + parsedRepeatable[2], expectedMillis, parsedRepeatable[2]);
+        assertEquals("Parsed period should be 10 hours, 10 minutes and 10 seconds in milliseconds but is " + parsedRepeatable[2], expectedMillis, parsedRepeatable[2]);
     }
 
     @Test
-    public void testParseRepeatableFullPeriodPnYnMnWnDOnly() {
+    public void testParseRepeatablePeriodPnYnMnWnDOnly() {
         OffsetDateTime now = OffsetDateTime.now();
         long expectedMillis = Duration
                 .between(now, now.plus(10, ChronoUnit.YEARS).plus(10, ChronoUnit.MONTHS).plus(10, ChronoUnit.WEEKS).plus(10, ChronoUnit.DAYS)).toMillis();
@@ -184,11 +184,11 @@ public class DateTimeUtilsTest extends AbstractBaseTest {
         assertTrue(
                 "Parsed delay is too low! Expected value is between " + expectedMillis + " and " + (expectedMillis - 1000) + " but is " + parsedRepeatable[1],
                 parsedRepeatable[1] > expectedMillis - 1000);
-        assertEquals("Parsed period should be one minute in milliseconds but is " + parsedRepeatable[2], expectedMillis, parsedRepeatable[2]);
+        assertEquals("Parsed period should be 10 years, 10 months, 10 weeks and 10 days in milliseconds but is " + parsedRepeatable[2], expectedMillis, parsedRepeatable[2]);
     }
 
     @Test
-    public void testParseRepeatableFullPeriodPnYnMnWnDTnHnMnOnly() {
+    public void testParseRepeatablePeriodPnYnMnWnDTnHnMnOnly() {
         OffsetDateTime now = OffsetDateTime.now();
         long expectedMillis = Duration.between(now, now.plus(10, ChronoUnit.YEARS).plus(10, ChronoUnit.MONTHS).plus(10, ChronoUnit.WEEKS)
                 .plus(10, ChronoUnit.DAYS).plus(10, ChronoUnit.HOURS).plus(10, ChronoUnit.MINUTES).plus(10, ChronoUnit.SECONDS)).toMillis();
@@ -202,6 +202,6 @@ public class DateTimeUtilsTest extends AbstractBaseTest {
         assertTrue(
                 "Parsed delay is too low! Expected value is between " + expectedMillis + " and " + (expectedMillis - 1000) + " but is " + parsedRepeatable[1],
                 parsedRepeatable[1] > expectedMillis - 1000);
-        assertEquals("Parsed period should be one minute in milliseconds but is " + parsedRepeatable[2], expectedMillis, parsedRepeatable[2]);
+        assertEquals("Parsed period should be 10 years, 10 months, 10 weeks, 10 days, 10 hours, 10 minutes and 10 seconds in milliseconds but is " + parsedRepeatable[2], expectedMillis, parsedRepeatable[2]);
     }
 }
