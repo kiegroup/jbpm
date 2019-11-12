@@ -79,6 +79,12 @@ public abstract class StateBasedNodeInstance extends ExtendedNodeInstanceImpl im
         if (getNodeInstanceContainer().getNodeInstance(getId()) == null) {
             return;
         }
+
+        registerBoundaryEvents();
+
+    }
+
+    protected void registerBoundaryEvents() {
         // activate timers
         Map<Timer, DroolsAction> timers = getEventBasedNode().getTimers();
         if (timers != null) {

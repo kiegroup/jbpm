@@ -32,12 +32,14 @@ public class DefaultCountDownProcessEventListener extends DefaultProcessEventLis
     private static final Logger logger = LoggerFactory.getLogger(DefaultCountDownProcessEventListener.class);
 
     protected CountDownLatch latch;
+    protected int threads;
 
     public DefaultCountDownProcessEventListener() {
 
     }
 
     public DefaultCountDownProcessEventListener(int threads) {
+        this.threads = threads;
         this.latch = new CountDownLatch(threads);
     }
 
@@ -84,5 +86,9 @@ public class DefaultCountDownProcessEventListener extends DefaultProcessEventLis
         } catch (Exception e) {
             latch.countDown();
         }
+    }
+
+    public void reset() {
+        this.latch = new CountDownLatch(this.threads);
     }
 }
