@@ -34,7 +34,7 @@
     <maven.jdbc.db.server/>
     <maven.jdbc.username>sa</maven.jdbc.username>
     <maven.jdbc.password>sasa</maven.jdbc.password>
-    <maven.jdbc.url>jdbc:h2:mem:test;MVCC=true</maven.jdbc.url>
+    <maven.jdbc.url>jdbc:h2:mem:test</maven.jdbc.url>
   </properties>
 
 </project>

@@ -124,7 +124,7 @@ public abstract class JbpmJUnitTestCase extends AbstractBaseTest {
         Properties driverProperties = new Properties();
         driverProperties.put("user", "sa");
         driverProperties.put("password", "");
-        driverProperties.put("url", "jdbc:h2:tcp://localhost/~/jbpm-db;MVCC=true");
+        driverProperties.put("url", "jdbc:h2:tcp://localhost/~/jbpm-db");
         driverProperties.put("driverClassName", "org.h2.Driver");
         driverProperties.put("className", "org.h2.jdbcx.JdbcDataSource");
         

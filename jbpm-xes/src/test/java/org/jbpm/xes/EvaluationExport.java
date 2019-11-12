@@ -54,7 +54,7 @@ public class EvaluationExport extends JbpmJUnitBaseTestCase {
 
     @Before
     public void setup() {
-        xesDataSource = setupDataSource("jdbc:h2:mem:jbpm-db;MVCC=true");
+        xesDataSource = setupDataSource("jdbc:h2:mem:jbpm-db");
     }
 
     @After

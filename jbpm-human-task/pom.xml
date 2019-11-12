@@ -50,7 +50,7 @@
     
     <!-- H2
      -->
-    <maven.jdbc.url>jdbc:h2:mem:jbpm-db;MVCC=true</maven.jdbc.url>
+    <maven.jdbc.url>jdbc:h2:mem:jbpm-db</maven.jdbc.url>
   </properties>
 
   <build>

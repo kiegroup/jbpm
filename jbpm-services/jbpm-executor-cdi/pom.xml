@@ -17,7 +17,7 @@
     <maven.jdbc.db.name />
     <maven.jdbc.db.port />
     <maven.jdbc.db.server />
-    <maven.jdbc.url>jdbc:h2:mem:test;MVCC=true</maven.jdbc.url>
+    <maven.jdbc.url>jdbc:h2:mem:test</maven.jdbc.url>
   </properties>
 
   <dependencies>

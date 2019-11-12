@@ -73,8 +73,8 @@ public class DBUnavilabilityExecutorTest{
     @Before
     public void setUp() {
         Properties dsProps = ExecutorTestUtil.getDatasourceProperties();
-        dsProps.setProperty("url", "jdbc:h2:tcp://localhost:9123/target/jbpm-exec-test;MVCC=TRUE");
-        pds = PersistenceUtil.setupPoolingDataSource(dsProps, "jdbc/jbpm-ds");
+        dsProps.setProperty("url", "jdbc:h2:tcp://localhost:9123/target/jbpm-exec-test");
+        pds = PersistenceUtil.setupPoolingDataSource(dsProps, "jdbc/jbpm-ds");        
         emf = Persistence.createEntityManagerFactory("org.jbpm.executor");
 
         executorService = ExecutorServiceFactory.newExecutorService(emf);
