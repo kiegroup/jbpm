@@ -57,10 +57,15 @@ import org.kie.api.runtime.manager.RuntimeManagerFactory;
 import org.kie.api.runtime.manager.audit.ProcessInstanceLog;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.process.WorkItemHandler;
+import org.kie.api.task.TaskService;
+import org.kie.api.task.model.TaskSummary;
 import org.kie.internal.io.ResourceFactory;
 import org.kie.internal.runtime.manager.context.EmptyContext;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 import org.kie.internal.task.api.UserGroupCallback;
+
+import static org.kie.api.runtime.process.ProcessInstance.STATE_ACTIVE;
+import static org.kie.api.runtime.process.ProcessInstance.STATE_COMPLETED;
 
 @RunWith(Parameterized.class)
 public class TimerMigrationManagerTest extends AbstractBaseTest {
@@ -86,6 +91,9 @@ public class TimerMigrationManagerTest extends AbstractBaseTest {
     private RuntimeManager managerV2;
     
     // general info
+    private static final String USER_JOHN = "john";
+    private static final String USER_MARY= "mary";
+
     private static final String DEPLOYMENT_ID_V1 = "managerV1";
     private static final String DEPLOYMENT_ID_V2 = "managerV2";
     
@@ -104,7 +112,11 @@ public class TimerMigrationManagerTest extends AbstractBaseTest {
     private static final String LOOP_TIMER_ID_V1 = "ProcessClaim.CheckDisruption-v1";
     private static final String LOOP_TIMER_ID_V2 = "ProcessClaim.CheckDisruption-v2";
     
+    private static final String USERTASK_BOUNDARY_TIMER_ID_V1 = "UserTaskBoundary-v1";
+    private static final String USERTASK_BOUNDARY_TIMER_ID_V2 = "UserTaskBoundary-v2";
     private JPAAuditLogService auditService;
+    private RuntimeEngine runtime;
+    private long pid;
     
     @Before
     public void setup() {
@@ -547,6 +559,36 @@ public class TimerMigrationManagerTest extends AbstractBaseTest {
 
     }
     
+    @Test(timeout=10000)
+    public void testMigrateUserTaskCompletedBoundaryTimerProcessInstance() throws Exception {
+        NodeLeftCountDownProcessEventListener countdownListener = new NodeLeftCountDownProcessEventListener("Script Task 1", 1);
+
+        pid = startProcessTillBoundaryTimer(countdownListener);
+        completeUserTask(managerV1, USER_JOHN);
+
+        migrateProcessUserTaskBoundary();
+
+        //Only needs to complete Mary's task after migration
+        completeUserTask(managerV2, USER_MARY);
+
+        checkProcessCompleted(countdownListener);
+    }
+
+    @Test(timeout=10000)
+    public void testMigrateUserTaskNotCompletedBoundaryTimerProcessInstance() throws Exception {
+        NodeLeftCountDownProcessEventListener countdownListener = new NodeLeftCountDownProcessEventListener("Script Task 1", 1);
+
+        pid = startProcessTillBoundaryTimer(countdownListener);
+
+        migrateProcessUserTaskBoundary();
+
+        //Needs to complete both user tasks after migration
+        completeUserTask(managerV2, USER_JOHN);
+        completeUserTask(managerV2, USER_MARY);
+
+        checkProcessCompleted(countdownListener);
+    }
+
     protected void createRuntimeManagers(String processV1, String processV2, ProcessEventListener...eventListeners) {
         RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
                 .newDefaultBuilder()
@@ -623,5 +665,75 @@ public class TimerMigrationManagerTest extends AbstractBaseTest {
         } 
         assertNotNull(managerV1);
         assertNotNull(managerV2);
+    }
+
+    private long startProcessTillBoundaryTimer(NodeLeftCountDownProcessEventListener countdownListener) {
+        auditService = new JPAAuditLogService(emf);
+        
+        createRuntimeManagers("migration/v1/BPMN2-UserTaskBoundary-v1.bpmn2", "migration/v2/BPMN2-UserTaskBoundary-v2.bpmn2", countdownListener);
+        runtime = managerV1.getRuntimeEngine(EmptyContext.get());
+        
+        long pid = startProcess(runtime, USERTASK_BOUNDARY_TIMER_ID_V1);
+        checkProcess(pid, USERTASK_BOUNDARY_TIMER_ID_V1, DEPLOYMENT_ID_V1, STATE_ACTIVE);
+        
+        //wait for boundary timer
+        countdownListener.waitTillCompleted();
+        countdownListener.reset("Goodbye v2", 1);
+        return pid;
+    }
+
+    private long startProcess(RuntimeEngine runtime, String processId) {
+        KieSession ksession = runtime.getKieSession();
+        assertNotNull(ksession); 
+        ProcessInstance pi1 = ksession.startProcess(processId);
+        assertNotNull(pi1);
+        assertEquals(STATE_ACTIVE, pi1.getState()); 
+        return pi1.getId();
+    }
+
+    private void checkProcess(long pid, String processId, 
+                              String deploymentId, int status) {
+        ProcessInstanceLog log = auditService.findProcessInstance(pid);
+        assertNotNull(log);
+        assertEquals(processId, log.getProcessId());
+        assertEquals(deploymentId, log.getExternalId());
+        assertEquals(status, log.getStatus().intValue());
+    }
+
+    private void migrateProcessUserTaskBoundary() {
+        managerV1.disposeRuntimeEngine(runtime);
+        
+        MigrationSpec migrationSpec = new MigrationSpec(DEPLOYMENT_ID_V1, pid, DEPLOYMENT_ID_V2, USERTASK_BOUNDARY_TIMER_ID_V2);
+        
+        MigrationManager migrationManager = new MigrationManager(migrationSpec);
+        migrationManager.migrate();
+        
+        checkProcess(pid, USERTASK_BOUNDARY_TIMER_ID_V2, DEPLOYMENT_ID_V2, STATE_ACTIVE);
+    }
+
+    private void completeUserTask(RuntimeManager manager, String user) {
+        RuntimeEngine runtime = manager.getRuntimeEngine(EmptyContext.get());
+        TaskService taskService = runtime.getTaskService();
+        List<TaskSummary> tasks = taskService.getTasksAssignedAsPotentialOwner(user, "en-UK"); 
+        assertNotNull(tasks);
+        assertEquals(1, tasks.size());
+        
+        TaskSummary task = tasks.get(0);
+        assertNotNull(task);
+        
+        tasks = taskService.getTasksAssignedAsPotentialOwner(user, "en-UK");
+        assertNotNull(tasks);
+        assertEquals(1, tasks.size());
+        taskService.start(task.getId(), user);
+        taskService.complete(task.getId(), user, null);
+    }
+
+    private void checkProcessCompleted(NodeLeftCountDownProcessEventListener countdownListener){
+        // check GoodBye v2 has been executed
+        countdownListener.waitTillCompleted();
+        
+        checkProcess(pid, USERTASK_BOUNDARY_TIMER_ID_V2, DEPLOYMENT_ID_V2, STATE_COMPLETED);
+        
+        auditService.dispose();
     }
 }
