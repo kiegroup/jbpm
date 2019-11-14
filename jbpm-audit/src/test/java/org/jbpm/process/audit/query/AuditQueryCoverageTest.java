@@ -34,6 +34,7 @@ import org.jbpm.process.audit.ProcessInstanceLog;
 import org.jbpm.process.audit.VariableInstanceLog;
 import org.jbpm.process.audit.strategy.StandaloneJtaStrategy;
 import org.jbpm.query.QueryBuilderCoverageTestUtil.ModuleSpecificInputFiller;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -62,20 +63,22 @@ public class AuditQueryCoverageTest extends JPAAuditLogService {
     }
     
     @AfterClass
-    public static void reset() { 
-        cleanDB(emf);
+    public static void reset() {
         afterClass();
     }
 
     @Before
     public void setUp() throws Exception {
-        if( pilTestData == null ) { 
-            // this is not really necessary.. 
-            pilTestData = createTestProcessInstanceLogData(emf);
-            vilTestData = createTestVariableInstanceLogData(emf);
-            nilTestData = createTestNodeInstanceLogData(emf);
-        }
+        pilTestData = createTestProcessInstanceLogData(emf);
+        vilTestData = createTestVariableInstanceLogData(emf);
+        nilTestData = createTestNodeInstanceLogData(emf);
+
         this.persistenceStrategy = new StandaloneJtaStrategy(emf);
+    }
+
+    @After
+    public void tearDown() {
+        cleanDB(emf);
     }
   
     private static ModuleSpecificInputFiller inputFiller = new ModuleSpecificInputFiller() {

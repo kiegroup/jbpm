@@ -51,6 +51,7 @@ import org.jbpm.process.audit.VariableInstanceLog;
 import org.jbpm.process.audit.strategy.StandaloneJtaStrategy;
 import org.jbpm.process.instance.impl.util.LoggingPrintStream;
 import org.jbpm.test.util.AbstractBaseTest;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -93,18 +94,21 @@ public class AuditQueryTest extends JPAAuditLogService {
     @AfterClass
     public static void reset() { 
         LoggingPrintStream.resetInterceptSysOutSysErr();
-        cleanDB(emf);
         cleanUp(context);
     }
 
     @Before
     public void setUp() throws Exception {
-        if( pilTestData == null ) { 
-                pilTestData = createTestProcessInstanceLogData(emf);
-                vilTestData = createTestVariableInstanceLogData(emf);
-                nilTestData = createTestNodeInstanceLogData(emf);
-        }
+        pilTestData = createTestProcessInstanceLogData(emf);
+        vilTestData = createTestVariableInstanceLogData(emf);
+        nilTestData = createTestNodeInstanceLogData(emf);
+
         this.persistenceStrategy = new StandaloneJtaStrategy(emf);
+    }
+
+    @After
+    public void tearDown() {
+        cleanDB(emf);
     }
    
     @Test
