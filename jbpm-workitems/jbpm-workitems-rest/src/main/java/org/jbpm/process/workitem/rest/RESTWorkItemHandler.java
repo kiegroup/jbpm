@@ -85,6 +85,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.exabrial.formbinding.FormBindingReader;
+import com.github.exabrial.formbinding.FormBindingWriter;
+import com.github.exabrial.formbinding.spi.FormBinding;
 
 /**
  * WorkItemHandler that is capable of interacting with REST service. Supports both types of services
@@ -983,6 +986,9 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler imple
                                                        stringRep);
 
                 return stringRep.toString();
+            } else if (contentType.toLowerCase().contains("application/x-www-form-urlencoded")) {
+            	FormBindingWriter writer = FormBinding.getWriter();
+            	return writer.write(data);
             }
         } catch (Exception e) {
             throw new RuntimeException("Unable to transform request to object",
@@ -1005,6 +1011,9 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler imple
             JAXBContext jaxbContext = JAXBContext.newInstance(new Class[]{clazz});
 
             return jaxbContext.createUnmarshaller().unmarshal(result);
+        } else if (contentType.toLowerCase().contains("application/x-www-form-urlencoded")) {
+        	FormBindingReader reader = FormBinding.getReader();
+        	return reader.read(content, clazz);
         }
         logger.warn("Unable to find transformer for content type '{}' to handle for content '{}'",
                     contentType,

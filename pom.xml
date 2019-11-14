@@ -155,6 +155,11 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
+                <groupId>com.github.exabrial</groupId>
+                <artifactId>form-binding</artifactId>
+                <version>1.0.0</version>
+            </dependency>
+            <dependency>
                 <groupId>org.jbpm</groupId>
                 <artifactId>jbpm-test-util</artifactId>
                 <version>${project.version}</version>
