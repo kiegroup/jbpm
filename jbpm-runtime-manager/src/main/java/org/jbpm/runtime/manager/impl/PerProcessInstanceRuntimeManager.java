@@ -107,7 +107,7 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
     	if (isClosed()) {
     		throw new IllegalStateException("Runtime manager " + identifier + " is already closed");
     	}
-    	checkPermission();
+    	
     	RuntimeEngine runtime = null;
     	Object contextId = context.getContextId();
     	
@@ -572,7 +572,7 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
                 ksessionId = ksession.getIdentifier();                 
             } else {
                 RuntimeEngine localRuntime = ((PerProcessInstanceRuntimeManager)manager).findLocalRuntime(contextId);
-                if (localRuntime != null && ((RuntimeEngineImpl)engine).internalGetKieSession() != null) {
+                if (localRuntime != null && ((RuntimeEngineImpl)engine).getKieSessionId() != null) {
                     return localRuntime.getKieSession();
                 }
                 ksessionId = mapper.findMapping(context, manager.getIdentifier());
@@ -591,7 +591,8 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
 
     	@Override
     	public TaskService initTaskService(Context<?> context, InternalRuntimeManager manager, RuntimeEngine engine) {
-    		InternalTaskService internalTaskService = newTaskService(taskServiceFactory);
+    		
+    	    InternalTaskService internalTaskService = newTaskService(taskServiceFactory);
     		if (internalTaskService != null) {
         		registerDisposeCallback(engine, new DisposeSessionTransactionSynchronization(manager, engine), ((CommandBasedTaskService) internalTaskService).getEnvironment());
                 configureRuntimeOnTaskService(internalTaskService, engine);

@@ -113,7 +113,7 @@ public class SingletonRuntimeManager extends AbstractRuntimeManager {
         try {
             if (knownSessionId > 0) {
                 try {
-                    this.singleton = new SynchronizedRuntimeImpl(factory.findKieSessionById(knownSessionId), internalTaskService);
+                    this.singleton = new SynchronizedRuntimeImpl(this, factory.findKieSessionById(knownSessionId), internalTaskService);
                 } catch (RuntimeException e) {
                     // in case session with known id was found
                 }
@@ -121,7 +121,7 @@ public class SingletonRuntimeManager extends AbstractRuntimeManager {
             
             if (this.singleton == null) {
                 
-                this.singleton = new SynchronizedRuntimeImpl(factory.newKieSession(), internalTaskService);            
+                this.singleton = new SynchronizedRuntimeImpl(this, factory.newKieSession(), internalTaskService);            
                 persistSessionId(location, identifier, singleton.getKieSession().getIdentifier());
             }
             ((RuntimeEngineImpl) singleton).setManager(this);
@@ -189,7 +189,7 @@ public class SingletonRuntimeManager extends AbstractRuntimeManager {
     	if (isClosed()) {
     		throw new IllegalStateException("Runtime manager " + identifier + " is already closed");
     	}
-    	checkPermission();
+    	
         // always return the same instance
         return this.singleton;
     }
@@ -199,7 +199,7 @@ public class SingletonRuntimeManager extends AbstractRuntimeManager {
         if (isClosed()) {
             throw new IllegalStateException("Runtime manager " + identifier + " is already closed");
         }
-        checkPermission();
+        
         this.singleton.getKieSession().signalEvent(type, event);
     }
 
@@ -208,7 +208,7 @@ public class SingletonRuntimeManager extends AbstractRuntimeManager {
     	if (isClosed()) {
     		throw new IllegalStateException("Runtime manager " + identifier + " is already closed");
     	}
-        if (this.singleton != null && this.singleton.getKieSession().getIdentifier() != ksession.getIdentifier()) {
+        if (this.singleton != null && ((RuntimeEngineImpl)this.singleton).getKieSessionId() != ksession.getIdentifier()) {
             throw new IllegalStateException("Invalid session was used for this context " + context);
         }
     }

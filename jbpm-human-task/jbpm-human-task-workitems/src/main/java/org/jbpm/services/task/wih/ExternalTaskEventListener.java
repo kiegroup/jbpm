@@ -26,6 +26,7 @@ import org.kie.api.task.TaskEvent;
 import org.kie.api.task.TaskLifeCycleEventListener;
 import org.kie.api.task.model.Status;
 import org.kie.api.task.model.Task;
+import org.kie.internal.runtime.manager.InternalRuntimeEngine;
 import org.kie.internal.runtime.manager.RuntimeManagerRegistry;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 import org.kie.internal.task.api.prediction.PredictionService;
@@ -49,7 +50,7 @@ public class ExternalTaskEventListener implements TaskLifeCycleEventListener {
         long processInstanceId = task.getTaskData().getProcessInstanceId();
         RuntimeManager manager = getManager(task);
         RuntimeEngine runtime = manager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstanceId));
-        KieSession session = runtime.getKieSession();
+        KieSession session = ((InternalRuntimeEngine) runtime).internalGetKieSession();
 
         if (task.getTaskData().getStatus() == Status.Completed) {
             String userId = task.getTaskData().getActualOwner().getId();
@@ -105,7 +106,7 @@ public class ExternalTaskEventListener implements TaskLifeCycleEventListener {
             throw new RuntimeException("No RuntimeManager registered with identifier: " + task.getTaskData().getDeploymentId());
         }
         RuntimeEngine runtime = manager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstanceId));
-        KieSession session = runtime.getKieSession();
+        KieSession session = ((InternalRuntimeEngine) runtime).internalGetKieSession();
         if (session != null) {
             logger.debug(">> I've recieved an event for a known session (" + task.getTaskData().getProcessSessionId()+")");
             processTaskState(task);

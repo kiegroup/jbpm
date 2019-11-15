@@ -44,6 +44,7 @@ import org.kie.api.event.rule.RuleRuntimeEventListener;
 import org.kie.api.runtime.Environment;
 import org.kie.api.runtime.EnvironmentName;
 import org.kie.api.runtime.KieContainer;
+import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.Context;
 import org.kie.api.runtime.manager.RegisterableItemsFactory;
 import org.kie.api.runtime.manager.RuntimeEngine;
@@ -57,6 +58,7 @@ import org.kie.internal.runtime.manager.CacheManager;
 import org.kie.internal.runtime.manager.Disposable;
 import org.kie.internal.runtime.manager.DisposeListener;
 import org.kie.internal.runtime.manager.InternalRegisterableItemsFactory;
+import org.kie.internal.runtime.manager.InternalRuntimeEngine;
 import org.kie.internal.runtime.manager.InternalRuntimeManager;
 import org.kie.internal.runtime.manager.RuntimeManagerRegistry;
 import org.kie.internal.runtime.manager.SecurityManager;
@@ -143,34 +145,35 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
     
 	protected void registerItems(RuntimeEngine runtime) {
         RegisterableItemsFactory factory = environment.getRegisterableItemsFactory();
+        KieSession ksession = ((InternalRuntimeEngine) runtime).internalGetKieSession();
         // process handlers
         Map<String, WorkItemHandler> handlers = factory.getWorkItemHandlers(runtime);
         for (Entry<String, WorkItemHandler> entry : handlers.entrySet()) {
-            runtime.getKieSession().getWorkItemManager().registerWorkItemHandler(entry.getKey(), entry.getValue());
+            ksession.getWorkItemManager().registerWorkItemHandler(entry.getKey(), entry.getValue());
         }
         
         // register globals
         Map<String, Object> globals = factory.getGlobals(runtime);
         for (Entry<String, Object> entry : globals.entrySet()) {
-            runtime.getKieSession().setGlobal(entry.getKey(), entry.getValue());
+            ksession.setGlobal(entry.getKey(), entry.getValue());
         }
         
         // process listeners
         List<ProcessEventListener> processListeners = factory.getProcessEventListeners(runtime);
         for (ProcessEventListener listener : processListeners) {
-            runtime.getKieSession().addEventListener(listener);
+            ksession.addEventListener(listener);
         }
         
         // agenda listeners
         List<AgendaEventListener> agendaListeners = factory.getAgendaEventListeners(runtime);
         for (AgendaEventListener listener : agendaListeners) {
-            runtime.getKieSession().addEventListener(listener);
+            ksession.addEventListener(listener);
         }
         
         // working memory listeners
         List<RuleRuntimeEventListener> wmListeners = factory.getRuleRuntimeEventListeners(runtime);
         for (RuleRuntimeEventListener listener : wmListeners) {
-            runtime.getKieSession().addEventListener(listener);
+            ksession.addEventListener(listener);
         }       
     }
     
@@ -195,7 +198,7 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
         }
         try {
             // check tx status to disallow dispose when within active transaction       
-            TransactionManager tm = getTransactionManager(runtime.getKieSession().getEnvironment());
+            TransactionManager tm = getTransactionManager(((InternalRuntimeEngine) runtime).internalGetKieSession().getEnvironment());
             if (tm.getStatus() != TransactionManager.STATUS_NO_TRANSACTION
                     && tm.getStatus() != TransactionManager.STATUS_ROLLEDBACK
                     && tm.getStatus() != TransactionManager.STATUS_COMMITTED) {
@@ -209,8 +212,8 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
     }
     
     protected void attachManager(RuntimeEngine runtime) {
-        runtime.getKieSession().getEnvironment().set(EnvironmentName.RUNTIME_MANAGER, this);
-        runtime.getKieSession().getEnvironment().set(EnvironmentName.DEPLOYMENT_ID, this.getIdentifier());
+        ((InternalRuntimeEngine) runtime).internalGetKieSession().getEnvironment().set(EnvironmentName.RUNTIME_MANAGER, this);
+        ((InternalRuntimeEngine) runtime).internalGetKieSession().getEnvironment().set(EnvironmentName.DEPLOYMENT_ID, this.getIdentifier());
     }
     
     @Override
@@ -372,6 +375,11 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
     		throw new IllegalStateException("Security Manager for " + this.identifier + " manager is already set");
     	}
     	this.securityManager = securityManager;    
+    }
+    
+    @Override
+    public boolean hasSecurityManager() {
+        return this.securityManager != null;
     }
     
     protected void checkPermission() {

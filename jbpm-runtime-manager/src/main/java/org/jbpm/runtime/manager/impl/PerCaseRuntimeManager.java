@@ -109,8 +109,7 @@ public class PerCaseRuntimeManager extends AbstractRuntimeManager {
     public RuntimeEngine getRuntimeEngine(Context<?> context) {
         if (isClosed()) {
             throw new IllegalStateException("Runtime manager " + identifier + " is already closed");
-        }
-        checkPermission();
+        }        
         RuntimeEngine runtime = null;
         Object contextId = context.getContextId();
 
@@ -661,7 +660,7 @@ public class PerCaseRuntimeManager extends AbstractRuntimeManager {
             Long ksessionId = null;
 
             RuntimeEngine localRuntime = ((PerCaseRuntimeManager) manager).findLocalRuntime(contextId);
-            if (localRuntime != null && ((RuntimeEngineImpl) engine).internalGetKieSession() != null) {
+            if (localRuntime != null && ((RuntimeEngineImpl) engine).getKieSessionId() != null) {
                 return localRuntime.getKieSession();
             }
             synchronized (manager) {
