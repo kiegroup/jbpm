@@ -18,7 +18,6 @@ package org.jbpm.test.services;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
@@ -35,7 +34,6 @@ import org.jbpm.casemgmt.api.model.CaseDefinition;
 import org.jbpm.casemgmt.api.model.CaseMilestone;
 import org.jbpm.casemgmt.api.model.CaseRole;
 import org.jbpm.casemgmt.api.model.CaseStage;
-import org.jbpm.casemgmt.api.model.CaseStatus;
 import org.jbpm.casemgmt.api.utils.CaseServiceConfigurator;
 import org.jbpm.runtime.manager.impl.jpa.EntityManagerFactoryManager;
 import org.jbpm.services.api.DefinitionService;
@@ -54,7 +52,6 @@ import org.jbpm.services.api.service.ServiceRegistry;
 import org.junit.After;
 import org.junit.Before;
 import org.kie.api.task.model.TaskSummary;
-import org.kie.internal.query.QueryContext;
 import org.kie.internal.runtime.conf.DeploymentDescriptor;
 import org.kie.internal.runtime.conf.DeploymentDescriptorBuilder;
 import org.kie.internal.runtime.conf.NamedObjectModel;
@@ -107,17 +104,7 @@ public abstract class AbstractCaseServicesTest extends AbstractServicesTest {
 
     @After
     public void tearDown() {
-        clearDocumentStorageProperty();        
-        List<CaseStatus> caseStatuses = Collections.singletonList(CaseStatus.OPEN);
-        caseRuntimeDataService.getCaseInstances(caseStatuses, new QueryContext(0, Integer.MAX_VALUE))
-            .forEach(caseInstance -> caseService.cancelCase(caseInstance.getCaseId()));
 
-        cleanupSingletonSessionId();
-        identityProvider.reset();
-        if (deploymentUnit != null) {
-            deploymentService.undeploy(deploymentUnit);
-            deploymentUnit = null;
-        }
 
         close();
         ServiceRegistry.get().clear();

@@ -22,11 +22,10 @@
         log.outcome,
         log.slaDueDate,
         log.slaCompliance,
-        parent.correlationKey
+        log.correlationKey
       )
       from
         ProcessInstanceLog log
-      left join ProcessInstanceLog parent on log.parentProcessInstanceId = parent.processInstanceId
       where 
         log.processType = 2
         and log.status in (:statuses)
