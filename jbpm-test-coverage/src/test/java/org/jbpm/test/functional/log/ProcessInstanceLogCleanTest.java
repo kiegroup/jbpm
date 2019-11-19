@@ -19,7 +19,10 @@ package org.jbpm.test.functional.log;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.assertj.core.api.Assertions;
 import org.jbpm.process.audit.JPAAuditLogService;
@@ -237,17 +240,21 @@ public class ProcessInstanceLogCleanTest extends JbpmTestCase {
                 .containsExactly(HELLO_WORLD_PROCESS_ID, HELLO_WORLD_PROCESS_ID,
                         HELLO_WORLD_PROCESS_ID, HELLO_WORLD_PROCESS_ID);
 
+        Set<Date> startDates = new HashSet<>();
         // Delete the last 3 logs in the list
-        for (int i = resultList.size() - 1; i > 0; i--) {
-            int resultCount = auditService.processInstanceLogDelete()
-                    .startDate(resultList.get(i).getStart())
-                    .build()
-                    .execute();
-            Assertions.assertThat(resultCount).isEqualTo(1);
-        }
+        resultList.stream().skip(1).forEach(s -> startDates.add(s.getStart()));
+
+        int resultCount = startDates.stream().map(
+                          s ->  auditService.processInstanceLogDelete()
+                                .startDate(s)
+                                .build()
+                                .execute())
+                          .collect(Collectors.summingInt(Integer::intValue));
+
+        Assertions.assertThat(resultCount).isEqualTo(3);
 
         // Attempt to delete with a date later than end of all the instances
-        int resultCount = auditService.processInstanceLogDelete()
+        resultCount = auditService.processInstanceLogDelete()
                 .startDate(new Date())
                 .build()
                 .execute();
