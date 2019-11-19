@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -39,6 +40,8 @@ import org.jbpm.persistence.JpaProcessPersistenceContextManager;
 import org.jbpm.persistence.jta.ContainerManagedTransactionManager;
 import org.jbpm.process.core.timer.GlobalSchedulerService;
 import org.jbpm.process.core.timer.TimerServiceRegistry;
+import org.jbpm.process.core.timer.impl.GlobalTimerService;
+import org.jbpm.process.core.timer.impl.GlobalTimerService.GlobalJobHandle;
 import org.jbpm.runtime.manager.impl.AbstractRuntimeManager;
 import org.jbpm.runtime.manager.impl.SimpleRuntimeEnvironment;
 import org.jbpm.runtime.manager.impl.jpa.EntityManagerFactoryManager;
@@ -910,6 +913,47 @@ public abstract class GlobalTimerServiceBaseTest extends TimerBaseTest{
         
         ((AbstractRuntimeManager)manager).close(true);
                       
+    }
+
+    @Test(timeout = 20000)
+    public void testTimerStartMemoryLeak() throws Exception {
+        NodeLeftCountDownProcessEventListener countDownListener = new NodeLeftCountDownProcessEventListener("StartProcess", 5);
+        // prepare listener to assert results
+        final List<Long> timerExporations = new ArrayList<Long>();
+        ProcessEventListener listener = new DefaultProcessEventListener() {
+
+            @Override
+            public void beforeProcessStarted(ProcessStartedEvent event) {
+                timerExporations.add(event.getProcessInstance().getId());
+            }
+
+        };
+
+        environment = RuntimeEnvironmentBuilder.Factory.get()
+                .newDefaultBuilder()
+                .entityManagerFactory(emf)
+                .addAsset(ResourceFactory.newClassPathResource("org/jbpm/test/functional/timer/TimerStart2.bpmn2"), ResourceType.BPMN2)
+                .schedulerService(globalScheduler)
+                .registerableItemsFactory(new TestRegisterableItemsFactory(listener, countDownListener))
+                .get();
+
+        manager = getManager(environment, false);
+        RuntimeEngine runtime = manager.getRuntimeEngine(ProcessInstanceIdContext.get());
+        KieSession ksession = runtime.getKieSession();
+
+        assertEquals(0, timerExporations.size());
+
+        countDownListener.waitTillCompleted();
+
+        manager.disposeRuntimeEngine(runtime);
+        assertEquals(5, timerExporations.size());
+
+        TimerServiceRegistry timerServiceRegistry = TimerServiceRegistry.getInstance();
+        GlobalTimerService timerService = (GlobalTimerService) timerServiceRegistry.get(manager.getIdentifier() + TimerServiceRegistry.TIMER_SERVICE_SUFFIX);
+        ConcurrentHashMap<Long, List<GlobalJobHandle>> timerJobsPerSession = timerService.getTimerJobsPerSession();
+
+        assertEquals(0, timerJobsPerSession.size());
+
     }
     
     
