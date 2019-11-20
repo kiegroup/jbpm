@@ -25,6 +25,7 @@ import java.util.Map.Entry;
 import org.drools.core.definitions.rule.impl.RuleImpl;
 import org.jbpm.casemgmt.api.model.instance.CaseFileInstance;
 import org.jbpm.casemgmt.impl.event.CaseEventSupport;
+import org.jbpm.casemgmt.impl.model.instance.CaseFileInstanceImpl;
 import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.services.api.ProcessService;
 import org.kie.api.KieServices;
@@ -118,6 +119,10 @@ public class StartCaseCommand extends CaseCommand<Void> {
         logger.debug("Starting process instance for case {} and case definition {}", caseId, caseDefinitionId);
         CorrelationKey correlationKey = correlationKeyFactory.newCorrelationKey(caseId);
         Map<String, Object> params = new HashMap<>();
+        // add process parent
+        if (caseFile instanceof CaseFileInstanceImpl && ((CaseFileInstanceImpl) caseFile).getParentInstanceId() != null && ((CaseFileInstanceImpl) caseFile).getParentInstanceId() >= 0) {
+            params.put("ParentInstanceId", ((CaseFileInstanceImpl) caseFile).getParentInstanceId());
+        }
         // set case id to allow it to use CaseContext when creating runtime engine
         params.put(EnvironmentName.CASE_ID, caseId);
         final Map<String, Object> caseData = caseFile.getData();

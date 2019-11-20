@@ -105,4 +105,10 @@ public interface CaseInstance {
      * Returns up to date SLA compliance level for case instance
      */
     Integer getSlaCompliance();
+
+    /**
+     * Returns the parent id case if any
+     * @return the parent case id
+     */
+    String getParentCaseId();
 }

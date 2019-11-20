@@ -21,10 +21,12 @@
         log.processInstanceId, <!-- case top level process instance id -->
         log.outcome,
         log.slaDueDate,
-        log.slaCompliance   
+        log.slaCompliance,
+        parent.correlationKey
       )
       from
         ProcessInstanceLog log
+      left join ProcessInstanceLog parent on log.parentProcessInstanceId = parent.processInstanceId
       where 
         log.processType = 2
         and log.status in (:statuses)
@@ -34,6 +36,38 @@
     <!-- hint name="org.hibernate.timeout" value="200"/ -->
   </named-query>
   
+    <!-- case instance queries -->
+  <named-query name="getSubCaseInstancesByParentCaseIds">
+    <query>
+      select
+      new org.jbpm.casemgmt.impl.model.instance.CaseInstanceImpl(
+        log.correlationKey, <!-- case id -->
+        log.processInstanceDescription, <!-- case description -->            
+        log.processId, <!--case definition  -->
+        log.status, <!-- case status -->
+        log.externalId, <!-- deployment id -->
+        (select r.entityId from CaseRoleAssignmentLog r where r.processInstanceId = log.processInstanceId and r.roleName = 'owner' and r.type = 1), <!-- case owner -->
+        log.start, <!-- case start date  -->
+        log.end, <!-- case end date  -->
+        log.processInstanceId, <!-- case top level process instance id -->
+        log.outcome,
+        log.slaDueDate,
+        log.slaCompliance,
+        trim(parent.correlationKey) <!-- case parent id -->
+      )
+      from
+        ProcessInstanceLog log, ProcessInstanceLog parent
+      where 
+        log.processType = 2
+        and log.status in (:statuses)
+        and log.parentProcessInstanceId = parent.processInstanceId
+        and trim(parent.correlationKey) in (:parentCaseId)
+      ORDER BY
+        log.correlationKey, log.start
+    </query>
+    <!-- hint name="org.hibernate.timeout" value="200"/ -->
+  </named-query>
+
   <named-query name="getCaseInstancesByDeployment">
 
     <query>
@@ -50,10 +84,12 @@
         log.processInstanceId, <!-- case top level process instance id -->
         log.outcome,
         log.slaDueDate,
-        log.slaCompliance   
+        log.slaCompliance,
+        parent.correlationKey <!-- case parent id -->
       )
       from
         ProcessInstanceLog log
+      left join ProcessInstanceLog parent on log.parentProcessInstanceId = parent.processInstanceId
       where 
         log.processType = 2
         and log.externalId =:deploymentId
@@ -81,10 +117,12 @@
         log.processInstanceId, <!-- case top level process instance id -->
         log.outcome,
         log.slaDueDate,
-        log.slaCompliance
+        log.slaCompliance,
+        parent.correlationKey
       )
       from
         ProcessInstanceLog log
+      left join ProcessInstanceLog parent on log.parentProcessInstanceId = parent.processInstanceId
       where 
         log.processType = 2
         and log.processId =:definitionId
@@ -112,10 +150,12 @@
         log.processInstanceId, <!-- case top level process instance id -->
         log.outcome,
         log.slaDueDate,
-        log.slaCompliance
+        log.slaCompliance,
+        parent.correlationKey
       )
       from
         ProcessInstanceLog log
+      left join ProcessInstanceLog parent on log.parentProcessInstanceId = parent.processInstanceId
       where 
         log.processType = 2
         and log.processInstanceId in (select r.processInstanceId from CaseRoleAssignmentLog r where r.roleName = 'owner' and r.type = 1 and r.entityId = :owner)
@@ -142,10 +182,12 @@
         log.processInstanceId, <!-- case top level process instance id -->
         log.outcome,
         log.slaDueDate,
-        log.slaCompliance
+        log.slaCompliance,
+        parent.correlationKey
       )
       from
-        ProcessInstanceLog log        
+        ProcessInstanceLog log       
+      left join ProcessInstanceLog parent on log.parentProcessInstanceId = parent.processInstanceId
       where         
         log.processType = 2
         and log.status in (:statuses)
@@ -172,10 +214,12 @@
         log.processInstanceId, <!-- case top level process instance id -->
         log.outcome,
         log.slaDueDate,
-        log.slaCompliance
+        log.slaCompliance,
+        parent.correlationKey
       )
       from
         ProcessInstanceLog log        
+      left join ProcessInstanceLog parent on log.parentProcessInstanceId = parent.processInstanceId
       where         
         log.processType = 2
         and log.status in (:statuses)
@@ -202,10 +246,12 @@
         log.processInstanceId, <!-- case top level process instance id -->
         log.outcome,
         log.slaDueDate,
-        log.slaCompliance
+        log.slaCompliance,
+        parent.correlationKey
       )
       from
-        ProcessInstanceLog log
+      ProcessInstanceLog log
+      left join ProcessInstanceLog parent on log.parentProcessInstanceId = parent.processInstanceId
       where
         log.correlationKey = :correlationKey
         order by log.processInstanceId desc
@@ -567,10 +613,12 @@
         log.processInstanceId, <!-- case top level process instance id -->
         log.outcome,
         log.slaDueDate,
-        log.slaCompliance    
+        log.slaCompliance,
+        parent.correlationKey
       )
       from
         ProcessInstanceLog log
+      left join ProcessInstanceLog parent on log.parentProcessInstanceId = parent.processInstanceId
       where 
         log.processType = 2
         and log.status in (:statuses)
@@ -598,10 +646,12 @@
         log.processInstanceId, <!-- case top level process instance id -->
         log.outcome,
         log.slaDueDate,
-        log.slaCompliance
+        log.slaCompliance,
+        parent.correlationKey
       )
       from
         ProcessInstanceLog log
+      left join ProcessInstanceLog parent on log.parentProcessInstanceId = parent.processInstanceId
       where 
         log.processType = 2
         and log.status in (:statuses)        
