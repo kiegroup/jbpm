@@ -56,7 +56,7 @@ public class DefaultAuditEventBuilderImpl implements AuditEventBuilder {
         }
         
         long parentProcessInstanceId = (Long) pi.getMetaData().getOrDefault("ParentProcessInstanceId", -1L);
-	log.setParentProcessInstanceId( parentProcessInstanceId );	     
+        log.setParentProcessInstanceId(parentProcessInstanceId);
         
 
         return log;
