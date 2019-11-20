@@ -1,3 +1,4 @@
+drop table if exists jbpm_active_clob;
 create table jbpm_active_clob ( loid oid );
 
 -- Triggers to protect CLOB from vacuumlo

@@ -18,6 +18,7 @@ package org.jbpm.persistence.scripts.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,6 +38,10 @@ public final class SQLScriptUtil {
      * Delimiter used in MS SQL Server database systems.
      */
     private static final String DELIMITER_MSSQL = "GO";
+    /**
+     * Delimiter used in PostGreSQL database systems.
+     */
+    private static final String DOLLAR_QUOTED_BLOCK = "\\$.*\\$";
 
     /**
      * Extracts SQL commands from SQL script. It parses SQL script and divides it to single commands.
@@ -48,15 +53,21 @@ public final class SQLScriptUtil {
      */
     public static List<String> getCommandsFromScript(final File script, final DatabaseType databaseType)
             throws IOException {
-        final List<String> scriptLines = FileUtils.readLines(script);
+        final List<String> scriptLines = FileUtils.readLines(script, StandardCharsets.UTF_8);
         final List<String> foundCommands = new ArrayList<String>();
         final StringBuilder command = new StringBuilder();
+        int pgBlockCounter = 0;
         for (String line : scriptLines) {
             // Ignore comments.
             final String trimmedLine = line.trim();
             if ("".equals(trimmedLine) || trimmedLine.startsWith("--") || trimmedLine.startsWith("#")) {
                 continue;
             }
+            
+            if (databaseType == DatabaseType.POSTGRESQL && trimmedLine.matches(DOLLAR_QUOTED_BLOCK)) {
+                pgBlockCounter++;
+            }
+            
             // If the whole line is a delimiter -> add buffered command to found commands.
             if (trimmedLine.equals(DELIMITER_STANDARD)
                     || ((databaseType == DatabaseType.SQLSERVER || databaseType == DatabaseType.SQLSERVER2008)
@@ -68,7 +79,8 @@ public final class SQLScriptUtil {
                 }
             }
             // Split line by delimiter.
-            if (trimmedLine.contains(DELIMITER_STANDARD)) {
+            if ((trimmedLine.contains(DELIMITER_STANDARD) && databaseType != DatabaseType.POSTGRESQL)
+                || trimmedLine.contains(DELIMITER_STANDARD) && databaseType == DatabaseType.POSTGRESQL && isEven(pgBlockCounter)) {
                 extractCommandsFromLine(trimmedLine, "\\" + DELIMITER_STANDARD, command, foundCommands);
             } else if ((databaseType == DatabaseType.SQLSERVER || databaseType == DatabaseType.SQLSERVER2008)
                     && trimmedLine.contains(DELIMITER_MSSQL)) {
@@ -118,5 +130,9 @@ public final class SQLScriptUtil {
 
     private SQLScriptUtil() {
         // It makes no sense to create instances of util classes.
+    }
+    
+    private static boolean isEven(int i) {
+        return i % 2 == 0;
     }
 }

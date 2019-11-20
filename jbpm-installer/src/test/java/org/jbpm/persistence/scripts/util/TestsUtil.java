@@ -62,6 +62,11 @@ public final class TestsUtil {
                         return o1.getName().compareTo(o2.getName());
                     }
                 });
+                
+                if (databaseType.equals(DatabaseType.POSTGRESQL)) {
+                    //Returns first schema sql
+                    Arrays.sort(foundFiles, Comparator.<File, Boolean>comparing(s -> s.getName().contains("schema")).reversed());
+                }
             }
 
             return foundFiles;
