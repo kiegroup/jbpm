@@ -48,6 +48,8 @@ public class CaseInstanceImpl implements CaseInstance, Serializable {
     private String completionMessage;
     private Date slaDueDate;
     private Integer slaCompliance;
+
+    private String parentCaseId;
     
     public CaseInstanceImpl() {
         
@@ -67,7 +69,18 @@ public class CaseInstanceImpl implements CaseInstance, Serializable {
      * @param caseId
      * @param caseDescription
      */
-    public CaseInstanceImpl(String caseId, String caseDescription, String caseDefinitionId, Integer status, String deploymentId, String owner, Date startedAt, Date completedAt, Long processInstanceId, String completionMessage, Date slaDueDate, Integer slaCompliance) {
+    public CaseInstanceImpl(String caseId, String caseDescription, String caseDefinitionId, Integer status, String deploymentId, String owner, Date startedAt, Date completedAt, Long processInstanceId,
+                            String completionMessage, Date slaDueDate, Integer slaCompliance) {
+        this(caseId, caseDescription, caseDefinitionId, status, deploymentId, owner, startedAt, completedAt, processInstanceId, completionMessage, slaDueDate, slaCompliance, null);
+    }
+
+    /**
+     * Constructor to be used mainly by persistence provider to create instances automatically
+     * @param caseId
+     * @param caseDescription
+     */
+    public CaseInstanceImpl(String caseId, String caseDescription, String caseDefinitionId, Integer status, String deploymentId, String owner, Date startedAt, Date completedAt, Long processInstanceId,
+                            String completionMessage, Date slaDueDate, Integer slaCompliance, String parentCaseId) {
         this.caseId = caseId;
         this.caseDescription = caseDescription;
         this.caseDefinitionId = caseDefinitionId;
@@ -80,6 +93,7 @@ public class CaseInstanceImpl implements CaseInstance, Serializable {
         this.completionMessage = completionMessage;
         this.slaDueDate = slaDueDate;
         this.slaCompliance = slaCompliance;
+        this.parentCaseId = parentCaseId;
     }
 
     @Override
@@ -236,8 +250,15 @@ public class CaseInstanceImpl implements CaseInstance, Serializable {
 
     @Override
     public String toString() {
-        return "CaseInstanceImpl [caseId=" + caseId + ", status=" + status + ", deploymentId=" + deploymentId + ", owner=" + owner + ", processInstanceId=" + processInstanceId + "]";
+        return "CaseInstanceImpl [caseId=" + caseId + ", status=" + status + ", deploymentId=" + deploymentId + ", owner=" + owner + ", processInstanceId=" + processInstanceId + ", parentCaseId=" + parentCaseId + "]";
     }
 
+    public String getParentCaseId() {
+        return parentCaseId;
+    }
+
+    public void setParentCaseId(String parentCaseId) {
+        this.parentCaseId = parentCaseId;
+    }
 
 }
