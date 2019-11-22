@@ -72,14 +72,14 @@ public class MilestoneNodeInstance extends StateBasedNodeInstance implements Age
 
     private void addActivationEventListener() {
         getProcessInstance().getKnowledgeRuntime().addEventListener(this);
-        getProcessInstance().addEventListener(getActivationEventType(), this, true);
+        getProcessInstance().addEventListener(getActivationEventType(), this, false);
     }
 
     @Override
     public void removeEventListeners() {
         super.removeEventListeners();
         getProcessInstance().getKnowledgeRuntime().removeEventListener(this);
-        getProcessInstance().removeEventListener(getActivationEventType(), this, true);
+        getProcessInstance().removeEventListener(getActivationEventType(), this, false);
     }
 
     private String getActivationEventType() {
@@ -107,7 +107,7 @@ public class MilestoneNodeInstance extends StateBasedNodeInstance implements Age
             // trigger node instances of that milestone node
             String ruleName = event.getMatch().getRule().getName();
             String milestoneName = "RuleFlow-Milestone-" + getProcessInstance().getProcessId() + "-" + getMilestoneNode().getUniqueId();
-            if (((Activation) event.getMatch()).isActive() &&  milestoneName.equals(ruleName) && checkProcessInstance((Activation) event.getMatch()) && checkDeclarationMatch(event.getMatch(), getMilestoneNode().getMatchVariable())) {
+            if (milestoneName.equals(ruleName) && checkProcessInstance((Activation) event.getMatch()) && checkDeclarationMatch(event.getMatch(), getMilestoneNode().getMatchVariable())) {
 
                 synchronized (getProcessInstance()) {
                     removeEventListeners();
