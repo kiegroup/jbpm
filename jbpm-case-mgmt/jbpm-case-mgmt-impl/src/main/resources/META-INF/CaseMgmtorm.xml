@@ -10,7 +10,7 @@
     <query>
       select
       new org.jbpm.casemgmt.impl.model.instance.CaseInstanceImpl(
-        log.correlationKey, <!-- case id -->
+        log.correlationKey as CorrelationKey, <!-- case id -->
         log.processInstanceDescription, <!-- case description -->            
         log.processId, <!--case definition  -->
         log.status, <!-- case status -->
@@ -41,7 +41,7 @@
     <query>
       select
       new org.jbpm.casemgmt.impl.model.instance.CaseInstanceImpl(
-        log.correlationKey, <!-- case id -->
+        log.correlationKey as CorrelationKey, <!-- case id -->
         log.processInstanceDescription, <!-- case description -->            
         log.processId, <!--case definition  -->
         log.status, <!-- case status -->
@@ -73,7 +73,7 @@
     <query>
       select
       new org.jbpm.casemgmt.impl.model.instance.CaseInstanceImpl(
-        log.correlationKey, <!-- case id -->
+        log.correlationKey as CorrelationKey, <!-- case id -->
         log.processInstanceDescription, <!-- case description -->            
         log.processId, <!--case definition  -->
         log.status, <!-- case status -->
@@ -106,7 +106,7 @@
     <query>
       select
       new org.jbpm.casemgmt.impl.model.instance.CaseInstanceImpl(
-        log.correlationKey, <!-- case id -->
+        log.correlationKey as CorrelationKey, <!-- case id -->
         log.processInstanceDescription, <!-- case description -->            
         log.processId, <!--case definition  -->
         log.status, <!-- case status -->
@@ -139,7 +139,7 @@
     <query>
       select
       new org.jbpm.casemgmt.impl.model.instance.CaseInstanceImpl(
-        log.correlationKey, <!-- case id -->
+        log.correlationKey as CorrelationKey, <!-- case id -->
         log.processInstanceDescription, <!-- case description -->            
         log.processId, <!--case definition  -->
         log.status, <!-- case status -->
@@ -171,7 +171,7 @@
     <query>
       select
       new org.jbpm.casemgmt.impl.model.instance.CaseInstanceImpl(
-        log.correlationKey, <!-- case id -->
+        log.correlationKey as CorrelationKey, <!-- case id -->
         log.processInstanceDescription, <!-- case description -->            
         log.processId, <!--case definition  -->
         log.status, <!-- case status -->
@@ -203,7 +203,7 @@
     <query>
       select
       new org.jbpm.casemgmt.impl.model.instance.CaseInstanceImpl(
-        log.correlationKey, <!-- case id -->
+        log.correlationKey as CorrelationKey, <!-- case id -->
         log.processInstanceDescription, <!-- case description -->            
         log.processId, <!--case definition  -->
         log.status, <!-- case status -->
@@ -235,7 +235,7 @@
     <query>
      select
       new org.jbpm.casemgmt.impl.model.instance.CaseInstanceImpl(
-        log.correlationKey, <!-- case id -->
+        log.correlationKey as CorrelationKey, <!-- case id -->
         log.processInstanceDescription, <!-- case description -->            
         log.processId, <!--case definition  -->
         log.status, <!-- case status -->
@@ -602,7 +602,7 @@
     <query>
       select
       new org.jbpm.casemgmt.impl.model.instance.CaseInstanceImpl(
-        log.correlationKey, <!-- case id -->
+        log.correlationKey as CorrelationKey, <!-- case id -->
         log.processInstanceDescription, <!-- case description -->            
         log.processId, <!--case definition  -->
         log.status, <!-- case status -->
@@ -635,7 +635,7 @@
     <query>
       select
       new org.jbpm.casemgmt.impl.model.instance.CaseInstanceImpl(
-        log.correlationKey, <!-- case id -->
+        log.correlationKey as CorrelationKey, <!-- case id -->
         log.processInstanceDescription, <!-- case description -->            
         log.processId, <!--case definition  -->
         log.status, <!-- case status -->
