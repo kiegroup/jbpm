@@ -37,17 +37,16 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-
 import org.apache.commons.codec.binary.Base64;
 import org.appformer.maven.support.DependencyFilter;
 import org.drools.compiler.kie.builder.impl.InternalKieModule;
 import org.drools.compiler.kie.builder.impl.KieContainerImpl;
 import org.drools.compiler.kie.builder.impl.KieModuleKieProject;
-import org.drools.core.common.ProjectClassLoader;
 import org.drools.core.marshalling.impl.ClassObjectMarshallingStrategyAcceptor;
 import org.drools.core.marshalling.impl.JavaSerializableResolverStrategy;
 import org.drools.core.marshalling.impl.SerializablePlaceholderResolverStrategy;
 import org.drools.core.util.StringUtils;
+import org.drools.reflective.classloader.ProjectClassLoader;
 import org.jbpm.kie.services.impl.bpmn2.ProcessDescriptor;
 import org.jbpm.kie.services.impl.model.ProcessAssetDesc;
 import org.jbpm.process.audit.event.AuditEventBuilder;
@@ -458,7 +457,7 @@ public class KModuleDeploymentService extends AbstractDeploymentService {
 	 * @param deployedUnit The {@link DeployedUnitImpl}, used to store the classes loaded
 	 */
 	protected void processClassloader(KieContainer kieContainer, DeployedUnitImpl deployedUnit) {
-	    if (((KieContainerImpl) kieContainer).getKieProject() instanceof KieModuleKieProject && kieContainer.getClassLoader() instanceof ProjectClassLoader) {
+	    if (((KieContainerImpl) kieContainer).getKieProject() instanceof KieModuleKieProject && kieContainer.getClassLoader() instanceof ProjectClassLoader ) {
 			ClassLoader parentCl = kieContainer.getClassLoader().getParent();
 			if (parentCl instanceof URLClassLoader) {
 				URL[] urls = ((URLClassLoader) parentCl).getURLs();

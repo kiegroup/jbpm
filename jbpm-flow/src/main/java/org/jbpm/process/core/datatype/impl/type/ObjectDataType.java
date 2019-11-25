@@ -23,7 +23,7 @@ import java.util.Map;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.security.ExplicitTypePermission;
-import org.drools.core.common.ProjectClassLoader;
+import org.drools.reflective.classloader.ProjectClassLoader;
 import org.jbpm.process.core.datatype.DataType;
 
 import static org.kie.soup.commons.xstream.XStreamUtils.createTrustingXStream;
