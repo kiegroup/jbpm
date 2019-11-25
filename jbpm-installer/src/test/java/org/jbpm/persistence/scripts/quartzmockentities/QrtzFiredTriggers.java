@@ -16,23 +16,59 @@
 
 package org.jbpm.persistence.scripts.quartzmockentities;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
 
-@Entity(name = "qrtz_fired_triggers")
+import org.hibernate.annotations.Type;
+
+@Entity(name = "QRTZ_FIRED_TRIGGERS")
+@IdClass(QrtzFiredTriggersId.class)
 public class QrtzFiredTriggers {
 
     @Id
-    private Long id;
+    @Column(name = "SCHED_NAME")
+    private String schedulerName;
 
-    public QrtzFiredTriggers() {
-    }
+    @Id
+    @Column(name = "ENTRY_ID")
+    private String entryId;
 
-    public Long getId() {
-        return id;
-    }
+    @Column(name = "TRIGGER_NAME")
+    private String triggerName;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    @Column(name = "TRIGGER_GROUP")
+    private String triggerGroup;
+
+    @Column(name = "INSTANCE_NAME")
+    private String instanceName;
+
+    @Column(name = "FIRED_TIME")
+    @Type(type = "long")
+    private Long firedTime;
+
+    @Column(name = "SCHED_TIME")
+    @Type(type = "long")
+    private Long scheduTime;
+
+    @Column(name = "PRIORITY")
+    private Integer priority;
+
+    @Column(name = "STATE")
+    private String state;
+
+    @Column(name = "JOB_NAME")
+    private String jobName;
+
+    @Column(name = "JOB_GROUP")
+    private String jobGroup;
+
+    @Column(name = "IS_NONCONCURRENT")
+    @Type(type = "boolean")
+    private Boolean isNonConcurrent;
+
+    @Column(name = "REQUESTS_RECOVERY")
+    @Type(type = "boolean")
+    private Boolean requestRecovery;
 }

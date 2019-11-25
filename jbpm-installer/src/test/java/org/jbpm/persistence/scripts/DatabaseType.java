@@ -30,7 +30,8 @@ public enum DatabaseType {
     ORACLE("oracle"),
     POSTGRESQL("postgresql"),
     SQLSERVER("sqlserver"),
-    SQLSERVER2008("sqlserver2008");
+    SQLSERVER2008("sqlserver2008"),
+    SYBASE("sybase");
 
     private String scriptsFolderName;
 

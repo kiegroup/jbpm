@@ -280,5 +280,38 @@
       <property name="hibernate.connection.handling_mode" value="DELAYED_ACQUISITION_AND_RELEASE_AFTER_TRANSACTION"/>
     </properties>
   </persistence-unit>
+  <persistence-unit name="dbQuartzValidate" transaction-type="JTA">
+    <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+    <jta-data-source>jdbc/testDS5</jta-data-source>
+    <class>org.jbpm.persistence.scripts.quartzmockentities.QrtzBlobTriggers</class>
+    <class>org.jbpm.persistence.scripts.quartzmockentities.QrtzCalendars</class>
+    <class>org.jbpm.persistence.scripts.quartzmockentities.QrtzCronTriggers</class>
+    <class>org.jbpm.persistence.scripts.quartzmockentities.QrtzFiredTriggers</class>
+    <class>org.jbpm.persistence.scripts.quartzmockentities.QrtzJobDetails</class>
+    <class>org.jbpm.persistence.scripts.quartzmockentities.QrtzLocks</class>
+    <class>org.jbpm.persistence.scripts.quartzmockentities.QrtzPausedTriggerGrps</class>
+    <class>org.jbpm.persistence.scripts.quartzmockentities.QrtzSchedulerState</class>
+    <class>org.jbpm.persistence.scripts.quartzmockentities.QrtzSimpleTriggers</class>
+    <class>org.jbpm.persistence.scripts.quartzmockentities.QrtzTriggers</class>
+    <class>org.jbpm.persistence.scripts.quartzmockentities.QrtzSimpropTriggers</class>
+    <exclude-unlisted-classes>true</exclude-unlisted-classes>
+    <properties>
+      <property name="hibernate.max_fetch_depth" value="3"/>
+      <property name="hibernate.hbm2ddl.auto" value="validate"/>
+      <property name="hibernate.show_sql" value="false"/>
+
+      <!-- property name="hibernate.dialect" value="${maven.hibernate.dialect}"/-->
+      <property name="hibernate.default_schema" value="${maven.jdbc.schema}"/>
+
+      <!-- BZ 841786: AS7/EAP 6/Hib 4 uses new (sequence) generators which seem to cause problems -->
+      <property name="hibernate.id.new_generator_mappings" value="false"/>
+
+      <!-- The following line is what's used in Hibernate 4 instead of a TransactionManagerLookup class -->
+      <property name="hibernate.transaction.jta.platform" value="org.hibernate.service.jta.platform.internal.JBossStandAloneJtaPlatform"/>
+      <property name="hibernate.connection.handling_mode" value="DELAYED_ACQUISITION_AND_RELEASE_AFTER_TRANSACTION"/>
+      
+      <property name="hibernate.dialect_resolvers" value="org.jbpm.persistence.scripts.quartzdialects.QuartzDialectResolver" />
+    </properties>
+  </persistence-unit>
 
 </persistence>

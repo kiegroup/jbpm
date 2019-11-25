@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2019 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,17 @@
  * limitations under the License.
  */
 
-package org.jbpm.persistence.scripts.quartzmockentities;
+package org.jbpm.persistence.scripts.quartzdialects;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import org.hibernate.boot.model.TypeContributions;
+import org.hibernate.dialect.DB2Dialect;
+import org.hibernate.service.ServiceRegistry;
 
-@Entity(name = "qrtz_trigger_listeners")
-public class QrtzTriggerListeners {
-
-    @Id
-    private Long id;
-
-    public QrtzTriggerListeners() {
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
+public class DB2CustomDialect extends DB2Dialect {
+    
+    @Override
+    public void contributeTypes(TypeContributions typeContributions, ServiceRegistry serviceRegistry) {
+        super.contributeTypes(typeContributions,serviceRegistry);
+        typeContributions.contributeType(new Boolean2Integer());
     }
 }

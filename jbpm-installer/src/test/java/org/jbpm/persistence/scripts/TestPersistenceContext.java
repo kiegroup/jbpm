@@ -30,7 +30,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
-
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
@@ -61,6 +60,11 @@ import org.kie.internal.task.api.model.InternalTaskData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.jbpm.persistence.scripts.DatabaseType.DERBY;
+import static org.jbpm.persistence.scripts.DatabaseType.SQLSERVER;
+import static org.jbpm.persistence.scripts.DatabaseType.SQLSERVER2008;
+import static org.jbpm.persistence.scripts.DatabaseType.SYBASE;
+
 /**
  * Central context that hides persistence from tests, so there is no need to work with persistence in the tests
  * (transactions etc).
@@ -79,6 +83,12 @@ public final class TestPersistenceContext {
     public TestPersistenceContext() {
         this.dataSourceProperties = PersistenceUtil.getDatasourceProperties();
         this.databaseType = TestsUtil.getDatabaseType(dataSourceProperties);
+    }
+    
+    public static TestPersistenceContext createAndInitContext(PersistenceUnit persistenceUnit) {
+        TestPersistenceContext testPersistenceContext = new TestPersistenceContext();
+        testPersistenceContext.init(persistenceUnit);
+        return testPersistenceContext;
     }
 
     /**
@@ -119,31 +129,27 @@ public final class TestPersistenceContext {
      * @param scriptsRootFolder Root folder containing folders with SQL scripts for all supported database systems.
      * @throws IOException
      */
-    public void executeScripts(final File scriptsRootFolder) throws IOException, SQLException {
-        executeScripts(scriptsRootFolder, null);
+    public void executeScripts(final File scriptsRootFolder, boolean dropFilesExcluded) throws IOException, SQLException {
+        executeScripts(scriptsRootFolder, dropFilesExcluded, null);
     }
     
-    public void executeScripts(final File scriptsRootFolder, String type) throws IOException, SQLException {
+    public void executeScripts(final File scriptsRootFolder, boolean dropFilesExcluded, String type) throws IOException, SQLException {
         testIsInitialized();
-        final File[] sqlScripts = TestsUtil.getDDLScriptFilesByDatabaseType(scriptsRootFolder, databaseType, true);
+        final File[] sqlScripts = TestsUtil.getDDLScriptFilesByDatabaseType(scriptsRootFolder, databaseType, true, dropFilesExcluded);
+        if (sqlScripts.length == 0 && databaseType!=DERBY && dropFilesExcluded) {
+            throw new RuntimeException("No create sql files found for db type "+databaseType+" in folder " + scriptsRootFolder.getAbsolutePath());
+        }
         final Connection connection = ((PoolingDataSourceWrapper) context.get(PersistenceUtil.DATASOURCE)).getConnection();
         connection.setAutoCommit(false);
         try {
             for (File script : sqlScripts) {
                 if (type == null || script.getName().startsWith(type)) {
-                    logger.debug("Executing script {}", script.getName());
+                    logger.info("Executing script {}", script.getName());
                     final List<String> scriptCommands = SQLScriptUtil.getCommandsFromScript(script, databaseType);
                     for (String command : scriptCommands) {
-                        logger.debug(command);
-                        final PreparedStatement statement;
-                        if (databaseType == DatabaseType.SQLSERVER || databaseType == DatabaseType.SQLSERVER2008) {
-                            statement = connection.prepareStatement(
-                                    SQLCommandUtil.preprocessCommandSqlServer(command, dataSourceProperties));
-                        } else {
-                            statement = connection.prepareStatement(command);
-                        }
-                        statement.execute();
-                        statement.close();
+                        logger.info("query: "+command);
+                        final PreparedStatement statement = preparedStatement(connection, command);
+                        executeStatement(dropFilesExcluded, statement);
                     }
                 }
             }
@@ -153,6 +159,28 @@ public final class TestPersistenceContext {
             throw new RuntimeException(ex.getMessage(), ex);
         } finally {
             connection.close();
+        }
+    }
+
+    private PreparedStatement preparedStatement(final Connection conn, String command) throws SQLException {
+        final PreparedStatement statement;
+        if (databaseType == SQLSERVER || databaseType == SQLSERVER2008 || databaseType == SYBASE) {
+            statement = conn.prepareStatement(SQLCommandUtil.preprocessCommandSqlServer(command, dataSourceProperties));
+        } else {
+            statement = conn.prepareStatement(command);
+        }
+        return statement;
+    }
+
+    private void executeStatement(boolean dropFilesExcluded, final PreparedStatement statement) throws SQLException {
+        try {
+            statement.execute();
+            statement.close();
+        }catch(SQLException ex) {
+            if (dropFilesExcluded)
+                throw ex;
+            else //Consume exceptions for dropping files
+                logger.warn("Dropping statement failed: "+ex.getMessage());
         }
     }
 

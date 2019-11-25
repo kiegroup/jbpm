@@ -16,23 +16,27 @@
 
 package org.jbpm.persistence.scripts.quartzmockentities;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
-@Entity(name = "qrtz_scheduler_state")
+import org.hibernate.annotations.Type;
+
+@Entity(name = "QRTZ_SCHEDULER_STATE")
 public class QrtzSchedulerState {
 
     @Id
-    private Long id;
+    @Column(name = "sched_name")
+    private String schedulerName;
 
-    public QrtzSchedulerState() {
-    }
+    @Column(name = "instance_name")
+    private String instanceName;
 
-    public Long getId() {
-        return id;
-    }
+    @Column(name = "last_checkin_time")
+    @Type(type = "long")
+    private Long lastCheckInTime;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    @Column(name = "checkin_interval")
+    @Type(type = "long")
+    private Long checkinInterval;
 }

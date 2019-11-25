@@ -1,6 +1,6 @@
 --#SET TERMINATOR @
 --This value should be changed, use the same user that BPMS is using to access the DB2
-SET CURRENT SCHEMA BPMS@
+--SET CURRENT SCHEMA BPMS@
 
 -- to execute this script open connect in the DB2 console: db2 connect to BPMS
 -- Then perform this command: db2 -tf bpms-6.0-to-6.1.sql
