@@ -15,8 +15,10 @@
  */
 package org.jbpm.runtime.manager.impl.mapper;
 
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
@@ -30,7 +32,6 @@ import org.kie.api.runtime.Environment;
 import org.kie.api.runtime.EnvironmentName;
 import org.kie.api.runtime.manager.Context;
 import org.kie.internal.process.CorrelationKey;
-import org.kie.internal.process.CorrelationProperty;
 import org.kie.internal.runtime.manager.context.CorrelationKeyContext;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 
@@ -62,6 +63,34 @@ public class JPAMapper extends InternalMapper {
 		if (!info.isShared()) {
 			em.close();
 		}
+    }
+
+    // all context need to be unaware of environment otherwise this won't optimize
+    @Override
+    public Map<Long, Long> findMappings(List<Context<?>> availableContext, String ownerId) {
+        if (availableContext.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        List<Context> contexts = availableContext.stream()
+                .filter(e -> e.getClass().equals(ProcessInstanceIdContext.class))
+                .collect(Collectors.toList());
+
+
+        if (contexts.size() != availableContext.size()) {
+            throw new IllegalArgumentException("Optimization cannot be applied. Contexts empty or there is at least one context not matching the criteria");
+        }
+
+        EntityManagerInfo info = getEntityManager(availableContext.get(0));
+        EntityManager em = info.getEntityManager();
+        try {
+            List<ContextMappingInfo> contextMapping = findContextsByContextId(contexts, ownerId, em);
+            return contextMapping.stream().collect(Collectors.toMap(e -> Long.parseLong(e.getContextId()), e -> e.getKsessionId()));
+        } finally {
+            if (!info.isShared()) {
+                em.close();
+            }
+        }
     }
 
     @Override
@@ -106,23 +135,25 @@ public class JPAMapper extends InternalMapper {
     }
     
     protected ContextMappingInfo findContextByContextId(Context context, String ownerId, EntityManager em) {
-        try {
-            if (context.getContextId() == null) {
-                return null;
-            }
-            Query findQuery = em.createNamedQuery("FindContextMapingByContextId")
-            		.setParameter("contextId", context.getContextId().toString())
-        			.setParameter("ownerId", ownerId);
-            ContextMappingInfo contextMapping = (ContextMappingInfo) findQuery.getSingleResult();
-            
-            return contextMapping;
-        } catch (NoResultException e) {
-            return null;
-        } catch (NonUniqueResultException e) {
+        List<ContextMappingInfo> info = findContextsByContextId(Arrays.asList(context), ownerId, em);
+        if (info.isEmpty() || info.size() > 1) {
             return null;
         }
+        return info.get(0);
     }
-    
+
+    protected List<ContextMappingInfo> findContextsByContextId(List<Context> context, String ownerId, EntityManager em) {
+        List<String> ids = context.stream()
+                                  .filter(e -> e.getContextId() != null)
+                                  .map(e -> e.getContextId().toString())
+                                  .collect(Collectors.toList());
+
+        Query findQuery = em.createNamedQuery("FindContextMapingByContextId")
+                            .setParameter("contextId", ids)
+                            .setParameter("ownerId", ownerId);
+
+        return (List<ContextMappingInfo>) findQuery.getResultList();
+    }
     
     public Context getProcessInstanceByCorrelationKey(CorrelationKey correlationKey, EntityManager em) {
         Query processInstancesForEvent = em.createNamedQuery( "GetProcessInstanceIdByCorrelation" );

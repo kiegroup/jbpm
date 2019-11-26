@@ -23,6 +23,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.drools.core.command.SingleSessionCommandService;
 import org.drools.core.command.impl.CommandBasedStatefulKnowledgeSession;
@@ -221,6 +223,26 @@ public class PerCaseRuntimeManager extends AbstractRuntimeManager {
                 }
             }
         }
+    }
+
+    @Override
+    public List<Long> validate(KieSession ksession, List<Context<?>> contexts) {
+        if (isClosed()) {
+            throw new IllegalStateException("Runtime manager " + identifier + " is already closed");
+        }
+
+        Predicate<Context<?>> predicate = e -> e == null || e.getContextId() == null;
+
+        List<Long> validated = contexts.stream().filter(predicate).map(e -> (Long) e.getContextId()).collect(Collectors.toList());
+        List<Context<?>> availableContext = contexts.stream().filter(predicate.negate()).collect(Collectors.toCollection(ArrayList::new));
+
+        // retrieve process key <-> session id
+        Map<Long, Long> mappings = mapper.findMappings(availableContext, this.identifier);
+
+        // validate the current session id for the process id
+        mappings.entrySet().stream().filter(e -> ksession.getIdentifier() == e.getValue()).forEach(e -> validated.add(e.getKey()));
+
+        return validated;
     }
 
     @Override

@@ -45,7 +45,7 @@ import javax.persistence.Version;
 @SequenceGenerator(name="contextMappingInfoIdSeq", sequenceName="CONTEXT_MAPPING_INFO_ID_SEQ")
 @NamedQueries(value=
     {@NamedQuery(name="FindContextMapingByContextId", 
-                query="from ContextMappingInfo where contextId = :contextId"
+                query="from ContextMappingInfo where contextId IN (:contextId)"
                 		+ " and ownerId = :ownerId"),
                 @NamedQuery(name="FindContextMapingByKSessionId", 
                 query="from ContextMappingInfo where ksessionId = :ksessionId"

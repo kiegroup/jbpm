@@ -17,9 +17,10 @@
 package org.jbpm.process.instance;
 
 import java.util.Collection;
+import java.util.List;
 
-import org.kie.internal.process.CorrelationKey;
 import org.kie.api.runtime.process.ProcessInstance;
+import org.kie.internal.process.CorrelationKey;
 
 public interface ProcessInstanceManager {
 
@@ -42,5 +43,7 @@ public interface ProcessInstanceManager {
     void clearProcessInstances();
     
     void clearProcessInstancesState();
+
+    List<Long> ensureLoaded(List<Long> processInstancesToSignalList);
 
 }

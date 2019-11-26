@@ -23,6 +23,7 @@ import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import org.drools.core.common.InternalKnowledgeRuntime;
 import org.drools.persistence.api.TransactionManager;
@@ -46,6 +47,7 @@ import org.jbpm.workflow.instance.node.TimerNodeInstance;
 import org.kie.api.definition.process.Process;
 import org.kie.api.runtime.EnvironmentName;
 import org.kie.api.runtime.KieSession;
+import org.kie.api.runtime.manager.Context;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.process.WorkflowProcessInstance;
 import org.kie.internal.process.CorrelationKey;
@@ -113,9 +115,27 @@ public class JPAProcessInstanceManager
         return getProcessInstance(id, false);
     }
 
-    public ProcessInstance getProcessInstance(long id, boolean readOnly) {
+    @Override
+    public List<Long> ensureLoaded(List<Long> processInstancesToSignalList) {
+        List<Context<?>> contexts = processInstancesToSignalList.stream().map(id -> ProcessInstanceIdContext.get(id)).collect(Collectors.toList());
+
         InternalRuntimeManager manager = (InternalRuntimeManager) kruntime.getEnvironment().get(EnvironmentName.RUNTIME_MANAGER);
-        if (manager != null) {
+        List<Long> validated = manager.validate((KieSession) kruntime, contexts);
+
+        for (Long id : validated) {
+            getProcessInstance(id, false, false);
+        }
+
+        return validated;
+    }
+
+    public ProcessInstance getProcessInstance(long id, boolean readOnly) {
+        return getProcessInstance(id, readOnly, true);
+    }
+
+    public ProcessInstance getProcessInstance(long id, boolean readOnly, boolean validate) {
+        InternalRuntimeManager manager = (InternalRuntimeManager) kruntime.getEnvironment().get(EnvironmentName.RUNTIME_MANAGER);
+        if (validate && manager != null) {
             manager.validate((KieSession) kruntime, ProcessInstanceIdContext.get(id));
         }
         TransactionManager txm = (TransactionManager) this.kruntime.getEnvironment().get( EnvironmentName.TRANSACTION_MANAGER );

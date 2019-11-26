@@ -16,12 +16,14 @@
 
 package org.jbpm.persistence.processinstance;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.drools.core.common.InternalKnowledgeRuntime;
 import org.jbpm.persistence.api.ProcessPersistenceContext;
 import org.jbpm.persistence.api.ProcessPersistenceContextManager;
 import org.jbpm.process.core.async.AsyncSignalEventCommand;
+import org.jbpm.process.instance.InternalProcessRuntime;
 import org.jbpm.process.instance.event.DefaultSignalManager;
 import org.kie.api.executor.CommandContext;
 import org.kie.api.executor.ExecutorService;
@@ -66,21 +68,16 @@ public class JPASignalManager extends DefaultSignalManager {
                 logger.warn("Signal should be sent asynchronously but there is no executor service available, continuing sync...");
             }
         }
-        
-        
-        for ( long id : processInstancesToSignalList ) {
-            try {
-                getKnowledgeRuntime().getProcessInstance( id );
-            } catch (IllegalStateException e) {
-                // IllegalStateException can be thrown when using RuntimeManager
-                // and invalid ksession was used for given context
-            } catch (RuntimeException e) {
-                logger.warn("Exception when loading process instance for signal '{}', instance with id {} will not be signaled",
-                        e.getMessage(), id);
-            }
+
+        // ensure is loaded in memory
+        List<Long> loaded = ((InternalProcessRuntime) getKnowledgeRuntime().getProcessRuntime()).ensureLoaded(processInstancesToSignalList);
+        List<Long> failed = new ArrayList<>(processInstancesToSignalList);
+        failed.removeAll(loaded);
+
+        for (long id : failed) {
+            logger.warn("Exception when loading process instance for signal '{}', instance with id {} will not be signaled", type, id);
         }
-        super.signalEvent( actualSignalType,
-                           event );
+        super.signalEvent(actualSignalType, event);
     }
 
 }

@@ -18,14 +18,15 @@ package org.jbpm.process.instance.impl;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.kie.internal.process.CorrelationKey;
-import org.kie.api.runtime.process.ProcessInstance;
 import org.jbpm.process.instance.ProcessInstanceManager;
+import org.kie.api.runtime.process.ProcessInstance;
+import org.kie.internal.process.CorrelationKey;
 
 public class DefaultProcessInstanceManager implements ProcessInstanceManager {
 
@@ -89,5 +90,10 @@ public class DefaultProcessInstanceManager implements ProcessInstanceManager {
     
     public void setProcessCounter(AtomicLong processCounter) {
         this.processCounter = processCounter;
+    }
+
+    @Override
+    public List<Long> ensureLoaded(List<Long> processInstancesToSignalList) {
+        return Collections.unmodifiableList(processInstancesToSignalList);
     }
 }

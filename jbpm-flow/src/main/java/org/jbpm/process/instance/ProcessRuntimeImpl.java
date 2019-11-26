@@ -285,6 +285,11 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
         return getProcessInstance( id, false );
     }
 
+    @Override
+    public List<Long> ensureLoaded(List<Long> processInstancesToSignalList) {
+        return processInstanceManager.ensureLoaded(processInstancesToSignalList);
+    }
+
     public ProcessInstance getProcessInstance(long id, boolean readOnly) {
         return processInstanceManager.getProcessInstance( id, readOnly );
     }
@@ -712,4 +717,5 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
         }
         
     }
+
 }
