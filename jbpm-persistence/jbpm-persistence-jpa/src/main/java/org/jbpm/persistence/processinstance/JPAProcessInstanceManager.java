@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.ConcurrentModificationException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -53,6 +54,8 @@ import org.kie.api.runtime.process.WorkflowProcessInstance;
 import org.kie.internal.process.CorrelationKey;
 import org.kie.internal.runtime.manager.InternalRuntimeManager;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is an implementation of the {@link ProcessInstanceManager} that uses JPA.
@@ -65,6 +68,8 @@ import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 public class JPAProcessInstanceManager
     implements
     ProcessInstanceManager {
+
+    private static final Logger logger = LoggerFactory.getLogger(JPAProcessInstanceManager.class);
 
     private InternalKnowledgeRuntime kruntime;
     // In a scenario in which 1000's of processes are running daily,
@@ -117,16 +122,26 @@ public class JPAProcessInstanceManager
 
     @Override
     public List<Long> ensureLoaded(List<Long> processInstancesToSignalList) {
-        List<Context<?>> contexts = processInstancesToSignalList.stream().map(id -> ProcessInstanceIdContext.get(id)).collect(Collectors.toList());
+        List<Long> validatedContext = processInstancesToSignalList;
 
         InternalRuntimeManager manager = (InternalRuntimeManager) kruntime.getEnvironment().get(EnvironmentName.RUNTIME_MANAGER);
-        List<Long> validated = manager.validate((KieSession) kruntime, contexts);
-
-        for (Long id : validated) {
-            getProcessInstance(id, false, false);
+        if (manager != null) {
+            List<Context<?>> contexts = processInstancesToSignalList.stream().map(id -> ProcessInstanceIdContext.get(id)).collect(Collectors.toList());
+            validatedContext = manager.validate((KieSession) kruntime, contexts);
         }
 
-        return validated;
+        Iterator<Long> iterator = validatedContext.iterator();
+        while (iterator.hasNext()) {
+            Long id = iterator.next();
+            try {
+                getProcessInstance(id, false, false);
+            } catch (Exception e) {
+                iterator.remove();
+                logger.debug("Cound not load process " + id, e);
+            }
+        }
+
+        return validatedContext;
     }
 
     public ProcessInstance getProcessInstance(long id, boolean readOnly) {

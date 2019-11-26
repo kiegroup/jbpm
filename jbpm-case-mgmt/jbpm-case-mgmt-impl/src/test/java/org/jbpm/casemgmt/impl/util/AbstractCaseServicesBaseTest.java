@@ -16,9 +16,6 @@
 
 package org.jbpm.casemgmt.impl.util;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
-
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 
@@ -31,9 +28,12 @@ import org.jbpm.casemgmt.impl.utils.DefaultCaseServiceConfigurator;
 import org.jbpm.runtime.manager.impl.jpa.EntityManagerFactoryManager;
 import org.jbpm.services.api.model.DeploymentUnit;
 import org.jbpm.test.services.AbstractCaseServicesTest;
-import org.kie.test.util.db.PoolingDataSourceWrapper;
 import org.kie.api.task.model.Status;
 import org.kie.api.task.model.TaskSummary;
+import org.kie.test.util.db.PoolingDataSourceWrapper;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 public abstract class AbstractCaseServicesBaseTest extends AbstractCaseServicesTest {
 
@@ -57,6 +57,7 @@ public abstract class AbstractCaseServicesBaseTest extends AbstractCaseServicesT
     protected static final String MULTI_STAGE_CASE_P_ID = "multiplestages";
     protected static final String USER_TASK_DATA_CASE_P_ID = "UserTaskCaseData";
     protected static final String EXECUTION_IN_ONE_GO = "CaseExecutionInOneGo";
+    protected static final String CASE_BULK_SIGNALING = "CaseBulkSignalingMilestone";
     
     protected static final String SUBPROCESS_P_ID = "DataVerification";
 

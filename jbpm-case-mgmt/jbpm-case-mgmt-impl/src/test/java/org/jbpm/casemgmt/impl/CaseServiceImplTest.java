@@ -16,17 +16,6 @@
 
 package org.jbpm.casemgmt.impl;
 
-import static java.util.stream.Collectors.toMap;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.Assertions.entry;
-import static org.assertj.core.api.Assertions.fail;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -97,6 +86,17 @@ import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static java.util.stream.Collectors.toMap;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.entry;
+import static org.assertj.core.api.Assertions.fail;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
 
     private static final Logger logger = LoggerFactory.getLogger(CaseServiceImplTest.class);
@@ -120,6 +120,7 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
         processes.add("cases/CaseMultiInstanceStage.bpmn2");
         processes.add("cases/UserTaskCaseData.bpmn2");
         processes.add("cases/CaseWithStageAndBoundaryTimer.bpmn2");
+        processes.add("cases/CaseBulkSingalingMilestone.bpmn2");
         // add processes that can be used by cases but are not cases themselves
         processes.add("processes/DataVerificationProcess.bpmn2");
         return processes;
@@ -3699,7 +3700,34 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
             }
         }
     }
-    
+
+    @Test
+    public void testCaseBulkSingalingMilestone() {
+        final int NUMER_OF_CASES = 10;
+
+        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
+
+        Map<String, Object> data = new HashMap<>();
+        CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), CASE_BULK_SIGNALING, data, roleAssignments);
+
+        List<String> caseIds = new ArrayList<>();
+        for (int i = 0; i < NUMER_OF_CASES; i++) {
+            caseIds.add(caseService.startCase(deploymentUnit.getIdentifier(), CASE_BULK_SIGNALING, caseFile));
+        }
+        assertThat(caseIds).hasSize(NUMER_OF_CASES);
+
+        try {
+            String caseId = caseIds.get(0);
+            caseService.addDataToCaseFile(caseId, Collections.singletonMap("stateId", 2042));
+            caseIds.remove(caseId);
+        } catch (Exception e) {
+            logger.error("Unexpected error {}", e.getMessage(), e);
+            fail("Unexpected exception " + e.getMessage());
+        } finally {
+            caseIds.stream().forEach(caseId -> caseService.cancelCase(caseId));
+        }
+    }
+
     @Test
     public void testCaseWithStageAndBoundaryTimerFired() throws InterruptedException {
         String caseId = caseService.startCase(deploymentUnit.getIdentifier(), "CaseWithStageAndBoundaryTimer");
