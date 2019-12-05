@@ -16,17 +16,6 @@
 
 package org.jbpm.casemgmt.impl;
 
-import static java.util.stream.Collectors.toMap;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.Assertions.entry;
-import static org.assertj.core.api.Assertions.fail;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -82,7 +71,6 @@ import org.kie.api.event.rule.MatchCreatedEvent;
 import org.kie.api.runtime.Context;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.CaseAssignment;
-import org.kie.api.runtime.process.NodeInstance;
 import org.kie.api.runtime.process.WorkflowProcessInstance;
 import org.kie.api.runtime.query.QueryContext;
 import org.kie.api.task.model.OrganizationalEntity;
@@ -96,6 +84,17 @@ import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static java.util.stream.Collectors.toMap;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.entry;
+import static org.assertj.core.api.Assertions.fail;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
 
@@ -855,8 +854,11 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
                 public Void execute(Context context) {
                     KieSession ksession = ((RegistryContext) context).lookup( KieSession.class );
                     
-                    NodeInstance milestone = ((WorkflowProcessInstance)ksession.getProcessInstance(processInstanceId)).getNodeInstances().stream().filter(ni -> ni.getNodeName().equals("Milestone2")).findFirst().get();
-                    ((MilestoneNodeInstance)milestone).signalEvent(eventName, event);
+                    MilestoneNodeInstance milestone = (MilestoneNodeInstance) ((WorkflowProcessInstance) ksession.getProcessInstance(processInstanceId)).getNodeInstances()
+                                                                                                                                                        .stream()
+                                                                                                                                                        .filter(ni -> ni.getNodeName().equals("Milestone2"))
+                                                                                                                                                        .findFirst().get();
+                    milestone.signalEvent(milestone.getActivationEventType(), event);
                     return null;
                 }          
             });
@@ -875,8 +877,11 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
                 public Void execute(Context context) {
                     KieSession ksession = ((RegistryContext) context).lookup( KieSession.class );
                     
-                    NodeInstance milestone = ((WorkflowProcessInstance)ksession.getProcessInstance(processInstanceId)).getNodeInstances().stream().filter(ni -> ni.getNodeName().equals("Milestone2")).findFirst().get();
-                    ((MilestoneNodeInstance)milestone).signalEvent(eventName, event);
+                    MilestoneNodeInstance milestone = (MilestoneNodeInstance) ((WorkflowProcessInstance) ksession.getProcessInstance(processInstanceId)).getNodeInstances()
+                                                                                                                                                        .stream()
+                                                                                                                                                        .filter(ni -> ni.getNodeName().equals("Milestone2"))
+                                                                                                                                                        .findFirst().get();
+                    milestone.signalEvent(milestone.getActivationEventType(), event);
                     return null;
                 }          
             });
