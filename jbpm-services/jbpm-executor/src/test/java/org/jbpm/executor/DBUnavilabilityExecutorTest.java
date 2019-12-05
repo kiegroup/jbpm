@@ -59,7 +59,7 @@ public class DBUnavilabilityExecutorTest{
 
 	@BeforeClass
     public static void createDBServer() throws Exception {
-	    h2Server = Server.createTcpServer(new String[] { "-tcpPort", "9123" });
+	    h2Server = Server.createTcpServer(new String[] { "-tcpPort", "9123", "-ifNotExists" });
 	    h2Server.start();
     }
 
@@ -73,7 +73,7 @@ public class DBUnavilabilityExecutorTest{
     @Before
     public void setUp() {
         Properties dsProps = ExecutorTestUtil.getDatasourceProperties();
-        dsProps.setProperty("url", "jdbc:h2:tcp://localhost:9123/target/jbpm-exec-test");
+        dsProps.setProperty("url", "jdbc:h2:tcp://localhost:9123/./target/jbpm-exec-test");
         pds = PersistenceUtil.setupPoolingDataSource(dsProps, "jdbc/jbpm-ds");        
         emf = Persistence.createEntityManagerFactory("org.jbpm.executor");
 

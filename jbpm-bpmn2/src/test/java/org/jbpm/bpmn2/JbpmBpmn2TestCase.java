@@ -929,7 +929,7 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
             if (server == null || !server.isRunning(false)) {
                 try {
                     DeleteDbFiles.execute("~", "jbpm-db", true);
-                    server = Server.createTcpServer(new String[0]);
+                    server = Server.createTcpServer("-ifNotExists");
                     server.start();
                 } catch (SQLException e) {
                     throw new RuntimeException(

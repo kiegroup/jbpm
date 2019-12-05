@@ -547,7 +547,7 @@ public abstract class JbpmJUnitTestCase extends AbstractBaseTest {
             if (server == null || !server.isRunning(false)) {
                 try {
                     DeleteDbFiles.execute("~", "jbpm-db", true);
-                    server = Server.createTcpServer(new String[0]);
+                    server = Server.createTcpServer("-ifNotExists");
                     server.start();
                 } catch (SQLException e) {
                     throw new RuntimeException("Cannot start h2 server database", e);

@@ -195,7 +195,7 @@ public class PersistenceUtil {
                     "allowLocalTransactions" };
             String[] defaultPropArr = { 
                     "", "", "", 
-                    "jdbc:h2:tcp://localhost/target/jbpm-test", 
+                    "jdbc:h2:tcp://localhost/./target/jbpm-test",
                     "sa", "", 
                     "org.h2.Driver",
                     "org.h2.jdbcx.JdbcDataSource", 
@@ -287,7 +287,7 @@ public class PersistenceUtil {
            if (realH2Server == null || !realH2Server.isRunning(false)) {
                try {
                    DeleteDbFiles.execute("", "JPADroolsFlow", true);
-                   realH2Server = Server.createTcpServer(new String[0]);
+                   realH2Server = Server.createTcpServer("-ifNotExists");
                    realH2Server.start();
                } catch (SQLException e) {
                    throw new RuntimeException("can't start h2 server db", e);
