@@ -20,8 +20,11 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.assertj.core.api.Assertions;
 import org.jbpm.services.task.audit.service.TaskJPAAuditService;
@@ -126,7 +129,8 @@ public class TaskLogCleanTest extends JbpmTestCase {
         abortProcess(kieSession, processInstanceList);
         TaskService taskService = getRuntimeEngine().getTaskService();
 
-        // Delete the last two task logs
+        Set<Date> startDates = new HashSet<>();
+        // Delete the last three task logs
         for (int i = processInstanceList.size() - 1; i > 0; i--) {
             List<Long> taskIdList = taskService.getTasksByProcessInstanceId(processInstanceList.get(i).getId());
             Assertions.assertThat(taskIdList).hasSize(1);
@@ -134,12 +138,18 @@ public class TaskLogCleanTest extends JbpmTestCase {
             Task task = taskService.getTaskById(taskIdList.get(0));
             Assertions.assertThat(task).isNotNull();
 
-            int resultCount = taskAuditService.auditTaskDelete()
-                    .date(task.getTaskData().getCreatedOn())
-                    .build()
-                    .execute();
-            Assertions.assertThat(resultCount).isEqualTo(1);
+            startDates.add(task.getTaskData().getCreatedOn());
         }
+
+        int resultCount = startDates.stream().map(
+                          s ->  taskAuditService.auditTaskDelete()
+                                  .date(s)
+                                  .build()
+                                  .execute())
+                          .collect(Collectors.summingInt(Integer::intValue));
+            
+        Assertions.assertThat(resultCount).isEqualTo(3);
+        
     }
 
     @Test
