@@ -56,4 +56,8 @@ public class CountDownListenerFactory {
     public static void clear() {
         listeners.clear();
     }
+
+    public static void reset() {
+        listeners.values().stream().forEach(e -> e.reset());
+    }
 }

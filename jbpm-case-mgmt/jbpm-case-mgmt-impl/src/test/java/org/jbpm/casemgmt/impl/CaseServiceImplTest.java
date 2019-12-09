@@ -16,17 +16,6 @@
 
 package org.jbpm.casemgmt.impl;
 
-import static java.util.stream.Collectors.toMap;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.Assertions.entry;
-import static org.assertj.core.api.Assertions.fail;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -67,6 +56,7 @@ import org.jbpm.casemgmt.api.model.instance.StageStatus;
 import org.jbpm.casemgmt.impl.model.instance.CaseInstanceImpl;
 import org.jbpm.casemgmt.impl.objects.EchoService;
 import org.jbpm.casemgmt.impl.util.AbstractCaseServicesBaseTest;
+import org.jbpm.casemgmt.impl.util.CountDownListenerFactory;
 import org.jbpm.document.Document;
 import org.jbpm.document.service.impl.DocumentImpl;
 import org.jbpm.services.api.TaskNotFoundException;
@@ -75,7 +65,10 @@ import org.jbpm.services.api.model.ProcessInstanceDesc;
 import org.jbpm.services.api.model.VariableDesc;
 import org.jbpm.services.task.impl.model.GroupImpl;
 import org.jbpm.services.task.impl.model.UserImpl;
+import org.jbpm.test.listener.process.NodeLeftCountDownProcessEventListener;
 import org.jbpm.workflow.instance.node.MilestoneNodeInstance;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.kie.api.command.ExecutableCommand;
 import org.kie.api.event.rule.MatchCreatedEvent;
@@ -97,9 +90,21 @@ import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static java.util.stream.Collectors.toMap;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.entry;
+import static org.assertj.core.api.Assertions.fail;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
 
     private static final Logger logger = LoggerFactory.getLogger(CaseServiceImplTest.class);
+
 
     @Override
     protected List<String> getProcessDefinitionFiles() {
@@ -120,6 +125,7 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
         processes.add("cases/CaseMultiInstanceStage.bpmn2");
         processes.add("cases/UserTaskCaseData.bpmn2");
         processes.add("cases/CaseWithStageAndBoundaryTimer.bpmn2");
+        processes.add("cases/CaseWithBoundaryTimerStage.bpmn2");
         // add processes that can be used by cases but are not cases themselves
         processes.add("processes/DataVerificationProcess.bpmn2");
         return processes;
@@ -3699,14 +3705,31 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
             }
         }
     }
-    
+
+    @Before
+    public void setUp() throws Exception {
+        registerListenerMvelDefinition("org.jbpm.casemgmt.impl.util.CountDownListenerFactory.get(\"" +
+                                       getClass().getSimpleName() + "1\", " +
+                                       "\"end 1\", 1)");
+        registerListenerMvelDefinition("org.jbpm.casemgmt.impl.util.CountDownListenerFactory.get(\"" +
+                                       getClass().getSimpleName() + "2\", " +
+                                       "\"Stage 1\", 1)");
+        super.setUp();
+    }
+
+    @After
+    public void tear() {
+        CountDownListenerFactory.reset();
+    }
+
     @Test
     public void testCaseWithStageAndBoundaryTimerFired() throws InterruptedException {
         String caseId = caseService.startCase(deploymentUnit.getIdentifier(), "CaseWithStageAndBoundaryTimer");
         assertNotNull(caseId);
         assertEquals(FIRST_CASE_ID, caseId);
-        
-        Thread.sleep(2000);
+
+        // wait till we hit end node
+        ((NodeLeftCountDownProcessEventListener) CountDownListenerFactory.getExisting(getClass().getSimpleName() + "1")).waitTillCompleted();
         
         try {
             Collection<CaseStageInstance> stages = caseRuntimeDataService.getCaseInstanceStages(caseId, false, null);
@@ -3716,6 +3739,44 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
             CaseStageInstance stage1 = iterator.next();
             assertThat(stage1.getName()).isEqualTo("Stage 1");
             assertThat(stage1.getStatus()).isEqualTo(StageStatus.Completed);
+
+            caseService.cancelCase(caseId);
+            CaseInstance instance = caseService.getCaseInstance(caseId);
+            assertThat(instance.getStatus()).isEqualTo(CaseStatus.CANCELLED.getId());
+            caseId = null;
+        } catch (Exception e) {
+            logger.error("Unexpected error {}", e.getMessage(), e);
+            fail("Unexpected exception " + e.getMessage());
+        } finally {
+            if (caseId != null) {
+                caseService.cancelCase(caseId);
+            }
+        }
+    }
+
+
+
+    @Test
+    public void testCaseWithBoundaryTimerFiredAtStage() throws InterruptedException {
+
+        String caseId = caseService.startCase(deploymentUnit.getIdentifier(), "CaseWithBoundaryTimerStage");
+        assertNotNull(caseId);
+        assertEquals(FIRST_CASE_ID, caseId);
+
+        // wait till we hit end node
+        ((NodeLeftCountDownProcessEventListener) CountDownListenerFactory.getExisting(getClass().getSimpleName() + "2")).waitTillCompleted();
+        try {
+            Collection<CaseStageInstance> stages = caseRuntimeDataService.getCaseInstanceStages(caseId, false, null);
+            assertThat(stages).isNotNull().hasSize(2);
+            Iterator<CaseStageInstance> iterator = stages.iterator();
+
+            CaseStageInstance stage1 = iterator.next();
+            assertThat(stage1.getName()).isEqualTo("Stage 1");
+            assertThat(stage1.getStatus()).isEqualTo(StageStatus.Completed);
+
+            CaseStageInstance stage2 = iterator.next();
+            assertThat(stage2.getName()).isEqualTo("Stage 2");
+            assertThat(stage2.getStatus()).isEqualTo(StageStatus.Active);
 
             caseService.cancelCase(caseId);
             CaseInstance instance = caseService.getCaseInstance(caseId);

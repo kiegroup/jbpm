@@ -36,7 +36,7 @@
         </drools:metaData>
       </bpmn2:extensionElements>
     </bpmn2:sequenceFlow>
-    <bpmn2:startEvent id="_B4AE3499-714A-4422-8ED3-042A567D26EB">
+    <bpmn2:startEvent id="_B4AE3499-714A-4422-8ED3-042A567D26EB" name="start">
       <bpmn2:extensionElements>
         <drools:metaData name="elementname">
           <drools:metaValue><![CDATA[]]></drools:metaValue>
@@ -44,7 +44,7 @@
       </bpmn2:extensionElements>
       <bpmn2:outgoing>_4C62C109-1C32-4087-B27E-10CD8347ABBB</bpmn2:outgoing>
     </bpmn2:startEvent>
-    <bpmn2:endEvent id="_4E8A45C7-9AF1-409C-8775-79F42B4178F4">
+    <bpmn2:endEvent id="_4E8A45C7-9AF1-409C-8775-79F42B4178F4" name="end 1">
       <bpmn2:extensionElements>
         <drools:metaData name="elementname">
           <drools:metaValue><![CDATA[]]></drools:metaValue>
@@ -80,7 +80,7 @@
           </drools:metaData>
         </bpmn2:extensionElements>
       </bpmn2:sequenceFlow>
-      <bpmn2:endEvent id="_37250C53-D36A-426B-868A-CB9640CC934F">
+      <bpmn2:endEvent id="_37250C53-D36A-426B-868A-CB9640CC934F" name="end 2">
         <bpmn2:extensionElements>
           <drools:metaData name="elementname">
             <drools:metaValue><![CDATA[]]></drools:metaValue>
@@ -88,7 +88,7 @@
         </bpmn2:extensionElements>
         <bpmn2:incoming>_381E1A54-33C2-4570-86AA-67D0E277554C</bpmn2:incoming>
       </bpmn2:endEvent>
-      <bpmn2:scriptTask id="_90F8F6C6-3DB9-46C6-A55F-FDD028FDD71B" scriptFormat="http://www.java.com/java">
+      <bpmn2:scriptTask id="_90F8F6C6-3DB9-46C6-A55F-FDD028FDD71B" scriptFormat="http://www.java.com/java" name="timer task">
         <bpmn2:extensionElements>
           <drools:metaData name="elementname">
             <drools:metaValue><![CDATA[]]></drools:metaValue>
@@ -98,7 +98,7 @@
         <bpmn2:outgoing>_381E1A54-33C2-4570-86AA-67D0E277554C</bpmn2:outgoing>
         <bpmn2:script>System.out.println(&quot;timer on task&quot;);</bpmn2:script>
       </bpmn2:scriptTask>
-      <bpmn2:userTask id="_C0F6816D-F159-441C-8560-37E646D949B4">
+      <bpmn2:userTask id="_C0F6816D-F159-441C-8560-37E646D949B4" name="user task">
         <bpmn2:extensionElements>
           <drools:metaData name="elementname">
             <drools:metaValue><![CDATA[]]></drools:metaValue>

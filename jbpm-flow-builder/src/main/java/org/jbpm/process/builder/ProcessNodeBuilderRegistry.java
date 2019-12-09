@@ -87,7 +87,7 @@ public class ProcessNodeBuilderRegistry {
         register( BoundaryEventNode.class,
                 new EventNodeBuilder() );
         register( DynamicNode.class,
-                new ExtendedNodeBuilder() );
+                 new EventBasedNodeBuilder());
     }
 
     public void register(Class< ? extends Node> cls,
