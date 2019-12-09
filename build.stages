@@ -1,0 +1,17 @@
+if(!env.kiegroup_jbpm) {
+    stage('Build kie-jpmml-integration projects') {
+        dir("drools") {
+            script {
+                githubscm.checkoutIfExists('drools', "$CHANGE_AUTHOR", "$CHANGE_BRANCH", 'kiegroup', "$CHANGE_TARGET")
+                load("build.stages")
+            }
+        }
+    }
+    stage('Build jbpm project') {
+        script {
+            githubscm.checkoutIfExists('jbpm', "$CHANGE_AUTHOR", "$CHANGE_BRANCH", 'kiegroup', "$CHANGE_TARGET")
+            maven.runMavenWithSubmarineSettings('clean install', true)
+            env.kiegroup_jbpm = true;
+        }
+    }
+}
