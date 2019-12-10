@@ -40,14 +40,11 @@ public class QrtzSimpleTriggers {
     private String triggerGroup;
 
     @Column(name = "REPEAT_COUNT")
-    @Type(type = "long")
     private Long repeatCount;
 
     @Column(name = "REPEAT_INTERVAL")
-    @Type(type = "long")
     private Long repeatInterval;
 
     @Column(name = "TIMES_TRIGGERED")
-    @Type(type = "long")
     private Long timesTriggered;
 }

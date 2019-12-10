@@ -18,30 +18,12 @@ package org.jbpm.persistence.scripts.quartzdialects;
 
 import java.sql.Types;
 
-import org.hibernate.boot.model.TypeContributions;
 import org.hibernate.dialect.SQLServer2008Dialect;
-import org.hibernate.service.ServiceRegistry;
-import org.hibernate.type.descriptor.sql.BinaryTypeDescriptor;
-import org.hibernate.type.descriptor.sql.SqlTypeDescriptor;
 
 public class SQLServerCustomDialect extends SQLServer2008Dialect {
 
     public SQLServerCustomDialect() {
-        super();
         registerColumnType(Types.BLOB, "image");
-    }
-
-    @Override
-    public SqlTypeDescriptor remapSqlTypeDescriptor(SqlTypeDescriptor sqlTypeDescriptor) {
-        if (sqlTypeDescriptor.getSqlType() == java.sql.Types.BLOB) {
-            return BinaryTypeDescriptor.INSTANCE;
-        }
-        return super.remapSqlTypeDescriptor(sqlTypeDescriptor);
-    }
-
-    @Override
-    public void contributeTypes(TypeContributions typeContributions, ServiceRegistry serviceRegistry) {
-        super.contributeTypes(typeContributions,serviceRegistry);
-        typeContributions.contributeType(new Boolean2Varchar());
+        registerColumnType(Types.BOOLEAN, "varchar(1)");
     }
 }

@@ -16,16 +16,14 @@
 
 package org.jbpm.persistence.scripts.quartzdialects;
 
-import org.hibernate.boot.model.TypeContributions;
-import org.hibernate.dialect.SybaseDialect;
-import org.hibernate.service.ServiceRegistry;
+import java.sql.Types;
 
-public class SybaseCustomDialect extends SybaseDialect {
+import org.hibernate.dialect.SybaseASE157Dialect;
 
-    @Override
-    public void contributeTypes(TypeContributions typeContributions, ServiceRegistry serviceRegistry) {
-        super.contributeTypes(typeContributions,serviceRegistry);
-        typeContributions.contributeType(new Long2Numeric());
-        typeContributions.contributeType(new Boolean2Bit());
+public class SybaseCustomDialect extends SybaseASE157Dialect {
+
+    public SybaseCustomDialect() {
+        registerColumnType(Types.BIGINT, "NUMERIC(13,0)");
+        registerColumnType(Types.BOOLEAN, "bit");
     }
 }

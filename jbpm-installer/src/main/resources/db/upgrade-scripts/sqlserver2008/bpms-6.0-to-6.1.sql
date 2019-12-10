@@ -25,7 +25,7 @@ create table AuditTaskImpl (
 IF EXISTS (SELECT * FROM sys.objects WHERE type ='P' AND name = 'alter_table_session_info')
 DROP PROCEDURE alter_table_session_info
 -- Creating the procedure to delete the constraint from SessionInfo table
-;
+GO
 CREATE PROCEDURE alter_table_session_info
 AS
 	DECLARE @const_name VARCHAR(255)
@@ -44,7 +44,7 @@ AS
 		SELECT @sqlRecriateConstraint = 'ALTER TABLE SessionInfo ADD CONSTRAINT ' + @const_name + ' PRIMARY KEY CLUSTERED ([id] ASC)'
 		EXEC (@sqlRecriateConstraint)
 	END
-;
+GO
 -- Executing the procedure
 EXECUTE alter_table_session_info;
 -- Deleting the procedure to clean it from database

@@ -47,19 +47,15 @@ public class QrtzJobDetails {
     private String jobClassName;
 
     @Column(name = "IS_DURABLE")
-    @Type(type = "boolean")
     private Boolean isDurable;
 
     @Column(name = "IS_NONCONCURRENT")
-    @Type(type = "boolean")
     private Boolean isNonConcurent;
 
     @Column(name = "IS_UPDATE_DATA")
-    @Type(type = "boolean")
     private Boolean isUpdateDataBoolean;
 
     @Column(name = "REQUESTS_RECOVERY")
-    @Type(type = "boolean")
     private Boolean requestsRecovery;
 
     @Lob

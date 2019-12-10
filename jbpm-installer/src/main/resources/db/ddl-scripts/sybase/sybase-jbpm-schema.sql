@@ -1,19 +1,19 @@
     create table Attachment (
-        id bigint identity not null,
+        id numeric(19,0) identity not null,
         accessType int null,
         attachedAt datetime null,
-        attachmentContentId bigint not null,
+        attachmentContentId numeric(19,0) not null,
         contentType varchar(255) null,
         name varchar(255) null,
         attachment_size int null,
         attachedBy_id varchar(255) null,
-        TaskData_Attachments_Id bigint null,
+        TaskData_Attachments_Id numeric(19,0) null,
         primary key (id)
     ) lock datarows
     go
 
     create table AuditTaskImpl (
-        id bigint identity not null,
+        id numeric(19,0) identity not null,
         activationTime datetime null,
         actualOwner varchar(255) null,
         createdBy varchar(255) null,
@@ -22,28 +22,28 @@
         description varchar(255) null,
         dueDate datetime null,
         name varchar(255) null,
-        parentId bigint not null,
+        parentId numeric(19,0) not null,
         priority int not null,
         processId varchar(255) null,
-        processInstanceId bigint not null,
-        processSessionId bigint not null,
+        processInstanceId numeric(19,0) not null,
+        processSessionId numeric(19,0) not null,
         status varchar(255) null,
-        taskId bigint null,
-        workItemId bigint null,
+        taskId numeric(19,0) null,
+        workItemId numeric(19,0) null,
         lastModificationDate datetime,
         primary key (id)
     ) lock datarows
     go
 
     create table BAMTaskSummary (
-        pk bigint identity not null,
+        pk numeric(19,0) identity not null,
         createdDate datetime null,
-        duration bigint null,
+        duration numeric(19,0) null,
         endDate datetime null,
-        processInstanceId bigint not null,
+        processInstanceId numeric(19,0) not null,
         startDate datetime null,
         status varchar(255) null,
-        taskId bigint not null,
+        taskId numeric(19,0) not null,
         taskName varchar(255) null,
         userId varchar(255) null,
         OPTLOCK int null,
@@ -52,10 +52,10 @@
     go
 
     create table BooleanExpression (
-        id bigint identity not null,
+        id numeric(19,0) identity not null,
         expression text null,
         type varchar(255) null,
-        Escalation_Constraints_Id bigint null,
+        Escalation_Constraints_Id numeric(19,0) null,
         primary key (id)
     ) lock datarows
     go
@@ -92,16 +92,16 @@
     go
 
     create table Content (
-        id bigint identity not null,
+        id numeric(19,0) identity not null,
         content image null,
         primary key (id)
     ) lock datarows
     go
 
     create table ContextMappingInfo (
-        mappingId bigint identity not null,
+        mappingId numeric(19,0) identity not null,
         CONTEXT_ID varchar(255) not null,
-        KSESSION_ID bigint not null,
+        KSESSION_ID numeric(19,0) not null,
         OWNER_ID varchar(255) null,
         OPTLOCK int null,
         primary key (mappingId)
@@ -109,42 +109,42 @@
     go
 
     create table CorrelationKeyInfo (
-        keyId bigint identity not null,
+        keyId numeric(19,0) identity not null,
         name varchar(255) null,
-        processInstanceId bigint not null,
+        processInstanceId numeric(19,0) not null,
         OPTLOCK int null,
         primary key (keyId)
     ) lock datarows
     go
 
     create table CorrelationPropertyInfo (
-        propertyId bigint identity not null,
+        propertyId numeric(19,0) identity not null,
         name varchar(255) null,
         value varchar(255) null,
         OPTLOCK int null,
-        correlationKey_keyId bigint null,
+        correlationKey_keyId numeric(19,0) null,
         primary key (propertyId)
     ) lock datarows
     go
 
     create table Deadline (
-        id bigint identity not null,
+        id numeric(19,0) identity not null,
         deadline_date datetime null,
         escalated smallint null,
-        Deadlines_StartDeadLine_Id bigint null,
-        Deadlines_EndDeadLine_Id bigint null,
+        Deadlines_StartDeadLine_Id numeric(19,0) null,
+        Deadlines_EndDeadLine_Id numeric(19,0) null,
         primary key (id)
     ) lock datarows
     go
 
     create table Delegation_delegates (
-        task_id bigint not null,
+        task_id numeric(19,0) not null,
         entity_id varchar(255) not null
     ) lock datarows
     go
 
     create table DeploymentStore (
-        id bigint identity not null,
+        id numeric(19,0) identity not null,
         attributes varchar(255) null,
         DEPLOYMENT_ID varchar(255) null,
         deploymentUnit text null,
@@ -155,25 +155,25 @@
     go
 
     create table ErrorInfo (
-        id bigint identity not null,
+        id numeric(19,0) identity not null,
         message varchar(255) null,
         stacktrace varchar(5000) null,
         timestamp datetime null,
-        REQUEST_ID bigint not null,
+        REQUEST_ID numeric(19,0) not null,
         primary key (id)
     ) lock datarows
     go
 
     create table Escalation (
-        id bigint identity not null,
+        id numeric(19,0) identity not null,
         name varchar(255) null,
-        Deadline_Escalation_Id bigint null,
+        Deadline_Escalation_Id numeric(19,0) null,
         primary key (id)
     ) lock datarows
     go
 
     create table EventTypes (
-        InstanceId bigint not null,
+        InstanceId numeric(19,0) not null,
         element varchar(255) null
     ) lock datarows
     go
@@ -200,25 +200,25 @@
     go
     
     create table I18NText (
-        id bigint identity not null,
+        id numeric(19,0) identity not null,
         language varchar(255) null,
         shortText varchar(255) null,
         text text null,
-        Task_Subjects_Id bigint null,
-        Task_Names_Id bigint null,
-        Task_Descriptions_Id bigint null,
-        Reassignment_Documentation_Id bigint null,
-        Notification_Subjects_Id bigint null,
-        Notification_Names_Id bigint null,
-        Notification_Documentation_Id bigint null,
-        Notification_Descriptions_Id bigint null,
-        Deadline_Documentation_Id bigint null,
+        Task_Subjects_Id numeric(19,0) null,
+        Task_Names_Id numeric(19,0) null,
+        Task_Descriptions_Id numeric(19,0) null,
+        Reassignment_Documentation_Id numeric(19,0) null,
+        Notification_Subjects_Id numeric(19,0) null,
+        Notification_Names_Id numeric(19,0) null,
+        Notification_Documentation_Id numeric(19,0) null,
+        Notification_Descriptions_Id numeric(19,0) null,
+        Deadline_Documentation_Id numeric(19,0) null,
         primary key (id)
     ) lock datarows
     go
 
     create table NodeInstanceLog (
-        id bigint identity not null,
+        id numeric(19,0) identity not null,
         connection varchar(255) null,
         log_date datetime null,
         externalId varchar(255) null,
@@ -227,41 +227,41 @@
         nodeName varchar(255) null,
         nodeType varchar(255) null,
         processId varchar(255) null,
-        processInstanceId bigint not null,
+        processInstanceId numeric(19,0) not null,
         sla_due_date datetime null,
         slaCompliance int null,
         type int not null,
-        workItemId bigint null,
+        workItemId numeric(19,0) null,
         nodeContainerId varchar(255) null,
-        referenceId bigint null,
+        referenceId numeric(19,0) null,
         primary key (id)
     ) lock datarows
     go
 
     create table Notification (
         DTYPE varchar(31) not null,
-        id bigint identity not null,
+        id numeric(19,0) identity not null,
         priority int not null,
-        Escalation_Notifications_Id bigint null,
+        Escalation_Notifications_Id numeric(19,0) null,
         primary key (id)
     ) lock datarows
     go
 
     create table Notification_BAs (
-        task_id bigint not null,
+        task_id numeric(19,0) not null,
         entity_id varchar(255) not null
     ) lock datarows
     go
 
     create table Notification_Recipients (
-        task_id bigint not null,
+        task_id numeric(19,0) not null,
         entity_id varchar(255) not null
     ) lock datarows
     go
 
     create table Notification_email_header (
-        Notification_id bigint not null,
-        emailHeaders_id bigint not null,
+        Notification_id numeric(19,0) not null,
+        emailHeaders_id numeric(19,0) not null,
         mapkey varchar(255) not null,
         primary key (Notification_id, mapkey)
     ) lock datarows
@@ -275,37 +275,37 @@
     go
 
     create table PeopleAssignments_BAs (
-        task_id bigint not null,
+        task_id numeric(19,0) not null,
         entity_id varchar(255) not null
     ) lock datarows
     go
 
     create table PeopleAssignments_ExclOwners (
-        task_id bigint not null,
+        task_id numeric(19,0) not null,
         entity_id varchar(255) not null
     ) lock datarows
     go
 
     create table PeopleAssignments_PotOwners (
-        task_id bigint not null,
+        task_id numeric(19,0) not null,
         entity_id varchar(255) not null
     ) lock datarows
     go
 
     create table PeopleAssignments_Recipients (
-        task_id bigint not null,
+        task_id numeric(19,0) not null,
         entity_id varchar(255) not null
     ) lock datarows
     go
 
     create table PeopleAssignments_Stakeholders (
-        task_id bigint not null,
+        task_id numeric(19,0) not null,
         entity_id varchar(255) not null
     ) lock datarows
     go
 
     create table ProcessInstanceInfo (
-        InstanceId bigint identity not null,
+        InstanceId numeric(19,0) identity not null,
         lastModificationDate datetime null,
         lastReadDate datetime null,
         processId varchar(255) null,
@@ -318,17 +318,17 @@
     go
 
     create table ProcessInstanceLog (
-        id bigint identity not null,
+        id numeric(19,0) identity not null,
         correlationKey varchar(255) null,
-        duration bigint null,
+        duration numeric(19,0) null,
         end_date datetime null,
         externalId varchar(255) null,
         user_identity varchar(255) null,
         outcome varchar(255) null,
-        parentProcessInstanceId bigint null,
+        parentProcessInstanceId numeric(19,0) null,
         processId varchar(255) null,
         processInstanceDescription varchar(255) null,
-        processInstanceId bigint not null,
+        processInstanceId numeric(19,0) not null,
         processName varchar(255) null,
         processType int null,
         processVersion varchar(255) null,
@@ -341,7 +341,7 @@
     go
 
     create table QueryDefinitionStore (
-        id bigint identity not null,
+        id numeric(19,0) identity not null,
         qExpression text null,
         qName varchar(255) null,
         qSource varchar(255) null,
@@ -351,20 +351,20 @@
     go
 
     create table Reassignment (
-        id bigint identity not null,
-        Escalation_Reassignments_Id bigint null,
+        id numeric(19,0) identity not null,
+        Escalation_Reassignments_Id numeric(19,0) null,
         primary key (id)
     ) lock datarows
     go
 
     create table Reassignment_potentialOwners (
-        task_id bigint not null,
+        task_id numeric(19,0) not null,
         entity_id varchar(255) not null
     ) lock datarows
     go
 
     create table RequestInfo (
-        id bigint identity not null,
+        id numeric(19,0) identity not null,
         commandName varchar(255) null,
         deploymentId varchar(255) null,
         executions int not null,
@@ -372,7 +372,7 @@
         message varchar(255) null,
         owner varchar(255) null,
         priority int not null,
-        processInstanceId bigint,
+        processInstanceId numeric(19,0),
         requestData image null,
         responseData image null,
         retries int not null,
@@ -383,7 +383,7 @@
     go
 
     create table SessionInfo (
-        id bigint identity not null,
+        id numeric(19,0) identity not null,
         lastModificationDate datetime null,
         rulesByteArray image null,
         startDate datetime null,
@@ -393,7 +393,7 @@
     go
 
     create table Task (
-        id bigint identity not null,
+        id numeric(19,0) identity not null,
         archived smallint null,
         allowedToDelegate varchar(255) null,
         description varchar(255) null,
@@ -406,24 +406,24 @@
         createdOn datetime null,
         deploymentId varchar(255) null,
         documentAccessType int null,
-        documentContentId bigint not null,
+        documentContentId numeric(19,0) not null,
         documentType varchar(255) null,
         expirationTime datetime null,
         faultAccessType int null,
-        faultContentId bigint not null,
+        faultContentId numeric(19,0) not null,
         faultName varchar(255) null,
         faultType varchar(255) null,
         outputAccessType int null,
-        outputContentId bigint not null,
+        outputContentId numeric(19,0) not null,
         outputType varchar(255) null,
-        parentId bigint not null,
+        parentId numeric(19,0) not null,
         previousStatus int null,
         processId varchar(255) null,
-        processInstanceId bigint not null,
-        processSessionId bigint not null,
+        processInstanceId numeric(19,0) not null,
+        processSessionId numeric(19,0) not null,
         skipable tinyint not null,
         status varchar(255) null,
-        workItemId bigint not null,
+        workItemId numeric(19,0) not null,
         taskType varchar(255) null,
         OPTLOCK int null,
         taskInitiator_id varchar(255) null,
@@ -434,7 +434,7 @@
     go
 
     create table TaskDef (
-        id bigint identity not null,
+        id numeric(19,0) identity not null,
         name varchar(255) null,
         priority int not null,
         primary key (id)
@@ -442,26 +442,26 @@
     go
 
     create table TaskEvent (
-        id bigint identity not null,
+        id numeric(19,0) identity not null,
         logTime datetime null,
         message varchar(255) null,
-        processInstanceId bigint null,
-        taskId bigint null,
+        processInstanceId numeric(19,0) null,
+        taskId numeric(19,0) null,
         type varchar(255) null,
         userId varchar(255) null,
         OPTLOCK int null,
-        workItemId bigint null,
+        workItemId numeric(19,0) null,
         primary key (id)
     ) lock datarows
     go
 
     create table TaskVariableImpl (
-        id bigint identity not null,
+        id numeric(19,0) identity not null,
         modificationDate datetime null,
         name varchar(255) null,
         processId varchar(255) null,
-        processInstanceId bigint null,
-        taskId bigint null,
+        processInstanceId numeric(19,0) null,
+        taskId numeric(19,0) null,
         type int null,
         value varchar(4000) null,
         primary key (id)
@@ -469,12 +469,12 @@
     go
 
     create table VariableInstanceLog (
-        id bigint identity not null,
+        id numeric(19,0) identity not null,
         log_date datetime null,
         externalId varchar(255) null,
         oldValue varchar(255) null,
         processId varchar(255) null,
-        processInstanceId bigint not null,
+        processInstanceId numeric(19,0) not null,
         value varchar(255) null,
         variableId varchar(255) null,
         variableInstanceId varchar(255) null,
@@ -483,11 +483,11 @@
     go
 
     create table WorkItemInfo (
-        workItemId bigint identity not null,
+        workItemId numeric(19,0) identity not null,
         creationDate datetime null,
         name varchar(255) null,
-        processInstanceId bigint not null,
-        state bigint not null,
+        processInstanceId numeric(19,0) not null,
+        state numeric(19,0) not null,
         OPTLOCK int null,
         workItemByteArray image null,
         primary key (workItemId)
@@ -495,7 +495,7 @@
     go
 
     create table email_header (
-        id bigint identity not null,
+        id numeric(19,0) identity not null,
         body text null,
         fromAddress varchar(255) null,
         language varchar(255) null,
@@ -506,29 +506,29 @@
     go
 
     create table task_comment (
-        id bigint identity not null,
+        id numeric(19,0) identity not null,
         addedAt datetime null,
         text text null,
         addedBy_id varchar(255) null,
-        TaskData_Comments_Id bigint null,
+        TaskData_Comments_Id numeric(19,0) null,
         primary key (id)
     ) lock datarows
     go
 
     alter table Attachment
-        add constraint FKd5xpm81gxg8n40167lbu5rbfb
+        add constraint FK1C93543D937BFB5
         foreign key (attachedBy_id)
         references OrganizationalEntity
     go
 
     alter table Attachment
-        add constraint FKjj9psk52ifamilliyo16epwpc
+        add constraint FK1C9354333CA892A
         foreign key (TaskData_Attachments_Id)
         references Task
     go
 
     alter table BooleanExpression
-        add constraint FKqth56a8k6d8pv6ngsu2vjp4kj
+        add constraint FKE3D208C06C97C90E
         foreign key (Escalation_Constraints_Id)
         references Escalation
     go
@@ -538,31 +538,31 @@
     go
 
     alter table CorrelationPropertyInfo
-        add constraint FKbchyl7kb8i6ghvi3dbr86bgo0
+        add constraint FK761452A5D87156ED
         foreign key (correlationKey_keyId)
         references CorrelationKeyInfo
     go
 
     alter table Deadline
-        add constraint FK361ggw230po88svgfasg36i2w
+        add constraint FK21DF3E78A9FE0EF4
         foreign key (Deadlines_StartDeadLine_Id)
         references Task
     go
 
     alter table Deadline
-        add constraint FKpeiadnoy228t35213t63c3imm
+        add constraint FK21DF3E78695E4DDB
         foreign key (Deadlines_EndDeadLine_Id)
         references Task
     go
 
     alter table Delegation_delegates
-        add constraint FKewkdyi0wrgy9byp6abyglpcxq
+        add constraint FK47485D5772B3A123
         foreign key (entity_id)
         references OrganizationalEntity
     go
 
     alter table Delegation_delegates
-        add constraint FK85x3trafk3wfbrv719cafr591
+        add constraint FK47485D57786553A5
         foreign key (task_id)
         references Task
     go
@@ -572,103 +572,103 @@
     go
 
     alter table ErrorInfo
-        add constraint FKdarp6ushq06q39jmij3fdpdbs
+        add constraint FK8B1186B6724A467
         foreign key (REQUEST_ID)
         references RequestInfo
     go
 
     alter table Escalation
-        add constraint FK37v8ova8ti6jiblda7n6j298e
+        add constraint FK67B2C6B5D1E5CC1
         foreign key (Deadline_Escalation_Id)
         references Deadline
     go
 
     alter table EventTypes
-        add constraint FKj0o3uve2nqo5yrjwrkc9jfttq
+        add constraint FKB0E5621F7665489A
         foreign key (InstanceId)
         references ProcessInstanceInfo
     go
 
     alter table I18NText
-        add constraint FKcd6eb4q62d9ab8p0di8pb99ch
+        add constraint FK2349686BF4ACCD69
         foreign key (Task_Subjects_Id)
         references Task
     go
 
     alter table I18NText
-        add constraint FKiogka67sji8fk4cp7a369895i
+        add constraint FK2349686B424B187C
         foreign key (Task_Names_Id)
         references Task
     go
 
     alter table I18NText
-        add constraint FKrisdlmalotmk64mdeqpo4s5m0
+        add constraint FK2349686BAB648139
         foreign key (Task_Descriptions_Id)
         references Task
     go
 
     alter table I18NText
-        add constraint FKqxgws3fnukyqlaet11tivqg5u
+        add constraint FK2349686BB340A2AA
         foreign key (Reassignment_Documentation_Id)
         references Reassignment
     go
 
     alter table I18NText
-        add constraint FKthf8ix3t3opf9hya1s04hwsx8
+        add constraint FK2349686BF0CDED35
         foreign key (Notification_Subjects_Id)
         references Notification
     go
 
     alter table I18NText
-        add constraint FKg2jsybeuc8pbj8ek8xwxutuyo
+        add constraint FK2349686BCC03ED3C
         foreign key (Notification_Names_Id)
         references Notification
     go
 
     alter table I18NText
-        add constraint FKp0m7uhipskrljktvfeubdgfid
+        add constraint FK2349686B77C1C08A
         foreign key (Notification_Documentation_Id)
         references Notification
     go
 
     alter table I18NText
-        add constraint FK6k8hmfvhko069970eghiy2ifp
+        add constraint FK2349686B18DDFE05
         foreign key (Notification_Descriptions_Id)
         references Notification
     go
 
     alter table I18NText
-        add constraint FK8wn7sw34q6bifsi1pvl2b1yyb
+        add constraint FK2349686B78AF072A
         foreign key (Deadline_Documentation_Id)
         references Deadline
     go
 
     alter table Notification
-        add constraint FKoxq5uqfg4ylwyijsg2ubyflna
+        add constraint FK2D45DD0BC0C0F29C
         foreign key (Escalation_Notifications_Id)
         references Escalation
     go
 
     alter table Notification_BAs
-        add constraint FK378pb1cvjv54w4ljqpw99s3wr
+        add constraint FK2DD68EE072B3A123
         foreign key (entity_id)
         references OrganizationalEntity
     go
 
     alter table Notification_BAs
-        add constraint FKb123fgeomc741s9yc014421yy
+        add constraint FK2DD68EE093F2090B
         foreign key (task_id)
         references Notification
     go
 
     alter table Notification_Recipients
-        add constraint FKot769nimyq1jvw0m61pgsq5g3
+        add constraint FK98FD214E72B3A123
         foreign key (entity_id)
         references OrganizationalEntity
     go
 
     alter table Notification_Recipients
-        add constraint FKn7v944d0hw37bh0auv4gr3hsf
+        add constraint FK98FD214E93F2090B
         foreign key (task_id)
         references Notification
     go
@@ -678,73 +678,73 @@
     go
 
     alter table Notification_email_header
-        add constraint FKd74pdu41avy2f7a8qyp7wn2n
+        add constraint FKF30FE3448BED1339
         foreign key (emailHeaders_id)
         references email_header
     go
 
     alter table Notification_email_header
-        add constraint FKfdnoyp8rl0kxu29l4pyaa5566
+        add constraint FKF30FE3443E3E97EB
         foreign key (Notification_id)
         references Notification
     go
 
     alter table PeopleAssignments_BAs
-        add constraint FKa90cdfgc4km384n1ataqigq67
+        add constraint FK9D8CF4EC72B3A123
         foreign key (entity_id)
         references OrganizationalEntity
     go
 
     alter table PeopleAssignments_BAs
-        add constraint FKt4xs0glwhbsa0xwg69r6xduv9
+        add constraint FK9D8CF4EC786553A5
         foreign key (task_id)
         references Task
     go
 
     alter table PeopleAssignments_ExclOwners
-        add constraint FK5ituvd6t8uvp63hsx6282xo6h
+        add constraint FKC77B97E472B3A123
         foreign key (entity_id)
         references OrganizationalEntity
     go
 
     alter table PeopleAssignments_ExclOwners
-        add constraint FKqxbjm1b3dl7w8w2f2y6sk0fv8
+        add constraint FKC77B97E4786553A5
         foreign key (task_id)
         references Task
     go
 
     alter table PeopleAssignments_PotOwners
-        add constraint FKsa3rrrjsm1qw98ajbbu2s7cjr
+        add constraint FK1EE418D72B3A123
         foreign key (entity_id)
         references OrganizationalEntity
     go
 
     alter table PeopleAssignments_PotOwners
-        add constraint FKh8oqmk4iuh2pmpgby6g8r3jd1
+        add constraint FK1EE418D786553A5
         foreign key (task_id)
         references Task
     go
 
     alter table PeopleAssignments_Recipients
-        add constraint FKrd0h9ud1bhs9waf2mdmiv6j2r
+        add constraint FKC6F615C272B3A123
         foreign key (entity_id)
         references OrganizationalEntity
     go
 
     alter table PeopleAssignments_Recipients
-        add constraint FK9gnbv6bplxkxoedj35vg8n7ir
+        add constraint FKC6F615C2786553A5
         foreign key (task_id)
         references Task
     go
 
     alter table PeopleAssignments_Stakeholders
-        add constraint FK9uy76cu650rg1nnkrtjwj1e9t
+        add constraint FK482F79D572B3A123
         foreign key (entity_id)
         references OrganizationalEntity
     go
 
     alter table PeopleAssignments_Stakeholders
-        add constraint FKaeyk4nwslvx0jywjomjq7083i
+        add constraint FK482F79D5786553A5
         foreign key (task_id)
         references Task
     go
@@ -754,49 +754,49 @@
     go
 
     alter table Reassignment
-        add constraint FKessy30safh44b30f1cfoujv2k
+        add constraint FK724D056062A1E871
         foreign key (Escalation_Reassignments_Id)
         references Escalation
     go
 
     alter table Reassignment_potentialOwners
-        add constraint FKsqrmpvehlc4qe9i0km22nmkjl
+        add constraint FK90B59CFF72B3A123
         foreign key (entity_id)
         references OrganizationalEntity
     go
 
     alter table Reassignment_potentialOwners
-        add constraint FKftegfexshix752bh2jfxf6bnh
+        add constraint FK90B59CFF35D2FEE0
         foreign key (task_id)
         references Reassignment
     go
 
     alter table Task
-        add constraint FK48d1bfgwf0jqow1yk8ku4xcpi
+        add constraint FK27A9A53C55C806
         foreign key (taskInitiator_id)
         references OrganizationalEntity
     go
 
     alter table Task
-        add constraint FKpmkxvqq63aed2y2boruu53a0s
+        add constraint FK27A9A5B723BE8B
         foreign key (actualOwner_id)
         references OrganizationalEntity
     go
 
     alter table Task
-        add constraint FKexuboqnbla7jfyyesyo61ucmb
+        add constraint FK27A9A55427E8F1
         foreign key (createdBy_id)
         references OrganizationalEntity
     go
 
     alter table task_comment
-        add constraint FKqb4mkarf209y9546w7n75lb7a
+        add constraint FK61F475A57A3215D9
         foreign key (addedBy_id)
         references OrganizationalEntity
     go
 
     alter table task_comment
-        add constraint FKm2mwc1ukcpdsiqwgkoroy6ise
+        add constraint FK61F475A5F510CB46
         foreign key (TaskData_Comments_Id)
         references Task
     go

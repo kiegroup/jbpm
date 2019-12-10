@@ -16,15 +16,13 @@
 
 package org.jbpm.persistence.scripts.quartzdialects;
 
-import org.hibernate.boot.model.TypeContributions;
+import java.sql.Types;
+
 import org.hibernate.dialect.DB2Dialect;
-import org.hibernate.service.ServiceRegistry;
 
 public class DB2CustomDialect extends DB2Dialect {
     
-    @Override
-    public void contributeTypes(TypeContributions typeContributions, ServiceRegistry serviceRegistry) {
-        super.contributeTypes(typeContributions,serviceRegistry);
-        typeContributions.contributeType(new Boolean2Integer());
+    public DB2CustomDialect() {
+        registerColumnType(Types.BOOLEAN, "varchar(1)");
     }
 }

@@ -37,17 +37,17 @@ public final class TestsUtil {
      * @param databaseType Database type.
      * @param sortByName If true, resulting array of SQL script files will be sorted by filename using String
      * comparator.
-     * @param dropFilesExcluded If true, return those files that don't contain 'drop' into the name. Otherwise,
+     * @param dropFiles If true, return those files that don't contain 'drop' into the name. Otherwise,
      * return those containing 'drop'
      * @return Array of SQL script files. If there are no SQL script files found, returns empty array.
      */
     public static File[] getDDLScriptFilesByDatabaseType(final File folderWithDDLs, final DatabaseType databaseType,
-            final boolean sortByName, final boolean dropFilesExcluded) {
+            final boolean sortByName, final boolean dropFiles) {
         final File folderWithScripts = new File(folderWithDDLs.getPath() + File.separator
                 + databaseType.getScriptsFolderName());
         if (folderWithScripts.exists()) {
             final File[] foundFiles;
-            if (dropFilesExcluded)
+            if (dropFiles)
                 foundFiles = filterOutDropFiles(folderWithScripts);
             else
                 foundFiles = filterInDropFiles(folderWithScripts);

@@ -1,5 +1,5 @@
 -- update context mapping info table with owner id (deployment id) for per process instance strategies
-alter table ContextMappingInfo add OWNER_ID varchar(255) null
+alter table ContextMappingInfo add OWNER_ID varchar(255)
 go
 update ContextMappingInfo set OWNER_ID = (select externalId from ProcessInstanceLog where processInstanceId = cast(ContextMappingInfo.CONTEXT_ID as bigint))
 go

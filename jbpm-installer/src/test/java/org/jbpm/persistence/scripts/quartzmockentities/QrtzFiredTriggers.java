@@ -45,11 +45,9 @@ public class QrtzFiredTriggers {
     private String instanceName;
 
     @Column(name = "FIRED_TIME")
-    @Type(type = "long")
     private Long firedTime;
 
     @Column(name = "SCHED_TIME")
-    @Type(type = "long")
     private Long scheduTime;
 
     @Column(name = "PRIORITY")
@@ -65,10 +63,8 @@ public class QrtzFiredTriggers {
     private String jobGroup;
 
     @Column(name = "IS_NONCONCURRENT")
-    @Type(type = "boolean")
     private Boolean isNonConcurrent;
 
     @Column(name = "REQUESTS_RECOVERY")
-    @Type(type = "boolean")
     private Boolean requestRecovery;
 }

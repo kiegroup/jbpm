@@ -74,8 +74,7 @@ public class QrtzTriggers {
     private String calendarName;
 
     @Column(name = "MISFIRE_INSTR")
-    @Type(type = "short")
-    private Integer misfireInstr;
+    private Short misfireInstr;
 
     @Lob
     @Column(name = "JOB_DATA")

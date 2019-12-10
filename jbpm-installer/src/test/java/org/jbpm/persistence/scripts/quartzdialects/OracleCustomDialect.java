@@ -16,15 +16,13 @@
 
 package org.jbpm.persistence.scripts.quartzdialects;
 
-import org.hibernate.boot.model.TypeContributions;
+import java.sql.Types;
+
 import org.hibernate.dialect.Oracle12cDialect;
-import org.hibernate.service.ServiceRegistry;
 
 public class OracleCustomDialect extends Oracle12cDialect {
 
-    @Override
-    public void contributeTypes(TypeContributions typeContributions, ServiceRegistry serviceRegistry) {
-        super.contributeTypes(typeContributions,serviceRegistry);
-        typeContributions.contributeType(new Boolean2Varchar());
+    public OracleCustomDialect() {
+        registerColumnType(Types.BOOLEAN, "varchar2(1)");
     }
 }

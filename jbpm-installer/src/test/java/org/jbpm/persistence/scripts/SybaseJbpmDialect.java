@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package org.jbpm.persistence.scripts.quartzdialects;
+package org.jbpm.persistence.scripts;
 
 import java.sql.Types;
 
-import org.hibernate.dialect.PostgreSQL82Dialect;
+import org.hibernate.dialect.SybaseASE157Dialect;
 
-public class PostgreSQLCustomDialect extends PostgreSQL82Dialect {
 
-    public PostgreSQLCustomDialect() {
-        registerColumnType(Types.BLOB, "bytea");
+public class SybaseJbpmDialect extends SybaseASE157Dialect {
+
+    public SybaseJbpmDialect() {
+        registerColumnType(Types.BIGINT, "numeric(19,0)");
     }
-
 }

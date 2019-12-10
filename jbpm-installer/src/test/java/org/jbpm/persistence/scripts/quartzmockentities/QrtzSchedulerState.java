@@ -33,10 +33,8 @@ public class QrtzSchedulerState {
     private String instanceName;
 
     @Column(name = "last_checkin_time")
-    @Type(type = "long")
     private Long lastCheckInTime;
 
     @Column(name = "checkin_interval")
-    @Type(type = "long")
     private Long checkinInterval;
 }

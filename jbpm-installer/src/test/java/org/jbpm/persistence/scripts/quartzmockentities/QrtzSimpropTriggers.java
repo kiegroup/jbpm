@@ -57,11 +57,9 @@ public class QrtzSimpropTriggers {
     private Integer intProp2;
 
     @Column(name = "LONG_PROP_1")
-    @Type(type = "long")
     private Long longProp1;
 
     @Column(name = "LONG_PROP_2")
-    @Type(type = "long")
     private Long longProp2;
 
     @Column(name = "DEC_PROP_1")
@@ -71,10 +69,8 @@ public class QrtzSimpropTriggers {
     private BigDecimal decProp2;
     
     @Column(name = "BOOL_PROP_1")
-    @Type(type = "boolean")
     private Boolean boolProp1;
     
     @Column(name = "BOOL_PROP_2")
-    @Type(type = "boolean")
     private Boolean boolProp2;
 }

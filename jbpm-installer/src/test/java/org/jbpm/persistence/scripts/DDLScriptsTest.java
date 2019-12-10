@@ -26,7 +26,7 @@ import static org.jbpm.persistence.scripts.TestPersistenceContext.createAndInitC
 /**
  * Contains tests that test DDL scripts.
  */
-public class DDLScriptsTest extends ScriptsBase{
+public class DDLScriptsTest extends ScriptsBase {
     /**
      * Tests that DB schema is created properly using DDL scripts.
      */

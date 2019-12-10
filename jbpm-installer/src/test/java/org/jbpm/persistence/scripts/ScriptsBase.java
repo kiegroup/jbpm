@@ -52,23 +52,22 @@ public class ScriptsBase {
     public static void cleanUp() throws IOException, SQLException {
         logger.info("Running with Hibernate " + org.hibernate.Version.getVersionString());
         TestsUtil.clearSchema();
-        ScriptsBase sb = new ScriptsBase();
-        sb.executeScriptRunner(DB_DDL_SCRIPTS_RESOURCE_PATH, false);
+        executeScriptRunner(DB_DDL_SCRIPTS_RESOURCE_PATH, false);
     }
 
-    protected void executeScriptRunner(String resourcePath, boolean dropFilesExcluded, String type) throws IOException, SQLException {
+    protected static void executeScriptRunner(String resourcePath, boolean createFiles, String type) throws IOException, SQLException {
         final TestPersistenceContext scriptRunnerContext = createAndInitContext(PersistenceUnit.SCRIPT_RUNNER);
         try {
-            scriptRunnerContext.executeScripts(new File(getClass().getResource(resourcePath).getFile()), dropFilesExcluded, type);
+            scriptRunnerContext.executeScripts(new File(ScriptsBase.class.getResource(resourcePath).getFile()), createFiles, type);
         } finally {
             scriptRunnerContext.clean();
         }
     }
     
-    protected void executeScriptRunner(String resourcePath, boolean dropFilesExcluded) throws IOException, SQLException {
+    protected static void executeScriptRunner(String resourcePath, boolean createFiles) throws IOException, SQLException {
         final TestPersistenceContext scriptRunnerContext = createAndInitContext(PersistenceUnit.SCRIPT_RUNNER);
         try {
-            scriptRunnerContext.executeScripts(new File(getClass().getResource(resourcePath).getFile()), dropFilesExcluded);
+            scriptRunnerContext.executeScripts(new File(ScriptsBase.class.getResource(resourcePath).getFile()), createFiles);
         } finally {
             scriptRunnerContext.clean();
         }
