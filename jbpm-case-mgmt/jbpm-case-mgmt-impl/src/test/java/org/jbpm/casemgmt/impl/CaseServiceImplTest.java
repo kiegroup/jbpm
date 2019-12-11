@@ -75,7 +75,6 @@ import org.kie.api.event.rule.MatchCreatedEvent;
 import org.kie.api.runtime.Context;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.CaseAssignment;
-import org.kie.api.runtime.process.NodeInstance;
 import org.kie.api.runtime.process.WorkflowProcessInstance;
 import org.kie.api.runtime.query.QueryContext;
 import org.kie.api.task.model.OrganizationalEntity;
@@ -861,8 +860,11 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
                 public Void execute(Context context) {
                     KieSession ksession = ((RegistryContext) context).lookup( KieSession.class );
                     
-                    NodeInstance milestone = ((WorkflowProcessInstance)ksession.getProcessInstance(processInstanceId)).getNodeInstances().stream().filter(ni -> ni.getNodeName().equals("Milestone2")).findFirst().get();
-                    ((MilestoneNodeInstance)milestone).signalEvent(eventName, event);
+                    MilestoneNodeInstance milestone = (MilestoneNodeInstance) ((WorkflowProcessInstance) ksession.getProcessInstance(processInstanceId)).getNodeInstances()
+                                                                                                                                                        .stream()
+                                                                                                                                                        .filter(ni -> ni.getNodeName().equals("Milestone2"))
+                                                                                                                                                        .findFirst().get();
+                    milestone.signalEvent(milestone.getActivationEventType(), event);
                     return null;
                 }          
             });
@@ -881,8 +883,11 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
                 public Void execute(Context context) {
                     KieSession ksession = ((RegistryContext) context).lookup( KieSession.class );
                     
-                    NodeInstance milestone = ((WorkflowProcessInstance)ksession.getProcessInstance(processInstanceId)).getNodeInstances().stream().filter(ni -> ni.getNodeName().equals("Milestone2")).findFirst().get();
-                    ((MilestoneNodeInstance)milestone).signalEvent(eventName, event);
+                    MilestoneNodeInstance milestone = (MilestoneNodeInstance) ((WorkflowProcessInstance) ksession.getProcessInstance(processInstanceId)).getNodeInstances()
+                                                                                                                                                        .stream()
+                                                                                                                                                        .filter(ni -> ni.getNodeName().equals("Milestone2"))
+                                                                                                                                                        .findFirst().get();
+                    milestone.signalEvent(milestone.getActivationEventType(), event);
                     return null;
                 }          
             });

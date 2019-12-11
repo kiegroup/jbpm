@@ -29,6 +29,7 @@ import org.kie.api.event.rule.MatchCancelledEvent;
 import org.kie.api.event.rule.MatchCreatedEvent;
 import org.kie.api.event.rule.RuleFlowGroupActivatedEvent;
 import org.kie.api.event.rule.RuleFlowGroupDeactivatedEvent;
+import org.kie.api.runtime.EnvironmentName;
 import org.kie.api.runtime.process.NodeInstance;
 
 /**
@@ -82,9 +83,10 @@ public class MilestoneNodeInstance extends StateBasedNodeInstance implements Age
         getProcessInstance().removeEventListener(getActivationEventType(), this, true);
     }
 
-    private String getActivationEventType() {
-        return "RuleFlow-Milestone-" + getProcessInstance().getProcessId()
-                + "-" + getMilestoneNode().getUniqueId();
+    public String getActivationEventType() {
+        String caseId = (String) getProcessInstance().getKnowledgeRuntime().getEnvironment().get(EnvironmentName.CASE_ID);
+        String eventType = "RuleFlow-Milestone-" + getProcessInstance().getProcessId() + "-" + getMilestoneNode().getUniqueId();
+        return (caseId != null) ? eventType + "-" + caseId : eventType;
     }
 
     @Override
