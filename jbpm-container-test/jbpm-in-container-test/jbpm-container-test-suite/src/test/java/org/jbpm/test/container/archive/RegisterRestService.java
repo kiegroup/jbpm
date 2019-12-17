@@ -18,6 +18,9 @@ package org.jbpm.test.container.archive;
 
 import java.io.File;
 
+import org.jboss.shrinkwrap.resolver.api.maven.MavenStrategyStage;
+import org.jboss.shrinkwrap.resolver.api.maven.MavenWorkingSession;
+import org.jboss.shrinkwrap.resolver.impl.maven.MavenWorkingSessionContainer;
 import org.jbpm.test.container.tools.IntegrationMavenResolver;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.ArchivePaths;
@@ -59,10 +62,18 @@ public class RegisterRestService {
         String webXmlFile = isTomcat() ? "web-non-ee.xml" : "web-ee.xml";
 
         PomEquippedResolveStage resolver = IntegrationMavenResolver.get(mvnProfiles);
-        File[] dependencies = resolver.importCompileAndRuntimeDependencies().resolve().withTransitivity().asFile();
-        LOGGER.debug("Archive dependencies:");
-        for (File d : dependencies) {
-            LOGGER.debug(d.getName());
+        MavenStrategyStage strategyStage = resolver.importCompileAndRuntimeDependencies().resolve();
+        MavenWorkingSession workingSession = ((MavenWorkingSessionContainer) strategyStage).getMavenWorkingSession();
+
+        File[] dependencies = new File[0];
+
+        if (!workingSession.getDependenciesForResolution().isEmpty()) {
+            dependencies = strategyStage.withTransitivity().asFile();
+
+            LOGGER.debug("Archive dependencies:");
+            for (File d : dependencies) {
+                LOGGER.debug(d.getName());
+            }
         }
 
         war = ShrinkWrap
