@@ -28,14 +28,6 @@
     </dependencies>
   </dependencyManagement>
 
-  <!--Default dependencies for all archives-->
-  <dependencies>
-    <dependency>
-      <groupId>org.assertj</groupId>
-      <artifactId>assertj-core</artifactId>
-    </dependency>
-  </dependencies>
-
   <!-- Configuration for specific integration modules -->
   <profiles>
     <profile>
@@ -71,6 +63,11 @@
               <artifactId>jboss-transaction-api_1.2_spec</artifactId>
             </exclusion>
           </exclusions>
+        </dependency>
+        <!-- AssertJ is only needed if we deploy tests (with jBPM engine) into a container -->
+        <dependency>
+          <groupId>org.assertj</groupId>
+          <artifactId>assertj-core</artifactId>
         </dependency>
       </dependencies>
     </profile>
