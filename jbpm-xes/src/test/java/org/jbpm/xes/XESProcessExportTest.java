@@ -19,50 +19,18 @@ package org.jbpm.xes;
 import java.util.Arrays;
 import java.util.stream.IntStream;
 
-import org.apache.tomcat.dbcp.dbcp2.BasicDataSource;
 import org.jbpm.process.audit.NodeInstanceLog;
-import org.jbpm.test.JbpmJUnitBaseTestCase;
 import org.jbpm.xes.dataset.DataSetService;
 import org.jbpm.xes.dataset.DataSetServiceImpl;
 import org.jbpm.xes.model.LogType;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.runtime.process.ProcessInstance;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-public class XESProcessExportTest extends JbpmJUnitBaseTestCase {
-
-    private BasicDataSource xesDataSource;
-
-    public XESProcessExportTest() {
-        super(true, true);
-    }
-
-    public static BasicDataSource setupDataSource(String connectURI) {
-        BasicDataSource ds = new BasicDataSource();
-        ds.setDriverClassName("org.h2.Driver");
-        ds.setUrl(connectURI);
-        ds.setUsername("sa");
-        ds.setPassword("");
-        return ds;
-    }
-
-    @Before
-    public void setup() {
-        xesDataSource = setupDataSource("jdbc:h2:mem:jbpm-db;MVCC=true");
-    }
-
-    @After
-    public void cleanup() throws Exception {
-        if (xesDataSource != null) {
-            xesDataSource.close();
-        }
-    }
+public class XESProcessExportTest extends XESPersistenceBase {
 
     @Test
     public void testHelloProcess() throws Exception {
@@ -81,13 +49,13 @@ public class XESProcessExportTest extends JbpmJUnitBaseTestCase {
             ProcessInstance processInstance = ksession.startProcess("hello");
 
             // check whether the process instance has completed successfully
-            assertProcessInstanceCompleted(processInstance.getId(), ksession);
+            assertProcessInstanceCompleted(processInstance.getId());
 
             // check what nodes have been triggered
             assertNodeTriggered(processInstance.getId(), "Start", "Hello", "End");
         });
 
-        DataSetService dataSetService = new DataSetServiceImpl(() -> xesDataSource);
+        DataSetService dataSetService = new DataSetServiceImpl(() -> pds);
         XESExportServiceImpl service = new XESExportServiceImpl();
         service.setDataSetService(dataSetService);
         final String xml = service.export(XESProcessFilter.builder().withProcessId("hello").withAllNodeTypes().build());
@@ -120,13 +88,13 @@ public class XESProcessExportTest extends JbpmJUnitBaseTestCase {
             ProcessInstance processInstance = ksession.startProcess("hello");
 
             // check whether the process instance has completed successfully
-            assertProcessInstanceCompleted(processInstance.getId(), ksession);
+            assertProcessInstanceCompleted(processInstance.getId());
 
             // check what nodes have been triggered
             assertNodeTriggered(processInstance.getId(), "Start", "Hello", "End");
         });
 
-        DataSetService dataSetService = new DataSetServiceImpl(() -> xesDataSource);
+        DataSetService dataSetService = new DataSetServiceImpl(() -> pds);
         XESExportServiceImpl service = new XESExportServiceImpl();
         service.setDataSetService(dataSetService);
         final XESProcessFilter filter = XESProcessFilter.builder().withProcessId("hello").withProcessVersion("1.0").withStatus(Arrays.asList(ProcessInstance.STATE_COMPLETED)).withNodeInstanceLogType(NodeInstanceLog.TYPE_EXIT).build();
