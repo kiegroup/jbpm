@@ -16,23 +16,67 @@
 
 package org.jbpm.persistence.scripts.quartzmockentities;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
+import javax.persistence.Lob;
 
-@Entity(name = "qrtz_triggers")
+import org.hibernate.annotations.Type;
+
+@Entity(name = "QRTZ_TRIGGERS")
+@IdClass(QrtzTriggersId.class)
 public class QrtzTriggers {
 
     @Id
-    private Long id;
+    @Column(name = "SCHED_NAME")
+    private String schedulerName;
 
-    public QrtzTriggers() {
-    }
+    @Id
+    @Column(name = "TRIGGER_NAME")
+    private String triggerName;
 
-    public Long getId() {
-        return id;
-    }
+    @Id
+    @Column(name = "TRIGGER_GROUP")
+    private String triggerGroup;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    @Column(name = "JOB_NAME")
+    private String jobName;
+
+    @Column(name = "JOB_GROUP")
+    private String jobGroup;
+
+    @Column(name = "DESCRIPTION")
+    private String description;
+
+    @Column(name = "NEXT_FIRE_TIME")
+    private Long nextFireTime;
+
+    @Column(name = "PREV_FIRE_TIME")
+    private Long prevFireTime;
+
+    @Column(name = "PRIORITY")
+    private Integer priority;
+
+    @Column(name = "TRIGGER_STATE")
+    private String triggerState;
+
+    @Column(name = "TRIGGER_TYPE")
+    private String triggerType;
+
+    @Column(name = "START_TIME")
+    private Long startTime;
+
+    @Column(name = "END_TIME")
+    private Long endTime;
+
+    @Column(name = "CALENDAR_NAME")
+    private String calendarName;
+
+    @Column(name = "MISFIRE_INSTR")
+    private Short misfireInstr;
+
+    @Lob
+    @Column(name = "JOB_DATA")
+    private byte[] jobDate;
 }

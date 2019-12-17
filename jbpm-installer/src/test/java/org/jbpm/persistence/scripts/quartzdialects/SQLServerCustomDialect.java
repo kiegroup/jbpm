@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2019 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,16 @@
  * limitations under the License.
  */
 
-package org.jbpm.persistence.scripts.quartzmockentities;
+package org.jbpm.persistence.scripts.quartzdialects;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import java.sql.Types;
 
-@Entity(name = "qrtz_trigger_listeners")
-public class QrtzTriggerListeners {
+import org.hibernate.dialect.SQLServer2008Dialect;
 
-    @Id
-    private Long id;
+public class SQLServerCustomDialect extends SQLServer2008Dialect {
 
-    public QrtzTriggerListeners() {
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
+    public SQLServerCustomDialect() {
+        registerColumnType(Types.BLOB, "image");
+        registerColumnType(Types.BOOLEAN, "varchar(1)");
     }
 }

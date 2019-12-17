@@ -16,23 +16,30 @@
 
 package org.jbpm.persistence.scripts.quartzmockentities;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
 
-@Entity(name = "qrtz_paused_trigger_grps")
+@Entity(name = "QRTZ_PAUSED_TRIGGER_GRPS")
+@IdClass(QrtzPausedTriggersId.class)
 public class QrtzPausedTriggerGrps {
 
     @Id
-    private Long id;
+    @Column(name = "SCHED_NAME")
+    private String schedulerName;
 
-    public QrtzPausedTriggerGrps() {
+    @Id
+    @Column(name = "TRIGGER_GROUP")
+    private String triggerGroup;
+
+    public QrtzPausedTriggerGrps schedulerName(final String schedulerName) {
+        this.schedulerName = schedulerName;
+        return this;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
+    public QrtzPausedTriggerGrps triggerGroup(final String triggerGroup) {
+        this.triggerGroup = triggerGroup;
+        return this;
     }
 }

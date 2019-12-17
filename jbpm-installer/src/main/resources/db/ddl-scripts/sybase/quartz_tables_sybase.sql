@@ -9,96 +9,7 @@
 /* org.quartz.jobStore.driverDelegateClass = org.quartz.impl.jdbcjobstore.SybaseDelegate */
 /*==============================================================================================*/
 
-use your_db_name_here
-go
-
-/*==============================================================================*/
-/* Clear all tables: */
-/*==============================================================================*/
-
-IF OBJECT_ID('QRTZ_FIRED_TRIGGERS') IS NOT NULL 
-delete from QRTZ_FIRED_TRIGGERS
-go
-IF OBJECT_ID('QRTZ_PAUSED_TRIGGER_GRPS') IS NOT NULL 
-delete from QRTZ_PAUSED_TRIGGER_GRPS
-go
-IF OBJECT_ID('QRTZ_SCHEDULER_STATE') IS NOT NULL 
-delete from QRTZ_SCHEDULER_STATE
-go
-IF OBJECT_ID('QRTZ_LOCKS') IS NOT NULL 
-delete from QRTZ_LOCKS
-go
-IF OBJECT_ID('QRTZ_SIMPLE_TRIGGERS') IS NOT NULL 
-delete from QRTZ_SIMPLE_TRIGGERS
-go
-IF OBJECT_ID('QRTZ_SIMPROP_TRIGGERS') IS NOT NULL 
-delete from QRTZ_SIMPROP_TRIGGERS
-go
-IF OBJECT_ID('QRTZ_CRON_TRIGGERS') IS NOT NULL 
-delete from QRTZ_CRON_TRIGGERS
-go
-IF OBJECT_ID('QRTZ_BLOB_TRIGGERS') IS NOT NULL 
-delete from QRTZ_BLOB_TRIGGERS
-go
-IF OBJECT_ID('QRTZ_TRIGGERS') IS NOT NULL 
-delete from QRTZ_TRIGGERS
-go
-IF OBJECT_ID('QRTZ_JOB_DETAILS') IS NOT NULL 
-delete from QRTZ_JOB_DETAILS
-go
-IF OBJECT_ID('QRTZ_CALENDARS') IS NOT NULL 
-delete from QRTZ_CALENDARS
-go
-
-/*==============================================================================*/
-/* Drop constraints: */
-/*==============================================================================*/
-
-alter table QRTZ_TRIGGERS
-drop constraint FK_triggers_job_details
-go
-
-alter table QRTZ_CRON_TRIGGERS
-drop constraint FK_cron_triggers_triggers
-go
-
-alter table QRTZ_SIMPLE_TRIGGERS
-drop constraint FK_simple_triggers_triggers
-go
-
-alter table QRTZ_SIMPROP_TRIGGERS
-drop constraint FK_simprop_triggers_triggers
-go
-
-alter table QRTZ_BLOB_TRIGGERS
-drop constraint FK_blob_triggers_triggers
-go
-
-/*==============================================================================*/
-/* Drop tables: */
-/*==============================================================================*/
-
-drop table QRTZ_FIRED_TRIGGERS
-go
-drop table QRTZ_PAUSED_TRIGGER_GRPS
-go
-drop table QRTZ_SCHEDULER_STATE
-go
-drop table QRTZ_LOCKS
-go
-drop table QRTZ_SIMPLE_TRIGGERS
-go
-drop table QRTZ_SIMPROP_TRIGGERS
-go
-drop table QRTZ_CRON_TRIGGERS
-go
-drop table QRTZ_BLOB_TRIGGERS
-go
-drop table QRTZ_TRIGGERS
-go
-drop table QRTZ_JOB_DETAILS
-go
-drop table QRTZ_CALENDARS
+use [enter_db_name_here]
 go
 
 /*==============================================================================*/
@@ -114,8 +25,8 @@ go
 
 create table QRTZ_CRON_TRIGGERS (
 SCHED_NAME varchar(120) not null,
-TRIGGER_NAME varchar(80) not null,
-TRIGGER_GROUP varchar(80) not null,
+TRIGGER_NAME varchar(200) not null,
+TRIGGER_GROUP varchar(200) not null,
 CRON_EXPRESSION varchar(120) not null,
 TIME_ZONE_ID varchar(80) null,
 )
@@ -130,8 +41,8 @@ go
 create table QRTZ_FIRED_TRIGGERS(
 SCHED_NAME varchar(120) not null,
 ENTRY_ID varchar(95) not null,
-TRIGGER_NAME varchar(80) not null,
-TRIGGER_GROUP varchar(80) not null,
+TRIGGER_NAME varchar(200) not null,
+TRIGGER_GROUP varchar(200) not null,
 INSTANCE_NAME varchar(80) not null,
 FIRED_TIME numeric(13,0) not null,
 SCHED_TIME numeric(13,0) not null,
@@ -175,8 +86,8 @@ go
 
 create table QRTZ_SIMPLE_TRIGGERS (
 SCHED_NAME varchar(120) not null,
-TRIGGER_NAME varchar(80) not null,
-TRIGGER_GROUP varchar(80) not null,
+TRIGGER_NAME varchar(200) not null,
+TRIGGER_GROUP varchar(200) not null,
 REPEAT_COUNT numeric(13,0) not null,
 REPEAT_INTERVAL numeric(13,0) not null,
 TIMES_TRIGGERED numeric(13,0) not null
@@ -204,16 +115,16 @@ go
 
 create table QRTZ_BLOB_TRIGGERS (
 SCHED_NAME varchar(120) not null,
-TRIGGER_NAME varchar(80) not null,
-TRIGGER_GROUP varchar(80) not null,
+TRIGGER_NAME varchar(200) not null,
+TRIGGER_GROUP varchar(200) not null,
 BLOB_DATA image null
 )
 go
 
 create table QRTZ_TRIGGERS (
 SCHED_NAME varchar(120) not null,
-TRIGGER_NAME varchar(80) not null,
-TRIGGER_GROUP varchar(80) not null,
+TRIGGER_NAME varchar(200) not null,
+TRIGGER_GROUP varchar(200) not null,
 JOB_NAME varchar(80) not null,
 JOB_GROUP varchar(80) not null,
 DESCRIPTION varchar(120) null,

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2019 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,16 @@
  * limitations under the License.
  */
 
-package org.jbpm.persistence.scripts.quartzmockentities;
+package org.jbpm.persistence.scripts.quartzdialects;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import java.sql.Types;
 
-@Entity(name = "qrtz_job_listeners")
-public class QrtzJobListeners {
+import org.hibernate.dialect.PostgreSQL82Dialect;
 
-    @Id
-    private Long id;
+public class PostgreSQLCustomDialect extends PostgreSQL82Dialect {
 
-    public QrtzJobListeners() {
+    public PostgreSQLCustomDialect() {
+        registerColumnType(Types.BLOB, "bytea");
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 }

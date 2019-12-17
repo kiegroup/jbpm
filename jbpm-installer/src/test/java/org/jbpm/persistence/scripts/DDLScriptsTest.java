@@ -16,83 +16,40 @@
 
 package org.jbpm.persistence.scripts;
 
-import org.jbpm.persistence.scripts.util.TestsUtil;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.io.File;
+import static org.jbpm.persistence.scripts.PersistenceUnit.DB_QUARTZ_VALIDATE;
+import static org.jbpm.persistence.scripts.PersistenceUnit.DB_TESTING_VALIDATE;
+import static org.jbpm.persistence.scripts.TestPersistenceContext.createAndInitContext;
 
 /**
  * Contains tests that test DDL scripts.
  */
-public class DDLScriptsTest {
-    private static final Logger logger = LoggerFactory.getLogger(DDLScriptsTest.class);
-
-    @BeforeClass
-    public static void printHibernateVersion() {
-        logger.info("Running with Hibernate " + org.hibernate.Version.getVersionString());
-    }
-
-    @Before
-    public void clearSchema() {
-        TestsUtil.clearSchema();
-    }
-
-    private static final String DB_DDL_SCRIPTS_RESOURCE_PATH = "/db/ddl-scripts";
-
+public class DDLScriptsTest extends ScriptsBase {
     /**
      * Tests that DB schema is created properly using DDL scripts.
      */
     @Test
-    public void createSchemaUsingDDLs() throws Exception {
-        final TestPersistenceContext scriptRunnerContext = createAndInitPersistenceContext(PersistenceUnit.SCRIPT_RUNNER);
-        try {
-            scriptRunnerContext.executeScripts(new File(getClass().getResource(DB_DDL_SCRIPTS_RESOURCE_PATH).getFile()));
-        } finally {
-            scriptRunnerContext.clean();
-        }
+    public void createAndDropSchemaUsingDDLs() throws Exception {
+        executeScriptRunner(DB_DDL_SCRIPTS_RESOURCE_PATH, true);
+        validateAndPersistProcess();
+        validateQuartz();
+        executeScriptRunner(DB_DDL_SCRIPTS_RESOURCE_PATH, false);
+    }
 
-        final TestPersistenceContext dbTestingContext = createAndInitPersistenceContext(PersistenceUnit.DB_TESTING_VALIDATE);
+    private void validateAndPersistProcess() {
+        final TestPersistenceContext dbTestingContext = createAndInitContext(DB_TESTING_VALIDATE);
         try {
-            dbTestingContext.startAndPersistSomeProcess("minimalProcess");
+            dbTestingContext.startAndPersistSomeProcess(TEST_PROCESS_ID);
             Assert.assertTrue(dbTestingContext.getStoredProcessesCount() == 1);
         } finally {
             dbTestingContext.clean();
         }
     }
 
-    /**
-     * Simulates the default config for kie-server/kie-wb when deploying the apps for the first time (and without running the DDL scripts first)
-     */
-    @Test
-    public void runHibernateUpdateOnEmptyDB() throws Exception {
-        final TestPersistenceContext dbTestingContext = createAndInitPersistenceContext(PersistenceUnit.DB_TESTING_UPDATE);
-        dbTestingContext.clean();
-    }
-
-    /**
-     * Simulates the case when user executes DDL scripts before deploying the kie-server/kie-wb and leaves the hibernate
-     * config untouched (thus using the default 'update')
-     */
-    @Test
-    public void createSchemaWithDDLsAndRunHibernateUpdate() throws Exception {
-        final TestPersistenceContext scriptRunnerContext = createAndInitPersistenceContext(PersistenceUnit.SCRIPT_RUNNER);
-        try {
-            scriptRunnerContext.executeScripts(new File(getClass().getResource("/db/ddl-scripts").getFile()));
-        } finally {
-            scriptRunnerContext.clean();
-        }
-        final TestPersistenceContext dbTestingContext = createAndInitPersistenceContext(PersistenceUnit.DB_TESTING_UPDATE);
-        dbTestingContext.clean();
-    }
-
-    private TestPersistenceContext createAndInitPersistenceContext(PersistenceUnit persistenceUnit) {
-        TestPersistenceContext testPersistenceContext = new TestPersistenceContext();
-        testPersistenceContext.init(persistenceUnit);
-        return testPersistenceContext;
+    private void validateQuartz() {
+        final TestPersistenceContext dbquartzContext = createAndInitContext(DB_QUARTZ_VALIDATE);
+        dbquartzContext.clean();
     }
 }

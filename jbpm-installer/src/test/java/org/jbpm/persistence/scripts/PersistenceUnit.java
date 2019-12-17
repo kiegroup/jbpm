@@ -38,7 +38,12 @@ public enum PersistenceUnit {
     /**
      * Persistence unit used for clearing the database schema.
      */
-    CLEAR_SCHEMA("clearSchema", "jdbc/testDS4");
+    CLEAR_SCHEMA("clearSchema", "jdbc/testDS4"),
+    
+    /**
+     * Persistence unit used for clearing the database schema.
+     */
+    DB_QUARTZ_VALIDATE("dbQuartzValidate", "jdbc/testDS5");
 
     /**
      * Name of persistence unit. Must correspond to persistence unit names in persistence.xml.

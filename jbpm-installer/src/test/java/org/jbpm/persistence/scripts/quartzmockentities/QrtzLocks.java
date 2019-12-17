@@ -16,23 +16,20 @@
 
 package org.jbpm.persistence.scripts.quartzmockentities;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
 
-@Entity(name = "qrtz_locks")
+@Entity(name = "QRTZ_LOCKS")
+@IdClass(QrtzLocksId.class)
 public class QrtzLocks {
 
     @Id
-    private Long id;
+    @Column(name = "SCHED_NAME")
+    private String schedulerName;
 
-    public QrtzLocks() {
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
+    @Id
+    @Column(name = "LOCK_NAME")
+    private String lockName;
 }

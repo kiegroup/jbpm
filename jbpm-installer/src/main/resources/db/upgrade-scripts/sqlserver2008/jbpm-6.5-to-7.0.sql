@@ -24,14 +24,14 @@ create table CaseRoleAssignmentLog (
 alter table CaseIdInfo 
     add constraint UK_CaseIdInfo_1 unique (caseIdPrefix);
     
-ALTER TABLE NodeInstanceLog ADD COLUMN referenceId bigint;
-ALTER TABLE NodeInstanceLog ADD COLUMN nodeContainerId varchar(255);     
+ALTER TABLE NodeInstanceLog ADD referenceId bigint;
+ALTER TABLE NodeInstanceLog ADD nodeContainerId varchar(255);     
 
-ALTER TABLE RequestInfo ADD COLUMN processInstanceId bigint;  
+ALTER TABLE RequestInfo ADD processInstanceId bigint;  
 
-ALTER TABLE AuditTaskImpl ADD COLUMN lastModificationDate datetime2;
-update AuditTaskImpl ati set lastModificationDate = (
-    select max(logTime) from TaskEvent where taskId=ati.taskId group by taskId
+ALTER TABLE AuditTaskImpl ADD lastModificationDate datetime2;
+update AuditTaskImpl set lastModificationDate = (
+    select max(logTime) from TaskEvent where taskId=AuditTaskImpl.taskId group by taskId
 );
 
 create table CaseFileDataLog (

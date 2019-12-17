@@ -16,23 +16,25 @@
 
 package org.jbpm.persistence.scripts.quartzmockentities;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
+import javax.persistence.Lob;
 
-@Entity(name = "qrtz_calendars")
+@Entity(name = "QRTZ_CALENDARS")
+@IdClass(QrtzCalendarsId.class)
 public class QrtzCalendars {
 
     @Id
-    private Long id;
+    @Column(name = "SCHED_NAME")
+    private String schedulerName;
 
-    public QrtzCalendars() {
-    }
+    @Id
+    @Column(name = "CALENDAR_NAME")
+    private String calendarName;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
+    @Lob
+    @Column(name = "CALENDAR")
+    private byte[] calendar;
 }

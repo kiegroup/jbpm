@@ -25,11 +25,18 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.jbpm.persistence.scripts.DatabaseType;
 
+import static org.jbpm.persistence.scripts.DatabaseType.DB2;
+import static org.jbpm.persistence.scripts.DatabaseType.POSTGRESQL;
+import static org.jbpm.persistence.scripts.DatabaseType.SQLSERVER;
+import static org.jbpm.persistence.scripts.DatabaseType.SQLSERVER2008;
+import static org.jbpm.persistence.scripts.DatabaseType.SYBASE;
+
 /**
- * Contains util methods for working with SQL script.
+ * Contains utility methods for working with SQL script.
  */
 public final class SQLScriptUtil {
 
+    private static final String REGEX_OR = "|";
     /**
      * Standard SQL command delimiter.
      */
@@ -37,12 +44,16 @@ public final class SQLScriptUtil {
     /**
      * Delimiter used in MS SQL Server database systems.
      */
-    private static final String DELIMITER_MSSQL = "GO";
+    private static final String DELIMITER_MSSQL_SYBASE = "GO";
     /**
      * Delimiter used in PostGreSQL database systems.
      */
     private static final String DOLLAR_QUOTED_BLOCK = "\\$.*\\$";
-
+    /**
+     * Delimiter used in DB2 BPMS 6.0-to-6.1 upgrade scripts.
+     */
+    private static final String DELIMITER_ALTER = "@";
+    
     /**
      * Extracts SQL commands from SQL script. It parses SQL script and divides it to single commands.
      * @param script Script from which SQL commands are extracted.
@@ -53,6 +64,13 @@ public final class SQLScriptUtil {
      */
     public static List<String> getCommandsFromScript(final File script, final DatabaseType databaseType)
             throws IOException {
+        String delimiterRegex = getDelimiterByFileAndDatabase(script, databaseType);
+        //delimiterRegex is only used if the whole line matches
+        //assuming first delimiter can be at the end of the line and second one just in the whole line
+        String delimiter = delimiterRegex.indexOf(REGEX_OR)!=-1 ? 
+                           delimiterRegex.substring(0, delimiterRegex.indexOf(REGEX_OR)) : delimiterRegex;
+        String escapedDelimiter = DELIMITER_STANDARD.equals(delimiter) ? "\\" + DELIMITER_STANDARD : delimiter;
+        
         final List<String> scriptLines = FileUtils.readLines(script, StandardCharsets.UTF_8);
         final List<String> foundCommands = new ArrayList<String>();
         final StringBuilder command = new StringBuilder();
@@ -60,31 +78,28 @@ public final class SQLScriptUtil {
         for (String line : scriptLines) {
             // Ignore comments.
             final String trimmedLine = line.trim();
-            if ("".equals(trimmedLine) || trimmedLine.startsWith("--") || trimmedLine.startsWith("#")) {
+            if (shouldSkip(trimmedLine)) {
                 continue;
             }
             
-            if (databaseType == DatabaseType.POSTGRESQL && trimmedLine.matches(DOLLAR_QUOTED_BLOCK)) {
+            if (databaseType == POSTGRESQL && trimmedLine.matches(DOLLAR_QUOTED_BLOCK)) {
                 pgBlockCounter++;
             }
             
             // If the whole line is a delimiter -> add buffered command to found commands.
-            if (trimmedLine.equals(DELIMITER_STANDARD)
-                    || ((databaseType == DatabaseType.SQLSERVER || databaseType == DatabaseType.SQLSERVER2008)
-                            && trimmedLine.equals(DELIMITER_MSSQL))) {
+            if (trimmedLine.toUpperCase().matches(delimiterRegex)) {
                 if (!"".equals(command.toString())) {
                     foundCommands.add(command.toString());
                     command.setLength(0);
                     command.trimToSize();
+                    continue;
                 }
             }
-            // Split line by delimiter.
-            if ((trimmedLine.contains(DELIMITER_STANDARD) && databaseType != DatabaseType.POSTGRESQL)
-                || trimmedLine.contains(DELIMITER_STANDARD) && databaseType == DatabaseType.POSTGRESQL && isEven(pgBlockCounter)) {
-                extractCommandsFromLine(trimmedLine, "\\" + DELIMITER_STANDARD, command, foundCommands);
-            } else if ((databaseType == DatabaseType.SQLSERVER || databaseType == DatabaseType.SQLSERVER2008)
-                    && trimmedLine.contains(DELIMITER_MSSQL)) {
-                extractCommandsFromLine(trimmedLine, DELIMITER_MSSQL, command, foundCommands);
+            
+            if ((trimmedLine.contains(delimiter) && databaseType != POSTGRESQL && databaseType != SYBASE)
+                || trimmedLine.contains(delimiter) && databaseType == POSTGRESQL && isEven(pgBlockCounter)) {
+                // Split line by delimiter.
+                extractCommandsFromLine(trimmedLine, escapedDelimiter, command, foundCommands);
             } else {
                 command.append(trimmedLine).append(" ");
             }
@@ -132,7 +147,34 @@ public final class SQLScriptUtil {
         // It makes no sense to create instances of util classes.
     }
     
+
+    private static boolean shouldSkip(final String trimmedLine) {
+        return "".equals(trimmedLine) || trimmedLine.startsWith("--") || trimmedLine.startsWith("#")
+                || trimmedLine.startsWith("/*")
+                || trimmedLine.equals("SET CURRENT SCHEMA BPMS@");
+    }
+
     private static boolean isEven(int i) {
         return i % 2 == 0;
+    }
+    
+    private static String getDelimiterByFileAndDatabase(final File script, final DatabaseType databaseType) {
+        String delimiter = DELIMITER_STANDARD;
+        
+        if (databaseType == SQLSERVER || databaseType == SQLSERVER2008) {
+            if (script.getName().contains("quartz"))
+                delimiter = DELIMITER_MSSQL_SYBASE;
+            if (script.getName().contains("jbpm-6.1-to-6.2") || script.getName().contains("bpms-6.0-to-6.1"))
+                delimiter = DELIMITER_STANDARD.concat(REGEX_OR).concat(DELIMITER_MSSQL_SYBASE);
+        }
+        
+        if (databaseType == DB2 && 
+            (script.getName().contains("bpms-6.0-to-6.1") || script.getName().contains("jbpm-6.1-to-6.2")))
+            delimiter = DELIMITER_ALTER;
+        
+        if (databaseType == SYBASE)
+            delimiter = DELIMITER_MSSQL_SYBASE;
+        
+        return delimiter;
     }
 }
