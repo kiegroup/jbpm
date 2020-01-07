@@ -23,6 +23,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
 import javax.xml.XMLConstants;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
@@ -30,7 +31,6 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 
-import org.jbpm.test.JbpmJUnitBaseTestCase;
 import org.jbpm.xes.model.AttributeStringType;
 import org.jbpm.xes.model.LogType;
 import org.junit.After;
@@ -48,13 +48,10 @@ import org.xml.sax.SAXException;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class XESExportMainTest extends JbpmJUnitBaseTestCase {
+public class XESExportMainTest extends XESPersistenceBase {
 
     private static final String XES_IEEE_SCHEMA = "xes-ieee-1849-2016.xsd";
     private static final String PROCESS = "com.sample.bpmn.hello";
-    private static final String DRIVER = "org.h2.Driver";
-    private static final String URL = "jdbc:h2:mem:jbpm-db;MVCC=true";
-    private static final String USER = "sa";
     private static final String ABORTED_XES_FILE = "aborted.xes";
     private static final String ACTIVE_COMPLETED_XES_FILE = "activeCompleted.xes";
     private static final String COMPLETED_XES_FILE = "completed.xes";
@@ -70,17 +67,20 @@ public class XESExportMainTest extends JbpmJUnitBaseTestCase {
                                                                ALL_STATUS_XES_FILE);
     
     private static final Logger logger = LoggerFactory.getLogger(XESExportMainTest.class);
+    
+    private String driver;
+    private String url;
+    private String password;
+    private String user;
 
     private KieSession ksession;
     private TaskService taskService;
     private RuntimeEngine runtimeEngine;
-
-    public XESExportMainTest() {
-        super(true, true);
-    }
-
+    
     @Before
     public void setup() {
+        getMainInputParams();
+
         // create runtime manager with single process - hello.bpmn
         createRuntimeManager("humantask.bpmn");
 
@@ -95,6 +95,13 @@ public class XESExportMainTest extends JbpmJUnitBaseTestCase {
         activeProcess();      
         completeProcess();
         abortedProcess();
+    }
+
+    private void getMainInputParams() {
+        user = dsProps.getProperty("user");
+        password = dsProps.getProperty("password");
+        url = dsProps.getProperty("url");
+        driver = dsProps.getProperty("driverClassName");
     }
 
     private void activeProcess() {
@@ -137,9 +144,10 @@ public class XESExportMainTest extends JbpmJUnitBaseTestCase {
 
     @Test
     public void testHelloProcessWithoutFilteringStatus() throws Exception {      
-        XESExportMain.main(new String[] {"-user", USER,
-                                         "-url", URL, 
-                                         "-driver", DRIVER,
+        XESExportMain.main(new String[] {"-user", user,
+                                         "-password", password,
+                                         "-url", url, 
+                                         "-driver", driver,
                                          "-process", PROCESS,
                                          "-file" , ALL_STATUS_XES_FILE});
 
@@ -150,9 +158,10 @@ public class XESExportMainTest extends JbpmJUnitBaseTestCase {
 
     @Test
     public void testHelloProcessFilteringStatusCompleteAndActive() throws Exception {
-        XESExportMain.main(new String[] {"-user", USER,
-                                         "-url", URL, 
-                                         "-driver", DRIVER,
+        XESExportMain.main(new String[] {"-user", user,
+                                         "-password", password,
+                                         "-url", url, 
+                                         "-driver", driver,
                                          "-process", PROCESS,
                                          "-status", "1,2",  //1: active, 2: completed
                                          "-file" , ACTIVE_COMPLETED_XES_FILE});
@@ -164,9 +173,10 @@ public class XESExportMainTest extends JbpmJUnitBaseTestCase {
 
     @Test
     public void testHelloProcessFilteringStatusAborted() throws Exception {
-        XESExportMain.main(new String[] {"-user", USER,
-                                         "-url", URL, 
-                                         "-driver", DRIVER,
+        XESExportMain.main(new String[] {"-user", user,
+                                         "-password", password,
+                                         "-url", url, 
+                                         "-driver", driver,
                                          "-process", PROCESS,
                                          "-status", "3",  //aborted
                                          "-file" , ABORTED_XES_FILE});
@@ -179,9 +189,10 @@ public class XESExportMainTest extends JbpmJUnitBaseTestCase {
     
     @Test
     public void testHelloProcessFilteringStatusCompletedEnterAndExitEvents() throws Exception {
-        XESExportMain.main(new String[] {"-user", USER,
-                                         "-url", URL, 
-                                         "-driver", DRIVER,
+        XESExportMain.main(new String[] {"-user", user,
+                                         "-password", password,
+                                         "-url", url, 
+                                         "-driver", driver,
                                          "-process", PROCESS,
                                          "-status", "2",  //2: completed
                                          "-file" , COMPLETED_EE_XES_FILE});
@@ -194,9 +205,10 @@ public class XESExportMainTest extends JbpmJUnitBaseTestCase {
     
     @Test
     public void testHelloProcessFilteringStatusCompletedOnlyExitEvents() throws Exception {
-        XESExportMain.main(new String[] {"-user", USER,
-                                         "-url", URL, 
-                                         "-driver", DRIVER,
+        XESExportMain.main(new String[] {"-user", user,
+                                         "-password", password,
+                                         "-url", url, 
+                                         "-driver", driver,
                                          "-process", PROCESS,
                                          "-status", "2",  //2: completed
                                          "-file" , COMPLETED_XES_FILE,
@@ -210,9 +222,10 @@ public class XESExportMainTest extends JbpmJUnitBaseTestCase {
     
     @Test
     public void testHelloProcessFilteringStatusCompletedRelevantNodes() throws Exception {
-        XESExportMain.main(new String[] {"-user", USER,
-                                         "-url", URL, 
-                                         "-driver", DRIVER,
+        XESExportMain.main(new String[] {"-user", user,
+                                         "-password", password,
+                                         "-url", url, 
+                                         "-driver", driver,
                                          "-process", PROCESS,
                                          "-status", "2",  //2: completed
                                          "-file" , COMPLETED_REL_XES_FILE,
@@ -226,9 +239,10 @@ public class XESExportMainTest extends JbpmJUnitBaseTestCase {
     
     @Test
     public void testHelloProcessFilteringStatusCompletedVersion() throws Exception {
-        XESExportMain.main(new String[] {"-user", USER,
-                                         "-url", URL, 
-                                         "-driver", DRIVER,
+        XESExportMain.main(new String[] {"-user", user,
+                                         "-password", password,
+                                         "-url", url, 
+                                         "-driver", driver,
                                          "-process", PROCESS,
                                          "-status", "2",  //2: completed
                                          "-file" , COMPLETED_1_2_XES_FILE,

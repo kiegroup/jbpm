@@ -42,7 +42,6 @@ import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.KieSessionConfiguration;
 import org.kie.internal.runtime.conf.ForceEagerActivationOption;
 import org.kie.test.util.db.DataSourceFactory;
-import org.kie.test.util.db.PoolingDataSourceWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,13 +94,7 @@ public class PersistenceUtil {
 
         // set the right jdbc url
         Properties dsProps = getDatasourceProperties();
-        String jdbcUrl = dsProps.getProperty("url");
-
-        boolean startH2TcpServer = jdbcUrl.matches("jdbc:h2:tcp:.*");
-
-        if (startH2TcpServer) {
-            h2Server.start();
-        }
+        startH2TcpServer(dsProps);
 
         // Setup the datasource
         PoolingDataSourceWrapper ds1 = setupPoolingDataSource(dsProps, dataSourceName);
@@ -112,6 +105,19 @@ public class PersistenceUtil {
         context.put(ENTITY_MANAGER_FACTORY, emf);
 
         return context;
+    }
+
+    /**
+     * This method starts H2 database server (tcp).
+     * 
+     * @param datasourceProperties
+     *            The properties used to setup the data source.
+     */
+    public static void startH2TcpServer(Properties datasourceProperties) {
+        String jdbcUrl = datasourceProperties.getProperty("url");
+        if (jdbcUrl != null && jdbcUrl.matches("jdbc:h2:tcp:.*")) {
+            h2Server.start();
+        }
     }
 
     /**
@@ -218,19 +224,14 @@ public class PersistenceUtil {
         // Central place to set additional H2 properties
         System.setProperty("h2.lobInDatabase", "true");
         
-        InputStream propsInputStream = PersistenceUtil.class.getResourceAsStream(DATASOURCE_PROPERTIES);
-        assertNotNull(propertiesNotFoundMessage, propsInputStream);
         Properties props = new Properties();
-        if (propsInputStream != null) {
-            try {
-                props.load(propsInputStream);
-            } catch (IOException ioe) {
-                propertiesNotFound = true;
-                logger.warn("Unable to find properties, using default H2 properties: {}", ioe.getMessage());
-                logger.warn("Stacktrace:", ioe);
-            }
-        } else {
+        try (InputStream propsInputStream = PersistenceUtil.class.getResourceAsStream(DATASOURCE_PROPERTIES)){
+            assertNotNull(propertiesNotFoundMessage, propsInputStream);
+            props.load(propsInputStream);
+        } catch (IOException ioe) {
             propertiesNotFound = true;
+            logger.warn("Unable to find properties, using default H2 properties: {}", ioe.getMessage());
+            logger.warn("Stacktrace:", ioe);
         }
 
         String password = props.getProperty("password");
