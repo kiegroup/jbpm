@@ -32,6 +32,8 @@ import org.drools.core.rule.Declaration;
 import org.drools.core.spi.Activation;
 import org.drools.core.time.TimeUtils;
 import org.drools.core.time.impl.CronExpression;
+import org.drools.core.time.impl.DefaultJobHandle;
+import org.drools.core.time.impl.TimerJobInstance;
 import org.drools.core.util.MVELSafeHelper;
 import org.jbpm.process.core.ContextContainer;
 import org.jbpm.process.core.context.variable.Variable;
@@ -345,9 +347,20 @@ public abstract class StateBasedNodeInstance extends ExtendedNodeInstanceImpl im
         for (Map.Entry<Timer, DroolsAction> entry : getEventBasedNode().getTimers().entrySet()) {
             if (entry.getKey().getId() == timerInstance.getTimerId()) {
                 executeAction((Action) entry.getValue().getMetaData("Action"));
+
+                // self remove timer instance from this node as it will remove itself 
+                // from timer service once is triggered and there is no next
+                if (!(timerInstance.getJobHandle() instanceof DefaultJobHandle)) {
+                    return;
+                }
+                TimerJobInstance defaultTimerInstance = ((DefaultJobHandle) timerInstance.getJobHandle()).getTimerJobInstance();
+                if (defaultTimerInstance.getTrigger().hasNextFireTime() == null) {
+                    timerInstances.remove(timerInstance.getId());
+                }
                 return;
             }
         }
+
     }
 
     @Override
