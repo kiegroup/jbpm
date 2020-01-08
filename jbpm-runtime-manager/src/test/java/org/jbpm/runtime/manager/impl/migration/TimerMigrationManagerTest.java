@@ -16,11 +16,6 @@
 
 package org.jbpm.runtime.manager.impl.migration;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
@@ -39,7 +34,6 @@ import org.jbpm.runtime.manager.util.TestUtil;
 import org.jbpm.services.task.identity.JBossUserGroupCallbackImpl;
 import org.jbpm.test.listener.process.NodeLeftCountDownProcessEventListener;
 import org.jbpm.test.util.AbstractBaseTest;
-import org.kie.test.util.db.PoolingDataSourceWrapper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -63,7 +57,12 @@ import org.kie.internal.io.ResourceFactory;
 import org.kie.internal.runtime.manager.context.EmptyContext;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 import org.kie.internal.task.api.UserGroupCallback;
+import org.kie.test.util.db.PoolingDataSourceWrapper;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.kie.api.runtime.process.ProcessInstance.STATE_ACTIVE;
 import static org.kie.api.runtime.process.ProcessInstance.STATE_COMPLETED;
 
@@ -566,7 +565,7 @@ public class TimerMigrationManagerTest extends AbstractBaseTest {
         pid = startProcessTillBoundaryTimer(countdownListener);
         completeUserTask(managerV1, USER_JOHN);
 
-        migrateProcessUserTaskBoundary();
+        migrateProcessUserTaskBoundary(managerV1);
 
         //Only needs to complete Mary's task after migration
         completeUserTask(managerV2, USER_MARY);
@@ -580,7 +579,7 @@ public class TimerMigrationManagerTest extends AbstractBaseTest {
 
         pid = startProcessTillBoundaryTimer(countdownListener);
 
-        migrateProcessUserTaskBoundary();
+        migrateProcessUserTaskBoundary(managerV1);
 
         //Needs to complete both user tasks after migration
         completeUserTask(managerV2, USER_JOHN);
@@ -669,13 +668,14 @@ public class TimerMigrationManagerTest extends AbstractBaseTest {
 
     private long startProcessTillBoundaryTimer(NodeLeftCountDownProcessEventListener countdownListener) {
         auditService = new JPAAuditLogService(emf);
-        
+
         createRuntimeManagers("migration/v1/BPMN2-UserTaskBoundary-v1.bpmn2", "migration/v2/BPMN2-UserTaskBoundary-v2.bpmn2", countdownListener);
         runtime = managerV1.getRuntimeEngine(EmptyContext.get());
-        
+
         long pid = startProcess(runtime, USERTASK_BOUNDARY_TIMER_ID_V1);
         checkProcess(pid, USERTASK_BOUNDARY_TIMER_ID_V1, DEPLOYMENT_ID_V1, STATE_ACTIVE);
         
+        managerV1.disposeRuntimeEngine(runtime);
         //wait for boundary timer
         countdownListener.waitTillCompleted();
         countdownListener.reset("Goodbye v2", 1);
@@ -700,11 +700,11 @@ public class TimerMigrationManagerTest extends AbstractBaseTest {
         assertEquals(status, log.getStatus().intValue());
     }
 
-    private void migrateProcessUserTaskBoundary() {
-        managerV1.disposeRuntimeEngine(runtime);
-        
+    private void migrateProcessUserTaskBoundary(RuntimeManager manager) {
+        RuntimeEngine runtime = manager.getRuntimeEngine(EmptyContext.get());
+        manager.disposeRuntimeEngine(runtime);
         MigrationSpec migrationSpec = new MigrationSpec(DEPLOYMENT_ID_V1, pid, DEPLOYMENT_ID_V2, USERTASK_BOUNDARY_TIMER_ID_V2);
-        
+
         MigrationManager migrationManager = new MigrationManager(migrationSpec);
         migrationManager.migrate();
         
