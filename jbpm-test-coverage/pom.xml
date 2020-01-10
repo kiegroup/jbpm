@@ -125,6 +125,11 @@
         </exclusion>
       </exclusions>
     </dependency>
+    <!-- needed for jdk 11 -->
+    <dependency>
+      <groupId>com.sun.xml.bind</groupId>
+      <artifactId>jaxb-impl</artifactId>
+    </dependency>
   </dependencies>
 
   <properties>
