@@ -90,6 +90,10 @@ public final class TestPersistenceContext {
         testPersistenceContext.init(persistenceUnit);
         return testPersistenceContext;
     }
+    
+    public DatabaseType getDatabaseType() {
+        return databaseType;
+    }
 
     /**
      * Initializes persistence context from specified persistence unit.

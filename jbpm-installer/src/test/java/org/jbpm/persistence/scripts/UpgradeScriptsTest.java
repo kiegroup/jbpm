@@ -21,13 +21,17 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.text.ParseException;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.junit.Assume.assumeTrue;
 import static org.jbpm.persistence.scripts.TestPersistenceContext.createAndInitContext;
+import static org.jbpm.persistence.scripts.DatabaseType.DB2;
+import static org.jbpm.persistence.scripts.DatabaseType.SYBASE;
 
 /**
  * Contains tests that test database upgrade scripts.
@@ -41,7 +45,15 @@ public class UpgradeScriptsTest extends ScriptsBase {
     private static final String DB_UPGRADE_SCRIPTS_RESOURCE_PATH = "/db/upgrade-scripts";
     private static final String DB_60_SCRIPTS_RESOURCE_PATH = "/ddl60";
 
-   
+    @BeforeClass
+    public static void hasToBeTested() {
+        // skip these upgrade tests for db2 (fails 'Call SYSPROC.ADMIN_CMD')
+        // and sybase (no 6.0 scripts exist)
+        TestPersistenceContext ctx = new TestPersistenceContext();
+        DatabaseType dbType = ctx.getDatabaseType();
+        assumeTrue(dbType!=DB2 && dbType!=SYBASE);
+    }
+    
     private void createSchema60UsingDDLs() throws IOException, SQLException {
         //create 6.0 schema
         executeScriptRunner(DB_60_SCRIPTS_RESOURCE_PATH, true);
