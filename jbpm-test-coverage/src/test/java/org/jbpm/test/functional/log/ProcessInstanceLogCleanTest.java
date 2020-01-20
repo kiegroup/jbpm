@@ -244,14 +244,28 @@ public class ProcessInstanceLogCleanTest extends JbpmTestCase {
         // Delete the last 3 logs in the list
         resultList.stream().skip(1).forEach(s -> startDates.add(s.getStart()));
 
-        int resultCount = startDates.stream().map(
-                          s ->  auditService.processInstanceLogDelete()
-                                .startDate(s)
-                                .build()
-                                .execute())
-                          .collect(Collectors.summingInt(Integer::intValue));
+        int startDatesCount = startDates.size();
 
-        Assertions.assertThat(resultCount).isEqualTo(3);
+        int resultCount = startDates.stream().map(
+                s ->  auditService.processInstanceLogDelete()
+                        .startDate(s)
+                        .build()
+                        .execute())
+                .collect(Collectors.summingInt(Integer::intValue));
+
+        if (startDatesCount == 1) {
+            Assertions.assertThat(resultCount).isEqualTo(4);
+        } else {
+            Assertions.assertThat(resultCount).isEqualTo(3);
+
+            // Check the last instance
+            List<ProcessInstanceLog> resultList2 = auditService.processInstanceLogQuery()
+                    .startDateRangeStart(testStartDate)
+                    .build()
+                    .getResultList();
+            Assertions.assertThat(resultList2).hasSize(1);
+            Assertions.assertThat(resultList2.get(0)).isEqualTo(resultList.get(0));
+        }
 
         // Attempt to delete with a date later than end of all the instances
         resultCount = auditService.processInstanceLogDelete()
@@ -259,14 +273,6 @@ public class ProcessInstanceLogCleanTest extends JbpmTestCase {
                 .build()
                 .execute();
         Assertions.assertThat(resultCount).isEqualTo(0);
-
-        // Check the last instance
-        List<ProcessInstanceLog> resultList2 = auditService.processInstanceLogQuery()
-                .startDateRangeStart(testStartDate)
-                .build()
-                .getResultList();
-        Assertions.assertThat(resultList2).hasSize(1);
-        Assertions.assertThat(resultList2.get(0)).isEqualTo(resultList.get(0));
     }
 
     @Test
