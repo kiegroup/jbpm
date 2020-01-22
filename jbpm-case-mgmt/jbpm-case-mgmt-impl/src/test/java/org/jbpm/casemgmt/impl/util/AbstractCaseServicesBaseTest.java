@@ -57,6 +57,7 @@ public abstract class AbstractCaseServicesBaseTest extends AbstractCaseServicesT
     protected static final String MULTI_STAGE_CASE_P_ID = "multiplestages";
     protected static final String USER_TASK_DATA_CASE_P_ID = "UserTaskCaseData";
     protected static final String EXECUTION_IN_ONE_GO = "CaseExecutionInOneGo";
+    protected static final String STAGE_WITH_BOUNDARY_EVENT_CONDITION = "NoStartNodeCaseWithBoundaryTimerStage";
     
     protected static final String SUBPROCESS_P_ID = "DataVerification";
 

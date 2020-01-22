@@ -125,6 +125,7 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
         processes.add("cases/UserTaskCaseData.bpmn2");
         processes.add("cases/CaseWithStageAndBoundaryTimer.bpmn2");
         processes.add("cases/CaseWithBoundaryTimerStage.bpmn2");
+        processes.add("cases/NoStartNodeCaseWithBoundaryTimerStage.bpmn2");
         // add processes that can be used by cases but are not cases themselves
         processes.add("processes/DataVerificationProcess.bpmn2");
         return processes;
@@ -3796,4 +3797,105 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
             }
         }
     }
+    
+    @Test(timeout=15000)
+    public void testCaseWithHumanTaskAfterReopen() {
+        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new UserImpl("john"));
+        
+        Map<String, Object> data = new HashMap<>();
+        data.put("contactInfo", "main street 10, NYC");
+        CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), USER_TASK_DATA_CASE_P_ID, data, roleAssignments);
+
+        String caseId = caseService.startCase(deploymentUnit.getIdentifier(), USER_TASK_DATA_CASE_P_ID, caseFile);
+        assertNotNull(caseId);
+        assertEquals(FIRST_CASE_ID, caseId);
+        try {
+            CaseInstance cInstance = caseService.getCaseInstance(caseId, true, false, false, false);
+            assertNotNull(cInstance);
+            assertEquals(deploymentUnit.getIdentifier(), cInstance.getDeploymentId());
+            
+            identityProvider.setName("john");
+            List<TaskSummary> tasks = caseRuntimeDataService.getCaseTasksAssignedAsPotentialOwner(caseId, "john", null, new QueryContext());
+            assertThat(tasks).isNotNull().hasSize(1);
+            
+            Map<String, Object> results = new HashMap<>();
+            results.put("reply_", "here is my reply");
+            
+            userTaskService.completeAutoProgress(tasks.get(0).getId(), "john", results);
+            
+            caseService.closeCase(caseId, "closed temporarily");
+            caseService.reopenCase(caseId, deploymentUnit.getIdentifier(), USER_TASK_DATA_CASE_P_ID);
+            cInstance = caseService.getCaseInstance(caseId, true, false, false, false);
+            assertNotNull(cInstance);
+            assertEquals(deploymentUnit.getIdentifier(), cInstance.getDeploymentId());
+            
+            Map<String, Object> caseData = cInstance.getCaseFile().getData();
+            assertNotNull(caseData);
+            assertEquals(2, caseData.size());  
+            assertEquals("main street 10, NYC", caseData.get("contactInfo"));
+            assertEquals("here is my reply", caseData.get("reply"));
+            
+            Collection<CaseFileItem> dataItems = caseRuntimeDataService.getCaseInstanceDataItems(caseId, new QueryContext());
+            assertThat(dataItems).isNotNull().hasSize(2);
+                        
+            Map<String, CaseFileItem> mappedDataItems = dataItems.stream().collect(toMap(CaseFileItem::getName, t -> t));
+            assertThat(mappedDataItems).containsKeys("reply", "contactInfo");
+        } catch (Exception e) {
+            logger.error("Unexpected error {}", e.getMessage(), e);
+            fail("Unexpected exception " + e.getMessage());
+        } finally {
+            if (caseId != null) {
+                identityProvider.setName("john");
+                caseService.cancelCase(caseId);
+            }
+        }
+    }
+    
+    @Test(timeout=15000)
+    public void testCaseWithBoundaryTimerFiredAtStageAndThenReopen() throws InterruptedException {
+        String caseId = caseService.startCase(deploymentUnit.getIdentifier(), STAGE_WITH_BOUNDARY_EVENT_CONDITION);
+        assertNotNull(caseId);
+        assertEquals(FIRST_CASE_ID, caseId);
+        
+        Collection<CaseStageInstance> activeStages = caseRuntimeDataService.getCaseInstanceStages(caseId, true, new QueryContext());
+        assertThat(activeStages).hasSize(0);
+
+        caseService.addDataToCaseFile(caseId, "readyToActivate", true);
+        
+        activeStages = caseRuntimeDataService.getCaseInstanceStages(caseId, true, new QueryContext());
+        assertThat(activeStages).hasSize(1);
+        
+        // wait till we hit end node
+        ((NodeLeftCountDownProcessEventListener) CountDownListenerFactory.getExisting(getClass().getSimpleName() + "2")).waitTillCompleted();
+        try {
+            Collection<CaseStageInstance> stages = caseRuntimeDataService.getCaseInstanceStages(caseId, false, null);
+            assertThat(stages).isNotNull().hasSize(2);
+            Iterator<CaseStageInstance> iterator = stages.iterator();
+
+            CaseStageInstance stage = iterator.next();
+            assertThat(stage.getName()).isEqualTo("Stage 1");
+            assertThat(stage.getStatus()).isEqualTo(StageStatus.Completed);
+
+            caseService.cancelCase(caseId);
+            
+            caseService.reopenCase(caseId, deploymentUnit.getIdentifier(), STAGE_WITH_BOUNDARY_EVENT_CONDITION);
+            
+            activeStages = caseRuntimeDataService.getCaseInstanceStages(caseId, true, new QueryContext());
+            //Stage 1 should be not active as boundary event was fired and completion condition set,
+            //and Stage 2 should be
+            assertThat(activeStages).hasSize(1);
+            stage = activeStages.iterator().next();
+            assertThat(stage.getName()).isEqualTo("Stage 2");
+            assertThat(stage.getStatus()).isEqualTo(StageStatus.Active);
+        } catch (Exception e) {
+            logger.error("Unexpected error {}", e.getMessage(), e);
+            fail("Unexpected exception " + e.getMessage());
+        } finally {
+            if (caseId != null) {
+                caseService.cancelCase(caseId);
+            }
+        }
+    }
+
 }
