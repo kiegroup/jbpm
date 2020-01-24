@@ -60,6 +60,7 @@ public abstract class AbstractCaseServicesBaseTest extends AbstractCaseServicesT
     protected static final String STAGE_WITH_BOUNDARY_EVENT_CONDITION = "NoStartNodeCaseWithBoundaryTimerStage";
     
     protected static final String SUBPROCESS_P_ID = "DataVerification";
+    protected static final String DYNAMIC_SUBPROCESS_P_ID = "DynamicSubProcess";
 
     protected static final String FIRST_CASE_ID = "CASE-0000000001";
     protected static final String HR_CASE_ID = "HR-0000000001";

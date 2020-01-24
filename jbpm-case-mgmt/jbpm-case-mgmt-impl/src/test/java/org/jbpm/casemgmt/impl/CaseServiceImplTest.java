@@ -128,6 +128,7 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
         processes.add("cases/NoStartNodeCaseWithBoundaryTimerStage.bpmn2");
         // add processes that can be used by cases but are not cases themselves
         processes.add("processes/DataVerificationProcess.bpmn2");
+        processes.add("processes/DynamicSubProcess.bpmn2");
         return processes;
     }
 
@@ -3888,6 +3889,51 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
             stage = activeStages.iterator().next();
             assertThat(stage.getName()).isEqualTo("Stage 2");
             assertThat(stage.getStatus()).isEqualTo(StageStatus.Active);
+        } catch (Exception e) {
+            logger.error("Unexpected error {}", e.getMessage(), e);
+            fail("Unexpected exception " + e.getMessage());
+        } finally {
+            if (caseId != null) {
+                caseService.cancelCase(caseId);
+            }
+        }
+    }
+    
+    @Test(timeout=15000)
+    public void testReopenAfterAddingDynamicSubprocess() {
+        Map<String, Object> data = new HashMap<>();
+        CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), USER_TASK_CASE_P_ID, data);
+
+        String caseId = caseService.startCase(deploymentUnit.getIdentifier(), USER_TASK_STAGE_CASE_P_ID, caseFile);
+        assertNotNull(caseId);
+        assertEquals(FIRST_CASE_ID, caseId);
+        try {
+            CaseInstance cInstance = caseService.getCaseInstance(caseId);
+            assertNotNull(cInstance);
+            assertEquals(FIRST_CASE_ID, cInstance.getCaseId());
+            assertEquals(deploymentUnit.getIdentifier(), cInstance.getDeploymentId());
+
+            CaseDefinition caseDef = caseRuntimeDataService.getCase(deploymentUnit.getIdentifier(), USER_TASK_STAGE_CASE_P_ID);
+            assertNotNull(caseDef);
+            assertEquals(1, caseDef.getCaseStages().size());
+            assertEquals(deploymentUnit.getIdentifier(), caseDef.getDeploymentId());
+
+            CaseStage stage = caseDef.getCaseStages().iterator().next();
+
+            // add dynamic user task to empty case instance - first by case id
+            Map<String, Object> parameters = new HashMap<>();
+                        
+            caseService.addDynamicSubprocessToStage(FIRST_CASE_ID, stage.getId(), DYNAMIC_SUBPROCESS_P_ID, parameters);
+            
+            caseService.addDataToCaseFile(FIRST_CASE_ID, "stage1_finished", true);
+            
+            caseService.cancelCase(FIRST_CASE_ID);
+            caseService.reopenCase(FIRST_CASE_ID, deploymentUnit.getIdentifier(), USER_TASK_STAGE_CASE_P_ID);
+            
+            Map<String, Object> caseData = caseService.getCaseFileInstance(FIRST_CASE_ID).getData();
+            assertNotNull(caseData);
+            assertEquals("is not easy to say", caseData.get("mySecret"));
+            
         } catch (Exception e) {
             logger.error("Unexpected error {}", e.getMessage(), e);
             fail("Unexpected exception " + e.getMessage());
