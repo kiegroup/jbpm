@@ -115,7 +115,7 @@ public class ExecutionErrorCleanupCommand implements Command, Reoccurring {
 		Map<String, Object> parameters = new HashMap<>();
         StringBuilder cleanUpErrorsQuery = new StringBuilder();
         
-        cleanUpErrorsQuery.append("delete from ExecutionErrorInfo where processInstanceId in "
+        cleanUpErrorsQuery.append("delete from ExecutionErrorInfo where PROCESS_INST_ID in "
                 + "(select processInstanceId from ProcessInstanceLog where status in (2,3))");
         if (olderThan != null && !olderThan.isEmpty()) {            
             cleanUpErrorsQuery.append(" and errorDate < :olderThan");
