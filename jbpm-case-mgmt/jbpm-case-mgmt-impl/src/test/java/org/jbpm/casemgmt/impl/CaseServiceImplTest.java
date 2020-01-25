@@ -3925,7 +3925,7 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
                         
             caseService.addDynamicSubprocessToStage(FIRST_CASE_ID, stage.getId(), DYNAMIC_SUBPROCESS_P_ID, parameters);
             
-            caseService.addDataToCaseFile(FIRST_CASE_ID, "stage1_finished", true);
+            caseService.addDataToCaseFile(FIRST_CASE_ID, "stage_subprocess_finished", true);
             
             caseService.cancelCase(FIRST_CASE_ID);
             caseService.reopenCase(FIRST_CASE_ID, deploymentUnit.getIdentifier(), USER_TASK_STAGE_CASE_P_ID);

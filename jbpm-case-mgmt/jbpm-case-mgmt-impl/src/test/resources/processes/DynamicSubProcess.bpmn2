@@ -108,7 +108,7 @@
           <bpmn2:targetRef>DataInput_9</bpmn2:targetRef>
         </bpmn2:dataInputAssociation>
       </bpmn2:userTask>
-      <bpmn2:completionCondition xsi:type="bpmn2:tFormalExpression" id="FormalExpression_2" language="http://www.jboss.org/drools/rule">CaseData(data.get(&quot;stage1_finished&quot;) == true)</bpmn2:completionCondition>
+      <bpmn2:completionCondition xsi:type="bpmn2:tFormalExpression" id="FormalExpression_2" language="http://www.jboss.org/drools/rule">CaseData(data.get(&quot;stage_subprocess_finished&quot;) == true)</bpmn2:completionCondition>
     </bpmn2:adHocSubProcess>
     <bpmn2:scriptTask id="ScriptTask_1" name="First Task" scriptFormat="http://www.java.com/java">
       <bpmn2:extensionElements>
