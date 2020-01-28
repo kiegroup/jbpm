@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.jbpm.kie.services.impl.audit;
 
 import java.util.Map;
@@ -34,14 +33,13 @@ import org.kie.api.event.process.ProcessVariableChangedEvent;
 import org.kie.internal.identity.IdentityProvider;
 import org.kie.server.api.KieServerConstants;
 
-
 public class ServicesAwareAuditEventBuilder extends DefaultAuditEventBuilderImpl {
 
-    private IdentityProvider identityProvider;    
-    
+    private IdentityProvider identityProvider;
+
     private String deploymentUnitId;
 
-    private final Boolean allowSetInitiator =  Boolean.parseBoolean(System.getProperty(KieServerConstants.CFG_BYPASS_AUTH_USER, "false"));
+    private final Boolean allowSetInitiator = Boolean.parseBoolean(System.getProperty(KieServerConstants.CFG_BYPASS_AUTH_USER, "false"));
 
     public IdentityProvider getIdentityProvider() {
         return identityProvider;
@@ -50,10 +48,10 @@ public class ServicesAwareAuditEventBuilder extends DefaultAuditEventBuilderImpl
     public void setIdentityProvider(IdentityProvider identityProvider) {
         this.identityProvider = identityProvider;
     }
-    
+
     @Override
     public AuditEvent buildEvent(ProcessStartedEvent pse) {
-        
+
         ProcessInstanceLog log = (ProcessInstanceLog) super.buildEvent(pse);
         log.setIdentity(getIdentity(pse));
         log.setExternalId(deploymentUnitId);
@@ -62,31 +60,30 @@ public class ServicesAwareAuditEventBuilder extends DefaultAuditEventBuilderImpl
 
     @Override
     public AuditEvent buildEvent(ProcessCompletedEvent pce, Object log) {
-        ProcessInstanceLog instanceLog = (ProcessInstanceLog) super.buildEvent(pce, log); 
+        ProcessInstanceLog instanceLog = (ProcessInstanceLog) super.buildEvent(pce, log);
         instanceLog.setExternalId(deploymentUnitId);
         return instanceLog;
-        
+
     }
 
     @Override
     public AuditEvent buildEvent(ProcessNodeTriggeredEvent pnte) {
-        NodeInstanceLog nodeInstanceLog = (NodeInstanceLog)super.buildEvent(pnte); 
+        NodeInstanceLog nodeInstanceLog = (NodeInstanceLog) super.buildEvent(pnte);
         nodeInstanceLog.setExternalId(deploymentUnitId);
         return nodeInstanceLog;
-        
-        
+
     }
 
     @Override
     public AuditEvent buildEvent(ProcessNodeLeftEvent pnle, Object log) {
-        NodeInstanceLog nodeInstanceLog = (NodeInstanceLog) super.buildEvent(pnle, log); 
+        NodeInstanceLog nodeInstanceLog = (NodeInstanceLog) super.buildEvent(pnle, log);
         nodeInstanceLog.setExternalId(deploymentUnitId);
         return nodeInstanceLog;
     }
 
     @Override
     public AuditEvent buildEvent(ProcessVariableChangedEvent pvce) {
-        VariableInstanceLog variableLog = (VariableInstanceLog)super.buildEvent(pvce); 
+        VariableInstanceLog variableLog = (VariableInstanceLog) super.buildEvent(pvce);
         variableLog.setExternalId(deploymentUnitId);
         return variableLog;
     }
@@ -100,8 +97,8 @@ public class ServicesAwareAuditEventBuilder extends DefaultAuditEventBuilderImpl
     }
 
     /**
-     * Utilitary method to get the identity to save on ProcessInstanceLog.
-     * It checks if bypass user authentication is set and if set, checks if the
+     * Utilitary method to get the identity to save on ProcessInstanceLog. It
+     * checks if bypass user authentication is set and if set, checks if the
      * value of initiator in process variables is set and uses it. Otherwise
      * will use the value from the identity provider.
      *
