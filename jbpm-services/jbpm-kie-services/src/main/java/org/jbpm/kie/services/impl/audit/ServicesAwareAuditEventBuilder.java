@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2020 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,23 @@
 
 package org.jbpm.kie.services.impl.audit;
 
+import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 import org.jbpm.process.audit.NodeInstanceLog;
 import org.jbpm.process.audit.ProcessInstanceLog;
 import org.jbpm.process.audit.VariableInstanceLog;
 import org.jbpm.process.audit.event.AuditEvent;
 import org.jbpm.process.audit.event.DefaultAuditEventBuilderImpl;
+import org.jbpm.process.core.context.variable.VariableScope;
+import org.jbpm.process.instance.ProcessInstance;
+import org.jbpm.process.instance.context.variable.VariableScopeInstance;
 import org.kie.api.event.process.ProcessCompletedEvent;
 import org.kie.api.event.process.ProcessNodeLeftEvent;
 import org.kie.api.event.process.ProcessNodeTriggeredEvent;
 import org.kie.api.event.process.ProcessStartedEvent;
 import org.kie.api.event.process.ProcessVariableChangedEvent;
 import org.kie.internal.identity.IdentityProvider;
+import org.kie.server.api.KieServerConstants;
 
 
 public class ServicesAwareAuditEventBuilder extends DefaultAuditEventBuilderImpl {
@@ -34,6 +40,8 @@ public class ServicesAwareAuditEventBuilder extends DefaultAuditEventBuilderImpl
     private IdentityProvider identityProvider;    
     
     private String deploymentUnitId;
+
+    private final Boolean allowSetInitiator =  Boolean.parseBoolean(System.getProperty(KieServerConstants.CFG_BYPASS_AUTH_USER, "false"));
 
     public IdentityProvider getIdentityProvider() {
         return identityProvider;
@@ -47,7 +55,7 @@ public class ServicesAwareAuditEventBuilder extends DefaultAuditEventBuilderImpl
     public AuditEvent buildEvent(ProcessStartedEvent pse) {
         
         ProcessInstanceLog log = (ProcessInstanceLog) super.buildEvent(pse);
-        log.setIdentity(identityProvider.getName());
+        log.setIdentity(getIdentity(pse));
         log.setExternalId(deploymentUnitId);
         return log;
     }
@@ -90,5 +98,27 @@ public class ServicesAwareAuditEventBuilder extends DefaultAuditEventBuilderImpl
     public void setDeploymentUnitId(String deploymentUnitId) {
         this.deploymentUnitId = deploymentUnitId;
     }
-    
+
+    /**
+     * Utilitary method to get the identity to save on ProcessInstanceLog.
+     * It checks if bypass user authentication is set and if set, checks if the
+     * value of initiator in process variables is set and uses it. Otherwise
+     * will use the value from the identity provider.
+     *
+     * @param ProcessStartedEvent pse
+     *
+     * @return String the identity to be used as process starter
+     */
+    private String getIdentity(ProcessStartedEvent pse) {
+        String identity = identityProvider.getName();
+        if (allowSetInitiator) {
+            ProcessInstance pi = (ProcessInstance) pse.getProcessInstance();
+            VariableScopeInstance variableScope = (VariableScopeInstance) pi.getContextInstance(VariableScope.VARIABLE_SCOPE);
+            Map<String, Object> processVariables = variableScope.getVariables();
+            String initiator = (String) processVariables.get("initiator");
+
+            identity = !StringUtils.isEmpty(initiator) ? initiator : identity;
+        }
+        return identity;
+    }
 }
