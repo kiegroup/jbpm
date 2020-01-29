@@ -31,7 +31,6 @@ import org.kie.api.event.process.ProcessNodeTriggeredEvent;
 import org.kie.api.event.process.ProcessStartedEvent;
 import org.kie.api.event.process.ProcessVariableChangedEvent;
 import org.kie.internal.identity.IdentityProvider;
-import org.kie.server.api.KieServerConstants;
 
 public class ServicesAwareAuditEventBuilder extends DefaultAuditEventBuilderImpl {
 
@@ -39,7 +38,7 @@ public class ServicesAwareAuditEventBuilder extends DefaultAuditEventBuilderImpl
 
     private String deploymentUnitId;
 
-    private final Boolean allowSetInitiator = Boolean.parseBoolean(System.getProperty(KieServerConstants.CFG_BYPASS_AUTH_USER, "false"));
+    private final Boolean allowSetInitiator = Boolean.parseBoolean(System.getProperty("org.kie.server.bypass.auth.user", "false"));
 
     public IdentityProvider getIdentityProvider() {
         return identityProvider;
