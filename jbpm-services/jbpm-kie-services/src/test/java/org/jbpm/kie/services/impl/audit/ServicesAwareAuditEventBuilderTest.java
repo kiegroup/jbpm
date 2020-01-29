@@ -15,10 +15,15 @@
  */
 package org.jbpm.kie.services.impl.audit;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.when;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.drools.core.event.ProcessStartedEventImpl;
 import org.jbpm.kie.services.test.ProcessServiceImplTest;
 import org.jbpm.kie.test.util.AbstractKieServicesBaseTest;
@@ -28,14 +33,11 @@ import org.jbpm.process.instance.context.variable.VariableScopeInstance;
 import org.jbpm.process.instance.impl.ProcessInstanceImpl;
 import org.jbpm.workflow.core.WorkflowProcess;
 import org.junit.Test;
-import static org.junit.Assert.*;
 import org.junit.runner.RunWith;
 import org.kie.api.event.process.ProcessStartedEvent;
 import org.kie.api.runtime.KieSession;
 import org.kie.internal.process.CorrelationKey;
 import org.mockito.Mock;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.when;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +48,8 @@ public class ServicesAwareAuditEventBuilderTest extends AbstractKieServicesBaseT
     private static final Logger logger = LoggerFactory.getLogger(ProcessServiceImplTest.class);
 
     private Map<String, Object> processMetadata = new HashMap<>();
+
+    private ServicesAwareAuditEventBuilder builder;
 
     @Mock
     ProcessInstanceImpl processInstance;
@@ -66,6 +70,9 @@ public class ServicesAwareAuditEventBuilderTest extends AbstractKieServicesBaseT
     public void setUp() throws Exception {
         super.setUp();
         processMetadata.put("CorrelationKey", correlationKey);
+
+        builder = new ServicesAwareAuditEventBuilder();
+        builder.setIdentityProvider(identityProvider);
 
         setUpMocks();
     }
@@ -95,10 +102,9 @@ public class ServicesAwareAuditEventBuilderTest extends AbstractKieServicesBaseT
      */
     @Test
     public void testBuildProcessStartedEvent() {
-        ServicesAwareAuditEventBuilder builder = new ServicesAwareAuditEventBuilder();
-        builder.setIdentityProvider(identityProvider);
 
         ProcessStartedEvent pse = new ProcessStartedEventImpl(processInstance, kieRuntime);
+
         ProcessInstanceLog log = (ProcessInstanceLog) builder.buildEvent(pse);
 
         assertEquals("testUser", log.getIdentity());
@@ -106,17 +112,14 @@ public class ServicesAwareAuditEventBuilderTest extends AbstractKieServicesBaseT
 
     /**
      * Test build the ProcessInstanceLog for a process with initiator metadata
-     * and user auth bypasss not enabled
+     * and user auth bypass not enabled
      */
     @Test
     public void testBuildProcessStartedEventWithInitiatorAndNoUserAuthBypass() {
 
         processMetadata.put("initiator", "john");
-
-        ServicesAwareAuditEventBuilder builder = new ServicesAwareAuditEventBuilder();
-        builder.setIdentityProvider(identityProvider);
-
         ProcessStartedEvent pse = new ProcessStartedEventImpl(processInstance, kieRuntime);
+
         ProcessInstanceLog log = (ProcessInstanceLog) builder.buildEvent(pse);
 
         assertEquals("testUser", log.getIdentity());
@@ -124,15 +127,12 @@ public class ServicesAwareAuditEventBuilderTest extends AbstractKieServicesBaseT
 
     /**
      * Test build the ProcessInstanceLog for a process with initiator metadata
-     * and user auth bypasss enabled
+     * and user auth bypass enabled
      */
     @Test
     public void testBuildProcessStartedEventWithInitiatorAndUserAuthBypassEnabled() {
 
         processMetadata.put("initiator", "john");
-
-        ServicesAwareAuditEventBuilder builder = new ServicesAwareAuditEventBuilder();
-        builder.setIdentityProvider(identityProvider);
 
         enableSetInitiator(builder);
 
@@ -142,6 +142,28 @@ public class ServicesAwareAuditEventBuilderTest extends AbstractKieServicesBaseT
         assertEquals("john", log.getIdentity());
     }
 
+    /**
+     * Test build the ProcessInstanceLog for a process with user auth bypass
+     * enabled but no initiator set on process data
+     */
+    @Test
+    public void testBuildProcessStartedEventWithUserAuthBypassEnabledButNoInitiator() {
+
+        enableSetInitiator(builder);
+
+        ProcessStartedEvent pse = new ProcessStartedEventImpl(processInstance, kieRuntime);
+
+        ProcessInstanceLog log = (ProcessInstanceLog) builder.buildEvent(pse);
+
+        assertEquals("testUser", log.getIdentity());
+    }
+
+    /**
+     * Utilitary method to config builder to allow initiator to be collected
+     * from process data
+     *
+     * @param builder
+     */
     private void enableSetInitiator(ServicesAwareAuditEventBuilder builder) {
         try {
             Field allowSetInitiatorField = builder.getClass().getDeclaredField("allowSetInitiator");
