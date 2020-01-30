@@ -42,7 +42,13 @@ public class NotificationListenerManager {
     private NotificationListenerManager() {
         for (NotificationListener listener : listenersLoaded) {
             listeners.add(listener);
-        }        
+        }
+    }
+
+    public void registerAdditionalNotificationListener(List<NotificationListener> additionalNotificationListener) {
+        for (NotificationListener listener : additionalNotificationListener) {
+            listeners.add(listener);
+        }
     }
 
     /**
