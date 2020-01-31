@@ -93,6 +93,9 @@ public class ReopenCaseCommand extends CaseCommand<Void> {
         // set case id to allow it to use CaseContext when creating runtime engine
         params.put(EnvironmentName.CASE_ID, caseId);
         long processInstanceId = processService.startProcess(deploymentId, caseDefinitionId, correlationKey, params);
+        logger.debug("Removing case file from working memory to allow refiring of rules...");
+        ksession.delete(factHandle);
+        ksession.insert(caseFile);
         final Map<String, Object> caseData = caseFile.getData();
         if (caseData != null && !caseData.isEmpty()) {
             processService.execute(deploymentId, CaseContext.get(caseId), new ExecutableCommand<Void>() {
