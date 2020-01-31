@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.drools.compiler.kie.builder.impl.DrlProject;
 import org.drools.compiler.kie.builder.impl.InternalKieModule;
 import org.jbpm.runtime.manager.util.TestUtil;
 import org.jbpm.services.task.identity.JBossUserGroupCallbackImpl;
