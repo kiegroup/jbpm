@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.drools.compiler.kie.builder.impl.DrlProject;
 import org.drools.compiler.kie.builder.impl.InternalKieModule;
 import org.drools.core.util.FileManager;
 import org.junit.After;
@@ -116,7 +117,7 @@ public class KieScannerTest {
         kfs.write("src/main/resources/KBase1/" + file, createBPMN(message));
 
         KieBuilder kieBuilder = ks.newKieBuilder(kfs);
-        assertTrue(kieBuilder.buildAll().getResults().getMessages().isEmpty());
+        assertTrue(kieBuilder.buildAll(DrlProject.class).getResults().getMessages().isEmpty());
 
         return (InternalKieModule) kieBuilder.getKieModule();
     }

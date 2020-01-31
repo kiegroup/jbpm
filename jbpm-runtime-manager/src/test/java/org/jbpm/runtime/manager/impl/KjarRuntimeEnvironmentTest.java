@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.drools.compiler.kie.builder.impl.DrlProject;
 import org.drools.compiler.kie.builder.impl.InternalKieModule;
 import org.jbpm.runtime.manager.util.TestUtil;
 import org.jbpm.services.task.identity.JBossUserGroupCallbackImpl;
@@ -454,8 +455,8 @@ public class KjarRuntimeEnvironmentTest extends AbstractBaseTest {
         }
 
         KieBuilder kieBuilder = ks.newKieBuilder(kfs);
-        if (!kieBuilder.buildAll().getResults().getMessages().isEmpty()) {
-            for (Message message : kieBuilder.buildAll().getResults().getMessages()) {
+        if (!kieBuilder.buildAll(DrlProject.class).getResults().getMessages().isEmpty()) {
+            for (Message message : kieBuilder.buildAll(DrlProject.class).getResults().getMessages()) {
                 logger.error("Error Message: ({}) {}", message.getPath(), message.getText());
             }
             throw new RuntimeException(

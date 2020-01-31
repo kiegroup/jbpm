@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
+import org.drools.compiler.kie.builder.impl.DrlProject;
 import org.drools.core.impl.EnvironmentFactory;
 import org.drools.core.impl.KnowledgeBaseFactory;
 import org.junit.Test;
@@ -55,7 +56,7 @@ public class ServiceTaskTest {
                 .write("src/main/java/org/jbpm/workitems/HelloService.java",
                        javaSrc);
 
-        ks.newKieBuilder(kfs).buildAll();
+        ks.newKieBuilder(kfs).buildAll(DrlProject.class);
         KieContainer kcontainer = ks.newKieContainer(ks.getRepository().getDefaultReleaseId());
 
         KieSession ksession = createSession(kcontainer.getKieBase());

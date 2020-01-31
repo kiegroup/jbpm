@@ -20,6 +20,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+
+import org.drools.compiler.kie.builder.impl.DrlProject;
 import org.jbpm.test.util.AbstractBaseTest;
 import org.junit.Test;
 import org.kie.api.KieServices;
@@ -45,7 +47,7 @@ public class IncrementalCompilationTest extends AbstractBaseTest {
         KieFileSystem kfs = ks.newKieFileSystem().write( "src/main/resources/p1.bpmn2",
                                                          invalidProcessDefinition );
 
-        KieBuilder kieBuilder = ks.newKieBuilder( kfs ).buildAll();
+        KieBuilder kieBuilder = ks.newKieBuilder( kfs ).buildAll(DrlProject.class);
         Results results = kieBuilder.getResults();
         assertEquals( 3,
                       results.getMessages( org.kie.api.builder.Message.Level.ERROR ).size() );

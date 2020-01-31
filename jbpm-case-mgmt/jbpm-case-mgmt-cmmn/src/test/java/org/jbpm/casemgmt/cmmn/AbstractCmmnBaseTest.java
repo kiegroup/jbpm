@@ -16,6 +16,7 @@
 
 package org.jbpm.casemgmt.cmmn;
 
+import org.drools.compiler.kie.builder.impl.DrlProject;
 import org.kie.api.KieBase;
 import org.kie.api.KieServices;
 import org.kie.api.builder.KieBuilder;
@@ -51,7 +52,7 @@ public abstract class AbstractCmmnBaseTest {
 
             KieBuilder kb = ks.newKieBuilder(kfs);
 
-            kb.buildAll(); // kieModule is automatically deployed to KieRepository
+            kb.buildAll(DrlProject.class); // kieModule is automatically deployed to KieRepository
                            // if successfully built.
 
             if (kb.getResults().hasMessages(Level.ERROR)) {

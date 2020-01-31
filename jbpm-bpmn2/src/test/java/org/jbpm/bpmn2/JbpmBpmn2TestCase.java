@@ -42,6 +42,7 @@ import javax.transaction.Status;
 import javax.transaction.Transaction;
 
 import org.drools.compiler.builder.impl.KnowledgeBuilderConfigurationImpl;
+import org.drools.compiler.kie.builder.impl.DrlProject;
 import org.drools.core.SessionConfiguration;
 import org.drools.core.audit.WorkingMemoryInMemoryLogger;
 import org.drools.core.audit.event.LogEvent;
@@ -351,7 +352,7 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
 
             KieBuilder kb = ks.newKieBuilder(kfs);
 
-            kb.buildAll(); // kieModule is automatically deployed to KieRepository
+            kb.buildAll(DrlProject.class); // kieModule is automatically deployed to KieRepository
                            // if successfully built.
 
             if (kb.getResults().hasMessages(Level.ERROR)) {
@@ -374,7 +375,7 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
 
         KieBuilder kb = ks.newKieBuilder(kfs);
 
-        kb.buildAll(); // kieModule is automatically deployed to KieRepository
+        kb.buildAll(DrlProject.class); // kieModule is automatically deployed to KieRepository
                        // if successfully built.
 
         if (kb.getResults().hasMessages(Level.ERROR)) {
@@ -404,7 +405,7 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
         kfs.write(ResourceFactory.newFileResource(packageFile));
 
         kb = ks.newKieBuilder(kfs);
-        kb.buildAll(); // kieModule is automatically deployed to KieRepository
+        kb.buildAll(DrlProject.class); // kieModule is automatically deployed to KieRepository
                        // if successfully built.
 
         if (kb.getResults().hasMessages(Level.ERROR)) {

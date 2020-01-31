@@ -18,6 +18,7 @@ package org.jbpm.test.functional.monitoring;
 
 import static org.junit.Assert.*;
 
+import org.drools.compiler.kie.builder.impl.DrlProject;
 import org.drools.compiler.kie.builder.impl.InternalKieModule;
 import org.drools.core.ClockType;
 import org.drools.core.management.DroolsManagementAgent;
@@ -167,7 +168,7 @@ public class MBeansMonitoringWithJBpmTest {
         kfs.generateAndWritePomXML(releaseId1);
         kfs.write("src/main/resources/r" + 1 + ".drl", drl);
         kfs.write("src/main/resources/p" + 1 + ".bpmn2", process);
-        KieBuilder kb = ks.newKieBuilder(kfs).buildAll();
+        KieBuilder kb = ks.newKieBuilder(kfs).buildAll(DrlProject.class);
         if( kb.getResults().hasMessages( org.kie.api.builder.Message.Level.ERROR ) ) {
             for( org.kie.api.builder.Message result : kb.getResults().getMessages() ) {
                 LOG.error(result.getText());

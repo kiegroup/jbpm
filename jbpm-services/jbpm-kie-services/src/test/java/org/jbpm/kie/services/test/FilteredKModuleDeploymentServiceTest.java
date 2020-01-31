@@ -27,6 +27,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.drools.compiler.kie.builder.impl.DrlProject;
 import org.drools.compiler.kie.builder.impl.InternalKieModule;
 import org.jbpm.kie.services.impl.KModuleDeploymentUnit;
 import org.jbpm.kie.test.objects.Building;
@@ -262,8 +263,8 @@ public class FilteredKModuleDeploymentServiceTest extends AbstractKieServicesBas
         }
 
         KieBuilder kieBuilder = ks.newKieBuilder(kfs);
-        if (!kieBuilder.buildAll().getResults().getMessages().isEmpty()) {
-            for (Message message : kieBuilder.buildAll().getResults().getMessages()) {
+        if (!kieBuilder.buildAll(DrlProject.class).getResults().getMessages().isEmpty()) {
+            for (Message message : kieBuilder.buildAll(DrlProject.class).getResults().getMessages()) {
                 logger.error("Error Message: ({}) {}", message.getPath(), message.getText());
             }
             throw new RuntimeException(
