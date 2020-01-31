@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import org.drools.compiler.kie.builder.impl.DrlProject;
 import org.drools.compiler.kie.builder.impl.InternalKieModule;
 import org.jbpm.process.instance.event.DefaultSignalManagerFactory;
 import org.jbpm.process.instance.impl.DefaultProcessInstanceManagerFactory;
@@ -186,7 +187,7 @@ public class SplitNodeAfterStartTest {
         kfs.generateAndWritePomXML( releaseId1 );
         kfs.write( "src/main/resources/r" + 1 + ".drl", drl );
         kfs.write( "src/main/resources/p" + 1 + ".bpmn2", process );
-        KieBuilder kb = ks.newKieBuilder( kfs ).buildAll();
+        KieBuilder kb = ks.newKieBuilder( kfs ).buildAll(DrlProject.class);
         InternalKieModule kieModule = (InternalKieModule) ks.getRepository().getKieModule( releaseId1 );
 
         KieContainer kc = ks.newKieContainer( releaseId1 );

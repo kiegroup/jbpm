@@ -19,6 +19,7 @@ package org.jbpm.test.container;
 import static java.lang.String.format;
 
 import org.assertj.core.api.Assertions;
+import org.drools.compiler.kie.builder.impl.DrlProject;
 import org.jboss.arquillian.junit.Arquillian;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -99,7 +100,7 @@ public abstract class JbpmContainerTest {
         }
 
         KieBuilder kbuilder = kservies.newKieBuilder(kfilesystem);
-        kbuilder.buildAll();
+        kbuilder.buildAll(DrlProject.class);
 
         if (kbuilder.getResults().hasMessages(Level.ERROR)) {
             Assertions.fail(kbuilder.getResults().toString());

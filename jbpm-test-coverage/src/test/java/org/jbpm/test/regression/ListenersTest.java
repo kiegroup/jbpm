@@ -16,6 +16,7 @@
 
 package org.jbpm.test.regression;
 
+import org.drools.compiler.kie.builder.impl.DrlProject;
 import org.jbpm.process.instance.event.DefaultSignalManagerFactory;
 import org.jbpm.process.instance.impl.DefaultProcessInstanceManagerFactory;
 import org.jbpm.test.JbpmTestCase;
@@ -123,7 +124,7 @@ public class ListenersTest extends JbpmTestCase {
 
         kfs.write(ResourceFactory.newClassPathResource("listeners-test.bpmn", this.getClass()));
 
-        KieBuilder builder = ks.newKieBuilder(kfs).buildAll();
+        KieBuilder builder = ks.newKieBuilder(kfs).buildAll(DrlProject.class);
         assertEquals("Unexpected compilation errors", 0, builder.getResults().getMessages().size());
 
         ks.getRepository().addKieModule(builder.getKieModule());

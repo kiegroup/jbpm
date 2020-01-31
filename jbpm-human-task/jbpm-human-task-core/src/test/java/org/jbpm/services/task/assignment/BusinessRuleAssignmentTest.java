@@ -27,6 +27,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
 import org.assertj.core.api.Assertions;
+import org.drools.compiler.kie.builder.impl.DrlProject;
 import org.drools.compiler.kie.builder.impl.InternalKieModule;
 import org.jbpm.services.task.HumanTaskServiceFactory;
 import org.jbpm.services.task.assignment.impl.strategy.BusinessRuleAssignmentStrategy;
@@ -302,8 +303,8 @@ public class BusinessRuleAssignmentTest extends AbstractAssignmentTest {
         }
 
         KieBuilder kieBuilder = ks.newKieBuilder(kfs);
-        if (!kieBuilder.buildAll().getResults().getMessages().isEmpty()) {
-            for (Message message : kieBuilder.buildAll().getResults().getMessages()) {
+        if (!kieBuilder.buildAll(DrlProject.class).getResults().getMessages().isEmpty()) {
+            for (Message message : kieBuilder.buildAll(DrlProject.class).getResults().getMessages()) {
                 logger.error("Error Message: ({}) {}", message.getPath(), message.getText());
             }
             throw new RuntimeException(

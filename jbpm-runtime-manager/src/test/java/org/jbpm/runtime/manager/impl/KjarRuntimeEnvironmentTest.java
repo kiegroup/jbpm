@@ -454,8 +454,8 @@ public class KjarRuntimeEnvironmentTest extends AbstractBaseTest {
         }
 
         KieBuilder kieBuilder = ks.newKieBuilder(kfs);
-        if (!kieBuilder.buildAll().getResults().getMessages().isEmpty()) {
-            for (Message message : kieBuilder.buildAll().getResults().getMessages()) {
+        if (!kieBuilder.buildAll(DrlProject.class).getResults().getMessages().isEmpty()) {
+            for (Message message : kieBuilder.buildAll(DrlProject.class).getResults().getMessages()) {
                 logger.error("Error Message: ({}) {}", message.getPath(), message.getText());
             }
             throw new RuntimeException(

@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.util.Map;
 
+import org.drools.compiler.kie.builder.impl.DrlProject;
 import org.drools.compiler.kie.builder.impl.InternalKieModule;
 import org.jbpm.test.util.AbstractBaseTest;
 import org.junit.After;
@@ -100,8 +101,8 @@ public abstract class AbstractDeploymentDescriptorTest extends AbstractBaseTest 
 		}
 
 		KieBuilder kieBuilder = ks.newKieBuilder(kfs);
-		if (!kieBuilder.buildAll().getResults().getMessages().isEmpty()) {
-			for (Message message : kieBuilder.buildAll().getResults()
+		if (!kieBuilder.buildAll(DrlProject.class).getResults().getMessages().isEmpty()) {
+			for (Message message : kieBuilder.buildAll(DrlProject.class).getResults()
 					.getMessages()) {
 				logger.error("Error Message: ({}) {}", message.getPath(), message.getText());
 			}

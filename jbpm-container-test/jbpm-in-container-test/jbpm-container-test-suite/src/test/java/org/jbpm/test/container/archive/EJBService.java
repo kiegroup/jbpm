@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.appformer.maven.integration.embedder.MavenSettings;
+import org.drools.compiler.kie.builder.impl.DrlProject;
 import org.drools.compiler.kie.builder.impl.InternalKieModule;
 import org.jboss.shrinkwrap.api.ArchivePaths;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -345,8 +346,8 @@ public class EJBService {
             }
         }
         KieBuilder kieBuilder = ks.newKieBuilder(kfs);
-        if (!kieBuilder.buildAll().getResults().getMessages().isEmpty()) {
-            for (Message message : kieBuilder.buildAll().getResults().getMessages()) {
+        if (!kieBuilder.buildAll(DrlProject.class).getResults().getMessages().isEmpty()) {
+            for (Message message : kieBuilder.buildAll(DrlProject.class).getResults().getMessages()) {
                 LOGGER.error("Error Message: ({}) {}", message.getPath(), message.getText());
             }
             throw new RuntimeException("There are errors building the package, please check your knowledge assets!");
