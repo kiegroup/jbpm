@@ -16,14 +16,19 @@
 
 package org.jbpm.executor.commands.error;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import javax.persistence.EntityManager;
 
+import org.drools.persistence.api.TransactionManager;
+import org.drools.persistence.api.TransactionManagerFactory;
 import org.jbpm.runtime.manager.impl.error.filters.TaskExecutionErrorFilter;
 import org.jbpm.runtime.manager.impl.jpa.ExecutionErrorInfo;
 import org.kie.api.task.model.Status;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Command that will auto acknowledge task errors based on their status - 
@@ -38,22 +43,31 @@ import org.kie.api.task.model.Status;
  */
 public class TaskAutoAckErrorCommand extends AutoAckErrorCommand {
 
+    private static final Logger logger = LoggerFactory.getLogger(TaskAutoAckErrorCommand.class);
+
     private static final String RULE = "Tasks that previously failed but now are in one of the statuses - completed, failed, exited, obsolete, error";
     
-    @SuppressWarnings("unchecked")
+
     @Override
     protected List<ExecutionErrorInfo> findErrorsToAck(EntityManager em) {
-        String findTaskErrorsQuery = "select error from ExecutionErrorInfo error "
-                + "where error.type = :type "
-                + "and error.acknowledged =:acknowledged "
-                + "and error.activityId in (select at.taskId from AuditTaskImpl at where status in (:status))";
+        List<ExecutionErrorInfo> errorsToAck = new ArrayList<>();
         
-        List<ExecutionErrorInfo> errorsToAck = em.createQuery(findTaskErrorsQuery)
-                .setParameter("type", TaskExecutionErrorFilter.TYPE)
-                .setParameter("acknowledged", new Short("0"))
-                .setParameter("status", Arrays.asList(Status.Completed.toString(), Status.Exited.toString(), Status.Failed.toString(), Status.Obsolete.toString(), Status.Error.toString()))
-                .getResultList();
-        
+        TransactionManager txm = TransactionManagerFactory.get().newTransactionManager();
+        boolean txOwner = txm.begin();
+        try {
+            String findTaskErrorsQuery = "select error from ExecutionErrorInfo error " + "where error.type = :type " + "and error.acknowledged =:acknowledged " +
+                                         "and error.activityId in (select at.taskId from AuditTaskImpl at where status in (:status))";
+
+            errorsToAck = em.createQuery(findTaskErrorsQuery, ExecutionErrorInfo.class)
+                            .setParameter("type", TaskExecutionErrorFilter.TYPE)
+                            .setParameter("acknowledged", new Short("0"))
+                            .setParameter("status", Arrays.asList(Status.Completed.toString(), Status.Exited.toString(), Status.Failed.toString(), Status.Obsolete.toString(), Status.Error.toString()))
+                            .getResultList();
+            txm.commit(txOwner);
+        } catch (Exception e) {
+            logger.error("Execution error in command TaskAutoAckErrorCommand", e);
+            txm.rollback(txOwner);
+        }
         return errorsToAck;
         
     }
