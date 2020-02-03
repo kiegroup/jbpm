@@ -16,14 +16,11 @@
 
 package org.jbpm.process.workitem.bpmn2;
 
-import static org.junit.Assert.assertEquals;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
-import org.drools.compiler.kie.builder.impl.DrlProject;
 import org.drools.core.impl.EnvironmentFactory;
 import org.drools.core.impl.KnowledgeBaseFactory;
 import org.junit.Test;
@@ -35,6 +32,8 @@ import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.KieSessionConfiguration;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.process.WorkflowProcessInstance;
+
+import static org.junit.Assert.assertEquals;
 
 public class ServiceTaskTest {
 
@@ -56,7 +55,7 @@ public class ServiceTaskTest {
                 .write("src/main/java/org/jbpm/workitems/HelloService.java",
                        javaSrc);
 
-        ks.newKieBuilder(kfs).buildAll(DrlProject.class);
+        ks.newKieBuilder(kfs).buildAll();
         KieContainer kcontainer = ks.newKieContainer(ks.getRepository().getDefaultReleaseId());
 
         KieSession ksession = createSession(kcontainer.getKieBase());

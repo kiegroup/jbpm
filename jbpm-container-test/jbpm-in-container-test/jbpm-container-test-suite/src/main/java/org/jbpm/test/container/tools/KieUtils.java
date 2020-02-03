@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.UUID;
 
 import org.assertj.core.api.Assertions;
-import org.drools.compiler.kie.builder.impl.DrlProject;
 import org.kie.api.KieServices;
 import org.kie.api.builder.KieBuilder;
 import org.kie.api.builder.KieFileSystem;
@@ -314,7 +313,7 @@ public class KieUtils {
         }
 
         KieBuilder kbuilder = KieServices.Factory.get().newKieBuilder(kfs);
-        kbuilder.buildAll(DrlProject.class);
+        kbuilder.buildAll();
 
         List<Message> msgs;
         // Messages from KieBuilder with increasing severity
