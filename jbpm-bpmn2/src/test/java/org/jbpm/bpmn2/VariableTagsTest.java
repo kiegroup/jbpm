@@ -50,7 +50,7 @@ import org.kie.api.runtime.process.WorkItem;
      };
 
      private KieSession ksession;
-     private KieSession ksession2;
+     private TestWorkItemHandler workItemHandler;
 
      public VariableTagsTest(boolean persistence) throws Exception {
          super(persistence);
@@ -68,30 +68,28 @@ import org.kie.api.runtime.process.WorkItem;
              ksession.dispose();
              ksession = null;
          }
-         if (ksession2 != null) {
-             ksession2.dispose();
-             ksession2 = null;
-         }
      }
 
      @Test
      public void testProcessWithMissingRequiredVariable() throws Exception {
-         KieBase kbase = createKnowledgeBase("variable-tags/approval-with-required-variable-tags.bpmn2");
-         KieSession ksession = createKnowledgeSession(kbase);
-         TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
-         ksession.getWorkItemManager().registerWorkItemHandler("Human Task", workItemHandler);
+         ksession = createSessionAndRegisterWorkItemHandler("variable-tags/approval-with-required-variable-tags.bpmn2");
 
          assertThatExceptionOfType(VariableViolationException.class).isThrownBy(() -> ksession.startProcess("approvals"));
+     }
+     
+     @Test
+     public void testProcessWithNullRequiredVariable() throws Exception {
+         ksession = createSessionAndRegisterWorkItemHandler("variable-tags/approval-with-required-variable-tags.bpmn2");
 
-         ksession.dispose();
+         Map<String, Object> parameters = new HashMap<>();
+         parameters.put("approver", null);
+         
+         assertThatExceptionOfType(VariableViolationException.class).isThrownBy(() -> ksession.startProcess("approvals", parameters));
      }
 
      @Test
      public void testProcessWithRequiredVariable() throws Exception {
-         KieBase kbase = createKnowledgeBase("variable-tags/approval-with-required-variable-tags.bpmn2");
-         KieSession ksession = createKnowledgeSession(kbase);
-         TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
-         ksession.getWorkItemManager().registerWorkItemHandler("Human Task", workItemHandler);
+         ksession = createSessionAndRegisterWorkItemHandler("variable-tags/approval-with-required-variable-tags.bpmn2");
 
          Map<String, Object> parameters = new HashMap<>();
          parameters.put("approver", "john");
@@ -109,16 +107,12 @@ import org.kie.api.runtime.process.WorkItem;
          ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
 
          assertProcessInstanceFinished(processInstance, ksession);
-         ksession.dispose();
      }
 
      @Test
      public void testProcessWithReadonlyVariable() throws Exception {
-         KieBase kbase = createKnowledgeBase("variable-tags/approval-with-readonly-variable-tags.bpmn2");
-         KieSession ksession = createKnowledgeSession(kbase);
-         TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
-         ksession.getWorkItemManager().registerWorkItemHandler("Human Task", workItemHandler);
-
+         ksession = createSessionAndRegisterWorkItemHandler("variable-tags/approval-with-readonly-variable-tags.bpmn2");
+         
          Map<String, Object> parameters = new HashMap<>();
          parameters.put("approver", "john");
 
@@ -131,6 +125,33 @@ import org.kie.api.runtime.process.WorkItem;
          ksession.abortProcessInstance(processInstance.getId());
 
          assertProcessInstanceFinished(processInstance, ksession);
-         ksession.dispose();
+     }
+     
+     @Test
+     public void testProcessWithNullReadonlyVariable() throws Exception {
+         ksession = createSessionAndRegisterWorkItemHandler("variable-tags/approval-with-readonly-variable-tags.bpmn2");
+         
+         Map<String, Object> parameters = new HashMap<>();
+         parameters.put("approver", null);
+
+         ProcessInstance processInstance = ksession.startProcess("approvals", parameters);
+         assertTrue(processInstance.getState() == ProcessInstance.STATE_ACTIVE);        
+         WorkItem workItem = workItemHandler.getWorkItem();
+         assertNotNull(workItem);
+         ksession.getWorkItemManager().completeWorkItem(workItem.getId(), Collections.singletonMap("ActorId", "john"));
+
+         workItem = workItemHandler.getWorkItem();
+         assertNotNull(workItem);        
+         ksession.getWorkItemManager().completeWorkItem(workItem.getId(), Collections.singletonMap("ActorId", "john"));
+         
+         assertProcessInstanceFinished(processInstance, ksession);
+     }
+     
+     private KieSession createSessionAndRegisterWorkItemHandler(String process) throws Exception {
+         KieBase kbase = createKnowledgeBase(process);
+         KieSession ksession = createKnowledgeSession(kbase);
+         workItemHandler = new TestWorkItemHandler();
+         ksession.getWorkItemManager().registerWorkItemHandler("Human Task", workItemHandler);
+         return ksession;
      }
  }
