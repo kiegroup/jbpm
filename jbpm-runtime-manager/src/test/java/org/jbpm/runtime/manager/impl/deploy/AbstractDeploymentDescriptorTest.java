@@ -18,9 +18,9 @@ package org.jbpm.runtime.manager.impl.deploy;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.List;
 import java.util.Map;
 
-import org.drools.compiler.kie.builder.impl.DrlProject;
 import org.drools.compiler.kie.builder.impl.InternalKieModule;
 import org.jbpm.test.util.AbstractBaseTest;
 import org.junit.After;
@@ -101,9 +101,9 @@ public abstract class AbstractDeploymentDescriptorTest extends AbstractBaseTest 
 		}
 
 		KieBuilder kieBuilder = ks.newKieBuilder(kfs);
-		if (!kieBuilder.buildAll(DrlProject.class).getResults().getMessages().isEmpty()) {
-			for (Message message : kieBuilder.buildAll(DrlProject.class).getResults()
-					.getMessages()) {
+		List<Message> messages = kieBuilder.buildAll().getResults().getMessages();
+		if (!messages.isEmpty()) {
+			for (Message message : messages) {
 				logger.error("Error Message: ({}) {}", message.getPath(), message.getText());
 			}
 			throw new RuntimeException(

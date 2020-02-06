@@ -16,7 +16,10 @@
 
 package org.jbpm.test.regression;
 
-import org.drools.compiler.kie.builder.impl.DrlProject;
+import java.util.Collection;
+import java.util.Properties;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.jbpm.process.instance.event.DefaultSignalManagerFactory;
 import org.jbpm.process.instance.impl.DefaultProcessInstanceManagerFactory;
 import org.jbpm.test.JbpmTestCase;
@@ -39,11 +42,8 @@ import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
 import org.kie.internal.io.ResourceFactory;
 
-import java.util.Collection;
-import java.util.Properties;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests stateful/stateless KieSession ProcessEventListener registration - DROOLS-818.
@@ -124,7 +124,7 @@ public class ListenersTest extends JbpmTestCase {
 
         kfs.write(ResourceFactory.newClassPathResource("listeners-test.bpmn", this.getClass()));
 
-        KieBuilder builder = ks.newKieBuilder(kfs).buildAll(DrlProject.class);
+        KieBuilder builder = ks.newKieBuilder(kfs).buildAll();
         assertEquals("Unexpected compilation errors", 0, builder.getResults().getMessages().size());
 
         ks.getRepository().addKieModule(builder.getKieModule());
