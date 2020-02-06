@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.drools.compiler.kie.builder.impl.DrlProject;
 import org.drools.compiler.kie.builder.impl.InternalKieModule;
 import org.jbpm.runtime.manager.impl.jpa.EntityManagerFactoryManager;
 import org.jbpm.services.api.DeploymentService;
@@ -151,7 +150,7 @@ public abstract class AbstractServicesTest {
         }
 
         KieBuilder kieBuilder = ks.newKieBuilder(kfs);
-        List<Message> messages = kieBuilder.buildAll( DrlProject.class ).getResults().getMessages();
+        List<Message> messages = kieBuilder.buildAll().getResults().getMessages();
         if (!messages.isEmpty()) {
             for (Message message : messages) {
                 logger.error("Error Message: ({}) {}", message.getPath(), message.getText());
