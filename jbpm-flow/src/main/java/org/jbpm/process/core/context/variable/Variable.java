@@ -17,13 +17,16 @@
 package org.jbpm.process.core.context.variable;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.jbpm.process.core.TypeObject;
+import org.jbpm.process.core.ValueObject;
 import org.jbpm.process.core.datatype.DataType;
 import org.jbpm.process.core.datatype.impl.type.UndefinedDataType;
-import org.jbpm.process.core.ValueObject;
 
 /**
  * Default implementation of a variable.
@@ -32,11 +35,18 @@ import org.jbpm.process.core.ValueObject;
 public class Variable implements TypeObject, ValueObject, Serializable {
 
     private static final long serialVersionUID = 510l;
+    
+    public static final String VARIABLE_TAGS = "customTags";
+
+    public static final String READONLY_TAG = "readonly";
+    public static final String REQUIRED_TAG = "required";
 
     private String name;
     private DataType type;
     private Object value;
     private Map<String, Object> metaData = new HashMap<String, Object>();
+
+    private List<String> tags = new ArrayList<>();
 
     public Variable() {
         this.type = UndefinedDataType.getInstance();
@@ -80,6 +90,9 @@ public class Variable implements TypeObject, ValueObject, Serializable {
 
     public void setMetaData(String name, Object value) {
         this.metaData.put(name, value);
+        if (VARIABLE_TAGS.equals(name) && value != null) {
+            tags = Arrays.asList(value.toString().split(","));
+        }
     }
     
     public Object getMetaData(String name) {
@@ -92,5 +105,17 @@ public class Variable implements TypeObject, ValueObject, Serializable {
     
     public String toString() {
         return this.name;
+    }
+    
+    public List<String> getTags() {
+        if (tags.isEmpty() && this.metaData.containsKey(VARIABLE_TAGS)) {
+            tags = Arrays.asList(metaData.get(VARIABLE_TAGS).toString().split(","));
+
+        }
+        return tags;
+    }
+
+    public boolean hasTag(String tagName) {
+        return getTags().contains(tagName);
     }
 }

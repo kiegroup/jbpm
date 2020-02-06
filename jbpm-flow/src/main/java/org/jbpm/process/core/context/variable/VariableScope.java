@@ -107,6 +107,24 @@ public class VariableScope extends AbstractContext {
     	}
 	}
 	
+	public boolean isReadOnly(String name) {
+        Variable v = findVariable(name);
+
+        if (v != null) {
+            return v.hasTag(Variable.READONLY_TAG);
+        }
+        return false;
+    }
+
+    public boolean isRequired(String name) {
+        Variable v = findVariable(name);
+
+        if (v != null) {
+            return v.hasTag(Variable.REQUIRED_TAG);
+        }
+        return false;
+    }
+	
 	/*
 	 * mainly for test coverage to easily switch between settings 
 	 */

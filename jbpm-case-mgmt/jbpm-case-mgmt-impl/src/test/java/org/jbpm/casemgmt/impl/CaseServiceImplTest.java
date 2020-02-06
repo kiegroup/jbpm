@@ -59,6 +59,7 @@ import org.jbpm.casemgmt.impl.util.AbstractCaseServicesBaseTest;
 import org.jbpm.casemgmt.impl.util.CountDownListenerFactory;
 import org.jbpm.document.Document;
 import org.jbpm.document.service.impl.DocumentImpl;
+import org.jbpm.process.core.context.variable.VariableViolationException;
 import org.jbpm.services.api.TaskNotFoundException;
 import org.jbpm.services.api.model.NodeInstanceDesc;
 import org.jbpm.services.api.model.ProcessInstanceDesc;
@@ -126,6 +127,7 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
         processes.add("cases/CaseWithStageAndBoundaryTimer.bpmn2");
         processes.add("cases/CaseWithBoundaryTimerStage.bpmn2");
         processes.add("cases/NoStartNodeCaseWithBoundaryTimerStage.bpmn2");
+        processes.add("cases/UserTaskCaseRequiredCaseFileItem.bpmn2");
         // add processes that can be used by cases but are not cases themselves
         processes.add("processes/DataVerificationProcess.bpmn2");
         processes.add("processes/DynamicSubProcess.bpmn2");
@@ -3944,4 +3946,48 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
         }
     }
 
+    @Test
+    public void testCaseWithRequiredCaseFileItem() {
+        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new UserImpl("john"));
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("s", "this is a required value");
+        CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), USER_TASK_REQUIRED_V_CASE_P_ID, data, roleAssignments);
+
+        String caseId = caseService.startCase(deploymentUnit.getIdentifier(), USER_TASK_REQUIRED_V_CASE_P_ID, caseFile);
+        assertNotNull(caseId);
+        assertEquals(FIRST_CASE_ID, caseId);
+        try {
+            CaseInstance cInstance = caseService.getCaseInstance(caseId);
+            assertNotNull(cInstance);
+            assertEquals(FIRST_CASE_ID, cInstance.getCaseId());
+            assertEquals(deploymentUnit.getIdentifier(), cInstance.getDeploymentId());
+
+        } catch (Exception e) {
+            logger.error("Unexpected error {}", e.getMessage(), e);
+            fail("Unexpected exception " + e.getMessage());
+        } finally {
+            if (caseId != null) {
+                caseService.cancelCase(caseId);
+            }
+        }
+    }
+    
+    @Test
+    public void testCaseWithMissingRequiredCaseFileItem() {
+        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new UserImpl("john"));
+
+        Map<String, Object> data = new HashMap<>();
+        CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), USER_TASK_REQUIRED_V_CASE_P_ID, data, roleAssignments);
+
+        assertThatExceptionOfType(VariableViolationException.class)
+            .isThrownBy(() -> caseService.startCase(deploymentUnit.getIdentifier(), USER_TASK_REQUIRED_V_CASE_P_ID, caseFile));
+      
+        
+        assertThatExceptionOfType(CaseNotFoundException.class)
+            .isThrownBy(() -> caseService.getCaseInstance(FIRST_CASE_ID));
+        
+    }
 }
