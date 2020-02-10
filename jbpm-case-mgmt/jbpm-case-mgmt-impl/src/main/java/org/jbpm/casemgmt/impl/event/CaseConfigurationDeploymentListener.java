@@ -32,6 +32,7 @@ import org.jbpm.runtime.manager.impl.jpa.EntityManagerFactoryManager;
 import org.jbpm.services.api.DeploymentEvent;
 import org.jbpm.services.api.DeploymentEventListener;
 import org.jbpm.shared.services.impl.TransactionalCommandService;
+import org.kie.api.runtime.EnvironmentName;
 import org.kie.internal.identity.IdentityProvider;
 import org.kie.internal.runtime.Cacheable;
 import org.kie.internal.runtime.Closeable;
@@ -146,6 +147,7 @@ public class CaseConfigurationDeploymentListener implements DeploymentEventListe
         parameters.put("classLoader", runtimeManager.getEnvironment().getClassLoader());
         parameters.put("entityManagerFactory", ((SimpleRuntimeEnvironment)runtimeManager.getEnvironment()).getEmf());
         parameters.put("kieContainer", runtimeManager.getKieContainer());
+        parameters.put("identityProvider", ((SimpleRuntimeEnvironment)runtimeManager.getEnvironment()).getEnvironmentTemplate().get(EnvironmentName.IDENTITY_PROVIDER));
         
         return parameters;
     }

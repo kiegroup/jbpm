@@ -17,11 +17,12 @@
 package org.jbpm.process.core.context.variable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-import org.jbpm.process.core.datatype.impl.type.ObjectDataType;
 import org.jbpm.process.core.Context;
 import org.jbpm.process.core.context.AbstractContext;
+import org.jbpm.process.core.datatype.impl.type.ObjectDataType;
 
 /**
  * 
@@ -123,6 +124,15 @@ public class VariableScope extends AbstractContext {
             return v.hasTag(Variable.REQUIRED_TAG);
         }
         return false;
+    }
+    
+    public List<String> tags(String name) {
+        Variable v = findVariable(name);
+        
+        if (v != null) {
+            return v.getTags();
+        }
+        return Collections.emptyList();
     }
 	
 	/*

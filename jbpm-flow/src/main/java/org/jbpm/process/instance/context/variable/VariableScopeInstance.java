@@ -114,13 +114,13 @@ public class VariableScopeInstance extends AbstractContextInstance {
     	processEventSupport.fireBeforeVariableChanged(
 			(variableIdPrefix == null ? "" : variableIdPrefix + ":") + name,
 			(variableInstanceIdPrefix == null? "" : variableInstanceIdPrefix + ":") + name,
-			oldValue, value, getProcessInstance(),
+			oldValue, value, getVariableScope().tags(name), getProcessInstance(),
 			getProcessInstance().getKnowledgeRuntime());
         internalSetVariable(name, value);
         processEventSupport.fireAfterVariableChanged(
 			(variableIdPrefix == null ? "" : variableIdPrefix + ":") + name,
 			(variableInstanceIdPrefix == null? "" : variableInstanceIdPrefix + ":") + name,
-    		oldValue, value, getProcessInstance(),
+    		oldValue, value, getVariableScope().tags(name), getProcessInstance(),
 			getProcessInstance().getKnowledgeRuntime());
     }
     

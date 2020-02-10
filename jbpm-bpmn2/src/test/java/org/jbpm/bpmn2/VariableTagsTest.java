@@ -36,6 +36,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.kie.api.KieBase;
+import org.kie.api.event.process.DefaultProcessEventListener;
+import org.kie.api.event.process.ProcessVariableChangedEvent;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.process.WorkItem;
@@ -145,6 +147,31 @@ import org.kie.api.runtime.process.WorkItem;
          ksession.getWorkItemManager().completeWorkItem(workItem.getId(), Collections.singletonMap("ActorId", "john"));
          
          assertProcessInstanceFinished(processInstance, ksession);
+     }
+     
+     @Test
+     public void testProcessWithCustomVariableTag() throws Exception {
+         KieBase kbase = createKnowledgeBase("variable-tags/approval-with-custom-variable-tags.bpmn2");
+         KieSession ksession = createKnowledgeSession(kbase);
+         TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
+         ksession.getWorkItemManager().registerWorkItemHandler("Human Task", workItemHandler);
+         ksession.addEventListener(new DefaultProcessEventListener() {
+
+             @Override
+             public void beforeVariableChanged(ProcessVariableChangedEvent event) {
+                 if (event.hasTag("onlyAdmin")) {
+                     throw new VariableViolationException(event.getProcessInstance().getId(), event.getVariableId(), "Variable can only be set by admins");
+                 }
+             }
+             
+         });
+         
+         Map<String, Object> parameters = new HashMap<>();
+         parameters.put("approver", "john");
+         
+         assertThatExceptionOfType(VariableViolationException.class).isThrownBy(() -> ksession.startProcess("approvals", parameters));
+         
+         ksession.dispose();
      }
      
      private KieSession createSessionAndRegisterWorkItemHandler(String process) throws Exception {
