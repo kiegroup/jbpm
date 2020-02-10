@@ -16,6 +16,7 @@
 
 package org.jbpm.test.listener;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -362,6 +363,16 @@ public class IterableProcessEventListener implements ProcessEventListener, Itera
         public String toString() {
             return variableId + ":" + (oldValue == null ? "null" : oldValue.toString()) + " -> "
                     + (newValue == null ? "null" : newValue.toString());
+        }
+
+        @Override
+        public List<String> getTags() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public boolean hasTag(String tag) {
+            return false;
         }
     }
 

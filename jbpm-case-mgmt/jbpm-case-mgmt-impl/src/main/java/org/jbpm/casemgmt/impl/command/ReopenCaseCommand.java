@@ -16,6 +16,7 @@
 
 package org.jbpm.casemgmt.impl.command;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,6 +27,7 @@ import org.drools.core.event.ProcessEventSupport;
 import org.jbpm.casemgmt.api.model.instance.CaseFileInstance;
 import org.jbpm.casemgmt.impl.event.CaseEventSupport;
 import org.jbpm.casemgmt.impl.model.instance.CaseFileInstanceImpl;
+import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.instance.InternalProcessRuntime;
 import org.jbpm.process.instance.ProcessInstance;
 import org.jbpm.services.api.ProcessService;
@@ -108,12 +110,14 @@ public class ReopenCaseCommand extends CaseCommand<Void> {
                     ProcessInstance pi = (ProcessInstance) ksession.getProcessInstance(processInstanceId);
                     if (pi != null) {
                         ProcessEventSupport processEventSupport = ((InternalProcessRuntime) ((InternalKnowledgeRuntime) ksession).getProcessRuntime()).getProcessEventSupport();
+                        VariableScope variableScope = ((VariableScope) ((RegistryContext) context).get(VariableScope.VARIABLE_SCOPE));
                         for (Entry<String, Object> entry : caseData.entrySet()) {  
                             String name = "caseFile_" + entry.getKey();
                             processEventSupport.fireAfterVariableChanged(
                                 name,
                                 name,
                                 null, entry.getValue(), 
+                                variableScope == null ? Collections.emptyList() : variableScope.tags(name),
                                 pi,
                                 (KieRuntime) ksession );
                         }
