@@ -110,6 +110,15 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
 
     private static final String NEW_RESTRICTED_VALUE = "new restricted value";
     
+    private static final List<String> RESTRICTED_TESTS = Arrays.asList(
+            "testCaseWithRestrictedCaseFileItem", 
+            "testCaseWithRequiredRestrictedCaseFileItem");
+    
+    private static final List<String> VIOLATING_RESTRICTED_TESTS = Arrays.asList(
+            "testCaseWithViolatingRestrictedCaseFileItem", 
+            "testCaseReopenWithViolatingRestrictedCaseFileItem",
+            "testAddDataCaseWithViolatingRestrictedCaseFileItem");
+
     @Rule
     public TestName name = new TestName();
 
@@ -136,6 +145,7 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
         processes.add("cases/NoStartNodeCaseWithBoundaryTimerStage.bpmn2");
         processes.add("cases/UserTaskCaseRequiredCaseFileItem.bpmn2");
         processes.add("cases/UserTaskCaseRestrictedCaseFileItem.bpmn2");
+        processes.add("cases/UserTaskCaseRequiredRestrictedCaseFileItem.bpmn2");
         // add processes that can be used by cases but are not cases themselves
         processes.add("processes/DataVerificationProcess.bpmn2");
         processes.add("processes/DynamicSubProcess.bpmn2");
@@ -4089,24 +4099,45 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
         .isThrownBy(() -> caseService.addDataToCaseFile(caseId, "s", NEW_RESTRICTED_VALUE));
     }
     
+    @Test
+    public void testCaseWithRequiredRestrictedCaseFileItem() {
+        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new UserImpl("john"));
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("s", "required and restricted value");
+        CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), USER_TASK_REQUIRED_RESTRICTED_V_CASE_P_ID, data, roleAssignments);
+
+        String caseId = caseService.startCase(deploymentUnit.getIdentifier(), USER_TASK_REQUIRED_RESTRICTED_V_CASE_P_ID, caseFile);
+        assertNotNull(caseId);
+        assertEquals(FIRST_CASE_ID, caseId);
+        try {
+            CaseInstance cInstance = caseService.getCaseInstance(caseId);
+            assertNotNull(cInstance);
+            assertEquals(FIRST_CASE_ID, cInstance.getCaseId());
+            assertEquals(deploymentUnit.getIdentifier(), cInstance.getDeploymentId());
+        } catch (Exception e) {
+            logger.error("Unexpected error {}", e.getMessage(), e);
+            fail("Unexpected exception " + e.getMessage());
+        } finally {
+            if (caseId != null) {
+                caseService.cancelCase(caseId);
+            }
+        }
+    }
+    
     @Override
     protected List<ObjectModel> getProcessListeners() {
         List<ObjectModel> listeners = super.getProcessListeners();
 
-        if (name.getMethodName().equals("testCaseWithRestrictedCaseFileItem")) {
+        if (RESTRICTED_TESTS.contains(name.getMethodName())) {
           identityProvider.setRoles(Arrays.asList("admin"));
           listeners.add(new ObjectModel("mvel", "new org.jbpm.process.instance.event.listeners.VariableGuardProcessEventListener(\"admin\", identityProvider)"));
-        } else if (name.getMethodName().equals("testCaseWithViolatingRestrictedCaseFileItem")) {
+        } else if (VIOLATING_RESTRICTED_TESTS.contains(name.getMethodName())) {
           identityProvider.setRoles(Arrays.asList("normal"));
           listeners.add(new ObjectModel("mvel", "new org.jbpm.process.instance.event.listeners.VariableGuardProcessEventListener(\"admin\", identityProvider)"));
-        } else if (name.getMethodName().equals("testCaseReopenWithViolatingRestrictedCaseFileItem")) {
-            identityProvider.setRoles(Arrays.asList("normal"));
-            listeners.add(new ObjectModel("mvel", "new org.jbpm.process.instance.event.listeners.VariableGuardProcessEventListener(\"admin\", identityProvider)"));
-        } else if (name.getMethodName().equals("testAddDataCaseWithViolatingRestrictedCaseFileItem")) {
-            identityProvider.setRoles(Arrays.asList("normal"));
-            listeners.add(new ObjectModel("mvel", "new org.jbpm.process.instance.event.listeners.VariableGuardProcessEventListener(\"admin\", identityProvider)"));
         }
-        
+
         return listeners;
     }
 }
