@@ -17,19 +17,25 @@
 package org.jbpm.kie.services.impl.query;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import org.dashbuilder.dataset.filter.ColumnFilter;
+import org.dashbuilder.dataset.filter.CoreFunctionType;
 import org.dashbuilder.dataset.filter.LogicalExprFilter;
 import org.dashbuilder.dataset.filter.LogicalExprType;
+import org.jbpm.services.api.query.QueryResultMapper;
 import org.jbpm.services.api.query.model.QueryParam;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.dashbuilder.dataset.filter.FilterFactory.*;
-import static org.jbpm.services.api.query.QueryResultMapper.*;
-import static org.junit.Assert.*;
+import static org.dashbuilder.dataset.filter.FilterFactory.likeTo;
+import static org.jbpm.services.api.query.QueryResultMapper.COLUMN_PROCESSID;
+import static org.jbpm.services.api.query.QueryResultMapper.COLUMN_PROCESSNAME;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CoreFunctionQueryParamBuilderTest {
@@ -65,4 +71,28 @@ public class CoreFunctionQueryParamBuilderTest {
     }
 
 
+    @Test
+    public void testTreeQueryParam() {
+        QueryParam likeParamName = new QueryParam(COLUMN_PROCESSNAME, CoreFunctionType.LIKE_TO.toString(), Collections.singletonList("%processName%"));
+        QueryParam likeParamId = new QueryParam(COLUMN_PROCESSID, CoreFunctionType.LIKE_TO.toString(), Collections.singletonList("%processName%"));
+
+        List<Object> terms = new ArrayList<>();
+        terms.add(likeParamName);
+        terms.add(likeParamId);
+        QueryParam queryParamOR = new QueryParam("", LogicalExprType.OR.toString(), terms);
+
+        QueryParam likeParamIdentity = new QueryParam(QueryResultMapper.COLUMN_IDENTITY, CoreFunctionType.EQUALS_TO.toString(), Collections.singletonList("1234"));
+        List<Object> queryParamsAndTerms = new ArrayList<>();
+        queryParamsAndTerms.add(likeParamIdentity);
+        queryParamsAndTerms.add(queryParamOR);
+        QueryParam queryParam = new QueryParam("", LogicalExprType.AND.toString(), queryParamsAndTerms);
+
+        coreFunctionQueryParamBuilder = new CoreFunctionQueryParamBuilder(queryParam);
+
+        
+        Object builded = coreFunctionQueryParamBuilder.build();
+
+        assertTrue(builded instanceof LogicalExprFilter);
+        assertEquals("(USER_IDENTITY = 1234 AND (PROCESSNAME like %processName% OR PROCESSID like %processName%))", builded.toString());
+    }
 }

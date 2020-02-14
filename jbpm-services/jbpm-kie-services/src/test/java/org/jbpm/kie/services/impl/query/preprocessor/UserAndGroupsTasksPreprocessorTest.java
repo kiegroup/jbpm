@@ -16,9 +16,6 @@
 
 package org.jbpm.kie.services.impl.query.preprocessor;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.when;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -26,6 +23,7 @@ import java.util.List;
 
 import org.dashbuilder.dataset.DataSetLookup;
 import org.dashbuilder.dataset.DataSetMetadata;
+import org.dashbuilder.dataset.filter.ColumnFilter;
 import org.dashbuilder.dataset.filter.CoreFunctionFilter;
 import org.dashbuilder.dataset.filter.DataSetFilter;
 import org.jbpm.kie.services.impl.query.CoreFunctionQueryParamBuilder;
@@ -38,6 +36,9 @@ import org.kie.internal.identity.IdentityProvider;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UserAndGroupsTasksPreprocessorTest {
@@ -81,6 +82,7 @@ public class UserAndGroupsTasksPreprocessorTest {
         assertEquals("(POTOWNER in " + role1 + ", " + role2 + ", " + userId + ")",
                      dataSetLookup.getFirstFilterOp().getColumnFilterList().get(0).toString());
     }
+
 
     @Test
     public void testSetUserWithoutRoles() {
@@ -136,6 +138,39 @@ public class UserAndGroupsTasksPreprocessorTest {
 
         assertEquals("(POTOWNER in role1, role2, " + potOwner + ")",
                      dataSetLookup.getFirstFilterOp().getColumnFilterList().get(0).toString());
+    }
+
+    @Test
+    public void testPotOwnerFilterComplexExpression() {
+        String userId = "userId";
+
+        when(userGroupCallback.getGroupsForUser(userId)).thenReturn(null);
+        when(identityProvider.getName()).thenReturn(userId);
+
+        String potOwner = "potOwner";
+        when(userGroupCallback.getGroupsForUser(potOwner)).thenReturn(Arrays.asList("role1", "role2"));
+
+        List<String> potOwners = new ArrayList<String>();
+        potOwners.add(potOwner);
+
+        QueryParam queryParam = new QueryParam(COL_ID, "IN", potOwners);
+        QueryParam queryParamTerm1 = new QueryParam("MY_COLUMN", "EQUALS_TO", Arrays.asList("1234"));
+        QueryParam queryParamTerm2 = new QueryParam("MY_COLUMN", "NOT_IN", Arrays.asList(1, 2, 3, 4));
+        QueryParam queryParamOR = new QueryParam(null, "OR", Arrays.asList(queryParamTerm1, queryParamTerm2, queryParam));
+
+        CoreFunctionQueryParamBuilder coreFunctionQueryParamBuilder = new CoreFunctionQueryParamBuilder(queryParamOR);
+        ColumnFilter columnFilter = (ColumnFilter) coreFunctionQueryParamBuilder.build();
+
+        DataSetFilter filter = new DataSetFilter();
+        filter.addFilterColumn(columnFilter);
+        dataSetLookup.addOperation(filter);
+
+        userAndGroupsTasksPreprocessor.preprocess(dataSetLookup);
+        List<ColumnFilter> filters = dataSetLookup.getFirstFilterOp().getColumnFilterList();
+
+        assertEquals(filters.size(), 2);
+        assertEquals("(MY_COLUMN = 1234 OR MY_COLUMN not_in 1, 2, 3, 4)", filters.get(0).toString());
+        assertEquals("(POTOWNER in role1, role2, " + potOwner + ")", filters.get(1).toString());
     }
 
     @Test
