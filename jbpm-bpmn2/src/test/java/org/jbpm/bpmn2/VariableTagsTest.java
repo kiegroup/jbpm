@@ -29,6 +29,8 @@ import java.util.Map;
 
 import org.jbpm.bpmn2.objects.TestWorkItemHandler;
 import org.jbpm.process.core.context.variable.VariableViolationException;
+import org.jbpm.process.instance.event.listeners.VariableGuardProcessEventListener;
+import org.jbpm.test.util.TestIdentityProvider;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -36,6 +38,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.kie.api.KieBase;
+import org.kie.api.event.process.DefaultProcessEventListener;
+import org.kie.api.event.process.ProcessVariableChangedEvent;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.process.WorkItem;
@@ -134,17 +138,65 @@ import org.kie.api.runtime.process.WorkItem;
          Map<String, Object> parameters = new HashMap<>();
          parameters.put("approver", null);
 
-         ProcessInstance processInstance = ksession.startProcess("approvals", parameters);
-         assertTrue(processInstance.getState() == ProcessInstance.STATE_ACTIVE);        
-         WorkItem workItem = workItemHandler.getWorkItem();
-         assertNotNull(workItem);
-         ksession.getWorkItemManager().completeWorkItem(workItem.getId(), Collections.singletonMap("ActorId", "john"));
-
-         workItem = workItemHandler.getWorkItem();
-         assertNotNull(workItem);        
-         ksession.getWorkItemManager().completeWorkItem(workItem.getId(), Collections.singletonMap("ActorId", "john"));
+         startAndCompleteProcess(parameters);
+     }
+     
+     @Test
+     public void testProcessWithCustomVariableTag() throws Exception {
+         ksession = createSessionAndRegisterWorkItemHandler("variable-tags/approval-with-custom-variable-tags.bpmn2");
          
-         assertProcessInstanceFinished(processInstance, ksession);
+         ksession.addEventListener(new DefaultProcessEventListener() {
+
+             @Override
+             public void beforeVariableChanged(ProcessVariableChangedEvent event) {
+                 if (event.hasTag("onlyAdmin")) {
+                     throw new VariableViolationException(event.getProcessInstance().getId(), event.getVariableId(), "Variable can only be set by admins");
+                 }
+             }
+             
+         });
+         
+         Map<String, Object> parameters = new HashMap<>();
+         parameters.put("approver", "john");
+         
+         assertThatExceptionOfType(VariableViolationException.class).isThrownBy(() -> ksession.startProcess("approvals", parameters));
+     }
+     
+     @Test
+     public void testProcessWithRestrictedVariableTagNoRequiredRole() throws Exception {
+         ksession = createSessionAndRegisterWorkItemHandler("variable-tags/approval-with-restricted-variable-tags.bpmn2");
+         
+         ksession.addEventListener(new VariableGuardProcessEventListener("AdminRole", new TestIdentityProvider(Arrays.asList("NormalRole"))) );
+         
+         Map<String, Object> parameters = new HashMap<>();
+         parameters.put("approver", "john");
+         
+         assertThatExceptionOfType(VariableViolationException.class).isThrownBy(() -> ksession.startProcess("approvals", parameters));
+     }
+     
+     @Test
+     public void testProcessWithRestrictedVariableTagRequiredRole() throws Exception {
+         ksession = createSessionAndRegisterWorkItemHandler("variable-tags/approval-with-restricted-variable-tags.bpmn2");
+         
+         ksession.addEventListener(new VariableGuardProcessEventListener("AdminRole", new TestIdentityProvider(Arrays.asList("AdminRole"))) );
+         
+         Map<String, Object> parameters = new HashMap<>();
+         parameters.put("approver", "john");
+         
+         startAndCompleteProcess(parameters);
+     }
+     
+     @Test
+     public void testProcessWithCustomVariableTagInsteadOfRestrictedTag() throws Exception {
+         ksession = createSessionAndRegisterWorkItemHandler("variable-tags/approval-with-custom-variable-tags.bpmn2");
+         
+         ksession.addEventListener(new VariableGuardProcessEventListener("AdminRole", new TestIdentityProvider(Arrays.asList("NormalRole"))) );
+         
+         Map<String, Object> parameters = new HashMap<>();
+         parameters.put("approver", "john");
+         
+         // With NormalRole, process is completed because event has no "restricted" tag but custom ("onlyAdmin")
+         startAndCompleteProcess(parameters);
      }
      
      private KieSession createSessionAndRegisterWorkItemHandler(String process) throws Exception {
@@ -153,5 +205,19 @@ import org.kie.api.runtime.process.WorkItem;
          workItemHandler = new TestWorkItemHandler();
          ksession.getWorkItemManager().registerWorkItemHandler("Human Task", workItemHandler);
          return ksession;
+     }
+     
+     private void startAndCompleteProcess(Map<String, Object> parameters) {
+         ProcessInstance processInstance = ksession.startProcess("approvals", parameters);
+         assertTrue(processInstance.getState() == ProcessInstance.STATE_ACTIVE);        
+         completeWorkItem();
+         completeWorkItem();
+         assertProcessInstanceFinished(processInstance, ksession);
+     }
+
+     private void completeWorkItem() {
+         WorkItem workItem = workItemHandler.getWorkItem();
+         assertNotNull(workItem);
+         ksession.getWorkItemManager().completeWorkItem(workItem.getId(), Collections.singletonMap("ActorId", "john"));
      }
  }

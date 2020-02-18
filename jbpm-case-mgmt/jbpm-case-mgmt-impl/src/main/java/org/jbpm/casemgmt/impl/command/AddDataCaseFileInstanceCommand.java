@@ -17,6 +17,7 @@
 package org.jbpm.casemgmt.impl.command;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -28,6 +29,7 @@ import org.jbpm.casemgmt.api.auth.AuthorizationManager;
 import org.jbpm.casemgmt.api.model.instance.CaseFileInstance;
 import org.jbpm.casemgmt.impl.event.CaseEventSupport;
 import org.jbpm.casemgmt.impl.model.instance.CaseFileInstanceImpl;
+import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.instance.InternalProcessRuntime;
 import org.jbpm.process.instance.ProcessInstance;
 import org.jbpm.services.api.ProcessService;
@@ -105,12 +107,22 @@ public class AddDataCaseFileInstanceCommand extends CaseCommand<Void> {
                     ProcessInstance pi = (ProcessInstance) ksession.getProcessInstance(processInstanceId);
                     if (pi != null) {
                         ProcessEventSupport processEventSupport = ((InternalProcessRuntime) ((InternalKnowledgeRuntime) ksession).getProcessRuntime()).getProcessEventSupport();
+                        VariableScope variableScope = (VariableScope) pi.getContextContainer().getDefaultContext(VariableScope.VARIABLE_SCOPE);
                         for (Entry<String, Object> entry : parameters.entrySet()) {  
                             String name = "caseFile_" + entry.getKey();
+                            List<String> tags = variableScope == null ? Collections.emptyList() : variableScope.tags(name);
+                            processEventSupport.fireBeforeVariableChanged(
+                                name,
+                                name,
+                                null, entry.getValue(), 
+                                tags,
+                                pi,
+                                (KieRuntime) ksession );
                             processEventSupport.fireAfterVariableChanged(
                                 name,
                                 name,
                                 null, entry.getValue(), 
+                                tags,
                                 pi,
                                 (KieRuntime) ksession );
                         }
@@ -119,7 +131,7 @@ public class AddDataCaseFileInstanceCommand extends CaseCommand<Void> {
                 }
             });
         }
-        
+         
         ksession.update(factHandle, caseFile);
         triggerRules(ksession);
         caseEventSupport.fireAfterCaseDataAdded(caseFile.getCaseId(), caseFile, caseFile.getDefinitionId(), parameters);
