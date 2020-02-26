@@ -238,7 +238,7 @@
   
   <profiles>
     <profile>
-      <id>jkd-11-compile</id>
+      <id>jdk-11-compile</id>
       <activation>
         <jdk>[9,)</jdk>
       </activation>
