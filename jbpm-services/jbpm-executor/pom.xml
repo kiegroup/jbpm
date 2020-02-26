@@ -141,6 +141,12 @@
       <artifactId>hibernate-core</artifactId>
       <optional>true</optional>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+           <groupId>javax.activation</groupId>
+           <artifactId>javax.activation-api</artifactId> 
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>com.h2database</groupId>

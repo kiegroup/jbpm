@@ -35,6 +35,11 @@
   </dependency>
 
     <dependency>
+      <groupId>javax.activation</groupId>
+      <artifactId>activation</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>org.jbpm</groupId>
       <artifactId>jbpm-flow</artifactId>
     </dependency>
@@ -165,6 +170,12 @@
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-core</artifactId>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+           <groupId>javax.activation</groupId>
+           <artifactId>javax.activation-api</artifactId> 
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>com.h2database</groupId>
