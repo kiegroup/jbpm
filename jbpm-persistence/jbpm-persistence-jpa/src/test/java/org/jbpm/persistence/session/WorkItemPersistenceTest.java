@@ -75,8 +75,14 @@ import org.kie.internal.persistence.jpa.JPAKnowledgeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.jbpm.persistence.util.PersistenceUtil.*;
-import static org.junit.Assert.*;
+import static org.jbpm.test.persistence.util.PersistenceUtil.JBPM_PERSISTENCE_UNIT_NAME;
+import static org.jbpm.test.persistence.util.PersistenceUtil.cleanUp;
+import static org.jbpm.test.persistence.util.PersistenceUtil.createEnvironment;
+import static org.jbpm.test.persistence.util.PersistenceUtil.setupWithPoolingDataSource;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.kie.api.runtime.EnvironmentName.ENTITY_MANAGER_FACTORY;
 
 @RunWith(Parameterized.class)
@@ -136,7 +142,7 @@ public class WorkItemPersistenceTest extends AbstractBaseTest {
         ProcessInstance processInstance = ksession.startProcess( "org.drools.actions",
                                                                   parameters );
         long processInstanceId = processInstance.getId();
-        Assert.assertEquals( ProcessInstance.STATE_ACTIVE,
+        assertEquals( ProcessInstance.STATE_ACTIVE,
                            processInstance.getState() );
         ksession.getWorkItemManager().registerWorkItemHandler( workName,
                                                                null );
@@ -148,7 +154,7 @@ public class WorkItemPersistenceTest extends AbstractBaseTest {
 
         }
 
-        Assert.assertEquals( ProcessInstance.STATE_ABORTED, processInstance.getState() );
+        assertEquals( ProcessInstance.STATE_ABORTED, processInstance.getState() );
     }
 
     private RuleFlowProcess getWorkItemProcess(String processId, String workName) {

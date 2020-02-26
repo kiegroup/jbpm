@@ -29,7 +29,7 @@ import java.util.Set;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
 
-import org.jbpm.persistence.util.PersistenceUtil;
+import org.jbpm.test.persistence.util.PersistenceUtil;
 import org.jbpm.runtime.manager.impl.DefaultRegisterableItemsFactory;
 import org.jbpm.test.AbstractBaseTest;
 import org.kie.test.util.db.PoolingDataSourceWrapper;
@@ -65,7 +65,7 @@ public abstract class TimerBaseTest extends AbstractBaseTest {
         try {
         	pds = PersistenceUtil.setupPoolingDataSource(dsProps, "jdbc/jbpm-ds");
         } catch (Exception e) {
-        	logger.warn("DBPOOL_MGR:Looks like there is an issue with creating db pool because of " + e.getMessage() + " cleaing up...");
+        	logger.warn("DBPOOL_MGR:Looks like there is an issue with creating db pool because of " + e.getMessage() + " cleaning up...");
         	logger.info("DBPOOL_MGR: attempting to create db pool again...");
         	pds = PersistenceUtil.setupPoolingDataSource(dsProps, "jdbc/jbpm-ds");
 
@@ -155,7 +155,7 @@ public abstract class TimerBaseTest extends AbstractBaseTest {
             pds = null;
         }
     }
-    
+
 
     protected void testCreateQuartzSchema() {
         Scanner scanner = new Scanner(this.getClass().getResourceAsStream("/quartz_tables_h2.sql")).useDelimiter(";");
@@ -169,7 +169,7 @@ public abstract class TimerBaseTest extends AbstractBaseTest {
             stmt.close();
             connection.close();
         } catch (Exception e) {
-            
+
         }
     }
     

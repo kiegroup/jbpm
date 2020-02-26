@@ -36,11 +36,11 @@
     <class>org.jbpm.executor.entities.RequestInfo</class>
     <!-- Event Classes -->
     <class>org.jbpm.services.task.audit.impl.model.TaskEventImpl</class>
-     
-    <!-- Task Audit Classes --> 
+
+    <!-- Task Audit Classes -->
     <class>org.jbpm.services.task.audit.impl.model.AuditTaskImpl</class>
     <class>org.jbpm.services.task.audit.impl.model.TaskVariableImpl</class>
-      
+
     <!--BAM for task service -->
     <class>org.jbpm.services.task.audit.impl.model.BAMTaskSummaryImpl</class>
 
@@ -57,12 +57,12 @@
     <class>org.jbpm.process.audit.ProcessInstanceLog</class>
     <class>org.jbpm.process.audit.NodeInstanceLog</class>
     <class>org.jbpm.process.audit.VariableInstanceLog</class>
-    
+
     <!-- deployment store -->
     <class>org.jbpm.kie.services.impl.store.DeploymentStoreEntry</class>
     <!--  query service storage -->
     <class>org.jbpm.kie.services.impl.query.persistence.QueryDefinitionEntity</class>
-    
+
     <!-- case mgmt -->
     <class>org.jbpm.casemgmt.impl.generator.CaseIdInfo</class>
     <class>org.jbpm.casemgmt.impl.audit.CaseRoleAssignmentLog</class>
@@ -72,7 +72,7 @@
 
       <property name="hibernate.max_fetch_depth" value="3" />
       <property name="hibernate.hbm2ddl.auto" value="update" />
-      <property name="hibernate.show_sql" value="false" />      
+      <property name="hibernate.show_sql" value="false" />
       <!-- BZ 841786: AS7/EAP 6/Hib 4 uses new (sequence) generators which seem to cause problems -->
       <property name="hibernate.id.new_generator_mappings" value="false" />
       <property name="hibernate.transaction.jta.platform" value="org.hibernate.service.jta.platform.internal.JBossAppServerJtaPlatform" />

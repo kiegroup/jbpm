@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import org.jbpm.persistence.util.PersistenceUtil;
+import org.jbpm.test.persistence.util.PersistenceUtil;
 import org.kie.test.util.db.PoolingDataSourceWrapper;
 import org.junit.Assert;
 import org.slf4j.Logger;

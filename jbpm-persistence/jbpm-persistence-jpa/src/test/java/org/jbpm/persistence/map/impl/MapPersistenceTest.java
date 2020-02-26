@@ -23,6 +23,7 @@ import org.jbpm.persistence.processinstance.ProcessInstanceInfo;
 import org.jbpm.process.instance.ProcessInstance;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
 import org.jbpm.ruleflow.instance.RuleFlowProcessInstance;
+import org.jbpm.test.persistence.util.ProcessCreatorForHelp;
 import org.jbpm.test.util.AbstractBaseTest;
 import org.junit.Assert;
 import org.junit.Test;
@@ -37,7 +38,7 @@ public abstract class MapPersistenceTest extends AbstractBaseTest {
     public void startProcessInPersistentEnvironment() {
         String processId = "minimalProcess";
 
-        KieBase kbase = createKieBase(ProcessCreatorForHelp.newShortestProcess( processId ) );
+        KieBase kbase = createKieBase(ProcessCreatorForHelp.newShortestProcess(processId));
         
         StatefulKnowledgeSession crmPersistentSession = createSession(kbase);
 

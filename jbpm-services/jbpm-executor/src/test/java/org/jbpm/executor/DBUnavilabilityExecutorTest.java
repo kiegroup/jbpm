@@ -30,7 +30,7 @@ import javax.persistence.Persistence;
 import org.h2.tools.Server;
 import org.jbpm.executor.impl.ExecutorServiceImpl;
 import org.jbpm.executor.test.CountDownAsyncJobListener;
-import org.jbpm.persistence.util.PersistenceUtil;
+import org.jbpm.test.persistence.util.PersistenceUtil;
 import org.jbpm.test.util.ExecutorTestUtil;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -46,35 +46,35 @@ import org.kie.test.util.db.PoolingDataSourceWrapper;
 
 
 public class DBUnavilabilityExecutorTest{
-    
+
     public static final Map<String, Object> cachedEntities = new HashMap<String, Object>();
     private ExecutorService executorService;
-    
-    
-    private EntityManagerFactory emf = null;    
- 
+
+
+    private EntityManagerFactory emf = null;
+
 	private PoolingDataSourceWrapper pds;
-	
+
 	private static Server h2Server;
-	
+
 	@BeforeClass
     public static void createDBServer() throws Exception {
 	    h2Server = Server.createTcpServer(new String[] { "-tcpPort", "9123" });
 	    h2Server.start();
     }
-	
+
 	@AfterClass
 	public static void stopDBServer() {
 	    if (h2Server.isRunning(false)) {
 	        h2Server.stop();
 	    }
 	}
-	
+
     @Before
     public void setUp() {
         Properties dsProps = ExecutorTestUtil.getDatasourceProperties();
         dsProps.setProperty("url", "jdbc:h2:tcp://localhost:9123/target/jbpm-exec-test;MVCC=TRUE");
-        pds = PersistenceUtil.setupPoolingDataSource(dsProps, "jdbc/jbpm-ds");        
+        pds = PersistenceUtil.setupPoolingDataSource(dsProps, "jdbc/jbpm-ds");
         emf = Persistence.createEntityManagerFactory("org.jbpm.executor");
 
         executorService = ExecutorServiceFactory.newExecutorService(emf);

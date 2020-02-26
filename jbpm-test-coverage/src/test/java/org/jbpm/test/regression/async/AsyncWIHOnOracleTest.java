@@ -19,7 +19,7 @@ package org.jbpm.test.regression.async;
 import org.assertj.core.api.Assertions;
 import org.jbpm.executor.impl.wih.AsyncWorkItemHandler;
 import org.jbpm.persistence.jpa.hibernate.DisabledFollowOnLockOracle10gDialect;
-import org.jbpm.persistence.util.PersistenceUtil;
+import org.jbpm.test.persistence.util.PersistenceUtil;
 import org.jbpm.test.JbpmAsyncJobTestCase;
 import org.jbpm.test.listener.TrackingProcessEventListener;
 import org.junit.After;

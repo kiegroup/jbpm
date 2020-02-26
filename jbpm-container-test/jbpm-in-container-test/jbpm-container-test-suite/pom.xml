@@ -179,11 +179,6 @@
       <artifactId>jbpm-bpmn2</artifactId>
     </dependency>
     <dependency> <!-- Dynamic dependency -->
-      <groupId>org.jbpm</groupId>
-      <artifactId>jbpm-persistence-jpa</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency> <!-- Dynamic dependency -->
       <groupId>com.sun.xml.bind</groupId>
       <artifactId>jaxb-xjc</artifactId>
       <scope>test</scope>

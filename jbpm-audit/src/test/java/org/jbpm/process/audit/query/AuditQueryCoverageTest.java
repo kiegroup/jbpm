@@ -16,7 +16,7 @@
 
 package org.jbpm.process.audit.query;
 
-import static org.jbpm.persistence.util.PersistenceUtil.JBPM_PERSISTENCE_UNIT_NAME;
+import static org.jbpm.test.persistence.util.PersistenceUtil.JBPM_PERSISTENCE_UNIT_NAME;
 import static org.jbpm.process.audit.query.AuditQueryDataUtil.cleanDB;
 import static org.jbpm.process.audit.query.AuditQueryDataUtil.createTestNodeInstanceLogData;
 import static org.jbpm.process.audit.query.AuditQueryDataUtil.createTestProcessInstanceLogData;
@@ -48,20 +48,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AuditQueryCoverageTest extends JPAAuditLogService {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(AuditQueryCoverageTest.class);
-  
+
     private static EntityManagerFactory emf;
-    
+
     private ProcessInstanceLog [] pilTestData;
     private VariableInstanceLog [] vilTestData;
     private NodeInstanceLog [] nilTestData;
-   
+
     @BeforeClass
-    public static void configure() { 
+    public static void configure() {
         emf = beforeClass(JBPM_PERSISTENCE_UNIT_NAME);
     }
-    
+
     @AfterClass
     public static void reset() {
         afterClass();

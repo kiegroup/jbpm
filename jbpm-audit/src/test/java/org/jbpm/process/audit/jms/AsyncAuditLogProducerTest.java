@@ -16,10 +16,10 @@
 
 package org.jbpm.process.audit.jms;
 
-import static org.jbpm.persistence.util.PersistenceUtil.JBPM_PERSISTENCE_UNIT_NAME;
-import static org.jbpm.persistence.util.PersistenceUtil.cleanUp;
-import static org.jbpm.persistence.util.PersistenceUtil.createEnvironment;
-import static org.jbpm.persistence.util.PersistenceUtil.setupWithPoolingDataSource;
+import static org.jbpm.test.persistence.util.PersistenceUtil.JBPM_PERSISTENCE_UNIT_NAME;
+import static org.jbpm.test.persistence.util.PersistenceUtil.cleanUp;
+import static org.jbpm.test.persistence.util.PersistenceUtil.createEnvironment;
+import static org.jbpm.test.persistence.util.PersistenceUtil.setupWithPoolingDataSource;
 import static org.jbpm.process.audit.AbstractAuditLogServiceTest.createKieSession;
 import static org.jbpm.process.audit.AbstractAuditLogServiceTest.createKnowledgeBase;
 
@@ -71,7 +71,7 @@ import org.slf4j.LoggerFactory;
 public class AsyncAuditLogProducerTest extends AbstractBaseTest {
 
     private static final Logger logger = LoggerFactory.getLogger(AsyncAuditLogProducerTest.class);
-    
+
     private HashMap<String, Object> context;
     private ConnectionFactory factory;
     private Queue queue;

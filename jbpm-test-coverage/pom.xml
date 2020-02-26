@@ -79,6 +79,11 @@
     </dependency>
     <dependency>
       <groupId>org.jbpm</groupId>
+      <artifactId>jbpm-db-scripts</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jbpm</groupId>
       <artifactId>jbpm-test</artifactId>
     </dependency>
     <dependency>
@@ -175,6 +180,31 @@
     </pluginManagement>
 
     <plugins>
+      <plugin>
+        <!-- extract db scripts to test classes folders for testing only -->
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>unpack</id>
+            <phase>test-compile</phase>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>org.jbpm</groupId>
+                  <artifactId>jbpm-db-scripts</artifactId>
+                  <outputDirectory>${project.build.directory}/test-classes</outputDirectory>
+                  <includes>**\/*.sql</includes>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
       <plugin>
         <!-- ensure that db/tx log files are deleted before runs -->
         <artifactId>maven-clean-plugin</artifactId>

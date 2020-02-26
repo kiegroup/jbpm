@@ -50,7 +50,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
-import static org.jbpm.persistence.util.PersistenceUtil.*;
+import static org.jbpm.test.persistence.util.PersistenceUtil.*;
 import static org.junit.Assert.*;
 
 public class MemoryLeakTest {
