@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.assertj.core.api.Assertions;
@@ -90,7 +91,7 @@ public class ProcessInstanceLogCleanTest extends JbpmTestCase {
     }
 
     @Test
-    public void deleteLogsByProcessName() {
+    public void deleteLogsByProcessName() throws InterruptedException {
         KieSession kieSession = createKSession(HELLO_WORLD_PROCESS);
 
         startProcess(kieSession, HELLO_WORLD_PROCESS_ID, 2);
@@ -123,7 +124,7 @@ public class ProcessInstanceLogCleanTest extends JbpmTestCase {
     }
 
     @Test
-    public void deleteLogsByProcessId() {
+    public void deleteLogsByProcessId() throws InterruptedException {
         KieSession kieSession = createKSession(HELLO_WORLD_PROCESS);
 
         startProcess(kieSession, HELLO_WORLD_PROCESS_ID, 3);
@@ -156,7 +157,7 @@ public class ProcessInstanceLogCleanTest extends JbpmTestCase {
     }
 
     @Test
-    public void deleteLogsByVersion() {
+    public void deleteLogsByVersion() throws InterruptedException {
         KieSession kieSession = createKSession(HELLO_WORLD_PROCESS);
         startProcess(kieSession, HELLO_WORLD_PROCESS_ID, 7);
         disposeRuntimeManager();
@@ -190,7 +191,7 @@ public class ProcessInstanceLogCleanTest extends JbpmTestCase {
     }
 
     @Test
-    public void deleteLogsWithStatusActive() {
+    public void deleteLogsWithStatusActive() throws InterruptedException {
         KieSession kieSession = null;
         List<ProcessInstance> instanceList1 = null;
         List<ProcessInstance> instanceList2 = null;
@@ -223,12 +224,12 @@ public class ProcessInstanceLogCleanTest extends JbpmTestCase {
 
     @Test
     @BZ("1188702")
-    public void deleteLogsByDate() {
+    public void deleteLogsByDate() throws InterruptedException {
         Date testStartDate = new Date();
 
         KieSession kieSession = createKSession(HELLO_WORLD_PROCESS);
 
-        startProcess(kieSession, HELLO_WORLD_PROCESS_ID, 4);
+        startProcess(kieSession, HELLO_WORLD_PROCESS_ID, 4, 5);
 
         List<ProcessInstanceLog> resultList = auditService.processInstanceLogQuery()
                 .startDateRangeStart(testStartDate)
@@ -238,13 +239,11 @@ public class ProcessInstanceLogCleanTest extends JbpmTestCase {
                 .hasSize(4)
                 .extracting("processId")
                 .containsExactly(HELLO_WORLD_PROCESS_ID, HELLO_WORLD_PROCESS_ID,
-                        HELLO_WORLD_PROCESS_ID, HELLO_WORLD_PROCESS_ID);
+                                 HELLO_WORLD_PROCESS_ID, HELLO_WORLD_PROCESS_ID);
 
         Set<Date> startDates = new HashSet<>();
         // Delete the last 3 logs in the list
         resultList.stream().skip(1).forEach(s -> startDates.add(s.getStart()));
-
-        int startDatesCount = startDates.size();
 
         int resultCount = startDates.stream().map(
                 s ->  auditService.processInstanceLogDelete()
@@ -253,19 +252,7 @@ public class ProcessInstanceLogCleanTest extends JbpmTestCase {
                         .execute())
                 .collect(Collectors.summingInt(Integer::intValue));
 
-        if (startDatesCount == 1) {
-            Assertions.assertThat(resultCount).isEqualTo(4);
-        } else {
-            Assertions.assertThat(resultCount).isEqualTo(3);
-
-            // Check the last instance
-            List<ProcessInstanceLog> resultList2 = auditService.processInstanceLogQuery()
-                    .startDateRangeStart(testStartDate)
-                    .build()
-                    .getResultList();
-            Assertions.assertThat(resultList2).hasSize(1);
-            Assertions.assertThat(resultList2.get(0)).isEqualTo(resultList.get(0));
-        }
+        Assertions.assertThat(resultCount).isEqualTo(3);
 
         // Attempt to delete with a date later than end of all the instances
         resultCount = auditService.processInstanceLogDelete()
@@ -273,6 +260,14 @@ public class ProcessInstanceLogCleanTest extends JbpmTestCase {
                 .build()
                 .execute();
         Assertions.assertThat(resultCount).isEqualTo(0);
+
+        // Check the last instance
+        List<ProcessInstanceLog> resultList2 = auditService.processInstanceLogQuery()
+                .startDateRangeStart(testStartDate)
+                .build()
+                .getResultList();
+        Assertions.assertThat(resultList2).hasSize(1);
+        Assertions.assertThat(resultList2.get(0)).isEqualTo(resultList.get(0));
     }
 
     @Test
@@ -312,23 +307,23 @@ public class ProcessInstanceLogCleanTest extends JbpmTestCase {
 
     @Test
     @BZ("1192498")
-    public void deleteLogsByDateRangeEndingYesterday() {
+    public void deleteLogsByDateRangeEndingYesterday() throws InterruptedException {
         deleteLogsByDateRange(getYesterday(), getYesterday(), false);
     }
 
     @Test
     @BZ("1192498")
-    public void deleteLogsByDateRangeIncludingToday() {
+    public void deleteLogsByDateRangeIncludingToday() throws InterruptedException {
         deleteLogsByDateRange(getYesterday(), getTomorrow(), true);
     }
 
     @Test
     @BZ("1192498")
-    public void deleteLogsByDateRangeStartingTomorrow() {
+    public void deleteLogsByDateRangeStartingTomorrow() throws InterruptedException {
         deleteLogsByDateRange(getTomorrow(), getTomorrow(), false);
     }
 
-    private void deleteLogsByDateRange(Date startDate, Date endDate, boolean expectRemoval) {
+    private void deleteLogsByDateRange(Date startDate, Date endDate, boolean expectRemoval) throws InterruptedException {
         KieSession kieSession = createKSession(HELLO_WORLD_PROCESS);
 
         startProcess(kieSession, HELLO_WORLD_PROCESS_ID, 2);
@@ -385,15 +380,20 @@ public class ProcessInstanceLogCleanTest extends JbpmTestCase {
         }
     }
 
-    private List<ProcessInstance> startProcess(KieSession kieSession, String processId, int count) {
+    private List<ProcessInstance> startProcess(KieSession kieSession, String processId, int count, int miliseconds) throws InterruptedException {
         List<ProcessInstance> piList = new ArrayList<ProcessInstance>();
         for (int i = 0; i < count; i++) {
+            TimeUnit.MILLISECONDS.sleep(miliseconds);
             ProcessInstance pi = kieSession.startProcess(processId);
             if (pi != null) {
                 piList.add(pi);
             }
         }
         return piList;
+    }
+
+    private List<ProcessInstance> startProcess(KieSession kieSession, String processId, int count) throws InterruptedException {
+        return this.startProcess(kieSession, processId, count, 0);
     }
 
 }
