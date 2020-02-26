@@ -17,6 +17,7 @@
 package org.jbpm.kie.services.impl.query;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.dashbuilder.dataset.filter.ColumnFilter;
 import org.dashbuilder.dataset.filter.CoreFunctionFilter;
@@ -51,24 +52,42 @@ public class CoreFunctionQueryParamBuilder implements QueryParamBuilder<Object> 
                 return new GroupColumnFilter(param.getColumn(), (String)param.getValue().get(0), null, -1);
             }
         }
-        // check core functions
-        CoreFunctionType type = CoreFunctionType.getByName(param.getOperator());
-        if (type != null) {
-            return new CoreFunctionFilter(param.getColumn(), type, param.getValue());
+
+        ColumnFilter filter = buildExpressionColumnFilter(param);
+        if (filter != null) {
+            return filter;
         }
-        LogicalExprType  logicalExprType = LogicalExprType.getByName(param.getOperator());
-        if (logicalExprType != null) {
-            return new LogicalExprFilter(param.getColumn(), logicalExprType, (List<ColumnFilter>)param.getValue());
-        }
+
         // check aggregate functions
         AggregateFunctionType aggregationType = AggregateFunctionType.getByName(param.getOperator());
         
         if (aggregationType != null) {
-            
             return new AggregateColumnFilter(aggregationType, param.getColumn(), (String)param.getValue().get(0));
         }
 
         return new ExtraColumnFilter(param.getColumn(), (String)param.getValue().get(0));
     }
 
+    @SuppressWarnings("unchecked")
+    private ColumnFilter buildExpressionColumnFilter(Object paramValue) {
+        if (!(paramValue instanceof QueryParam)) {
+            return (ColumnFilter) paramValue;
+        }
+        QueryParam param = (QueryParam) paramValue;
+        // check core functions
+        CoreFunctionType type = CoreFunctionType.getByName(param.getOperator());
+        if (type != null) {
+            // leaf node
+            return new CoreFunctionFilter(param.getColumn(), type, param.getValue());
+        }
+
+        LogicalExprType logicalExprType = LogicalExprType.getByName(param.getOperator());
+        if (logicalExprType != null) {
+            // union node
+            List<?> elements = param.getValue();
+            List<ColumnFilter> filters = elements.stream().map(this::buildExpressionColumnFilter).collect(Collectors.toList());
+            return new LogicalExprFilter(param.getColumn(), logicalExprType, filters);
+        }
+        return null;
+    }
 }

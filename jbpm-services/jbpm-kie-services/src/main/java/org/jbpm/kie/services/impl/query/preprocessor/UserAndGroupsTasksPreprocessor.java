@@ -16,10 +16,6 @@
 
 package org.jbpm.kie.services.impl.query.preprocessor;
 
-import static org.dashbuilder.dataset.filter.FilterFactory.AND;
-import static org.dashbuilder.dataset.filter.FilterFactory.in;
-import static org.jbpm.services.api.query.QueryResultMapper.COLUMN_POTOWNER;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -30,10 +26,15 @@ import org.dashbuilder.dataset.DataSetMetadata;
 import org.dashbuilder.dataset.filter.ColumnFilter;
 import org.dashbuilder.dataset.filter.CoreFunctionFilter;
 import org.dashbuilder.dataset.filter.DataSetFilter;
+import org.dashbuilder.dataset.filter.LogicalExprFilter;
 import org.kie.api.task.UserGroupCallback;
 import org.kie.internal.identity.IdentityProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.dashbuilder.dataset.filter.FilterFactory.AND;
+import static org.dashbuilder.dataset.filter.FilterFactory.in;
+import static org.jbpm.services.api.query.QueryResultMapper.COLUMN_POTOWNER;
 
 public class UserAndGroupsTasksPreprocessor extends UserTasksPreprocessor {
 
@@ -65,10 +66,10 @@ public class UserAndGroupsTasksPreprocessor extends UserTasksPreprocessor {
 
         if (lookup.getFirstFilterOp() != null) {
             List<String> potOwners = new ArrayList<String>();
-            List<ColumnFilter> columnFilters = lookup.getFirstFilterOp().getColumnFilterList();
-            Iterator<ColumnFilter> it= columnFilters.iterator();
+            List<CoreFunctionFilter> columnFilters = extractCoreFunctionFilter(lookup.getFirstFilterOp().getColumnFilterList());
+            Iterator<CoreFunctionFilter> it = columnFilters.iterator();
             while (orgEntities.isEmpty() && it.hasNext()) {
-                CoreFunctionFilter column = (CoreFunctionFilter)it.next();
+                CoreFunctionFilter column = it.next();
 
                 if (column.getColumnId().toUpperCase().equals(columnId)) {
                     potOwners.addAll(column.getParameters());
@@ -77,9 +78,12 @@ public class UserAndGroupsTasksPreprocessor extends UserTasksPreprocessor {
                         addUserAndGroupsFromIdentityProvider(orgEntities, potOwner);
                     }
 
-                    it.remove();
+                    //  we have now a tree as expression. we need to traverse the entire tree for finding the filter.
+                    removeCoreFunctionFilter(lookup.getFirstFilterOp().getColumnFilterList(), column);
                 }
+
             }
+
 
             if (orgEntities.isEmpty()) {
                 addUserAndGroupsFromIdentityProvider(orgEntities, identityProvider.getName());
@@ -104,5 +108,28 @@ public class UserAndGroupsTasksPreprocessor extends UserTasksPreprocessor {
     private void addUserAndGroupsFromIdentityProvider(List<Comparable> orgEntities, String userId) {
         orgEntities.addAll(Optional.ofNullable(userGroupCallback.getGroupsForUser(userId)).orElse(new ArrayList<>()));
         orgEntities.add(userId);
+    }
+
+    private void removeCoreFunctionFilter(List<ColumnFilter> filters, ColumnFilter removedFilter) {
+        if (filters.remove(removedFilter)) {
+            return;
+        }
+
+        filters.stream()
+               .filter(e -> e instanceof LogicalExprFilter)
+               .map(e -> (LogicalExprFilter) e)
+               .forEach(filter -> removeCoreFunctionFilter(filter.getLogicalTerms(), removedFilter));
+
+    }
+    private List<CoreFunctionFilter> extractCoreFunctionFilter(List<ColumnFilter> filters) {
+        List<CoreFunctionFilter> list = new ArrayList<>();
+        for (ColumnFilter filter : filters) {
+            if (filter instanceof CoreFunctionFilter) {
+                list.add((CoreFunctionFilter) filter);
+            } else if (filter instanceof LogicalExprFilter) {
+                list.addAll(extractCoreFunctionFilter(((LogicalExprFilter) filter).getLogicalTerms()));
+            }
+        }
+        return list;
     }
 }
