@@ -539,7 +539,7 @@
         </property>
       </activation>
       <properties>
-        <container.id>wildfly14x</container.id>
+        <container.id>wildfly18x</container.id>
         <container.port>8080</container.port>
         <org.jbpm.persistence.ds>java:/jdbc/jbpm</org.jbpm.persistence.ds>
         <container.tm>org.hibernate.service.jta.platform.internal.JBossAppServerJtaPlatform</container.tm>
@@ -591,16 +591,6 @@
           </plugins>
         </pluginManagement>
       </build>
-      <dependencyManagement>
-        <dependencies>
-          <!--Arquillian connector-->
-          <dependency>
-            <groupId>org.wildfly.arquillian</groupId>
-            <artifactId>wildfly-arquillian-container-remote</artifactId>
-            <version>2.1.0.Final</version>
-          </dependency>
-        </dependencies>
-      </dependencyManagement>
       <dependencies>
         <!--Arquillian connector-->
         <dependency>
@@ -623,7 +613,7 @@
         </property>
       </activation>
       <properties>
-        <container.id>wildfly14x</container.id>
+        <container.id>wildfly18x</container.id>
         <container.port>8080</container.port>
         <org.jbpm.persistence.ds>java:/jdbc/jbpm</org.jbpm.persistence.ds>
         <container.tm>org.hibernate.service.jta.platform.internal.JBossAppServerJtaPlatform</container.tm>
@@ -673,19 +663,9 @@
           </plugins>
         </pluginManagement>
       </build>
-      <dependencyManagement>
-        <dependencies>
-          <!--Arquillian connector-->
-          <!--It is originally for wildfly but it works for EAP7 as well so far-->
-          <dependency>
-            <groupId>org.wildfly.arquillian</groupId>
-            <artifactId>wildfly-arquillian-container-remote</artifactId>
-            <version>2.1.0.Final</version>
-          </dependency>
-        </dependencies>
-      </dependencyManagement>
       <dependencies>
         <!--Arquillian connector-->
+        <!--It is originally for wildfly but it works for EAP7 as well so far-->
         <dependency>
           <groupId>org.wildfly.arquillian</groupId>
           <artifactId>wildfly-arquillian-container-remote</artifactId>
