@@ -16,13 +16,26 @@
 
 package org.jbpm.test.functional.subprocess;
 
+import java.util.concurrent.CountDownLatch;
+
+import org.assertj.core.api.Assertions;
 import org.jbpm.test.JbpmTestCase;
 import org.jbpm.test.listener.IterableProcessEventListener;
 import org.junit.Test;
 import org.kie.api.command.Command;
+import org.kie.api.event.process.DefaultProcessEventListener;
+import org.kie.api.event.process.ProcessNodeTriggeredEvent;
 import org.kie.api.runtime.KieSession;
+import org.kie.api.runtime.process.WorkItem;
+import org.kie.api.runtime.process.WorkItemHandler;
+import org.kie.api.runtime.process.WorkItemManager;
 
-import static org.jbpm.test.tools.IterableListenerAssert.*;
+import static org.jbpm.test.tools.IterableListenerAssert.assertChangedVariable;
+import static org.jbpm.test.tools.IterableListenerAssert.assertLeft;
+import static org.jbpm.test.tools.IterableListenerAssert.assertNextNode;
+import static org.jbpm.test.tools.IterableListenerAssert.assertProcessCompleted;
+import static org.jbpm.test.tools.IterableListenerAssert.assertProcessStarted;
+import static org.jbpm.test.tools.IterableListenerAssert.assertTriggered;
 
 public class ReusableSubProcessTest extends JbpmTestCase {
 
@@ -35,6 +48,15 @@ public class ReusableSubProcessTest extends JbpmTestCase {
             "org/jbpm/test/functional/subprocess/ReusableSubProcess-child.bpmn";
     private static final String CALL_ACTIVITY_CHILD_ID =
             "org.jbpm.test.functional.subprocess.ReusableSubProcess-child";
+
+    private static final String ERROR_HANDLING_MAIN_PROCESS =
+            "org/jbpm/test/functional/subprocess/ErrorHandlingMainProcess.bpmn";
+
+    private static final String ERROR_HALDING_CHILD_PROCESS =
+            "org/jbpm/test/functional/subprocess/ErrorHandlingSubprocess.bpmn";
+
+    private static final String ERROR_HANDLING_MAIN_PROCESS_ID =
+            "ExceptionHandling.MainProcess";
 
     public ReusableSubProcessTest() {
         super(false);
@@ -72,4 +94,37 @@ public class ReusableSubProcessTest extends JbpmTestCase {
         assertProcessCompleted(eventListener, CALL_ACTIVITY_PARENT_ID);
     }
 
+    class RestWorkItemHandler implements WorkItemHandler {
+
+        @Override
+        public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
+            throw new RuntimeException("failure for rest handler");
+        }
+
+        @Override
+        public void abortWorkItem(WorkItem workItem, WorkItemManager manager) {
+
+        }
+
+    }
+
+    @Test(timeout = 30000)
+    public void testErrorHandlingActivity() throws Exception {
+        KieSession ksession = createKSession(ERROR_HANDLING_MAIN_PROCESS, ERROR_HALDING_CHILD_PROCESS);
+        final CountDownLatch latch = new CountDownLatch(1);
+        ksession.addEventListener(new DefaultProcessEventListener() {
+
+            @Override
+            public void beforeNodeTriggered(ProcessNodeTriggeredEvent event) {
+                if ("Task".equals(event.getNodeInstance().getNodeName())) {
+                    latch.countDown();
+                }
+            }
+
+        });
+        ksession.getWorkItemManager().registerWorkItemHandler("Rest", new RestWorkItemHandler());
+        ksession.startProcess(ERROR_HANDLING_MAIN_PROCESS_ID);
+        latch.await();
+        Assertions.assertThat(latch.getCount()).isEqualTo(0);
+    }
 }
