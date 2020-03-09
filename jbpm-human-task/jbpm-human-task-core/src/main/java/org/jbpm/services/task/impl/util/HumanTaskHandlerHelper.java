@@ -236,6 +236,10 @@ public class HumanTaskHandlerHelper {
 	}
 
 	protected static Date getDeadlineDurationDate(String durationStr, int repeatCount) {
+        if (durationStr.isEmpty()) {
+            throw new IllegalArgumentException("Duration string is empty");
+        }
+
 		// handles iso repetable and both period and date notation
 		try {
 
@@ -260,15 +264,15 @@ public class HumanTaskHandlerHelper {
 					deadlineDate =  new Date(DateTimeUtils.parseDateTime(tempTimeDelay) + duration * repeatCount);
 				}				
 				return deadlineDate;
-			} else {
+            } else {
 				if (DateTimeUtils.isPeriod((durationStr))) {
 					return new Date(System.currentTimeMillis() + Duration.parse(durationStr).toMillis());
 				} else {
 					return new Date(System.currentTimeMillis() + DateTimeUtils.parseDateAsDuration(durationStr));
 				}
-			}
+            }
 		} catch(Exception e) {
-			throw new IllegalArgumentException("Unable to parse duration string: " + durationStr + " : " + e.getMessage());
+			throw new IllegalArgumentException("Unable to parse duration string: " + durationStr + " : " + e.getMessage(), e);
 		}
 
 	}
