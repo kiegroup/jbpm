@@ -16,7 +16,9 @@
 package org.jbpm.test.functional.timer;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.assertj.core.api.Assertions;
 import org.jbpm.process.instance.command.UpdateTimerCommand;
@@ -58,6 +60,9 @@ public class TimerUpdateTest extends JbpmTestCase {
     private static final String TIMER_SUBPROCESS_FILE = "org/jbpm/test/functional/timer/UpdateSubprocessTimer.bpmn2";
     private static final String PROCESS_SUBPROCESS_NAME = "UpdateSubProcessTimer";
     private static final String TIMER_SUBPROCESS_NAME = "Timer";
+
+    private static final String ISO_TIMER_FILE = "org/jbpm/test/regression/ISOTimerTest.bpmn2";
+    private static final String ISO_TIMER_NAME = "ISOTimerTest";
 
     private RuntimeEngine runtimeEngine;
     private KieSession kieSession;
@@ -307,4 +312,13 @@ public class TimerUpdateTest extends JbpmTestCase {
         return Long.parseLong(timerFiredTime);
     }
 
+    @Test(timeout = 10000)
+    public void emptyISOTimerTest() throws Exception {
+
+        setProcessScenario(ISO_TIMER_FILE);
+
+        Map<String, Object> parameters = new HashMap<>();
+        Assertions.assertThatThrownBy(() -> kieSession.startProcess(ISO_TIMER_NAME, parameters)).hasCauseInstanceOf(IllegalArgumentException.class);
+
+    }
 }
