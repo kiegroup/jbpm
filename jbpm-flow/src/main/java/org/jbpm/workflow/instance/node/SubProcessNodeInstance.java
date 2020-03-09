@@ -225,7 +225,16 @@ public class SubProcessNodeInstance extends StateBasedNodeInstance implements Ev
 	    	((ProcessInstanceImpl) processInstance).setParentProcessInstanceId(getProcessInstance().getId());
 	    	((ProcessInstanceImpl) processInstance).setSignalCompletion(getSubProcessNode().isWaitForCompletion());
 
-	    	kruntime.startProcessInstance(processInstance.getId());
+            try {
+                kruntime.startProcessInstance(processInstance.getId());
+            } catch (Exception e) {
+                String faultName = e.getClass().getName();
+                if (handleError(faultName, processInstance)) {
+                    return;
+                } else {
+                    throw e;
+                }
+            }
 	    	if (!getSubProcessNode().isWaitForCompletion()) {
 	    		triggerCompleted();
 	    	} else if (processInstance.getState() == ProcessInstance.STATE_COMPLETED
@@ -311,21 +320,9 @@ public class SubProcessNodeInstance extends StateBasedNodeInstance implements Ev
         handleOutMappings(processInstance);
         if (processInstance.getState() == ProcessInstance.STATE_ABORTED) {
             String faultName = processInstance.getOutcome()==null?"":processInstance.getOutcome();
-            // handle exception as sub process failed with error code
-            ExceptionScopeInstance exceptionScopeInstance = (ExceptionScopeInstance)
-                    resolveContextInstance(ExceptionScope.EXCEPTION_SCOPE, faultName);
-            if (exceptionScopeInstance != null) {
-
-                exceptionScopeInstance.handleException(faultName, processInstance.getFaultData());
-                if (getSubProcessNode() != null && !getSubProcessNode().isIndependent() && getSubProcessNode().isAbortParent()){
-                    cancel();
-                }
-                return;
-            } else if (getSubProcessNode() != null && !getSubProcessNode().isIndependent() && getSubProcessNode().isAbortParent()){
-                ((ProcessInstance) getProcessInstance()).setState(ProcessInstance.STATE_ABORTED, faultName);
+            if (handleError(faultName, processInstance)) {
                 return;
             }
-
         }
         // handle dynamic subprocess
         if (getNode() == null) {
@@ -336,6 +333,22 @@ public class SubProcessNodeInstance extends StateBasedNodeInstance implements Ev
 
     }
 
+    private boolean handleError(String faultName, ProcessInstance processInstance) {
+        // handle exception as sub process failed with error code
+        ExceptionScopeInstance exceptionScopeInstance = (ExceptionScopeInstance) resolveContextInstance(ExceptionScope.EXCEPTION_SCOPE, faultName);
+        if (exceptionScopeInstance != null) {
+
+            exceptionScopeInstance.handleException(faultName, processInstance.getFaultData());
+            if (getSubProcessNode() != null && !getSubProcessNode().isIndependent() && getSubProcessNode().isAbortParent()) {
+                cancel();
+            }
+            return true;
+        } else if (getSubProcessNode() != null && !getSubProcessNode().isIndependent() && getSubProcessNode().isAbortParent()) {
+            ((ProcessInstance) getProcessInstance()).setState(ProcessInstance.STATE_ABORTED, faultName);
+            return true;
+        }
+        return false;
+    }
     private void handleOutMappings(ProcessInstance processInstance) {
         VariableScopeInstance subProcessVariableScopeInstance = (VariableScopeInstance)
 	        processInstance.getContextInstance(VariableScope.VARIABLE_SCOPE);
