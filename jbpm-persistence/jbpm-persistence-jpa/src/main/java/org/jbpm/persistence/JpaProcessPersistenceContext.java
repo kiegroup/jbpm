@@ -20,9 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.EntityManager;
-import javax.persistence.LockModeType;
 import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
+import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import org.drools.persistence.api.TransactionManager;
@@ -37,7 +37,6 @@ import org.jbpm.persistence.processinstance.ProcessInstanceInfo;
 import org.jbpm.process.instance.ProcessInstance;
 import org.jbpm.process.instance.ProcessInstanceManager;
 import org.kie.internal.process.CorrelationKey;
-import org.kie.internal.process.CorrelationProperty;
 
 public class JpaProcessPersistenceContext extends JpaPersistenceContext
     implements
@@ -115,18 +114,17 @@ public class JpaProcessPersistenceContext extends JpaPersistenceContext
     }
 
     public PersistentCorrelationKey persist(PersistentCorrelationKey correlationKeyInfo) {
-        Long processInstanceId = getProcessInstanceByCorrelationKey(correlationKeyInfo);
-        if (processInstanceId != null) {
-            throw new RuntimeException(correlationKeyInfo + " already exists");
+        try {
+            EntityManager em = getEntityManager();
+            em.persist(correlationKeyInfo);
+            em.flush();
+            if (this.pessimisticLocking) {
+                return em.find(CorrelationKeyInfo.class, correlationKeyInfo.getId(), this.lockMode);
+            }
+            return correlationKeyInfo;
+        } catch (PersistenceException e) {
+            throw new RuntimeException(correlationKeyInfo + " already exists", e);
         }
-        EntityManager em = getEntityManager();
-        em.persist( correlationKeyInfo );
-        if( this.pessimisticLocking) {
-        	em.flush();
-            return em.find(CorrelationKeyInfo.class, correlationKeyInfo.getId(), lockMode);
-        }
-        return correlationKeyInfo;
-        
     }
 
     /**
