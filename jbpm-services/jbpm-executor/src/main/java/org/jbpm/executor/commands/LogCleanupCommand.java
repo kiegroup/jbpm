@@ -17,6 +17,7 @@
 package org.jbpm.executor.commands;
 
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 
 import javax.persistence.EntityManagerFactory;
@@ -58,162 +59,175 @@ import org.slf4j.LoggerFactory;
  * </ul>
  */
 public class LogCleanupCommand implements Command, Reoccurring {
-	
-	private static final Logger logger = LoggerFactory.getLogger(LogCleanupCommand.class);
-	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
-	
-	private long nextScheduleTimeAdd = 24 * 60 * 60 * 1000; // one day in milliseconds
 
-	@Override
-	public Date getScheduleTime() {
-		if (nextScheduleTimeAdd < 0) {
-			return null;
-		}
-		
-		long current = System.currentTimeMillis();
-		
-		Date nextSchedule = new Date(current + nextScheduleTimeAdd);
-		logger.debug("Next schedule for job {} is set to {}", this.getClass().getSimpleName(), nextSchedule);
-		
-		return nextSchedule;
-	}
+    private static final Logger logger = LoggerFactory.getLogger(LogCleanupCommand.class);
+    protected final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
-	@Override
-	public ExecutionResults execute(CommandContext ctx) throws Exception {
-		boolean skipProcessLog = ctx.getData().containsKey("SkipProcessLog")?Boolean.parseBoolean((String)ctx.getData("SkipProcessLog")):false;
-		boolean skipTaskLog = ctx.getData().containsKey("SkipTaskLog")?Boolean.parseBoolean((String)ctx.getData("SkipTaskLog")):false;;
-		boolean skipExecutorLog = ctx.getData().containsKey("SkipExecutorLog")?Boolean.parseBoolean((String)ctx.getData("SkipExecutorLog")):false;;
-		
-		SimpleDateFormat formatToUse = DATE_FORMAT;
-		
-		String dataFormat = (String) ctx.getData("DateFormat");
-		if (dataFormat != null) {
-			formatToUse = new SimpleDateFormat(dataFormat);
-		}
-		
-		ExecutionResults executionResults = new ExecutionResults();
-		String emfName = (String)ctx.getData("EmfName");
-		if (emfName == null) {
-			emfName = "org.jbpm.domain"; 
-		}
-		String singleRun = (String)ctx.getData("SingleRun");
-		if ("true".equalsIgnoreCase(singleRun)) {
-			// disable rescheduling
-			this.nextScheduleTimeAdd = -1;
-		}
-		String nextRun = (String)ctx.getData("NextRun");
-		if (nextRun != null) {
-			nextScheduleTimeAdd = DateTimeUtils.parseDateAsDuration(nextRun);
-		}
-		
-		// get hold of persistence and create instance of audit service
-		EntityManagerFactory emf = EntityManagerFactoryManager.get().getOrCreate(emfName);
-		ExecutorJPAAuditService auditLogService = new ExecutorJPAAuditService(emf);
-		
-		// collect parameters
-		String olderThan = (String)ctx.getData("OlderThan");
-		String olderThanPeriod = (String)ctx.getData("OlderThanPeriod");
-		String forProcess = (String)ctx.getData("ForProcess");
-		String forDeployment = (String)ctx.getData("ForDeployment");
-		
-		if (olderThanPeriod != null) {
-			long olderThanDuration = DateTimeUtils.parseDateAsDuration(olderThanPeriod);
-			Date olderThanDate = new Date(System.currentTimeMillis() - olderThanDuration);
-			
-			olderThan = formatToUse.format(olderThanDate);
-		}
-		
-        
+    private long nextScheduleTimeAdd = 24 * 60 * 60 * 1000; // one day in milliseconds
+
+    @Override
+    public Date getScheduleTime() {
+        if (nextScheduleTimeAdd < 0) {
+            return null;
+        }
+
+        long current = System.currentTimeMillis();
+
+        Date nextSchedule = new Date(current + nextScheduleTimeAdd);
+        logger.debug("Next schedule for job {} is set to {}", this.getClass().getSimpleName(), nextSchedule);
+
+        return nextSchedule;
+    }
+
+    @Override
+    public ExecutionResults execute(CommandContext ctx) throws Exception {
+        boolean skipProcessLog = ctx.getData().containsKey("SkipProcessLog") ? Boolean.parseBoolean((String) ctx.getData("SkipProcessLog")) : false;
+        boolean skipTaskLog = ctx.getData().containsKey("SkipTaskLog") ? Boolean.parseBoolean((String) ctx.getData("SkipTaskLog")) : false;
+        boolean skipExecutorLog = ctx.getData().containsKey("SkipExecutorLog") ? Boolean.parseBoolean((String) ctx.getData("SkipExecutorLog")) : false;
+
+        SimpleDateFormat formatToUse = dateFormat;
+
+        String dataFormat = (String) ctx.getData("DateFormat");
+        if (dataFormat != null) {
+            formatToUse = new SimpleDateFormat(dataFormat);
+        }
+
+        ExecutionResults executionResults = new ExecutionResults();
+        String emfName = (String) ctx.getData("EmfName");
+        if (emfName == null) {
+            emfName = "org.jbpm.domain";
+        }
+        String singleRun = (String) ctx.getData("SingleRun");
+        if ("true".equalsIgnoreCase(singleRun)) {
+            // disable rescheduling
+            this.nextScheduleTimeAdd = -1;
+        }
+        String nextRun = (String) ctx.getData("NextRun");
+        if (nextRun != null) {
+            nextScheduleTimeAdd = DateTimeUtils.parseDateAsDuration(nextRun);
+        }
+
+        // get hold of persistence and create instance of audit service
+        EntityManagerFactory emf = EntityManagerFactoryManager.get().getOrCreate(emfName);
+        ExecutorJPAAuditService auditLogService = new ExecutorJPAAuditService(emf);
+
+        // collect parameters
+        String olderThan = (String) ctx.getData("OlderThan");
+        String olderThanPeriod = (String) ctx.getData("OlderThanPeriod");
+        String forProcess = (String) ctx.getData("ForProcess");
+        String forDeployment = (String) ctx.getData("ForDeployment");
+        String statusFilter = (String) ctx.getData("Status");
+        Integer[] status = null;
+
+        if (statusFilter != null) {
+            status = Arrays.stream(statusFilter.split(",")).map(e -> Integer.parseInt(e)).toArray(Integer[]::new);
+        }
+
+        if (olderThanPeriod != null) {
+            long olderThanDuration = DateTimeUtils.parseDateAsDuration(olderThanPeriod);
+            Date olderThanDate = new Date(System.currentTimeMillis() - olderThanDuration);
+
+            olderThan = formatToUse.format(olderThanDate);
+        }
+
+        if (!skipExecutorLog) {
+            // executor tables  
+            long errorInfoLogsRemoved = 0l;
+            errorInfoLogsRemoved = auditLogService.errorInfoLogDeleteBuilder()
+                                                  .dateRangeEnd(olderThan == null ? null : formatToUse.parse(olderThan))
+                                                  .logBelongsToProcessInStatus(status)
+                                                  .build()
+                                                  .execute();
+            logger.info("ErrorInfoLogsRemoved {}", errorInfoLogsRemoved);
+            executionResults.setData("ErrorInfoLogsRemoved", errorInfoLogsRemoved);
+
+            long requestInfoLogsRemoved = 0l;
+            requestInfoLogsRemoved = auditLogService.requestInfoLogDeleteBuilder()
+                                                    .dateRangeEnd(olderThan == null ? null : formatToUse.parse(olderThan))
+                                                    .logBelongsToProcessInStatus(status)
+                                                    .status(STATUS.CANCELLED, STATUS.DONE, STATUS.ERROR)
+                                                    .build()
+                                                    .execute();
+            logger.info("RequestInfoLogsRemoved {}", requestInfoLogsRemoved);
+            executionResults.setData("RequestInfoLogsRemoved", requestInfoLogsRemoved);
+        }
+
         if (!skipTaskLog) {
             // task tables
             long taLogsRemoved = 0l;
             taLogsRemoved = auditLogService.auditTaskDelete()
-            .processId(forProcess)      
-            .dateRangeEnd(olderThan==null?null:formatToUse.parse(olderThan))
-            .deploymentId(forDeployment)
-            .build()
-            .execute();
+                                           .processId(forProcess)
+                                           .dateRangeEnd(olderThan == null ? null : formatToUse.parse(olderThan))
+                                           .deploymentId(forDeployment)
+                                           .logBelongsToProcessInStatus(status)
+                                           .build()
+                                           .execute();
             logger.info("TaskAuditLogRemoved {}", taLogsRemoved);
             executionResults.setData("TaskAuditLogRemoved", taLogsRemoved);
-            
+
             long teLogsRemoved = 0l;
             teLogsRemoved = auditLogService.taskEventInstanceLogDelete()
-            .dateRangeEnd(olderThan==null?null:formatToUse.parse(olderThan))        
-            .build()
-            .execute();
+                                           .dateRangeEnd(olderThan == null ? null : formatToUse.parse(olderThan))
+                                           .logBelongsToProcessInStatus(status)
+                                           .build()
+                                           .execute();
             logger.info("TaskEventLogRemoved {}", teLogsRemoved);
             executionResults.setData("TaskEventLogRemoved", teLogsRemoved);
-            
+
             long tvLogsRemoved = 0l;
             tvLogsRemoved = auditLogService.taskVariableInstanceLogDelete()
-            .dateRangeEnd(olderThan==null?null:formatToUse.parse(olderThan))        
-            .build()
-            .execute();
+                                           .dateRangeEnd(olderThan == null ? null : formatToUse.parse(olderThan))
+                                           .logBelongsToProcessInStatus(status)
+                                           .build()
+                                           .execute();
             logger.info("TaskVariableLogRemoved {}", tvLogsRemoved);
             executionResults.setData("TaskVariableLogRemoved", tvLogsRemoved);
-        }		
-		
-		if (!skipProcessLog) {
-		// process tables			
-			long niLogsRemoved = 0l;
-			niLogsRemoved = auditLogService.nodeInstanceLogDelete()
-			.processId(forProcess)
-			.dateRangeEnd(olderThan==null?null:formatToUse.parse(olderThan))
-			.externalId(forDeployment)
-			.build()
-			.execute();
-			logger.info("NodeInstanceLogRemoved {}", niLogsRemoved);
-			executionResults.setData("NodeInstanceLogRemoved", niLogsRemoved);
-			
-			long viLogsRemoved = 0l;
-			viLogsRemoved = auditLogService.variableInstanceLogDelete()
-			.processId(forProcess)
-			.dateRangeEnd(olderThan==null?null:formatToUse.parse(olderThan))
-			.externalId(forDeployment)
-			.build()
-			.execute();
-			logger.info("VariableInstanceLogRemoved {}", viLogsRemoved);
-			executionResults.setData("VariableInstanceLogRemoved", viLogsRemoved);
-			
-			long piLogsRemoved = 0l;        
+        }
+
+        if (!skipProcessLog) {
+            // process tables			
+            long niLogsRemoved = 0l;
+            niLogsRemoved = auditLogService.nodeInstanceLogDelete()
+
+                                           .processId(forProcess)
+                                           .dateRangeEnd(olderThan == null ? null : formatToUse.parse(olderThan))
+                                           .externalId(forDeployment)
+                                           .logBelongsToProcessInStatus(status)
+                                           .build()
+                                           .execute();
+            logger.info("NodeInstanceLogRemoved {}", niLogsRemoved);
+            executionResults.setData("NodeInstanceLogRemoved", niLogsRemoved);
+
+            long viLogsRemoved = 0l;
+            viLogsRemoved = auditLogService.variableInstanceLogDelete()
+                                           .processId(forProcess)
+                                           .dateRangeEnd(olderThan == null ? null : formatToUse.parse(olderThan))
+                                           .externalId(forDeployment)
+                                           .logBelongsToProcessInStatus(status)
+                                           .build()
+                                           .execute();
+            logger.info("VariableInstanceLogRemoved {}", viLogsRemoved);
+            executionResults.setData("VariableInstanceLogRemoved", viLogsRemoved);
+
+            long piLogsRemoved = 0l;
             piLogsRemoved = auditLogService.processInstanceLogDelete()
-            .processId(forProcess)
-            .status(ProcessInstance.STATE_COMPLETED, ProcessInstance.STATE_ABORTED)
-            .endDateRangeEnd(olderThan==null?null:formatToUse.parse(olderThan))
-            .externalId(forDeployment)
-            .build()
-            .execute();
+                                           .processId(forProcess)
+                                           .status(ProcessInstance.STATE_COMPLETED, ProcessInstance.STATE_ABORTED)
+                                           .endDateRangeEnd(olderThan == null ? null : formatToUse.parse(olderThan))
+                                           .externalId(forDeployment)
+                                           .logBelongsToProcessInStatus(status)
+                                           .build()
+                                           .execute();
             logger.info("ProcessInstanceLogRemoved {}", piLogsRemoved);
             executionResults.setData("ProcessInstanceLogRemoved", piLogsRemoved);
-		}
+        }
 
-		
-		if (!skipExecutorLog) {
-			// executor tables	
-			long errorInfoLogsRemoved = 0l;
-			errorInfoLogsRemoved = auditLogService.errorInfoLogDeleteBuilder()		
-			.dateRangeEnd(olderThan==null?null:formatToUse.parse(olderThan))
-			.build()
-			.execute();
-			logger.info("ErrorInfoLogsRemoved {}", errorInfoLogsRemoved);
-			executionResults.setData("ErrorInfoLogsRemoved", errorInfoLogsRemoved);
-			
-			long requestInfoLogsRemoved = 0l;
-			requestInfoLogsRemoved = auditLogService.requestInfoLogDeleteBuilder()
-			.dateRangeEnd(olderThan==null?null:formatToUse.parse(olderThan))
-			.status(STATUS.CANCELLED, STATUS.DONE, STATUS.ERROR)
-			.build()
-			.execute();
-			logger.info("RequestInfoLogsRemoved {}", requestInfoLogsRemoved);
-			executionResults.setData("RequestInfoLogsRemoved", requestInfoLogsRemoved);
-		}
-		
-		// bam tables
-		long bamLogsRemoved = 0l;
-		executionResults.setData("BAMLogRemoved", bamLogsRemoved);
-		
-		
+        // bam tables
+        long bamLogsRemoved = 0l;
+        executionResults.setData("BAMLogRemoved", bamLogsRemoved);
+
         return executionResults;
-	}
+    }
+
 
 }

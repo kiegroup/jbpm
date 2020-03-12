@@ -23,9 +23,10 @@ import java.util.Map;
 import javax.persistence.EntityManagerFactory;
 
 import org.kie.api.KieServices;
+import org.kie.api.executor.ExecutorService;
 import org.kie.api.runtime.manager.RuntimeManager;
 import org.kie.api.task.TaskService;
-import org.kie.api.executor.ExecutorService;
+import org.kie.internal.identity.IdentityProvider;
 import org.kie.internal.runtime.Cacheable;
 import org.kie.internal.runtime.conf.ObjectModel;
 import org.kie.internal.runtime.conf.ObjectModelResolver;
@@ -53,6 +54,7 @@ public class ReflectionObjectModelResolver implements ObjectModelResolver {
 		knownContextParamMapping.put("taskService", TaskService.class);
 		knownContextParamMapping.put("executorService", ExecutorService.class);
 		knownContextParamMapping.put("classLoader", ClassLoader.class);
+		knownContextParamMapping.put("identityProvider", IdentityProvider.class);
 	}
 	
 	@Override

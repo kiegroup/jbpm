@@ -16,23 +16,25 @@
 
 package org.jbpm.persistence.scripts.quartzmockentities;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 
-@Entity(name = "qrtz_blob_triggers")
+@Entity(name = "QRTZ_BLOB_TRIGGERS")
 public class QrtzBlobTriggers {
 
     @Id
-    private Long id;
+    @Column(name = "SCHED_NAME")
+    private String schedulerName;
 
-    public QrtzBlobTriggers() {
-    }
+    @Column(name = "TRIGGER_NAME")
+    private String triggerName;
 
-    public Long getId() {
-        return id;
-    }
+    @Column(name = "TRIGGER_GROUP")
+    private String triggerGroup;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    @Lob
+    @Column(name = "BLOB_DATA")
+    private byte[] blobData;
 }

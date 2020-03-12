@@ -15,10 +15,6 @@
  */
 package org.jbpm.process.core.timer.impl;
 
-import static org.quartz.JobBuilder.newJob;
-import static org.quartz.JobKey.jobKey;
-import static org.quartz.TriggerBuilder.newTrigger;
-
 import java.io.NotSerializableException;
 import java.io.Serializable;
 import java.util.Collection;
@@ -58,6 +54,10 @@ import org.quartz.impl.jdbcjobstore.JobStoreCMT;
 import org.quartz.impl.jdbcjobstore.JobStoreSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.quartz.JobBuilder.newJob;
+import static org.quartz.JobKey.jobKey;
+import static org.quartz.TriggerBuilder.newTrigger;
 
 /**
  * Quartz based <code>GlobalSchedulerService</code> that is configured according
@@ -134,7 +134,9 @@ public class QuartzSchedulerService implements GlobalSchedulerService {
                                                                     quartzJobHandle,
                                                                     (InternalSchedulerService) globalTimerService );
         quartzJobHandle.setTimerJobInstance( (TimerJobInstance) jobInstance );
-
+        if (ctx instanceof ProcessJobContext) {
+            ((ProcessJobContext) ctx).getTimer().setJobHandle(quartzJobHandle);
+        }
         interceptor.internalSchedule(jobInstance);
         return quartzJobHandle;
     }

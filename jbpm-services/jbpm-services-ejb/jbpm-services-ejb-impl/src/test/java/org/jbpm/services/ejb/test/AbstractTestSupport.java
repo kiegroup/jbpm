@@ -94,8 +94,9 @@ public abstract class AbstractTestSupport {
         kfs.write("src/main/resources/forms/DefaultProcess.ftl", ResourceFactory.newClassPathResource("repo/globals/forms/DefaultProcess.ftl"));
         
         KieBuilder kieBuilder = ks.newKieBuilder(kfs);
-        if (!kieBuilder.buildAll().getResults().getMessages().isEmpty()) {
-            for (Message message : kieBuilder.buildAll().getResults().getMessages()) {
+        List<Message> messages = kieBuilder.buildAll().getResults().getMessages();
+        if (!messages.isEmpty()) {
+            for (Message message : messages) {
                 logger.error("Error Message: ({}) {}", message.getPath(), message.getText());
             }
             throw new RuntimeException(

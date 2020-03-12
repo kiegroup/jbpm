@@ -1,0 +1,13 @@
+drop table if exists qrtz_trigger_listeners;
+drop table if exists qrtz_job_listeners;
+drop table if exists qrtz_fired_triggers;
+drop table if exists qrtz_paused_trigger_grps;
+drop table if exists qrtz_scheduler_state;
+drop table if exists qrtz_locks;
+drop table if exists qrtz_simple_triggers;
+drop table if exists qrtz_simprop_triggers;
+drop table if exists qrtz_cron_triggers;
+drop table if exists qrtz_blob_triggers;
+drop table if exists qrtz_triggers;
+drop table if exists qrtz_job_details;
+drop table if exists qrtz_calendars;

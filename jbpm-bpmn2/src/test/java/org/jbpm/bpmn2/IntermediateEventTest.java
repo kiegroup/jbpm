@@ -2700,7 +2700,7 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
     public void testConditionalProcessFactInsertedBefore() throws Exception {
         KieBase kbase = createKnowledgeBase("BPMN2-IntermediateCatchEventConditionPI.bpmn2", "BPMN2-IntermediateCatchEventSignal.bpmn2");        
         ksession = createKnowledgeSession(kbase);
-        
+
         Person person0 = new Person("john");
         ksession.insert(person0);
         

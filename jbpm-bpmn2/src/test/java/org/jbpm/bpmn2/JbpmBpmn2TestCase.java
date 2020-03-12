@@ -16,12 +16,6 @@
 
 package org.jbpm.bpmn2;
 
-import static org.junit.Assert.*;
-import static org.kie.api.runtime.EnvironmentName.ENTITY_MANAGER_FACTORY;
-import static org.kie.api.runtime.EnvironmentName.OBJECT_MARSHALLING_STRATEGIES;
-import static org.kie.api.runtime.EnvironmentName.TRANSACTION_MANAGER;
-import static org.kie.api.runtime.EnvironmentName.USE_PESSIMISTIC_LOCKING;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -40,7 +34,6 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.transaction.Status;
 import javax.transaction.Transaction;
-
 import org.drools.compiler.builder.impl.KnowledgeBuilderConfigurationImpl;
 import org.drools.core.SessionConfiguration;
 import org.drools.core.audit.WorkingMemoryInMemoryLogger;
@@ -73,7 +66,6 @@ import org.jbpm.process.instance.event.DefaultSignalManagerFactory;
 import org.jbpm.process.instance.impl.DefaultProcessInstanceManagerFactory;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
 import org.jbpm.test.util.AbstractBaseTest;
-import org.kie.test.util.db.PoolingDataSourceWrapper;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -83,7 +75,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
-import org.junit.rules.Timeout;
 import org.junit.runner.Description;
 import org.kie.api.KieBase;
 import org.kie.api.KieServices;
@@ -110,11 +101,22 @@ import org.kie.internal.io.ResourceFactory;
 import org.kie.internal.persistence.jpa.JPAKnowledgeService;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
 import org.kie.internal.runtime.conf.ForceEagerActivationOption;
+import org.kie.test.util.db.PoolingDataSourceWrapper;
 import org.mvel2.MVEL;
 import org.mvel2.ParserContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.kie.api.runtime.EnvironmentName.ENTITY_MANAGER_FACTORY;
+import static org.kie.api.runtime.EnvironmentName.OBJECT_MARSHALLING_STRATEGIES;
+import static org.kie.api.runtime.EnvironmentName.TRANSACTION_MANAGER;
+import static org.kie.api.runtime.EnvironmentName.USE_PESSIMISTIC_LOCKING;
 
 /**
  * Base test case for the jbpm-bpmn2 module.
@@ -143,8 +145,8 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
     private RequireLocking testReqLocking;
     private RequirePersistence testReqPersistence;
 
-    @Rule
-    public Timeout globalTimeout = Timeout.seconds(30);
+//    @Rule
+//    public Timeout globalTimeout = Timeout.seconds(30);
 
     @Rule
     public TestRule watcher = new TestWatcher() {

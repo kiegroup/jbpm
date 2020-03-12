@@ -16,8 +16,6 @@
 
 package org.jbpm.test.container;
 
-import static java.lang.String.format;
-
 import org.assertj.core.api.Assertions;
 import org.jboss.arquillian.junit.Arquillian;
 import org.junit.ClassRule;
@@ -35,6 +33,8 @@ import org.kie.api.io.Resource;
 import org.kie.api.runtime.KieSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static java.lang.String.format;
 
 @RunWith(Arquillian.class)
 public abstract class JbpmContainerTest {

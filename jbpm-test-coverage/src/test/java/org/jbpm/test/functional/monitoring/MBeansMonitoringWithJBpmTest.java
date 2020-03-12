@@ -16,8 +16,16 @@
 
 package org.jbpm.test.functional.monitoring;
 
-import static org.junit.Assert.*;
+import java.lang.management.ManagementFactory;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+import java.util.Scanner;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
+import javax.management.JMX;
+import javax.management.MBeanServer;
 import org.drools.compiler.kie.builder.impl.InternalKieModule;
 import org.drools.core.ClockType;
 import org.drools.core.management.DroolsManagementAgent;
@@ -52,16 +60,10 @@ import org.kie.internal.runtime.conf.ForceEagerActivationOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.management.ManagementFactory;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-import java.util.Scanner;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import javax.management.JMX;
-import javax.management.MBeanServer;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class MBeansMonitoringWithJBpmTest {
     

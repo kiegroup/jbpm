@@ -345,8 +345,9 @@ public class EJBService {
             }
         }
         KieBuilder kieBuilder = ks.newKieBuilder(kfs);
-        if (!kieBuilder.buildAll().getResults().getMessages().isEmpty()) {
-            for (Message message : kieBuilder.buildAll().getResults().getMessages()) {
+        List<Message> messages = kieBuilder.buildAll().getResults().getMessages();
+        if (!messages .isEmpty()) {
+            for (Message message : messages) {
                 LOGGER.error("Error Message: ({}) {}", message.getPath(), message.getText());
             }
             throw new RuntimeException("There are errors building the package, please check your knowledge assets!");

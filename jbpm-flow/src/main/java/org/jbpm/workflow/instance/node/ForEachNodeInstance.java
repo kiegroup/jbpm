@@ -147,6 +147,7 @@ public class ForEachNodeInstance extends CompositeContextNodeInstance {
             		((NodeInstanceContainer) getNodeInstanceContainer()).getNodeInstance(getForEachSplitNode().getTo().getTo());
             		VariableScopeInstance variableScopeInstance = (VariableScopeInstance)
             			nodeInstance.resolveContextInstance(VariableScope.VARIABLE_SCOPE, variableName);
+            		variableScopeInstance.getVariableScope().validateVariable(getProcessInstance().getProcessName(), variableName, o);
             		variableScopeInstance.setVariable(variableName, o);
             		nodeInstances.add(nodeInstance);
             		

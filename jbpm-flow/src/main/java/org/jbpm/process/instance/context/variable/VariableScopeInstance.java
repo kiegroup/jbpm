@@ -25,6 +25,7 @@ import org.drools.core.ClassObjectFilter;
 import org.drools.core.event.ProcessEventSupport;
 import org.jbpm.process.core.context.variable.Variable;
 import org.jbpm.process.core.context.variable.VariableScope;
+import org.jbpm.process.core.context.variable.VariableViolationException;
 import org.jbpm.process.instance.ContextInstanceContainer;
 import org.jbpm.process.instance.InternalProcessRuntime;
 import org.jbpm.process.instance.context.AbstractContextInstance;
@@ -102,19 +103,24 @@ public class VariableScopeInstance extends AbstractContextInstance {
         	if (value == null) {
         		return;
         	}
-        } 
+        }
+        // check if variable that is being set is readonly and has already been set
+        if (oldValue != null && getVariableScope().isReadOnly(name)) {
+            throw new VariableViolationException(getProcessInstance().getId(), name, "Variable '" + name + "' is already set and is marked as read only");
+        }
+        
         ProcessEventSupport processEventSupport = ((InternalProcessRuntime) getProcessInstance()
     		.getKnowledgeRuntime().getProcessRuntime()).getProcessEventSupport();
     	processEventSupport.fireBeforeVariableChanged(
 			(variableIdPrefix == null ? "" : variableIdPrefix + ":") + name,
 			(variableInstanceIdPrefix == null? "" : variableInstanceIdPrefix + ":") + name,
-			oldValue, value, getProcessInstance(),
+			oldValue, value, getVariableScope().tags(name), getProcessInstance(),
 			getProcessInstance().getKnowledgeRuntime());
         internalSetVariable(name, value);
         processEventSupport.fireAfterVariableChanged(
 			(variableIdPrefix == null ? "" : variableIdPrefix + ":") + name,
 			(variableInstanceIdPrefix == null? "" : variableInstanceIdPrefix + ":") + name,
-    		oldValue, value, getProcessInstance(),
+    		oldValue, value, getVariableScope().tags(name), getProcessInstance(),
 			getProcessInstance().getKnowledgeRuntime());
     }
     
@@ -162,5 +168,41 @@ public class VariableScopeInstance extends AbstractContextInstance {
     		this.variableInstanceIdPrefix = ((CompositeContextNodeInstance) contextInstanceContainer).getUniqueId();
     	}
 	}
+    
+    public void enforceRequiredVariables() {
+        VariableScope variableScope = getVariableScope();
+        for (Variable variable : variableScope.getVariables()) {
+            String name = variable.getName();
+            if (variableScope.isRequired(name)) {  
+                // check case file if it is prefixed
+                if (name.startsWith(VariableScope.CASE_FILE_PREFIX)) {
+                    if (!findCaseData(name)) {
+                        throw new VariableViolationException(getProcessInstance().getId(), name, "Case file item '" + name + "' is required but not set");
+                        
+                    }
+                    // otherwise check variables                    
+                } else if (!variables.containsKey(name)) {
+                    throw new VariableViolationException(getProcessInstance().getId(), name, "Variable '" + name + "' is required but not set");
+                }
+                
+            }
+        }
+    }
+    
+    protected boolean findCaseData(String name) {
+        boolean found = false;
+        String nameInCaseFile = name.replaceFirst(VariableScope.CASE_FILE_PREFIX, "");            
+        // store it under case file rather regular variables
+        @SuppressWarnings("unchecked")
+        Collection<CaseData> caseFiles = (Collection<CaseData>) getProcessInstance().getKnowledgeRuntime().getObjects(new ClassObjectFilter(CaseData.class));
+        if (caseFiles.size() == 1) {
+            CaseData caseData = caseFiles.iterator().next();
+            if (caseData.getData(nameInCaseFile) != null) {
+                found = true;
+            }
+        }
+        
+        return found;
+    }
 
 }

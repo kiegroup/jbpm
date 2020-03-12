@@ -43,8 +43,8 @@ public class TriggerNodeCommand implements ExecutableCommand<Void>, ProcessInsta
     }
 
     public Void execute(Context context) {
-    	KieSession kieSession = ((RegistryContext) context).lookup( KieSession.class );
-    	logger.debug("About to trigger (create) node instance for node {} in process instance {}", nodeId, processInstanceId);
+        KieSession kieSession = ((RegistryContext) context).lookup(KieSession.class);
+        logger.debug("About to trigger (create) node instance for node {} in process instance {}", nodeId, processInstanceId);
         RuleFlowProcessInstance wfp = (RuleFlowProcessInstance) kieSession.getProcessInstance(processInstanceId, false);
         if (wfp == null) {
             throw new ProcessInstanceNotFoundException("Process instance with id " + processInstanceId + " not found");
@@ -62,10 +62,13 @@ public class TriggerNodeCommand implements ExecutableCommand<Void>, ProcessInsta
             if (node == null) {
                 throw new NodeNotFoundException("Node with id " + nodeId + " not found");
             }
-            NodeInstanceContainer nodeInstanceContainerNode =
-                    ((NodeInstanceContainer) wfp.getNodeInstance(wfp.getRuleFlowProcess().getParentNode(nodeId)));
+
+            Node parentNode = wfp.getRuleFlowProcess().getParentNode(nodeId);
+            // we need to unwrap the instance otherwise we are not getting the right nodeInstance
+            NodeInstanceContainer parentContainer = (NodeInstanceContainer) wfp.getNodeInstance(parentNode, false);
+
             logger.debug("Triggering node {} on process instance {}", node, wfp);
-            nodeInstanceContainerNode.getNodeInstance(node).trigger(null, org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE);
+            parentContainer.getNodeInstance(node).trigger(null, org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE);
             logger.debug("Node {} successfully triggered", node);
         } else {
             logger.debug("Triggering node {} on process instance {}", node, wfp);

@@ -30,8 +30,8 @@ ALTER TABLE NodeInstanceLog ADD nodeContainerId varchar(255);
 ALTER TABLE RequestInfo ADD processInstanceId numeric(19,0);
 
 ALTER TABLE AuditTaskImpl ADD lastModificationDate datetime;
-update AuditTaskImpl ati set lastModificationDate = (
-    select max(logTime) from TaskEvent where taskId=ati.taskId group by taskId
+update AuditTaskImpl set lastModificationDate = (
+    select max(logTime) from TaskEvent where taskId=AuditTaskImpl.taskId group by taskId
 );
 
 create table CaseFileDataLog (

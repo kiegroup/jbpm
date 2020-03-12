@@ -16,23 +16,61 @@
 
 package org.jbpm.persistence.scripts.quartzmockentities;
 
+import java.math.BigDecimal;
+
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
 
-@Entity(name = "qrtz_simprop_triggers")
+import org.hibernate.annotations.Type;
+
+@Entity(name = "QRTZ_SIMPROP_TRIGGERS")
+@IdClass(QrtzTriggersId.class)
 public class QrtzSimpropTriggers {
 
     @Id
-    private Long id;
+    @Column(name = "SCHED_NAME")
+    private String schedulerName;
 
-    public QrtzSimpropTriggers() {
-    }
+    @Id
+    @Column(name = "TRIGGER_NAME")
+    private String triggerName;
 
-    public Long getId() {
-        return id;
-    }
+    @Id
+    @Column(name = "TRIGGER_GROUP")
+    private String triggerGroup;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    @Column(name = "STR_PROP_1")
+    private String strProp1;
+
+    @Column(name = "STR_PROP_2")
+    private String strProp2;
+
+    @Column(name = "STR_PROP_3")
+    private String strProp3;
+
+    @Column(name = "INT_PROP_1")
+    private Integer intProp1;
+
+    @Column(name = "INT_PROP_2")
+    private Integer intProp2;
+
+    @Column(name = "LONG_PROP_1")
+    private Long longProp1;
+
+    @Column(name = "LONG_PROP_2")
+    private Long longProp2;
+
+    @Column(name = "DEC_PROP_1")
+    private BigDecimal decProp1;
+
+    @Column(name = "DEC_PROP_2")
+    private BigDecimal decProp2;
+    
+    @Column(name = "BOOL_PROP_1")
+    private Boolean boolProp1;
+    
+    @Column(name = "BOOL_PROP_2")
+    private Boolean boolProp2;
 }

@@ -16,23 +16,35 @@
 
 package org.jbpm.persistence.scripts.quartzmockentities;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
 
-@Entity(name = "qrtz_simple_triggers")
+import org.hibernate.annotations.Type;
+
+@Entity(name = "QRTZ_SIMPLE_TRIGGERS")
+@IdClass(QrtzTriggersId.class)
 public class QrtzSimpleTriggers {
 
     @Id
-    private Long id;
+    @Column(name = "SCHED_NAME")
+    private String schedulerName;
 
-    public QrtzSimpleTriggers() {
-    }
+    @Id
+    @Column(name = "TRIGGER_NAME")
+    private String triggerName;
 
-    public Long getId() {
-        return id;
-    }
+    @Id
+    @Column(name = "TRIGGER_GROUP")
+    private String triggerGroup;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    @Column(name = "REPEAT_COUNT")
+    private Long repeatCount;
+
+    @Column(name = "REPEAT_INTERVAL")
+    private Long repeatInterval;
+
+    @Column(name = "TIMES_TRIGGERED")
+    private Long timesTriggered;
 }

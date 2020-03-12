@@ -16,8 +16,6 @@
 
 package org.jbpm.process.workitem.bpmn2;
 
-import static org.junit.Assert.assertEquals;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -34,6 +32,8 @@ import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.KieSessionConfiguration;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.process.WorkflowProcessInstance;
+
+import static org.junit.Assert.assertEquals;
 
 public class ServiceTaskTest {
 

@@ -24,7 +24,7 @@ import java.util.Properties;
 public final class SQLCommandUtil {
 
     /**
-     * Preprocesses MS SQL Server SQL command. It modifies it so it can be executed without errors.
+     * Preprocesses MS SQL Server and Sybase SQL command. It modifies it so it can be executed without errors.
      * @param command Command that is preprocessed.
      * @param dataSourceProperties Properties of data source that is used to execute specified command.
      * @return Preprocessed SQL command.

@@ -20,23 +20,52 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.text.ParseException;
-
-import org.jbpm.persistence.scripts.util.TestsUtil;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static org.junit.Assume.assumeTrue;
+import static org.jbpm.persistence.scripts.TestPersistenceContext.createAndInitContext;
+import static org.jbpm.persistence.scripts.DatabaseType.DB2;
+import static org.jbpm.persistence.scripts.DatabaseType.SYBASE;
 
 /**
  * Contains tests that test database upgrade scripts.
  */
-public class UpgradeScriptsTest {
+public class UpgradeScriptsTest extends ScriptsBase {
 
-    private static final String TEST_PROCESS_ID = "minimalProcess";
+    private static final Logger logger = LoggerFactory.getLogger(UpgradeScriptsTest.class);
+
     private static final Long TEST_PROCESS_INSTANCE_ID = 1L;
     private static final Integer TEST_SESSION_ID = 1;
     private static final String DB_UPGRADE_SCRIPTS_RESOURCE_PATH = "/db/upgrade-scripts";
+    private static final String DB_60_SCRIPTS_RESOURCE_PATH = "/ddl60";
 
+    @BeforeClass
+    public static void hasToBeTested() {
+        // skip these upgrade tests for db2 (fails 'Call SYSPROC.ADMIN_CMD')
+        // and sybase (no 6.0 scripts exist)
+        TestPersistenceContext ctx = new TestPersistenceContext();
+        DatabaseType dbType = ctx.getDatabaseType();
+        assumeTrue(dbType!=DB2 && dbType!=SYBASE);
+    }
+    
+    private void createSchema60UsingDDLs() throws IOException, SQLException {
+        //create 6.0 schema
+        executeScriptRunner(DB_60_SCRIPTS_RESOURCE_PATH, true);
+    }
+    
+    private void dropFinalSchemaAfterUpgradingUsingDDLs() throws IOException, SQLException {
+        //drop schema
+        //need to drop constraints from 6.0 first
+        executeScriptRunner(DB_60_SCRIPTS_RESOURCE_PATH, false);
+        executeScriptRunner(DB_DDL_SCRIPTS_RESOURCE_PATH, false);
+    }
+    
     /**
      * Tests that DB schema is upgraded properly using database upgrade scripts.
      * @throws IOException
@@ -48,22 +77,18 @@ public class UpgradeScriptsTest {
     }
     
     public void testExecutingScripts(String type) throws IOException, SQLException {
-        // Clear schema.
-        TestsUtil.clearSchema();
-
-        final TestPersistenceContext scriptRunnerContext = new TestPersistenceContext();
-        scriptRunnerContext.init(PersistenceUnit.SCRIPT_RUNNER);
+        logger.info("entering testExecutingScripts with type: "+type);
         try {
-            // Prepare 6.0. schema
-            scriptRunnerContext.executeScripts(new File(getClass().getResource("/ddl60").getFile()));
-            // Execute upgrade scripts.
-            scriptRunnerContext.executeScripts(new File(getClass().getResource(DB_UPGRADE_SCRIPTS_RESOURCE_PATH).getFile()), type);
-        } finally {
-            scriptRunnerContext.clean();
+            createSchema60UsingDDLs();
+            executeScriptRunner(DB_UPGRADE_SCRIPTS_RESOURCE_PATH, true, type);
+            startAndPersistSomeProcess();
+        }finally {
+            dropFinalSchemaAfterUpgradingUsingDDLs();
         }
+    }
 
-        final TestPersistenceContext dbTestingContext = new TestPersistenceContext();
-        dbTestingContext.init(PersistenceUnit.DB_TESTING_VALIDATE);
+    private void startAndPersistSomeProcess() {
+        final TestPersistenceContext dbTestingContext = createAndInitContext(PersistenceUnit.DB_TESTING_VALIDATE);
         try {
             dbTestingContext.startAndPersistSomeProcess(TEST_PROCESS_ID);
             Assert.assertTrue(dbTestingContext.getStoredProcessesCount() == 1);
@@ -85,23 +110,29 @@ public class UpgradeScriptsTest {
     }
     
     public void testPersistedProcess(String type) throws IOException, ParseException, SQLException {
-        // Clear schema.
-        TestsUtil.clearSchema();
-
-        // Prepare + upgrade schema.
-        final TestPersistenceContext scriptRunnerContext = new TestPersistenceContext();
-        scriptRunnerContext.init(PersistenceUnit.SCRIPT_RUNNER);
+        logger.debug("entering testPersistedProcess with type: "+type);
         try {
-            // Prepare 6.0. schema
-            scriptRunnerContext.executeScripts(new File(getClass().getResource("/ddl60").getFile()));
+            createSchema60UsingDDLs();
+            upgradeDbWithOldProcessAndTask(type);
+            validateProcess();
+        } finally {
+            dropFinalSchemaAfterUpgradingUsingDDLs();
+        }
+    }
+
+    private void upgradeDbWithOldProcessAndTask(String type) throws IOException, SQLException {
+        final TestPersistenceContext scriptRunnerContext = createAndInitContext(PersistenceUnit.SCRIPT_RUNNER);
+        try {
             scriptRunnerContext.persistOldProcessAndSession(TEST_SESSION_ID, TEST_PROCESS_ID, TEST_PROCESS_INSTANCE_ID);
             scriptRunnerContext.createSomeTask();
             // Execute upgrade scripts.
-            scriptRunnerContext.executeScripts(new File(getClass().getResource(DB_UPGRADE_SCRIPTS_RESOURCE_PATH).getFile()), type);
+            scriptRunnerContext.executeScripts(new File(getClass().getResource(DB_UPGRADE_SCRIPTS_RESOURCE_PATH).getFile()), true, type);
         } finally {
             scriptRunnerContext.clean();
         }
+    }
 
+    private void validateProcess() {
         final TestPersistenceContext dbTestingContext = new TestPersistenceContext();
         dbTestingContext.init(PersistenceUnit.DB_TESTING_VALIDATE);
         try {

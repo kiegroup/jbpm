@@ -59,6 +59,7 @@ import org.jbpm.casemgmt.impl.util.AbstractCaseServicesBaseTest;
 import org.jbpm.casemgmt.impl.util.CountDownListenerFactory;
 import org.jbpm.document.Document;
 import org.jbpm.document.service.impl.DocumentImpl;
+import org.jbpm.process.core.context.variable.VariableViolationException;
 import org.jbpm.services.api.TaskNotFoundException;
 import org.jbpm.services.api.model.NodeInstanceDesc;
 import org.jbpm.services.api.model.ProcessInstanceDesc;
@@ -69,13 +70,14 @@ import org.jbpm.test.listener.process.NodeLeftCountDownProcessEventListener;
 import org.jbpm.workflow.instance.node.MilestoneNodeInstance;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.kie.api.command.ExecutableCommand;
 import org.kie.api.event.rule.MatchCreatedEvent;
 import org.kie.api.runtime.Context;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.CaseAssignment;
-import org.kie.api.runtime.process.NodeInstance;
 import org.kie.api.runtime.process.WorkflowProcessInstance;
 import org.kie.api.runtime.query.QueryContext;
 import org.kie.api.task.model.OrganizationalEntity;
@@ -85,6 +87,7 @@ import org.kie.internal.KieInternalServices;
 import org.kie.internal.command.RegistryContext;
 import org.kie.internal.process.CorrelationKey;
 import org.kie.internal.query.QueryFilter;
+import org.kie.internal.runtime.conf.ObjectModel;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
@@ -105,6 +108,19 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
 
     private static final Logger logger = LoggerFactory.getLogger(CaseServiceImplTest.class);
 
+    private static final String NEW_RESTRICTED_VALUE = "new restricted value";
+    
+    private static final List<String> RESTRICTED_TESTS = Arrays.asList(
+            "testCaseWithRestrictedCaseFileItem", 
+            "testCaseWithRequiredRestrictedCaseFileItem");
+    
+    private static final List<String> VIOLATING_RESTRICTED_TESTS = Arrays.asList(
+            "testCaseWithViolatingRestrictedCaseFileItem", 
+            "testCaseReopenWithViolatingRestrictedCaseFileItem",
+            "testAddDataCaseWithViolatingRestrictedCaseFileItem");
+
+    @Rule
+    public TestName name = new TestName();
 
     @Override
     protected List<String> getProcessDefinitionFiles() {
@@ -126,8 +142,13 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
         processes.add("cases/UserTaskCaseData.bpmn2");
         processes.add("cases/CaseWithStageAndBoundaryTimer.bpmn2");
         processes.add("cases/CaseWithBoundaryTimerStage.bpmn2");
+        processes.add("cases/NoStartNodeCaseWithBoundaryTimerStage.bpmn2");
+        processes.add("cases/UserTaskCaseRequiredCaseFileItem.bpmn2");
+        processes.add("cases/UserTaskCaseRestrictedCaseFileItem.bpmn2");
+        processes.add("cases/UserTaskCaseRequiredRestrictedCaseFileItem.bpmn2");
         // add processes that can be used by cases but are not cases themselves
         processes.add("processes/DataVerificationProcess.bpmn2");
+        processes.add("processes/DynamicSubProcess.bpmn2");
         return processes;
     }
 
@@ -861,8 +882,11 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
                 public Void execute(Context context) {
                     KieSession ksession = ((RegistryContext) context).lookup( KieSession.class );
                     
-                    NodeInstance milestone = ((WorkflowProcessInstance)ksession.getProcessInstance(processInstanceId)).getNodeInstances().stream().filter(ni -> ni.getNodeName().equals("Milestone2")).findFirst().get();
-                    ((MilestoneNodeInstance)milestone).signalEvent(eventName, event);
+                    MilestoneNodeInstance milestone = (MilestoneNodeInstance) ((WorkflowProcessInstance) ksession.getProcessInstance(processInstanceId)).getNodeInstances()
+                                                                                                                                                        .stream()
+                                                                                                                                                        .filter(ni -> ni.getNodeName().equals("Milestone2"))
+                                                                                                                                                        .findFirst().get();
+                    milestone.signalEvent(milestone.getActivationEventType(), event);
                     return null;
                 }          
             });
@@ -881,8 +905,11 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
                 public Void execute(Context context) {
                     KieSession ksession = ((RegistryContext) context).lookup( KieSession.class );
                     
-                    NodeInstance milestone = ((WorkflowProcessInstance)ksession.getProcessInstance(processInstanceId)).getNodeInstances().stream().filter(ni -> ni.getNodeName().equals("Milestone2")).findFirst().get();
-                    ((MilestoneNodeInstance)milestone).signalEvent(eventName, event);
+                    MilestoneNodeInstance milestone = (MilestoneNodeInstance) ((WorkflowProcessInstance) ksession.getProcessInstance(processInstanceId)).getNodeInstances()
+                                                                                                                                                        .stream()
+                                                                                                                                                        .filter(ni -> ni.getNodeName().equals("Milestone2"))
+                                                                                                                                                        .findFirst().get();
+                    milestone.signalEvent(milestone.getActivationEventType(), event);
                     return null;
                 }          
             });
@@ -3790,5 +3817,327 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
                 caseService.cancelCase(caseId);
             }
         }
+    }
+    
+    @Test(timeout=15000)
+    public void testCaseWithHumanTaskAfterReopen() {
+        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new UserImpl("john"));
+        
+        Map<String, Object> data = new HashMap<>();
+        data.put("contactInfo", "main street 10, NYC");
+        CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), USER_TASK_DATA_CASE_P_ID, data, roleAssignments);
+
+        String caseId = caseService.startCase(deploymentUnit.getIdentifier(), USER_TASK_DATA_CASE_P_ID, caseFile);
+        assertNotNull(caseId);
+        assertEquals(FIRST_CASE_ID, caseId);
+        try {
+            CaseInstance cInstance = caseService.getCaseInstance(caseId, true, false, false, false);
+            assertNotNull(cInstance);
+            assertEquals(deploymentUnit.getIdentifier(), cInstance.getDeploymentId());
+            
+            identityProvider.setName("john");
+            List<TaskSummary> tasks = caseRuntimeDataService.getCaseTasksAssignedAsPotentialOwner(caseId, "john", null, new QueryContext());
+            assertThat(tasks).isNotNull().hasSize(1);
+            
+            Map<String, Object> results = new HashMap<>();
+            results.put("reply_", "here is my reply");
+            
+            userTaskService.completeAutoProgress(tasks.get(0).getId(), "john", results);
+            
+            caseService.closeCase(caseId, "closed temporarily");
+            caseService.reopenCase(caseId, deploymentUnit.getIdentifier(), USER_TASK_DATA_CASE_P_ID);
+            cInstance = caseService.getCaseInstance(caseId, true, false, false, false);
+            assertNotNull(cInstance);
+            assertEquals(deploymentUnit.getIdentifier(), cInstance.getDeploymentId());
+            
+            Map<String, Object> caseData = cInstance.getCaseFile().getData();
+            assertNotNull(caseData);
+            assertEquals(2, caseData.size());  
+            assertEquals("main street 10, NYC", caseData.get("contactInfo"));
+            assertEquals("here is my reply", caseData.get("reply"));
+            
+            Collection<CaseFileItem> dataItems = caseRuntimeDataService.getCaseInstanceDataItems(caseId, new QueryContext());
+            assertThat(dataItems).isNotNull().hasSize(2);
+                        
+            Map<String, CaseFileItem> mappedDataItems = dataItems.stream().collect(toMap(CaseFileItem::getName, t -> t));
+            assertThat(mappedDataItems).containsKeys("reply", "contactInfo");
+        } catch (Exception e) {
+            logger.error("Unexpected error {}", e.getMessage(), e);
+            fail("Unexpected exception " + e.getMessage());
+        } finally {
+            if (caseId != null) {
+                identityProvider.setName("john");
+                caseService.cancelCase(caseId);
+            }
+        }
+    }
+    
+    @Test(timeout=15000)
+    public void testCaseWithBoundaryTimerFiredAtStageAndThenReopen() throws InterruptedException {
+        String caseId = caseService.startCase(deploymentUnit.getIdentifier(), STAGE_WITH_BOUNDARY_EVENT_CONDITION);
+        assertNotNull(caseId);
+        assertEquals(FIRST_CASE_ID, caseId);
+        
+        Collection<CaseStageInstance> activeStages = caseRuntimeDataService.getCaseInstanceStages(caseId, true, new QueryContext());
+        assertThat(activeStages).hasSize(0);
+
+        caseService.addDataToCaseFile(caseId, "readyToActivate", true);
+        
+        activeStages = caseRuntimeDataService.getCaseInstanceStages(caseId, true, new QueryContext());
+        assertThat(activeStages).hasSize(1);
+        
+        // wait till we hit end node
+        ((NodeLeftCountDownProcessEventListener) CountDownListenerFactory.getExisting(getClass().getSimpleName() + "2")).waitTillCompleted();
+        try {
+            Collection<CaseStageInstance> stages = caseRuntimeDataService.getCaseInstanceStages(caseId, false, null);
+            assertThat(stages).isNotNull().hasSize(2);
+            Iterator<CaseStageInstance> iterator = stages.iterator();
+
+            CaseStageInstance stage = iterator.next();
+            assertThat(stage.getName()).isEqualTo("Stage 1");
+            assertThat(stage.getStatus()).isEqualTo(StageStatus.Completed);
+
+            caseService.cancelCase(caseId);
+            
+            caseService.reopenCase(caseId, deploymentUnit.getIdentifier(), STAGE_WITH_BOUNDARY_EVENT_CONDITION);
+            
+            activeStages = caseRuntimeDataService.getCaseInstanceStages(caseId, true, new QueryContext());
+            //Stage 1 should be not active as boundary event was fired and completion condition set,
+            //and Stage 2 should be
+            assertThat(activeStages).hasSize(1);
+            stage = activeStages.iterator().next();
+            assertThat(stage.getName()).isEqualTo("Stage 2");
+            assertThat(stage.getStatus()).isEqualTo(StageStatus.Active);
+        } catch (Exception e) {
+            logger.error("Unexpected error {}", e.getMessage(), e);
+            fail("Unexpected exception " + e.getMessage());
+        } finally {
+            if (caseId != null) {
+                caseService.cancelCase(caseId);
+            }
+        }
+    }
+    
+    @Test(timeout=15000)
+    public void testReopenAfterAddingDynamicSubprocess() {
+        Map<String, Object> data = new HashMap<>();
+        CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), USER_TASK_CASE_P_ID, data);
+
+        String caseId = caseService.startCase(deploymentUnit.getIdentifier(), USER_TASK_STAGE_CASE_P_ID, caseFile);
+        assertNotNull(caseId);
+        assertEquals(FIRST_CASE_ID, caseId);
+        try {
+            CaseInstance cInstance = caseService.getCaseInstance(caseId);
+            assertNotNull(cInstance);
+            assertEquals(FIRST_CASE_ID, cInstance.getCaseId());
+            assertEquals(deploymentUnit.getIdentifier(), cInstance.getDeploymentId());
+
+            CaseDefinition caseDef = caseRuntimeDataService.getCase(deploymentUnit.getIdentifier(), USER_TASK_STAGE_CASE_P_ID);
+            assertNotNull(caseDef);
+            assertEquals(1, caseDef.getCaseStages().size());
+            assertEquals(deploymentUnit.getIdentifier(), caseDef.getDeploymentId());
+
+            CaseStage stage = caseDef.getCaseStages().iterator().next();
+
+            // add dynamic user task to empty case instance - first by case id
+            Map<String, Object> parameters = new HashMap<>();
+                        
+            caseService.addDynamicSubprocessToStage(FIRST_CASE_ID, stage.getId(), DYNAMIC_SUBPROCESS_P_ID, parameters);
+            
+            caseService.addDataToCaseFile(FIRST_CASE_ID, "stage_subprocess_finished", true);
+            
+            caseService.cancelCase(FIRST_CASE_ID);
+            caseService.reopenCase(FIRST_CASE_ID, deploymentUnit.getIdentifier(), USER_TASK_STAGE_CASE_P_ID);
+            
+            Map<String, Object> caseData = caseService.getCaseFileInstance(FIRST_CASE_ID).getData();
+            assertNotNull(caseData);
+            assertEquals("is not easy to say", caseData.get("mySecret"));
+            
+        } catch (Exception e) {
+            logger.error("Unexpected error {}", e.getMessage(), e);
+            fail("Unexpected exception " + e.getMessage());
+        } finally {
+            if (caseId != null) {
+                caseService.cancelCase(caseId);
+            }
+        }
+    }
+
+    @Test
+    public void testCaseWithRequiredCaseFileItem() {
+        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new UserImpl("john"));
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("s", "this is a required value");
+        CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), USER_TASK_REQUIRED_V_CASE_P_ID, data, roleAssignments);
+
+        String caseId = caseService.startCase(deploymentUnit.getIdentifier(), USER_TASK_REQUIRED_V_CASE_P_ID, caseFile);
+        assertNotNull(caseId);
+        assertEquals(FIRST_CASE_ID, caseId);
+        try {
+            CaseInstance cInstance = caseService.getCaseInstance(caseId);
+            assertNotNull(cInstance);
+            assertEquals(FIRST_CASE_ID, cInstance.getCaseId());
+            assertEquals(deploymentUnit.getIdentifier(), cInstance.getDeploymentId());
+
+        } catch (Exception e) {
+            logger.error("Unexpected error {}", e.getMessage(), e);
+            fail("Unexpected exception " + e.getMessage());
+        } finally {
+            if (caseId != null) {
+                caseService.cancelCase(caseId);
+            }
+        }
+    }
+    
+    @Test
+    public void testCaseWithMissingRequiredCaseFileItem() {
+        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new UserImpl("john"));
+
+        Map<String, Object> data = new HashMap<>();
+        CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), USER_TASK_REQUIRED_V_CASE_P_ID, data, roleAssignments);
+
+        assertThatExceptionOfType(VariableViolationException.class)
+            .isThrownBy(() -> caseService.startCase(deploymentUnit.getIdentifier(), USER_TASK_REQUIRED_V_CASE_P_ID, caseFile));
+      
+        
+        assertThatExceptionOfType(CaseNotFoundException.class)
+            .isThrownBy(() -> caseService.getCaseInstance(FIRST_CASE_ID));
+        
+    }
+    
+    @Test
+    public void testCaseWithRestrictedCaseFileItem() {
+        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new UserImpl("john"));
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("s", "first restricted value");
+        CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), USER_TASK_RESTRICTED_V_CASE_P_ID, data, roleAssignments);
+
+        String caseId = caseService.startCase(deploymentUnit.getIdentifier(), USER_TASK_RESTRICTED_V_CASE_P_ID, caseFile);
+        assertNotNull(caseId);
+        assertEquals(FIRST_CASE_ID, caseId);
+        try {
+            CaseInstance cInstance = caseService.getCaseInstance(caseId);
+            assertNotNull(cInstance);
+            assertEquals(FIRST_CASE_ID, cInstance.getCaseId());
+            assertEquals(deploymentUnit.getIdentifier(), cInstance.getDeploymentId());
+            
+            caseService.cancelCase(caseId);
+            data.put("s", NEW_RESTRICTED_VALUE);
+            caseService.reopenCase(FIRST_CASE_ID, deploymentUnit.getIdentifier(), USER_TASK_RESTRICTED_V_CASE_P_ID, data);
+            Map<String, Object> caseData = caseService.getCaseFileInstance(FIRST_CASE_ID).getData();
+            assertNotNull(caseData);
+            assertEquals(NEW_RESTRICTED_VALUE, caseData.get("s"));
+            
+        } catch (Exception e) {
+            logger.error("Unexpected error {}", e.getMessage(), e);
+            fail("Unexpected exception " + e.getMessage());
+        } finally {
+            if (caseId != null) {
+                caseService.cancelCase(caseId);
+            }
+        }
+    }
+    
+    @Test
+    public void testCaseWithViolatingRestrictedCaseFileItem() {
+        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new UserImpl("john"));
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("s", "this is a restricted value");
+        CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), USER_TASK_RESTRICTED_V_CASE_P_ID, data, roleAssignments);
+
+        assertThatExceptionOfType(VariableViolationException.class)
+        .isThrownBy(() -> caseService.startCase(deploymentUnit.getIdentifier(), USER_TASK_RESTRICTED_V_CASE_P_ID, caseFile));
+    
+        assertThatExceptionOfType(CaseNotFoundException.class)
+        .isThrownBy(() -> caseService.getCaseInstance(FIRST_CASE_ID));
+    }
+    
+    @Test
+    public void testCaseReopenWithViolatingRestrictedCaseFileItem() {
+        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new UserImpl("john"));
+
+        Map<String, Object> data = new HashMap<>();
+        CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), USER_TASK_RESTRICTED_V_CASE_P_ID, data, roleAssignments);
+        
+        String caseId = caseService.startCase(deploymentUnit.getIdentifier(), USER_TASK_RESTRICTED_V_CASE_P_ID, caseFile);
+        
+        CaseInstance cInstance = caseService.getCaseInstance(caseId);
+        assertNotNull(cInstance);
+        assertEquals(FIRST_CASE_ID, cInstance.getCaseId());
+        assertEquals(deploymentUnit.getIdentifier(), cInstance.getDeploymentId());
+        
+        caseService.cancelCase(caseId);
+        data.put("s", NEW_RESTRICTED_VALUE);
+        
+        assertThatExceptionOfType(VariableViolationException.class)
+        .isThrownBy(() -> caseService.reopenCase(FIRST_CASE_ID, deploymentUnit.getIdentifier(), USER_TASK_RESTRICTED_V_CASE_P_ID, data));
+    }
+    
+    @Test
+    public void testAddDataCaseWithViolatingRestrictedCaseFileItem() {
+        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new UserImpl("john"));
+
+        Map<String, Object> data = new HashMap<>();
+        CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), USER_TASK_RESTRICTED_V_CASE_P_ID, data, roleAssignments);
+        String caseId = caseService.startCase(deploymentUnit.getIdentifier(), USER_TASK_RESTRICTED_V_CASE_P_ID, caseFile);
+        CaseInstance cInstance = caseService.getCaseInstance(caseId);
+        assertNotNull(cInstance);
+        assertEquals(FIRST_CASE_ID, cInstance.getCaseId());
+        assertEquals(deploymentUnit.getIdentifier(), cInstance.getDeploymentId());
+        
+        assertThatExceptionOfType(VariableViolationException.class)
+        .isThrownBy(() -> caseService.addDataToCaseFile(caseId, "s", NEW_RESTRICTED_VALUE));
+    }
+    
+    @Test
+    public void testCaseWithRequiredRestrictedCaseFileItem() {
+        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new UserImpl("john"));
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("s", "required and restricted value");
+        CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), USER_TASK_REQUIRED_RESTRICTED_V_CASE_P_ID, data, roleAssignments);
+
+        String caseId = caseService.startCase(deploymentUnit.getIdentifier(), USER_TASK_REQUIRED_RESTRICTED_V_CASE_P_ID, caseFile);
+        assertNotNull(caseId);
+        assertEquals(FIRST_CASE_ID, caseId);
+        try {
+            CaseInstance cInstance = caseService.getCaseInstance(caseId);
+            assertNotNull(cInstance);
+            assertEquals(FIRST_CASE_ID, cInstance.getCaseId());
+            assertEquals(deploymentUnit.getIdentifier(), cInstance.getDeploymentId());
+        } catch (Exception e) {
+            logger.error("Unexpected error {}", e.getMessage(), e);
+            fail("Unexpected exception " + e.getMessage());
+        } finally {
+            if (caseId != null) {
+                caseService.cancelCase(caseId);
+            }
+        }
+    }
+    
+    @Override
+    protected List<ObjectModel> getProcessListeners() {
+        List<ObjectModel> listeners = super.getProcessListeners();
+
+        if (RESTRICTED_TESTS.contains(name.getMethodName())) {
+          identityProvider.setRoles(Arrays.asList("admin"));
+          listeners.add(new ObjectModel("mvel", "new org.jbpm.process.instance.event.listeners.VariableGuardProcessEventListener(\"admin\", identityProvider)"));
+        } else if (VIOLATING_RESTRICTED_TESTS.contains(name.getMethodName())) {
+          identityProvider.setRoles(Arrays.asList("normal"));
+          listeners.add(new ObjectModel("mvel", "new org.jbpm.process.instance.event.listeners.VariableGuardProcessEventListener(\"admin\", identityProvider)"));
+        }
+
+        return listeners;
     }
 }

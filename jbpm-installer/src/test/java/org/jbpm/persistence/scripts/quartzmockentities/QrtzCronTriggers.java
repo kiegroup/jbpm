@@ -16,23 +16,30 @@
 
 package org.jbpm.persistence.scripts.quartzmockentities;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
 
-@Entity(name = "qrtz_cron_triggers")
+@Entity(name = "QRTZ_CRON_TRIGGERS")
+@IdClass(QrtzTriggersId.class)
 public class QrtzCronTriggers {
 
     @Id
-    private Long id;
+    @Column(name = "SCHED_NAME")
+    private String schedulerName;
 
-    public QrtzCronTriggers() {
-    }
+    @Id
+    @Column(name = "TRIGGER_NAME")
+    private String triggerName;
 
-    public Long getId() {
-        return id;
-    }
+    @Id
+    @Column(name = "TRIGGER_GROUP")
+    private String triggerGroup;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    @Column(name = "CRON_EXPRESSION")
+    private String cronExpression;
+
+    @Column(name = "TIME_ZONE_ID")
+    private String timeZoneId;
 }

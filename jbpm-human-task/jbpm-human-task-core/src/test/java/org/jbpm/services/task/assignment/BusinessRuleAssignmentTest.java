@@ -25,14 +25,12 @@ import java.util.Map;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
-
 import org.assertj.core.api.Assertions;
 import org.drools.compiler.kie.builder.impl.InternalKieModule;
 import org.jbpm.services.task.HumanTaskServiceFactory;
 import org.jbpm.services.task.assignment.impl.strategy.BusinessRuleAssignmentStrategy;
 import org.jbpm.services.task.impl.TaskDeadlinesServiceImpl;
 import org.jbpm.services.task.impl.factories.TaskFactory;
-import org.kie.test.util.db.PoolingDataSourceWrapper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,6 +49,7 @@ import org.kie.api.task.model.Task;
 import org.kie.api.task.model.User;
 import org.kie.internal.io.ResourceFactory;
 import org.kie.internal.task.api.InternalTaskService;
+import org.kie.test.util.db.PoolingDataSourceWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -302,8 +301,9 @@ public class BusinessRuleAssignmentTest extends AbstractAssignmentTest {
         }
 
         KieBuilder kieBuilder = ks.newKieBuilder(kfs);
-        if (!kieBuilder.buildAll().getResults().getMessages().isEmpty()) {
-            for (Message message : kieBuilder.buildAll().getResults().getMessages()) {
+        List<Message> messages = kieBuilder.buildAll().getResults().getMessages();
+        if (!messages.isEmpty()) {
+            for (Message message : messages) {
                 logger.error("Error Message: ({}) {}", message.getPath(), message.getText());
             }
             throw new RuntimeException(

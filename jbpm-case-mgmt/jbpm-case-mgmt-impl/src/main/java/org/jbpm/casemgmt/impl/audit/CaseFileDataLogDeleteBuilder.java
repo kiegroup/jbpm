@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2019 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,16 @@
  * limitations under the License.
  */
 
-package org.jbpm.persistence.scripts.quartzmockentities;
+package org.jbpm.casemgmt.impl.audit;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import java.util.Date;
 
-@Entity(name = "qrtz_job_listeners")
-public class QrtzJobListeners {
+import org.kie.internal.runtime.manager.audit.query.AuditDeleteBuilder;
 
-    @Id
-    private Long id;
+public interface CaseFileDataLogDeleteBuilder extends AuditDeleteBuilder<CaseFileDataLogDeleteBuilder> {
 
-    public QrtzJobListeners() {
-    }
+    CaseFileDataLogDeleteBuilder dateRangeEnd(Date rangeStart);
 
-    public Long getId() {
-        return id;
-    }
+    CaseFileDataLogDeleteBuilder inCaseDefId(String caseDefId);
 
-    public void setId(Long id) {
-        this.id = id;
-    }
 }

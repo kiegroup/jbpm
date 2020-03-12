@@ -16,8 +16,10 @@
 
 package org.jbpm.casemgmt.impl.command;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -26,6 +28,7 @@ import org.drools.core.event.ProcessEventSupport;
 import org.jbpm.casemgmt.api.model.instance.CaseFileInstance;
 import org.jbpm.casemgmt.impl.event.CaseEventSupport;
 import org.jbpm.casemgmt.impl.model.instance.CaseFileInstanceImpl;
+import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.instance.InternalProcessRuntime;
 import org.jbpm.process.instance.ProcessInstance;
 import org.jbpm.services.api.ProcessService;
@@ -93,6 +96,9 @@ public class ReopenCaseCommand extends CaseCommand<Void> {
         // set case id to allow it to use CaseContext when creating runtime engine
         params.put(EnvironmentName.CASE_ID, caseId);
         long processInstanceId = processService.startProcess(deploymentId, caseDefinitionId, correlationKey, params);
+        logger.debug("Removing case file from working memory to allow refiring of rules...");
+        ksession.delete(factHandle);
+        ksession.insert(caseFile);
         final Map<String, Object> caseData = caseFile.getData();
         if (caseData != null && !caseData.isEmpty()) {
             processService.execute(deploymentId, CaseContext.get(caseId), new ExecutableCommand<Void>() {
@@ -105,12 +111,22 @@ public class ReopenCaseCommand extends CaseCommand<Void> {
                     ProcessInstance pi = (ProcessInstance) ksession.getProcessInstance(processInstanceId);
                     if (pi != null) {
                         ProcessEventSupport processEventSupport = ((InternalProcessRuntime) ((InternalKnowledgeRuntime) ksession).getProcessRuntime()).getProcessEventSupport();
+                        VariableScope variableScope = (VariableScope) pi.getContextContainer().getDefaultContext(VariableScope.VARIABLE_SCOPE);
                         for (Entry<String, Object> entry : caseData.entrySet()) {  
                             String name = "caseFile_" + entry.getKey();
+                            List<String> tags = variableScope == null ? Collections.emptyList() : variableScope.tags(name);
+                            processEventSupport.fireBeforeVariableChanged(
+                                name,
+                                name,
+                                null, entry.getValue(), 
+                                tags,
+                                pi,
+                                (KieRuntime) ksession );
                             processEventSupport.fireAfterVariableChanged(
                                 name,
                                 name,
                                 null, entry.getValue(), 
+                                tags,
                                 pi,
                                 (KieRuntime) ksession );
                         }

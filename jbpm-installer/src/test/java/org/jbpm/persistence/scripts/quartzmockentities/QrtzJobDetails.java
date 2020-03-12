@@ -16,23 +16,49 @@
 
 package org.jbpm.persistence.scripts.quartzmockentities;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
+import javax.persistence.Lob;
 
-@Entity(name = "qrtz_job_details")
+import org.hibernate.annotations.Type;
+
+@Entity(name = "QRTZ_JOB_DETAILS")
+@IdClass(QrtzJobDetailsId.class)
 public class QrtzJobDetails {
 
     @Id
-    private Long id;
+    @Column(name = "SCHED_NAME")
+    private String schedulerName;
 
-    public QrtzJobDetails() {
-    }
+    @Id
+    @Column(name = "JOB_NAME")
+    private String jobName;
 
-    public Long getId() {
-        return id;
-    }
+    @Id
+    @Column(name = "JOB_GROUP")
+    private String jobGroup;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    @Column(name = "DESCRIPTION")
+    private String description;
+
+    @Column(name = "JOB_CLASS_NAME")
+    private String jobClassName;
+
+    @Column(name = "IS_DURABLE")
+    private Boolean isDurable;
+
+    @Column(name = "IS_NONCONCURRENT")
+    private Boolean isNonConcurent;
+
+    @Column(name = "IS_UPDATE_DATA")
+    private Boolean isUpdateDataBoolean;
+
+    @Column(name = "REQUESTS_RECOVERY")
+    private Boolean requestsRecovery;
+
+    @Lob
+    @Column(name = "JOB_DATA")
+    private byte[] jobData;
 }

@@ -22,8 +22,12 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 
+import org.drools.persistence.api.TransactionManager;
+import org.drools.persistence.api.TransactionManagerFactory;
 import org.jbpm.runtime.manager.impl.jpa.ExecutionErrorInfo;
 import org.kie.api.runtime.process.ProcessInstance;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Command that will auto acknowledge process instance errors 
@@ -38,34 +42,41 @@ import org.kie.api.runtime.process.ProcessInstance;
  */
 public class ProcessAutoAckErrorCommand extends AutoAckErrorCommand {
 
+    private static final Logger logger = LoggerFactory.getLogger(ProcessAutoAckErrorCommand.class);
+
     private static final String RULE = "Process instances that previously failed but now are in different nodes - meaning node where they were was already completed - or completed/aborted";
     
-    @SuppressWarnings("unchecked")
+
     @Override
     protected List<ExecutionErrorInfo> findErrorsToAck(EntityManager em) {
         List<ExecutionErrorInfo> errorsToAck = new ArrayList<>();
-        
-        String findProcessErrorsQuery = "select error from ExecutionErrorInfo error "
-                + "where error.acknowledged =:acknowledged "
-                + "and error.processInstanceId in (select pil.id from ProcessInstanceLog pil where status in (:status))";
-        
-        List<ExecutionErrorInfo> processErrorsToAck = em.createQuery(findProcessErrorsQuery)
-                .setParameter("acknowledged", new Short("0"))
-                .setParameter("status", Arrays.asList(ProcessInstance.STATE_COMPLETED, ProcessInstance.STATE_ABORTED))
-                .getResultList();
-        errorsToAck.addAll(processErrorsToAck);
-        
-        String findNodeErrorsQuery = "select error from ExecutionErrorInfo error "
-                + "where error.acknowledged =:acknowledged "
-                + "and error.initActivityId in (select nil.nodeInstanceId from NodeInstanceLog nil where nil.processInstanceId = error.processInstanceId and nil.nodeInstanceId = error.initActivityId and nil.type = 1)";
-        
-        List<ExecutionErrorInfo> nodeErrorsToAck = em.createQuery(findNodeErrorsQuery)
-                .setParameter("acknowledged", new Short("0"))
-                .getResultList();
-        errorsToAck.addAll(nodeErrorsToAck);
-        
+
+        TransactionManager txm = TransactionManagerFactory.get().newTransactionManager();
+        boolean txOwner = txm.begin();
+        try {
+            String findProcessErrorsQuery = "select error from ExecutionErrorInfo error where error.acknowledged =:acknowledged " +
+                                            "and error.processInstanceId in (select pil.id from ProcessInstanceLog pil where status in (:status))";
+
+            List<ExecutionErrorInfo> processErrorsToAck = em.createQuery(findProcessErrorsQuery, ExecutionErrorInfo.class)
+                                                            .setParameter("acknowledged", new Short("0"))
+                                                            .setParameter("status", Arrays.asList(ProcessInstance.STATE_COMPLETED, ProcessInstance.STATE_ABORTED))
+                                                            .getResultList();
+            errorsToAck.addAll(processErrorsToAck);
+
+            String findNodeErrorsQuery = "select error from ExecutionErrorInfo error where error.acknowledged =:acknowledged " +
+                                         "and CAST(error.initActivityId AS string) in (select nil.nodeInstanceId from NodeInstanceLog nil where nil.processInstanceId = error.processInstanceId and nil.nodeInstanceId = CAST(error.initActivityId AS string) and nil.type = '1')";
+
+            List<ExecutionErrorInfo> nodeErrorsToAck = em.createQuery(findNodeErrorsQuery, ExecutionErrorInfo.class)
+                                                         .setParameter("acknowledged", new Short("0"))
+                                                         .getResultList();
+            errorsToAck.addAll(nodeErrorsToAck);
+            txm.commit(txOwner);
+        } catch (Exception e) {
+            logger.error("Execution error in command ProcessAutoAckErrorCommand", e);
+            txm.rollback(txOwner);
+        }
         return errorsToAck;
-        
+
     }
 
     @Override
