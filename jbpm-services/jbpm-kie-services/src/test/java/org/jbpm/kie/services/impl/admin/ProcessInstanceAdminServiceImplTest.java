@@ -247,20 +247,22 @@ public class ProcessInstanceAdminServiceImplTest extends AbstractKieServicesBase
         List<TaskSummary> tasks = runtimeDataService.getTasksAssignedAsPotentialOwner("salaboy", new QueryFilter());
         assertEquals(1, tasks.size());
         TaskSummary task = tasks.get(0);
-        
+
+        // aborts the current node
         processAdminService.retriggerNodeInstance(processInstanceId, active.getId());
                 
         activeNodes = processAdminService.getActiveNodeInstances(processInstanceId);
         assertNotNull(activeNodes);
         assertEquals(1, activeNodes.size());
 
+        // this does not return aborted node instances
         Collection<NodeInstanceDesc> completedNodes = runtimeDataService.getProcessInstanceHistoryCompleted(processInstanceId, new QueryFilter());
         assertNotNull(completedNodes);
-        assertEquals(2, completedNodes.size());
+        assertEquals(1, completedNodes.size());
+
         final List<NodeInstanceDesc> nodeInstances = completedNodes.stream().filter(node -> node.getId().equals(active.getId())).collect(Collectors.toList());
-        assertEquals(1, nodeInstances.size());
-        assertTrue(nodeInstances.get(0).isCompleted());
-        
+        assertEquals(0, nodeInstances.size());
+
         NodeInstanceDesc activeRetriggered = activeNodes.iterator().next();        
         assertFalse(active.getId().longValue() == activeRetriggered.getId().longValue());
         
