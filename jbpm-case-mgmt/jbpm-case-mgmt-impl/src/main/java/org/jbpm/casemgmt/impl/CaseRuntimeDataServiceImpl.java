@@ -340,44 +340,47 @@ public class CaseRuntimeDataServiceImpl implements CaseRuntimeDataService, Deplo
 
     @Override
     public Collection<CaseMilestoneInstance> getCaseInstanceMilestones(String caseId, boolean achievedOnly, QueryContext queryContext) {
-        ProcessInstanceDesc pi = runtimeDataService.getProcessInstanceByCorrelationKey(correlationKeyFactory.newCorrelationKey(caseId));        
+        ProcessInstanceDesc pi = runtimeDataService.getProcessInstanceByCorrelationKey(correlationKeyFactory.newCorrelationKey(caseId));
         if (pi == null || !pi.getState().equals(ProcessInstance.STATE_ACTIVE)) {
             throw new CaseNotFoundException("No case instance found with id " + caseId + " or it's not active anymore");
         }
         CorrelationKey correlationKey = correlationKeyFactory.newCorrelationKey(caseId);
-        
-        Collection<org.jbpm.services.api.model.NodeInstanceDesc> nodes = runtimeDataService.getNodeInstancesByCorrelationKeyNodeType(correlationKey, 
-                                                                                                Arrays.asList(ProcessInstance.STATE_ACTIVE), 
-                                                                                                Arrays.asList("MilestoneNode"), 
-                                                                                                queryContext);
-        
-        Collection<Long> completedNodes = nodes.stream().filter(n -> ((NodeInstanceDesc)n).getType() == 1).map(n -> n.getId()).collect(toList());
-        Predicate<org.jbpm.services.api.model.NodeInstanceDesc> filterNodes = null;
-        if (achievedOnly) {            
-            filterNodes = n -> ((NodeInstanceDesc)n).getType() == 1;             
-        } else {
-            filterNodes = n -> ((NodeInstanceDesc)n).getType() == 0;
-        }
-        List<String> foundMilestones = new ArrayList<>();
-        
-        List<CaseMilestoneInstance> milestones = nodes.stream()
-        .filter(filterNodes)
-        .map(n -> {
-            foundMilestones.add(n.getName());
-            return new CaseMilestoneInstanceImpl(String.valueOf(n.getId()), n.getName(), completedNodes.contains(n.getId()), n.getDataTimeStamp());        
-        })
-        .collect(toList());
-        
+
+        Collection<org.jbpm.services.api.model.NodeInstanceDesc> nodes = runtimeDataService.getNodeInstancesByCorrelationKeyNodeType(correlationKey,
+                                                                                                                                     Arrays.asList(ProcessInstance.STATE_ACTIVE, ProcessInstance.STATE_ABORTED),
+                                                                                                                                     Arrays.asList("MilestoneNode"),
+                                                                                                                                     queryContext);
+
+        // achieved milestones
+        Map<String, List<CaseMilestoneInstance>> milestonesGroup = nodes.stream()
+                                                                        .map(n -> (NodeInstanceDesc) n)
+                                                                        .filter(n -> n.getType() == 1)
+                                                                        .map(n -> new CaseMilestoneInstanceImpl(String.valueOf(n.getId()), n.getName(), true, n.getDataTimeStamp()))
+                                                                        .collect(Collectors.groupingBy(CaseMilestoneInstance::getName));
+
+        List<CaseMilestoneInstance> milestones = milestonesGroup.values().stream().map(e -> e.stream().min(this::compareMilestones).get()).collect(toList());
+        List<String> foundMilestones = milestones.stream().map(CaseMilestoneInstance::getName).collect(toList());
+
         if (!achievedOnly) {
             // add other milestones that are present in the definition
             CaseDefinition caseDef = getCase(pi.getDeploymentId(), pi.getProcessId());
             caseDef.getCaseMilestones().stream()
-            .filter(cm -> !foundMilestones.contains(cm.getName()))
-            .map(cm -> new CaseMilestoneInstanceImpl(cm.getId(), cm.getName(), false, null))
-            .forEach(cmi -> milestones.add(cmi));
+                   .filter(cm -> !foundMilestones.contains(cm.getName()))
+                   .map(cm -> new CaseMilestoneInstanceImpl(cm.getId(), cm.getName(), false, null))
+                   .forEach(cmi -> milestones.add(cmi));
         }
-        
-        return applyPagination(milestones, queryContext);
+
+        List<CaseMilestoneInstance> sortedMilestones = milestones.stream().sorted(this::compareMilestones).collect(toList());
+        return applyPagination(sortedMilestones, queryContext);
+    }
+
+    private int compareMilestones(CaseMilestoneInstance o1, CaseMilestoneInstance o2) {
+        if (o1.getAchievedAt() == null) {
+            return -1;
+        } else if (o2.getAchievedAt() == null) {
+            return 1;
+        }
+        return o1.getAchievedAt().compareTo(o2.getAchievedAt());
     }
 
     @Override

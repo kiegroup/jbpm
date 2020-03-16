@@ -77,8 +77,13 @@ public abstract class NodeInstanceImpl implements org.jbpm.workflow.instance.Nod
     protected int slaCompliance = ProcessInstance.SLA_NA;
     protected Date slaDueDate;
     protected long slaTimerId = -1;
+    protected boolean aborted = false;
     
     protected transient Map<String, Object> dynamicParameters;
+
+    public boolean isAborted() {
+        return aborted;
+    }
 
     public void setId(final long id) {
         this.id = id;
@@ -145,6 +150,7 @@ public abstract class NodeInstanceImpl implements org.jbpm.workflow.instance.Nod
     }
     
     public void cancel() {
+        this.aborted = true;
         boolean hidden = false;
         Node node = getNode();
     	if (node != null && node.getMetaData().get("hidden") != null) {
