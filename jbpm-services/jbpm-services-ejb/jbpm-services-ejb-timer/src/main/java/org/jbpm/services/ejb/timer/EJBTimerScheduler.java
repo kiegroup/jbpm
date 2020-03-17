@@ -16,6 +16,11 @@
 
 package org.jbpm.services.ejb.timer;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
@@ -189,7 +194,8 @@ public class EJBTimerScheduler {
     }
 
 	public void internalSchedule(TimerJobInstance timerJobInstance) {
-		TimerConfig config = new TimerConfig(new EjbTimerJob(timerJobInstance), true);
+        Serializable info = removeTransientFields(new EjbTimerJob(timerJobInstance));
+        TimerConfig config = new TimerConfig(info, true);
 		Date expirationTime = timerJobInstance.getTrigger().hasNextFireTime();
 		logger.debug("Timer expiration date is {}", expirationTime);
 		if (expirationTime != null) {
@@ -204,6 +210,22 @@ public class EJBTimerScheduler {
 	}
 
 
+    private Serializable removeTransientFields(Serializable info) {
+        // removing transient fields
+        try {
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            ObjectOutputStream out = new ObjectOutputStream(bos);
+            out.writeObject(info);
+            out.flush();
+            ObjectInputStream stream = new ObjectInputStream(new ByteArrayInputStream(bos.toByteArray()));
+            return (Serializable) stream.readObject();
+        } catch (IOException io) {
+            logger.warn("Not possible to serialize the timer info", io);
+        } catch (ClassNotFoundException cnf) {
+            logger.warn("Class not found in class loader", cnf);
+        }
+        return info;
+    }
 
 	public boolean removeJob(JobHandle jobHandle) {
 		EjbGlobalJobHandle ejbHandle = (EjbGlobalJobHandle) jobHandle;
