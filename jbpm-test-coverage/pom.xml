@@ -134,13 +134,6 @@
 
   <properties>
     <java.module.name>org.jbpm.testcoverage</java.module.name>
-    <maven.hibernate.dialect>org.hibernate.dialect.H2Dialect</maven.hibernate.dialect>
-    <maven.datasource.classname>org.h2.jdbcx.JdbcDataSource</maven.datasource.classname>
-    <maven.jdbc.driver.class>org.h2.Driver</maven.jdbc.driver.class>
-    <maven.jdbc.db.name />
-    <maven.jdbc.db.port />
-    <maven.jdbc.db.server />
-    <maven.jdbc.url>jdbc:h2:mem:test;MVCC=true</maven.jdbc.url>
 
     <!-- Don't run the tests by default as they take considerable amount 
       of time to complete. The tests can be re-enabled by activation of profile 

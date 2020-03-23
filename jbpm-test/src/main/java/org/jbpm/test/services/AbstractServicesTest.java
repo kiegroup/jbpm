@@ -23,12 +23,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import org.drools.compiler.kie.builder.impl.InternalKieModule;
 import org.jbpm.runtime.manager.impl.jpa.EntityManagerFactoryManager;
 import org.jbpm.services.api.DeploymentService;
 import org.jbpm.services.api.model.DeploymentUnit;
+import org.jbpm.test.AbstractBaseTest;
 import org.kie.api.KieServices;
 import org.kie.api.builder.KieBuilder;
 import org.kie.api.builder.KieFileSystem;
@@ -45,14 +45,13 @@ import org.kie.internal.runtime.conf.DeploymentDescriptor;
 import org.kie.internal.runtime.conf.NamedObjectModel;
 import org.kie.internal.runtime.conf.ObjectModel;
 import org.kie.scanner.KieMavenRepository;
-import org.kie.test.util.db.DataSourceFactory;
 import org.kie.test.util.db.PoolingDataSourceWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.kie.scanner.KieMavenRepository.getKieMavenRepository;
 
-public abstract class AbstractServicesTest {
+public abstract class AbstractServicesTest extends AbstractBaseTest {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractServicesTest.class);
 
@@ -180,19 +179,13 @@ public abstract class AbstractServicesTest {
         return kfs;
     }
 
+    @Override
     protected String getJndiDatasourceName() {
         return "jdbc/testDS1";
     }
 
     protected void buildDatasource() {
-        Properties driverProperties = new Properties();
-        driverProperties.put("user", "sa");
-        driverProperties.put("password", "sasa");
-        driverProperties.put("url", "jdbc:h2:mem:mydb");
-        driverProperties.put("driverClassName", "org.h2.Driver");
-        driverProperties.put("className", "org.h2.jdbcx.JdbcDataSource");
-
-        ds = DataSourceFactory.setupPoolingDataSource(getJndiDatasourceName(), driverProperties);
+        ds = setupPoolingDataSource();
     }
 
     protected void closeDataSource() {

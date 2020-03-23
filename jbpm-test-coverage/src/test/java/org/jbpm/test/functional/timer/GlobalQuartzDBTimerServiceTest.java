@@ -86,7 +86,6 @@ public class GlobalQuartzDBTimerServiceTest extends GlobalTimerServiceBaseTest {
         cleanupSingletonSessionId();
         emf = Persistence.createEntityManagerFactory("org.jbpm.test.persistence");
         System.setProperty("org.quartz.properties", "quartz-db.properties");
-        testCreateQuartzSchema();
         globalScheduler = new QuartzSchedulerService();
         ((QuartzSchedulerService)globalScheduler).forceShutdown();
     }

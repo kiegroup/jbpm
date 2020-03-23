@@ -80,12 +80,10 @@ public abstract class JbpmTestCase extends JbpmJUnitBaseTestCase {
     );
 
     @Override
-    protected PoolingDataSourceWrapper setupPoolingDataSource() {
+    protected Properties getDataSourceProperties(){
         Properties dsProps = PersistenceUtil.getDatasourceProperties();
         dsProps.setProperty("POOL_CONNECTIONS", "false");
-        // Setup the datasource
-        PoolingDataSourceWrapper ds1 = PersistenceUtil.setupPoolingDataSource(dsProps, "jdbc/jbpm-ds");
-        return ds1;
+        return dsProps;
     }
 
     public KieSession createKSession(String... process) {

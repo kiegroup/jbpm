@@ -12,7 +12,6 @@
 
   <properties>
     <java.module.name>org.jbpm.casemgmt.cmmn</java.module.name>
-    <maven.jdbc.url>jdbc:h2:tcp://localhost/target/jbpm-bpmn-db;MVCC=TRUE</maven.jdbc.url>
   </properties>
 
   <dependencies>

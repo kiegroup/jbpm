@@ -17,13 +17,6 @@
 
   <properties>
     <java.module.name>org.jbpm.test</java.module.name>
-    <maven.hibernate.dialect>org.hibernate.dialect.H2Dialect</maven.hibernate.dialect>
-    <maven.datasource.classname>org.h2.jdbcx.JdbcDataSource</maven.datasource.classname>
-    <maven.jdbc.driver.class>org.h2.Driver</maven.jdbc.driver.class>
-    <maven.jdbc.db.name />
-    <maven.jdbc.db.port />
-    <maven.jdbc.db.server />
-    <maven.jdbc.url>jdbc:h2:mem:test;MVCC=true</maven.jdbc.url>
   </properties>
 
   <dependencies>
@@ -149,6 +142,16 @@
   </dependencies>
 
   <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>false</filtering>
+      </resource>
+      <resource>
+        <directory>src/main/filtered-resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
     <testResources>
       <testResource>
         <directory>src/test/resources</directory>

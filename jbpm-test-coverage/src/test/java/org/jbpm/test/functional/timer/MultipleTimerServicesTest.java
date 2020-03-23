@@ -18,6 +18,8 @@ package org.jbpm.test.functional.timer;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -96,7 +98,6 @@ public class MultipleTimerServicesTest extends TimerBaseTest {
         }
         
         System.setProperty("org.quartz.properties", "quartz-db.properties");
-        testCreateQuartzSchema();
         cleanupSingletonSessionId();
         emf = Persistence.createEntityManagerFactory("org.jbpm.test.persistence");
         emf2 = Persistence.createEntityManagerFactory("org.jbpm.test.persistence");

@@ -52,7 +52,7 @@ public class TimerCycleOnBinaryPackageTest extends JbpmBpmn2TestCase {
     }
 
     @BeforeClass
-    public static void setup() throws Exception {
+    public static void setup() {
         setUpDataSource();
     }
     

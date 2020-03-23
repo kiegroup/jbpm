@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.lang.reflect.Method;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -45,7 +44,6 @@ import org.drools.core.impl.KnowledgeBaseFactory;
 import org.drools.core.util.DroolsStreamUtils;
 import org.drools.core.util.MVELSafeHelper;
 import org.h2.tools.DeleteDbFiles;
-import org.h2.tools.Server;
 import org.jbpm.bpmn2.test.RequireLocking;
 import org.jbpm.bpmn2.test.RequirePersistence;
 import org.jbpm.bpmn2.xml.BPMNDISemanticModule;
@@ -54,7 +52,6 @@ import org.jbpm.bpmn2.xml.BPMNSemanticModule;
 import org.jbpm.bpmn2.xml.XmlBPMNProcessDumper;
 import org.jbpm.compiler.xml.XmlProcessReader;
 import org.jbpm.marshalling.impl.ProcessInstanceResolverStrategy;
-import org.jbpm.test.persistence.util.PersistenceUtil;
 import org.jbpm.process.audit.AuditLogService;
 import org.jbpm.process.audit.AuditLoggerFactory;
 import org.jbpm.process.audit.AuditLoggerFactory.Type;
@@ -65,6 +62,7 @@ import org.jbpm.process.audit.VariableInstanceLog;
 import org.jbpm.process.instance.event.DefaultSignalManagerFactory;
 import org.jbpm.process.instance.impl.DefaultProcessInstanceManagerFactory;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
+import org.jbpm.test.persistence.util.PersistenceUtil;
 import org.jbpm.test.util.AbstractBaseTest;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 import org.junit.After;
@@ -134,8 +132,7 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
     private static boolean setupDataSource = false;
     protected boolean sessionPersistence = false;
     protected boolean pessimisticLocking = false;
-    private static H2Server server = new H2Server();
-    
+
     protected WorkingMemoryInMemoryLogger logger;
     protected AuditLogService logService;
 
@@ -144,9 +141,6 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
 
     private RequireLocking testReqLocking;
     private RequirePersistence testReqPersistence;
-
-//    @Rule
-//    public Timeout globalTimeout = Timeout.seconds(30);
 
     @Rule
     public TestRule watcher = new TestWatcher() {
@@ -210,12 +204,10 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
 
     /**
      * Can be called manually in method annotated with @BeforeClass.
-     * 
-     * @throws Exception
+     *
      */
-    public static void setUpDataSource() throws Exception {
+    public static void setUpDataSource() {
         setupDataSource = true;
-        server.start();
         ds = setupPoolingDataSource();
         emf = Persistence.createEntityManagerFactory("org.jbpm.persistence.jpa");
     }
@@ -286,7 +278,7 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
                 }
                 ds = null;
             }
-            server.stop();
+            PersistenceUtil.stopH2TcpServer();
             DeleteDbFiles.execute("~", "jbpm-db", true);
 
             if (runningTransactionStatus != null) {
@@ -796,7 +788,7 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
     
     public void assertProcessVarValue(ProcessInstance processInstance, String varName, Object varValue) {
         String actualValue = getProcessVarValue(processInstance, varName);
-        assertEquals("Variable " + varName + " value misatch!",  varValue, actualValue );
+        assertEquals("Variable " + varName + " value mismatch!",  varValue, actualValue );
     }
 
     public void assertNodeExists(ProcessInstance process, String... nodeNames) {
@@ -921,36 +913,4 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
     protected void assertProcessInstanceActive(long processInstanceId, KieSession ksession) {
         assertNotNull(ksession.getProcessInstance(processInstanceId));
     }
-
-    private static class H2Server {
-        private Server server;
-
-        public synchronized void start() {
-            if (server == null || !server.isRunning(false)) {
-                try {
-                    DeleteDbFiles.execute("~", "jbpm-db", true);
-                    server = Server.createTcpServer(new String[0]);
-                    server.start();
-                } catch (SQLException e) {
-                    throw new RuntimeException(
-                            "Cannot start h2 server database", e);
-                }
-            }
-        }
-
-        public synchronized void finalize() throws Throwable {
-            stop();
-            super.finalize();
-        }
-
-        public void stop() {
-            if (server != null) {
-                server.stop();
-                server.shutdown();
-                DeleteDbFiles.execute("~", "jbpm-db", true);
-                server = null;
-            }
-        }
-    }
-
 }

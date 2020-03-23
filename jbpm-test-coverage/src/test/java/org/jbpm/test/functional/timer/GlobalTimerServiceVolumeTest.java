@@ -119,7 +119,6 @@ public class GlobalTimerServiceVolumeTest extends TimerBaseTest {
         userGroupCallback = new JBossUserGroupCallbackImpl(properties);
 
         System.setProperty("org.quartz.properties", "quartz-db.properties");
-        testCreateQuartzSchema();
         globalScheduler = new QuartzSchedulerService();
 
         emf = Persistence.createEntityManagerFactory("org.jbpm.test.persistence");
