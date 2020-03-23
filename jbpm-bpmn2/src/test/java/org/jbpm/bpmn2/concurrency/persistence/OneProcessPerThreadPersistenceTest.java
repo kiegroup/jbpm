@@ -16,13 +16,10 @@
 
 package org.jbpm.bpmn2.concurrency.persistence;
 
-import static org.jbpm.persistence.util.PersistenceUtil.*;
-import static org.junit.Assert.*;
-
 import java.util.HashMap;
 
 import org.jbpm.bpmn2.concurrency.OneProcessPerThreadTest;
-import org.jbpm.persistence.util.PersistenceUtil;
+import org.jbpm.test.persistence.util.PersistenceUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -31,10 +28,15 @@ import org.kie.api.runtime.Environment;
 import org.kie.api.runtime.KieSession;
 import org.kie.internal.persistence.jpa.JPAKnowledgeService;
 
+import static org.jbpm.test.persistence.util.PersistenceUtil.cleanUp;
+import static org.jbpm.test.persistence.util.PersistenceUtil.createEnvironment;
+import static org.jbpm.test.persistence.util.PersistenceUtil.setupWithPoolingDataSource;
+import static org.junit.Assert.assertTrue;
+
 /**
  * Class to reproduce bug with multiple threads using persistence and each
  * configures its own entity manager.
- * 
+ *
  * This test takes time and resources, please only run it locally
  */
 @Ignore

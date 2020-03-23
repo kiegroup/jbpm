@@ -54,7 +54,7 @@ import org.jbpm.bpmn2.xml.BPMNSemanticModule;
 import org.jbpm.bpmn2.xml.XmlBPMNProcessDumper;
 import org.jbpm.compiler.xml.XmlProcessReader;
 import org.jbpm.marshalling.impl.ProcessInstanceResolverStrategy;
-import org.jbpm.persistence.util.PersistenceUtil;
+import org.jbpm.test.persistence.util.PersistenceUtil;
 import org.jbpm.process.audit.AuditLogService;
 import org.jbpm.process.audit.AuditLoggerFactory;
 import org.jbpm.process.audit.AuditLoggerFactory.Type;

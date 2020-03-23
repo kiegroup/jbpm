@@ -24,8 +24,8 @@ import java.util.stream.Collectors;
 import org.jbpm.persistence.api.integration.InstanceView;
 import org.jbpm.persistence.api.integration.model.ProcessInstanceView;
 import org.jbpm.persistence.api.integration.model.TaskInstanceView;
-import org.jbpm.persistence.processinstance.objects.TestEventEmitter;
 import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.persistence.processinstance.objects.TestEventEmitter;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.RuntimeEngine;
@@ -37,7 +37,7 @@ import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 
 /**

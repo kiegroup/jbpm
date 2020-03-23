@@ -17,8 +17,9 @@
 package org.jbpm.xes;
 
 import java.util.Properties;
-import org.jbpm.persistence.util.PersistenceUtil;
+
 import org.jbpm.test.JbpmJUnitBaseTestCase;
+import org.jbpm.test.persistence.util.PersistenceUtil;
 import org.kie.test.util.db.PoolingDataSourceWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

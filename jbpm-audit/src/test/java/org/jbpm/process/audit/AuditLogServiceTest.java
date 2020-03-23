@@ -16,10 +16,10 @@
 
 package org.jbpm.process.audit;
 
-import static org.jbpm.persistence.util.PersistenceUtil.JBPM_PERSISTENCE_UNIT_NAME;
-import static org.jbpm.persistence.util.PersistenceUtil.cleanUp;
-import static org.jbpm.persistence.util.PersistenceUtil.createEnvironment;
-import static org.jbpm.persistence.util.PersistenceUtil.setupWithPoolingDataSource;
+import static org.jbpm.test.persistence.util.PersistenceUtil.JBPM_PERSISTENCE_UNIT_NAME;
+import static org.jbpm.test.persistence.util.PersistenceUtil.cleanUp;
+import static org.jbpm.test.persistence.util.PersistenceUtil.createEnvironment;
+import static org.jbpm.test.persistence.util.PersistenceUtil.setupWithPoolingDataSource;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -36,7 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class tests the following classes: 
+ * This class tests the following classes:
  * <ul>
  * <li>JPAWorkingMemoryDbLogger</li>
  * <li>AuditLogService</li>

@@ -17,9 +17,9 @@
 package org.jbpm.persistence.processinstance;
 
 import static org.kie.api.runtime.EnvironmentName.*;
-import static org.jbpm.persistence.util.PersistenceUtil.JBPM_PERSISTENCE_UNIT_NAME;
-import static org.jbpm.persistence.util.PersistenceUtil.cleanUp;
-import static org.jbpm.persistence.util.PersistenceUtil.setupWithPoolingDataSource;
+import static org.jbpm.test.persistence.util.PersistenceUtil.JBPM_PERSISTENCE_UNIT_NAME;
+import static org.jbpm.test.persistence.util.PersistenceUtil.cleanUp;
+import static org.jbpm.test.persistence.util.PersistenceUtil.setupWithPoolingDataSource;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -37,8 +37,8 @@ import org.drools.core.marshalling.impl.ClassObjectMarshallingStrategyAcceptor;
 import org.drools.core.marshalling.impl.SerializablePlaceholderResolverStrategy;
 import org.drools.persistence.jpa.marshaller.JPAPlaceholderResolverStrategy;
 import org.jbpm.marshalling.impl.ProcessInstanceResolverStrategy;
-import org.jbpm.persistence.processinstance.objects.NonSerializableClass;
-import org.jbpm.persistence.util.PersistenceUtil;
+import org.jbpm.test.persistence.processinstance.objects.NonSerializableClass;
+import org.jbpm.test.persistence.util.PersistenceUtil;
 import org.jbpm.test.util.AbstractBaseTest;
 import org.junit.After;
 import org.junit.Assert;
@@ -64,7 +64,7 @@ import org.slf4j.LoggerFactory;
 public class ProcessInstanceResolverStrategyTest extends AbstractBaseTest {
 
     private static final Logger logger = LoggerFactory.getLogger(ProcessInstanceResolverStrategyTest.class);
-    
+
     private HashMap<String, Object> context;
     private StatefulKnowledgeSession ksession;
 

@@ -71,7 +71,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
-import static org.jbpm.persistence.util.PersistenceUtil.*;
+import static org.jbpm.test.persistence.util.PersistenceUtil.*;
 import static org.junit.Assert.*;
 
 @RunWith(Parameterized.class)

@@ -154,7 +154,7 @@ public class GlobalTimerServiceVolumeTest extends TimerBaseTest {
         } else if ("case".equals(strategy)) {
             manager = RuntimeManagerFactory.Factory.get().newPerCaseRuntimeManager(environment, "first");
         } else {
-            throw new RuntimeException("Unknow type of runtime strategy");
+            throw new RuntimeException("Unknown type of runtime strategy");
         }
 
     }

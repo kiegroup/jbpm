@@ -16,10 +16,10 @@
 
 package org.jbpm.event.emitters.elasticsearch;
 
-import static org.jbpm.persistence.util.PersistenceUtil.JBPM_PERSISTENCE_UNIT_NAME;
-import static org.jbpm.persistence.util.PersistenceUtil.cleanUp;
-import static org.jbpm.persistence.util.PersistenceUtil.createEnvironment;
-import static org.jbpm.persistence.util.PersistenceUtil.setupWithPoolingDataSource;
+import static org.jbpm.test.persistence.util.PersistenceUtil.JBPM_PERSISTENCE_UNIT_NAME;
+import static org.jbpm.test.persistence.util.PersistenceUtil.cleanUp;
+import static org.jbpm.test.persistence.util.PersistenceUtil.createEnvironment;
+import static org.jbpm.test.persistence.util.PersistenceUtil.setupWithPoolingDataSource;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 

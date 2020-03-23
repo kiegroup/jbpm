@@ -1,1 +1,1 @@
-org.jbpm.persistence.processinstance.objects.TestTransactionalPersistenceEventManager
+org.jbpm.test.persistence.processinstance.objects.TestTransactionalPersistenceEventManager

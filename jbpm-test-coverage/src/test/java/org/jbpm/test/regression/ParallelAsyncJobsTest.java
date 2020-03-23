@@ -29,7 +29,7 @@ import org.jbpm.executor.AsynchronousJobEvent;
 import org.jbpm.executor.impl.ExecutorServiceImpl;
 import org.jbpm.executor.impl.wih.AsyncWorkItemHandler;
 import org.jbpm.executor.test.CountDownAsyncJobListener;
-import org.jbpm.persistence.util.PersistenceUtil;
+import org.jbpm.test.persistence.util.PersistenceUtil;
 import org.jbpm.test.JbpmAsyncJobTestCase;
 import org.kie.test.util.db.PoolingDataSourceWrapper;
 import org.junit.Test;

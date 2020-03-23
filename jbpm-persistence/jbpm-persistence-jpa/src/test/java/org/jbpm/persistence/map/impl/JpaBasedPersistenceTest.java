@@ -16,7 +16,7 @@
 
 package org.jbpm.persistence.map.impl;
 
-import static org.jbpm.persistence.util.PersistenceUtil.*;
+import static org.jbpm.test.persistence.util.PersistenceUtil.*;
 import static org.kie.api.runtime.EnvironmentName.ENTITY_MANAGER_FACTORY;
 import static org.kie.api.runtime.EnvironmentName.USE_PESSIMISTIC_LOCKING;
 
@@ -27,7 +27,7 @@ import java.util.HashMap;
 import javax.persistence.EntityManagerFactory;
 
 import org.drools.persistence.jta.JtaTransactionManager;
-import org.jbpm.persistence.util.PersistenceUtil;
+import org.jbpm.test.persistence.util.PersistenceUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -46,7 +46,7 @@ public class JpaBasedPersistenceTest extends MapPersistenceTest {
     private EntityManagerFactory emf;
     private JtaTransactionManager txm;
     private boolean useTransactions = false;
-    
+
     public JpaBasedPersistenceTest(boolean locking) { 
        this.useLocking = locking; 
     }

@@ -24,18 +24,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import org.jbpm.persistence.util.PersistenceUtil;
+import org.jbpm.test.persistence.util.PersistenceUtil;
 import org.kie.test.util.db.PoolingDataSourceWrapper;
 import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TestUtil {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(TestUtil.class);
 
     protected static final String DATASOURCE_PROPERTIES = "/datasource.properties";
-    
+
     protected static final String MAX_POOL_SIZE = "maxPoolSize";
     protected static final String ALLOW_LOCAL_TXS = "allowLocalTransactions";
     

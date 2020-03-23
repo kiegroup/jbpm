@@ -89,6 +89,7 @@
     </issueManagement>
 
     <modules>
+        <module>jbpm-db-scripts</module>
         <module>jbpm-test-util</module>
         <module>jbpm-flow</module>
         <module>jbpm-flow-builder</module>

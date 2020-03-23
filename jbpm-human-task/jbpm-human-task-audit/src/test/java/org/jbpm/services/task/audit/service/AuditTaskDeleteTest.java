@@ -16,8 +16,8 @@
 
 package org.jbpm.services.task.audit.service;
 
-import static org.jbpm.persistence.util.PersistenceUtil.cleanUp;
-import static org.jbpm.persistence.util.PersistenceUtil.setupWithPoolingDataSource;
+import static org.jbpm.test.persistence.util.PersistenceUtil.cleanUp;
+import static org.jbpm.test.persistence.util.PersistenceUtil.setupWithPoolingDataSource;
 import static org.junit.Assert.assertEquals;
 import static org.kie.api.runtime.EnvironmentName.ENTITY_MANAGER_FACTORY;
 
@@ -52,22 +52,22 @@ import org.kie.internal.task.query.AuditTaskDeleteBuilder;
 import org.kie.internal.task.query.AuditTaskQueryBuilder;
 
 public class AuditTaskDeleteTest extends TaskJPAAuditService {
-    
+
     private static HashMap<String, Object> context;
     private static EntityManagerFactory emf;
 
     private Task [] taskTestData;
-    
-    
+
+
     @BeforeClass
-    public static void configure() { 
+    public static void configure() {
         LoggingPrintStream.interceptSysOutSysErr();
     }
-    
+
     @AfterClass
-    public static void reset() { 
+    public static void reset() {
         LoggingPrintStream.resetInterceptSysOutSysErr();
-        
+
     }
 
     @Before

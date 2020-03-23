@@ -24,7 +24,7 @@ import org.kie.api.runtime.process.ProcessInstance;
 
 import java.util.Properties;
 
-import static org.jbpm.persistence.util.PersistenceUtil.createEnvironment;
+import static org.jbpm.test.persistence.util.PersistenceUtil.createEnvironment;
 
 /**
  * This class tests the following classes:

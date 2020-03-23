@@ -50,7 +50,7 @@ import org.jbpm.persistence.session.objects.MySubEntityMethods;
 import org.jbpm.persistence.session.objects.MyVariableExtendingSerializable;
 import org.jbpm.persistence.session.objects.MyVariableSerializable;
 import org.jbpm.persistence.session.objects.TestWorkItemHandler;
-import org.jbpm.persistence.util.PersistenceUtil;
+import org.jbpm.test.persistence.util.PersistenceUtil;
 import org.jbpm.process.core.Work;
 import org.jbpm.process.core.context.variable.Variable;
 import org.jbpm.process.core.datatype.impl.type.ObjectDataType;
@@ -90,8 +90,13 @@ import org.kie.internal.persistence.jpa.JPAKnowledgeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.jbpm.persistence.util.PersistenceUtil.*;
-import static org.junit.Assert.*;
+import static org.jbpm.test.persistence.util.PersistenceUtil.JBPM_PERSISTENCE_UNIT_NAME;
+import static org.jbpm.test.persistence.util.PersistenceUtil.cleanUp;
+import static org.jbpm.test.persistence.util.PersistenceUtil.setupWithPoolingDataSource;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 @RunWith(Parameterized.class)
 public class VariablePersistenceStrategyTest extends AbstractBaseTest {

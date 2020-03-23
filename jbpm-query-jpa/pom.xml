@@ -127,10 +127,9 @@
    
     <dependency>
       <groupId>org.jbpm</groupId>
-      <artifactId>jbpm-persistence-jpa</artifactId>
-      <type>test-jar</type>
+      <artifactId>jbpm-test-util</artifactId>
       <scope>test</scope>
-    </dependency> 
+    </dependency>
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-core</artifactId>

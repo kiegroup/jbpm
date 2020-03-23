@@ -16,10 +16,10 @@
 
 package org.jbpm.persistence.processinstance;
 
-import static org.jbpm.persistence.util.PersistenceUtil.JBPM_PERSISTENCE_UNIT_NAME;
-import static org.jbpm.persistence.util.PersistenceUtil.cleanUp;
-import static org.jbpm.persistence.util.PersistenceUtil.createEnvironment;
-import static org.jbpm.persistence.util.PersistenceUtil.setupWithPoolingDataSource;
+import static org.jbpm.test.persistence.util.PersistenceUtil.JBPM_PERSISTENCE_UNIT_NAME;
+import static org.jbpm.test.persistence.util.PersistenceUtil.cleanUp;
+import static org.jbpm.test.persistence.util.PersistenceUtil.createEnvironment;
+import static org.jbpm.test.persistence.util.PersistenceUtil.setupWithPoolingDataSource;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -51,9 +51,9 @@ import org.kie.internal.runtime.StatefulKnowledgeSession;
 
 @RunWith(Parameterized.class)
 public class ParameterMappingTest extends AbstractBaseTest {
-    
+
     private HashMap<String, Object> context;
-    
+
     private static final String PROCESS_ID = "org.jbpm.processinstance.subprocess";
     private static final String SUBPROCESS_ID = "org.jbpm.processinstance.helloworld";
     private StatefulKnowledgeSession ksession;

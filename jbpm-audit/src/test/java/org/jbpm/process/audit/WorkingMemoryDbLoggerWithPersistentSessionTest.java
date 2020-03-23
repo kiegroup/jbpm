@@ -16,7 +16,7 @@
 
 package org.jbpm.process.audit;
 
-import static org.jbpm.persistence.util.PersistenceUtil.createEnvironment;
+import static org.jbpm.test.persistence.util.PersistenceUtil.createEnvironment;
 import static org.jbpm.process.audit.AbstractAuditLogServiceTest.createKieSession;
 
 import org.jbpm.process.instance.impl.demo.SystemOutWorkItemHandler;
@@ -26,7 +26,7 @@ import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessInstance;
 
 /**
- * This class tests the following classes: 
+ * This class tests the following classes:
  * <ul>
  * <li>WorkingMemoryDbLogger</li>
  * </ul>

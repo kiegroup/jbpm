@@ -16,7 +16,7 @@
 
 package org.jbpm.persistence.session;
 
-import static org.jbpm.persistence.util.PersistenceUtil.*;
+import static org.jbpm.test.persistence.util.PersistenceUtil.*;
 import static org.junit.Assert.*;
 
 import java.util.Arrays;
@@ -45,13 +45,13 @@ import org.kie.internal.persistence.jpa.JPAKnowledgeService;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
 
 /**
- * This test looks at the behavior of the  {@link JPAProcessInstanceManager} 
- * with regards to created (but not started) process instances 
+ * This test looks at the behavior of the  {@link JPAProcessInstanceManager}
+ * with regards to created (but not started) process instances
  * and whether the process instances are available or not after creation.
  */
 @RunWith(Parameterized.class)
 public class GetProcessInstancesTest extends AbstractBaseTest {
-    
+
     private HashMap<String, Object> context;
     
     private Environment env;
