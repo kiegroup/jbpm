@@ -2226,4 +2226,30 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         assertEquals("new value", listOut.get(0));
         assertEquals("new value", listOut.get(1));
     }
+
+    @Test
+    public void testUserTaskWithExpressionsForIO() throws Exception {
+        KieBase kbase = createKnowledgeBase("BPMN2-UserTaskWithIOexpression.bpmn");
+        KieSession ksession = createKnowledgeSession(kbase);
+        TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task", workItemHandler);
+
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("person", new Person("john"));
+
+        WorkflowProcessInstance processInstance = (WorkflowProcessInstance) ksession.startProcess("UserTask", parameters);
+        assertTrue(processInstance.getState() == ProcessInstance.STATE_ACTIVE);
+        ksession = restoreSession(ksession, true);
+        WorkItem workItem = workItemHandler.getWorkItem();
+        assertNotNull(workItem);
+        assertEquals("john", workItem.getParameter("ActorId"));
+        assertEquals("john", workItem.getParameter("personName"));
+
+        ksession.getWorkItemManager().completeWorkItem(workItem.getId(), Collections.singletonMap("personAge", 50));
+
+        Person person = (Person) processInstance.getVariable("person");
+        assertEquals(50, person.getAge().intValue());
+        assertProcessInstanceFinished(processInstance, ksession);
+        ksession.dispose();
+    }
 }
