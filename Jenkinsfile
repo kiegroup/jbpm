@@ -23,9 +23,9 @@ pipeline {
             steps {
                 dir("droolsjbpm-build-bootstrap") {
                     script {
-                        def changeAuthor = env.CHANGE_AUTHOR ? env.CHANGE_AUTHOR : env.ghprbTriggerAuthorLogin
-                        def changeBranch = env.CHANGE_BRANCH ? env.CHANGE_BRANCH : env.ghprbSourceBranch
-                        def changeTarget = env.CHANGE_TARGET ? env.CHANGE_TARGET : env.ghprbTargetBranch
+                        def changeAuthor = env.CHANGE_AUTHOR ?: env.ghprbTriggerAuthorLogin
+                        def changeBranch = env.CHANGE_BRANCH ?: env.ghprbSourceBranch
+                        def changeTarget = env.CHANGE_TARGET ?: env.ghprbTargetBranch
 
                         githubscm.checkoutIfExists('droolsjbpm-build-bootstrap', "${changeAuthor}", "${changeBranch}", 'kiegroup', "${changeTarget}")
                         
