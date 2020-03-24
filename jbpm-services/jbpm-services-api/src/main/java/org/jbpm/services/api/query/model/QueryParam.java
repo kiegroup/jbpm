@@ -27,6 +27,8 @@ import java.util.List;
  */
 public class QueryParam implements Serializable {
     
+
+
     private static final long serialVersionUID = -7751811350486978746L;
     
     public static final String MILLISECOND = "MILLISECOND";
@@ -171,6 +173,10 @@ public class QueryParam implements Serializable {
         return new QueryParam(column, "IN", values);
     }
 
+    public static QueryParam in(String column, Object... values) {
+        return new QueryParam(column, "IN", Arrays.asList(values));
+    }
+
     /**
      * Returns the "not in" query parameter for given column and set of values.
      * @param column
@@ -179,6 +185,10 @@ public class QueryParam implements Serializable {
      */
     public static QueryParam notIn(String column, List<?> values) {
         return new QueryParam(column, "NOT_IN", values);
+    }
+
+    public static QueryParam notIn(String column, Object... values) {
+        return new QueryParam(column, "NOT_IN", Arrays.asList(values));
     }
 
     /**
@@ -303,6 +313,67 @@ public class QueryParam implements Serializable {
         this.value = value;
     }
 
+    public Object getObjectValue() {
+        if (value == null || value.isEmpty()) {
+            return null;
+        }
+        switch (type()) {
+            case BINARY_OPERAND:
+                return value.get(0);
+            case RANGE_OPERAND:
+                return value.subList(0, 2);
+            case UNARY_OPERAND:
+            case AGGREGATE:
+                return null;
+            case LIST_OPERAND:
+            default:
+                return value;
+        }
+
+    }
+
+    private enum Type {
+        DEFAULT,
+        AGGREGATE,
+        UNARY_OPERAND,
+        BINARY_OPERAND,
+        RANGE_OPERAND,
+        LIST_OPERAND
+    }
+
+    private Type type() {
+        switch (operator) {
+            case "IS_NULL":
+            case "NOT_NULL":
+            case "DISTINCT":
+                return Type.UNARY_OPERAND;
+            case "MIN":
+            case "MAX":
+            case "SUM":
+            case "AVERAGE":
+            case "COUNT":
+                return Type.AGGREGATE;
+            case "EQUALS_TO":
+            case "NOT_EQUALS_TO":
+            case "LIKE_TO":
+            case "GREATER_THAN":
+            case "LESS_THAN":
+            case "GREATER_OR_EQUALS_TO":
+            case "LESS_OR_EQUALS_TO":
+                return Type.BINARY_OPERAND;
+            case "BETWEEN":
+                return Type.RANGE_OPERAND;
+            case "IN":
+            case "NOT_IN":
+                return Type.LIST_OPERAND;
+            default:
+                return Type.DEFAULT;
+        }
+    }
+
+    public static List<QueryParam> list(QueryParam... params) {
+        return Arrays.asList(new Builder().append(params).get());
+    }
     /**
      * Returns the builder.
      * @return @{@link Builder} builder

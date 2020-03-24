@@ -16,6 +16,7 @@
 
 package org.jbpm.casemgmt.api.utils;
 
+import org.jbpm.casemgmt.api.AdvanceCaseRuntimeDataService;
 import org.jbpm.casemgmt.api.CaseRuntimeDataService;
 import org.jbpm.casemgmt.api.CaseService;
 import org.jbpm.casemgmt.api.admin.CaseInstanceMigrationService;
@@ -64,5 +65,7 @@ public interface CaseServiceConfigurator {
     CaseIdGenerator getCaseIdGenerator();
 
     AuthorizationManager getAuthorizationManager();
+
+    AdvanceCaseRuntimeDataService getAdvancedCaseRuntimeDataService();
 
 }

@@ -27,6 +27,8 @@ public class ProcessInstanceWithVarsDesc extends ProcessInstanceDesc implements 
 
     private Map<String, Object> variables;
 
+    private Map<String, Object> extraData;
+
     public ProcessInstanceWithVarsDesc() {
         super();
     }
@@ -61,5 +63,14 @@ public class ProcessInstanceWithVarsDesc extends ProcessInstanceDesc implements 
             this.variables = new HashMap<String, Object>();
         }
         this.variables.put(variable, variableValue);
+    }
+
+    public void setExtraData(Map<String, Object> extraData) {
+        this.extraData = extraData;
+    }
+
+    @Override
+    public Map<String, Object> getExtraData() {
+        return extraData;
     }
 }

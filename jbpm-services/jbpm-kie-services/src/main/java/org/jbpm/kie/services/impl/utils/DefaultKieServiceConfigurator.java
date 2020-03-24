@@ -18,6 +18,7 @@ package org.jbpm.kie.services.impl.utils;
 
 import javax.persistence.EntityManagerFactory;
 
+import org.jbpm.kie.services.impl.AdvanceRuntimeDataServiceImpl;
 import org.jbpm.kie.services.impl.FormManagerService;
 import org.jbpm.kie.services.impl.FormManagerServiceImpl;
 import org.jbpm.kie.services.impl.KModuleDeploymentService;
@@ -30,6 +31,7 @@ import org.jbpm.kie.services.impl.bpmn2.BPMN2DataServiceImpl;
 import org.jbpm.kie.services.impl.query.QueryServiceImpl;
 import org.jbpm.runtime.manager.impl.RuntimeManagerFactoryImpl;
 import org.jbpm.runtime.manager.impl.jpa.EntityManagerFactoryManager;
+import org.jbpm.services.api.AdvanceRuntimeDataService;
 import org.jbpm.services.api.DefinitionService;
 import org.jbpm.services.api.DeploymentService;
 import org.jbpm.services.api.ProcessService;
@@ -52,6 +54,7 @@ public class DefaultKieServiceConfigurator implements KieServiceConfigurator {
     protected DeploymentService deploymentService;
     protected DefinitionService bpmn2Service;
     protected RuntimeDataService runtimeDataService;
+    protected AdvanceRuntimeDataService advanceRuntimeDataService;
     protected ProcessService processService;
     protected UserTaskService userTaskService;
     protected QueryService queryService;
@@ -117,6 +120,10 @@ public class DefaultKieServiceConfigurator implements KieServiceConfigurator {
         ((ProcessInstanceAdminServiceImpl) processAdminService).setRuntimeDataService(runtimeDataService);
         ((ProcessInstanceAdminServiceImpl) processAdminService).setCommandService(new TransactionalCommandService(emf));
         ((ProcessInstanceAdminServiceImpl) processAdminService).setIdentityProvider(identityProvider);
+
+        advanceRuntimeDataService = new AdvanceRuntimeDataServiceImpl();
+        ((AdvanceRuntimeDataServiceImpl) advanceRuntimeDataService).setEmf(emf);
+        ((AdvanceRuntimeDataServiceImpl) advanceRuntimeDataService).setCommandService(new TransactionalCommandService(emf));
     }
 
     @Override
@@ -186,4 +193,8 @@ public class DefaultKieServiceConfigurator implements KieServiceConfigurator {
         return formManagerService;
     }
 
+    @Override
+    public AdvanceRuntimeDataService getAdvanceVariableDataService() {
+        return advanceRuntimeDataService;
+    }
 }

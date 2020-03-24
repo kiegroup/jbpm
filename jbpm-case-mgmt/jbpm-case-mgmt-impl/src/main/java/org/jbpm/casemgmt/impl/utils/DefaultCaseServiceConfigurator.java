@@ -18,12 +18,14 @@ package org.jbpm.casemgmt.impl.utils;
 
 import javax.persistence.EntityManagerFactory;
 
+import org.jbpm.casemgmt.api.AdvanceCaseRuntimeDataService;
 import org.jbpm.casemgmt.api.CaseRuntimeDataService;
 import org.jbpm.casemgmt.api.CaseService;
 import org.jbpm.casemgmt.api.admin.CaseInstanceMigrationService;
 import org.jbpm.casemgmt.api.auth.AuthorizationManager;
 import org.jbpm.casemgmt.api.generator.CaseIdGenerator;
 import org.jbpm.casemgmt.api.utils.CaseServiceConfigurator;
+import org.jbpm.casemgmt.impl.AdvanceCaseRuntimeDataServiceImpl;
 import org.jbpm.casemgmt.impl.AuthorizationManagerImpl;
 import org.jbpm.casemgmt.impl.CaseRuntimeDataServiceImpl;
 import org.jbpm.casemgmt.impl.CaseServiceImpl;
@@ -72,6 +74,7 @@ public class DefaultCaseServiceConfigurator implements CaseServiceConfigurator {
     protected QueryService queryService;
 
     protected CaseRuntimeDataService caseRuntimeDataService;
+    protected AdvanceCaseRuntimeDataService advanceCaseRuntimeDataService;
     protected CaseService caseService;
     protected CaseInstanceMigrationService caseInstanceMigrationService;
 
@@ -138,6 +141,10 @@ public class DefaultCaseServiceConfigurator implements CaseServiceConfigurator {
         ((CaseRuntimeDataServiceImpl) caseRuntimeDataService).setIdentityProvider(identityProvider);
         ((CaseRuntimeDataServiceImpl) caseRuntimeDataService).setDeploymentRolesManager(deploymentRolesManager);
 
+        advanceCaseRuntimeDataService = new AdvanceCaseRuntimeDataServiceImpl();
+        ((AdvanceCaseRuntimeDataServiceImpl) advanceCaseRuntimeDataService).setEmf(emf);
+        ((AdvanceCaseRuntimeDataServiceImpl) advanceCaseRuntimeDataService).setCommandService(new TransactionalCommandService(emf));
+
         // build case service
         caseService = new CaseServiceImpl();
         ((CaseServiceImpl) caseService).setCaseIdGenerator(caseIdGenerator);
@@ -165,7 +172,7 @@ public class DefaultCaseServiceConfigurator implements CaseServiceConfigurator {
         ((CaseInstanceMigrationServiceImpl) caseInstanceMigrationService).setCommandService(new TransactionalCommandService(emf));
         ((CaseInstanceMigrationServiceImpl) caseInstanceMigrationService).setProcessInstanceMigrationService(migrationService);
         ((CaseInstanceMigrationServiceImpl) caseInstanceMigrationService).setProcessService(processService);
-    }    
+    }
 
     @Override
     public void close() {
@@ -235,6 +242,11 @@ public class DefaultCaseServiceConfigurator implements CaseServiceConfigurator {
     @Override
     public AuthorizationManager getAuthorizationManager() {
         return authorizationManager;
+    }
+
+    @Override
+    public AdvanceCaseRuntimeDataService getAdvancedCaseRuntimeDataService() {
+        return advanceCaseRuntimeDataService;
     }
 
     @Override
