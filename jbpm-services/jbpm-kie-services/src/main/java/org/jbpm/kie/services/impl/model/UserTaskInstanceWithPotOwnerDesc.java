@@ -36,6 +36,8 @@ public class UserTaskInstanceWithPotOwnerDesc extends UserTaskInstanceDesc imple
     private Map<String,Object> inputdata;
     private Map<String,Object> outputdata;
     private String processInstanceDescription;
+    private Map<String, Object> processVariables;
+    private Map<String, Object> data;
 
     public UserTaskInstanceWithPotOwnerDesc(Long taskId, String name, String formName, 
                                             String subject, String actualOwner, String potOwner, 
@@ -155,6 +157,38 @@ public class UserTaskInstanceWithPotOwnerDesc extends UserTaskInstanceDesc imple
 
     public void setProcessInstanceDescription(String processInstanceDescription) {
         this.processInstanceDescription = processInstanceDescription;
+    }
+
+    public void addProcessVariable(String variable, Object variableValue) {
+        if (this.processVariables == null) {
+            this.processVariables = new HashMap<>();
+        }
+        this.processVariables.put(variable, variableValue);
+    }
+
+    @Override
+    public Map<String, Object> getProcessVariables() {
+        return processVariables;
+    }
+
+    public void setProcessVariables(Map<String, Object> processVariables) {
+        this.processVariables = processVariables;
+    }
+
+    public void addExtraData(String variable, Object variableValue) {
+        if (this.data == null) {
+            this.data = new HashMap<>();
+        }
+        this.data.put(variable, variableValue);
+    }
+
+    public void setExtraData(Map<String, Object> data) {
+        this.data = data;
+    }
+
+    @Override
+    public Map<String, Object> getExtraData() {
+        return data;
     }
  
 }

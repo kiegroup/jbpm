@@ -1182,5 +1182,71 @@
     </query>
     <!-- hint name="org.hibernate.timeout" value="200"/ -->
   </named-query>   
-        
+
+
+  <!-- advance runtime queries -->
+  <named-native-query name="GetProcessInstanceByIdList">
+      <query>
+        SELECT processInstanceId, processId, processName, processVersion, status, externalId, start_date, user_identity, correlationKey 
+          FROM ProcessInstanceLog pil 
+         WHERE processInstanceId IN (:idList) 
+      ORDER BY processInstanceId ASC 
+    </query>
+  </named-native-query>
+  
+  <named-native-query name="GetVariablesByProcessInstanceIdList">
+      <query>
+            SELECT A1.processInstanceId, A1.variableId, A1.value 
+              FROM VariableInstanceLog A1 
+         LEFT JOIN VariableInstanceLog A2 ON A1.processId = A2.processId 
+                                         AND A1.processInstanceId = A2.processInstanceId 
+                                         AND A1.variableInstanceId = A2.variableInstanceId 
+                                         AND A2.id &gt; A1.id 
+             WHERE A2.id IS NULL AND A1.processInstanceId IN (:idList) 
+          ORDER BY A1.processInstanceId ASC 
+      </query>
+  </named-native-query>
+  <named-native-query name="GetTasksByIdList">
+      <query>
+              SELECT task.id, task.name, task.formName, task.subject, 
+                     task.actualOwner_id, log.correlationKey, task.createdOn,
+                     task.createdBy_id, task.expirationTime, task.priority,
+                     task.status, log.processInstanceId, log.processId, log.externalId,
+                     log.processInstanceDescription 
+                FROM Task task 
+          INNER JOIN ProcessInstanceLog log ON log.processInstanceId = task.processInstanceId
+               WHERE task.id IN (:idList)
+            ORDER BY task.id ASC 
+      </query>
+  </named-native-query>
+  <named-native-query name="GetTaskVariablesByTaskIdList">
+      <query>
+           SELECT taskId, type, name, value 
+             FROM TaskVariableImpl 
+            WHERE taskId IN (:idList) 
+         ORDER BY taskId ASC
+      </query>
+  </named-native-query>
+  <named-native-query name="GetPotentialOwnersByTaskIdList">
+      <query>
+             SELECT po.task_id, po.entity_id
+              FROM PeopleAssignments_PotOwners po
+             WHERE po.task_id IN(:idList)
+          ORDER BY po.task_id ASC 
+      </query>
+  </named-native-query>
+  <named-native-query name="GetProcessVariablesByTaskIdList">
+      <query>
+              SELECT task.id, A1.variableId, A1.value
+                FROM Task task
+          INNER JOIN ProcessInstanceLog log ON task.processInstanceId = log.processInstanceId
+          INNER JOIN VariableInstanceLog A1 ON A1.processId = log.processId AND A1.processInstanceId = log.processInstanceId
+           LEFT JOIN VariableInstanceLog A2 ON A1.processId = A2.processId 
+                                           AND A1.processInstanceId = A2.processInstanceId 
+                                           AND A1.variableInstanceId = A2.variableInstanceId 
+                                           AND A2.id &gt; A1.id
+               WHERE A2.id IS NULL AND task.id IN (:idList)
+            ORDER BY task.id ASC
+      </query>
+  </named-native-query>
 </entity-mappings>

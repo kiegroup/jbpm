@@ -24,50 +24,63 @@ import java.util.Map;
 public interface UserTaskInstanceWithPotOwnerDesc extends UserTaskInstanceDesc{
 
     /**
-     * Returns the uer task potential owners
+     * Returns the user task potential owners
      * @return potential owners
      */
     List<String> getPotentialOwners();
 
     /**
-     * Returns the uer task correlation key
+     * Returns the user task correlation key
      * @return correlation key
      */
     String getCorrelationKey();
 
     /**
-     * Returns the uer task potential modification date
+     * Returns the user task potential modification date
      * @return modification date
      */
     Date getLastModificationDate();
 
     /**
-     * Returns the uer task last modification user
+     * Returns the user task last modification user
      * @return last modification user
      */
     String getLastModificationUser();
 
     /**
-     * Returns the uer task subject
+     * Returns the user task subject
      * @return subject
      */
     String getSubject();
 
     /**
-     * Returns the uer task input data
+     * Returns the user task input data
      * @return input data
      */
     Map<String,Object> getInputdata();
 
     /**
-     * Returns the uer task output data
+     * Returns the user task output data
      * @return output data
      */
     Map<String,Object> getOutputdata();
 
     /**
-     * Returns the uer task process instance description
+     * Returns the user task process instance description
      * @return process instance description
      */
     String getProcessInstanceDescription();
+
+    /**
+     * Returns the process variables this task belongs
+     * @return process variables
+     */
+    Map<String, Object> getProcessVariables();
+
+    /**
+     * return the user task process extra data from query
+     * @return
+     */
+    Map<String, Object> getExtraData();
+
 }

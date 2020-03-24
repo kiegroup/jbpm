@@ -25,6 +25,7 @@ import java.util.ServiceLoader;
 
 import javax.persistence.EntityManagerFactory;
 
+import org.jbpm.casemgmt.api.AdvanceCaseRuntimeDataService;
 import org.jbpm.casemgmt.api.CaseRuntimeDataService;
 import org.jbpm.casemgmt.api.CaseService;
 import org.jbpm.casemgmt.api.admin.CaseInstanceMigrationService;
@@ -74,6 +75,7 @@ public abstract class AbstractCaseServicesTest extends AbstractServicesTest {
     protected QueryService queryService;
 
     protected CaseRuntimeDataService caseRuntimeDataService;
+    protected AdvanceCaseRuntimeDataService advanceCaseRuntimeDataService;
     protected CaseService caseService;
     protected CaseInstanceMigrationService caseInstanceMigrationService;
 
@@ -176,6 +178,8 @@ public abstract class AbstractCaseServicesTest extends AbstractServicesTest {
         
         // build case instance migration service
         caseInstanceMigrationService = caseConfigurator.getCaseInstanceMigrationService();
+
+        advanceCaseRuntimeDataService = caseConfigurator.getAdvancedCaseRuntimeDataService();
     }
 
     protected void registerDefaultListenerMvelDefinitions() {

@@ -25,4 +25,6 @@ public interface ProcessInstanceWithVarsDesc extends ProcessInstanceDesc {
      * @return variables
      */
     Map<String, Object> getVariables();
+
+    Map<String, Object> getExtraData();
 }

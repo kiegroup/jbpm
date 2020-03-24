@@ -16,13 +16,14 @@
 
 package org.jbpm.shared.services.impl;
 
-import org.kie.api.runtime.Context;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 import javax.persistence.Query;
-import java.util.HashMap;
-import java.util.Map;
+
+import org.kie.api.runtime.Context;
 
 public class JpaPersistenceContext implements Context {
 
@@ -46,6 +47,10 @@ public class JpaPersistenceContext implements Context {
 		
 		return query;
 	}
+
+    protected LockModeType getLockMode(String queryName, Map<String, Object> params) {
+        return QueryManager.get().getQuery(queryName, params) != null ? LockModeType.NONE : null;
+    }
 	
 	
 	public <T> T queryWithParametersInTransaction(String queryName,
@@ -53,7 +58,7 @@ public class JpaPersistenceContext implements Context {
 		check();
 		
 		Query query = getQueryByName(queryName, params);
-		return queryStringWithParameters(params, false, LockModeType.NONE, clazz, query);
+        return queryStringWithParameters(params, false, getLockMode(queryName, params), clazz, query);
 	}
 
 	

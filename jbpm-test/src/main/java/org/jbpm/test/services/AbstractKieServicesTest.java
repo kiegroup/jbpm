@@ -22,6 +22,7 @@ import java.util.ServiceLoader;
 import javax.persistence.EntityManagerFactory;
 
 import org.jbpm.runtime.manager.impl.jpa.EntityManagerFactoryManager;
+import org.jbpm.services.api.AdvanceRuntimeDataService;
 import org.jbpm.services.api.DefinitionService;
 import org.jbpm.services.api.DeploymentService;
 import org.jbpm.services.api.ProcessService;
@@ -49,6 +50,7 @@ public abstract class AbstractKieServicesTest extends AbstractServicesTest {
     protected UserTaskService userTaskService;
     protected QueryService queryService;
     protected ProcessInstanceAdminService processAdminService;
+    protected AdvanceRuntimeDataService advanceVariableDataService;
 
     protected TestIdentityProvider identityProvider;
     protected TestUserGroupCallbackImpl userGroupCallback;
@@ -125,6 +127,7 @@ public abstract class AbstractKieServicesTest extends AbstractServicesTest {
         // build process instance admin service
         processAdminService = serviceConfigurator.getProcessAdminService();
         
+        advanceVariableDataService = serviceConfigurator.getAdvanceVariableDataService();
     }
 
     @Override

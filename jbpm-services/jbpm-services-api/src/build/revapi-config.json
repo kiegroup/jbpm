@@ -26,6 +26,51 @@
                     "methodName": "saveContentFromUser",
                     "elementKind": "method",
                     "justification": "need a method to provide the user"
+                },
+                {
+                    "code": "java.method.addedToInterface",
+                    "new": "method java.util.Map<java.lang.String, java.lang.Object> org.jbpm.services.api.model.UserTaskInstanceWithVarsDesc::getExtraData()",
+                    "package": "org.jbpm.services.api.model",
+                    "classSimpleName": "UserTaskInstanceWithVarsDesc",
+                    "methodName": "getExtraData",
+                    "elementKind": "method",
+                    "justification": "new method for getting extra information to this entity"
+                },
+                {
+                    "code": "java.method.addedToInterface",
+                    "new": "method java.util.Map<java.lang.String, java.lang.Object> org.jbpm.services.api.model.ProcessInstanceWithVarsDesc::getExtraData()",
+                    "package": "org.jbpm.services.api.model",
+                    "classSimpleName": "ProcessInstanceWithVarsDesc",
+                    "methodName": "getExtraData",
+                    "elementKind": "method",
+                    "justification": "needed for adding extra data / case variables"
+                 },
+                {
+                    "code": "java.method.addedToInterface",
+                    "new": "method java.util.Map<java.lang.String, java.lang.Object> org.jbpm.services.api.model.UserTaskInstanceWithPotOwnerDesc::getProcessVariables()",
+                    "package": "org.jbpm.services.api.model",
+                    "classSimpleName": "UserTaskInstanceWithPotOwnerDesc",
+                    "methodName": "getProcessVariables",
+                    "elementKind": "method",
+                    "justification": "new method for getting process variables information to this entity"
+                },
+                {
+                    "code": "java.method.addedToInterface",
+                    "new": "method org.jbpm.services.api.AdvanceRuntimeDataService org.jbpm.services.api.utils.KieServiceConfigurator::getAdvanceVariableDataService()",
+                    "package": "org.jbpm.services.api.utils",
+                    "classSimpleName": "KieServiceConfigurator",
+                    "methodName": "getAdvanceVariableDataService",
+                    "elementKind": "method",
+                    "justification": "needs a new method for new query service"
+                },
+                {
+                    "code": "java.method.addedToInterface",
+                    "new": "method java.util.Map<java.lang.String, java.lang.Object> org.jbpm.services.api.model.UserTaskInstanceWithPotOwnerDesc::getExtraData()",
+                    "package": "org.jbpm.services.api.model",
+                    "classSimpleName": "UserTaskInstanceWithPotOwnerDesc",
+                    "methodName": "getExtraData",
+                    "elementKind": "method",
+                    "justification": "new extra data for process variables / case variables"
                 }
             ]
         }

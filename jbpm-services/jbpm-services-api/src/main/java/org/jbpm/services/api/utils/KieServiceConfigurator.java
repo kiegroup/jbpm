@@ -16,6 +16,7 @@
 
 package org.jbpm.services.api.utils;
 
+import org.jbpm.services.api.AdvanceRuntimeDataService;
 import org.jbpm.services.api.DefinitionService;
 import org.jbpm.services.api.DeploymentService;
 import org.jbpm.services.api.ProcessService;
@@ -73,6 +74,12 @@ public interface KieServiceConfigurator {
     RuntimeDataService getRuntimeDataService();
 
     /**
+     * Return related data regarding variables (case, process, task) 
+     * @return @{@link AdvanceRuntimeDataService}
+     */
+    AdvanceRuntimeDataService getAdvanceVariableDataService();
+
+    /**
      * Returns the process service.
      * @return @{@link ProcessService} process service
      */
@@ -106,6 +113,6 @@ public interface KieServiceConfigurator {
      * Returns the user group callback.
      * @return @{@link UserGroupCallback} user group callback
      */
-    UserGroupCallback getUserGroupCallback();    
+    UserGroupCallback getUserGroupCallback();
 
 }
