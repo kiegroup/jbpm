@@ -2,7 +2,7 @@
 
 pipeline {
     agent {
-        label 'kie-rhel7'
+        label 'kie-rhel7 && kie-mem24g && !master'
     }
     tools {
         maven 'kie-maven-3.5.4'
