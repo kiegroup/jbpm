@@ -60,7 +60,10 @@ import org.kie.scanner.KieMavenRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.kie.scanner.KieMavenRepository.getKieMavenRepository;
 
 public class RuntimeDataServiceImplTest extends AbstractKieServicesBaseTest {
@@ -1533,6 +1536,7 @@ public class RuntimeDataServiceImplTest extends AbstractKieServicesBaseTest {
 
     @Test
     public void testGetTasksByVariable() {
+        identityProvider.setName("salaboy");
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("approval_document", "initial content");
         processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument", params);
@@ -1575,6 +1579,7 @@ public class RuntimeDataServiceImplTest extends AbstractKieServicesBaseTest {
 
     @Test
     public void testGetTasksByVariableAndValue() {
+        identityProvider.setName("salaboy");
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("approval_document", "initial content");
         processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument", params);

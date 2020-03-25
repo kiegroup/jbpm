@@ -96,4 +96,5 @@ public class CDITestHelperNoTaskService {
     public TaskLifeCycleEventListener produceTaskAuditLogger() {
     	return new JPATaskLifeCycleEventListener(true);
     }
+
 }

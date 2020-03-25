@@ -15,16 +15,9 @@
  */
 package org.jbpm.services.task;
 
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -48,6 +41,7 @@ import org.kie.api.task.model.Status;
 import org.kie.api.task.model.Task;
 import org.kie.api.task.model.TaskSummary;
 import org.kie.api.task.model.User;
+import org.kie.internal.identity.IdentityProvider;
 import org.kie.internal.task.api.EventService;
 import org.kie.internal.task.api.TaskModelProvider;
 import org.kie.internal.task.api.model.AccessType;
@@ -60,7 +54,42 @@ import org.kie.internal.task.api.model.InternalPeopleAssignments;
 import org.kie.internal.task.api.model.InternalTask;
 import org.kie.internal.task.api.model.InternalTaskData;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
+
+    protected class TestIdentityProvider implements IdentityProvider {
+
+        private String name;
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String getName() {
+            return this.name;
+        }
+
+        @Override
+        public List<String> getRoles() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public boolean hasRole(String role) {
+            return false;
+        }
+
+    }
+
+    protected TestIdentityProvider testIdentityProvider;
 
     @Test
     /*
@@ -223,8 +252,8 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
      */
     @Test
     public void testNewTaskWithMapContentAndOutput() {
-        
-        
+        this.testIdentityProvider.setName("Bobba Fet");
+
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [new User('Bobba Fet') ],businessAdministrators = [ new User('Administrator') ], }),";                        
         str += "name =  'This is my task name' })";
@@ -265,7 +294,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
         assertEquals("value3",unmarshalledvars.get("key3") );
         
         taskService.start(taskId,"Bobba Fet" );
-        
+
         task1 = taskService.getTaskById( taskId );
         assertEquals(Status.InProgress, task1.getTaskData().getStatus());
         // Once the task has being started the user decide to start working on it. 
@@ -2646,6 +2675,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
 
     @Test
     public void testCompleteWithMergeOfResultsEmptyAtCompletion() {
+        this.testIdentityProvider.setName("Darth Vader");
         final Map<String, Object> outputsAfterCompletion = new HashMap<String, Object>(); 
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -2698,6 +2728,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
     
     @Test
     public void testCompleteWithMergeOfResultsOverrideAtCompletion() {
+        this.testIdentityProvider.setName("Darth Vader");
         final Map<String, Object> outputsAfterCompletion = new HashMap<String, Object>(); 
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -2751,6 +2782,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
     
     @Test
     public void testCompleteWithMergeOfResultsOverrideAndAddAtCompletion() {
+        this.testIdentityProvider.setName("Darth Vader");
         final Map<String, Object> outputsAfterCompletion = new HashMap<String, Object>(); 
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
