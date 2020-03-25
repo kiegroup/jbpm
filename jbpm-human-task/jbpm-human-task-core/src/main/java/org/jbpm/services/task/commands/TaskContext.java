@@ -153,7 +153,7 @@ public class TaskContext implements org.kie.internal.task.api.TaskContext, Reque
 		return (UserGroupCallback) get(EnvironmentName.TASK_USER_GROUP_CALLBACK);
 	}
 
-	private LifeCycleManager getMvelLifeCycleManager() { 
+    public LifeCycleManager getMvelLifeCycleManager() {
         return new MVELLifeCycleManager(this, persistenceContext, getTaskContentService(), taskEventSupport);
 	}
 	

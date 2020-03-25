@@ -16,15 +16,6 @@
 
 package org.jbpm.kie.services.test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.kie.scanner.KieMavenRepository.getKieMavenRepository;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
@@ -65,6 +56,15 @@ import org.kie.internal.task.api.model.TaskEvent;
 import org.kie.scanner.KieMavenRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.kie.scanner.KieMavenRepository.getKieMavenRepository;
 
 public class UserTaskServiceImplTest extends AbstractKieServicesBaseTest {
 
@@ -498,6 +498,7 @@ private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentSe
     
     @Test
     public void testContentRelatedOperations() {
+        identityProvider.setName("salaboy");
     	processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument");
     	assertNotNull(processInstanceId);
     	List<Long> taskIds = runtimeDataService.getTasksByProcessInstanceId(processInstanceId);
@@ -788,7 +789,7 @@ private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentSe
     
     @Test
     public void testProcessWithLazyLoadedVariable() {
-        
+        identityProvider.setName("john");
         Image newImage = new Image("test");
         Map<String, Object> params = new HashMap<>();
         params.put("image", newImage);

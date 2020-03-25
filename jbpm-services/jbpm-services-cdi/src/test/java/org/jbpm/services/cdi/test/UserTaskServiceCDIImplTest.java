@@ -16,6 +16,7 @@
 
 package org.jbpm.services.cdi.test;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -113,6 +114,11 @@ public class UserTaskServiceCDIImplTest extends UserTaskServiceImplTest {
 
     }
 	
+    @PostConstruct
+    public void configure() {
+        this.configureServices();
+    }
+
 	@Inject 
     private TransactionalCommandService commandService;
     

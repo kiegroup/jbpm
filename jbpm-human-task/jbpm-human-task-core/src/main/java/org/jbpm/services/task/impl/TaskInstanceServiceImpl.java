@@ -417,7 +417,7 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
         this.lifeCycleManager.taskOperation(Operation.Modify, taskId, userId, null, null, toGroups(null));
         return new TaskContentServiceImpl(context, this.persistenceContext, taskEventSupport).addOutputContent(taskId, params);
     }
-   
+
     @Override
     public Content getContentByIdForUser( long contentId, String userId ) {
         long taskId = persistenceContext.findTaskIdByContentId(contentId);

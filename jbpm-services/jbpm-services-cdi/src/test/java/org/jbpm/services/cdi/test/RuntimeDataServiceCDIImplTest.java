@@ -32,6 +32,7 @@ import org.jbpm.services.api.RuntimeDataService;
 import org.jbpm.services.api.UserTaskService;
 import org.jbpm.shared.services.impl.TransactionalCommandService;
 import org.jbpm.shared.services.impl.commands.UpdateStringCommand;
+import org.jbpm.test.services.TestIdentityProvider;
 import org.junit.After;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -163,6 +164,12 @@ public class RuntimeDataServiceCDIImplTest extends RuntimeDataServiceImplTest {
 		
 		super.setUserTaskService(userTaskService);
 	}
+
+    @Inject
+    @Override
+    public void setIdentityProvider(TestIdentityProvider identityProvider) {
+        super.setIdentityProvider(identityProvider);
+    }
 	
 	@After
 	public void removeAllData() {
