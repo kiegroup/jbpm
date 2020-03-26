@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.jbpm.process.instance.ProcessInstance;
+import org.jbpm.process.instance.timer.TimerInstance;
 import org.jbpm.workflow.core.node.EventSubProcessNode;
 import org.jbpm.workflow.core.node.StartNode;
 import org.jbpm.workflow.instance.NodeInstanceContainer;
@@ -29,6 +30,7 @@ public class EventSubProcessNodeInstance extends CompositeContextNodeInstance {
 
 
     private static final long serialVersionUID = 7095736653568661510L;
+
 
     protected EventSubProcessNode getCompositeNode() {
         return (EventSubProcessNode) getNode();
@@ -54,13 +56,22 @@ public class EventSubProcessNodeInstance extends CompositeContextNodeInstance {
             // start it only if it was not already started - meaning there are node instances
             if (this.getNodeInstances().isEmpty()) {
                 StartNode startNode = getCompositeNode().findStartNode();
-                if (resolveVariables(((EventSubProcessNode) getEventBasedNode()).getEvents()).contains(type) || type.equals("timerTriggered")) {
+                if (resolveVariables(((EventSubProcessNode) getEventBasedNode()).getEvents()).contains(type) || containsTimerEvent(type, event)) {
                     NodeInstance nodeInstance = getNodeInstance(startNode);
                     ((StartNodeInstance) nodeInstance).signalEvent(type, event);
                 }
             }
         }
         super.signalEvent(type, event);
+    }
+
+    private boolean containsTimerEvent(String type, Object event) {
+        if (!type.equals("timerTriggered") || !(event instanceof TimerInstance)) {
+            return false;
+        }
+        TimerInstance timerInstance = (TimerInstance) event;
+        List<Long> timersRegisteredInNodeInstance = getTimerInstances();
+        return timersRegisteredInNodeInstance != null && timersRegisteredInNodeInstance.contains(timerInstance.getId());
     }
     
     @Override
