@@ -88,7 +88,8 @@ public class JPAProcessInstanceManager
         // generate correlation key if not given which is same as process instance id to keep uniqueness 
         if (correlationKey == null) {
             correlationKey = new CorrelationKeyInfo();
-            ((CorrelationKeyInfo)correlationKey).addProperty(new CorrelationPropertyInfo(null, processInstanceInfo.getId().toString()));
+            ((CorrelationKeyInfo) correlationKey).addProperty(new CorrelationPropertyInfo(null, processInstanceInfo.getId().toString()));
+            ((CorrelationKeyInfo) correlationKey).setName(correlationKey.toExternalForm());
             ((org.jbpm.process.instance.ProcessInstance) processInstance).getMetaData().put("CorrelationKey", correlationKey);
         }
         CorrelationKeyInfo correlationKeyInfo = (CorrelationKeyInfo) correlationKey;
