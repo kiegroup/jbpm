@@ -16,6 +16,21 @@
 
 package org.jbpm.test.functional.timer;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
+import javax.naming.InitialContext;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.OptimisticLockException;
+import javax.persistence.Persistence;
+import javax.transaction.UserTransaction;
+
 import org.drools.core.command.SingleSessionCommandService;
 import org.drools.core.command.impl.CommandBasedStatefulKnowledgeSession;
 import org.hibernate.StaleObjectStateException;
@@ -50,19 +65,9 @@ import org.kie.internal.task.api.model.InternalOrganizationalEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.InitialContext;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.OptimisticLockException;
-import javax.persistence.Persistence;
-import javax.transaction.UserTransaction;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 public class ConcurrentGlobalTimerServiceTest extends TimerBaseTest {
     
@@ -70,11 +75,11 @@ public class ConcurrentGlobalTimerServiceTest extends TimerBaseTest {
     
     private long maxWaitTime = 60*1000; // max wait to complete operation is set to 60 seconds to avoid build hangs
 	
-	private int nbThreadsProcess = 10;
-	private int nbThreadsTask = 10;
-	private transient int completedStart = 0;
-	private transient int completedTask = 0;
-	private int wait = 2;
+    private int nbThreadsProcess = 10;
+    private int nbThreadsTask = 10;
+    private CountDownLatch completedStart = new CountDownLatch(nbThreadsProcess);
+    private CountDownLatch completedTask = new CountDownLatch(nbThreadsTask);
+    private int wait = 2;
 	
 	private UserGroupCallback userGroupCallback;
 	
@@ -116,9 +121,6 @@ public class ConcurrentGlobalTimerServiceTest extends TimerBaseTest {
                 .schedulerService(globalScheduler)
                 .get();
 
-        long startTimeStamp = System.currentTimeMillis();
-        long maxEndTime = startTimeStamp + maxWaitTime;
-        
         manager = RuntimeManagerFactory.Factory.get().newPerProcessInstanceRuntimeManager(environment);
         // prepare task service with users and groups
         RuntimeEngine engine = manager.getRuntimeEngine(EmptyContext.get());
@@ -138,20 +140,20 @@ public class ConcurrentGlobalTimerServiceTest extends TimerBaseTest {
         
         manager.disposeRuntimeEngine(engine);
  
-        completedStart = 0;
+
         for (int i=0; i<nbThreadsProcess; i++) {
-            new StartProcessPerProcessInstanceRunnable(manager, i).run();
+            new Thread(new StartProcessPerProcessInstanceRunnable(manager, i)).start();
         }
-        completedTask = 0;
+        completedStart.await(10000L, TimeUnit.MILLISECONDS);
+
         for (int i=0; i<nbThreadsTask; i++) {
             new Thread(new CompleteTaskPerProcessInstanceRunnable(manager, i)).start();
         }
-        while (completedStart < nbThreadsProcess || completedTask < nbThreadsTask) {
-            Thread.sleep(100);
-            if (System.currentTimeMillis() > maxEndTime) {
-                fail("Failure, did not finish in time most likely hanging");
-            }
+
+        if (!completedTask.await(maxWaitTime, TimeUnit.MILLISECONDS)) {
+            fail("Failure, did not finish in time most likely hanging");
         }
+
         //make sure all process instance were completed
         engine = manager.getRuntimeEngine(EmptyContext.get());
         AuditService logService = engine.getAuditService();
@@ -204,7 +206,7 @@ public class ConcurrentGlobalTimerServiceTest extends TimerBaseTest {
         List<TaskSummary> tasks = null;
         tasks = runtime.getTaskService().getTasksByStatusByProcessInstanceId(piId, statusses, "en-UK");
         if (tasks.isEmpty()) {
-            logger.debug("Task thread found no tasks for piId {}" + piId);
+            logger.debug("Task thread found no tasks for piId {}", piId);
             Thread.sleep(1000);
         } else {
             long taskId = tasks.get(0).getId();
@@ -213,19 +215,19 @@ public class ConcurrentGlobalTimerServiceTest extends TimerBaseTest {
             try {
                 runtime.getTaskService().start(taskId, "john");
                 success = true;
-                
+
                 if (success) {
                     runtime.getTaskService().complete(taskId, "john", null);
                     logger.debug("Completed task {} piID {}", taskId, piId);
                     result = true;
-       
+
                 }
             } catch (PermissionDeniedException e) {
                 // TODO can we avoid these by doing it all in one transaction?
                 logger.debug("Task thread was too late for starting task {} piId {}", taskId, piId);
-            } catch (Throwable e) {     
+            } catch (Throwable e) {
                 throw new RuntimeException(e);
-      
+
             }
 
         }
@@ -277,7 +279,7 @@ public class ConcurrentGlobalTimerServiceTest extends TimerBaseTest {
                 RuntimeEngine runtime = manager.getRuntimeEngine(ProcessInstanceIdContext.get());
                 testStartProcess(runtime);                    
                 manager.disposeRuntimeEngine(runtime);                    
-                completedStart++;
+                completedStart.countDown();
             } catch (Throwable t) {
                 t.printStackTrace();
             }
@@ -296,9 +298,8 @@ public class ConcurrentGlobalTimerServiceTest extends TimerBaseTest {
                 // wait for amount of time timer expires and plus 1s initially
                 Thread.sleep(wait * 1000 + 1000);
                 long processInstanceId = counter+1;
-                
 
-                for (int y = 0; y<wait; y++) {
+                for (int y = 0; y < wait; y++) {
                 	RuntimeEngine runtime = manager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstanceId));
                 	try {
                         testCompleteTaskByProcessInstance(manager, runtime, processInstanceId);
@@ -314,9 +315,9 @@ public class ConcurrentGlobalTimerServiceTest extends TimerBaseTest {
                     }
                 	manager.disposeRuntimeEngine(runtime);
                 }
-                
 
-                completedTask++;
+                completedTask.countDown();
+
             } catch (Throwable t) {
                 t.printStackTrace();
             }
