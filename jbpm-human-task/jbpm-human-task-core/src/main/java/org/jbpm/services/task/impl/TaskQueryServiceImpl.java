@@ -31,7 +31,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 
@@ -77,9 +76,11 @@ public class TaskQueryServiceImpl implements TaskQueryService {
     	if (queryFilter != null) {
     	    applyQueryContext(params, queryFilter);
         	if (queryFilter.getFilterParams() != null && !queryFilter.getFilterParams().isEmpty()) {
-        		params.put(FILTER, queryFilter.getFilterParams());
-        		for(String key : queryFilter.getParams().keySet()){
-                    params.put(key, queryFilter.getParams().get(key));
+                params.put(FILTER, queryFilter.getFilterParams());
+                if (queryFilter.getParams() != null) {
+                    for(String key : queryFilter.getParams().keySet()){
+                        params.put(key, queryFilter.getParams().get(key));
+                    }
                 }
         	}
         }
