@@ -23,7 +23,7 @@ pipeline {
             steps {
                 dir("droolsjbpm-build-bootstrap") {
                     script {
-                        def changeAuthor = env.CHANGE_AUTHOR ?: env.ghprbTriggerAuthorLogin
+                        def changeAuthor = env.CHANGE_AUTHOR ?: env.ghprbPullAuthorLogin
                         def changeBranch = env.CHANGE_BRANCH ?: env.ghprbSourceBranch
                         def changeTarget = env.CHANGE_TARGET ?: env.ghprbTargetBranch
 
