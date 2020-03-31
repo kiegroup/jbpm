@@ -123,9 +123,6 @@ public class HumanTaskQueryFilterTest extends JbpmTestCase {
         abortHumanTaskProcess(3);
     }
 
-    /**
-     * TODO - Need to pass in parameters which do make sense.
-     */
     @Test
     @BZ("1132157")
     public void testFilterParams() {
