@@ -45,6 +45,8 @@ public class CaseDefinitionImpl implements CaseDefinition, Serializable {
     private Collection<AdHocFragment> adHocFragments;
     
     private Map<String, List<String>> dataAccessRestrictions;
+
+    private String caseIdExpression;
     
     public CaseDefinitionImpl() {
         
@@ -129,6 +131,13 @@ public class CaseDefinitionImpl implements CaseDefinition, Serializable {
                 ", caseMilestones=" + caseMilestones + ", caseRoles=" + caseRoles + "]";
     }
 
+    public void setCaseIdExpression(String caseIdExpression) {
+        this.caseIdExpression = caseIdExpression;
+    }
 
+    @Override
+    public String getCaseIdExpression() {
+        return this.caseIdExpression;
+    }
 
 }

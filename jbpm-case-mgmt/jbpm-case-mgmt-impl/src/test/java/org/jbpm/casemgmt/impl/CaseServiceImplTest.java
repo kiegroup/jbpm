@@ -125,6 +125,7 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
     @Override
     protected List<String> getProcessDefinitionFiles() {
         List<String> processes = new ArrayList<String>();
+        processes.add("cases/EmptyCaseWithIdCaseExpression.bpmn2");
         processes.add("cases/EmptyCase.bpmn2");
         processes.add("cases/UserTaskCase.bpmn2");
         processes.add("cases/UserTaskWithStageCase.bpmn2");
@@ -150,6 +151,19 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
         processes.add("processes/DataVerificationProcess.bpmn2");
         processes.add("processes/DynamicSubProcess.bpmn2");
         return processes;
+    }
+
+    @Test
+    public void testStartEmptyCaseWithIdCaseExpression() {
+        Map<String, Object> data = new HashMap<>();
+        data.put("class", "test");
+        CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), "EmptyCaseWithIdCaseExpression", data);
+
+        String caseId = caseService.startCase(deploymentUnit.getIdentifier(), "EmptyCaseWithIdCaseExpression", caseFile);
+        assertNotNull(caseId);
+        assertEquals("org.jbpm.cases:case-module:1.0.0-##test-00001", caseId);
+        caseService.cancelCase(caseId);
+
     }
 
     @Test

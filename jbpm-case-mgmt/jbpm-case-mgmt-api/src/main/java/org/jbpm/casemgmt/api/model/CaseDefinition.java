@@ -28,6 +28,7 @@ public interface CaseDefinition {
     
     public static final String DEFAULT_PREFIX = "CASE";
 
+    public static final String DEFAULT_EXPRESSION = "${PREFIX}-${PADDING(10,'0', SEQUENCE)}";
     /**
      * Returns id of the case that shall be used to instantiate new instance of this case
      */
@@ -77,4 +78,10 @@ public interface CaseDefinition {
      * Returns default case file data restrictions. 
      */
     Map<String, List<String>> getDataAccessRestrictions();
+
+    /**
+     * Returns default case id expression
+     * @return
+     */
+    String getCaseIdExpression();
 }

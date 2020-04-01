@@ -30,8 +30,11 @@ import org.jbpm.shared.services.impl.commands.QueryNameCommand;
 import org.jbpm.shared.services.impl.commands.RemoveObjectCommand;
 import org.kie.api.command.ExecutableCommand;
 import org.kie.api.runtime.Context;
+import org.mvel2.templates.TemplateRuntime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.jbpm.casemgmt.impl.generator.CaseIdExpressionFunctions.CASE_ID_FUNCTIONS;
 
 /**
  * Data base tabled backed case id generator. The underlying table keeps single entry per case prefix and updates it 
@@ -88,14 +91,18 @@ public class TableCaseIdGenerator implements CaseIdGenerator {
     }
 
     @Override
-    public String generate(String prefix, Map<String, Object> optionalParameters) throws CasePrefixNotFoundException {
+    public String generate(String expression, Map<String, Object> optionalParameters) throws CasePrefixNotFoundException {
+        String prefix = (String) optionalParameters.get("PREFIX");
         CaseIdInfo caseIdInfo = commandService.execute(new IncrementAndGetCaseIdCommand(prefix));
-        logger.debug("Next sequence value for case id prefix {} is {}", prefix, caseIdInfo.getCurrentValue());
+        logger.debug("Next sequence value for case id prefix {} is {}", expression, caseIdInfo.getCurrentValue());
         long nextVal = caseIdInfo.getCurrentValue();
-        String paddedNumber = String.format("%010d", nextVal);
-        return prefix + "-" + paddedNumber;
+        Map<String, Object> variables = new HashMap<>(optionalParameters);
+        variables.put("SEQUENCE", nextVal);
+        return (String) TemplateRuntime.eval(expression, CASE_ID_FUNCTIONS, variables);
     }
-    
+
+
+
     protected CaseIdInfo findCaseIdInfoByPrefix(String prefix) {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("prefix", prefix);

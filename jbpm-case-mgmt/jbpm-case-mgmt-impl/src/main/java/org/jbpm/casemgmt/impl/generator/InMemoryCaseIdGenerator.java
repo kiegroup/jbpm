@@ -16,6 +16,7 @@
 
 package org.jbpm.casemgmt.impl.generator;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -23,6 +24,9 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.jbpm.casemgmt.api.generator.CaseIdGenerator;
 import org.jbpm.casemgmt.api.generator.CasePrefixNotFoundException;
+import org.mvel2.templates.TemplateRuntime;
+
+import static org.jbpm.casemgmt.impl.generator.CaseIdExpressionFunctions.CASE_ID_FUNCTIONS;
 
 /**
  * Simple in memory (usually for test or demo purpose) case id generator.
@@ -45,14 +49,16 @@ public class InMemoryCaseIdGenerator implements CaseIdGenerator {
     }
 
     @Override
-    public String generate(String prefix, Map<String, Object> optionalParameters) throws CasePrefixNotFoundException {
+    public String generate(String expression, Map<String, Object> optionalParameters) throws CasePrefixNotFoundException {
+        String prefix = (String) optionalParameters.get("PREFIX");
         if (!sequences.containsKey(prefix)) {
             throw new CasePrefixNotFoundException("No case identifier prefix '" + prefix + "' was registered");
         }
-        
+
         long nextVal = sequences.get(prefix).incrementAndGet();
-        String paddedNumber = String.format("%010d", nextVal);
-        return prefix + "-" + paddedNumber;
+        Map<String, Object> variables = new HashMap<>(optionalParameters);
+        variables.put("SEQUENCE", nextVal);
+        return (String) TemplateRuntime.eval(expression, CASE_ID_FUNCTIONS, variables);
     }
     
     @Override

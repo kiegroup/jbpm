@@ -163,6 +163,7 @@ public class CaseRuntimeDataServiceImpl implements CaseRuntimeDataService, Deplo
         for( Process process : processes ) {
             if( ((WorkflowProcess)process).isDynamic()) {
                 String caseIdPrefix = collectCaseIdPrefix(process);
+                String caseIdExpression = collectCaseIdExpression(process);
                 Collection<CaseMilestone> caseMilestones = collectMilestoness(process);
                 Collection<CaseStage> caseStages = collectCaseStages(event.getDeploymentId(), process.getId(), ((WorkflowProcess)process));                
                 Collection<CaseRole> caseRoles = collectCaseRoles(process);
@@ -170,7 +171,7 @@ public class CaseRuntimeDataServiceImpl implements CaseRuntimeDataService, Deplo
                 Map<String, List<String>> dataAccessRestrictions = collectDataAccessRestrictions(process);
                 
                 CaseDefinitionImpl caseDef = new CaseDefinitionImpl((ProcessAssetDesc) mapProcessById.get(process.getId()), caseIdPrefix, caseStages, caseMilestones, caseRoles, adHocFragments, dataAccessRestrictions);
-                
+                caseDef.setCaseIdExpression(caseIdExpression);
                 availableCases.add(caseDef);
                 caseIdGenerator.register(caseIdPrefix);
             }
@@ -726,6 +727,15 @@ public class CaseRuntimeDataServiceImpl implements CaseRuntimeDataService, Deplo
         }
         
         return caseIdPrefix;
+    }
+
+    private String collectCaseIdExpression(Process process) {
+        String caseIdExpression = (String) process.getMetaData().get("customCaseIdExpression");
+        if (caseIdExpression == null) {
+            return CaseDefinition.DEFAULT_EXPRESSION;
+        }
+
+        return caseIdExpression;
     }
 
     private Collection<CaseMilestone> collectMilestoness(Process process) {

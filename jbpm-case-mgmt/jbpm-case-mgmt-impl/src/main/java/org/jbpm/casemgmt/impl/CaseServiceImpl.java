@@ -166,7 +166,12 @@ public class CaseServiceImpl implements CaseService {
         if (caseDef == null) {
             throw new CaseNotFoundException("Case definition " + caseDefinitionId + " not found");
         }
-        String caseId = caseIdGenerator.generate(caseDef.getIdentifierPrefix(), (caseFile == null ? new HashMap<>() : caseFile.getData()));
+        Map<String, Object> variables = (caseFile == null ? new HashMap<>() : new HashMap<>(caseFile.getData()));
+        variables.put("PREFIX", caseDef.getIdentifierPrefix());
+        variables.put("deploymentId", deploymentId);
+        variables.put("caseDefinitionId", caseDefinitionId);
+
+        String caseId = caseIdGenerator.generate(caseDef.getCaseIdExpression(), variables);
         logger.debug("Generated case id {} for case definition id {}", caseId, caseDefinitionId);
         
         if (caseFile == null) {
