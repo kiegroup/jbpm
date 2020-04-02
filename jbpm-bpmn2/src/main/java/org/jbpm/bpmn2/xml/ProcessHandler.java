@@ -16,6 +16,8 @@
 
 package org.jbpm.bpmn2.xml;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -125,9 +127,8 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
 			            final Attributes attrs, final ExtensibleXmlParser parser)
 			throws SAXException {
 		parser.startElementBuilder(localName, attrs);
-
-		String id = attrs.getValue("id");
-		String name = attrs.getValue("name");
+		String id = getDecodedAttribute(attrs, "id");
+		String name = getDecodedAttribute(attrs, "name");
 		String packageName = attrs.getValue("http://www.jboss.org/drools", "packageName");
 		String dynamic = attrs.getValue("http://www.jboss.org/drools", "adHoc");
 		String version = attrs.getValue("http://www.jboss.org/drools", "version");
@@ -170,6 +171,16 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
 		parser.getMetaData().put("idGen", new AtomicInteger(1));
 		
 		return process;
+	}
+
+	private String getDecodedAttribute(final Attributes attrs, final String attrName) {
+		String value = attrs.getValue(attrName);
+		try {
+			return URLDecoder.decode(value, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			logger.warn("Attribute decoded with incorrect encoding.", e);
+			return value;
+		}
 	}
 
 	@SuppressWarnings("unchecked")
