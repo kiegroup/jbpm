@@ -857,23 +857,25 @@ private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentSe
     
         List<TaskEvent> auditTasks = runtimeDataService.getTaskEvents(taskId, new QueryFilter());
         assertNotNull(auditTasks);
-        assertEquals(2, auditTasks.size());
+        assertEquals(3, auditTasks.size());
         assertEquals(TaskEvent.TaskEventType.ADDED, auditTasks.get(0).getType());
         assertEquals("org.jbpm.writedocument", auditTasks.get(0).getUserId());
-        assertEquals(TaskEvent.TaskEventType.STARTED, auditTasks.get(1).getType());
-        assertEquals("salaboy", auditTasks.get(1).getUserId());
+        assertEquals(TaskEvent.TaskEventType.ACTIVATED, auditTasks.get(1).getType());
+        assertEquals(TaskEvent.TaskEventType.STARTED, auditTasks.get(2).getType());
+        assertEquals("salaboy", auditTasks.get(2).getUserId());
         
         identityProvider.setName("salaboy");
         userTaskService.stop(taskId, null);
         
         auditTasks = runtimeDataService.getTaskEvents(taskId, new QueryFilter());
         assertNotNull(auditTasks);
-        assertEquals(3, auditTasks.size());
+        assertEquals(4, auditTasks.size());
         assertEquals(TaskEvent.TaskEventType.ADDED, auditTasks.get(0).getType());
         assertEquals("org.jbpm.writedocument", auditTasks.get(0).getUserId());
-        assertEquals(TaskEvent.TaskEventType.STARTED, auditTasks.get(1).getType());
-        assertEquals("salaboy", auditTasks.get(1).getUserId());
-        assertEquals(TaskEvent.TaskEventType.STOPPED, auditTasks.get(2).getType());
+        assertEquals(TaskEvent.TaskEventType.ACTIVATED, auditTasks.get(1).getType());
+        assertEquals(TaskEvent.TaskEventType.STARTED, auditTasks.get(2).getType());
+        assertEquals("salaboy", auditTasks.get(2).getUserId());
+        assertEquals(TaskEvent.TaskEventType.STOPPED, auditTasks.get(3).getType());
         assertEquals("salaboy", auditTasks.get(2).getUserId());
         
         Map<String, Object> params = new HashMap<>();
@@ -882,15 +884,16 @@ private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentSe
         
         auditTasks = runtimeDataService.getTaskEvents(taskId, new QueryFilter());
         assertNotNull(auditTasks);
-        assertEquals(4, auditTasks.size());
+        assertEquals(5, auditTasks.size());
         assertEquals(TaskEvent.TaskEventType.ADDED, auditTasks.get(0).getType());
         assertEquals("org.jbpm.writedocument", auditTasks.get(0).getUserId());
-        assertEquals(TaskEvent.TaskEventType.STARTED, auditTasks.get(1).getType());
-        assertEquals("salaboy", auditTasks.get(1).getUserId());
-        assertEquals(TaskEvent.TaskEventType.STOPPED, auditTasks.get(2).getType());
+        assertEquals(TaskEvent.TaskEventType.ACTIVATED, auditTasks.get(1).getType());
+        assertEquals(TaskEvent.TaskEventType.STARTED, auditTasks.get(2).getType());
         assertEquals("salaboy", auditTasks.get(2).getUserId());
-        assertEquals(TaskEvent.TaskEventType.UPDATED, auditTasks.get(3).getType());
+        assertEquals(TaskEvent.TaskEventType.STOPPED, auditTasks.get(3).getType());
         assertEquals("salaboy", auditTasks.get(3).getUserId());
+        assertEquals(TaskEvent.TaskEventType.UPDATED, auditTasks.get(4).getType());
+        assertEquals("salaboy", auditTasks.get(4).getUserId());
     
         identityProvider.setName("testUser");
         processService.abortProcessInstance(processInstanceId);

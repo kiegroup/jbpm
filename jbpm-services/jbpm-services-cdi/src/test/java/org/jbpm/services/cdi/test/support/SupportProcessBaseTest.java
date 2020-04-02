@@ -129,7 +129,7 @@ public abstract class SupportProcessBaseTest extends AbstractKieServicesBaseTest
         TaskService taskService = engine.getTaskService();
         
         currentNumberOfEvents = DebugTaskLifeCycleEventListener.getEventCounter();
-        assertEquals(2, currentNumberOfEvents);
+        assertEquals(4, currentNumberOfEvents);
         
         // Configure Release
         List<TaskSummary> tasksAssignedToSalaboy = taskService.getTasksAssignedAsPotentialOwner("salaboy", "en-UK");
@@ -143,7 +143,7 @@ public abstract class SupportProcessBaseTest extends AbstractKieServicesBaseTest
         taskService.start(createSupportTask.getId(), "salaboy");
         
         currentNumberOfEvents = DebugTaskLifeCycleEventListener.getEventCounter();
-        assertEquals(4, currentNumberOfEvents);
+        assertEquals(6, currentNumberOfEvents);
 
 
         Map<String, Object> taskContent = ((InternalTaskService) taskService).getTaskContent(createSupportTask.getId());
@@ -164,7 +164,7 @@ public abstract class SupportProcessBaseTest extends AbstractKieServicesBaseTest
         taskService.complete(createSupportTask.getId(), "salaboy", output);
         
         currentNumberOfEvents = DebugTaskLifeCycleEventListener.getEventCounter();
-        assertEquals(8, currentNumberOfEvents);
+        assertEquals(12, currentNumberOfEvents);
 
         tasksAssignedToSalaboy = taskService.getTasksAssignedAsPotentialOwner("salaboy", "en-UK");
         assertEquals(1, tasksAssignedToSalaboy.size());
@@ -176,12 +176,12 @@ public abstract class SupportProcessBaseTest extends AbstractKieServicesBaseTest
         taskService.start(resolveSupportTask.getId(), "salaboy");
         
         currentNumberOfEvents = DebugTaskLifeCycleEventListener.getEventCounter();
-        assertEquals(10, currentNumberOfEvents);
+        assertEquals(14, currentNumberOfEvents);
 
         taskService.complete(resolveSupportTask.getId(), "salaboy", null);
         
         currentNumberOfEvents = DebugTaskLifeCycleEventListener.getEventCounter();
-        assertEquals(14, currentNumberOfEvents);
+        assertEquals(20, currentNumberOfEvents);
 
 
         tasksAssignedToSalaboy = taskService.getTasksAssignedAsPotentialOwner("salaboy", "en-UK");
@@ -194,14 +194,14 @@ public abstract class SupportProcessBaseTest extends AbstractKieServicesBaseTest
         taskService.start(notifySupportTask.getId(), "salaboy");
         
         currentNumberOfEvents = DebugTaskLifeCycleEventListener.getEventCounter();
-        assertEquals(16, currentNumberOfEvents);
+        assertEquals(22, currentNumberOfEvents);
         
         output = new HashMap<String, Object>();
         output.put("output_solution", "solved today");
         taskService.complete(notifySupportTask.getId(), "salaboy", output);
         
         currentNumberOfEvents = DebugTaskLifeCycleEventListener.getEventCounter();
-        assertEquals(18, currentNumberOfEvents);
+        assertEquals(24, currentNumberOfEvents);
 
 
 

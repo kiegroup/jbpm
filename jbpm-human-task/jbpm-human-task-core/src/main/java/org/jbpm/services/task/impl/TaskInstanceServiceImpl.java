@@ -497,6 +497,17 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
         ((InternalTask)task).setFormName((String) replacements.get("formName"));
     }
 
-
+    @Override
+    public void fireEvent(Operation operation, long taskId) {
+        Task task = context.getPersistenceContext().findTask(taskId);
+        switch (operation) {
+            case Activate:
+                this.taskEventSupport.fireBeforeTaskActivated(task, context);
+                this.taskEventSupport.fireAfterTaskActivated(task, context);
+                break;
+            default:
+                break;
+        }
+    }
 
 }

@@ -16,29 +16,35 @@
 
 package org.jbpm.test.regression.task;
 
-import static org.jbpm.test.tools.TrackingListenerAssert.assertTriggered;
-import static org.jbpm.test.tools.TrackingListenerAssert.assertTriggeredAndLeft;
-import static org.junit.Assert.*;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.persistence.EntityManagerFactory;
 
+import org.apache.commons.lang3.mutable.MutableInt;
 import org.assertj.core.api.Assertions;
+import org.jbpm.services.task.events.DefaultTaskEventListener;
 import org.jbpm.test.JbpmTestCase;
 import org.jbpm.test.listener.TrackingProcessEventListener;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.runtime.process.ProcessInstance;
+import org.kie.api.task.TaskEvent;
+import org.kie.api.task.TaskLifeCycleEventListener;
 import org.kie.api.task.TaskService;
 import org.kie.api.task.model.Status;
 import org.kie.api.task.model.Task;
 import org.kie.api.task.model.TaskSummary;
-
+import org.kie.internal.task.api.EventService;
 import qa.tools.ikeeper.annotation.BZ;
+
+import static java.util.Collections.emptyMap;
+import static org.jbpm.test.tools.TrackingListenerAssert.assertTriggered;
+import static org.jbpm.test.tools.TrackingListenerAssert.assertTriggeredAndLeft;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class HumanTaskTest extends JbpmTestCase {
 
@@ -62,6 +68,9 @@ public class HumanTaskTest extends JbpmTestCase {
 
     private static final String INPUT_TRANSFORMATION = "org/jbpm/test/regression/task/HumanTask-inputTransformation.bpmn2";
     private static final String INPUT_TRANSFORMATION_ID = "org.jbpm.test.regression.task.HumanTask-inputTransformation";
+
+    private static final String HUMAN_TASK_LISTENER = "org/jbpm/test/regression/task/HumanTask-Listener.bpmn2";
+    private static final String HUMAN_TASK_LISTENER_ID = "org.jbpm.test.regression.task.HumanTask-Listener";
 
     @Test
     @BZ("958397")
@@ -230,4 +239,31 @@ public class HumanTaskTest extends JbpmTestCase {
         assertProcessInstanceCompleted(pi.getId());
     }
 
+    @Test
+    public void testHumanTaskListener() {
+        KieSession ksession = createKSession(HUMAN_TASK_LISTENER);
+        MutableInt triggered = new MutableInt(0);
+        TaskLifeCycleEventListener listener = new DefaultTaskEventListener() {
+            @Override
+            public void afterTaskActivatedEvent(TaskEvent event) {
+                triggered.increment();
+            }
+
+        };
+        RuntimeEngine engine = getRuntimeEngine();
+        TaskService taskService = engine.getTaskService();
+        ((EventService<TaskLifeCycleEventListener>) taskService).registerTaskEventListener(listener);
+        ProcessInstance pi = ksession.startProcess(HUMAN_TASK_LISTENER_ID);
+        long processInstanceId = pi.getId();
+
+        List<Long> idList = taskService.getTasksByProcessInstanceId(processInstanceId);
+        for (long taskId : idList) {
+            taskService.start(taskId, "john");
+            taskService.complete(taskId, "john", emptyMap());
+        }
+        assertEquals((int) 2, (int) triggered.getValue());
+
+        ksession.abortProcessInstance(processInstanceId);
+        assertProcessInstanceAborted(processInstanceId);
+    }
 }

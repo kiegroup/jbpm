@@ -16,12 +16,6 @@
 
 package org.jbpm.kie.services.impl.admin;
 
-import static org.jbpm.services.api.query.QueryResultMapper.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.kie.scanner.KieMavenRepository.getKieMavenRepository;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
@@ -50,8 +44,8 @@ import org.jbpm.services.api.admin.UserTaskAdminService;
 import org.jbpm.services.api.model.DeploymentUnit;
 import org.jbpm.services.api.model.UserTaskInstanceDesc;
 import org.jbpm.services.api.query.model.QueryDefinition;
-import org.jbpm.services.api.query.model.QueryParam;
 import org.jbpm.services.api.query.model.QueryDefinition.Target;
+import org.jbpm.services.api.query.model.QueryParam;
 import org.jbpm.shared.services.impl.TransactionalCommandService;
 import org.junit.After;
 import org.junit.Before;
@@ -74,6 +68,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.jbpm.services.api.query.QueryResultMapper.COLUMN_NAME;
+import static org.jbpm.services.api.query.QueryResultMapper.COLUMN_TASKID;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.kie.scanner.KieMavenRepository.getKieMavenRepository;
 
 public class UserTaskAdminServiceImplTest extends AbstractKieServicesBaseTest {
 
@@ -235,8 +235,8 @@ public class UserTaskAdminServiceImplTest extends AbstractKieServicesBaseTest {
         userTaskAdminService.addPotentialOwners(task.getId(), false, factory.newUser("john"));
         
         List<TaskEvent> events = runtimeDataService.getTaskEvents(task.getId(), new QueryFilter());
-        Assertions.assertThat(events).hasSize(3);
-        TaskEvent updatedEvent = events.get(2);
+        Assertions.assertThat(events).hasSize(4);
+        TaskEvent updatedEvent = events.get(3);
         Assertions.assertThat(updatedEvent.getMessage()).isEqualTo("Potential owners [john] have been added");
         
         tasks = runtimeDataService.getTasksAssignedAsPotentialOwner("salaboy", new QueryFilter());
@@ -283,8 +283,8 @@ public class UserTaskAdminServiceImplTest extends AbstractKieServicesBaseTest {
         
         userTaskAdminService.addExcludedOwners(task.getId(), false, factory.newUser("salaboy"));
         List<TaskEvent> events = runtimeDataService.getTaskEvents(task.getId(), new QueryFilter());
-        Assertions.assertThat(events).hasSize(3);
-        TaskEvent updatedEvent = events.get(2);
+        Assertions.assertThat(events).hasSize(4);
+        TaskEvent updatedEvent = events.get(3);
         Assertions.assertThat(updatedEvent.getMessage()).isEqualTo("Excluded owners [salaboy] have been added");
         
         tasks = runtimeDataService.getTasksAssignedAsPotentialOwner("salaboy", new QueryFilter());
@@ -315,8 +315,8 @@ public class UserTaskAdminServiceImplTest extends AbstractKieServicesBaseTest {
         
         userTaskAdminService.addBusinessAdmins(task.getId(), false, factory.newUser("salaboy"));
         List<TaskEvent> events = runtimeDataService.getTaskEvents(task.getId(), new QueryFilter());
-        Assertions.assertThat(events).hasSize(3);
-        TaskEvent updatedEvent = events.get(2);
+        Assertions.assertThat(events).hasSize(4);
+        TaskEvent updatedEvent = events.get(3);
         Assertions.assertThat(updatedEvent.getMessage()).isEqualTo("Business administrators [salaboy] have been added");
         
         tasks = runtimeDataService.getTasksAssignedAsBusinessAdministrator("salaboy", new QueryFilter());
@@ -344,8 +344,8 @@ public class UserTaskAdminServiceImplTest extends AbstractKieServicesBaseTest {
         
         userTaskAdminService.removePotentialOwners(task.getId(), factory.newUser("salaboy"));
         List<TaskEvent> events = runtimeDataService.getTaskEvents(task.getId(), new QueryFilter());
-        Assertions.assertThat(events).hasSize(3);
-        TaskEvent updatedEvent = events.get(2);
+        Assertions.assertThat(events).hasSize(4);
+        TaskEvent updatedEvent = events.get(3);
         Assertions.assertThat(updatedEvent.getMessage()).isEqualTo("Potential owners [salaboy] have been removed");
         
         tasks = runtimeDataService.getTasksAssignedAsPotentialOwner("salaboy", new QueryFilter());
@@ -365,8 +365,8 @@ public class UserTaskAdminServiceImplTest extends AbstractKieServicesBaseTest {
         
         userTaskAdminService.addExcludedOwners(task.getId(), false, factory.newUser("salaboy"));
         List<TaskEvent> events = runtimeDataService.getTaskEvents(task.getId(), new QueryFilter());
-        Assertions.assertThat(events).hasSize(3);
-        TaskEvent updatedEvent = events.get(2);
+        Assertions.assertThat(events).hasSize(4);
+        TaskEvent updatedEvent = events.get(3);
         Assertions.assertThat(updatedEvent.getMessage()).isEqualTo("Excluded owners [salaboy] have been added");
         
         tasks = runtimeDataService.getTasksAssignedAsPotentialOwner("salaboy", new QueryFilter());
@@ -374,8 +374,8 @@ public class UserTaskAdminServiceImplTest extends AbstractKieServicesBaseTest {
         
         userTaskAdminService.removeExcludedOwners(task.getId(), factory.newUser("salaboy"));
         events = runtimeDataService.getTaskEvents(task.getId(), new QueryFilter());
-        Assertions.assertThat(events).hasSize(4);
-        updatedEvent = events.get(3);
+        Assertions.assertThat(events).hasSize(5);
+        updatedEvent = events.get(4);
         Assertions.assertThat(updatedEvent.getMessage()).isEqualTo("Excluded owners [salaboy] have been removed");
         
         tasks = runtimeDataService.getTasksAssignedAsPotentialOwner("salaboy", new QueryFilter());
@@ -393,8 +393,8 @@ public class UserTaskAdminServiceImplTest extends AbstractKieServicesBaseTest {
         
         userTaskAdminService.removeBusinessAdmins(task.getId(), factory.newUser("Administrator"));
         List<TaskEvent> events = runtimeDataService.getTaskEvents(task.getId(), new QueryFilter());
-        Assertions.assertThat(events).hasSize(2);
-        TaskEvent updatedEvent = events.get(1);
+        Assertions.assertThat(events).hasSize(3);
+        TaskEvent updatedEvent = events.get(2);
         Assertions.assertThat(updatedEvent.getMessage()).isEqualTo("Business administrators [Administrator] have been removed");
 
         List<Status> readyStatuses = Arrays.asList(new Status[]{
