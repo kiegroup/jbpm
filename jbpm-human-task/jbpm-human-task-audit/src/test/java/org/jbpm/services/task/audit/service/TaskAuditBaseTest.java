@@ -16,10 +16,6 @@
 
 package org.jbpm.services.task.audit.service;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -54,6 +50,10 @@ import org.kie.internal.task.api.TaskVariable.VariableType;
 import org.kie.internal.task.api.model.InternalTaskData;
 import org.kie.internal.task.api.model.TaskEvent;
 import org.kie.internal.task.api.model.TaskEvent.TaskEventType;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public abstract class TaskAuditBaseTest extends HumanTaskServicesBaseTest {
 
@@ -117,7 +117,7 @@ public abstract class TaskAuditBaseTest extends HumanTaskServicesBaseTest {
         assertEquals("Darth Vader", task2.getTaskData().getActualOwner().getId());
 
         List<TaskEvent> allTaskEvents = taskService.execute(new GetAuditEventsCommand(taskId, new QueryFilter(0, 0)));
-        assertEquals(6, allTaskEvents.size());
+        assertEquals(7, allTaskEvents.size());
 
         // test DeleteAuditEventsCommand
         int numFirstTaskEvents = allTaskEvents.size();
@@ -138,7 +138,8 @@ public abstract class TaskAuditBaseTest extends HumanTaskServicesBaseTest {
 
         taskService.execute(new DeleteAuditEventsCommand(taskId));
         allTaskEvents = taskService.execute(new GetAuditEventsCommand());
-        assertEquals(numTaskEvents - numFirstTaskEvents, allTaskEvents.size());
+        // +2 activate events.
+        assertEquals(numTaskEvents - numFirstTaskEvents + 2, allTaskEvents.size());
 
         taskService.execute(new DeleteAuditEventsCommand());
         allTaskEvents = taskService.execute(new GetAuditEventsCommand());
@@ -1145,31 +1146,34 @@ public abstract class TaskAuditBaseTest extends HumanTaskServicesBaseTest {
 
         List<TaskEvent> taskEvents = taskAuditService.getAllTaskEvents(taskId, new QueryFilter());
 
-        Assertions.assertThat(taskEvents).hasSize(8);
+        Assertions.assertThat(taskEvents).hasSize(9);
 
         Assertions.assertThat(taskEvents.get(0).getType()).isEqualTo(TaskEventType.ADDED);
         Assertions.assertThat(taskEvents.get(0).getUserId()).isNull();
 
-        Assertions.assertThat(taskEvents.get(1).getType()).isEqualTo(TaskEventType.CLAIMED);
-        Assertions.assertThat(taskEvents.get(1).getUserId()).isEqualTo("Darth Vader");
+        Assertions.assertThat(taskEvents.get(1).getType()).isEqualTo(TaskEventType.ACTIVATED);
+        Assertions.assertThat(taskEvents.get(1).getUserId()).isNull();
 
-        Assertions.assertThat(taskEvents.get(2).getType()).isEqualTo(TaskEventType.RELEASED);
+        Assertions.assertThat(taskEvents.get(2).getType()).isEqualTo(TaskEventType.CLAIMED);
         Assertions.assertThat(taskEvents.get(2).getUserId()).isEqualTo("Darth Vader");
 
-        Assertions.assertThat(taskEvents.get(3).getType()).isEqualTo(TaskEventType.CLAIMED);
+        Assertions.assertThat(taskEvents.get(3).getType()).isEqualTo(TaskEventType.RELEASED);
         Assertions.assertThat(taskEvents.get(3).getUserId()).isEqualTo("Darth Vader");
 
-        Assertions.assertThat(taskEvents.get(4).getType()).isEqualTo(TaskEventType.STARTED);
+        Assertions.assertThat(taskEvents.get(4).getType()).isEqualTo(TaskEventType.CLAIMED);
         Assertions.assertThat(taskEvents.get(4).getUserId()).isEqualTo("Darth Vader");
 
-        Assertions.assertThat(taskEvents.get(5).getType()).isEqualTo(TaskEventType.STOPPED);
+        Assertions.assertThat(taskEvents.get(5).getType()).isEqualTo(TaskEventType.STARTED);
         Assertions.assertThat(taskEvents.get(5).getUserId()).isEqualTo("Darth Vader");
 
-        Assertions.assertThat(taskEvents.get(6).getType()).isEqualTo(TaskEventType.STARTED);
+        Assertions.assertThat(taskEvents.get(6).getType()).isEqualTo(TaskEventType.STOPPED);
         Assertions.assertThat(taskEvents.get(6).getUserId()).isEqualTo("Darth Vader");
 
-        Assertions.assertThat(taskEvents.get(7).getType()).isEqualTo(TaskEventType.COMPLETED);
+        Assertions.assertThat(taskEvents.get(7).getType()).isEqualTo(TaskEventType.STARTED);
         Assertions.assertThat(taskEvents.get(7).getUserId()).isEqualTo("Darth Vader");
+
+        Assertions.assertThat(taskEvents.get(8).getType()).isEqualTo(TaskEventType.COMPLETED);
+        Assertions.assertThat(taskEvents.get(8).getUserId()).isEqualTo("Darth Vader");
     }
 
     @Test
@@ -1366,25 +1370,28 @@ public abstract class TaskAuditBaseTest extends HumanTaskServicesBaseTest {
 
         List<TaskEvent> taskEvents = taskAuditService.getAllTaskEvents(taskId, new QueryFilter());
 
-        Assertions.assertThat(taskEvents).hasSize(6);
+        Assertions.assertThat(taskEvents).hasSize(7);
 
         Assertions.assertThat(taskEvents.get(0).getType()).isEqualTo(TaskEventType.ADDED);
         Assertions.assertThat(taskEvents.get(0).getUserId()).isNull();
 
-        Assertions.assertThat(taskEvents.get(1).getType()).isEqualTo(TaskEventType.CLAIMED);
-        Assertions.assertThat(taskEvents.get(1).getUserId()).isEqualTo("Darth Vader");
+        Assertions.assertThat(taskEvents.get(1).getType()).isEqualTo(TaskEventType.ACTIVATED);
+        Assertions.assertThat(taskEvents.get(1).getUserId()).isNull();
 
-        Assertions.assertThat(taskEvents.get(2).getType()).isEqualTo(TaskEventType.STARTED);
+        Assertions.assertThat(taskEvents.get(2).getType()).isEqualTo(TaskEventType.CLAIMED);
         Assertions.assertThat(taskEvents.get(2).getUserId()).isEqualTo("Darth Vader");
-        // first update of data explicitly
-        Assertions.assertThat(taskEvents.get(3).getType()).isEqualTo(TaskEventType.UPDATED);
+
+        Assertions.assertThat(taskEvents.get(3).getType()).isEqualTo(TaskEventType.STARTED);
         Assertions.assertThat(taskEvents.get(3).getUserId()).isEqualTo("Darth Vader");
-        // next update of data through complete
+        // first update of data explicitly
         Assertions.assertThat(taskEvents.get(4).getType()).isEqualTo(TaskEventType.UPDATED);
         Assertions.assertThat(taskEvents.get(4).getUserId()).isEqualTo("Darth Vader");
-
-        Assertions.assertThat(taskEvents.get(5).getType()).isEqualTo(TaskEventType.COMPLETED);
+        // next update of data through complete
+        Assertions.assertThat(taskEvents.get(5).getType()).isEqualTo(TaskEventType.UPDATED);
         Assertions.assertThat(taskEvents.get(5).getUserId()).isEqualTo("Darth Vader");
+
+        Assertions.assertThat(taskEvents.get(6).getType()).isEqualTo(TaskEventType.COMPLETED);
+        Assertions.assertThat(taskEvents.get(6).getUserId()).isEqualTo("Darth Vader");
     }
 
     @Test
@@ -1406,18 +1413,21 @@ public abstract class TaskAuditBaseTest extends HumanTaskServicesBaseTest {
 
         List<TaskEvent> taskEvents = taskAuditService.getAllTaskEvents(taskId, new QueryFilter());
 
-        Assertions.assertThat(taskEvents).hasSize(3);
+        Assertions.assertThat(taskEvents).hasSize(4);
 
         Assertions.assertThat(taskEvents.get(0).getType()).isEqualTo(TaskEventType.ADDED);
         Assertions.assertThat(taskEvents.get(0).getUserId()).isNull();
 
-        Assertions.assertThat(taskEvents.get(1).getType()).isEqualTo(TaskEventType.CLAIMED);
-        Assertions.assertThat(taskEvents.get(1).getUserId()).isEqualTo("Administrator");
+        Assertions.assertThat(taskEvents.get(1).getType()).isEqualTo(TaskEventType.ACTIVATED);
+        Assertions.assertThat(taskEvents.get(1).getUserId()).isNull();
 
-        Assertions.assertThat(taskEvents.get(2).getType()).isEqualTo(TaskEventType.FORWARDED);
+        Assertions.assertThat(taskEvents.get(2).getType()).isEqualTo(TaskEventType.CLAIMED);
         Assertions.assertThat(taskEvents.get(2).getUserId()).isEqualTo("Administrator");
-        Assertions.assertThat(taskEvents.get(2).getMessage()).isNotNull();
-        Assertions.assertThat(taskEvents.get(2).getMessage()).contains("Darth Vader");
+
+        Assertions.assertThat(taskEvents.get(3).getType()).isEqualTo(TaskEventType.FORWARDED);
+        Assertions.assertThat(taskEvents.get(3).getUserId()).isEqualTo("Administrator");
+        Assertions.assertThat(taskEvents.get(3).getMessage()).isNotNull();
+        Assertions.assertThat(taskEvents.get(3).getMessage()).contains("Darth Vader");
     }
 
     @Test
@@ -1431,7 +1441,7 @@ public abstract class TaskAuditBaseTest extends HumanTaskServicesBaseTest {
         long taskId = task.getId();
 
         List<TaskEvent> taskEvents = taskAuditService.getAllTaskEvents(taskId, new QueryFilter());
-        Assertions.assertThat(taskEvents).hasSize(1);
+        Assertions.assertThat(taskEvents).hasSize(2);
         Assertions.assertThat(taskEvents.get(0).getType()).isEqualTo(TaskEventType.ADDED);
         Assertions.assertThat(taskEvents.get(0).getUserId()).isNull();
 

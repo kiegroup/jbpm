@@ -15,7 +15,6 @@
  */
 package org.jbpm.services.task.commands;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -38,14 +37,12 @@ import org.kie.api.task.model.OrganizationalEntity;
 import org.kie.api.task.model.Status;
 import org.kie.api.task.model.Task;
 import org.kie.api.task.model.User;
-import org.kie.internal.task.api.TaskDeadlinesService;
 import org.kie.internal.task.api.TaskDeadlinesService.DeadlineType;
 import org.kie.internal.task.api.model.ContentData;
-import org.kie.internal.task.api.model.Deadline;
-import org.kie.internal.task.api.model.Deadlines;
 import org.kie.internal.task.api.model.InternalPeopleAssignments;
 import org.kie.internal.task.api.model.InternalTask;
 import org.kie.internal.task.api.model.InternalTaskData;
+import org.kie.internal.task.api.model.Operation;
 
 /**
  * Operation.Start : [ new OperationCommand().{ status = [ Status.Ready ],
@@ -118,6 +115,11 @@ public class AddTaskCommand extends UserGroupCallbackTaskCommand<Long> {
         } else {
             
         	taskId = context.getTaskInstanceService().addTask(taskImpl, params);
+        }
+
+        // if the status is different from created it means it has been activated in the middle
+        if (!Status.Created.equals(taskImpl.getTaskData().getStatus())) {
+            context.getTaskInstanceService().fireEvent(Operation.Activate, task.getId());
         }
 
         DeadlineSchedulerHelper.scheduleDeadlinesForTask((InternalTask) taskImpl, context, DeadlineType.values());

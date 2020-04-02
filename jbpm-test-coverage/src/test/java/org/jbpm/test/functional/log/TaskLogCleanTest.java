@@ -37,7 +37,6 @@ import org.kie.api.task.model.Status;
 import org.kie.api.task.model.Task;
 import org.kie.internal.task.api.AuditTask;
 import org.kie.internal.task.api.TaskVariable;
-
 import qa.tools.ikeeper.annotation.BZ;
 
 /**
@@ -232,11 +231,12 @@ public class TaskLogCleanTest extends JbpmTestCase {
                 .build()
                 .execute();
         // Changes are as follows (see https://docs.jboss.org/jbpm/v6.1/userguide/jBPMTaskService.html#jBPMTaskLifecycle):
-        // 1) Created -> Ready (automatic change because there are multiple actors)
-        // 2) Ready -> Reserved (by claim)
-        // 3) Reserved -> In Progress (by start)
-        // 4) In Progress -> Completed (by complete)
-        Assertions.assertThat(resultCount).isEqualTo(4);
+        // 1) Created -> Activated (virtual)
+        // 2) Activated ->  Ready (automatic change because there are multiple actors)
+        // 3) Ready -> Reserved (by claim)
+        // 4) Reserved -> In Progress (by start)
+        // 5) In Progress -> Completed (by complete)
+        Assertions.assertThat(resultCount).isEqualTo(5);
     }
     
     @Test
