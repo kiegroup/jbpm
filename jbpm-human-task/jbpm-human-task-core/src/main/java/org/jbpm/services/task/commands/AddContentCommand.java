@@ -54,6 +54,12 @@ public class AddContentCommand extends TaskCommand<Long> {
     	setContent(content);
     }
 
+    public AddContentCommand(Long taskId, String userId, Map<String, Object> params) {
+        this.taskId = taskId;
+        this.params = params;
+        this.setUserId(userId);
+    }
+
     public AddContentCommand(Long taskId, Map<String, Object> params) {
     	this.taskId = taskId;
     	this.params = params;

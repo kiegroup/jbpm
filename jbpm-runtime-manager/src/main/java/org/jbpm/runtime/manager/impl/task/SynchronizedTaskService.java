@@ -15,8 +15,12 @@
  */
 package org.jbpm.runtime.manager.impl.task;
 
+import java.lang.reflect.InvocationHandler;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
 import org.drools.core.command.impl.CommandBasedStatefulKnowledgeSession;
-import org.drools.persistence.PersistableRunner;
 import org.kie.api.command.Command;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.task.TaskLifeCycleEventListener;
@@ -41,11 +45,6 @@ import org.kie.internal.task.api.model.SubTasksStrategy;
 import org.kie.internal.task.api.model.TaskDef;
 import org.kie.internal.task.api.model.TaskEvent;
 import org.kie.internal.task.query.TaskSummaryQueryBuilder;
-
-import java.lang.reflect.InvocationHandler;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 /**
  * Fully synchronized <code>TaskService</code> implementation used by the <code>SingletonRuntimeManager</code>.
  * Synchronization is done on <code>CommandService</code> of the <code>KieSession</code> to ensure correctness
@@ -963,5 +962,12 @@ public class SynchronizedTaskService
         }
     }
 
+
+    @Override
+    public long addContentFromUser(long taskId, String userId, Map<String, Object> params) {
+        synchronized (ksession) {
+            return taskService.addContentFromUser(taskId, userId, params);
+        }
+    }
 
 }
