@@ -693,8 +693,17 @@ public class UserTaskServiceImpl implements UserTaskService, VariablesAware {
 	    return saveContent(null, taskId, values);
 	}
 
-	@Override
-	public Long saveContent(String deploymentId, Long taskId, Map<String, Object> values) {
+    @Override
+    public Long saveContentFromUser(Long taskId, String userId, Map<String, Object> values) {
+        return saveContent(null, taskId, userId, values);
+    }
+
+    @Override
+    public Long saveContent(String deploymentId, Long taskId, Map<String, Object> values) {
+        return saveContent(deploymentId, taskId, null, values);
+    }
+
+    public Long saveContent(String deploymentId, Long taskId, String userId, Map<String, Object> values) {
 		UserTaskInstanceDesc task = dataService.getTaskById(taskId);
 		validateTask(deploymentId, taskId, task);
 
@@ -710,7 +719,7 @@ public class UserTaskServiceImpl implements UserTaskService, VariablesAware {
 		try {
 			TaskService taskService = engine.getTaskService();
 			// perform actual operation
-			return ((InternalTaskService)taskService).addContent(taskId, (Map<String, Object>)values);
+            return ((InternalTaskService) taskService).addContentFromUser(taskId, userId, (Map<String, Object>) values);
 		} finally {
 			disposeRuntimeEngine(manager, engine);
 		}

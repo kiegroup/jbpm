@@ -496,6 +496,15 @@ public interface UserTaskService {
     
     /**
      * Saves gives values as content of a task, applies to task output as input cannot be altered
+     * @param taskId
+     * @param values
+     * @return
+     * @throws TaskNotFoundException in case task with given id was not found
+     */
+    Long saveContentFromUser(Long taskId, String userId, Map<String, Object> values);
+
+    /**
+     * Saves gives values as content of a task, applies to task output as input cannot be altered
      * 
      * @param deploymentId
      * @param taskId

@@ -713,4 +713,9 @@ public class TaskServiceEJBImpl implements InternalTaskService, TaskService, Tas
     public Map<String, Object> getOutputContentMapForUser( long taskId, String userId ) {
         return unsupported(Map.class);
     }
+
+    @Override
+    public long addContentFromUser(long taskId, String userId, Map<String, Object> params) {
+        return delegate.addContentFromUser(taskId, userId, params);
+    }
 }

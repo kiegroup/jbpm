@@ -586,6 +586,11 @@ public class CommandBasedTaskService implements InternalTaskService, EventServic
 		return executor.execute(new AddContentCommand(taskId, content));
 	}
 
+    @Override
+    public long addContentFromUser(long taskId, String userId, Map<String, Object> params) {
+        return executor.execute(new AddContentCommand(taskId, userId, params));
+    }
+
 	@Override
 	public long addContent(long taskId, Map<String, Object> params) {
 		return executor.execute(new AddContentCommand(taskId, params));
