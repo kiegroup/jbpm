@@ -279,7 +279,7 @@
             </build>
         </profile>
         <profile>
-            <id>jbpm-installer-exclude-prod-productized-false</id>
+            <id>community-only</id>
             <activation>
                 <property>
                     <name>productized</name>
@@ -288,6 +288,7 @@
             </activation>
             <modules>
                 <module>jbpm-installer</module>
+                <module>jbpm-distribution</module>
             </modules>
         </profile>
     </profiles>
