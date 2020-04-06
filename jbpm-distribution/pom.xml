@@ -72,31 +72,6 @@
           </execution>
         </executions>
       </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>zips</id>
-            <phase>package</phase>
-            <goals>
-              <goal>single</goal>
-            </goals>
-            <configuration>
-              <finalName>jbpm-${project.version}</finalName>
-              <descriptors>
-                <!-- basic zips -->
-                <descriptor>src/main/assembly/pre-bin.xml</descriptor>
-                <descriptor>src/main/assembly/bin.xml</descriptor>
-                <descriptor>src/main/assembly/src.xml</descriptor>
-                <descriptor>src/main/assembly/assembly-jbpm.xml</descriptor>
-                <!-- examples -->
-                <descriptor>src/main/assembly/examples.xml</descriptor>
-              </descriptors>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
     </plugins>
   </build>
 
@@ -423,4 +398,83 @@
       <scope>provided</scope>
     </dependency>
   </dependencies>
+
+  <profiles>
+      <profile>
+          <id>jbpm-installer-include</id>
+          <activation>
+              <property>
+                  <name>productized</name>
+                  <value>!true</value>
+              </property>
+          </activation>
+          <build>
+            <plugins>
+              <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                  <execution>
+                    <id>zips</id>
+                    <phase>package</phase>
+                    <goals>
+                      <goal>single</goal>
+                    </goals>
+                    <configuration>
+                      <finalName>jbpm-${project.version}</finalName>
+                      <descriptors>
+                        <!-- basic zips -->
+                        <descriptor>src/main/assembly/pre-bin.xml</descriptor>
+                        <descriptor>src/main/assembly/bin.xml</descriptor>
+                        <descriptor>src/main/assembly/assembly-jbpm.xml</descriptor>
+                        <descriptor>src/main/assembly/src.xml</descriptor>
+                        <!-- examples -->
+                        <descriptor>src/main/assembly/examples.xml</descriptor>
+                      </descriptors>
+                    </configuration>
+                  </execution>
+                </executions>
+              </plugin>
+            </plugins>
+          </build>
+      </profile>
+      <profile>
+          <id>jbpm-installer-exclude</id>
+          <activation>
+              <property>
+                  <name>productized</name>
+                  <value>true</value>
+              </property>
+          </activation>
+          <build>
+            <plugins>
+              <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                  <execution>
+                    <id>zips</id>
+                    <phase>package</phase>
+                    <goals>
+                      <goal>single</goal>
+                    </goals>
+                    <configuration>
+                      <finalName>jbpm-${project.version}</finalName>
+                      <descriptors>
+                          <!-- basic zips -->
+                          <descriptor>src/main/assembly/pre-bin.xml</descriptor>
+                          <descriptor>src/main/assembly/bin.xml</descriptor>
+                          <descriptor>src/main/assembly/assembly-jbpm.xml</descriptor>
+                          <descriptor>src/main/assembly/src-without-installer.xml</descriptor>
+                          <!-- examples -->
+                          <descriptor>src/main/assembly/examples.xml</descriptor>
+                        </descriptors>
+                      </configuration>
+                  </execution>
+                </executions>
+              </plugin>
+            </plugins>
+          </build>
+      </profile>
+  </profiles>
 </project>
