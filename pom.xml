@@ -107,7 +107,6 @@
         <module>jbpm-case-mgmt</module>
         <module>jbpm-test-coverage</module>
         <module>jbpm-examples</module>
-        <module>jbpm-installer</module>
         <module>jbpm-container-test</module>
         <module>jbpm-event-emitters</module>
         <module>jbpm-xes</module>
@@ -278,6 +277,19 @@
                     </plugins>
                 </pluginManagement>
             </build>
+        </profile>
+        <profile>
+            <id>community-only</id>
+            <activation>
+                <property>
+                    <name>productized</name>
+                    <value>!true</value>
+                </property>
+            </activation>
+            <modules>
+                <module>jbpm-installer</module>
+                <module>jbpm-distribution</module>
+            </modules>
         </profile>
     </profiles>
 
