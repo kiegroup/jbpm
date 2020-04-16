@@ -5,7 +5,7 @@
   <parent>
     <artifactId>jbpm</artifactId>
     <groupId>org.jbpm</groupId>
-    <version>7.36.0.Final</version>
+    <version>7.36.1.Final</version>
   </parent>
 
   <artifactId>jbpm-document</artifactId>
