@@ -16,13 +16,6 @@
 
 package org.jbpm.process.audit.jms;
 
-import static org.jbpm.test.persistence.util.PersistenceUtil.JBPM_PERSISTENCE_UNIT_NAME;
-import static org.jbpm.test.persistence.util.PersistenceUtil.cleanUp;
-import static org.jbpm.test.persistence.util.PersistenceUtil.createEnvironment;
-import static org.jbpm.test.persistence.util.PersistenceUtil.setupWithPoolingDataSource;
-import static org.jbpm.process.audit.AbstractAuditLogServiceTest.createKieSession;
-import static org.jbpm.process.audit.AbstractAuditLogServiceTest.createKnowledgeBase;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -67,6 +60,14 @@ import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.jbpm.process.audit.AbstractAuditLogServiceTest.createKieSession;
+import static org.jbpm.process.audit.AbstractAuditLogServiceTest.createKnowledgeBase;
+import static org.jbpm.test.persistence.util.PersistenceUtil.JBPM_PERSISTENCE_UNIT_NAME;
+import static org.jbpm.test.persistence.util.PersistenceUtil.cleanUp;
+import static org.jbpm.test.persistence.util.PersistenceUtil.createEnvironment;
+import static org.jbpm.test.persistence.util.PersistenceUtil.setupWithPoolingDataSource;
+import static org.junit.Assert.assertTrue;
 
 public class AsyncAuditLogProducerTest extends AbstractBaseTest {
 
@@ -238,6 +239,12 @@ public class AsyncAuditLogProducerTest extends AbstractBaseTest {
             Assertions.assertThat(processInstance.getId()).isEqualTo(nodeInstance.getProcessInstanceId().longValue());
             Assertions.assertThat(nodeInstance.getProcessId()).isEqualTo("com.sample.ruleflow");
             Assertions.assertThat(nodeInstance.getDate()).isNotNull();
+        }
+        for (int i = 1; i < 4; i = i + 2) {
+            assertTrue(nodeInstances.get(i).getConnection().equals(nodeInstances.get(i + 1).getNodeId()));
+        }
+        for (int i = 2; i < 6; i = i + 2) {
+            assertTrue(nodeInstances.get(i).getConnection().equals(nodeInstances.get(i - 1).getNodeId()));
         }
         logService.clear();
         processInstances = logService.findProcessInstances("com.sample.ruleflow");

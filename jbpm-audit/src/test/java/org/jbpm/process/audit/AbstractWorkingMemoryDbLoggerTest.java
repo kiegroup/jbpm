@@ -16,13 +16,6 @@
 
 package org.jbpm.process.audit;
 
-import static org.jbpm.test.persistence.util.PersistenceUtil.JBPM_PERSISTENCE_UNIT_NAME;
-import static org.jbpm.test.persistence.util.PersistenceUtil.cleanUp;
-import static org.jbpm.test.persistence.util.PersistenceUtil.setupWithPoolingDataSource;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Arrays;
@@ -43,6 +36,13 @@ import org.kie.api.runtime.EnvironmentName;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.jbpm.test.persistence.util.PersistenceUtil.JBPM_PERSISTENCE_UNIT_NAME;
+import static org.jbpm.test.persistence.util.PersistenceUtil.cleanUp;
+import static org.jbpm.test.persistence.util.PersistenceUtil.setupWithPoolingDataSource;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * This class tests the following classes:
@@ -114,6 +114,12 @@ public abstract class AbstractWorkingMemoryDbLoggerTest extends AbstractBaseTest
             assertEquals(processInstanceId, processInstance.getProcessInstanceId().longValue());
             assertEquals("com.sample.ruleflow", processInstance.getProcessId());
             assertNotNull(nodeInstance.getDate());
+        }
+        for (int i = 1; i < 4; i = i + 2) {
+            assertTrue(nodeInstances.get(i).getConnection().equals(nodeInstances.get(i + 1).getNodeId()));
+        }
+        for (int i = 2; i < 6; i = i + 2) {
+            assertTrue(nodeInstances.get(i).getConnection().equals(nodeInstances.get(i - 1).getNodeId()));
         }
         assertRuleFlowSampleLogsSorting(nodeInstances, processInstanceId);
         logService.clear();

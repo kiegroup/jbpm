@@ -26,6 +26,7 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
+import com.thoughtworks.xstream.XStream;
 import org.jbpm.process.audit.AbstractAuditLogger;
 import org.jbpm.process.audit.NodeInstanceLog;
 import org.jbpm.process.audit.ProcessInstanceLog;
@@ -39,8 +40,6 @@ import org.kie.api.event.process.ProcessVariableChangedEvent;
 import org.kie.api.runtime.KieSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.thoughtworks.xstream.XStream;
 
 import static org.kie.soup.commons.xstream.XStreamUtils.createTrustingXStream;
 
@@ -126,8 +125,7 @@ public class AsyncAuditLogProducer extends AbstractAuditLogger {
 
     @Override
     public void afterNodeLeft(ProcessNodeLeftEvent event) {
-        NodeInstanceLog log = (NodeInstanceLog) builder.buildEvent(event, null);
-        sendMessage(log, AFTER_NODE_LEFT_EVENT_TYPE, 1);   
+        // this is not really fired here.
     }
 
     @Override
@@ -161,10 +159,11 @@ public class AsyncAuditLogProducer extends AbstractAuditLogger {
     	}
     }
 
+
     @Override
     public void beforeNodeLeft(ProcessNodeLeftEvent event) {
-
-        
+        NodeInstanceLog log = (NodeInstanceLog) builder.buildEvent(event, null);
+        sendMessage(log, AFTER_NODE_LEFT_EVENT_TYPE, 1);
     }
     @Override
     public void beforeVariableChanged(ProcessVariableChangedEvent event) {
