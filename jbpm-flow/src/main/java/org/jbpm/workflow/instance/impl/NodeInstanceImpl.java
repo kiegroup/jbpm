@@ -18,7 +18,6 @@ package org.jbpm.workflow.instance.impl;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -63,6 +62,8 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public abstract class NodeInstanceImpl implements org.jbpm.workflow.instance.NodeInstance, Serializable {
+
+    public static final String UNIQUE_ID = "UniqueId";
 
 	private static final long serialVersionUID = 510l;
 	protected static final Logger logger = LoggerFactory.getLogger(NodeInstanceImpl.class);
@@ -176,15 +177,7 @@ public abstract class NodeInstanceImpl implements org.jbpm.workflow.instance.Nod
     	}
     	
     	if (from != null) {
-    	    int level = ((org.jbpm.workflow.instance.NodeInstance)from).getLevel();
-    	    ((org.jbpm.workflow.instance.NodeInstanceContainer)getNodeInstanceContainer()).setCurrentLevel(level);
-	    	Collection<Connection> incoming = getNode().getIncomingConnections(type);
-	    	for (Connection conn : incoming) {
-	    	    if (conn.getFrom().getId() == from.getNodeId()) {
-	    	        this.metaData.put("IncomingConnection", conn.getMetaData().get("UniqueId"));
-	    	        break;
-	    	    }
-	    	}
+            this.metaData.put("IncomingConnection", from.getNode().getMetaData().get(UNIQUE_ID));
     	}
     	if (dynamicParameters != null) {
             for (Entry<String, Object> entry : dynamicParameters.entrySet()) {
@@ -245,7 +238,7 @@ public abstract class NodeInstanceImpl implements org.jbpm.workflow.instance.Nod
         getExecutionErrorHandler().processed(this);
         Node node = getNode();
         if (node != null) {
-	    	String uniqueId = (String) node.getMetaData().get("UniqueId");
+            String uniqueId = (String) node.getMetaData().get(UNIQUE_ID);
 	    	if( uniqueId == null ) { 
 	    	    uniqueId = ((NodeImpl) node).getUniqueId();
 	    	}
@@ -400,19 +393,16 @@ public abstract class NodeInstanceImpl implements org.jbpm.workflow.instance.Nod
     		hidden = true;
     	}
     	InternalKnowledgeRuntime kruntime = getProcessInstance().getKnowledgeRuntime();
+        // trigger next node
+        this.metaData.put("OutgoingConnection", nodeInstance.getNode().getMetaData().get(UNIQUE_ID));
+
     	if (!hidden && fireEvents) {
     		((InternalProcessRuntime) kruntime.getProcessRuntime())
     			.getProcessEventSupport().fireBeforeNodeLeft(this, kruntime);
     	}
-    	// trigger next node
+
         nodeInstance.trigger(getFrom(), type);
-        Collection<Connection> outgoing = getNode().getOutgoingConnections(type);
-        for (Connection conn : outgoing) {
-            if (conn.getTo().getId() == nodeInstance.getNodeId()) {
-                this.metaData.put("OutgoingConnection", conn.getMetaData().get("UniqueId"));
-                break;
-            }
-        }
+
         if (!hidden && fireEvents) {
         	((InternalProcessRuntime) kruntime.getProcessRuntime())
         		.getProcessEventSupport().fireAfterNodeLeft(this, kruntime);
