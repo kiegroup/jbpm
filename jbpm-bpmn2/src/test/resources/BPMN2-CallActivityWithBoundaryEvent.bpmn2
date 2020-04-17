@@ -39,7 +39,7 @@
     <boundaryEvent id="BoundaryEvent_1" name="Boundary event" attachedToRef="_2">
       <outgoing>SequenceFlow_2</outgoing>
       <timerEventDefinition id="TimerEventDefinition_1">
-        <timeDuration xsi:type="tFormalExpression" id="_FormalExpression_2">2s</timeDuration>
+        <timeDuration xsi:type="tFormalExpression" id="_FormalExpression_2"><![CDATA[#{java.lang.System.getProperty("delayInProductionEnv","PT2S")}]]></timeDuration>
       </timerEventDefinition>
     </boundaryEvent>
     <sequenceFlow id="SequenceFlow_2" tns:priority="1" name="" sourceRef="BoundaryEvent_1" targetRef="ScriptTask_1"/>
