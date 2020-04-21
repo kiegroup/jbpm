@@ -40,6 +40,8 @@ public class ExecutionErrorInfo extends ExecutionError implements Serializable {
 
 	private static final long serialVersionUID = 6669858787722894023L;
 	
+    private final int ERROR_LOG_LENGTH = Integer.parseInt(System.getProperty("org.kie.jbpm.error.log.length", "255"));
+
 	private Long id;
 
     public ExecutionErrorInfo() {
@@ -56,11 +58,11 @@ public class ExecutionErrorInfo extends ExecutionError implements Serializable {
         this.activityId = activityId;
         this.activityName = activityName;
         this.jobId = jobId;
-        this.errorMessage = errorMessage;
         this.error = error;
         this.errorDate = errorDate;
         this.acknowledged = new Short("0");
         this.initActivityId = initActivityId;
+        this.setErrorMessage(errorMessage);
     }
 
     @Id
@@ -101,6 +103,15 @@ public class ExecutionErrorInfo extends ExecutionError implements Serializable {
     @Override
     public Long getActivityId() {
         return super.getActivityId();
+    }
+
+    @Override
+    public void setErrorMessage(String errorMessage) {
+        String trimmedErrorMessage = errorMessage;
+        if (trimmedErrorMessage != null && trimmedErrorMessage.length() > ERROR_LOG_LENGTH) {
+            trimmedErrorMessage = trimmedErrorMessage.substring(0, ERROR_LOG_LENGTH);
+        }
+        super.setErrorMessage(trimmedErrorMessage);
     }
 
     @Column(name="ERROR_MSG")
