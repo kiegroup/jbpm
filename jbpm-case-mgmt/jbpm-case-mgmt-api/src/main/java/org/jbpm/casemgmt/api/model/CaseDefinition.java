@@ -19,6 +19,7 @@ package org.jbpm.casemgmt.api.model;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Describes case structure and requirements.
@@ -26,7 +27,7 @@ import java.util.Map;
  */
 public interface CaseDefinition {
     
-    public static final String DEFAULT_PREFIX = "CASE";
+    public static final String DEFAULT_PREFIX = System.getProperty("org.kie.jbpm.cases.id.generator.default_prefix", "CASE");
 
     /**
      * Returns id of the case that shall be used to instantiate new instance of this case
@@ -47,6 +48,16 @@ public interface CaseDefinition {
      * Returns case identifier prefix to be used for every instance of this case.
      */
     String getIdentifierPrefix();
+
+    /** 
+     * Returns if the prefix is a sequence or not
+     */
+    boolean isIdentifierPrefixSequence();
+
+    /**
+     * Returns case prefixes computed of this case instances
+     */
+    Set<String> getResolvedIdentifierPrefixes();
 
     /**
      * Returns deployment id

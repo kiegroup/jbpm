@@ -21,6 +21,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.jbpm.casemgmt.api.model.AdHocFragment;
 import org.jbpm.casemgmt.api.model.CaseDefinition;
@@ -46,6 +48,10 @@ public class CaseDefinitionImpl implements CaseDefinition, Serializable {
     
     private Map<String, List<String>> dataAccessRestrictions;
     
+    private Set<String> resolvedIdentifierPrefixes;
+
+    private boolean identifierPrefixSequence;
+
     public CaseDefinitionImpl() {
         
     }
@@ -64,6 +70,7 @@ public class CaseDefinitionImpl implements CaseDefinition, Serializable {
         this.caseRoles = caseRoles; 
         this.adHocFragments = adHocFragments;
         this.dataAccessRestrictions = dataAccessRestrictions;
+        this.resolvedIdentifierPrefixes = new TreeSet<>();
     }
 
     @Override
@@ -129,6 +136,18 @@ public class CaseDefinitionImpl implements CaseDefinition, Serializable {
                 ", caseMilestones=" + caseMilestones + ", caseRoles=" + caseRoles + "]";
     }
 
+    @Override
+    public Set<String> getResolvedIdentifierPrefixes() {
+        return resolvedIdentifierPrefixes;
+    }
 
+    public void setIdentifierPrefixSequence(boolean identifierPrefixSequence) {
+        this.identifierPrefixSequence = identifierPrefixSequence;
+    }
+
+    @Override
+    public boolean isIdentifierPrefixSequence() {
+        return identifierPrefixSequence;
+    }
 
 }
