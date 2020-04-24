@@ -170,9 +170,8 @@ public class CaseRuntimeDataServiceImpl implements CaseRuntimeDataService, Deplo
                 Map<String, List<String>> dataAccessRestrictions = collectDataAccessRestrictions(process);
                 
                 CaseDefinitionImpl caseDef = new CaseDefinitionImpl((ProcessAssetDesc) mapProcessById.get(process.getId()), caseIdPrefix, caseStages, caseMilestones, caseRoles, adHocFragments, dataAccessRestrictions);
-                
+                caseDef.setIdentifierPrefixSequence(collectCaseIdPrefixIsSequence(process));
                 availableCases.add(caseDef);
-                caseIdGenerator.register(caseIdPrefix);
             }
         }
         
@@ -211,8 +210,8 @@ public class CaseRuntimeDataServiceImpl implements CaseRuntimeDataService, Deplo
                 .collect(toList());
         
         availableProcesses.removeAll(undeployedProcesses);
-        
-        undeployed.forEach(caseDef -> caseIdGenerator.unregister(caseDef.getIdentifierPrefix()));
+
+        availableCases.forEach(e -> e.getResolvedIdentifierPrefixes().forEach(casePrefix -> caseIdGenerator.unregister(casePrefix)));
         deploymentRolesManager.removeRolesForDeployment(event.getDeploymentId());
 
     }
@@ -726,6 +725,13 @@ public class CaseRuntimeDataServiceImpl implements CaseRuntimeDataService, Deplo
         }
         
         return caseIdPrefix;
+    }
+
+    private boolean collectCaseIdPrefixIsSequence(Process process) {
+        if (!process.getMetaData().containsKey("customCaseIdPrefixIsSequence")) {
+            return true;
+        }
+        return Boolean.parseBoolean((String) process.getMetaData().get("customCaseIdPrefixIsSequence"));
     }
 
     private Collection<CaseMilestone> collectMilestoness(Process process) {

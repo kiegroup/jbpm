@@ -22,16 +22,19 @@ import java.util.Map;
 
 import javax.persistence.NoResultException;
 
+import org.jbpm.casemgmt.api.generator.CasePrefixCannotBeGeneratedException;
 import org.jbpm.casemgmt.api.generator.CaseIdGenerator;
-import org.jbpm.casemgmt.api.generator.CasePrefixNotFoundException;
 import org.jbpm.shared.services.impl.TransactionalCommandService;
 import org.jbpm.shared.services.impl.commands.PersistObjectCommand;
 import org.jbpm.shared.services.impl.commands.QueryNameCommand;
 import org.jbpm.shared.services.impl.commands.RemoveObjectCommand;
 import org.kie.api.command.ExecutableCommand;
 import org.kie.api.runtime.Context;
+import org.mvel2.templates.TemplateRuntime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.jbpm.casemgmt.impl.generator.CaseIdExpressionFunctions.CASE_ID_FUNCTIONS;
 
 /**
  * Data base tabled backed case id generator. The underlying table keeps single entry per case prefix and updates it 
@@ -84,11 +87,19 @@ public class TableCaseIdGenerator implements CaseIdGenerator {
         } else {
             logger.debug("Skipping remove of case id info for prefix {}", prefix);
         }
-
     }
 
     @Override
-    public String generate(String prefix, Map<String, Object> optionalParameters) throws CasePrefixNotFoundException {
+    public String resolveCaseIdPrefix(String expression, Map<String, Object> optionalParameters) {
+        try {
+            return !expression.isEmpty() ? (String) TemplateRuntime.eval(expression, CASE_ID_FUNCTIONS, optionalParameters) : "";
+        } catch (org.mvel2.CompileException e) {
+            throw new CasePrefixCannotBeGeneratedException("Case Id Prefix cannot be generated", e);
+        }
+    }
+
+    @Override
+    public String generate(String prefix, Map<String, Object> optionalParameters) {
         CaseIdInfo caseIdInfo = commandService.execute(new IncrementAndGetCaseIdCommand(prefix));
         logger.debug("Next sequence value for case id prefix {} is {}", prefix, caseIdInfo.getCurrentValue());
         long nextVal = caseIdInfo.getCurrentValue();

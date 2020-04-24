@@ -112,7 +112,8 @@ public class CaseServiceImpl implements CaseService {
     private TransactionalCommandService commandService;
     private AuthorizationManager authorizationManager;
     private IdentityProvider identityProvider;
-    
+
+
     private CaseEventSupport emptyCaseEventSupport = new CaseEventSupport(null, Collections.emptyList());
     
     
@@ -166,7 +167,20 @@ public class CaseServiceImpl implements CaseService {
         if (caseDef == null) {
             throw new CaseNotFoundException("Case definition " + caseDefinitionId + " not found");
         }
-        String caseId = caseIdGenerator.generate(caseDef.getIdentifierPrefix(), (caseFile == null ? new HashMap<>() : caseFile.getData()));
+        Map<String, Object> variables = (caseFile == null ? new HashMap<>() : new HashMap<>(caseFile.getData()));
+        variables.put("DEPLOYMENT_ID", deploymentId);
+        variables.put("CASE_DEFINITION_ID", caseDefinitionId);
+
+        String casePrefix = caseIdGenerator.resolveCaseIdPrefix(caseDef.getIdentifierPrefix(), variables);
+        variables.put("CASE_PREFIX_ID", casePrefix);
+
+        String caseId = casePrefix;
+        if (getBoolean(variables.get("IS_PREFIX_SEQUENCE"), caseDef.isIdentifierPrefixSequence())) {
+            caseIdGenerator.register(casePrefix);
+            caseId = caseIdGenerator.generate(casePrefix, variables);
+            caseDef.getResolvedIdentifierPrefixes().add(casePrefix);
+        }
+
         logger.debug("Generated case id {} for case definition id {}", caseId, caseDefinitionId);
         
         if (caseFile == null) {
@@ -187,6 +201,16 @@ public class CaseServiceImpl implements CaseService {
         processService.execute(deploymentId, CaseContext.get(caseId), new StartCaseCommand(identityProvider, caseId, deploymentId, caseDefinitionId, caseFile, processService));
         
         return caseId;
+    }
+
+    private Boolean getBoolean(Object value, Boolean defaultValue) {
+        if (value instanceof Boolean) {
+            return (Boolean) value;
+        } else if (value instanceof String) {
+            return Boolean.parseBoolean((String) value);
+        } else {
+            return defaultValue;
+        }
     }
     
     @Override

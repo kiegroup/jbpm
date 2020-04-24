@@ -55,5 +55,16 @@ public interface CaseIdGenerator {
      * @param optionalParameters map of optionalParameters that might be helpful for implementation
      * @throws CasePrefixNotFoundException in case given prefix was not registered
      */
-    String generate(String prefix, Map<String, Object> optionalParameters) throws CasePrefixNotFoundException;
+    String generate(String prefix, Map<String, Object> optionalParameters);
+
+    /**
+     * Evaluates the current prefix expression to generate the sequence name given the parameters passed
+     * @param identifierPrefix expression to be evaluated
+     * @param optionalParameters parameters needed to evaluate the expression
+     * @return returns the sequence name
+     * @throws CasePrefixCannotBeGeneratedException when it is not possible to generate the case prefix expression
+     */
+    default String resolveCaseIdPrefix(String prefix, Map<String, Object> optionalParameters) {
+        return prefix;
+    }
 }
