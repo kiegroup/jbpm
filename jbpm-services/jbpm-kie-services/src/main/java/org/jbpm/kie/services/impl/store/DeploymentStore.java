@@ -35,7 +35,7 @@ import org.jbpm.shared.services.impl.commands.QueryNameCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.kie.soup.commons.xstream.XStreamUtils.createTrustingXStream;
+import static org.kie.soup.xstream.XStreamUtils.createTrustingXStream;
 
 public class DeploymentStore {
 	

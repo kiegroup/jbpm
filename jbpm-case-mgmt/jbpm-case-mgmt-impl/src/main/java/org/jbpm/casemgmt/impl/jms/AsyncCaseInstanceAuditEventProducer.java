@@ -22,7 +22,7 @@ import static org.jbpm.casemgmt.impl.audit.CaseInstanceAuditConstants.AFTER_CASE
 import static org.jbpm.casemgmt.impl.audit.CaseInstanceAuditConstants.AFTER_CASE_ROLE_ASSIGNMENT_ADDED_EVENT_TYPE;
 import static org.jbpm.casemgmt.impl.audit.CaseInstanceAuditConstants.AFTER_CASE_ROLE_ASSIGNMENT_REMOVED_EVENT_TYPE;
 import static org.jbpm.casemgmt.impl.audit.CaseInstanceAuditConstants.AFTER_CASE_STARTED_EVENT_TYPE;
-import static org.kie.soup.commons.xstream.XStreamUtils.createTrustingXStream;
+import static org.kie.soup.xstream.XStreamUtils.createTrustingXStream;
 
 import java.util.ArrayList;
 import java.util.Collection;
