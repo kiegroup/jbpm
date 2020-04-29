@@ -3,7 +3,6 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 [![GitHub Stars](https://img.shields.io/github/stars/kiegroup/jbpm.svg)](https://github.com/kiegroup/jbpm/stargazers)
 [![GitHub Forks](https://img.shields.io/github/forks/kiegroup/jbpm.svg)](https://github.com/kiegroup/jbpm/network/members)
-[![GitHub Issues](https://img.shields.io/github/issues/kiegroup/jbpm.svg)]()
 [![Pull Requests](https://img.shields.io/github/issues-pr/kiegroup/jbpm.svg?style=flat-square)](https://github.com/kiegroup/jbpm/pulls)
 [![Contributors](https://img.shields.io/github/contributors/kiegroup/jbpm.svg?style=flat-square)](https://github.com/kiegroup/jbpm/graphs/contributors)
 [![License](https://img.shields.io/github/license/kiegroup/jbpm.svg)](https://github.com/kiegroup/jbpm/blob/master/LICENSE-ASL-2.0.txt)
