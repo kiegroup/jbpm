@@ -17,6 +17,7 @@
 package org.jbpm.process.audit.jms;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -240,6 +241,8 @@ public class AsyncAuditLogProducerTest extends AbstractBaseTest {
             Assertions.assertThat(nodeInstance.getProcessId()).isEqualTo("com.sample.ruleflow");
             Assertions.assertThat(nodeInstance.getDate()).isNotNull();
         }
+        //reordering needed for mysql, mariadb, based on nodeInstanceId and id -log_date is probably the same-
+        nodeInstances.sort(Comparator.comparing(NodeInstanceLog::getNodeInstanceId).thenComparing(NodeInstanceLog::getId));
         for (int i = 1; i < 4; i = i + 2) {
             assertTrue(nodeInstances.get(i).getConnection().equals(nodeInstances.get(i + 1).getNodeId()));
         }
