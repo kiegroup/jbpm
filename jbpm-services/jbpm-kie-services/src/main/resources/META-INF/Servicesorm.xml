@@ -1209,12 +1209,12 @@
   <named-native-query name="GetTasksByIdList">
       <query>
               SELECT task.id, task.name, task.formName, task.subject, 
-                     task.actualOwner_id, log.correlationKey, task.createdOn,
+                     task.actualOwner_id, pilog.correlationKey, task.createdOn,
                      task.createdBy_id, task.expirationTime, task.priority,
-                     task.status, log.processInstanceId, log.processId, log.externalId,
-                     log.processInstanceDescription 
+                     task.status, pilog.processInstanceId, pilog.processId, pilog.externalId,
+                     pilog.processInstanceDescription 
                 FROM Task task 
-          INNER JOIN ProcessInstanceLog log ON log.processInstanceId = task.processInstanceId
+          INNER JOIN ProcessInstanceLog pilog ON pilog.processInstanceId = task.processInstanceId
                WHERE task.id IN (:idList)
             ORDER BY task.id ASC 
       </query>
@@ -1239,8 +1239,8 @@
       <query>
               SELECT task.id, A1.variableId, A1.value
                 FROM Task task
-          INNER JOIN ProcessInstanceLog log ON task.processInstanceId = log.processInstanceId
-          INNER JOIN VariableInstanceLog A1 ON A1.processId = log.processId AND A1.processInstanceId = log.processInstanceId
+          INNER JOIN ProcessInstanceLog pilog ON task.processInstanceId = pilog.processInstanceId
+          INNER JOIN VariableInstanceLog A1 ON A1.processId = pilog.processId AND A1.processInstanceId = pilog.processInstanceId
            LEFT JOIN VariableInstanceLog A2 ON A1.processId = A2.processId 
                                            AND A1.processInstanceId = A2.processInstanceId 
                                            AND A1.variableInstanceId = A2.variableInstanceId 
