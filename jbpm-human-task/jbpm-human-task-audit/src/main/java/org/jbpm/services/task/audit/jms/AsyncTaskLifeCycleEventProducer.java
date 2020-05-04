@@ -16,7 +16,7 @@
 
 package org.jbpm.services.task.audit.jms;
 
-import static org.kie.soup.commons.xstream.XStreamUtils.createTrustingXStream;
+import static org.kie.soup.xstream.XStreamUtils.createTrustingXStream;
 
 import java.util.ArrayList;
 import java.util.Collections;

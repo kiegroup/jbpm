@@ -28,7 +28,7 @@ import static org.jbpm.casemgmt.impl.audit.CaseInstanceAuditConstants.FIND_CASE_
 import static org.jbpm.casemgmt.impl.audit.CaseInstanceAuditConstants.FIND_CASE_DATA_QUERY;
 import static org.jbpm.casemgmt.impl.audit.CaseInstanceAuditConstants.FIND_CASE_PROCESS_INST_ID_QUERY;
 import static org.jbpm.casemgmt.impl.audit.CaseInstanceAuditConstants.UPDATE_CASE_PROCESS_INST_ID_QUERY;
-import static org.kie.soup.commons.xstream.XStreamUtils.createTrustingXStream;
+import static org.kie.soup.xstream.XStreamUtils.createTrustingXStream;
 
 import java.util.List;
 import java.util.stream.Collectors;
