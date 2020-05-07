@@ -93,4 +93,24 @@ public class AdvanceCaseRuntimeDataServiceImplTest extends AbstractCaseServicesB
 
     }
 
+    @Test
+    public void queryCaseByVariablesAndTask() {
+        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new UserImpl(USER));
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("name", "my first case");
+        CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), USER_TASK_CASE_P_ID, data, roleAssignments);
+
+        String caseId = caseService.startCase(deploymentUnit.getIdentifier(), USER_TASK_CASE_P_ID, caseFile);
+
+        List<ProcessInstanceWithVarsDesc> process = advanceCaseRuntimeDataService.queryCaseByVariablesAndTask(emptyList(), emptyList(), emptyList(), emptyList(), new QueryContext());
+        assertEquals(1, process.size());
+        assertEquals("my first case", process.get(0).getExtraData().get("name"));
+
+        assertNotNull(caseId);
+        assertEquals(HR_CASE_ID, caseId);
+        caseService.cancelCase(caseId);
+
+    }
 }

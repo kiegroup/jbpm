@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.jbpm.services.api.AdvanceRuntimeDataService;
+import org.jbpm.services.api.model.ProcessInstanceWithVarsDesc;
 import org.jbpm.services.api.query.model.QueryParam;
 import org.kie.api.runtime.query.QueryContext;
 
@@ -36,26 +37,35 @@ public class AdvanceRuntimeDataServiceImpl extends AbstractAdvanceRuntimeDataSer
         translateTable.put(PROCESS_ATTR_INSTANCE_ID, "pil.processInstanceId");
         translateTable.put(TASK_ATTR_NAME, "task.name");
         translateTable.put(TASK_ATTR_OWNER, "task.actualOwner_id");
+        translateTable.put(TASK_ATTR_STATUS, "task.status");
         translateTable.put(PROCESS_ATTR_DEPLOYMENT_ID, "pil.externalId");
     }
 
     @Override
     public List<org.jbpm.services.api.model.ProcessInstanceWithVarsDesc> queryProcessByVariables(List<QueryParam> attributes,
-                                                                                                 List<QueryParam> variables,
+                                                                                                 List<QueryParam> processVariables,
                                                                                                  QueryContext queryContext) {
-        return queryProcessByVariables(translate(translateTable, attributes), variables, PROCESS_TYPE, "", queryContext);
+        return queryProcessByVariables(translate(translateTable, attributes), processVariables, PROCESS_TYPE, "", queryContext);
 
     }
 
+    @Override
+    public List<ProcessInstanceWithVarsDesc> queryProcessByVariablesAndTask(List<QueryParam> attributes,
+                                                                            List<QueryParam> processVariables,
+                                                                            List<QueryParam> taskVariables,
+                                                                            List<String> owners,
+                                                                            QueryContext queryContext) {
+        return queryProcessByVariablesAndTask(translate(translateTable, attributes), processVariables, taskVariables, owners, PROCESS_TYPE, "", queryContext);
+    }
 
     @Override
     public List<org.jbpm.services.api.model.UserTaskInstanceWithPotOwnerDesc> queryUserTasksByVariables(List<QueryParam> attributes,
-                                                                                                        List<QueryParam> variables,
+                                                                                                        List<QueryParam> taskVariables,
                                                                                                         List<QueryParam> processVariables,
                                                                                                         List<String> owners,
                                                                                                         QueryContext queryContext) {
 
-        return queryUserTasksByVariables(translate(translateTable, attributes), variables, processVariables, owners, PROCESS_TYPE, "", queryContext);
+        return queryUserTasksByVariables(translate(translateTable, attributes), processVariables, taskVariables, owners, PROCESS_TYPE, "", queryContext);
     }
 
 
