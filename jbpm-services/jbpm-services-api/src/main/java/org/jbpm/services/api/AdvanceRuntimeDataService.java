@@ -27,13 +27,28 @@ public interface AdvanceRuntimeDataService {
 
     String TASK_ATTR_NAME = "TASK_NAME";
     String TASK_ATTR_OWNER = "TASK_OWNER";
+    String TASK_ATTR_STATUS = "TASK_STATUS";
     String PROCESS_ATTR_INSTANCE_ID = "PROCESS_INSTANCE_ID";
     String PROCESS_ATTR_CORRELATION_KEY = "PROCESS_CORRELATION_KEY";
     String PROCESS_ATTR_DEFINITION_ID = "PROCESS_DEFINITION_ID";
     String PROCESS_ATTR_DEPLOYMENT_ID = "PROCESS_DEPLOYMENT_ID";
 
-    List<ProcessInstanceWithVarsDesc> queryProcessByVariables(List<QueryParam> attributes, List<QueryParam> variables, QueryContext queryContext);
+    List<ProcessInstanceWithVarsDesc> queryProcessByVariables(List<QueryParam> attributes,
+                                                              List<QueryParam> processVariables,
+                                                              QueryContext queryContext);
 
-    List<UserTaskInstanceWithPotOwnerDesc> queryUserTasksByVariables(List<QueryParam> attributes, List<QueryParam> variables, List<QueryParam> processVariables, List<String> owners, QueryContext queryContext);
+    List<ProcessInstanceWithVarsDesc> queryProcessByVariablesAndTask(List<QueryParam> attributes,
+                                                                     List<QueryParam> processVariables,
+                                                                     List<QueryParam> taskVariables,
+                                                                     List<String> potentialOwners,
+                                                                     QueryContext queryContext);
+
+    List<UserTaskInstanceWithPotOwnerDesc> queryUserTasksByVariables(List<QueryParam> attributes,
+                                                                     List<QueryParam> taskVariables,
+                                                                     List<QueryParam> processVariables,
+                                                                     List<String> potentialOwners,
+                                                                     QueryContext queryContext);
+
+
 
 }

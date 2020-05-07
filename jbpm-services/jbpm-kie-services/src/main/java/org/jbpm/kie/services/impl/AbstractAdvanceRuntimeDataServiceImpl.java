@@ -17,17 +17,16 @@
 package org.jbpm.kie.services.impl;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiFunction;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Query;
 
-import org.dashbuilder.dataset.filter.CoreFunctionType;
 import org.jbpm.kie.services.impl.model.ProcessInstanceWithVarsDesc;
 import org.jbpm.kie.services.impl.model.UserTaskInstanceWithPotOwnerDesc;
 import org.jbpm.services.api.query.model.QueryParam;
@@ -36,7 +35,9 @@ import org.jbpm.shared.services.impl.TransactionalCommandService;
 import org.jbpm.shared.services.impl.commands.QueryNameCommand;
 import org.kie.api.runtime.query.QueryContext;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonMap;
+import static java.util.stream.Collectors.toList;
 
 public abstract class AbstractAdvanceRuntimeDataServiceImpl {
 
@@ -55,58 +56,168 @@ public abstract class AbstractAdvanceRuntimeDataServiceImpl {
         this.emf = emf;
     }
 
+    protected List<org.jbpm.services.api.model.ProcessInstanceWithVarsDesc> queryProcessByVariables(List<QueryParam> attributes,
+                                                                                                    List<QueryParam> processVariables,
+                                                                                                    int processType,
+                                                                                                    String varPrefix,
+                                                                                                    QueryContext queryContext) {
+        BiFunction<StringBuilder, StringBuilder, String> mainSQLProducer = (derivedTables, globalWhere) -> "SELECT DISTINCT pil.processInstanceId " +
+                                                                                                           " FROM ProcessInstanceLog pil \n " +
+                                                                                                           derivedTables +
+                                                                                                           " WHERE  pil.processType = :processType " + globalWhere +
+                                                                                                           " ORDER BY pil.processInstanceId ASC ";
+        return queryProcessUserTasksByVariables(attributes, processVariables, emptyList(), emptyList(), processType, varPrefix, queryContext, mainSQLProducer, this::collectProcessData);
+    }
 
-    public List<org.jbpm.services.api.model.ProcessInstanceWithVarsDesc> queryProcessByVariables(List<QueryParam> attributes,
-                                                                                                 List<QueryParam> variables,
-                                                                                                 int processType,
-                                                                                                 String varPrefix,
-                                                                                                 QueryContext queryContext) {
-        EntityManager entityManager = emf.createEntityManager();
 
-        // first step is to filter the data creating a derived tables and pivoting var - rows to columns (only the variables we are interested to filter)
+
+    protected List<org.jbpm.services.api.model.ProcessInstanceWithVarsDesc> queryProcessByVariablesAndTask(List<QueryParam> attributes,
+                                                                                                                  List<QueryParam> processVariables,
+                                                                                                                  List<QueryParam> taskVariables,
+                                                                                                                  List<String> owners,
+                                                                                                                  int processType,
+                                                                                                                  String varPrefix,
+                                                                                                                  QueryContext queryContext) {
+        BiFunction<StringBuilder, StringBuilder, String> mainSQLProducer = (derivedTables, globalWhere) -> "SELECT DISTINCT pil.processInstanceId " +
+                                                                                                           " FROM Task task " +
+                                                                                                           " INNER JOIN ProcessInstanceLog pil ON pil.processInstanceId = task.processInstanceId \n " +
+                                                                                                           derivedTables +
+                                                                                                           " WHERE  pil.processType = :processType " + globalWhere +
+                                                                                                           " ORDER BY pil.processInstanceId ASC ";
+
+        return queryProcessUserTasksByVariables(attributes, processVariables, taskVariables, owners, processType, varPrefix, queryContext, mainSQLProducer, this::collectProcessData);
+
+    }
+
+    protected List<org.jbpm.services.api.model.UserTaskInstanceWithPotOwnerDesc> queryUserTasksByVariables(List<QueryParam> attributes,
+                                                                                                           List<QueryParam> processVariables,
+                                                                                                           List<QueryParam> taskVariables,
+                                                                                                           List<String> owners,
+                                                                                                           int processType,
+                                                                                                           String varPrefix,
+                                                                                                           QueryContext queryContext) {
+
+        BiFunction<StringBuilder, StringBuilder, String> mainSQLProducer = (derivedTables, globalWhere) -> "SELECT DISTINCT task.id " +
+                                                                                                           " FROM Task task " +
+                                                                                                           " INNER JOIN ProcessInstanceLog pil ON pil.processInstanceId = task.processInstanceId \n " +
+                                                                                                           derivedTables +
+                                                                                                           " WHERE  pil.processType = :processType " + globalWhere +
+                                                                                                           " ORDER BY task.id ASC ";
+
+        return queryProcessUserTasksByVariables(attributes, processVariables, taskVariables, owners, processType, varPrefix, queryContext, mainSQLProducer, this::collectUserTaskData);
+
+    }
+
+
+    protected <R> List<R> queryProcessUserTasksByVariables(List<QueryParam> attributesArg,
+                                                           List<QueryParam> processVariablesArg,
+                                                           List<QueryParam> taskVariablesArg,
+                                                           List<String> ownersArg,
+                                                           int processType,
+                                                           String varPrefix,
+                                                           QueryContext queryContext,
+                                                           BiFunction<StringBuilder, StringBuilder, String> mainSQLproducer,
+                                                           BiFunction<List<Number>, String, List<R>> dataCollector) {
+
+        List<QueryParam> attributes = attributesArg != null ? attributesArg : emptyList();
+        List<QueryParam> processVariables = processVariablesArg != null ? processVariablesArg : emptyList();
+        List<QueryParam> taskVariables = taskVariablesArg != null ? taskVariablesArg : emptyList();
+        List<String> owners = ownersArg != null ? ownersArg : emptyList();
+
+        StringBuilder globalWhere = new StringBuilder();
         StringBuilder derivedTables = new StringBuilder();
-        if (!variables.isEmpty()) {
-            List<String> conditions = new ArrayList<>();
-            variables.stream().forEach(expr -> conditions.add("(A1.variableId = :NAME_" + expr.getColumn() + " AND " + computeExpression(expr, "A1.value", ":VALUE_" + expr.getColumn()) + ")\n"));
-            String where = String.join(" OR ", conditions);
+        if (!taskVariables.isEmpty()) {
+            String where = computeVariableExpression(taskVariables, "V", "name", "value");
+            derivedTables.append("INNER JOIN (\n" +
+                                 "    SELECT taskId \n" +
+                                 "    FROM TaskVariableImpl \n" +
+                                 "    WHERE " + where + " \n" +
+                                 "    GROUP BY taskId \n" +
+                                 "    HAVING COUNT(*) >= :NUMBER_OF_TASKVARS \n" +
+                                 ") TABLE_TASK_VAR ON TABLE_TASK_VAR.taskId = task.id  \n");
+        }
+
+        if (!processVariables.isEmpty()) {
+            String where = computeVariableExpression(processVariables, "P", "A1.variableId", "A1.value");
             derivedTables.append("INNER JOIN (" +
                                  "SELECT A1.processInstanceId \n" +
                                  "FROM VariableInstanceLog A1 \n" +
                                  "LEFT JOIN VariableInstanceLog A2 ON A1.processId = A2.processId AND A1.processInstanceId = A2.processInstanceId AND A1.variableInstanceId = A2.variableInstanceId AND A2.id > A1.id  \n" +
                                  "WHERE A2.id IS NULL AND (" + where + ") " +
                                  "GROUP BY A1.processInstanceId " +
-                                 "HAVING COUNT(*) = :NUMBER_OF_VARS " +
-                                 ") TABLE_VAR ON TABLE_VAR.processInstanceId = pil.processInstanceId \n");
+                                 "HAVING COUNT(*) = :NUMBER_OF_PROCVARS " +
+                                 ") TABLE_PROC_VAR ON TABLE_PROC_VAR.processInstanceId = pil.processInstanceId \n");
         }
 
-        StringBuilder globalWhere = new StringBuilder();
-        attributes.stream().forEach(expr -> globalWhere.append(" AND " + computeExpression(expr, expr.getColumn(), ":ATTR_" + expr.getColumn())));
-
-        String procSQLString =
-                " SELECT DISTINCT pil.processInstanceId " +
-                               " FROM ProcessInstanceLog pil \n " +
-                               derivedTables +
-                               " WHERE pil.processType = :processType " + globalWhere +
-                               " ORDER BY pil.processInstanceId ASC ";
-
-        Query query = entityManager.createNativeQuery(procSQLString);
-        variables.stream().forEach(var -> query.setParameter("NAME_" + var.getColumn(), varPrefix + var.getColumn()));
-        variables.stream().filter(e -> e.getObjectValue() != null).forEach(var -> query.setParameter("VALUE_" + var.getColumn(), var.getObjectValue()));
-        attributes.stream().filter(e -> e.getObjectValue() != null).forEach((entry) -> query.setParameter("ATTR_" + entry.getColumn(), entry.getObjectValue()));
-
-        if (!variables.isEmpty()) {
-            query.setParameter("NUMBER_OF_VARS", variables.size());
-        }
-        query.setParameter("processType", processType);
-
-        addPagination(query, queryContext);
-        List<Number> ids = query.getResultList();
-        if (ids.isEmpty()) {
-            return Collections.emptyList();
+        if (!owners.isEmpty()) {
+            derivedTables.append("INNER JOIN ( \n" +
+                             "           SELECT DISTINCT po.task_id \n" +
+                             "           FROM PeopleAssignments_PotOwners po \n" +
+                             "           WHERE po.entity_id IN (:owners) \n" +
+                             "           GROUP BY po.task_id \n" +
+                             "           HAVING COUNT(po.entity_id) = :num_owners \n" +
+                                 ") pot ON pot.task_id = task.id ");
         }
 
-        // now we get the information
+        attributes.stream().forEach((expr) -> globalWhere.append(" AND " + computeExpression(expr, expr.getColumn(), ":ATTR_" + expr.getColumn())));
 
+        String procSQLString = mainSQLproducer.apply(derivedTables, globalWhere);
+        List<Number> ids = emptyList();
+        EntityManager entityManager = emf.createEntityManager();
+        try {
+            Query query = entityManager.createNativeQuery(procSQLString);
+
+            taskVariables.stream().forEach(var -> {
+                String nameParam = computeVarNameParameter("V", var.getColumn());
+                query.setParameter(nameParam, var.getColumn());
+            });
+
+            taskVariables.stream().filter(e -> e.getObjectValue() != null).forEach(var -> {
+                String valueParam = computeVarValueParameter(var, "V", var.getColumn());
+                query.setParameter(valueParam, var.getObjectValue());
+            });
+
+            if (!taskVariables.isEmpty()) {
+                query.setParameter("NUMBER_OF_TASKVARS", taskVariables.stream().map(QueryParam::getColumn).distinct().count());
+            }
+
+            processVariables.stream().forEach(var -> {
+                String nameParam = computeVarNameParameter("P", var.getColumn());
+                query.setParameter(nameParam, varPrefix + var.getColumn());
+            });
+            processVariables.stream().filter(e -> e.getObjectValue() != null).forEach(var -> {
+                String valueParam = computeVarValueParameter(var, "P", var.getColumn());
+                query.setParameter(valueParam, var.getObjectValue());
+            });
+
+            if (!processVariables.isEmpty()) {
+                query.setParameter("NUMBER_OF_PROCVARS", processVariables.stream().map(QueryParam::getColumn).distinct().count());
+            }
+
+            if (!owners.isEmpty()) {
+                List<String> distinctOwners = owners.stream().distinct().collect(toList());
+                query.setParameter("num_owners", distinctOwners.size());
+                query.setParameter("owners", distinctOwners);
+            }
+
+            attributes.stream().filter(e -> e.getObjectValue() != null).forEach(entry -> query.setParameter("ATTR_" + entry.getColumn(), entry.getObjectValue()));
+            query.setParameter("processType", processType);
+
+            addPagination(query, queryContext);
+
+            ids = query.getResultList();
+            if (ids.isEmpty()) {
+                return emptyList();
+            }
+        } finally {
+            if (entityManager.isOpen()) {
+                entityManager.close();
+            }
+        }
+        return dataCollector.apply(ids, varPrefix);
+    }
+
+    private List<org.jbpm.services.api.model.ProcessInstanceWithVarsDesc> collectProcessData(List<Number> ids, String varPrefix) {
         List<Object[]> procRows = commandService.execute(new QueryNameCommand<List<Object[]>>("GetProcessInstanceByIdList", singletonMap(ID_LIST, ids)));
         List<Object[]> varRows = commandService.execute(new QueryNameCommand<List<Object[]>>("GetVariablesByProcessInstanceIdList", singletonMap(ID_LIST, ids)));
 
@@ -131,32 +242,63 @@ public abstract class AbstractAdvanceRuntimeDataServiceImpl {
             }
             data.add(pwv);
         }
-
-        entityManager.close();
         return data;
     }
 
+    private String computeVariableExpression(List<QueryParam> params, String prefix, String varField, String valueField) {
+        // we get the variable names
+        List<String> vars = params.stream().map(QueryParam::getColumn).distinct().collect(toList());
+        List<String> conditions = new ArrayList<>();
+        for (String var : vars) {
+            StringBuilder condition = new StringBuilder();
+            String nameParam = computeVarNameParameter(prefix, var);
+            condition.append("(" + varField + " = :" + nameParam);
+            // get the conditions for this variables
+
+            List<QueryParam> varParams = params.stream().filter(e -> e.getColumn().equals(var)).collect(toList());
+            varParams.stream().forEach(expr -> {
+                String valueParam = computeVarValueParameter(expr, prefix, expr.getColumn());
+                condition.append(" AND " + computeExpression(expr, valueField, ":" + valueParam));
+            });
+
+            condition.append(")");
+            conditions.add(condition.toString());
+        }
+        return String.join(" OR ", conditions);
+    }
+
+    private String computeVarNameParameter(String prefix, String name) {
+        return prefix + "_NAME_" + name;
+    }
+
+    private String computeVarValueParameter(QueryParam expr, String prefix, String name) {
+        return prefix + "_VALUE_" + expr.getOperator() + "_" + expr.getColumn();
+    }
+
     private String computeExpression(QueryParam expr, String leftOperand, String rightOperand) {
-        CoreFunctionType type = CoreFunctionType.getByName(expr.getOperator());
-        switch (type) {
-            case IS_NULL:
+
+        switch (expr.getOperator()) {
+            case "IS_NULL":
                 return leftOperand + " IS NULL ";
-            case NOT_NULL:
+            case "NOT_NULL":
                 return leftOperand + " IS NOT NULL ";
-            case IN:
+            case "IN":
                 return leftOperand + " IN (" + rightOperand + ") ";
-            case NOT_IN:
+            case "NOT_IN":
                 return leftOperand + " NOT IN (" + rightOperand + ") ";
-            case EQUALS_TO:
+            case "TYPE":
+                return " type = " + rightOperand + " ";
+            case "EQUALS_TO":
                 return leftOperand + " = " + rightOperand + " ";
-            case NOT_EQUALS_TO:
+            case "NOT_EQUALS_TO":
                 return leftOperand + " <> " + rightOperand + " ";
-            case LIKE_TO:
+            case "LIKE_TO":
                 return leftOperand + " LIKE " + rightOperand + " ";
             default:
                 throw new UnsupportedOperationException("Queryparam: " + expr + " not supported");
         }
     }
+
     private ProcessInstanceWithVarsDesc toProcessInstanceWithVarsDesc(Object[] row) {
         return new ProcessInstanceWithVarsDesc(((Number) row[0]).longValue(),
                                                (String) row[1],
@@ -176,98 +318,7 @@ public abstract class AbstractAdvanceRuntimeDataServiceImpl {
         }
     }
 
-    public List<org.jbpm.services.api.model.UserTaskInstanceWithPotOwnerDesc> queryUserTasksByVariables(List<QueryParam> attributes,
-                                                                                                        List<QueryParam> variables,
-                                                                                                        List<QueryParam> processVariables,
-                                                                                                        List<String> owners,
-                                                                                                        int processType,
-                                                                                                        String varPrefix,
-                                                                                                        QueryContext queryContext) {
-        EntityManager entityManager = emf.createEntityManager();
-        StringBuilder globalWhere = new StringBuilder();
-        StringBuilder derivedTables = new StringBuilder();
-        if (!variables.isEmpty()) {
-            List<String> conditions = new ArrayList<>();
-            variables.stream().forEach((expr) -> conditions.add("(name = :V_NAME_" + expr.getColumn() + " AND " + computeExpression(expr, "value", ":V_VALUE_" + expr.getColumn()) + ")\n"));
-            String where = String.join(" OR ", conditions);
-            derivedTables.append("INNER JOIN (\n" +
-                                 "SELECT taskId \n" +
-                                 "FROM TaskVariableImpl \n" +
-                                 "WHERE type = 0 AND (" + where + ")\n" +
-                                 "GROUP BY taskId \n" +
-                                 "HAVING COUNT(*) = :NUMBER_OF_TASKVARS \n" +
-                                 ") TABLE_TASK_VAR ON TABLE_TASK_VAR.taskId = task.id  \n");
-        }
-
-        if (!processVariables.isEmpty()) {
-            List<String> conditions = new ArrayList<>();
-            processVariables.stream().forEach((expr) -> conditions.add("(A1.variableId = :P_NAME_" + expr.getColumn() + " AND " + computeExpression(expr, "A1.value", ":P_VALUE_" + expr.getColumn()) + ")\n"));
-            String where = String.join(" OR ", conditions);
-            derivedTables.append("INNER JOIN (" +
-                                 "SELECT A1.processInstanceId \n" +
-                                 "FROM VariableInstanceLog A1 \n" +
-                                 "LEFT JOIN VariableInstanceLog A2 ON A1.processId = A2.processId AND A1.processInstanceId = A2.processInstanceId AND A1.variableInstanceId = A2.variableInstanceId AND A2.id > A1.id  \n" +
-                                 "WHERE A2.id IS NULL AND (" + where + ") " +
-                                 "GROUP BY A1.processInstanceId " +
-                                 "HAVING COUNT(*) = :NUMBER_OF_PROCVARS " +
-                                 ") TABLE_PROC_VAR ON TABLE_PROC_VAR.processInstanceId = pil.processInstanceId \n");
-        }
-
-        if (!owners.isEmpty()) {
-            derivedTables.append("INNER JOIN ( \n" +
-                             "           SELECT DISTINCT po.task_id \n" +
-                             "           FROM PeopleAssignments_PotOwners po \n" +
-                             "           WHERE po.entity_id IN (:owners) \n" +
-                             "           GROUP BY po.task_id \n" +
-                             "           HAVING COUNT(po.entity_id) = :num_owners \n" +
-                                 ") pot ON pot.task_id = task.id ");
-        }
-
-        attributes.stream().forEach((expr) -> globalWhere.append(" AND " + computeExpression(expr, expr.getColumn(), ":ATTR_" + expr.getColumn())));
-
-        String procSQLString = "SELECT DISTINCT task.id " +
-                               " FROM Task task " +
-                               " INNER JOIN ProcessInstanceLog pil ON pil.processInstanceId = task.processInstanceId \n " +
-                               derivedTables +
-                               " WHERE  pil.processType = :processType " + globalWhere +
-                               " ORDER BY task.id ASC ";
-
-        Query query = entityManager.createNativeQuery(procSQLString);
-        variables.stream().forEach(var -> query.setParameter("V_NAME_" + var.getColumn(), var.getColumn()));
-        variables.stream().filter(e -> e.getObjectValue() != null).forEach((var) -> query.setParameter("V_VALUE_" + var.getColumn(), var.getObjectValue()));
-
-        if (!variables.isEmpty()) {
-            query.setParameter("NUMBER_OF_TASKVARS", variables.size());
-        }
-
-        processVariables.stream().forEach(var -> query.setParameter("P_NAME_" + var.getColumn(), varPrefix + var.getColumn()));
-        processVariables.stream().filter(e -> e.getObjectValue() != null).forEach(var -> query.setParameter("P_VALUE_" + var.getColumn(), var.getObjectValue()));
-
-        if (!processVariables.isEmpty()) {
-            query.setParameter("NUMBER_OF_PROCVARS", processVariables.size());
-        }
-
-        if (!owners.isEmpty()) {
-            query.setParameter("num_owners", owners.size());
-            query.setParameter("owners", owners);
-        }
-
-        attributes.stream().filter(e -> e.getObjectValue() != null).forEach(entry -> query.setParameter("ATTR_" + entry.getColumn(), entry.getObjectValue()));
-        query.setParameter("processType", processType);
-
-        addPagination(query, queryContext);
-
-        List<Number> ids = query.getResultList();
-        if (ids.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        entityManager.close();
-        return collectData(ids, varPrefix);
-
-    }
-
-    private List<org.jbpm.services.api.model.UserTaskInstanceWithPotOwnerDesc> collectData(List<Number> ids, String varPrefix) {
+    private List<org.jbpm.services.api.model.UserTaskInstanceWithPotOwnerDesc> collectUserTaskData(List<Number> ids, String varPrefix) {
         // query data
         List<Object[]> taskRows = commandService.execute(new QueryNameCommand<List<Object[]>>("GetTasksByIdList", singletonMap(ID_LIST, ids)));
         List<Object[]> varRows = commandService.execute(new QueryNameCommand<List<Object[]>>("GetTaskVariablesByTaskIdList", singletonMap(ID_LIST, ids)));
@@ -336,6 +387,9 @@ public abstract class AbstractAdvanceRuntimeDataServiceImpl {
     }
 
     protected List<QueryParam> translate(Map<String, String> translationTable, List<QueryParam> attributes) {
+        if (attributes == null) {
+            return emptyList();
+        }
         List<QueryParam> translated = new ArrayList<>();
         for (QueryParam entry : attributes) {
             translated.add(new QueryParam(translationTable.get(entry.getColumn()), entry.getOperator(), entry.getValue()));

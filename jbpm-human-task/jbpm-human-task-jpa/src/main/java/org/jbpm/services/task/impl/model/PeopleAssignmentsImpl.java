@@ -16,14 +16,11 @@
 
 package org.jbpm.services.task.impl.model;
 
-import static org.jbpm.services.task.impl.model.TaskDataImpl.convertToUserImpl;
-
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.persistence.Embeddable;
@@ -39,6 +36,8 @@ import org.kie.api.task.model.OrganizationalEntity;
 import org.kie.api.task.model.User;
 import org.kie.internal.task.api.model.InternalPeopleAssignments;
 
+import static org.jbpm.services.task.impl.model.TaskDataImpl.convertToUserImpl;
+
 @Embeddable
 public class PeopleAssignmentsImpl implements InternalPeopleAssignments {
 	
@@ -47,8 +46,7 @@ public class PeopleAssignmentsImpl implements InternalPeopleAssignments {
 
     @ManyToMany(targetEntity=OrganizationalEntityImpl.class)
     @JoinTable(name = "PeopleAssignments_PotOwners", joinColumns = @JoinColumn(name = "task_id"), inverseJoinColumns = @JoinColumn(name = "entity_id"),
-       indexes = {@Index(name = "IDX_PAsPot_Entity",  columnList="entity_id"),
-                  @Index(name = "IDX_PAsPot_Task", columnList="task_id")})
+               indexes = {@Index(name = "IDX_PAsPot_TaskEntity", columnList = "task_id,entity_id")})
     private List<OrganizationalEntity> potentialOwners        = Collections.emptyList();
 
     @ManyToMany(targetEntity=OrganizationalEntityImpl.class)

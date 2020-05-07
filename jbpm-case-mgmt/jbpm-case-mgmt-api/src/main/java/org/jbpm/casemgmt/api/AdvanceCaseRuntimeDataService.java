@@ -27,19 +27,26 @@ public interface AdvanceCaseRuntimeDataService {
 
     String TASK_ATTR_NAME = "TASK_NAME";
     String TASK_ATTR_OWNER = "TASK_OWNER";
+    String TASK_ATTR_STATUS = "TASK_STATUS";
     String CASE_ATTR_INSTANCE_ID = "PROCESS_INSTANCE_ID";
-    String CASE_ATTR_CORRELATION_KEY = "PROCESS_CORRELATION_KEY";
-    String CASE_ATTR_DEFINITION_ID = "PROCESS_DEFINITION_ID";
-    String CASE_ATTR_DEPLOYMENT_ID = "PROCESS_DEPLOYMENT_ID";
+    String CASE_ATTR_CORRELATION_KEY = "CASE_CORRELATION_KEY";
+    String CASE_ATTR_DEFINITION_ID = "CASE_DEFINITION_ID";
+    String CASE_ATTR_DEPLOYMENT_ID = "CASE_DEPLOYMENT_ID";
 
     List<ProcessInstanceWithVarsDesc> queryCaseByVariables(List<QueryParam> attributes,
-                                                           List<QueryParam> variables,
+                                                           List<QueryParam> caseVariables,
                                                            QueryContext queryContext);
 
+    List<ProcessInstanceWithVarsDesc> queryCaseByVariablesAndTask(List<QueryParam> attributes,
+                                                                  List<QueryParam> taskVariables,
+                                                                  List<QueryParam> caseVariables,
+                                                                  List<String> potentialOwners,
+                                                                  QueryContext queryContext);
+
     List<UserTaskInstanceWithPotOwnerDesc> queryUserTasksByVariables(List<QueryParam> attributes,
-                                                                     List<QueryParam> variables,
-                                                                     List<QueryParam> processVariables,
-                                                                     List<String> owners,
+                                                                     List<QueryParam> taskVariables,
+                                                                     List<QueryParam> caseVariables,
+                                                                     List<String> potentialOwners,
                                                                      QueryContext queryContext);
 
 }
