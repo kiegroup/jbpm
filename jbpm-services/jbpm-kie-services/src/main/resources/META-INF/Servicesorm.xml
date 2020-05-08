@@ -698,86 +698,88 @@
     <!-- hint name="org.hibernate.timeout" value="200"/ -->
   </named-query>
   
-  <named-query name="getTaskInstanceById">
+  <named-native-query name="getTaskInstanceById">
     <query>
         select 
-	      new org.jbpm.kie.services.impl.model.UserTaskInstanceDesc(
-	      a.taskId,
-	      a.status,
-	      a.activationTime,
-	      a.name,
-	      a.description,
-	      a.priority,
-	      a.actualOwner,
-	      a.createdBy,
-	      a.deploymentId,
-	      a.processId,
-	      a.processInstanceId,
-	      a.createdOn,
-	      a.dueDate,
-    	      a.workItemId
-	      )
+          a.taskId,
+          a.status,
+          a.activationTime,
+          a.name,
+          a.description,
+          a.priority,
+          a.actualOwner,
+          a.createdBy,
+          a.deploymentId,
+          a.processId,
+          a.processInstanceId,
+          a.createdOn,
+          a.dueDate,
+          a.workItemId,
+          t.formName
         from 
-        	AuditTaskImpl a
+            AuditTaskImpl a
+        inner join Task t on t.id = a.taskId
         where 
-        	a.taskId = :taskId
+            a.taskId = :taskId
     </query>
     <!-- hint name="org.hibernate.timeout" value="200"/ -->
-  </named-query>
+  </named-native-query>
   
-  <named-query name="getTaskInstanceByWorkItemId">
+  <named-native-query name="getTaskInstanceByWorkItemId">
     <query>
         select 
-	      new org.jbpm.kie.services.impl.model.UserTaskInstanceDesc(
-	      a.taskId,
-	      a.status,
-	      a.activationTime,
-	      a.name,
-	      a.description,
-	      a.priority,
-	      a.actualOwner,
-	      a.createdBy,
-	      a.deploymentId,
-	      a.processId,
-	      a.processInstanceId,
-	      a.createdOn,
-	      a.dueDate
-	      )
+          a.taskId,
+          a.status,
+          a.activationTime,
+          a.name,
+          a.description,
+          a.priority,
+          a.actualOwner,
+          a.createdBy,
+          a.deploymentId,
+          a.processId,
+          a.processInstanceId,
+          a.createdOn,
+          a.dueDate,
+          a.workItemId,
+          t.formName
         from 
-        	AuditTaskImpl a
+            AuditTaskImpl a
+        inner join Task t on t.id = a.taskId
         where 
-        	a.workItemId = :workItemId 
-        	
+            a.workItemId = :workItemId 
+            
     </query>
     <!-- hint name="org.hibernate.timeout" value="200"/ -->
-  </named-query>
+  </named-native-query>
   
-    <named-query name="getTaskInstancesByProcessInstanceId">
+  <named-native-query name="getTaskInstancesByProcessInstanceId">
     <query>
         select 
-        new org.jbpm.kie.services.impl.model.UserTaskInstanceDesc(
-        a.taskId,
-        a.status,
-        a.activationTime,
-        a.name,
-        a.description,
-        a.priority,
-        a.actualOwner,
-        a.createdBy,
-        a.deploymentId,
-        a.processId,
-        a.processInstanceId,
-        a.createdOn,
-        a.dueDate
-        )
+          a.taskId,
+          a.status,
+          a.activationTime,
+          a.name,
+          a.description,
+          a.priority,
+          a.actualOwner,
+          a.createdBy,
+          a.deploymentId,
+          a.processId,
+          a.processInstanceId,
+          a.createdOn,
+          a.dueDate,
+          a.workItemId,
+          t.formName
         from 
           AuditTaskImpl a 
+        inner join Task t on t.id = a.taskId
         where 
           a.processInstanceId = :processInstanceId
           and a.status in ( :statuses) 
     </query>
     <!-- hint name="org.hibernate.timeout" value="200"/ -->
-  </named-query>
+  </named-native-query>
 
   <!-- deployment store named queries -->
   <named-query name="getDeploymentUnit">

@@ -33,6 +33,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
@@ -452,22 +453,7 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
 				new QueryNameCommand<List<ProcessInstanceDesc>>("getProcessInstanceById",
                 params));
 
-        if (!processInstances.isEmpty()) {
-        	ProcessInstanceDesc desc = processInstances.iterator().next();
-        	List<String> statuses = new ArrayList<String>();
-        	statuses.add(Status.Ready.name());
-        	statuses.add(Status.Reserved.name());
-        	statuses.add(Status.InProgress.name());
-
-        	params = new HashMap<String, Object>();
-            params.put("processInstanceId", desc.getId());
-            params.put("statuses", statuses);
-            List<UserTaskInstanceDesc> tasks = commandService.execute(
-    				new QueryNameCommand<List<UserTaskInstanceDesc>>("getTaskInstancesByProcessInstanceId", params));
-        	((org.jbpm.kie.services.impl.model.ProcessInstanceDesc)desc).setActiveTasks(tasks);
-        	return desc;
-        }
-        return null;
+        return processInstances.isEmpty()? null : retrieveAndSetActiveTasks(processInstances.get(0));
    }
 
 	@Override
@@ -480,22 +466,7 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
 				new QueryNameCommand<List<ProcessInstanceDesc>>("getProcessInstanceByCorrelationKey",
                 params));
 
-        if (!processInstances.isEmpty()) {
-        	ProcessInstanceDesc desc = processInstances.iterator().next();
-        	List<String> statuses = new ArrayList<String>();
-        	statuses.add(Status.Ready.name());
-        	statuses.add(Status.Reserved.name());
-        	statuses.add(Status.InProgress.name());
-
-        	params = new HashMap<String, Object>();
-            params.put("processInstanceId", desc.getId());
-            params.put("statuses", statuses);
-            List<UserTaskInstanceDesc> tasks = commandService.execute(
-    				new QueryNameCommand<List<UserTaskInstanceDesc>>("getTaskInstancesByProcessInstanceId", params));
-        	((org.jbpm.kie.services.impl.model.ProcessInstanceDesc)desc).setActiveTasks(tasks);
-        	return desc;
-        }
-        return null;
+        return processInstances.isEmpty()? null : retrieveAndSetActiveTasks(processInstances.get(0));
 	}
 
 	@Override
@@ -783,33 +754,33 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
      * task methods
      */
 
-	@Override
-	public UserTaskInstanceDesc getTaskByWorkItemId(Long workItemId) {
-		Map<String, Object> params = new HashMap<String, Object>();
+    @Override
+    public UserTaskInstanceDesc getTaskByWorkItemId(Long workItemId) {
+        Map<String, Object> params = new HashMap<String, Object>();
         params.put("workItemId", workItemId);
         params.put("maxResults", 1);
-        List<UserTaskInstanceDesc> tasks = commandService.execute(
-				new QueryNameCommand<List<UserTaskInstanceDesc>>("getTaskInstanceByWorkItemId", params));
+        List<Object[]> taskRows = commandService.execute(
+                new QueryNameCommand<List<Object[]>>("getTaskInstanceByWorkItemId", params));
 
-    	if (!tasks.isEmpty()) {
-        	return tasks.iterator().next();
+        if (!taskRows.isEmpty()) {
+            return toUserTaskInstanceDesc(taskRows.get(0));
         }
         return null;
-	}
+    }
 
-	@Override
-	public UserTaskInstanceDesc getTaskById(Long taskId) {
-		Map<String, Object> params = new HashMap<String, Object>();
+    @Override
+    public UserTaskInstanceDesc getTaskById(Long taskId) {
+        Map<String, Object> params = new HashMap<String, Object>();
         params.put("taskId", taskId);
         params.put("maxResults", 1);
-        List<UserTaskInstanceDesc> tasks = commandService.execute(
-				new QueryNameCommand<List<UserTaskInstanceDesc>>("getTaskInstanceById", params));
+        List<Object[]> taskRows = commandService.execute(
+                new QueryNameCommand<List<Object[]>>("getTaskInstanceById", params));
 
-    	if (!tasks.isEmpty()) {
-        	return tasks.iterator().next();
+        if (!taskRows.isEmpty()) {
+            return toUserTaskInstanceDesc(taskRows.get(0));
         }
         return null;
-	}
+    }
 
     @Override
     public UserTaskInstanceDesc getTaskById(Long taskId, boolean withSLA){
@@ -1056,6 +1027,43 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
         if( variableNameOrValue.length > 2 ) {
             throw new IllegalStateException("Only String arguments expected for the " + Thread.currentThread().getStackTrace()[0].getMethodName() + " method!");
         }
+    }
+    
+    private ProcessInstanceDesc retrieveAndSetActiveTasks(ProcessInstanceDesc desc) {
+        List<String> statuses = new ArrayList<>();
+        statuses.add(Status.Ready.name());
+        statuses.add(Status.Reserved.name());
+        statuses.add(Status.InProgress.name());
+        
+        Map<String, Object> params = new HashMap<>();
+        params.put("processInstanceId", desc.getId());
+        params.put("statuses", statuses);
+        
+        List<Object[]> taskRows = commandService.execute(
+                new QueryNameCommand<List<Object[]>>("getTaskInstancesByProcessInstanceId", params));
+        List<UserTaskInstanceDesc> tasks = taskRows.stream().map(this::toUserTaskInstanceDesc).collect(Collectors.toList());
+        ((org.jbpm.kie.services.impl.model.ProcessInstanceDesc)desc).setActiveTasks(tasks);
+        
+        return desc;
+    }
+    
+    private org.jbpm.kie.services.impl.model.UserTaskInstanceDesc toUserTaskInstanceDesc(Object[] row) {
+        return new org.jbpm.kie.services.impl.model.UserTaskInstanceDesc(
+                    ((Number) row[0]).longValue(), //taskId
+                    (String) row[1], //status, 
+                    (Date) row[2], //activationTime,
+                    (String) row[3], //name,
+                    (String) row[4], // description,
+                    (Integer)row[5], // priority, 
+                    (String) row[6], // actualOwner, 
+                    (String) row[7], // createdBy, 
+                    (String) row[8], // deploymentId,
+                    (String) row[9], //processId,
+                    ((Number) row[10]).longValue(), //processInstanceId, 
+                    (Date) row[11], //createdOn, 
+                    (Date) row[12], //dueDate
+                    ((Number) row[13]).longValue(), //workItemId, 
+                    (String) row[14]); // formName
     }
 
 	/*
