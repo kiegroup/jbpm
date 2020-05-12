@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- origin at X=0.0 Y=0.0 -->
+<bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmn20="http://www.omg.org/bpmn20" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:bpsim="http://www.bpsim.org/schemas/1.0" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:drools="http://www.jboss.org/drools" xmlns="http://www.jboss.org/drools" xmlns:java="http://www.java.com/javaTypes" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd http://www.jboss.org/drools drools.xsd http://www.bpsim.org/schemas/1.0 bpsim.xsd" id="_87nksCqFEeOUEvFW0SANQQ" exporter="org.eclipse.bpmn2.modeler.core" exporterVersion="1.4.3.Final-v20180418-1358-B1" expressionLanguage="http://www.mvel.org/2.0" targetNamespace="http://www.omg.org/bpmn20" typeLanguage="http://www.java.com/javaTypes">
+  <bpmn2:itemDefinition id="_nameItem" isCollection="false" structureRef="String"/>
+  <bpmn2:itemDefinition id="_ageItem" isCollection="false" structureRef="Integer"/>
+  <bpmn2:itemDefinition id="_twitterItem" isCollection="false" structureRef="String"/>
+  <bpmn2:itemDefinition id="_offeringItem" isCollection="false" structureRef="Integer"/>
+  <bpmn2:itemDefinition id="_skillsItem" isCollection="false" structureRef="String"/>
+  <bpmn2:itemDefinition id="_mailItem" isCollection="false" structureRef="String"/>
+  <bpmn2:itemDefinition id="_tech_scoreItem" isCollection="false" structureRef="Integer"/>
+  <bpmn2:itemDefinition id="_hr_scoreItem" isCollection="false" structureRef="Integer"/>
+  <bpmn2:itemDefinition id="_signedItem" isCollection="false" structureRef="Boolean"/>
+  <bpmn2:itemDefinition id="__6998ACD3-21DC-421D-AC04-BA7D375B0B21_GroupIdInputItem" isCollection="false" structureRef="Object"/>
+  <bpmn2:itemDefinition id="__6998ACD3-21DC-421D-AC04-BA7D375B0B21_CommentInputItem" isCollection="false" structureRef="Object"/>
+  <bpmn2:itemDefinition id="__6998ACD3-21DC-421D-AC04-BA7D375B0B21_in_nameInputItem" isCollection="false" structureRef="String"/>
+  <bpmn2:itemDefinition id="__6998ACD3-21DC-421D-AC04-BA7D375B0B21_out_nameOutputItem" isCollection="false" structureRef="String"/>
+  <bpmn2:itemDefinition id="__6998ACD3-21DC-421D-AC04-BA7D375B0B21_out_ageOutputItem" isCollection="false" structureRef="Integer"/>
+  <bpmn2:itemDefinition id="__6998ACD3-21DC-421D-AC04-BA7D375B0B21_out_mailOutputItem" isCollection="false" structureRef="String"/>
+  <bpmn2:itemDefinition id="__6998ACD3-21DC-421D-AC04-BA7D375B0B21_out_scoreOutputItem" isCollection="false" structureRef="Integer"/>
+  <bpmn2:itemDefinition id="__FADFBC55-C369-4F58-B04B-3AD20337F215_in_nameInputItem" isCollection="false" structureRef="String"/>
+  <bpmn2:itemDefinition id="__FADFBC55-C369-4F58-B04B-3AD20337F215_in_ageInputItem" isCollection="false" structureRef="Integer"/>
+  <bpmn2:itemDefinition id="__FADFBC55-C369-4F58-B04B-3AD20337F215_in_mailInputItem" isCollection="false" structureRef="String"/>
+  <bpmn2:itemDefinition id="__FADFBC55-C369-4F58-B04B-3AD20337F215_GroupIdInputItem" isCollection="false" structureRef="Object"/>
+  <bpmn2:itemDefinition id="__FADFBC55-C369-4F58-B04B-3AD20337F215_CommentInputItem" isCollection="false" structureRef="Object"/>
+  <bpmn2:itemDefinition id="__FADFBC55-C369-4F58-B04B-3AD20337F215_out_skillsOutputItem" isCollection="false" structureRef="String"/>
+  <bpmn2:itemDefinition id="__FADFBC55-C369-4F58-B04B-3AD20337F215_out_scoreOutputItem" isCollection="false" structureRef="Integer"/>
+  <bpmn2:itemDefinition id="__FADFBC55-C369-4F58-B04B-3AD20337F215_out_twitterOutputItem" isCollection="false" structureRef="String"/>
+  <bpmn2:itemDefinition id="__12435ADA-3C57-414C-8DDD-5D236E462BD8_in_tech_scoreInputItem" isCollection="false" structureRef="Integer"/>
+  <bpmn2:itemDefinition id="__12435ADA-3C57-414C-8DDD-5D236E462BD8_in_hr_scoreInputItem" isCollection="false" structureRef="Integer"/>
+  <bpmn2:itemDefinition id="__12435ADA-3C57-414C-8DDD-5D236E462BD8_GroupIdInputItem" isCollection="false" structureRef="Object"/>
+  <bpmn2:itemDefinition id="__12435ADA-3C57-414C-8DDD-5D236E462BD8_CommentInputItem" isCollection="false" structureRef="Object"/>
+  <bpmn2:itemDefinition id="__12435ADA-3C57-414C-8DDD-5D236E462BD8_out_offeringOutputItem" isCollection="false" structureRef="Integer"/>
+  <bpmn2:itemDefinition id="__D9B752FE-4900-4172-B8C9-31CC838E18A5_in_offeringInputItem" isCollection="false" structureRef="Integer"/>
+  <bpmn2:itemDefinition id="__D9B752FE-4900-4172-B8C9-31CC838E18A5_in_nameInputItem" isCollection="false" structureRef="String"/>
+  <bpmn2:itemDefinition id="__D9B752FE-4900-4172-B8C9-31CC838E18A5_GroupIdInputItem" isCollection="false" structureRef="Object"/>
+  <bpmn2:itemDefinition id="__D9B752FE-4900-4172-B8C9-31CC838E18A5_CommentInputItem" isCollection="false" structureRef="Object"/>
+  <bpmn2:itemDefinition id="__D9B752FE-4900-4172-B8C9-31CC838E18A5_out_signedOutputItem" isCollection="false" structureRef="Boolean"/>
+  <bpmn2:process id="hiring_parallel" drools:packageName="HR.src.main.resources.kbase" drools:version="1" name="Hiring a Developer" isExecutable="true">
+    <bpmn2:property id="name" itemSubjectRef="_nameItem" name="name"/>
+    <bpmn2:property id="age" itemSubjectRef="_ageItem" name="age"/>
+    <bpmn2:property id="twitter" itemSubjectRef="_twitterItem" name="twitter"/>
+    <bpmn2:property id="offering" itemSubjectRef="_offeringItem" name="offering"/>
+    <bpmn2:property id="skills" itemSubjectRef="_skillsItem" name="skills"/>
+    <bpmn2:property id="mail" itemSubjectRef="_mailItem" name="mail"/>
+    <bpmn2:property id="tech_score" itemSubjectRef="_tech_scoreItem" name="tech_score"/>
+    <bpmn2:property id="hr_score" itemSubjectRef="_hr_scoreItem" name="hr_score"/>
+    <bpmn2:property id="signed" itemSubjectRef="_signedItem" name="signed"/>
+    <bpmn2:startEvent id="_76910DD0-5F45-421F-B1AC-E6507CC1C26C" drools:bgcolor="#9acd32" drools:selectable="true" name="">
+      <bpmn2:extensionElements>
+        <drools:metaData name="elementname">
+          <drools:metaValue><![CDATA[]]></drools:metaValue>
+        </drools:metaData>
+      </bpmn2:extensionElements>
+      <bpmn2:outgoing>SequenceFlow_2</bpmn2:outgoing>
+    </bpmn2:startEvent>
+    <bpmn2:userTask id="_6998ACD3-21DC-421D-AC04-BA7D375B0B21" drools:selectable="true" drools:scriptFormat="http://www.java.com/java" name="HR Interview">
+      <bpmn2:extensionElements>
+        <drools:metaData name="elementname">
+          <drools:metaValue><![CDATA[HR Interview]]></drools:metaValue>
+        </drools:metaData>
+      </bpmn2:extensionElements>
+      <bpmn2:incoming>_416C6A67-B7EC-400B-9F2B-0F53B3FEDEB4</bpmn2:incoming>
+      <bpmn2:outgoing>SequenceFlow_3</bpmn2:outgoing>
+      <bpmn2:ioSpecification id="_87nksSqFEeOUEvFW0SANQQ">
+        <bpmn2:dataInput id="_6998ACD3-21DC-421D-AC04-BA7D375B0B21_TaskNameInput" name="TaskName"/>
+        <bpmn2:dataInput id="_6998ACD3-21DC-421D-AC04-BA7D375B0B21_GroupIdInput" drools:dtype="Object" itemSubjectRef="__6998ACD3-21DC-421D-AC04-BA7D375B0B21_GroupIdInputItem" name="GroupId"/>
+        <bpmn2:dataInput id="_6998ACD3-21DC-421D-AC04-BA7D375B0B21_CommentInput" drools:dtype="Object" itemSubjectRef="__6998ACD3-21DC-421D-AC04-BA7D375B0B21_CommentInputItem" name="Comment"/>
+        <bpmn2:dataInput id="_6998ACD3-21DC-421D-AC04-BA7D375B0B21_in_nameInput" drools:dtype="String" itemSubjectRef="__6998ACD3-21DC-421D-AC04-BA7D375B0B21_in_nameInputItem" name="in_name"/>
+        <bpmn2:dataOutput id="_6998ACD3-21DC-421D-AC04-BA7D375B0B21_out_nameOutput" drools:dtype="String" itemSubjectRef="__6998ACD3-21DC-421D-AC04-BA7D375B0B21_out_nameOutputItem" name="out_name"/>
+        <bpmn2:dataOutput id="_6998ACD3-21DC-421D-AC04-BA7D375B0B21_out_ageOutput" drools:dtype="Integer" itemSubjectRef="__6998ACD3-21DC-421D-AC04-BA7D375B0B21_out_ageOutputItem" name="out_age"/>
+        <bpmn2:dataOutput id="_6998ACD3-21DC-421D-AC04-BA7D375B0B21_out_mailOutput" drools:dtype="String" itemSubjectRef="__6998ACD3-21DC-421D-AC04-BA7D375B0B21_out_mailOutputItem" name="out_mail"/>
+        <bpmn2:dataOutput id="_6998ACD3-21DC-421D-AC04-BA7D375B0B21_out_scoreOutput" drools:dtype="Integer" itemSubjectRef="__6998ACD3-21DC-421D-AC04-BA7D375B0B21_out_scoreOutputItem" name="out_score"/>
+        <bpmn2:inputSet id="_87nksiqFEeOUEvFW0SANQQ">
+          <bpmn2:dataInputRefs>_6998ACD3-21DC-421D-AC04-BA7D375B0B21_GroupIdInput</bpmn2:dataInputRefs>
+          <bpmn2:dataInputRefs>_6998ACD3-21DC-421D-AC04-BA7D375B0B21_CommentInput</bpmn2:dataInputRefs>
+          <bpmn2:dataInputRefs>_6998ACD3-21DC-421D-AC04-BA7D375B0B21_in_nameInput</bpmn2:dataInputRefs>
+          <bpmn2:dataInputRefs>_6998ACD3-21DC-421D-AC04-BA7D375B0B21_TaskNameInput</bpmn2:dataInputRefs>
+        </bpmn2:inputSet>
+        <bpmn2:outputSet id="_87nksyqFEeOUEvFW0SANQQ">
+          <bpmn2:dataOutputRefs>_6998ACD3-21DC-421D-AC04-BA7D375B0B21_out_nameOutput</bpmn2:dataOutputRefs>
+          <bpmn2:dataOutputRefs>_6998ACD3-21DC-421D-AC04-BA7D375B0B21_out_ageOutput</bpmn2:dataOutputRefs>
+          <bpmn2:dataOutputRefs>_6998ACD3-21DC-421D-AC04-BA7D375B0B21_out_mailOutput</bpmn2:dataOutputRefs>
+          <bpmn2:dataOutputRefs>_6998ACD3-21DC-421D-AC04-BA7D375B0B21_out_scoreOutput</bpmn2:dataOutputRefs>
+        </bpmn2:outputSet>
+      </bpmn2:ioSpecification>
+      <bpmn2:dataInputAssociation id="_87oLwCqFEeOUEvFW0SANQQ">
+        <bpmn2:targetRef>_6998ACD3-21DC-421D-AC04-BA7D375B0B21_TaskNameInput</bpmn2:targetRef>
+        <bpmn2:assignment id="_87oLwSqFEeOUEvFW0SANQQ">
+          <bpmn2:from xsi:type="bpmn2:tFormalExpression" id="_87oLwiqFEeOUEvFW0SANQQ">HRInterview</bpmn2:from>
+          <bpmn2:to xsi:type="bpmn2:tFormalExpression" id="_87oLwyqFEeOUEvFW0SANQQ">_6998ACD3-21DC-421D-AC04-BA7D375B0B21_TaskNameInput</bpmn2:to>
+        </bpmn2:assignment>
+      </bpmn2:dataInputAssociation>
+      <bpmn2:dataInputAssociation id="_87oLxCqFEeOUEvFW0SANQQ">
+        <bpmn2:sourceRef>name</bpmn2:sourceRef>
+        <bpmn2:targetRef>_6998ACD3-21DC-421D-AC04-BA7D375B0B21_in_nameInput</bpmn2:targetRef>
+      </bpmn2:dataInputAssociation>
+      <bpmn2:dataInputAssociation id="_87oLxSqFEeOUEvFW0SANQQ">
+        <bpmn2:targetRef>_6998ACD3-21DC-421D-AC04-BA7D375B0B21_GroupIdInput</bpmn2:targetRef>
+        <bpmn2:assignment id="_87oLxiqFEeOUEvFW0SANQQ">
+          <bpmn2:from xsi:type="bpmn2:tFormalExpression" id="_87oLxyqFEeOUEvFW0SANQQ">HR</bpmn2:from>
+          <bpmn2:to xsi:type="bpmn2:tFormalExpression" id="_87oLyCqFEeOUEvFW0SANQQ">_6998ACD3-21DC-421D-AC04-BA7D375B0B21_GroupIdInput</bpmn2:to>
+        </bpmn2:assignment>
+      </bpmn2:dataInputAssociation>
+      <bpmn2:dataInputAssociation id="_87oLySqFEeOUEvFW0SANQQ">
+        <bpmn2:targetRef>_6998ACD3-21DC-421D-AC04-BA7D375B0B21_CommentInput</bpmn2:targetRef>
+        <bpmn2:assignment id="_87oLyiqFEeOUEvFW0SANQQ">
+          <bpmn2:from xsi:type="bpmn2:tFormalExpression" id="_87oLyyqFEeOUEvFW0SANQQ"><![CDATA[Candidate: #{name}]]></bpmn2:from>
+          <bpmn2:to xsi:type="bpmn2:tFormalExpression" id="_87oLzCqFEeOUEvFW0SANQQ">_6998ACD3-21DC-421D-AC04-BA7D375B0B21_CommentInput</bpmn2:to>
+        </bpmn2:assignment>
+      </bpmn2:dataInputAssociation>
+      <bpmn2:dataOutputAssociation id="_87oLzSqFEeOUEvFW0SANQQ">
+        <bpmn2:sourceRef>_6998ACD3-21DC-421D-AC04-BA7D375B0B21_out_ageOutput</bpmn2:sourceRef>
+        <bpmn2:targetRef>age</bpmn2:targetRef>
+      </bpmn2:dataOutputAssociation>
+      <bpmn2:dataOutputAssociation id="_87oLziqFEeOUEvFW0SANQQ">
+        <bpmn2:sourceRef>_6998ACD3-21DC-421D-AC04-BA7D375B0B21_out_mailOutput</bpmn2:sourceRef>
+        <bpmn2:targetRef>mail</bpmn2:targetRef>
+      </bpmn2:dataOutputAssociation>
+      <bpmn2:dataOutputAssociation id="_87oLzyqFEeOUEvFW0SANQQ">
+        <bpmn2:sourceRef>_6998ACD3-21DC-421D-AC04-BA7D375B0B21_out_scoreOutput</bpmn2:sourceRef>
+        <bpmn2:targetRef>hr_score</bpmn2:targetRef>
+      </bpmn2:dataOutputAssociation>
+      <bpmn2:dataOutputAssociation id="_87oL0CqFEeOUEvFW0SANQQ">
+        <bpmn2:sourceRef>_6998ACD3-21DC-421D-AC04-BA7D375B0B21_out_nameOutput</bpmn2:sourceRef>
+        <bpmn2:targetRef>name</bpmn2:targetRef>
+      </bpmn2:dataOutputAssociation>
+    </bpmn2:userTask>
+    <bpmn2:sequenceFlow id="_416C6A67-B7EC-400B-9F2B-0F53B3FEDEB4" drools:bgcolor="#000000" drools:selectable="true" sourceRef="ParallelGateway_1" targetRef="_6998ACD3-21DC-421D-AC04-BA7D375B0B21"/>
+    <bpmn2:userTask id="_FADFBC55-C369-4F58-B04B-3AD20337F215" drools:selectable="true" drools:scriptFormat="http://www.java.com/java" name="Tech Interview">
+      <bpmn2:extensionElements>
+        <drools:metaData name="elementname">
+          <drools:metaValue><![CDATA[Tech Interview]]></drools:metaValue>
+        </drools:metaData>
+      </bpmn2:extensionElements>
+      <bpmn2:incoming>SequenceFlow_1</bpmn2:incoming>
+      <bpmn2:outgoing>SequenceFlow_4</bpmn2:outgoing>
+      <bpmn2:ioSpecification id="_87oL0SqFEeOUEvFW0SANQQ">
+        <bpmn2:dataInput id="_FADFBC55-C369-4F58-B04B-3AD20337F215_TaskNameInput" name="TaskName"/>
+        <bpmn2:dataInput id="_FADFBC55-C369-4F58-B04B-3AD20337F215_in_nameInput" drools:dtype="String" itemSubjectRef="__FADFBC55-C369-4F58-B04B-3AD20337F215_in_nameInputItem" name="in_name"/>
+        <bpmn2:dataInput id="_FADFBC55-C369-4F58-B04B-3AD20337F215_in_ageInput" drools:dtype="Integer" itemSubjectRef="__FADFBC55-C369-4F58-B04B-3AD20337F215_in_ageInputItem" name="in_age"/>
+        <bpmn2:dataInput id="_FADFBC55-C369-4F58-B04B-3AD20337F215_in_mailInput" drools:dtype="String" itemSubjectRef="__FADFBC55-C369-4F58-B04B-3AD20337F215_in_mailInputItem" name="in_mail"/>
+        <bpmn2:dataInput id="_FADFBC55-C369-4F58-B04B-3AD20337F215_GroupIdInput" drools:dtype="Object" itemSubjectRef="__FADFBC55-C369-4F58-B04B-3AD20337F215_GroupIdInputItem" name="GroupId"/>
+        <bpmn2:dataInput id="_FADFBC55-C369-4F58-B04B-3AD20337F215_CommentInput" drools:dtype="Object" itemSubjectRef="__FADFBC55-C369-4F58-B04B-3AD20337F215_CommentInputItem" name="Comment"/>
+        <bpmn2:dataOutput id="_FADFBC55-C369-4F58-B04B-3AD20337F215_out_skillsOutput" drools:dtype="String" itemSubjectRef="__FADFBC55-C369-4F58-B04B-3AD20337F215_out_skillsOutputItem" name="out_skills"/>
+        <bpmn2:dataOutput id="_FADFBC55-C369-4F58-B04B-3AD20337F215_out_scoreOutput" drools:dtype="Integer" itemSubjectRef="__FADFBC55-C369-4F58-B04B-3AD20337F215_out_scoreOutputItem" name="out_score"/>
+        <bpmn2:dataOutput id="_FADFBC55-C369-4F58-B04B-3AD20337F215_out_twitterOutput" drools:dtype="String" itemSubjectRef="__FADFBC55-C369-4F58-B04B-3AD20337F215_out_twitterOutputItem" name="out_twitter"/>
+        <bpmn2:inputSet id="_87oL0iqFEeOUEvFW0SANQQ">
+          <bpmn2:dataInputRefs>_FADFBC55-C369-4F58-B04B-3AD20337F215_in_nameInput</bpmn2:dataInputRefs>
+          <bpmn2:dataInputRefs>_FADFBC55-C369-4F58-B04B-3AD20337F215_in_ageInput</bpmn2:dataInputRefs>
+          <bpmn2:dataInputRefs>_FADFBC55-C369-4F58-B04B-3AD20337F215_in_mailInput</bpmn2:dataInputRefs>
+          <bpmn2:dataInputRefs>_FADFBC55-C369-4F58-B04B-3AD20337F215_GroupIdInput</bpmn2:dataInputRefs>
+          <bpmn2:dataInputRefs>_FADFBC55-C369-4F58-B04B-3AD20337F215_CommentInput</bpmn2:dataInputRefs>
+          <bpmn2:dataInputRefs>_FADFBC55-C369-4F58-B04B-3AD20337F215_TaskNameInput</bpmn2:dataInputRefs>
+        </bpmn2:inputSet>
+        <bpmn2:outputSet id="_87oL0yqFEeOUEvFW0SANQQ">
+          <bpmn2:dataOutputRefs>_FADFBC55-C369-4F58-B04B-3AD20337F215_out_skillsOutput</bpmn2:dataOutputRefs>
+          <bpmn2:dataOutputRefs>_FADFBC55-C369-4F58-B04B-3AD20337F215_out_scoreOutput</bpmn2:dataOutputRefs>
+          <bpmn2:dataOutputRefs>_FADFBC55-C369-4F58-B04B-3AD20337F215_out_twitterOutput</bpmn2:dataOutputRefs>
+        </bpmn2:outputSet>
+      </bpmn2:ioSpecification>
+      <bpmn2:dataInputAssociation id="_87oL1CqFEeOUEvFW0SANQQ">
+        <bpmn2:targetRef>_FADFBC55-C369-4F58-B04B-3AD20337F215_TaskNameInput</bpmn2:targetRef>
+        <bpmn2:assignment id="_87oL1SqFEeOUEvFW0SANQQ">
+          <bpmn2:from xsi:type="bpmn2:tFormalExpression" id="_87oL1iqFEeOUEvFW0SANQQ">TechInterview</bpmn2:from>
+          <bpmn2:to xsi:type="bpmn2:tFormalExpression" id="_87oL1yqFEeOUEvFW0SANQQ">_FADFBC55-C369-4F58-B04B-3AD20337F215_TaskNameInput</bpmn2:to>
+        </bpmn2:assignment>
+      </bpmn2:dataInputAssociation>
+      <bpmn2:dataInputAssociation id="_87oL2CqFEeOUEvFW0SANQQ">
+        <bpmn2:sourceRef>name</bpmn2:sourceRef>
+        <bpmn2:targetRef>_FADFBC55-C369-4F58-B04B-3AD20337F215_in_nameInput</bpmn2:targetRef>
+      </bpmn2:dataInputAssociation>
+      <bpmn2:dataInputAssociation id="_87oL2SqFEeOUEvFW0SANQQ">
+        <bpmn2:sourceRef>age</bpmn2:sourceRef>
+        <bpmn2:targetRef>_FADFBC55-C369-4F58-B04B-3AD20337F215_in_ageInput</bpmn2:targetRef>
+      </bpmn2:dataInputAssociation>
+      <bpmn2:dataInputAssociation id="_87oL2iqFEeOUEvFW0SANQQ">
+        <bpmn2:sourceRef>mail</bpmn2:sourceRef>
+        <bpmn2:targetRef>_FADFBC55-C369-4F58-B04B-3AD20337F215_in_mailInput</bpmn2:targetRef>
+      </bpmn2:dataInputAssociation>
+      <bpmn2:dataInputAssociation id="_87oL2yqFEeOUEvFW0SANQQ">
+        <bpmn2:targetRef>_FADFBC55-C369-4F58-B04B-3AD20337F215_GroupIdInput</bpmn2:targetRef>
+        <bpmn2:assignment id="_87oL3CqFEeOUEvFW0SANQQ">
+          <bpmn2:from xsi:type="bpmn2:tFormalExpression" id="_87oL3SqFEeOUEvFW0SANQQ">IT</bpmn2:from>
+          <bpmn2:to xsi:type="bpmn2:tFormalExpression" id="_87oL3iqFEeOUEvFW0SANQQ">_FADFBC55-C369-4F58-B04B-3AD20337F215_GroupIdInput</bpmn2:to>
+        </bpmn2:assignment>
+      </bpmn2:dataInputAssociation>
+      <bpmn2:dataInputAssociation id="_87oL3yqFEeOUEvFW0SANQQ">
+        <bpmn2:targetRef>_FADFBC55-C369-4F58-B04B-3AD20337F215_CommentInput</bpmn2:targetRef>
+        <bpmn2:assignment id="_87oL4CqFEeOUEvFW0SANQQ">
+          <bpmn2:from xsi:type="bpmn2:tFormalExpression" id="_87oL4SqFEeOUEvFW0SANQQ"><![CDATA[Candidate: #{name}]]></bpmn2:from>
+          <bpmn2:to xsi:type="bpmn2:tFormalExpression" id="_87oL4iqFEeOUEvFW0SANQQ">_FADFBC55-C369-4F58-B04B-3AD20337F215_CommentInput</bpmn2:to>
+        </bpmn2:assignment>
+      </bpmn2:dataInputAssociation>
+      <bpmn2:dataOutputAssociation id="_87oL4yqFEeOUEvFW0SANQQ">
+        <bpmn2:sourceRef>_FADFBC55-C369-4F58-B04B-3AD20337F215_out_skillsOutput</bpmn2:sourceRef>
+        <bpmn2:targetRef>skills</bpmn2:targetRef>
+      </bpmn2:dataOutputAssociation>
+      <bpmn2:dataOutputAssociation id="_87oL5CqFEeOUEvFW0SANQQ">
+        <bpmn2:sourceRef>_FADFBC55-C369-4F58-B04B-3AD20337F215_out_scoreOutput</bpmn2:sourceRef>
+        <bpmn2:targetRef>tech_score</bpmn2:targetRef>
+      </bpmn2:dataOutputAssociation>
+      <bpmn2:dataOutputAssociation id="_87oL5SqFEeOUEvFW0SANQQ">
+        <bpmn2:sourceRef>_FADFBC55-C369-4F58-B04B-3AD20337F215_out_twitterOutput</bpmn2:sourceRef>
+        <bpmn2:targetRef>twitter</bpmn2:targetRef>
+      </bpmn2:dataOutputAssociation>
+    </bpmn2:userTask>
+    <bpmn2:endEvent id="_F059CD07-FBF7-4D08-82D0-439414BAE553" drools:bgcolor="#ff6347" drools:selectable="true" name="">
+      <bpmn2:extensionElements>
+        <drools:metaData name="elementname">
+          <drools:metaValue><![CDATA[]]></drools:metaValue>
+        </drools:metaData>
+      </bpmn2:extensionElements>
+      <bpmn2:incoming>SequenceFlow_5</bpmn2:incoming>
+    </bpmn2:endEvent>
+    <bpmn2:parallelGateway id="ParallelGateway_1" name="Parallel Gateway 1" gatewayDirection="Diverging">
+      <bpmn2:incoming>SequenceFlow_2</bpmn2:incoming>
+      <bpmn2:outgoing>_416C6A67-B7EC-400B-9F2B-0F53B3FEDEB4</bpmn2:outgoing>
+      <bpmn2:outgoing>SequenceFlow_1</bpmn2:outgoing>
+    </bpmn2:parallelGateway>
+    <bpmn2:sequenceFlow id="SequenceFlow_1" drools:priority="1" sourceRef="ParallelGateway_1" targetRef="_FADFBC55-C369-4F58-B04B-3AD20337F215"/>
+    <bpmn2:sequenceFlow id="SequenceFlow_2" drools:priority="1" sourceRef="_76910DD0-5F45-421F-B1AC-E6507CC1C26C" targetRef="ParallelGateway_1"/>
+    <bpmn2:parallelGateway id="ParallelGateway_2" name="Parallel Gateway 2" gatewayDirection="Converging">
+      <bpmn2:incoming>SequenceFlow_3</bpmn2:incoming>
+      <bpmn2:incoming>SequenceFlow_4</bpmn2:incoming>
+      <bpmn2:outgoing>SequenceFlow_5</bpmn2:outgoing>
+    </bpmn2:parallelGateway>
+    <bpmn2:sequenceFlow id="SequenceFlow_3" drools:priority="1" sourceRef="_6998ACD3-21DC-421D-AC04-BA7D375B0B21" targetRef="ParallelGateway_2"/>
+    <bpmn2:sequenceFlow id="SequenceFlow_4" drools:priority="1" sourceRef="_FADFBC55-C369-4F58-B04B-3AD20337F215" targetRef="ParallelGateway_2"/>
+    <bpmn2:sequenceFlow id="SequenceFlow_5" drools:priority="1" sourceRef="ParallelGateway_2" targetRef="_F059CD07-FBF7-4D08-82D0-439414BAE553"/>
+  </bpmn2:process>
+  <bpmndi:BPMNDiagram id="_87oy-SqFEeOUEvFW0SANQQ">
+    <bpmndi:BPMNPlane id="_87oy-iqFEeOUEvFW0SANQQ" bpmnElement="hiring_parallel">
+      <bpmndi:BPMNShape id="_87oy-yqFEeOUEvFW0SANQQ" bpmnElement="_76910DD0-5F45-421F-B1AC-E6507CC1C26C">
+        <dc:Bounds height="30.0" width="30.0" x="120.0" y="186.0"/>
+        <bpmndi:BPMNLabel/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_87pZ4CqFEeOUEvFW0SANQQ" bpmnElement="_6998ACD3-21DC-421D-AC04-BA7D375B0B21">
+        <dc:Bounds height="80.0" width="100.0" x="310.0" y="90.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds height="18.0" width="85.0" x="317.0" y="121.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_87pZ4iqFEeOUEvFW0SANQQ" bpmnElement="_FADFBC55-C369-4F58-B04B-3AD20337F215">
+        <dc:Bounds height="80.0" width="100.0" x="310.0" y="230.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds height="18.0" width="94.0" x="313.0" y="261.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_87pZ7CqFEeOUEvFW0SANQQ" bpmnElement="_F059CD07-FBF7-4D08-82D0-439414BAE553">
+        <dc:Bounds height="28.0" width="28.0" x="630.0" y="186.0"/>
+        <bpmndi:BPMNLabel/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_ParallelGateway_1" bpmnElement="ParallelGateway_1" isMarkerVisible="true">
+        <dc:Bounds height="50.0" width="50.0" x="206.0" y="175.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds height="36.0" width="71.0" x="196.0" y="225.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_ParallelGateway_2" bpmnElement="ParallelGateway_2" isMarkerVisible="true">
+        <dc:Bounds height="50.0" width="50.0" x="496.0" y="175.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds height="36.0" width="71.0" x="486.0" y="225.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="_87pZ4SqFEeOUEvFW0SANQQ" bpmnElement="_416C6A67-B7EC-400B-9F2B-0F53B3FEDEB4" sourceElement="BPMNShape_ParallelGateway_1" targetElement="_87pZ4CqFEeOUEvFW0SANQQ">
+        <di:waypoint xsi:type="dc:Point" x="231.0" y="175.0"/>
+        <di:waypoint xsi:type="dc:Point" x="231.0" y="130.0"/>
+        <di:waypoint xsi:type="dc:Point" x="310.0" y="130.0"/>
+        <bpmndi:BPMNLabel/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_1" bpmnElement="SequenceFlow_1" sourceElement="BPMNShape_ParallelGateway_1" targetElement="_87pZ4iqFEeOUEvFW0SANQQ">
+        <di:waypoint xsi:type="dc:Point" x="231.0" y="225.0"/>
+        <di:waypoint xsi:type="dc:Point" x="231.0" y="270.0"/>
+        <di:waypoint xsi:type="dc:Point" x="310.0" y="270.0"/>
+        <bpmndi:BPMNLabel/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_2" bpmnElement="SequenceFlow_2" sourceElement="_87oy-yqFEeOUEvFW0SANQQ" targetElement="BPMNShape_ParallelGateway_1">
+        <di:waypoint xsi:type="dc:Point" x="150.0" y="201.0"/>
+        <di:waypoint xsi:type="dc:Point" x="178.0" y="201.0"/>
+        <di:waypoint xsi:type="dc:Point" x="206.0" y="200.0"/>
+        <bpmndi:BPMNLabel/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_3" bpmnElement="SequenceFlow_3" sourceElement="_87pZ4CqFEeOUEvFW0SANQQ" targetElement="BPMNShape_ParallelGateway_2">
+        <di:waypoint xsi:type="dc:Point" x="410.0" y="130.0"/>
+        <di:waypoint xsi:type="dc:Point" x="521.0" y="130.0"/>
+        <di:waypoint xsi:type="dc:Point" x="521.0" y="175.0"/>
+        <bpmndi:BPMNLabel/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_4" bpmnElement="SequenceFlow_4" sourceElement="_87pZ4iqFEeOUEvFW0SANQQ" targetElement="BPMNShape_ParallelGateway_2">
+        <di:waypoint xsi:type="dc:Point" x="410.0" y="270.0"/>
+        <di:waypoint xsi:type="dc:Point" x="521.0" y="270.0"/>
+        <di:waypoint xsi:type="dc:Point" x="521.0" y="225.0"/>
+        <bpmndi:BPMNLabel/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_5" bpmnElement="SequenceFlow_5" sourceElement="BPMNShape_ParallelGateway_2" targetElement="_87pZ7CqFEeOUEvFW0SANQQ">
+        <di:waypoint xsi:type="dc:Point" x="546.0" y="200.0"/>
+        <di:waypoint xsi:type="dc:Point" x="588.0" y="200.0"/>
+        <di:waypoint xsi:type="dc:Point" x="630.0" y="200.0"/>
+        <bpmndi:BPMNLabel/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn2:definitions>
