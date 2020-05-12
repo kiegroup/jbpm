@@ -28,6 +28,8 @@ import org.jbpm.kie.services.impl.KModuleDeploymentUnit;
 import org.jbpm.kie.test.util.AbstractKieServicesBaseTest;
 import org.jbpm.services.api.ProcessInstanceNotFoundException;
 import org.jbpm.services.api.model.DeploymentUnit;
+import org.jbpm.services.api.model.ProcessInstanceDesc;
+import org.jbpm.services.api.model.UserTaskInstanceDesc;
 import org.jbpm.services.api.query.QueryNotFoundException;
 import org.jbpm.services.api.query.model.QueryDefinition;
 import org.junit.After;
@@ -42,6 +44,7 @@ import org.kie.scanner.KieMavenRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
 import static org.kie.scanner.KieMavenRepository.getKieMavenRepository;
 
@@ -71,6 +74,7 @@ public class TaskQueryBuilderTest extends AbstractKieServicesBaseTest {
         List<String> processes = new ArrayList<String>();
         processes.add("repo/processes/general/humanTask.bpmn");
         processes.add("repo/processes/hr/hiring.bpmn2");
+        processes.add("repo/processes/hr/hiring_parallel.bpmn2");
 
         InternalKieModule kJar1 = createKieJar(ks, releaseId, processes);
         File pom = new File("target/kmodule", "pom.xml");
@@ -310,5 +314,58 @@ public class TaskQueryBuilderTest extends AbstractKieServicesBaseTest {
         assertNotNull(taskInstanceLogs);
         assertEquals(1, taskInstanceLogs.size());
 
+    }
+    
+    @Test
+    public void testFormName() {
+        pids = new Long[1];
+        pids[0] = processService.startProcess(deploymentUnit.getIdentifier(), "hiring");
+        assertNotNull(pids[0]);
+
+        ProcessInstance instance = processService.getProcessInstance(pids[0]);
+        assertNotNull(instance);
+
+        claimAndCompleteTask(pids[0], 0, "katy");
+        claimAndCompleteTask(pids[0], 1, "salaboy");
+
+        List<Long> taskIds = runtimeDataService.getTasksByProcessInstanceId(pids[0]);
+
+        UserTaskInstanceDesc userTask = runtimeDataService.getTaskById(taskIds.get(2));
+        assertEquals("CreateProposal", userTask.getFormName());
+
+        userTask = runtimeDataService.getTaskByWorkItemId(taskIds.get(0));
+        assertEquals("HRInterview", userTask.getFormName());
+
+        ProcessInstanceDesc instanceDesc = runtimeDataService.getProcessInstanceById(pids[0]);
+        assertNotNull(instanceDesc);
+
+        List<UserTaskInstanceDesc> tasks = instanceDesc.getActiveTasks();
+        assertNotNull(tasks);
+        assertEquals(1, tasks.size());
+        assertEquals("CreateProposal", tasks.get(0).getFormName());
+    }
+
+    @Test
+    public void testFormNameParallelTasks() {
+        pids = new Long[1];
+        pids[0] = processService.startProcess(deploymentUnit.getIdentifier(), "hiring_parallel");
+        assertNotNull(pids[0]);
+
+        ProcessInstanceDesc instanceDesc = runtimeDataService.getProcessInstanceById(pids[0]);
+        assertNotNull(instanceDesc);
+
+        List<UserTaskInstanceDesc> tasks = instanceDesc.getActiveTasks();
+        assertNotNull(tasks);
+        assertEquals(2, tasks.size());
+        assertThat(tasks).extracting("getFormName").contains("HRInterview","TechInterview");
+    }
+
+    private void claimAndCompleteTask(Long processInstanceId, int position, String user) {
+        List<Long> taskIds = runtimeDataService.getTasksByProcessInstanceId(processInstanceId);
+        assertTrue(!taskIds.isEmpty());
+        Long taskId = taskIds.get(position);
+        userTaskService.claim(taskId, user);
+        userTaskService.start(taskId, user);
+        userTaskService.complete(taskId, user, new HashMap<>());
     }
 }

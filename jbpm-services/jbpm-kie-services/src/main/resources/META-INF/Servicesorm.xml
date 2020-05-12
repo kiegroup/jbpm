@@ -715,10 +715,12 @@
 	      a.processInstanceId,
 	      a.createdOn,
 	      a.dueDate,
-    	      a.workItemId
+    	      a.workItemId,
+    	      t.formName
 	      )
         from 
         	AuditTaskImpl a
+        	inner join TaskImpl t on t.id = a.taskId
         where 
         	a.taskId = :taskId
     </query>
@@ -741,10 +743,13 @@
 	      a.processId,
 	      a.processInstanceId,
 	      a.createdOn,
-	      a.dueDate
+	      a.dueDate,
+	      a.workItemId,
+	      t.formName
 	      )
         from 
         	AuditTaskImpl a
+        inner join TaskImpl t on t.id = a.taskId
         where 
         	a.workItemId = :workItemId 
         	
@@ -768,10 +773,13 @@
         a.processId,
         a.processInstanceId,
         a.createdOn,
-        a.dueDate
+        a.dueDate,
+        a.workItemId,
+        t.formName
         )
         from 
           AuditTaskImpl a 
+        inner join TaskImpl t on t.id = a.taskId
         where 
           a.processInstanceId = :processInstanceId
           and a.status in ( :statuses) 
