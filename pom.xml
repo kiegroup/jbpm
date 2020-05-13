@@ -288,7 +288,6 @@
             </activation>
             <modules>
                 <module>jbpm-installer</module>
-                <module>jbpm-distribution</module>
             </modules>
         </profile>
     </profiles>
