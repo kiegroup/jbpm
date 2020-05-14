@@ -720,7 +720,7 @@
 	      )
         from 
         	AuditTaskImpl a
-        	inner join TaskImpl t on t.id = a.taskId
+        	left join TaskImpl t on t.id = a.taskId
         where 
         	a.taskId = :taskId
     </query>
@@ -749,7 +749,7 @@
 	      )
         from 
         	AuditTaskImpl a
-        inner join TaskImpl t on t.id = a.taskId
+        left join TaskImpl t on t.id = a.taskId
         where 
         	a.workItemId = :workItemId 
         	
@@ -779,7 +779,7 @@
         )
         from 
           AuditTaskImpl a 
-        inner join TaskImpl t on t.id = a.taskId
+        left join TaskImpl t on t.id = a.taskId
         where 
           a.processInstanceId = :processInstanceId
           and a.status in ( :statuses) 
