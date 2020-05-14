@@ -51,8 +51,8 @@ public class DBUserGroupCallbackImplTest {
         props = new Properties();
         props.setProperty(DBUserGroupCallbackImpl.DS_JNDI_NAME, "jdbc/jbpm-ds");
         props.setProperty(DBUserGroupCallbackImpl.PRINCIPAL_QUERY, "select userId from Users where userId = ?");
-        props.setProperty(DBUserGroupCallbackImpl.ROLES_QUERY, "select groupId from Groups where groupId = ?");
-        props.setProperty(DBUserGroupCallbackImpl.USER_ROLES_QUERY, "select groupId from Groups where userId = ?");
+        props.setProperty(DBUserGroupCallbackImpl.ROLES_QUERY, "select groupId from UserGroups where groupId = ?");
+        props.setProperty(DBUserGroupCallbackImpl.USER_ROLES_QUERY, "select groupId from UserGroups where userId = ?");
     }
 
     protected Properties loadDataSourceProperties() {
@@ -77,7 +77,7 @@ public class DBUserGroupCallbackImplTest {
             PreparedStatement st = conn.prepareStatement(createUserTableSql);
             st.execute();
 
-            String createGroupTableSql = "create table Groups (groupId varchar(255), userId varchar(255))";
+            String createGroupTableSql = "create table UserGroups (groupId varchar(255), userId varchar(255))";
             st = conn.prepareStatement(createGroupTableSql);
             st.execute();
 
@@ -88,7 +88,7 @@ public class DBUserGroupCallbackImplTest {
             st.execute();
 
             // insert group rows
-            String insertGroup = "insert into Groups (groupId, userId) values (?, ?)";
+            String insertGroup = "insert into UserGroups (groupId, userId) values (?, ?)";
             st = conn.prepareStatement(insertGroup);
             st.setString(1, "PM");
             st.setString(2, "john");
@@ -111,7 +111,7 @@ public class DBUserGroupCallbackImplTest {
             PreparedStatement st = conn.prepareStatement(dropUserTableSql);
             st.execute();
 
-            String dropGroupTableSql = "drop table Groups";
+            String dropGroupTableSql = "drop table UserGroups";
             st = conn.prepareStatement(dropGroupTableSql);
 
             st.execute();
