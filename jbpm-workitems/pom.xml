@@ -22,6 +22,7 @@
     <module>jbpm-workitems-rest</module>
     <module>jbpm-workitems-webservice</module>
     <module>jbpm-workitems-archetype</module>
+    <module>jbpm-workitems-repository-archetype</module>
   </modules>
 
   <dependencies>

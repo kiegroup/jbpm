@@ -43,7 +43,7 @@ import org.jbpm.process.workitem.core.util.WidMavenDepends;
             @WidResult(name="SampleResult")
         },
         mavenDepends={
-            @WidMavenDepends(group="${groupId}", artifact="${artifactId}", version="${version}")
+            @WidMavenDepends(group="${groupId}", artifact="${artifactId}", version="${archetypeVersion}")
         },
         serviceInfo = @WidService(category = "${artifactId}", description = "${description}",
                 keywords = "",
@@ -54,15 +54,16 @@ import org.jbpm.process.workitem.core.util.WidMavenDepends;
         )
 )
 public class ${classPrefix}WorkItemHandler extends AbstractLogOrThrowWorkItemHandler {
-        private String sampleParam;
-        private String sampleParamTwo;
+    private String sampleParam;
+    private String sampleParamTwo;
 
     public ${classPrefix}WorkItemHandler(String SampleParam, String SampleParamTwo){
             this.sampleParam = sampleParam;
             this.sampleParamTwo = sampleParamTwo;
-        }
+            }
 
-    public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
+    public void executeWorkItem(WorkItem workItem,
+                                WorkItemManager manager) {
         try {
             RequiredParameterValidator.validate(this.getClass(), workItem);
 
