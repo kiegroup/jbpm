@@ -107,10 +107,10 @@ public class TimerNodeInstance extends StateBasedNodeInstance implements EventLi
     }
     
     @Override
-    public void cancel() {
+    public void cancel(CancelType cancelType) {
     	((InternalProcessRuntime) getProcessInstance().getKnowledgeRuntime()
 			.getProcessRuntime()).getTimerManager().cancelTimer(timerId);
-        super.cancel();
+        super.cancel(cancelType);
     }
     
     public void addEventListeners() {

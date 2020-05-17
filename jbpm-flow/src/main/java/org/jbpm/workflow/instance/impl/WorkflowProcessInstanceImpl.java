@@ -82,6 +82,7 @@ import org.mvel2.integration.VariableResolverFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.jbpm.workflow.instance.NodeInstance.CancelType.OBSOLETE;
 import static org.jbpm.workflow.instance.impl.DummyEventListener.EMPTY_EVENT_LISTENER;
 
 /**
@@ -399,8 +400,11 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
             // deactivate all node instances of this process instance
             while (!nodeInstances.isEmpty()) {
                 NodeInstance nodeInstance = nodeInstances.get(0);
-                nodeInstance
-                        .cancel();
+                if (state == STATE_COMPLETED) {
+                    nodeInstance.cancel(OBSOLETE);
+                } else {
+                    nodeInstance.cancel();
+                }
             }
             if (this.slaTimerId > -1) {
                 processRuntime.getTimerManager().cancelTimer(this.slaTimerId);
@@ -503,7 +507,9 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 						
 		}
 	}
-	
+
+
+
 	public void configureSLA() {
 	    String slaDueDateExpression = (String) getProcess().getMetaData().get("customSLADueDate");
         if (slaDueDateExpression != null) {
@@ -545,7 +551,7 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
         return timerInstance;
     }
 
-    private void registerExternalEventNodeListeners() {
+    protected void registerExternalEventNodeListeners() {
         for (Node node : getWorkflowProcess().getNodes()) {
             if (node instanceof EventNode && "external".equals(((EventNode) node).getScope())) {
                 addEventListener(((EventNode) node).getType(), EMPTY_EVENT_LISTENER, true);

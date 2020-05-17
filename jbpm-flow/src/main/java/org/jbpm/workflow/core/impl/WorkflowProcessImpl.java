@@ -16,14 +16,13 @@
 
 package org.jbpm.workflow.core.impl;
 
-import org.kie.api.definition.process.Node;
-import org.kie.api.definition.process.NodeContainer;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import org.jbpm.process.core.impl.ProcessImpl;
 import org.jbpm.workflow.core.WorkflowProcess;
+import org.kie.api.definition.process.Node;
+import org.kie.api.definition.process.NodeContainer;
 
 /**
  * Default implementation of a RuleFlow process.
@@ -53,6 +52,10 @@ public class WorkflowProcessImpl extends ProcessImpl implements WorkflowProcess,
         return nodeContainer.getNode(id);
     }
     
+    public Node getNodeByUniqueId(String nodeId) {
+        return nodeContainer.getNodeByUniqueId(nodeId);
+    }
+
     public Node internalGetNode(long id) {
     	try {
     		return getNode(id);

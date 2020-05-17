@@ -57,6 +57,10 @@ import org.kie.internal.runtime.error.ExecutionErrorManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.jbpm.workflow.instance.NodeInstance.CancelType.ABORTED;
+import static org.jbpm.workflow.instance.NodeInstance.CancelType.ERROR;
+import static org.jbpm.workflow.instance.NodeInstance.CancelType.OBSOLETE;
+
 /**
  * Default implementation of a RuleFlow node instance.
  * 
@@ -78,12 +82,14 @@ public abstract class NodeInstanceImpl implements org.jbpm.workflow.instance.Nod
     protected int slaCompliance = ProcessInstance.SLA_NA;
     protected Date slaDueDate;
     protected long slaTimerId = -1;
-    protected boolean aborted = false;
+    private boolean aborted = false;
+    protected transient CancelType cancelType;
     
     protected transient Map<String, Object> dynamicParameters;
 
-    public boolean isAborted() {
-        return aborted;
+
+    public CancelType getCancelType() {
+        return cancelType;
     }
 
     public void setId(final long id) {
@@ -149,9 +155,13 @@ public abstract class NodeInstanceImpl implements org.jbpm.workflow.instance.Nod
     public boolean isInversionOfControl() {
         return false;
     }
+
+    public final void cancel() {
+        cancel(ABORTED);
+    }
     
-    public void cancel() {
-        this.aborted = true;
+    public void cancel(CancelType cancelType) {
+        this.cancelType = cancelType;
         boolean hidden = false;
         Node node = getNode();
     	if (node != null && node.getMetaData().get("hidden") != null) {
@@ -230,7 +240,7 @@ public abstract class NodeInstanceImpl implements org.jbpm.workflow.instance.Nod
             }
             
             exceptionScopeInstance.handleException(exceptionName, e);
-            cancel();
+            cancel(ERROR);
         }
     }
     
@@ -364,7 +374,7 @@ public abstract class NodeInstanceImpl implements org.jbpm.workflow.instance.Nod
     				if (groupInstance.containsNodeInstance(this)) {
     					for (NodeInstance nodeInstance: groupInstance.getNodeInstances()) {
     						if (nodeInstance != this) {
-    							((org.jbpm.workflow.instance.NodeInstance) nodeInstance).cancel();
+                                ((org.jbpm.workflow.instance.NodeInstance) nodeInstance).cancel(OBSOLETE);
     						}
     					}
     					((ContextInstanceContainer) parent).removeContextInstance(ExclusiveGroup.EXCLUSIVE_GROUP, contextInstance);
@@ -591,5 +601,14 @@ public abstract class NodeInstanceImpl implements org.jbpm.workflow.instance.Nod
 
     public Date getTriggerTime() {
         return triggerTime;
+    }
+
+    public boolean isAborted() {
+        return aborted;
+    }
+
+    public void setAborted(boolean aborted) {
+        this.aborted = aborted;
+        this.cancelType = aborted ? ABORTED : null;
     }
 }

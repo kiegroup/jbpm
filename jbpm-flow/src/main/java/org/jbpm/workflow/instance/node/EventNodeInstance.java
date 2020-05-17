@@ -152,7 +152,7 @@ public class EventNodeInstance extends ExtendedNodeInstanceImpl implements Event
     }
 
     @Override
-	public void cancel() {
+    public void cancel(CancelType cancelType) {
     	getProcessInstance().removeEventListener(getEventType(), getEventListener(), true);
     	removeTimerListeners();
         if (this.slaCompliance == ProcessInstance.SLA_PENDING) {
@@ -164,7 +164,7 @@ public class EventNodeInstance extends ExtendedNodeInstanceImpl implements Event
             }
         }
     	removeTimerListeners();
-		super.cancel();
+        super.cancel(cancelType);
 	}
 
    private class VariableExternalEventListener implements EventListener, Serializable {

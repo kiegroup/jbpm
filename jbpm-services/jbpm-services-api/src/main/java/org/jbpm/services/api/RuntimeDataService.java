@@ -52,8 +52,12 @@ public interface RuntimeDataService {
 	 *
 	 */
 	enum EntryType {
-		 START(0),
-		 END(1);
+
+        START(0),
+        END(1),
+        ABORTED(2),
+        SKIPPED(3),
+        OBSOLETE(4);
 
 		 private int value;
 

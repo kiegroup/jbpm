@@ -23,6 +23,8 @@ import org.kie.api.runtime.process.NodeInstance;
 import org.kie.api.runtime.process.ProcessContext;
 import org.kie.api.runtime.process.WorkflowProcessInstance;
 
+import static org.jbpm.workflow.instance.NodeInstance.CancelType.SKIPPED;
+
 public class CancelNodeInstanceAction implements Action, Serializable {
 	
 	private static final long serialVersionUID = 1L;
@@ -38,7 +40,7 @@ public class CancelNodeInstanceAction implements Action, Serializable {
 		WorkflowProcessInstance pi = context.getNodeInstance().getProcessInstance();
 		NodeInstance nodeInstance = findNodeByUniqueId(pi.getNodeInstances(), attachedToNodeId);
 		if (nodeInstance != null) {
-		    ((org.jbpm.workflow.instance.NodeInstance)nodeInstance).cancel();
+            ((org.jbpm.workflow.instance.NodeInstance) nodeInstance).cancel(SKIPPED);
 		}
 	}
 	

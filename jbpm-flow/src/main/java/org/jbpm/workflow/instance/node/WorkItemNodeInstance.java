@@ -186,7 +186,7 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
         workItem = new WorkItemImpl();
         workItem.setName(work.getName());
         workItem.setProcessInstanceId(getProcessInstance().getId());
-        workItem.setParameters(new HashMap<String, Object>(work.getParameters()));
+        workItem.setParameters(new HashMap<>(work.getParameters()));
         // if there are any dynamic parameters add them
         if (dynamicParameters != null) {
             workItem.getParameters().putAll(dynamicParameters);
@@ -370,7 +370,9 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
             }
         }
     }
-    public void cancel() {
+
+    @Override
+    public void cancel(CancelType cancelType) {
         WorkItem workItem = getWorkItem();
         if (workItem != null &&
             workItem.getState() != WorkItem.COMPLETED &&
@@ -395,7 +397,7 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
                 processInstance.setState(ProcessInstance.STATE_ABORTED);
             }
         }
-        super.cancel();
+        super.cancel(cancelType);
     }
 
     public void addEventListeners() {

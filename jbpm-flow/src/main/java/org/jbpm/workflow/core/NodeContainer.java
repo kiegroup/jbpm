@@ -16,8 +16,8 @@
 
 package org.jbpm.workflow.core;
 
-import org.kie.api.definition.process.Node;
 import org.jbpm.process.core.Context;
+import org.kie.api.definition.process.Node;
 
 /**
  * 
@@ -44,5 +44,6 @@ public interface NodeContainer extends org.kie.api.definition.process.NodeContai
     Context resolveContext(String contextId, Object param);
     
     Node internalGetNode(long id);
+
     
 }

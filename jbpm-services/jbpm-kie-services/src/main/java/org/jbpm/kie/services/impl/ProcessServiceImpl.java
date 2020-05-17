@@ -95,6 +95,42 @@ public class ProcessServiceImpl implements ProcessService, VariablesAware {
 		return startProcess(deploymentId, processId, new HashMap<>());
 	}
 
+    @Override
+    public Long startProcessFromNodeIds(String deploymentId, String processId, Map<String, Object> params, String... nodeIds) {
+        return this.startProcessFromNodeIds(deploymentId, processId, null, params, nodeIds);
+    }
+
+    @Override
+    public Long startProcessFromNodeIds(String deploymentId, String processId, CorrelationKey key, Map<String, Object> params, String... nodeIds) {
+
+        DeployedUnit deployedUnit = deploymentService.getDeployedUnit(deploymentId);
+        if (deployedUnit == null) {
+            throw new DeploymentNotFoundException("No deployments available for " + deploymentId);
+        }
+        if (!deployedUnit.isActive()) {
+            throw new DeploymentNotActiveException("Deployment " + deploymentId + " is not active");
+        }
+
+
+        RuntimeManager manager = deployedUnit.getRuntimeManager();
+
+        params = process(params, ((InternalRuntimeManager) manager).getEnvironment().getClassLoader());
+        RuntimeEngine engine = manager.getRuntimeEngine(getContext(params));
+        KieSession ksession = engine.getKieSession();
+        ProcessInstance pi;
+        try {
+            if(key == null) {
+                pi = ksession.startProcessFromNodeIds(processId, params, nodeIds);
+            } else {
+                pi = ((CorrelationAwareProcessRuntime) ksession).startProcessFromNodeIds(processId, key, params, nodeIds);
+            }
+            return pi.getId();
+        } finally {
+            disposeRuntimeEngine(manager, engine);
+        }
+    }
+
+
 	@Override
 	public Long startProcess(String deploymentId, String processId, Map<String, Object> params) {
 		DeployedUnit deployedUnit = deploymentService.getDeployedUnit(deploymentId);

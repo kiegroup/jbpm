@@ -19,10 +19,11 @@ package org.jbpm.workflow.core.impl;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
-import org.kie.api.definition.process.Node;
 import org.jbpm.process.core.Context;
 import org.jbpm.workflow.core.NodeContainer;
+import org.kie.api.definition.process.Node;
 
 /**
  * 
@@ -63,6 +64,12 @@ public class NodeContainerImpl implements Serializable, NodeContainer {
         return node; 
     }
 
+    @Override
+    public Node getNodeByUniqueId(String nodeId) {
+        Optional<Node> node = this.nodes.values().stream().filter(e -> e.getNodeUniqueId().equals(nodeId)).findFirst();
+        return node.orElse(null);
+    }
+
     public Node internalGetNode(long id) {
     	return getNode(id);
     }
@@ -84,5 +91,6 @@ public class NodeContainerImpl implements Serializable, NodeContainer {
     public Context resolveContext(String contextId, Object param) {
         return null;
     }
+
 
 }

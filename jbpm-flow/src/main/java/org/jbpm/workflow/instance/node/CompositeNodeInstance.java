@@ -46,6 +46,7 @@ import org.kie.api.definition.process.Connection;
 import org.kie.api.definition.process.Node;
 import org.kie.api.definition.process.NodeContainer;
 
+import static org.jbpm.workflow.instance.NodeInstance.CancelType.OBSOLETE;
 import static org.jbpm.workflow.instance.impl.DummyEventListener.EMPTY_EVENT_LISTENER;
 
 /**
@@ -171,18 +172,19 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
         if (cancelRemainingInstances) {
 	        while (!nodeInstances.isEmpty()) {
 	            NodeInstance nodeInstance = (NodeInstance) nodeInstances.get(0);
-	            ((org.jbpm.workflow.instance.NodeInstance) nodeInstance).cancel();
+                nodeInstance.cancel(OBSOLETE);
 	        }
         }
     }
 
+
     @Override
-    public void cancel() {
+    public void cancel(CancelType cancelType) {
         while (!nodeInstances.isEmpty()) {
             NodeInstance nodeInstance = (NodeInstance) nodeInstances.get(0);
-            ((org.jbpm.workflow.instance.NodeInstance) nodeInstance).cancel();
+            nodeInstance.cancel(cancelType);
         }
-        super.cancel();
+        super.cancel(cancelType);
     }
 
     public void addNodeInstance(final NodeInstance nodeInstance) {

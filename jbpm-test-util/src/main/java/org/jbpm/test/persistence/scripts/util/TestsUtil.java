@@ -25,6 +25,7 @@ import java.util.Properties;
 import org.jbpm.test.persistence.scripts.DatabaseType;
 import org.jbpm.test.persistence.scripts.PersistenceUnit;
 import org.jbpm.test.persistence.scripts.TestPersistenceContextBase;
+import org.jbpm.test.util.DatabaseScript;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,10 +48,9 @@ public final class TestsUtil {
      */
     public static File[] getDDLScriptFilesByDatabaseType(final File folderWithDDLs, final DatabaseType databaseType,
             final boolean sortByName, final boolean dropFiles) {
-        final File folderWithScripts = new File(folderWithDDLs.getPath() + File.separator
-                + databaseType.getScriptsFolderName());
+        final File folderWithScripts = new File(folderWithDDLs.getPath() + File.separator + databaseType.getScriptsFolderName());
         if (folderWithScripts.exists()) {
-            final File[] foundFiles;
+            File[] foundFiles;
             if (dropFiles)
                 foundFiles = filterOutDropFiles(folderWithScripts);
             else
@@ -60,14 +60,10 @@ public final class TestsUtil {
                 return new File[0];
             }
 
+
             if (sortByName) {
-                Arrays.sort(foundFiles, new Comparator<File>() {
-                    @Override
-                    public int compare(File o1, File o2) {
-                        return o1.getName().compareTo(o2.getName());
-                    }
-                });
-                
+                foundFiles = Arrays.stream(foundFiles).map(DatabaseScript::new).sorted().map(DatabaseScript::getScript).toArray(File[]::new);
+
                 if (databaseType.equals(DatabaseType.POSTGRESQL)) {
                     //Returns first schema sql
                     Arrays.sort(foundFiles, Comparator.<File, Boolean>comparing(s -> s.getName().contains("schema")).reversed());

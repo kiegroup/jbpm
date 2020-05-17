@@ -38,7 +38,10 @@ import org.kie.internal.process.CorrelationKey;
 
 import static org.kie.api.runtime.manager.audit.NodeInstanceLog.TYPE_ABORTED;
 import static org.kie.api.runtime.manager.audit.NodeInstanceLog.TYPE_ENTER;
+import static org.kie.api.runtime.manager.audit.NodeInstanceLog.TYPE_ERROR;
 import static org.kie.api.runtime.manager.audit.NodeInstanceLog.TYPE_EXIT;
+import static org.kie.api.runtime.manager.audit.NodeInstanceLog.TYPE_OBSOLETE;
+import static org.kie.api.runtime.manager.audit.NodeInstanceLog.TYPE_SKIPPED;
 
 public class DefaultAuditEventBuilderImpl implements AuditEventBuilder {
 
@@ -166,8 +169,20 @@ public class DefaultAuditEventBuilderImpl implements AuditEventBuilder {
             int eventType = TYPE_EXIT;
             // set if this is cancel operation
             NodeInstance ni = pnle.getNodeInstance();
-            if(ni instanceof NodeInstanceImpl) {
-                eventType = ((NodeInstanceImpl) ni).isAborted() ? TYPE_ABORTED : TYPE_EXIT;
+            if (ni instanceof NodeInstanceImpl && ((NodeInstanceImpl) ni).getCancelType() != null) {
+                switch (((NodeInstanceImpl) ni).getCancelType()) {
+                    case ABORTED:
+                        eventType = TYPE_ABORTED;
+                        break;
+                    case SKIPPED:
+                        eventType = TYPE_SKIPPED;
+                        break;
+                    case OBSOLETE:
+                        eventType = TYPE_OBSOLETE;
+                        break;
+                    case ERROR:
+                        eventType = TYPE_ERROR;
+                }
             }
             logEvent = new NodeInstanceLog(eventType, pi.getId(), pi.getProcessId(), Long.toString(nodeInstance.getId()),
                                            nodeId, nodeInstance.getNodeName());

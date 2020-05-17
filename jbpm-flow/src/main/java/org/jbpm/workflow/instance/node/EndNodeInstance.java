@@ -24,6 +24,8 @@ import org.jbpm.workflow.instance.NodeInstanceContainer;
 import org.jbpm.workflow.instance.impl.ExtendedNodeInstanceImpl;
 import org.kie.api.runtime.process.NodeInstance;
 
+import static org.jbpm.workflow.instance.NodeInstance.CancelType.OBSOLETE;
+
 /**
  * Runtime counterpart of an end node.
  * 
@@ -58,7 +60,7 @@ public class EndNodeInstance extends ExtendedNodeInstanceImpl {
                     getProcessInstance().setState( ProcessInstance.STATE_COMPLETED );
                 } else {
                 	while (!getNodeInstanceContainer().getNodeInstances().isEmpty()) {
-                		((org.jbpm.workflow.instance.NodeInstance) getNodeInstanceContainer().getNodeInstances().iterator().next()).cancel();
+                        ((org.jbpm.workflow.instance.NodeInstance) getNodeInstanceContainer().getNodeInstances().iterator().next()).cancel(OBSOLETE);
                 	}
                     ((NodeInstanceContainer) getNodeInstanceContainer()).nodeInstanceCompleted(this, null);
                 }

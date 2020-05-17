@@ -81,12 +81,41 @@ public interface ProcessService {
     Long startProcess(String deploymentId, String processId, CorrelationKey correlationKey, Map<String, Object> params);
 
     /**
-	 * Aborts the specified process
-	 * 
-	 * @param processInstanceId process instance's unique identifier
-	 * @throws DeploymentNotFoundException in case deployment unit was not found
-	 * @throws ProcessInstanceNotFoundException in case process instance with given id was not found
-	 */
+     * Starts a process with the values supplied from the current nodes
+     * 
+     * @param deploymentId deployment information for the process's kjar
+     * @param processId The process's identifier
+     * @param params process variables
+     * @param nodeIds list of bpmn node id list where the process is going to start
+     * @return process instance identifier
+     * @throws RuntimeException in case of encountered errors
+     * @throws DeploymentNotFoundException in case deployment with given deployment id does not exist
+     * @throws DeploymentNotActiveException in case deployment with given deployment id is not active
+     */
+    Long startProcessFromNodeIds(String deploymentId, String processId, Map<String, Object> params, String... nodeIds);
+
+    /**
+     * Starts a process with the values supplied from the current nodes
+     * 
+     * @param deploymentId deployment information for the process's kjar
+     * @param processId The process's identifier
+     * @param key correlation key (must be unique)
+     * @param params process variables
+     * @param nodeIds list of bpmn node id list where the process is going to start.
+     * @return process instance identifier
+     * @throws RuntimeException in case of encountered errors
+     * @throws DeploymentNotFoundException in case deployment with given deployment id does not exist
+     * @throws DeploymentNotActiveException in case deployment with given deployment id is not active
+     */
+    Long startProcessFromNodeIds(String deploymentId, String processId, CorrelationKey key, Map<String, Object> params, String... nodeIds);
+
+    /**
+     * Aborts the specified process
+     * 
+     * @param processInstanceId process instance's unique identifier
+     * @throws DeploymentNotFoundException in case deployment unit was not found
+     * @throws ProcessInstanceNotFoundException in case process instance with given id was not found
+     */
     void abortProcessInstance(Long processInstanceId);
     
     /**
@@ -422,5 +451,9 @@ public interface ProcessService {
      * @throws DeploymentNotActiveException in case deployment with given deployment id is not active for restricted commands (e.g. start process)
      */
     public <T> T execute(String deploymentId, Context<?> context, Command<T> command);
+
+
+
+
 
 }
