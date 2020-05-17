@@ -48,6 +48,7 @@ import org.jbpm.process.instance.event.SignalManagerFactory;
 import org.jbpm.process.instance.timer.TimerInstance;
 import org.jbpm.process.instance.timer.TimerManager;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
+import org.jbpm.ruleflow.instance.RuleFlowProcessInstance;
 import org.jbpm.workflow.core.node.EventTrigger;
 import org.jbpm.workflow.core.node.StartNode;
 import org.jbpm.workflow.core.node.Trigger;
@@ -201,7 +202,30 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
                                                  Map<String, Object> parameters) {
         return createProcessInstance(processId, null, parameters);
     }
-    
+
+    @Override
+    public ProcessInstance startProcessFromNodeIds(String processId, Map<String, Object> parameters, String... nodeInstancesIds) {
+        return this.startProcessFromNodeIds(processId, null, parameters, nodeInstancesIds);
+    }
+
+    @Override
+    public ProcessInstance startProcessFromNodeIds(String processId, CorrelationKey key, Map<String, Object> params, String... nodeIds) {
+        try {
+            kruntime.startOperation();
+            RuleFlowProcessInstance wfp = (RuleFlowProcessInstance) createProcessInstance(processId, key, params);
+            wfp.configureSLA();
+
+            getProcessEventSupport().fireBeforeProcessStarted(wfp, kruntime);
+
+            wfp.startProcessFromNodeIds(nodeIds);
+
+            getProcessEventSupport().fireAfterProcessStarted(wfp, kruntime);
+            return wfp;
+        } finally {
+            kruntime.endOperation();
+        }
+    }
+
     public ProcessInstance startProcessInstance(long processInstanceId, String trigger) {
     	try {
             kruntime.startOperation();
@@ -718,4 +742,6 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
         }
         
     }
+
+
 }

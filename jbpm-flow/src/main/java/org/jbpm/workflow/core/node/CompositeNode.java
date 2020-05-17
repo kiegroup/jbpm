@@ -22,12 +22,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.kie.api.definition.process.Connection;
-import org.kie.api.definition.process.Node;
 import org.jbpm.workflow.core.NodeContainer;
 import org.jbpm.workflow.core.impl.ConnectionImpl;
 import org.jbpm.workflow.core.impl.NodeContainerImpl;
 import org.jbpm.workflow.core.impl.NodeImpl;
+import org.kie.api.definition.process.Connection;
+import org.kie.api.definition.process.Node;
 
 /**
  * 
@@ -49,6 +49,10 @@ public class CompositeNode extends StateBasedNode implements NodeContainer, Even
     
     public Node getNode(long id) {
         return nodeContainer.getNode(id);
+    }
+
+    public Node getNodeByUniqueId(String id) {
+        return nodeContainer.getNodeByUniqueId(id);
     }
     
     public Node internalGetNode(long id) {

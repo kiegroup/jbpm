@@ -247,8 +247,8 @@ public class SubProcessNodeInstance extends StateBasedNodeInstance implements Ev
     }
 
     @Override
-    public void cancel() {
-        super.cancel();
+    public void cancel(CancelType cancelType) {
+        super.cancel(cancelType);
         if (getSubProcessNode() == null || !getSubProcessNode().isIndependent()) {
         	ProcessInstance processInstance = null;
         	InternalKnowledgeRuntime kruntime = ((ProcessInstance) getProcessInstance()).getKnowledgeRuntime();

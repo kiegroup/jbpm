@@ -31,12 +31,21 @@ import org.kie.api.definition.process.Node;
  */
 public interface NodeInstance extends org.kie.api.runtime.process.NodeInstance {
 
+    enum CancelType {
+        OBSOLETE,
+        ABORTED,
+        SKIPPED,
+        ERROR
+    }
+
     public static final String METADATA_WRAP_ASYNC_NODE = "WRAP_ASYNC_NODE";
 
     void trigger(org.kie.api.runtime.process.NodeInstance from, String type);
 
     void cancel();
-    
+
+    void cancel(CancelType type);
+
     Node getNode();
     
     ContextInstance resolveContextInstance(String contextId, Object param);

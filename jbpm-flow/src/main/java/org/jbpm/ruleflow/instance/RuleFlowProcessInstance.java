@@ -24,6 +24,8 @@ import org.jbpm.workflow.instance.NodeInstance;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 import org.kie.api.definition.process.Node;
 
+import static java.util.Arrays.stream;
+
 public class RuleFlowProcessInstance extends WorkflowProcessInstanceImpl {
 
     private static final long serialVersionUID = 510l;
@@ -46,4 +48,31 @@ public class RuleFlowProcessInstance extends WorkflowProcessInstanceImpl {
     	    .forEach(austoStartNode -> signalEvent(austoStartNode.getName(), null));
     }
 
+
+    public void startProcessFromNodeIds(String[] nodeIds) {
+        synchronized (this) {
+            registerExternalEventNodeListeners();
+            if (getState() != STATE_PENDING) {
+                throw new IllegalArgumentException("A process instance can only be started once");
+            }
+            setState(STATE_ACTIVE);
+            stream(nodeIds).forEach(nodeId -> trigger(nodeId));
+        }
+    }
+
+    private void trigger(String nodeId) {
+        Node node = this.getRuleFlowProcess().getNodeByUniqueId(nodeId);
+        if (node == null) {
+            node = this.getRuleFlowProcess().getNodesRecursively().stream().filter(ni -> nodeId.equals(ni.getNodeUniqueId())).findFirst().orElse(null);
+            if (node == null) {
+                throw new RuntimeException("Node with id " + nodeId + " not found");
+            }
+
+            Node parentNode = this.getRuleFlowProcess().getParentNode(node.getId());
+            org.jbpm.workflow.instance.NodeInstanceContainer parentContainer = (org.jbpm.workflow.instance.NodeInstanceContainer) this.getNodeInstance(parentNode, false);
+            parentContainer.getNodeInstance(node).trigger(null, org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE);
+        } else {
+            this.getNodeInstance(node).trigger(null, org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE);
+        }
+    }
 }

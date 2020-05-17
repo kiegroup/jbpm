@@ -44,7 +44,7 @@
                     "methodName": "getExtraData",
                     "elementKind": "method",
                     "justification": "needed for adding extra data / case variables"
-                 },
+                },
                 {
                     "code": "java.method.addedToInterface",
                     "new": "method java.util.Map<java.lang.String, java.lang.Object> org.jbpm.services.api.model.UserTaskInstanceWithPotOwnerDesc::getProcessVariables()",
@@ -71,6 +71,24 @@
                     "methodName": "getExtraData",
                     "elementKind": "method",
                     "justification": "new extra data for process variables / case variables"
+                },
+                {
+                    "code": "java.method.addedToInterface",
+                    "new": "method java.lang.Long org.jbpm.services.api.ProcessService::startProcessFromNodeIds(java.lang.String, java.lang.String, java.util.Map<java.lang.String, java.lang.Object>, java.lang.String[])",
+                    "package": "org.jbpm.services.api",
+                    "classSimpleName": "ProcessService",
+                    "methodName": "startProcessFromNodeIds",
+                    "elementKind": "method",
+                    "justification": "start nodes from an arbitray node"
+                },
+                {
+                    "code": "java.method.addedToInterface",
+                    "new": "method java.lang.Long org.jbpm.services.api.ProcessService::startProcessFromNodeIds(java.lang.String, java.lang.String, org.kie.internal.process.CorrelationKey, java.util.Map<java.lang.String, java.lang.Object>, java.lang.String[])",
+                    "package": "org.jbpm.services.api",
+                    "classSimpleName": "ProcessService",
+                    "methodName": "startProcessFromNodeIds",
+                    "elementKind": "method",
+                    "justification": "start nodes from an arbitray node"
                 }
             ]
         }

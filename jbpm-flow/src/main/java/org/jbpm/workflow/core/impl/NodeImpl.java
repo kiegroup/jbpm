@@ -64,6 +64,9 @@ public abstract class NodeImpl implements Node, Serializable, ContextResolver {
         return this.id;
     }
     
+    public String getNodeUniqueId() {
+        return (String) getMetaData().get("UniqueId");
+    }
     public String getUniqueId() {
     	String result = id + "";
     	NodeContainer nodeContainer = getNodeContainer();
