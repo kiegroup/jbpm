@@ -693,13 +693,11 @@
         references Task (id);
 
     alter table PeopleAssignments_PotOwners 
-        add index IDX_PAsPot_Entity (entity_id), 
         add constraint FK_tee3ftir7xs6eo3fdvi3xw026 
         foreign key (entity_id) 
         references OrganizationalEntity (id);
 
     alter table PeopleAssignments_PotOwners 
-        add index IDX_PAsPot_Task (task_id), 
         add constraint FK_4dv2oji7pr35ru0w45trix02x 
         foreign key (task_id) 
         references Task (id);
@@ -838,3 +836,5 @@
     create index IDX_TaskVariableImpl_taskId on TaskVariableImpl(taskId);
     create index IDX_TaskVariableImpl_pInstId on TaskVariableImpl(processInstanceId);
     create index IDX_TaskVariableImpl_processId on TaskVariableImpl(processId);
+
+    create index IDX_PAsPot_TaskEntity ON PeopleAssignments_PotOwners (task_id, entity_id);

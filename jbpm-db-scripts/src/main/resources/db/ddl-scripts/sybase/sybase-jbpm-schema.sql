@@ -863,9 +863,7 @@
 	go
     create index IDX_PAsExcl_Task ON PeopleAssignments_ExclOwners(task_id)
 	go
-    create index IDX_PAsPot_Entity ON PeopleAssignments_PotOwners(entity_id)
-	go
-    create index IDX_PAsPot_Task ON PeopleAssignments_PotOwners(task_id)
+    create index IDX_PAsPot_TaskEntity ON PeopleAssignments_PotOwners(task_id,entity_id)
 	go
     create index IDX_PAsRecip_Entity ON PeopleAssignments_Recipients(entity_id)
 	go
