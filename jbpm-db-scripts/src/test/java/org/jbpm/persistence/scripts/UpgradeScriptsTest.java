@@ -20,6 +20,8 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.text.ParseException;
+import java.util.Arrays;
+import java.util.Collection;
 
 import org.jbpm.test.persistence.scripts.DatabaseType;
 import org.jbpm.test.persistence.scripts.PersistenceUnit;
@@ -27,6 +29,9 @@ import org.jbpm.test.persistence.scripts.ScriptsBase;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
 import org.slf4j.Logger;
@@ -40,6 +45,7 @@ import static org.junit.Assume.assumeTrue;
 /**
  * Contains tests that test database upgrade scripts.
  */
+@RunWith(Parameterized.class)
 public class UpgradeScriptsTest extends ScriptsBase {
 
     private static final Logger logger = LoggerFactory.getLogger(UpgradeScriptsTest.class);
@@ -48,6 +54,17 @@ public class UpgradeScriptsTest extends ScriptsBase {
     private static final Integer TEST_SESSION_ID = 1;
     private static final String DB_UPGRADE_SCRIPTS_RESOURCE_PATH = "/db/upgrade-scripts";
     private static final String DB_60_SCRIPTS_RESOURCE_PATH = "/ddl60";
+
+    @Parameters(name = "{0}")
+    static public Collection<Object> products() {
+        return Arrays.asList("bpms", "jbpm");
+    }
+
+    private String product;
+
+    public UpgradeScriptsTest(String product) {
+        this.product = product;
+    }
 
     @BeforeClass
     public static void hasToBeTested() {
@@ -76,15 +93,10 @@ public class UpgradeScriptsTest extends ScriptsBase {
      */
     @Test
     public void testExecutingScripts() throws IOException, SQLException {
-        testExecutingScripts("jbpm");
-        testExecutingScripts("bpms");
-    }
-    
-    public void testExecutingScripts(String type) throws IOException, SQLException {
-        logger.info("entering testExecutingScripts with type: "+type);
+        logger.info("entering testExecutingScripts with type: {} ", product);
         try {
             createSchema60UsingDDLs();
-            executeScriptRunner(DB_UPGRADE_SCRIPTS_RESOURCE_PATH, true, type);
+            executeScriptRunner(DB_UPGRADE_SCRIPTS_RESOURCE_PATH, true, product);
             startAndPersistSomeProcess();
         }finally {
             dropFinalSchemaAfterUpgradingUsingDDLs();
@@ -108,16 +120,12 @@ public class UpgradeScriptsTest extends ScriptsBase {
      * @throws SQLException
      */
     @Test
+
     public void testPersistedProcess() throws IOException, ParseException, SQLException {
-        testPersistedProcess("jbpm");
-        testPersistedProcess("bpms");
-    }
-    
-    public void testPersistedProcess(String type) throws IOException, ParseException, SQLException {
-        logger.debug("entering testPersistedProcess with type: "+type);
+        logger.debug("entering testPersistedProcess with type: {}", product);
         try {
             createSchema60UsingDDLs();
-            upgradeDbWithOldProcessAndTask(type);
+            upgradeDbWithOldProcessAndTask(product);
             validateProcess();
         } finally {
             dropFinalSchemaAfterUpgradingUsingDDLs();

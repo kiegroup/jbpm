@@ -806,8 +806,7 @@
     create index IDX_PAsBAs_Task ON PeopleAssignments_BAs(task_id);
     create index IDX_PAsExcl_Entity ON PeopleAssignments_ExclOwners(entity_id);
     create index IDX_PAsExcl_Task ON PeopleAssignments_ExclOwners(task_id);
-    create index IDX_PAsPot_Entity ON PeopleAssignments_PotOwners(entity_id);
-    create index IDX_PAsPot_Task ON PeopleAssignments_PotOwners(task_id);
+    create index IDX_PAsPot_TaskEntity ON PeopleAssignments_PotOwners(task_id,entity_id);
     create index IDX_PAsRecip_Entity ON PeopleAssignments_Recipients(entity_id);
     create index IDX_PAsRecip_Task ON PeopleAssignments_Recipients(task_id);
     create index IDX_PAsStake_Entity ON PeopleAssignments_Stakeholders(entity_id);
