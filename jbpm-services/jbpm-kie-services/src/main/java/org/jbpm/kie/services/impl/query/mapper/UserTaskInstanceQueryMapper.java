@@ -64,23 +64,23 @@ public class UserTaskInstanceQueryMapper extends AbstractQueryMapper<UserTaskIns
 
     @Override
     protected UserTaskInstanceDesc buildInstance(DataSet dataSetResult, int index) {
-        UserTaskInstanceDesc userTask = new org.jbpm.kie.services.impl.model.UserTaskInstanceDesc(
-                getColumnLongValue(dataSetResult, COLUMN_TASKID, index),//taskId,
-                getColumnStringValue(dataSetResult, COLUMN_TASK_STATUS, index),//status,
-                getColumnDateValue(dataSetResult, COLUMN_ACTIVATIONTIME, index),//activationTime,
-                getColumnStringValue(dataSetResult, COLUMN_NAME, index),//name,
-                getColumnStringValue(dataSetResult, COLUMN_DESCRIPTION, index),//description,
-                getColumnIntValue(dataSetResult, COLUMN_PRIORITY, index),//priority,
-                getColumnStringValue(dataSetResult, COLUMN_ACTUALOWNER, index),//actualOwner,
-                getColumnStringValue(dataSetResult, COLUMN_CREATEDBY, index),//createdBy,
-                getColumnStringValue(dataSetResult, COLUMN_DEPLOYMENTID, index),//deploymentId,
-                getColumnStringValue(dataSetResult, COLUMN_TASK_PROCESSID, index),//processId,
-                getColumnLongValue(dataSetResult, COLUMN_TASK_PROCESSINSTANCEID, index),//processInstanceId,
-                getColumnDateValue(dataSetResult, COLUMN_CREATEDON, index),//createdOn,
-                getColumnDateValue(dataSetResult, COLUMN_DUEDATE, index),//dueDate
-                getColumnLongValue(dataSetResult, COLUMN_WORKITEMID, index)//workItemId
-                );
-        return userTask;
+        return new org.jbpm.kie.services.impl.model.UserTaskInstanceDesc(
+                                                                         getColumnLongValue(dataSetResult, COLUMN_TASKID, index), //taskId,
+                                                                         getColumnStringValue(dataSetResult, COLUMN_TASK_STATUS, index), //status,
+                                                                         getColumnDateValue(dataSetResult, COLUMN_ACTIVATIONTIME, index), //activationTime,
+                                                                         getColumnStringValue(dataSetResult, COLUMN_NAME, index), //name,
+                                                                         getColumnStringValue(dataSetResult, COLUMN_DESCRIPTION, index), //description,
+                                                                         getColumnIntValue(dataSetResult, COLUMN_PRIORITY, index), //priority,
+                                                                         getColumnStringValue(dataSetResult, COLUMN_ACTUALOWNER, index), //actualOwner,
+                                                                         getColumnStringValue(dataSetResult, COLUMN_CREATEDBY, index), //createdBy,
+                                                                         getColumnStringValue(dataSetResult, COLUMN_DEPLOYMENTID, index), //deploymentId,
+                                                                         getColumnStringValue(dataSetResult, COLUMN_TASK_PROCESSID, index), //processId,
+                                                                         getColumnLongValue(dataSetResult, COLUMN_TASK_PROCESSINSTANCEID, index), //processInstanceId,
+                                                                         getColumnDateValue(dataSetResult, COLUMN_CREATEDON, index), //createdOn,
+                                                                         getColumnDateValue(dataSetResult, COLUMN_DUEDATE, index), //dueDate
+                                                                         getColumnLongValue(dataSetResult, COLUMN_WORKITEMID, index), //workItemId
+                                                                         getColumnStringValue(dataSetResult, COLUMN_SUBJECT, index) // subject
+        );
     }
     
     @Override
