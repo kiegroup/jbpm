@@ -716,12 +716,12 @@
 	      a.createdOn,
 	      a.dueDate,
     	  a.workItemId,
-	      t.subject
-	      )
+    	  t.formName,
+    	  t.subject)
         from 
-        	AuditTaskImpl a, Task t
+        	AuditTaskImpl a left join TaskImpl t on t.id = a.taskId
         where 
-        	a.taskId = :taskId AND t.id = a.taskId 
+        	a.taskId = :taskId  
     </query>
     <!-- hint name="org.hibernate.timeout" value="200"/ -->
   </named-query>
@@ -744,12 +744,13 @@
 	      a.createdOn,
 	      a.dueDate,
 	      a.workItemId,
+	      t.formName,
 	      t.subject
 	      )
         from 
-        	AuditTaskImpl a, Task t
+        	AuditTaskImpl a left join TaskImpl t on t.id = a.taskId
         where 
-        	a.workItemId = :workItemId AND t.id = a.taskId   
+        	a.workItemId = :workItemId    
         	
     </query>
     <!-- hint name="org.hibernate.timeout" value="200"/ -->
@@ -773,13 +774,14 @@
         a.createdOn,
         a.dueDate,
         a.workItemId,
+        t.formName,
         t.subject
         )
         from 
-          AuditTaskImpl a, Task t 
+          AuditTaskImpl a left join TaskImpl t on t.id = a.taskId
         where 
           a.processInstanceId = :processInstanceId
-          and a.status in ( :statuses) AND t.id = a.taskId   
+          and a.status in ( :statuses)    
     </query>
     <!-- hint name="org.hibernate.timeout" value="200"/ -->
   </named-query>

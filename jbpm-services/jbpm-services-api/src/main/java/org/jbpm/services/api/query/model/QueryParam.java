@@ -265,6 +265,9 @@ public class QueryParam implements Serializable {
         return new QueryParam[] {new QueryParam(column, "group", Arrays.asList(column, intervalSize, maxInterval)), new QueryParam(column, null, Arrays.asList(column))};
     }
 
+    public static QueryParam type(String column, Comparable<?> type) {
+        return new QueryParam(column, "TYPE", Arrays.asList(type));
+    }
     /**
      * Returns the column.
      * @return column
@@ -360,6 +363,7 @@ public class QueryParam implements Serializable {
             case "LESS_THAN":
             case "GREATER_OR_EQUALS_TO":
             case "LESS_OR_EQUALS_TO":
+            case "TYPE":
                 return Type.BINARY_OPERAND;
             case "BETWEEN":
                 return Type.RANGE_OPERAND;

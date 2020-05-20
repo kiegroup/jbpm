@@ -39,26 +39,34 @@ public class AdvanceCaseRuntimeDataServiceImpl extends AbstractAdvanceRuntimeDat
         translateTable.put(CASE_ATTR_DEPLOYMENT_ID, "pil.externalId");
         translateTable.put(TASK_ATTR_NAME, "task.name");
         translateTable.put(TASK_ATTR_OWNER, "task.actualOwner_id");
-
+        translateTable.put(TASK_ATTR_STATUS, "task.status");
     }
 
     @Override
     public List<org.jbpm.services.api.model.ProcessInstanceWithVarsDesc> queryCaseByVariables(List<QueryParam> attributes,
-                                                                                              List<QueryParam> variables,
+                                                                                              List<QueryParam> caseVariables,
                                                                                               QueryContext queryContext) {
-        return queryProcessByVariables(translate(translateTable, attributes), variables, CASE_TYPE, CASE_FILE_PREFIX, queryContext);
+        return queryProcessByVariables(translate(translateTable, attributes), caseVariables, CASE_TYPE, CASE_FILE_PREFIX, queryContext);
 
     }
 
+    @Override
+    public List<org.jbpm.services.api.model.ProcessInstanceWithVarsDesc> queryCaseByVariablesAndTask(List<QueryParam> attributes,
+                                                                                                     List<QueryParam> taskVariables,
+                                                                                                     List<QueryParam> caseVariables,
+                                                                                                     List<String> owners,
+                                                                                                     QueryContext queryContext) {
+        return queryProcessByVariablesAndTask(translate(translateTable, attributes), caseVariables, taskVariables, owners, CASE_TYPE, CASE_FILE_PREFIX, queryContext);
+    }
 
     @Override
     public List<org.jbpm.services.api.model.UserTaskInstanceWithPotOwnerDesc> queryUserTasksByVariables(List<QueryParam> attributes,
-                                                                                                        List<QueryParam> variables,
-                                                                                                        List<QueryParam> processVariables,
+                                                                                                        List<QueryParam> taskVariables,
+                                                                                                        List<QueryParam> caseVariables,
                                                                                                         List<String> owners,
                                                                                                         QueryContext queryContext) {
 
-        return queryUserTasksByVariables(translate(translateTable, attributes), variables, processVariables, owners, CASE_TYPE, CASE_FILE_PREFIX, queryContext);
+        return queryUserTasksByVariables(translate(translateTable, attributes), caseVariables, taskVariables, owners, CASE_TYPE, CASE_FILE_PREFIX, queryContext);
     }
 
 

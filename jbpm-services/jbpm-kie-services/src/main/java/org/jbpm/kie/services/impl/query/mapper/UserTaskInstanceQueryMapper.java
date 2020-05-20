@@ -79,6 +79,7 @@ public class UserTaskInstanceQueryMapper extends AbstractQueryMapper<UserTaskIns
                                                                          getColumnDateValue(dataSetResult, COLUMN_CREATEDON, index), //createdOn,
                                                                          getColumnDateValue(dataSetResult, COLUMN_DUEDATE, index), //dueDate
                                                                          getColumnLongValue(dataSetResult, COLUMN_WORKITEMID, index), //workItemId
+                                                                         getColumnStringValue(dataSetResult, COLUMN_FORM_NAME,index), //formName
                                                                          getColumnStringValue(dataSetResult, COLUMN_SUBJECT, index) // subject
         );
     }

@@ -49,22 +49,22 @@ public class UserTaskInstanceDesc implements org.jbpm.services.api.model.UserTas
                                 String deploymentId, String processId, Long processInstanceId,
                                 Date createdOn, Date dueDate) {
         this(taskId, status, activationTime, name, description, priority, actualOwner, createdBy, deploymentId,
-             processId, processInstanceId, createdOn, dueDate, null, null, null, null);
+             processId, processInstanceId, createdOn, dueDate, null, null, null);
 
     }
 
     
     public UserTaskInstanceDesc(Long taskId, String status, Date activationTime, String name, String description,
                                 Integer priority, String actualOwner, String createdBy, String deploymentId,
-                                String processId, Long processInstanceId, Date createdOn, Date dueDate, Long workItemId, String subject) {
+                                String processId, Long processInstanceId, Date createdOn, Date dueDate, Long workItemId, String formName, String subject) {
         this(taskId, status, activationTime, name, description, priority, actualOwner, createdBy, deploymentId,
-             processId, processInstanceId, createdOn, dueDate, workItemId, subject, null, null);
+             processId, processInstanceId, createdOn, dueDate, workItemId, formName, subject, null, null);
 
     }
 
     public UserTaskInstanceDesc(Long taskId, String status, Date activationTime, String name, String description,
                                 Integer priority, String actualOwner, String createdBy, String deploymentId,
-                                String processId, Long processInstanceId, Date createdOn, Date dueDate, Long workItemId, String subject,
+                                String processId, Long processInstanceId, Date createdOn, Date dueDate, Long workItemId, String formName, String subject,
                                 Date slaDueDate, Integer slaCompliance) {
         this.taskId = taskId;
         this.status = status;
@@ -80,6 +80,7 @@ public class UserTaskInstanceDesc implements org.jbpm.services.api.model.UserTas
         this.createdOn = createdOn;
         this.dueDate = dueDate;
         this.workItemId = workItemId;
+        this.formName= formName;
         this.subject = subject;
         this.slaDueDate = slaDueDate;
         this.slaCompliance = slaCompliance;
