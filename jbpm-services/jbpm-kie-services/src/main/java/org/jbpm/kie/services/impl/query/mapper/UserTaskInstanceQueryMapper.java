@@ -35,7 +35,6 @@ public class UserTaskInstanceQueryMapper extends AbstractQueryMapper<UserTaskIns
      * Dedicated for ServiceLoader to create instance, use <code>get()</code> method instead 
      */
     public UserTaskInstanceQueryMapper() {
-        super();
     }
     
     public static UserTaskInstanceQueryMapper get() {
@@ -64,7 +63,7 @@ public class UserTaskInstanceQueryMapper extends AbstractQueryMapper<UserTaskIns
 
     @Override
     protected UserTaskInstanceDesc buildInstance(DataSet dataSetResult, int index) {
-        UserTaskInstanceDesc userTask = new org.jbpm.kie.services.impl.model.UserTaskInstanceDesc(
+        return  new org.jbpm.kie.services.impl.model.UserTaskInstanceDesc(
                 getColumnLongValue(dataSetResult, COLUMN_TASKID, index),//taskId,
                 getColumnStringValue(dataSetResult, COLUMN_TASK_STATUS, index),//status,
                 getColumnDateValue(dataSetResult, COLUMN_ACTIVATIONTIME, index),//activationTime,
@@ -78,9 +77,9 @@ public class UserTaskInstanceQueryMapper extends AbstractQueryMapper<UserTaskIns
                 getColumnLongValue(dataSetResult, COLUMN_TASK_PROCESSINSTANCEID, index),//processInstanceId,
                 getColumnDateValue(dataSetResult, COLUMN_CREATEDON, index),//createdOn,
                 getColumnDateValue(dataSetResult, COLUMN_DUEDATE, index),//dueDate
-                getColumnLongValue(dataSetResult, COLUMN_WORKITEMID, index)//workItemId
-                );
-        return userTask;
+                getColumnLongValue(dataSetResult, COLUMN_WORKITEMID, index),//workItemId
+                getColumnStringValue(dataSetResult,COLUMN_SUBJECT, index) // subject
+                );  
     }
     
     @Override
