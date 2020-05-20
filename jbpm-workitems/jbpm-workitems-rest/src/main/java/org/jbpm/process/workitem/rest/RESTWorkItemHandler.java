@@ -29,6 +29,7 @@ import java.util.function.BiConsumer;
 
 import javax.xml.bind.JAXBContext;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
@@ -83,8 +84,8 @@ import org.kie.api.runtime.process.WorkItemManager;
 import org.kie.internal.runtime.Cacheable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
+import org.apache.http.conn.routing.HttpRoutePlanner;
 
 /**
  * WorkItemHandler that is capable of interacting with REST service. Supports both types of services
@@ -156,6 +157,7 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler imple
     private static final Logger logger = LoggerFactory.getLogger(RESTWorkItemHandler.class);
     private static final int DEFAULT_TOTAL_POOL_CONNECTIONS = 500;
     private static final int DEFAULT_MAX_POOL_CONNECTIONS_PER_ROUTE = 50;
+    protected static final String USE_SYSTEM_PROPERTIES = "org.kie.workitem.rest.useSystemProperties";
 
     public static final String PARAM_AUTH_TYPE = "AuthType";
     public static final String PARAM_CONNECT_TIMEOUT = "ConnectTimeout";
@@ -176,10 +178,10 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler imple
     private String password;
     private AuthenticationType type;
     private String authUrl;
-    // default caching to false
-    private boolean doCacheClient = false;
-
+    private boolean doCacheClient;
+    
     private ClassLoader classLoader;
+
 
     protected static PoolingHttpClientConnectionManager connectionManager;
     protected static CloseableHttpClient cachedClient;
@@ -205,20 +207,20 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler imple
      * Used when no authentication is required
      */
     public RESTWorkItemHandler() {
-        logger.debug("REST work item handler will use http client 4.3 api " + HTTP_CLIENT_API_43);
-        this.type = AuthenticationType.NONE;
-        this.classLoader = this.getClass().getClassLoader();
+        this(false);
+        
     }
 
-    /**
+     /**
      * Used when no authentication is required
-     * @param doCacheClient - - true/false setting for client cache
+     * @param doCacheClient true/false setting for client cache
+     * 
      */
     public RESTWorkItemHandler(boolean doCacheClient) {
-        this();
-        this.doCacheClient = doCacheClient;
+        this(doCacheClient,DEFAULT_TOTAL_POOL_CONNECTIONS, DEFAULT_MAX_POOL_CONNECTIONS_PER_ROUTE);
     }
 
+    
     /**
      * Used when no authentication is required
      * @param doCacheClient - - true/false setting for client cache
@@ -228,8 +230,10 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler imple
     public RESTWorkItemHandler(boolean doCacheClient,
                                int totalPoolConnections,
                                int maxPoolConnectionsPerRoute) {
-        this();
-        this.doCacheClient = doCacheClient;
+        logProtocol();
+        this.type = AuthenticationType.NONE;
+        this.classLoader = this.getClass().getClassLoader();
+        this.doCacheClient = doCacheClient;        
         if (doCacheClient) {
             connectionManager.setMaxTotal(totalPoolConnections);
             connectionManager.setDefaultMaxPerRoute(maxPoolConnectionsPerRoute);
@@ -237,10 +241,10 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler imple
     }
 
     /**
-     * Dedicated constructor when BASIC authentication method shall be used
-     * @param username - user name to be used for authentication
-     * @param password - password to be used for authentication
-     */
+    * Dedicated constructor when BASIC authentication method shall be used
+    * @param username - user name to be used for authentication
+    * @param password - password to be used for authentication
+    */
     public RESTWorkItemHandler(String username,
                                String password) {
         this(username,
@@ -248,6 +252,7 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler imple
              false);
     }
 
+    
     /**
      * Dedicated constructor when BASIC authentication method shall be used
      * @param username - user name to be used for authentication
@@ -264,6 +269,7 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler imple
              DEFAULT_MAX_POOL_CONNECTIONS_PER_ROUTE);
     }
 
+    
     /**
      * Dedicated constructor when BASIC authentication method shall be used
      * @param username - user name to be used for authentication
@@ -277,7 +283,7 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler imple
                                boolean doCacheClient,
                                int totalPoolConnections,
                                int maxPoolConnectionsPerRoute) {
-        this();
+        logProtocol();
         this.username = username;
         this.password = password;
         this.type = AuthenticationType.BASIC;
@@ -323,6 +329,7 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler imple
              DEFAULT_MAX_POOL_CONNECTIONS_PER_ROUTE);
     }
 
+    
     /**
      * Dedicated constructor when FORM BASED authentication method shall be used
      * @param username - user name to be used for authentication
@@ -338,7 +345,7 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler imple
                                boolean doCacheClient,
                                int totalPoolConnections,
                                int maxPoolConnectionsPerRoute) {
-        this();
+        logProtocol();
         this.username = username;
         this.password = password;
         this.type = AuthenticationType.FORM_BASED;
@@ -367,11 +374,10 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler imple
      */
     public RESTWorkItemHandler(ClassLoader classLoader,
                                boolean doCacheClient) {
-        logger.debug("REST work item handler will use http client 4.3 api " + HTTP_CLIENT_API_43);
-        this.type = AuthenticationType.NONE;
-        this.classLoader = classLoader;
-        this.doCacheClient = doCacheClient;
+        this(classLoader, doCacheClient, DEFAULT_TOTAL_POOL_CONNECTIONS, DEFAULT_MAX_POOL_CONNECTIONS_PER_ROUTE);
     }
+
+   
 
     /**
      * Used when no authentication is required
@@ -384,7 +390,7 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler imple
                                boolean doCacheClient,
                                int totalPoolConnections,
                                int maxPoolConnectionsPerRoute) {
-        logger.debug("REST work item handler will use http client 4.3 api " + HTTP_CLIENT_API_43);
+        logProtocol();
         this.type = AuthenticationType.NONE;
         this.classLoader = classLoader;
         this.doCacheClient = doCacheClient;
@@ -428,6 +434,7 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler imple
              DEFAULT_MAX_POOL_CONNECTIONS_PER_ROUTE);
     }
 
+    
     /**
      * Dedicated constructor when BASIC authentication method shall be used
      * @param username - user name to be used for authentication
@@ -443,7 +450,7 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler imple
                                boolean doCacheClient,
                                int totalPoolConnections,
                                int maxPoolConnectionsPerRoute) {
-        this();
+        logProtocol();
         this.username = username;
         this.password = password;
         this.type = AuthenticationType.BASIC;
@@ -495,6 +502,8 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler imple
              DEFAULT_MAX_POOL_CONNECTIONS_PER_ROUTE);
     }
 
+  
+
     /**
      * Dedicated constructor when FORM BASED authentication method shall be used
      * @param username - user name to be used for authentication
@@ -512,7 +521,7 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler imple
                                boolean doCacheClient,
                                int totalPoolConnections,
                                int maxPoolConnectionsPerRoute) {
-        this();
+        logProtocol();
         this.username = username;
         this.password = password;
         this.type = AuthenticationType.FORM_BASED;
@@ -536,11 +545,10 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler imple
                                String handlingStrategy,
                                String username,
                                String password) {
-        this(username,
+        this(handlingProcessId, handlingStrategy,
+             username,
              password,
              false);
-        this.handlingProcessId = handlingProcessId;
-        this.handlingStrategy = handlingStrategy;
     }
 
     /**
@@ -556,15 +564,15 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler imple
                                String username,
                                String password,
                                boolean doCacheClient) {
-        this(username,
+        this(handlingProcessId, handlingStrategy,
+             username,
              password,
              doCacheClient,
              DEFAULT_TOTAL_POOL_CONNECTIONS,
              DEFAULT_MAX_POOL_CONNECTIONS_PER_ROUTE);
-        this.handlingProcessId = handlingProcessId;
-        this.handlingStrategy = handlingStrategy;
     }
 
+  
     /**
      * Dedicated constructor when BASIC authentication method shall be used
      * @param handlingProcessId - process id to handle exception
@@ -582,7 +590,7 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler imple
                                boolean doCacheClient,
                                int totalPoolConnections,
                                int maxPoolConnectionsPerRoute) {
-        this();
+        logProtocol();
         this.username = username;
         this.password = password;
         this.type = AuthenticationType.BASIC;
@@ -606,9 +614,7 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler imple
                                String handlingProcessId,
                                String handlingStrategy) {
         this(classLoader,
-             false);
-        this.handlingProcessId = handlingProcessId;
-        this.handlingStrategy = handlingStrategy;
+             false, handlingProcessId, handlingStrategy);
     }
 
     /**
@@ -622,13 +628,11 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler imple
                                boolean doCacheClient, 
                                String handlingProcessId,
                                String handlingStrategy) {
-        logger.debug("REST work item handler will use http client 4.3 api " + HTTP_CLIENT_API_43);
-        this.type = AuthenticationType.NONE;
-        this.classLoader = classLoader;
-        this.doCacheClient = doCacheClient;
-        this.handlingProcessId = handlingProcessId;
-        this.handlingStrategy = handlingStrategy;
+
+        this(classLoader, doCacheClient, DEFAULT_TOTAL_POOL_CONNECTIONS, DEFAULT_MAX_POOL_CONNECTIONS_PER_ROUTE, handlingProcessId, handlingStrategy);
     }
+
+   
 
     /**
      * Used when no authentication is required
@@ -645,7 +649,7 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler imple
                                int maxPoolConnectionsPerRoute,
                                String handlingProcessId,
                                String handlingStrategy) {
-        logger.debug("REST work item handler will use http client 4.3 api " + HTTP_CLIENT_API_43);
+        logProtocol();
         this.type = AuthenticationType.NONE;
         this.classLoader = classLoader;
         this.doCacheClient = doCacheClient;
@@ -656,7 +660,6 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler imple
         this.handlingProcessId = handlingProcessId;
         this.handlingStrategy = handlingStrategy;
     }
-
     /**
      * Dedicated constructor when BASIC authentication method shall be used
      * @param username - user name to be used for authentication
@@ -673,9 +676,7 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler imple
         this(username,
              password,
              classLoader,
-             false);
-        this.handlingProcessId = handlingProcessId;
-        this.handlingStrategy = handlingStrategy;
+             false, handlingProcessId, handlingStrategy);
     }
 
     /**
@@ -698,10 +699,10 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler imple
              classLoader,
              doCacheClient,
              DEFAULT_TOTAL_POOL_CONNECTIONS,
-             DEFAULT_MAX_POOL_CONNECTIONS_PER_ROUTE);
-        this.handlingProcessId = handlingProcessId;
-        this.handlingStrategy = handlingStrategy;
+             DEFAULT_MAX_POOL_CONNECTIONS_PER_ROUTE, handlingProcessId, handlingStrategy);
     }
+
+   
 
     /**
      * Dedicated constructor when BASIC authentication method shall be used
@@ -722,7 +723,7 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler imple
                                int maxPoolConnectionsPerRoute,
                                String handlingProcessId,
                                String handlingStrategy) {
-        this();
+        logProtocol();
         this.username = username;
         this.password = password;
         this.type = AuthenticationType.BASIC;
@@ -734,6 +735,10 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler imple
         }
         this.handlingProcessId = handlingProcessId;
         this.handlingStrategy = handlingStrategy;
+    }
+
+    private void logProtocol() {
+        logger.debug(HTTP_CLIENT_API_43 ? "REST work item handler will use http client 4.3 api" : "REST work item handler will NOT use http client 4.3 api");
     }
 
     public String getAuthUrl() {
@@ -1311,20 +1316,41 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler imple
 
             HttpClientBuilder clientBuilder = HttpClientBuilder.create()
                     .setDefaultRequestConfig(config);
+            
+            if (Boolean.getBoolean(USE_SYSTEM_PROPERTIES)) {
+                HttpRoutePlanner routePlanner = getRoutePlanner();
+                if (routePlanner != null) {
+                    clientBuilder.setRoutePlanner(routePlanner);
+                }
+                clientBuilder.useSystemProperties();
+            }
+            return clientBuilder.build();
 
-            HttpClient httpClient = clientBuilder.build();
-
-            return httpClient;
         } else {
             DefaultHttpClient httpClient = new DefaultHttpClient();
             httpClient.getParams().setIntParameter(CoreConnectionPNames.SO_TIMEOUT,
                                                    readTimeout);
             httpClient.getParams().setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT,
                                                    connectTimeout);
-
+            if (Boolean.getBoolean(USE_SYSTEM_PROPERTIES)) {
+                HttpRoutePlanner routePlanner = getRoutePlanner();
+                if (routePlanner != null) {
+                    httpClient.setRoutePlanner(routePlanner);
+                }
+                
+            }
             return httpClient;
         }
     }
+    
+    private HttpRoutePlanner getRoutePlanner ()
+    {
+        String proxyHost = System.getProperty("http.proxyHost");
+        Integer proxyPort = Integer.getInteger("http.proxyPort");
+        return proxyHost != null && proxyPort != null  ? new DefaultProxyRoutePlanner(new HttpHost(proxyHost, proxyPort)) :null;
+    }
+    
+    
 
     protected CloseableHttpClient getNewPooledHttpClient(Integer readTimeout,
                                                          Integer connectTimeout) {
