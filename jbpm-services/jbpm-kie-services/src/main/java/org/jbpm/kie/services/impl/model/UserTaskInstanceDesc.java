@@ -19,76 +19,69 @@ package org.jbpm.kie.services.impl.model;
 import java.io.Serializable;
 import java.util.Date;
 
+
 public class UserTaskInstanceDesc implements org.jbpm.services.api.model.UserTaskInstanceDesc, Serializable {
 
-    private static final long serialVersionUID = -4594921035584546643L;
+	private static final long serialVersionUID = -4594921035584546643L;
 
-    private Long taskId;
-    private String status;
-    private Date activationTime;
-    private String name;
-    private String description;
-    private Integer priority;
-    private String actualOwner;
-    private String createdBy;
-    private String deploymentId;
-    private String processId;
-    private Long processInstanceId;
-    private Date createdOn;
-    private Date dueDate;
-    private String formName;
-    private Long workItemId;
-    private Date slaDueDate;
-    private Integer slaCompliance;
-    private String subject;
-    
-    
-    public UserTaskInstanceDesc(Long taskId, String status,
-                                Date activationTime, String name, String description,
-                                Integer priority, String actualOwner, String createdBy,
-                                String deploymentId, String processId, Long processInstanceId,
-                                Date createdOn, Date dueDate) {
-        this(taskId, status, activationTime, name, description, priority, actualOwner, createdBy, deploymentId,
-             processId, processInstanceId, createdOn, dueDate, null, null, null, null);
-        
-    }
+	private Long taskId;
+	private String status;
+	private Date activationTime;
+	private String name;
+	private String description;
+	private Integer priority;
+	private String actualOwner;
+	private String createdBy;
+	private String deploymentId;
+	private String processId;
+	private Long processInstanceId;
+	private Date createdOn;
+	private Date dueDate;
+	private String formName;
+	private Long workItemId;
+	private Date slaDueDate;
+	private Integer slaCompliance;
 
-    
-    public UserTaskInstanceDesc(Long taskId, String status, Date activationTime, String name, String description,
-                                Integer priority, String actualOwner, String createdBy, String deploymentId,
-                                String processId, Long processInstanceId, Date createdOn, Date dueDate, Long workItemId, String subject) {
-        this(taskId, status, activationTime, name, description, priority, actualOwner, createdBy, deploymentId,
-             processId, processInstanceId, createdOn, dueDate, workItemId, subject, null, null);
-       
-    }
-    
-    public UserTaskInstanceDesc(Long taskId, String status, Date activationTime, String name, String description,
-                                Integer priority, String actualOwner, String createdBy, String deploymentId,
-                                String processId, Long processInstanceId, Date createdOn, Date dueDate, Long workItemId, String subject,
-                                Date slaDueDate, Integer slaCompliance) {
-        this.taskId = taskId;
-        this.status = status;
-        this.activationTime = activationTime;
-        this.name = name;
-        this.description = description;
-        this.priority = priority;
-        this.actualOwner = actualOwner;
-        this.createdBy = createdBy;
-        this.deploymentId = deploymentId;
-        this.processId = processId;
-        this.processInstanceId = processInstanceId;
-        this.createdOn = createdOn;
-        this.dueDate = dueDate;
-        this.workItemId = workItemId;
-        this.subject = subject;
-        this.slaDueDate = slaDueDate;
-        this.slaCompliance = slaCompliance;
-    }
+	public UserTaskInstanceDesc(Long taskId, String status, Date activationTime, String name, String description,
+								Integer priority, String actualOwner, String createdBy, String deploymentId,
+								String processId, Long processInstanceId, Date createdOn, Date dueDate, Long workItemId,
+								Date slaDueDate, Integer slaCompliance) {
+		this(taskId, status, activationTime, name, description, priority, actualOwner, createdBy, deploymentId,
+			 processId, processInstanceId, createdOn, dueDate,workItemId);
+		this.slaDueDate = slaDueDate;
+		this.slaCompliance = slaCompliance;
+	}
+	public UserTaskInstanceDesc(Long taskId, String status, Date activationTime, String name, String description,
+								Integer priority, String actualOwner, String createdBy, String deploymentId,
+								String processId, Long processInstanceId, Date createdOn, Date dueDate, Long workItemId) {
+		this(taskId, status, activationTime, name, description, priority, actualOwner, createdBy, deploymentId,
+			 processId, processInstanceId, createdOn, dueDate);
+		this.workItemId = workItemId;
+	}
 
-
+	public UserTaskInstanceDesc(Long taskId, String status,
+			Date activationTime, String name, String description,
+			Integer priority, String actualOwner, String createdBy,
+			String deploymentId, String processId, Long processInstanceId,
+			Date createdOn, Date dueDate) {
+		super();
+		this.taskId = taskId;
+		this.status = status;
+		this.activationTime = activationTime;
+		this.name = name;
+		this.description = description;
+		this.priority = priority;
+		this.actualOwner = actualOwner;
+		this.createdBy = createdBy;
+		this.deploymentId = deploymentId;
+		this.processId = processId;
+		this.processInstanceId = processInstanceId;
+		this.createdOn = createdOn;
+		this.dueDate = dueDate;
+	}
     
-
     public UserTaskInstanceDesc(Long taskId, String name, String description, Integer priority, Date dueDate, String formName) {
+        super();
         this.taskId = taskId;
         this.name = name;
         this.description = description;
@@ -97,10 +90,11 @@ public class UserTaskInstanceDesc implements org.jbpm.services.api.model.UserTas
         this.formName = formName;
     }
 
-    protected UserTaskInstanceDesc(Long taskId, String status, String actualOwner,
-                                String name, Integer priority, String createdBy, String processId,
-                                Long processInstanceId, Date createdOn, String formName,
-                                String deploymentId, Date dueDate) {
+    public UserTaskInstanceDesc(Long taskId, String status, String actualOwner, 
+            String name, Integer priority, String createdBy, String processId, 
+            Long processInstanceId, Date createdOn, String formName, 
+            String deploymentId, Date dueDate) {
+        super();
         this.taskId = taskId;
         this.status = status;
         this.name = name;
@@ -115,145 +109,139 @@ public class UserTaskInstanceDesc implements org.jbpm.services.api.model.UserTas
         this.deploymentId = deploymentId;
         this.dueDate = dueDate;
     }
+    
+	@Override
+	public Long getTaskId() {
+		
+		return this.taskId;
+	}
 
-    @Override
-    public Long getTaskId() {
+	@Override
+	public String getStatus() {
+		
+		return this.status;
+	}
 
-        return this.taskId;
-    }
+	@Override
+	public Date getActivationTime() {
+		
+		return this.activationTime;
+	}
 
-    @Override
-    public String getStatus() {
+	@Override
+	public String getName() {
+		
+		return this.name;
+	}
 
-        return this.status;
-    }
+	@Override
+	public String getDescription() {
+		
+		return this.description;
+	}
 
-    @Override
-    public Date getActivationTime() {
+	@Override
+	public Integer getPriority() {
+		
+		return this.priority;
+	}
 
-        return this.activationTime;
-    }
+	@Override
+	public String getCreatedBy() {
+		
+		return this.createdBy;
+	}
 
-    @Override
-    public String getName() {
+	@Override
+	public Date getCreatedOn() {
+		
+		return this.createdOn;
+	}
 
-        return this.name;
-    }
+	@Override
+	public Date getDueDate() {
+		
+		return this.dueDate;
+	}
 
-    @Override
-    public String getDescription() {
+	@Override
+	public Long getProcessInstanceId() {
+		
+		return this.processInstanceId;
+	}
 
-        return this.description;
-    }
+	@Override
+	public String getProcessId() {
+		
+		return this.processId;
+	}
 
-    @Override
-    public Integer getPriority() {
+	@Override
+	public String getActualOwner() {
+		
+		return this.actualOwner;
+	}
 
-        return this.priority;
-    }
-
-    @Override
-    public String getCreatedBy() {
-
-        return this.createdBy;
-    }
-
-    @Override
-    public Date getCreatedOn() {
-
-        return this.createdOn;
-    }
-
-    @Override
-    public Date getDueDate() {
-
-        return this.dueDate;
-    }
-
-    @Override
-    public Long getProcessInstanceId() {
-
-        return this.processInstanceId;
-    }
-
-    @Override
-    public String getProcessId() {
-
-        return this.processId;
-    }
-
-    @Override
-    public String getActualOwner() {
-
-        return this.actualOwner;
-    }
-
-    @Override
-    public String getDeploymentId() {
-
-        return this.deploymentId;
-    }
-
-    @Override
+	@Override
+	public String getDeploymentId() {
+		
+		return this.deploymentId;
+	}
+	
+	@Override
     public String getFormName() {
         return formName;
     }
 
-    @Override
-    public Long getWorkItemId() {
-        return workItemId;
-    }
+	@Override
+	public Long getWorkItemId() {
+		return workItemId;
+	}
 
-    public Date getSlaDueDate() {
-        return slaDueDate;
-    }
+	public Date getSlaDueDate() {
+		return slaDueDate;
+	}
 
-    public Integer getSlaCompliance() {
-        return slaCompliance;
-    }
+	public Integer getSlaCompliance() {
+		return slaCompliance;
+	}
 
-    public void setFormName(String formName) {
+	public void setFormName(String formName) {
         this.formName = formName;
     }
-
+	
     public void setName(String name) {
         this.name = name;
     }
-
+    
     public void setDescription(String description) {
         this.description = description;
     }
-
+    
     public void setPriority(Integer priority) {
         this.priority = priority;
     }
-
+    
     public void setDueDate(Date dueDate) {
         this.dueDate = dueDate;
     }
 
-    @Override
-    public void setSlaDueDate(Date slaDueDate) {
-        this.slaDueDate = slaDueDate;
-    }
+	@Override
+	public void setSlaDueDate(Date slaDueDate) {
+		this.slaDueDate = slaDueDate;
+	}
 
-    @Override
-    public void setSlaCompliance(Integer slaCompliance) {
-        this.slaCompliance = slaCompliance;
-    }
+	@Override
+	public void setSlaCompliance(Integer slaCompliance) {
+		this.slaCompliance = slaCompliance;
+	}
 
-    public String getSubject() {
-        return subject;
-    }
-
-    public void setSubject(String subject) {
-        this.subject = subject;
-    }
-
-    @Override
-    public String toString() {
-        return "UserTaskInstanceDesc [taskId=" + taskId + ", name=" + name + ", deploymentId=" + deploymentId + ", processInstanceId=" + processInstanceId + ", workItemId=" + workItemId + ", slaCompliance=" +
-               slaCompliance + ", slaDueDate=" + slaDueDate + ", subject=" + subject + "]";
-    }
+	@Override
+	public String toString() {
+		return "UserTaskInstanceDesc [taskId=" + taskId + ", name=" + name
+				+ ", deploymentId=" + deploymentId + ", processInstanceId="
+				+ processInstanceId +  ", workItemId=" + workItemId
+				+ ", slaCompliance=" + slaCompliance + ", slaDueDate=" + slaDueDate +"]";
+	}
 
 }
