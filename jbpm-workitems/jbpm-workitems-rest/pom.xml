@@ -19,7 +19,7 @@
   <properties>
     <java.module.name>org.jbpm.workitem.rest</java.module.name>
   </properties>
-
+  
   <dependencies>
     <dependency>
       <groupId>org.apache.cxf</groupId>
@@ -110,6 +110,11 @@
     <dependency>
       <groupId>javax.activation</groupId>
       <artifactId>activation</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mock-server</groupId>
+      <artifactId>mockserver-netty</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
