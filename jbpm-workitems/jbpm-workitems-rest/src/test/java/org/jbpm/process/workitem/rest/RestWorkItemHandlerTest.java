@@ -20,10 +20,12 @@ import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
-import java.util.HashMap;
 
 import javax.ws.rs.ext.RuntimeDelegate;
 
+import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
@@ -40,17 +42,24 @@ import org.junit.runners.Parameterized.Parameters;
 import org.kie.api.runtime.process.ProcessWorkItemHandlerException;
 import org.kie.api.runtime.process.WorkItemManager;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static org.jbpm.process.workitem.rest.RESTWorkItemHandler.PARAM_CONNECT_TIMEOUT;
 import static org.jbpm.process.workitem.rest.RESTWorkItemHandler.PARAM_CONTENT;
 import static org.jbpm.process.workitem.rest.RESTWorkItemHandler.PARAM_CONTENT_DATA;
 import static org.jbpm.process.workitem.rest.RESTWorkItemHandler.PARAM_CONTENT_TYPE;
 import static org.jbpm.process.workitem.rest.RESTWorkItemHandler.PARAM_CONTENT_TYPE_CHARSET;
+import static org.jbpm.process.workitem.rest.RESTWorkItemHandler.PARAM_HEADERS;
 import static org.jbpm.process.workitem.rest.RESTWorkItemHandler.PARAM_READ_TIMEOUT;
 import static org.jbpm.process.workitem.rest.RESTWorkItemHandler.PARAM_RESULT;
 import static org.jbpm.process.workitem.rest.RESTWorkItemHandler.PARAM_STATUS;
 import static org.jbpm.process.workitem.rest.RESTWorkItemHandler.PARAM_STATUS_MSG;
-import static org.jbpm.process.workitem.rest.RESTWorkItemHandler.PARAM_HEADERS;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 @RunWith(Parameterized.class)
 public class RestWorkItemHandlerTest {
@@ -105,7 +114,7 @@ public class RestWorkItemHandlerTest {
     @Test
     public void testGETOperation() {
         RESTWorkItemHandler handler = new RESTWorkItemHandler();
-
+        
         WorkItemImpl workItem = new WorkItemImpl();
         workItem.setParameter("Url",
                               serverURL);
@@ -133,6 +142,34 @@ public class RestWorkItemHandlerTest {
         assertEquals("request to endpoint " + workItem.getParameter("Url") + " successfully completed OK",
                      responseMsg);
     }
+    
+    @Test
+    public void testGETWithProxyOperation() {
+        WireMockConfiguration configuraton = WireMockConfiguration.options().port(8282);
+        WireMockServer server = new WireMockServer(configuraton);
+        server.start();
+        server.stubFor(WireMock.get(urlMatching(".*")).willReturn(aResponse().proxiedFrom("http://localhost:9998")));
+
+        System.setProperty(RESTWorkItemHandler.USE_SYSTEM_PROPERTIES, "true");
+        System.setProperty("http.proxyHost", "127.0.0.1");
+        System.setProperty("http.proxyPort", "8282");
+        try {
+            WorkItemImpl workItem = new WorkItemImpl();
+            workItem.setParameter("Url", serverURL);
+            workItem.setParameter("Method", "GET");
+            TestWorkItemManager manager = new TestWorkItemManager();
+            new RESTWorkItemHandler().executeWorkItem(workItem, manager);
+            Map<String, Object> results = ((TestWorkItemManager) manager).getResults(workItem.getId());
+            assertNotNull("results cannot be null", results);
+            server.verify(getRequestedFor(WireMock.urlEqualTo("/test")));
+        } finally {
+            server.stop();
+            System.clearProperty(RESTWorkItemHandler.USE_SYSTEM_PROPERTIES);
+            System.clearProperty("http.proxyHost");
+        }
+    }
+    
+    
 
     @Test
     public void testGETOperationWithJSONHeader() {
@@ -354,9 +391,7 @@ public class RestWorkItemHandlerTest {
     @Test
     public void testPOSTOperationWthJSONHeader() {
         RESTWorkItemHandler handler = new RESTWorkItemHandler();
-        String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
-                "<person><age>25</age><name>Post john</name></person>";
-
+      
         WorkItemImpl workItem = new WorkItemImpl();
         workItem.setParameter("Url",
                               serverURL + "/xml");
@@ -538,9 +573,7 @@ public class RestWorkItemHandlerTest {
     @Test
     public void testPUTOperationWithJSONHeader() {
         RESTWorkItemHandler handler = new RESTWorkItemHandler();
-        String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
-                "<person><age>25</age><name>Put john</name></person>";
-
+   
         WorkItemImpl workItem = new WorkItemImpl();
         workItem.setParameter("Url",
                               serverURL + "/xml");
