@@ -72,6 +72,25 @@
                     "elementKind": "method",
                     "justification": "new extra data for process variables / case variables"
                 }
+                ,
+                {
+				   "code": "java.method.addedToInterface",
+  					"new": "method java.lang.String org.jbpm.services.api.model.UserTaskInstanceDesc::getSubject()",
+   					"package": "org.jbpm.services.api.model",
+   					"classSimpleName": "UserTaskInstanceDesc",
+   					"methodName": "getSubject",
+   					"elementKind": "method",
+   					"justification": "subject should be returned by REST service"
+ 				},
+ 				{
+   					"code": "java.method.addedToInterface",
+   					"new": "method void org.jbpm.services.api.model.UserTaskInstanceDesc::setSubject(java.lang.String)",
+   					"package": "org.jbpm.services.api.model",
+   					"classSimpleName": "UserTaskInstanceDesc",
+   					"methodName": "setSubject",
+   					"elementKind": "method",
+   					"justification": "subject should be returned by REST service"
+				}
             ]
         }
     }

@@ -715,8 +715,9 @@
 	      a.processInstanceId,
 	      a.createdOn,
 	      a.dueDate,
-    	      a.workItemId,
-    	      t.formName
+          a.workItemId,
+    	  t.formName,
+    	  t.subject
 	      )
         from 
         	AuditTaskImpl a
@@ -745,7 +746,8 @@
 	      a.createdOn,
 	      a.dueDate,
 	      a.workItemId,
-	      t.formName
+	      t.formName,
+	      t.subject
 	      )
         from 
         	AuditTaskImpl a
@@ -775,7 +777,8 @@
         a.createdOn,
         a.dueDate,
         a.workItemId,
-        t.formName
+        t.formName,
+        t.subject
         )
         from 
           AuditTaskImpl a 
