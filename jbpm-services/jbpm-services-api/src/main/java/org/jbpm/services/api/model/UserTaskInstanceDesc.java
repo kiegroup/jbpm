@@ -133,4 +133,16 @@ public interface UserTaskInstanceDesc {
 	 * @param slaDueDate SLA due date
 	 */
 	void setSlaDueDate(Date slaDueDate);
+
+    /**
+       * Returns task subject 
+       * @return task subject
+       */
+    String getSubject();
+
+    /**
+     * Set task subject 
+     * @param subject task subject
+     */
+    void setSubject(String subject);
 }

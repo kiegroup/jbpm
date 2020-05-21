@@ -45,7 +45,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.kie.scanner.KieMavenRepository.getKieMavenRepository;
 
 public class TaskQueryBuilderTest extends AbstractKieServicesBaseTest {
@@ -332,6 +335,7 @@ public class TaskQueryBuilderTest extends AbstractKieServicesBaseTest {
 
         UserTaskInstanceDesc userTask = runtimeDataService.getTaskById(taskIds.get(2));
         assertEquals("CreateProposal", userTask.getFormName());
+        assertEquals("Proposal for: ", userTask.getSubject());
 
         userTask = runtimeDataService.getTaskByWorkItemId(taskIds.get(0));
         assertEquals("HRInterview", userTask.getFormName());
