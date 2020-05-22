@@ -78,16 +78,12 @@ public class ReopenCaseCommand extends CaseCommand<Void> {
         
         KieSession ksession = ((RegistryContext) context).lookup( KieSession.class );
                                
-        CaseFileInstance caseFile = getCaseFile(ksession, caseId);                        
+        CaseFileInstance caseFile = getCaseFile(ksession, caseId);     
         
         caseEventSupport.fireBeforeCaseReopened(caseId, caseFile, deploymentId, caseDefinitionId, data);
         
         logger.debug("Updating case file in working memory");
         FactHandle factHandle = ksession.getFactHandle(caseFile);
-        ((CaseFileInstanceImpl)caseFile).setCaseReopenDate(new Date());
-        if (data != null && !data.isEmpty()) {
-            caseFile.addAll(data);
-        }
         ksession.update(factHandle, caseFile);
         
         logger.debug("Starting process instance for case {} and case definition {}", caseId, caseDefinitionId);
@@ -95,12 +91,30 @@ public class ReopenCaseCommand extends CaseCommand<Void> {
         Map<String, Object> params = new HashMap<>();
         // set case id to allow it to use CaseContext when creating runtime engine
         params.put(EnvironmentName.CASE_ID, caseId);
+        final Map<String, Object> caseData = caseFile.getData();
+        
+        
+        for (Map.Entry<String, Object> entry : caseData.entrySet()) {
+            params.put(VariableScope.CASE_FILE_PREFIX + entry.getKey(), entry.getValue());
+        }
+        
+        if (data != null)   {
+            for (Map.Entry<String, Object> entry : data.entrySet()) {
+                params.put(VariableScope.CASE_FILE_PREFIX + entry.getKey(), entry.getValue());
+            }
+        }
+
         long processInstanceId = processService.startProcess(deploymentId, caseDefinitionId, correlationKey, params);
+        
+        ((CaseFileInstanceImpl)caseFile).setCaseReopenDate(new Date());
+        if (data != null) {
+            caseFile.addAll(data);
+        }
+        
         logger.debug("Removing case file from working memory to allow refiring of rules...");
         ksession.delete(factHandle);
         ksession.insert(caseFile);
-        final Map<String, Object> caseData = caseFile.getData();
-        if (caseData != null && !caseData.isEmpty()) {
+        if (!caseData.isEmpty()) {
             processService.execute(deploymentId, CaseContext.get(caseId), new ExecutableCommand<Void>() {
     
                 private static final long serialVersionUID = -7093369406457484236L;

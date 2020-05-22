@@ -17,10 +17,6 @@
  package org.jbpm.bpmn2;
 
 
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -43,6 +39,10 @@ import org.kie.api.event.process.ProcessVariableChangedEvent;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.process.WorkItem;
+
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(Parameterized.class)
  public class VariableTagsTest extends JbpmBpmn2TestCase {
@@ -125,7 +125,7 @@ import org.kie.api.runtime.process.WorkItem;
          WorkItem workItem = workItemHandler.getWorkItem();
          assertNotNull(workItem);
 
-         assertThatExceptionOfType(VariableViolationException.class).isThrownBy(() -> ksession.getWorkItemManager().completeWorkItem(workItem.getId(), Collections.singletonMap("ActorId", "john")));
+         assertThatExceptionOfType(VariableViolationException.class).isThrownBy(() -> ksession.getWorkItemManager().completeWorkItem(workItem.getId(), Collections.singletonMap("ActorId", "john2")));
          ksession.abortProcessInstance(processInstance.getId());
 
          assertProcessInstanceFinished(processInstance, ksession);

@@ -110,9 +110,6 @@ public class MedicalRecord implements Serializable{
         if ((this.description == null) ? (other.description != null) : !this.description.equals(other.description)) {
             return false;
         }
-        if (this.patient != other.patient && (this.patient == null || !this.patient.equals(other.patient))) {
-            return false;
-        }
         if (this.rows != other.rows && (this.rows == null || !this.rows.equals(other.rows))) {
             return false;
         }
@@ -127,7 +124,6 @@ public class MedicalRecord implements Serializable{
         int hash = 7;
         hash = 67 * hash + (this.id != null ? this.id.hashCode() : 0);
         hash = 67 * hash + (this.description != null ? this.description.hashCode() : 0);
-        hash = 67 * hash + (this.patient != null ? this.patient.hashCode() : 0);
         hash = 67 * hash + (this.rows != null ? this.rows.hashCode() : 0);
         hash = 67 * hash + this.priority;
         return hash;

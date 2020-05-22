@@ -25,6 +25,8 @@ import org.drools.core.ClassObjectFilter;
 import org.jbpm.casemgmt.api.auth.AuthorizationManager;
 import org.jbpm.casemgmt.api.model.instance.CaseFileInstance;
 import org.jbpm.casemgmt.impl.event.CaseEventSupport;
+import org.jbpm.process.core.context.variable.VariableScope;
+import org.jbpm.process.core.context.variable.VariableViolationException;
 import org.kie.api.runtime.Context;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.rule.FactHandle;
@@ -40,9 +42,11 @@ public class RemoveDataCaseFileInstanceCommand extends CaseCommand<Void> {
 
     private List<String> variableNames;
     private AuthorizationManager authorizationManager;
+    private Long processInstanceId;
     
-    public RemoveDataCaseFileInstanceCommand(IdentityProvider identityProvider, List<String> variableNames, AuthorizationManager authorizationManager) {                
+    public RemoveDataCaseFileInstanceCommand(Long processInstanceId, IdentityProvider identityProvider, List<String> variableNames, AuthorizationManager authorizationManager) {                
         super(identityProvider);
+        this.processInstanceId = processInstanceId;
         this.variableNames = variableNames;        
         this.authorizationManager = authorizationManager;
     }
@@ -59,7 +63,15 @@ public class RemoveDataCaseFileInstanceCommand extends CaseCommand<Void> {
         
         // apply authorization
         authorizationManager.checkDataAuthorization(caseFile.getCaseId(), caseFile, variableNames);
-        
+          
+        org.jbpm.process.instance.ProcessInstance pi = (org.jbpm.process.instance.ProcessInstance) ksession.getProcessInstance(processInstanceId);
+        VariableScope variableScope = (VariableScope) pi.getContextContainer().getDefaultContext(VariableScope.VARIABLE_SCOPE);
+        for (String name: variableNames) {
+            if (caseFile.getData(name) != null && variableScope.isReadOnly(VariableScope.CASE_FILE_PREFIX+name)) {
+                throw new VariableViolationException(pi.getId(), name,"Variable '" + name + "' is already set and is marked as read only");
+            }
+        }
+         
         FactHandle factHandle = ksession.getFactHandle(caseFile);
         
         Map<String, Object> remove = new HashMap<>();        
