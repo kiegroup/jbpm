@@ -38,7 +38,9 @@ import org.jbpm.services.api.model.NodeInstanceDesc;
 import org.jbpm.services.api.model.ProcessDefinition;
 import org.jbpm.services.api.model.ProcessInstanceDesc;
 import org.jbpm.services.api.model.UserTaskInstanceDesc;
+import org.jbpm.services.api.model.UserTaskInstanceWithTraceabilityDesc;
 import org.jbpm.services.api.model.VariableDesc;
+import org.jbpm.workflow.core.WorkflowProcess;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 import org.jbpm.workflow.instance.node.WorkItemNodeInstance;
 import org.junit.After;
@@ -1052,6 +1054,31 @@ public class RuntimeDataServiceImplTest extends AbstractKieServicesBaseTest {
 		assertNotNull(userTask);
 		assertNull(userTask.getSlaCompliance());
 		assertNull(userTask.getSlaDueDate());
+    }
+
+    @Test
+    public void testGetTaskByIdWithTrace() {
+        processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument");
+        assertNotNull(processInstanceId);
+
+        ProcessInstance instance = processService.getProcessInstance(processInstanceId);
+        assertNotNull(instance);
+
+        List<Long> taskIds = runtimeDataService.getTasksByProcessInstanceId(processInstanceId);
+        assertNotNull(taskIds);
+        assertEquals(1, taskIds.size());
+
+        Long taskId = taskIds.get(0);
+
+        UserTaskInstanceWithTraceabilityDesc userTask = runtimeDataService.getTraceableTaskById(taskId);
+        assertNotNull(userTask);
+        assertNotNull(userTask.getCorrelationKey());
+        assertNotNull(userTask.getProcessType());
+        assertEquals((int) WorkflowProcess.PROCESS_TYPE, (int) userTask.getProcessType());
+        assertEquals(processInstanceId, userTask.getProcessInstanceId());
+        assertEquals("Write a Document", userTask.getName());
+        assertNull(userTask.getSlaCompliance());
+        assertNull(userTask.getSlaDueDate());
     }
 
     @Test

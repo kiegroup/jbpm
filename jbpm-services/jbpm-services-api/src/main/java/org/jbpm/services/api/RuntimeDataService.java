@@ -24,6 +24,7 @@ import org.jbpm.services.api.model.NodeInstanceDesc;
 import org.jbpm.services.api.model.ProcessDefinition;
 import org.jbpm.services.api.model.ProcessInstanceDesc;
 import org.jbpm.services.api.model.UserTaskInstanceDesc;
+import org.jbpm.services.api.model.UserTaskInstanceWithTraceabilityDesc;
 import org.jbpm.services.api.model.VariableDesc;
 import org.kie.api.definition.process.Process;
 import org.kie.api.runtime.process.NodeInstance;
@@ -368,6 +369,13 @@ public interface RuntimeDataService {
 	 * @return @{@link UserTaskInstanceDesc} task
 	 */
 	UserTaskInstanceDesc getTaskById(Long taskId);
+
+    /**
+     * Return a task by its taskId.
+     * @param taskId
+     * @return @{@link UserTaskInstanceWithTraceabilityDesc} task
+     */
+    UserTaskInstanceWithTraceabilityDesc getTraceableTaskById(Long taskId);
 
 	/**
 	 * Return a task by its taskId with SLA data if the withSLA param is true.

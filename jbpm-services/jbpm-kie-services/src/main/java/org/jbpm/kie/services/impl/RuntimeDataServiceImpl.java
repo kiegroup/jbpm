@@ -16,10 +16,6 @@
 
 package org.jbpm.kie.services.impl;
 
-import static java.util.Objects.requireNonNull;
-import static org.jbpm.kie.services.impl.CommonUtils.getCallbackUserRoles;
-import static org.kie.internal.query.QueryParameterIdentifiers.FILTER;
-
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,6 +45,7 @@ import org.jbpm.services.api.model.NodeInstanceDesc;
 import org.jbpm.services.api.model.ProcessDefinition;
 import org.jbpm.services.api.model.ProcessInstanceDesc;
 import org.jbpm.services.api.model.UserTaskInstanceDesc;
+import org.jbpm.services.api.model.UserTaskInstanceWithTraceabilityDesc;
 import org.jbpm.services.api.model.VariableDesc;
 import org.jbpm.services.api.service.ServiceRegistry;
 import org.jbpm.services.task.audit.service.TaskAuditService;
@@ -68,6 +65,10 @@ import org.kie.internal.query.QueryFilter;
 import org.kie.internal.task.api.AuditTask;
 import org.kie.internal.task.api.model.TaskEvent;
 import org.kie.internal.task.query.TaskSummaryQueryBuilder;
+
+import static java.util.Objects.requireNonNull;
+import static org.jbpm.kie.services.impl.CommonUtils.getCallbackUserRoles;
+import static org.kie.internal.query.QueryParameterIdentifiers.FILTER;
 
 
 public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEventListener {
@@ -812,6 +813,18 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
 	}
 
     @Override
+    public UserTaskInstanceWithTraceabilityDesc getTraceableTaskById(Long taskId) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("taskId", taskId);
+        List<UserTaskInstanceWithTraceabilityDesc> tasks = commandService.execute(new QueryNameCommand<List<UserTaskInstanceWithTraceabilityDesc>>("getTaskTraceableInstanceById", params));
+
+        if (!tasks.isEmpty()) {
+            return tasks.get(0);
+        }
+        return null;
+    }
+
+    @Override
     public UserTaskInstanceDesc getTaskById(Long taskId, boolean withSLA){
         UserTaskInstanceDesc taskInstanceDesc = getTaskById(taskId);
         if(withSLA && (taskInstanceDesc != null && taskInstanceDesc.getWorkItemId() != null)) {
@@ -1364,6 +1377,7 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
          
          return data;
      }
+
      
 
 }
