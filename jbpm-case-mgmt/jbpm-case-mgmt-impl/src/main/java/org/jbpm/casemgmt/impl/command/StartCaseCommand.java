@@ -112,10 +112,8 @@ public class StartCaseCommand extends CaseCommand<Void> {
         });
         commands.add(commandsFactory.newInsert(caseFile));
         commands.add(commandsFactory.newFireAllRules());
-
         BatchExecutionCommand batch = commandsFactory.newBatchExecution(commands);
         processService.execute(deploymentId, CaseContext.get(caseId), batch);
-
         logger.debug("Starting process instance for case {} and case definition {}", caseId, caseDefinitionId);
         CorrelationKey correlationKey = correlationKeyFactory.newCorrelationKey(caseId);
         Map<String, Object> params = new HashMap<>();

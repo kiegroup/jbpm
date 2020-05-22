@@ -479,7 +479,7 @@ public class CaseServiceImpl implements CaseService {
         ProcessInstanceDesc pi = verifyCaseIdExists(caseId);
         
         
-        processService.execute(pi.getDeploymentId(), ProcessInstanceIdContext.get(pi.getId()), new RemoveDataCaseFileInstanceCommand(identityProvider, Arrays.asList(name), authorizationManager));
+        processService.execute(pi.getDeploymentId(), ProcessInstanceIdContext.get(pi.getId()), new RemoveDataCaseFileInstanceCommand(pi.getId(), identityProvider, Arrays.asList(name), authorizationManager));
         
     }
 
@@ -488,7 +488,7 @@ public class CaseServiceImpl implements CaseService {
         authorizationManager.checkOperationAuthorization(caseId, ProtectedOperation.REMOVE_DATA);
         ProcessInstanceDesc pi = verifyCaseIdExists(caseId);
         
-        processService.execute(pi.getDeploymentId(), ProcessInstanceIdContext.get(pi.getId()), new RemoveDataCaseFileInstanceCommand(identityProvider, variableNames, authorizationManager));
+        processService.execute(pi.getDeploymentId(), ProcessInstanceIdContext.get(pi.getId()), new RemoveDataCaseFileInstanceCommand(pi.getId(), identityProvider, variableNames, authorizationManager));
     }
 
     /*

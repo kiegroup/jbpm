@@ -105,7 +105,7 @@ public class VariableScopeInstance extends AbstractContextInstance {
         	}
         }
         // check if variable that is being set is readonly and has already been set
-        if (oldValue != null && getVariableScope().isReadOnly(name)) {
+        if (oldValue != null && !oldValue.equals(value) && getVariableScope().isReadOnly(name)) {
             throw new VariableViolationException(getProcessInstance().getId(), name, "Variable '" + name + "' is already set and is marked as read only");
         }
         

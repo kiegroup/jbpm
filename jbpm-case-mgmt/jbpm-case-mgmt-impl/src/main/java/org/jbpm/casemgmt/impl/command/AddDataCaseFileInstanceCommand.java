@@ -30,6 +30,7 @@ import org.jbpm.casemgmt.api.model.instance.CaseFileInstance;
 import org.jbpm.casemgmt.impl.event.CaseEventSupport;
 import org.jbpm.casemgmt.impl.model.instance.CaseFileInstanceImpl;
 import org.jbpm.process.core.context.variable.VariableScope;
+import org.jbpm.process.core.context.variable.VariableViolationException;
 import org.jbpm.process.instance.InternalProcessRuntime;
 import org.jbpm.process.instance.ProcessInstance;
 import org.jbpm.services.api.ProcessService;
@@ -81,6 +82,16 @@ public class AddDataCaseFileInstanceCommand extends CaseCommand<Void> {
         // apply authorization
         authorizationManager.checkDataAuthorization(caseFile.getCaseId(), caseFile, parameters.keySet());
         
+        // check read only variables, due to dependencies between firexxxCaseData methods, we need this logic here, we cannot reuse VariableScopeInstance.setVariable
+        org.jbpm.process.instance.ProcessInstance pi = (org.jbpm.process.instance.ProcessInstance) ksession.getProcessInstance(processInstanceId);
+        VariableScope variableScope = (VariableScope) pi.getContextContainer().getDefaultContext(VariableScope.VARIABLE_SCOPE);
+        for (Map.Entry<String, Object> entry : parameters.entrySet()) {
+            Object oldValue = caseFile.getData(entry.getKey());
+            if (oldValue != null && !oldValue.equals(entry.getValue()) && variableScope.isReadOnly(VariableScope.CASE_FILE_PREFIX + entry.getKey())) {
+                throw new VariableViolationException(pi.getId(), entry.getKey(), "variable is read only and cannot be replaced");
+            }
+        }
+
         FactHandle factHandle = ksession.getFactHandle(caseFile);
         
         CaseEventSupport caseEventSupport = getCaseEventSupport(context);
