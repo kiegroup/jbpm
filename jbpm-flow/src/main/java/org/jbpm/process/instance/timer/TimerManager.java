@@ -16,6 +16,13 @@
 
 package org.jbpm.process.instance.timer;
 
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.drools.core.common.InternalKnowledgeRuntime;
 import org.drools.core.common.InternalWorkingMemory;
 import org.drools.core.marshalling.impl.MarshallerReaderContext;
@@ -44,13 +51,6 @@ import org.kie.api.time.SessionClock;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 
@@ -261,9 +261,10 @@ public class TimerManager {
                     long now = pctx.getKnowledgeRuntime().getSessionClock().getCurrentTime();
                     // overdue timer                    
                     if (then < now) {
-                        trigger = new OverdueTrigger(trigger, pctx.getKnowledgeRuntime());
+                        trigger = new OverdueTrigger(trigger);
                     }
                 }
+                trigger.initialize(pctx.getKnowledgeRuntime());
                 JobHandle jobHandle = ts.scheduleJob(processJob, pctx, trigger);
                 timerInstance.setJobHandle(jobHandle);
                 pctx.setJobHandle(jobHandle);
@@ -485,10 +486,14 @@ public class TimerManager {
         public static final long OVERDUE_DELAY = Long.parseLong(System.getProperty("jbpm.overdue.timer.delay", "2000"));
 
         private Trigger orig;
-        private InternalKnowledgeRuntime kruntime;
+        private transient InternalKnowledgeRuntime kruntime;
 
-        public OverdueTrigger(Trigger orig, InternalKnowledgeRuntime kruntime) {
+        public OverdueTrigger(Trigger orig) {
             this.orig = orig;
+        }
+
+        @Override
+        public void initialize(InternalKnowledgeRuntime kruntime) {
             this.kruntime = kruntime;
         }
 
