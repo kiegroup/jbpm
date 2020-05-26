@@ -70,6 +70,7 @@ import org.jbpm.test.listener.process.NodeLeftCountDownProcessEventListener;
 import org.jbpm.workflow.instance.node.MilestoneNodeInstance;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
@@ -146,6 +147,7 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
         processes.add("cases/UserTaskCaseRequiredCaseFileItem.bpmn2");
         processes.add("cases/UserTaskCaseRestrictedCaseFileItem.bpmn2");
         processes.add("cases/UserTaskCaseRequiredRestrictedCaseFileItem.bpmn2");
+        processes.add("cases/UserTaskCaseReadOnlyCaseFileItem.bpmn2");
         // add processes that can be used by cases but are not cases themselves
         processes.add("processes/DataVerificationProcess.bpmn2");
         processes.add("processes/DynamicSubProcess.bpmn2");
@@ -4126,6 +4128,89 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
         }
     }
     
+    @Test
+    public void testCaseReopenWithViolatingReadOnlyCaseFileItemReopen() {
+        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new UserImpl("john"));
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("s", "unmodifiable value");
+        CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), USER_TASK_READONLY, data, roleAssignments);
+        String caseId = caseService.startCase(deploymentUnit.getIdentifier(), USER_TASK_READONLY, caseFile);
+
+        CaseInstance cInstance = caseService.getCaseInstance(caseId);
+        assertNotNull(cInstance);
+        assertEquals(FIRST_CASE_ID, cInstance.getCaseId());
+        assertEquals(deploymentUnit.getIdentifier(), cInstance.getDeploymentId());
+
+        caseService.cancelCase(caseId);
+        data.put("s", "modifiedvalue");
+
+        assertThatExceptionOfType(VariableViolationException.class)
+                                                                   .isThrownBy(() -> caseService.reopenCase(FIRST_CASE_ID, deploymentUnit.getIdentifier(), USER_TASK_READONLY, data));
+    }
+
+    @Test
+    @Ignore
+    public void testCaseViolatingReadOnlyCaseFileItemAddData() {
+        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new UserImpl("john"));
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("r", "unmodifiable value");
+        CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), USER_TASK_RESTRICTED_V_CASE_P_ID, data, roleAssignments);
+        String caseId = caseService.startCase(deploymentUnit.getIdentifier(), USER_TASK_RESTRICTED_V_CASE_P_ID, caseFile);
+
+        CaseInstance cInstance = caseService.getCaseInstance(caseId);
+        assertNotNull(cInstance);
+        assertEquals(FIRST_CASE_ID, cInstance.getCaseId());
+        assertEquals(deploymentUnit.getIdentifier(), cInstance.getDeploymentId());
+
+        assertThatExceptionOfType(VariableViolationException.class)
+                                                                   .isThrownBy(() -> caseService.addDataToCaseFile(caseId, "r", "modidiedValue"));
+        assertThatExceptionOfType(VariableViolationException.class)
+                                                                   .isThrownBy(() -> caseService.addDataToCaseFile(caseId, Collections.singletonMap("r", "modidiedValue")));
+    }
+
+    @Test
+    @Ignore
+    public void testCaseReadOnlyCaseFileItemAddDataOnce() {
+        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new UserImpl("john"));
+
+        CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), USER_TASK_RESTRICTED_V_CASE_P_ID, Collections.emptyMap(), roleAssignments);
+        String caseId = caseService.startCase(deploymentUnit.getIdentifier(), USER_TASK_RESTRICTED_V_CASE_P_ID, caseFile);
+
+        CaseInstance cInstance = caseService.getCaseInstance(caseId);
+        assertNotNull(cInstance);
+        assertEquals(FIRST_CASE_ID, cInstance.getCaseId());
+        assertEquals(deploymentUnit.getIdentifier(), cInstance.getDeploymentId());
+
+        final String newValue = "newValue";
+        caseService.addDataToCaseFile(caseId, "r", newValue);
+        Map<String, Object> caseData = caseService.getCaseFileInstance(FIRST_CASE_ID).getData();
+        assertEquals(newValue, caseData.get("r"));
+    }
+
+    @Test
+    @Ignore
+    public void testCaseReadOnlyCaseFileItemRemoveData() {
+        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new UserImpl("john"));
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("r", "unmodifiable value");
+
+        CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), USER_TASK_RESTRICTED_V_CASE_P_ID, data, roleAssignments);
+        String caseId = caseService.startCase(deploymentUnit.getIdentifier(), USER_TASK_RESTRICTED_V_CASE_P_ID, caseFile);
+
+        CaseInstance cInstance = caseService.getCaseInstance(caseId);
+        assertNotNull(cInstance);
+        assertEquals(FIRST_CASE_ID, cInstance.getCaseId());
+        assertEquals(deploymentUnit.getIdentifier(), cInstance.getDeploymentId());
+
+        assertThatExceptionOfType(VariableViolationException.class).isThrownBy(() -> caseService.removeDataFromCaseFile(caseId, "r"));
+    }
     @Override
     protected List<ObjectModel> getProcessListeners() {
         List<ObjectModel> listeners = super.getProcessListeners();

@@ -84,22 +84,30 @@ public class ReopenCaseCommand extends CaseCommand<Void> {
         
         logger.debug("Updating case file in working memory");
         FactHandle factHandle = ksession.getFactHandle(caseFile);
-        ((CaseFileInstanceImpl)caseFile).setCaseReopenDate(new Date());
-        if (data != null && !data.isEmpty()) {
-            caseFile.addAll(data);
-        }
-        ksession.update(factHandle, caseFile);
         
         logger.debug("Starting process instance for case {} and case definition {}", caseId, caseDefinitionId);
         CorrelationKey correlationKey = correlationKeyFactory.newCorrelationKey(caseId);
         Map<String, Object> params = new HashMap<>();
         // set case id to allow it to use CaseContext when creating runtime engine
         params.put(EnvironmentName.CASE_ID, caseId);
+        Map<String, Object> caseData = caseFile.getData();
+        for (Map.Entry<String, Object> entry : caseData.entrySet()) {
+            params.put(VariableScope.CASE_FILE_PREFIX + entry.getKey(), entry.getValue());
+        }
+        for (Map.Entry<String, Object> entry : data.entrySet()) {
+            params.put(VariableScope.CASE_FILE_PREFIX + entry.getKey(), entry.getValue());
+        }
+
         long processInstanceId = processService.startProcess(deploymentId, caseDefinitionId, correlationKey, params);
         logger.debug("Removing case file from working memory to allow refiring of rules...");
+
+        ((CaseFileInstanceImpl) caseFile).setCaseReopenDate(new Date());
+        if (data != null && !data.isEmpty()) {
+            caseFile.addAll(data);
+        }
         ksession.delete(factHandle);
         ksession.insert(caseFile);
-        final Map<String, Object> caseData = caseFile.getData();
+
         if (caseData != null && !caseData.isEmpty()) {
             processService.execute(deploymentId, CaseContext.get(caseId), new ExecutableCommand<Void>() {
     
