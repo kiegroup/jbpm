@@ -314,5 +314,59 @@
       <property name="hibernate.dialect_resolvers" value="org.jbpm.test.persistence.scripts.quartzdialects.QuartzDialectResolver" />
     </properties>
   </persistence-unit>
+  <persistence-unit name="dbGenerateDDL" transaction-type="JTA">
+    <mapping-file>META-INF/JBPMorm.xml</mapping-file>
 
+    <!-- drools-persistence-jpa -->
+    <class>org.drools.persistence.info.SessionInfo</class>
+    <class>org.drools.persistence.info.WorkItemInfo</class>
+    <!-- jbpm-persistence-api -->
+    <class>org.jbpm.persistence.processinstance.ProcessInstanceInfo</class>
+    <class>org.jbpm.persistence.correlation.CorrelationKeyInfo</class>
+    <class>org.jbpm.persistence.correlation.CorrelationPropertyInfo</class>
+    <!-- jbpm-runtime-manager -->
+    <class>org.jbpm.runtime.manager.impl.jpa.ContextMappingInfo</class>
+    <!-- jbpm-kie-services -->
+    <class>org.jbpm.kie.services.impl.store.DeploymentStoreEntry</class>
+    <class>org.jbpm.kie.services.impl.query.persistence.QueryDefinitionEntity</class>
+    <!-- jbpm-human-task-jpa -->
+    <class>org.jbpm.services.task.impl.model.AttachmentImpl</class>
+    <class>org.jbpm.services.task.impl.model.BooleanExpressionImpl</class>
+    <class>org.jbpm.services.task.impl.model.CommentImpl</class>
+    <class>org.jbpm.services.task.impl.model.ContentImpl</class>
+    <class>org.jbpm.services.task.impl.model.DeadlineImpl</class>
+    <class>org.jbpm.services.task.impl.model.EmailNotificationHeaderImpl</class>
+    <class>org.jbpm.services.task.impl.model.EmailNotificationImpl</class>
+    <class>org.jbpm.services.task.impl.model.EscalationImpl</class>
+    <class>org.jbpm.services.task.impl.model.GroupImpl</class>
+    <class>org.jbpm.services.task.impl.model.I18NTextImpl</class>
+    <class>org.jbpm.services.task.impl.model.NotificationImpl</class>
+    <class>org.jbpm.services.task.impl.model.OrganizationalEntityImpl</class>
+    <!-- Unknown entity.. some deprecated thing? -->
+    <!--<class>org.jbpm.services.task.impl.model.\</class>-->
+    <class>org.jbpm.services.task.impl.model.ReassignmentImpl</class>
+    <class>org.jbpm.services.task.impl.model.TaskDefImpl</class>
+    <class>org.jbpm.services.task.impl.model.TaskImpl</class>
+    <class>org.jbpm.services.task.impl.model.UserImpl</class>
+    <!-- jbpm-human-task-audit -->
+    <class>org.jbpm.services.task.audit.impl.model.AuditTaskImpl</class>
+    <class>org.jbpm.services.task.audit.impl.model.BAMTaskSummaryImpl</class>
+    <class>org.jbpm.services.task.audit.impl.model.TaskEventImpl</class>
+    <class>org.jbpm.services.task.audit.impl.model.TaskVariableImpl</class>
+    <!-- jbpm-executor -->
+    <class>org.jbpm.executor.entities.ErrorInfo</class>
+    <class>org.jbpm.executor.entities.RequestInfo</class>
+    <!-- jbpm-audit -->
+    <class>org.jbpm.process.audit.NodeInstanceLog</class>
+    <class>org.jbpm.process.audit.ProcessInstanceLog</class>
+    <class>org.jbpm.process.audit.VariableInstanceLog</class>
+    <!-- case mgmt -->
+    <class>org.jbpm.casemgmt.impl.generator.CaseIdInfo</class>
+    <class>org.jbpm.casemgmt.impl.audit.CaseRoleAssignmentLog</class>
+    <class>org.jbpm.casemgmt.impl.audit.CaseFileDataLog</class>
+    
+    <!-- error handling -->
+    <class>org.jbpm.runtime.manager.impl.jpa.ExecutionErrorInfo</class>
+    <exclude-unlisted-classes>true</exclude-unlisted-classes>
+  </persistence-unit>
 </persistence>

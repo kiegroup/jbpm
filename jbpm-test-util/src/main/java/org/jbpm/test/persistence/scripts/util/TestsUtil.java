@@ -21,6 +21,7 @@ import java.io.FilenameFilter;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Properties;
+import java.util.function.Predicate;
 
 import org.jbpm.test.persistence.scripts.DatabaseType;
 import org.jbpm.test.persistence.scripts.PersistenceUnit;
@@ -50,16 +51,11 @@ public final class TestsUtil {
             final boolean sortByName, final boolean dropFiles) {
         final File folderWithScripts = new File(folderWithDDLs.getPath() + File.separator + databaseType.getScriptsFolderName());
         if (folderWithScripts.exists()) {
-            File[] foundFiles;
-            if (dropFiles)
-                foundFiles = filterOutDropFiles(folderWithScripts);
-            else
-                foundFiles = filterInDropFiles(folderWithScripts);
-
-            if (foundFiles == null) {
-                return new File[0];
-            }
-
+            Predicate<File> filterNew = (name) -> name.getName().toLowerCase().contains("new");
+            Predicate<File> filterExtension = (name) -> name.getName().toLowerCase().endsWith(".sql");
+            Predicate<File> filterName = (name) -> name.getName().contains("drop");
+            Predicate<File> filter = filterExtension.and((!dropFiles) ? filterName : filterName.negate()).and(filterNew.negate());
+            File[] foundFiles = Arrays.asList(folderWithScripts.listFiles()).stream().filter(filter).toArray(File[]::new);
 
             if (sortByName) {
                 foundFiles = Arrays.stream(foundFiles).map(DatabaseScript::new).sorted().map(DatabaseScript::getScript).toArray(File[]::new);
