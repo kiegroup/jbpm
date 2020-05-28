@@ -30,7 +30,7 @@ public class QuartzDialectResolver implements DialectResolver {
     private static Map<String, Dialect> DIALECT_BY_NAME = new HashMap<>();
 
     {
-        registerDialect(new MySQLCustomDialect(), "MySQL");
+        registerDialect(new MySQLCustomDialect(), "MySQL", "MariaDB");
         registerDialect(new DB2CustomDialect(), "DB2/LINUXX8664");
         registerDialect(new OracleCustomDialect(), "Oracle");
         registerDialect(new PostgreSQLCustomDialect(), "PostgreSQL", "EnterpriseDB");
