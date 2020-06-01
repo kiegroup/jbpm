@@ -51,7 +51,7 @@ public final class TestsUtil {
             final boolean sortByName, final boolean dropFiles) {
         final File folderWithScripts = new File(folderWithDDLs.getPath() + File.separator + databaseType.getScriptsFolderName());
         if (folderWithScripts.exists()) {
-            Predicate<File> filterNew = (name) -> name.getName().toLowerCase().contains("new");
+            Predicate<File> filterNew = (name) -> name.getName().toLowerCase().contains("springboot");
             Predicate<File> filterExtension = (name) -> name.getName().toLowerCase().endsWith(".sql");
             Predicate<File> filterName = (name) -> name.getName().contains("drop");
             Predicate<File> filter = filterExtension.and((!dropFiles) ? filterName : filterName.negate()).and(filterNew.negate());
