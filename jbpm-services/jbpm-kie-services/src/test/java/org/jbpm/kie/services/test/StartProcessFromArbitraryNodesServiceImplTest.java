@@ -65,6 +65,8 @@ public class StartProcessFromArbitraryNodesServiceImplTest extends AbstractKieSe
         processes.add("repo/processes/general/BPMN2-SimpleRestartTest.bpmn2");
         processes.add("repo/processes/general/BPMN2-SimpleRestartWithTimerTest.bpmn2");
         processes.add("repo/processes/general/BPMN2-SimpleRestartWithObsoleteTest.bpmn2");
+        processes.add("repo/processes/general/BPMN2-SimpleRestartWithErrorOnEntryScriptHT.bpmn2");
+        processes.add("repo/processes/general/BPMN2-SimpleRestartWithErrorOnExitScriptHT.bpmn2");
 
         InternalKieModule kJar1 = createKieJar(ks, releaseId, processes);
         File pom = new File("target/kmodule", "pom.xml");
@@ -220,6 +222,94 @@ public class StartProcessFromArbitraryNodesServiceImplTest extends AbstractKieSe
 
         ProcessInstance pi = processService.getProcessInstance(processInstanceId);
         assertNull(pi);
+    }
+    
+    @Test
+    public void testErrorNodesOnExitScript() throws Exception {
+        final String processId = "restart.simpleErrorOnExitScript";
+        assertNotNull(deploymentService);
+
+        KModuleDeploymentUnit deploymentUnit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
+
+        deploymentService.deploy(deploymentUnit);
+        units.add(deploymentUnit);
+        assertNotNull(processService);
+        
+        Long processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), processId, singletonMap("var_exception", "yes"));
+
+        assertNotNull(processInstanceId);
+        
+        try {
+            startAndCompleteTask(processInstanceId, "User Task 1");
+        } catch (Exception e) {
+          // expected as this is broken script process
+        }
+
+        processService.abortProcessInstance(processInstanceId);
+
+        Collection<NodeInstanceDesc> errorNodes = runtimeDataService.getProcessInstanceFullHistoryByType(processInstanceId, EntryType.ERROR, new QueryContext(0, 0));
+        assertThat(errorNodes.size(), is(1));
+        String[] nodeIds = errorNodes.stream().map(e -> e.getNodeId()).toArray(String[]::new);
+        
+        
+        processInstanceId = processService.startProcessFromNodeIds(deploymentUnit.getIdentifier(), processId, singletonMap("var_exception", "no"), nodeIds);
+        
+        startAndCompleteTask(processInstanceId, "User Task 1");
+        
+        startAndCompleteTask(processInstanceId, "User Task 2");
+        
+        ProcessInstance pi = processService.getProcessInstance(processInstanceId);
+        assertNull(pi);
+    }
+    
+    @Test
+    public void testErrorNodesOnEntryScript() throws Exception {
+        final String processId = "restart.simpleErrorOnEntryScript";
+        assertNotNull(deploymentService);
+
+        KModuleDeploymentUnit deploymentUnit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
+
+        deploymentService.deploy(deploymentUnit);
+        units.add(deploymentUnit);
+        assertNotNull(processService);
+        
+        Long processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), processId, singletonMap("var_exception", "yes"));
+
+        assertNotNull(processInstanceId);
+        
+        try {
+            runtimeDataService.getTasksByProcessInstanceId(processInstanceId).forEach(e -> {
+                this.userTaskService.start(e, "katy");
+            });
+        } catch (Exception e) {
+          // expected as this is broken script process
+        }
+
+        processService.abortProcessInstance(processInstanceId);
+
+        Collection<NodeInstanceDesc> errorNodes = runtimeDataService.getProcessInstanceFullHistoryByType(processInstanceId, EntryType.ERROR, new QueryContext(0, 0));
+        assertThat(errorNodes.size(), is(1));
+        String[] nodeIds = errorNodes.stream().map(e -> e.getNodeId()).toArray(String[]::new);
+        
+        
+        processInstanceId = processService.startProcessFromNodeIds(deploymentUnit.getIdentifier(), processId, singletonMap("var_exception", "no"), nodeIds);
+        
+        startAndCompleteTask(processInstanceId, "User Task 1");
+        
+        startAndCompleteTask(processInstanceId, "User Task 2");
+        
+        ProcessInstance pi = processService.getProcessInstance(processInstanceId);
+        assertNull(pi);
+    }
+
+    private void startAndCompleteTask(Long processInstanceId, String taskName) {
+        runtimeDataService.getTasksByProcessInstanceId(processInstanceId).forEach(e -> {
+            Task task = this.userTaskService.getTask(e);
+            if (taskName.equals(task.getName())){
+              this.userTaskService.start(e, "katy");
+              this.userTaskService.complete(e, "katy", emptyMap());
+            }
+        });
     }
 
 }
