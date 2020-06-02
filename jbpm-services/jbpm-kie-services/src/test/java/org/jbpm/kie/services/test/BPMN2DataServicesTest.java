@@ -347,6 +347,7 @@ public class BPMN2DataServicesTest extends AbstractKieServicesBaseTest {
 
         // now let's undeploy the unit
         deploymentService.undeploy(deploymentUnit);
+        units.remove(deploymentUnit);
 
         try {
             bpmn2Service.getProcessDefinition(deploymentUnit.getIdentifier(), processId);
@@ -399,6 +400,7 @@ public class BPMN2DataServicesTest extends AbstractKieServicesBaseTest {
         deploymentService.deploy(deploymentUnit);
         units.add(deploymentUnit);
         deploymentService.undeploy(deploymentUnit);
+        units.remove(deploymentUnit);
         bpmn2Service.getProcessDefinition(deploymentUnit.getIdentifier(), "org.jbpm.writedocument");
     }
 

@@ -210,6 +210,7 @@ public class DeploymentServiceWithSyncTest extends AbstractKieServicesBaseTest {
 		deployed = deploymentService.getDeployedUnits();
     	assertNotNull(deployed);
     	assertEquals(0, deployed.size());
+    	units.remove(unit);
     }
     
     @Test
@@ -261,7 +262,6 @@ public class DeploymentServiceWithSyncTest extends AbstractKieServicesBaseTest {
     	unit.addAttribute("sync", "false");
     	
     	store.enableDeploymentUnit(unit);
-		units.add(unit);
 		
 		countDownListener.waitTillCompleted(4000);
 		
