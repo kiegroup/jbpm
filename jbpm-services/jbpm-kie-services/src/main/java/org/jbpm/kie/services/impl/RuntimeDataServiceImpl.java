@@ -42,6 +42,7 @@ import org.jbpm.kie.services.impl.security.DeploymentRolesManager;
 import org.jbpm.runtime.manager.impl.identity.UserDataServiceProvider;
 import org.jbpm.services.api.DeploymentEvent;
 import org.jbpm.services.api.DeploymentEventListener;
+import org.jbpm.services.api.DeploymentNotFoundException;
 import org.jbpm.services.api.RuntimeDataService;
 import org.jbpm.services.api.TaskNotFoundException;
 import org.jbpm.services.api.model.DeployedAsset;
@@ -134,11 +135,6 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
         this.deploymentRolesManager = deploymentRolesManager;
     }
 
-    private void addProcessDefinition( ProcessAssetDesc asset) {
-       availableProcesses.add(asset);
-       deploymentIds.add(asset.getDeploymentId());
-    }
-
     private void removeAllProcessDefinitions( Collection<ProcessAssetDesc> assets) {
         Iterator<ProcessAssetDesc> iter = assets.iterator();
         while( iter.hasNext() ) {
@@ -153,6 +149,9 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
         if (deploymentId != null && deploymentId.toLowerCase().endsWith("latest")) {
             matched = DeploymentIdResolver.matchAndReturnLatest(deploymentId, deploymentIds);
         }
+        else if (!deploymentIds.contains(deploymentId)) {
+            throw new DeploymentNotFoundException(deploymentId+ " not found");
+        }
         return matched;
     }
 
@@ -166,12 +165,14 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
         List<String> roles = null;
         for( DeployedAsset asset : assets ) {
             if( asset instanceof ProcessAssetDesc ) {
-                addProcessDefinition((ProcessAssetDesc) asset);
+                availableProcesses.add((ProcessAssetDesc) asset);
                 if (roles == null) {
                 	roles = ((ProcessAssetDesc) asset).getRoles();
                 }
             }
         }
+        // deployment id should be added regardless they are assets or not
+        deploymentIds.add(event.getDeploymentId());
         if (roles == null) {
         	roles = Collections.emptyList();
         }
