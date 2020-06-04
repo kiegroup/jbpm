@@ -15,5 +15,5 @@
         references Task
     go
 
-    create index IDX_PlanningTask_assignedUser on PlanningTask(assignedUser);
+    create index IDX_PlanningTask_assignedUser on PlanningTask(assignedUser)
   	go
