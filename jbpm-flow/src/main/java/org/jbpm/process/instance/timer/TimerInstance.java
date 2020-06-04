@@ -40,6 +40,7 @@ public class TimerInstance implements Serializable{
     private int repeatLimit = -1;
     private long sessionId;
     private String cronExpression;
+    private String name;
     
     public long getId() {
         return id;
@@ -128,10 +129,19 @@ public class TimerInstance implements Serializable{
     public void setCronExpression(String cronExpression) {
         this.cronExpression = cronExpression;
     }
+    
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
 
     @Override
     public String toString() {
-        return "TimerInstance [id=" + id + ", timerId=" + timerId + ", delay=" + delay + ", period=" + period + ", jobHandle=" + jobHandle + ", activated=" + activated + ", lastTriggered=" + lastTriggered + ", processInstanceId=" + processInstanceId
+        return "TimerInstance [id=" + id + ", name=" + name + ", timerId=" + timerId + ", delay=" + delay + ", period=" + period + ", jobHandle=" + jobHandle + ", activated=" + activated + ", lastTriggered=" +
+               lastTriggered + ", processInstanceId=" + processInstanceId
                + "]";
     }
 

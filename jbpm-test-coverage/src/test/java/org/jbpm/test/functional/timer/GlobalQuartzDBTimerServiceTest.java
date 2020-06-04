@@ -314,7 +314,7 @@ public class GlobalQuartzDBTimerServiceTest extends GlobalTimerServiceBaseTest {
     }
     
     @Test(timeout=20000)
-    public void testTimerRequiresRecoveryFlagSet() throws Exception {
+    public void testTimerRequiresRecoveryJobNameFlagSet() throws Exception {
         Properties properties= new Properties();
         properties.setProperty("mary", "HR");
         properties.setProperty("john", "HR");
@@ -342,10 +342,12 @@ public class GlobalQuartzDBTimerServiceTest extends GlobalTimerServiceBaseTest {
             connection = ((DataSource)InitialContext.doLookup("jdbc/jbpm-ds")).getConnection();
             stmt = connection.createStatement();
 
-            ResultSet resultSet = stmt.executeQuery("select REQUESTS_RECOVERY from QRTZ_JOB_DETAILS");
+            ResultSet resultSet = stmt.executeQuery("select REQUESTS_RECOVERY, JOB_NAME from QRTZ_JOB_DETAILS");
             while(resultSet.next()) {
                 boolean requestsRecovery = resultSet.getBoolean(1);
                 assertEquals("Requests recovery must be set to true", true, requestsRecovery);
+                String jobName = resultSet.getString(2);
+                assertTrue(jobName + " does not contain timer name", jobName.contains("Boundary Event"));
             }
         } finally {
             if(stmt != null) {

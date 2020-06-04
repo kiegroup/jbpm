@@ -29,14 +29,13 @@ import org.drools.core.time.TimerService;
 import org.drools.core.time.Trigger;
 import org.drools.core.time.impl.TimerJobInstance;
 import org.jbpm.process.core.timer.GlobalSchedulerService;
+import org.jbpm.process.core.timer.JobNameHelper;
 import org.jbpm.process.core.timer.NamedJobContext;
 import org.jbpm.process.core.timer.SchedulerServiceInterceptor;
 import org.jbpm.process.core.timer.impl.DelegateSchedulerServiceInterceptor;
 import org.jbpm.process.core.timer.impl.GlobalTimerService;
 import org.jbpm.process.core.timer.impl.GlobalTimerService.GlobalJobHandle;
 import org.jbpm.process.instance.timer.TimerManager.ProcessJobContext;
-import org.jbpm.process.instance.timer.TimerManager.StartProcessJobContext;
-import org.kie.api.runtime.EnvironmentName;
 
 
 public class EjbSchedulerService implements GlobalSchedulerService {
@@ -52,7 +51,7 @@ public class EjbSchedulerService implements GlobalSchedulerService {
 
 	@Override
 	public JobHandle scheduleJob(Job job, JobContext ctx, Trigger trigger) {
-		Long id = idCounter.getAndIncrement();
+		long id = idCounter.getAndIncrement();
 		String jobName = getJobName(ctx, id);
 		EjbGlobalJobHandle jobHandle = new EjbGlobalJobHandle(id, jobName, ((GlobalTimerService) globalTimerService).getTimerServiceId());
 		
@@ -109,7 +108,7 @@ public class EjbSchedulerService implements GlobalSchedulerService {
 	@Override
 	public JobHandle buildJobHandleForContext(NamedJobContext ctx) {
 
-		return new EjbGlobalJobHandle(-1, getJobName(ctx, -1l), ((GlobalTimerService) globalTimerService).getTimerServiceId());
+		return new EjbGlobalJobHandle(-1, getJobName(ctx, -1L), ((GlobalTimerService) globalTimerService).getTimerServiceId());
 	}
 
 	@Override
@@ -133,24 +132,8 @@ public class EjbSchedulerService implements GlobalSchedulerService {
         return true;	    
 	}
 	
-    protected String getJobName(JobContext ctx, Long id) {
-
-        String jobname = null;
-        
-        if (ctx instanceof ProcessJobContext) {
-            ProcessJobContext processCtx = (ProcessJobContext) ctx;
-            jobname = processCtx.getSessionId() + "-" + processCtx.getProcessInstanceId() + "-" + processCtx.getTimer().getId();
-            if (processCtx instanceof StartProcessJobContext) {
-                String deploymentId = (String) processCtx.getKnowledgeRuntime().getEnvironment().get(EnvironmentName.DEPLOYMENT_ID);
-                jobname = deploymentId + "-StartProcess-" + ((StartProcessJobContext) processCtx).getProcessId() + "-" + processCtx.getTimer().getId();
-            }
-        } else if (ctx instanceof NamedJobContext) {
-            jobname = ((NamedJobContext) ctx).getJobName();
-        } else {
-            jobname = "Timer-"+ctx.getClass().getSimpleName()+ "-" + id;
-        
-        }
-        return jobname;
+    protected String getJobName(JobContext ctx, long id) {
+           return JobNameHelper.getJobName(ctx, id);
 	}
 	
    private boolean isNewTimer(JobContext ctx) {

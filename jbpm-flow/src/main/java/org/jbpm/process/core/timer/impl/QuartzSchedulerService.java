@@ -33,13 +33,12 @@ import org.drools.core.time.TimerService;
 import org.drools.core.time.Trigger;
 import org.drools.core.time.impl.TimerJobInstance;
 import org.jbpm.process.core.timer.GlobalSchedulerService;
+import org.jbpm.process.core.timer.JobNameHelper;
 import org.jbpm.process.core.timer.NamedJobContext;
 import org.jbpm.process.core.timer.SchedulerServiceInterceptor;
 import org.jbpm.process.core.timer.TimerServiceRegistry;
 import org.jbpm.process.core.timer.impl.GlobalTimerService.GlobalJobHandle;
 import org.jbpm.process.instance.timer.TimerManager.ProcessJobContext;
-import org.jbpm.process.instance.timer.TimerManager.StartProcessJobContext;
-import org.kie.api.runtime.EnvironmentName;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
@@ -91,29 +90,10 @@ public class QuartzSchedulerService implements GlobalSchedulerService {
     @Override
     public JobHandle scheduleJob(Job job, JobContext ctx, Trigger trigger) {
         Long id = idCounter.getAndIncrement();
-        String jobname = null;
-        String groupName = "jbpm";
+        String groupName = JobNameHelper.getGroupName(ctx);
+        String jobname = JobNameHelper.getJobName(ctx, groupName, id);
         
-        if (ctx instanceof ProcessJobContext) {
-            ProcessJobContext processCtx = (ProcessJobContext) ctx;
-            jobname = processCtx.getSessionId() + "-" + processCtx.getProcessInstanceId() + "-" + processCtx.getTimer().getId();
-            if (processCtx instanceof StartProcessJobContext) {
-                jobname = "StartProcess-"+((StartProcessJobContext) processCtx).getProcessId()+ "-" + processCtx.getTimer().getId();
-            }
-            String deploymentId = (String)processCtx.getKnowledgeRuntime().getEnvironment().get(EnvironmentName.DEPLOYMENT_ID);
-            if (deploymentId != null) {
-                groupName = deploymentId;
-            }
-        } else if (ctx instanceof NamedJobContext) {
-            jobname = ((NamedJobContext) ctx).getJobName();
-            String deploymentId = ((NamedJobContext) ctx).getDeploymentId();
-            if (deploymentId != null) {
-                groupName = deploymentId;
-            }
-        } else {
-            jobname = "Timer-"+ctx.getClass().getSimpleName()+ "-" + id;
         
-        }
         logger.debug("Scheduling timer with name " + jobname);
         // check if this scheduler already has such job registered if so there is no need to schedule it again        
         try {

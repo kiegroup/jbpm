@@ -461,6 +461,7 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
         String timeCycle = (String) node.getMetaData().get("TimeCycle");
         String timeDate = (String) node.getMetaData().get("TimeDate");
         Timer timer = new Timer();
+        timer.setName(node.getName());
         if (timeDuration != null) {
             timer.setDelay(timeDuration);
             timer.setTimeType(Timer.TIME_DURATION);

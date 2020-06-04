@@ -25,6 +25,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.protobuf.ByteString;
+import com.google.protobuf.ExtensionRegistry;
 import org.drools.core.common.InternalWorkingMemory;
 import org.drools.core.marshalling.impl.MarshallerReaderContext;
 import org.drools.core.marshalling.impl.MarshallerWriteContext;
@@ -45,9 +47,6 @@ import org.jbpm.process.instance.timer.TimerManager.StartProcessJobContext;
 import org.kie.api.marshalling.ObjectMarshallingStrategy;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.process.WorkItem;
-
-import com.google.protobuf.ByteString;
-import com.google.protobuf.ExtensionRegistry;
 
 public class ProtobufProcessMarshaller
         implements
@@ -170,6 +169,10 @@ public class ProtobufProcessMarshaller
                 .setProcessInstanceId( timer.getProcessInstanceId() )
                 .setActivatedTime( timer.getActivated().getTime() )
                 .setRepeatLimit(timer.getRepeatLimit());
+        String name = timer.getName(); 
+        if (name != null) {
+            _timer.setName(name);
+        }
         Date lastTriggered = timer.getLastTriggered();
         if ( lastTriggered != null ) {
             _timer.setLastTriggered( lastTriggered.getTime() );
@@ -195,6 +198,7 @@ public class ProtobufProcessMarshaller
             timer.setLastTriggered( new Date( _timer.getLastTriggered() ) );
         }
         timer.setRepeatLimit(_timer.getRepeatLimit());
+        timer.setName(_timer.getName());
         return timer;
     }
 

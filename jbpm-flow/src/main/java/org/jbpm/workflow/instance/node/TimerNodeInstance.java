@@ -68,7 +68,7 @@ public class TimerNodeInstance extends StateBasedNodeInstance implements EventLi
     protected TimerInstance createTimerInstance(InternalKnowledgeRuntime kruntime) {
     	Timer timer = getTimerNode().getTimer(); 
     	TimerInstance timerInstance = new TimerInstance();
-    	
+    	timerInstance.setName(getTimerNode().getName());
     	if (kruntime != null && kruntime.getEnvironment().get("jbpm.business.calendar") != null){
         	BusinessCalendar businessCalendar = (BusinessCalendar) kruntime.getEnvironment().get("jbpm.business.calendar");
         	

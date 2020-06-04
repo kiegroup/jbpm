@@ -33,11 +33,11 @@ import org.drools.core.time.TimerService;
 import org.drools.core.time.Trigger;
 import org.drools.core.time.impl.TimerJobInstance;
 import org.jbpm.process.core.timer.GlobalSchedulerService;
+import org.jbpm.process.core.timer.JobNameHelper;
 import org.jbpm.process.core.timer.NamedJobContext;
 import org.jbpm.process.core.timer.SchedulerServiceInterceptor;
 import org.jbpm.process.core.timer.impl.GlobalTimerService.GlobalJobHandle;
 import org.jbpm.process.instance.timer.TimerManager.ProcessJobContext;
-import org.jbpm.process.instance.timer.TimerManager.StartProcessJobContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,21 +91,15 @@ public class ThreadPoolSchedulerService implements GlobalSchedulerService {
     @Override
     public JobHandle scheduleJob(Job job, JobContext ctx, Trigger trigger) {
 
+        long id = idCounter.getAndIncrement(); 
         Date date = trigger.hasNextFireTime();
         if ( date != null ) {
-            String jobname = null;
-            if (ctx instanceof ProcessJobContext) {
-                ProcessJobContext processCtx = (ProcessJobContext) ctx;
-                jobname = processCtx.getSessionId() + "-" + processCtx.getProcessInstanceId() + "-" + processCtx.getTimer().getId();
-                if (processCtx instanceof StartProcessJobContext) {
-                    jobname = "StartProcess-"+((StartProcessJobContext) processCtx).getProcessId()+ "-" + processCtx.getTimer().getId();
-                }
-                if (activeTimer.containsKey(jobname)) {
-                    return activeTimer.get(jobname);
-                }
-            
+            String jobname = JobNameHelper.getJobName(ctx, id);
+            if (activeTimer.containsKey(jobname)) {
+                return activeTimer.get(jobname);
             }
-            GlobalJDKJobHandle jobHandle = new GlobalJDKJobHandle( idCounter.getAndIncrement() );
+            
+            GlobalJDKJobHandle jobHandle = new GlobalJDKJobHandle( id);
             
             TimerJobInstance jobInstance = globalTimerService.
                                  getTimerJobFactoryManager().createTimerJobInstance( job,
@@ -115,9 +109,7 @@ public class ThreadPoolSchedulerService implements GlobalSchedulerService {
                                                                                      (InternalSchedulerService) globalTimerService );
             jobHandle.setTimerJobInstance( (TimerJobInstance) jobInstance );
             interceptor.internalSchedule( (TimerJobInstance) jobInstance );
-            if (jobname != null) {
-                activeTimer.put(jobname, jobHandle);
-            }
+            activeTimer.put(jobname, jobHandle);
             return jobHandle;
         } else {
             return null;
@@ -139,11 +131,7 @@ public class ThreadPoolSchedulerService implements GlobalSchedulerService {
             } else {
                 processCtx = (ProcessJobContext) jobContext;
             }
-            
-            String jobname = processCtx.getSessionId() + "-" + processCtx.getProcessInstanceId() + "-" + processCtx.getTimer().getId();
-            if (processCtx instanceof StartProcessJobContext) {
-                jobname = "StartProcess-"+((StartProcessJobContext) processCtx).getProcessId()+ "-" + processCtx.getTimer().getId();
-            }
+            String jobname = JobNameHelper.getJobName(processCtx, jobContext.getJobHandle().getId());
             activeTimer.remove(jobname);
             globalTimerService.getTimerJobFactoryManager().removeTimerJobInstance( ((GlobalJDKJobHandle) jobHandle).getTimerJobInstance() );
         } catch (ClassCastException e) {

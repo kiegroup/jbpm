@@ -208,6 +208,7 @@ public class UpdateTimerCommand implements ExecutableCommand<Void>, ProcessInsta
         if (delay != 0) {
             newTimer.setDelay(calculateDelay(delay, timer));
         }
+        newTimer.setName(timer.getName());
         newTimer.setPeriod(period);
         newTimer.setRepeatLimit(repeatLimit);
         newTimer.setTimerId(timer.getTimerId());        
