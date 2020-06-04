@@ -224,6 +224,12 @@
       <groupId>org.hornetq</groupId>
       <artifactId>hornetq-core-client</artifactId>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>io.netty</groupId>
+          <artifactId>netty-all</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.hornetq</groupId>
@@ -233,6 +239,11 @@
     <dependency>
       <groupId>io.netty</groupId>
       <artifactId>netty</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.netty</groupId>
+      <artifactId>netty-transport</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
