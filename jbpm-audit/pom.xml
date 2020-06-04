@@ -180,6 +180,10 @@
       <artifactId>hornetq-jms-server</artifactId>
       <scope>test</scope>
       <exclusions>
+        <exclusion>
+          <groupId>io.netty</groupId>
+          <artifactId>netty-all</artifactId>
+        </exclusion>
         <!-- Not needed for tests. It also introduces circular dependency on hornetq-journal and hornetq-commons which
              confuses the enforcer-ban-duplicated-classes rule. -->
         <exclusion>
@@ -192,7 +196,12 @@
         </exclusion>
       </exclusions>
     </dependency>
-    
+    <dependency>
+      <groupId>io.netty</groupId>
+      <artifactId>netty-transport</artifactId>
+      <scope>test</scope>
+    </dependency>
+
     <!-- Test: logging -->
     <dependency>
       <groupId>ch.qos.logback</groupId>
