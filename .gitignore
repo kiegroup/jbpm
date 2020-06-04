@@ -30,3 +30,10 @@ bin/
 # files used for external db testing
 jdbc_driver.jar
 db-settings.xml
+jbpm-xes/.project
+jbpm-xes/.settings/org.eclipse.core.resources.prefs
+jbpm-xes/.settings/org.eclipse.jdt.apt.core.prefs
+jbpm-xes/.settings/org.eclipse.jdt.core.prefs
+jbpm-xes/.settings/org.eclipse.m2e.core.prefs
+jbpm-services/.vscode/settings.json
+jbpm-xes/.classpath
