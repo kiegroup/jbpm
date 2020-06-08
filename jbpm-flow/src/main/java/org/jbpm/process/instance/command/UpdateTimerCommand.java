@@ -31,6 +31,7 @@ import org.jbpm.process.instance.InternalProcessRuntime;
 import org.jbpm.process.instance.timer.TimerInstance;
 import org.jbpm.process.instance.timer.TimerManager;
 import org.jbpm.ruleflow.instance.RuleFlowProcessInstance;
+import org.jbpm.workflow.instance.impl.NodeInstanceImpl;
 import org.jbpm.workflow.instance.node.StateBasedNodeInstance;
 import org.jbpm.workflow.instance.node.TimerNodeInstance;
 import org.kie.api.command.ExecutableCommand;
@@ -117,6 +118,18 @@ public class UpdateTimerCommand implements ExecutableCommand<Void>, ProcessInsta
             throw new IllegalArgumentException("Process instance with id " + processInstanceId + " not found");
         }
         for (NodeInstance nodeInstance : wfp.getNodeInstances(true)) {
+        	long slaTimerId = ((NodeInstanceImpl) nodeInstance).getSlaTimerId();
+        	if (slaTimerId != -1 && slaTimerId == timerId) {
+            	TimerInstance timer = tm.getTimerMap().get(timerId);
+                
+                TimerInstance newTimer = rescheduleTimer(timer, tm);
+                logger.debug("New timer {} about to be registered", newTimer);
+                tm.registerTimer(newTimer, wfp);                        
+                
+                ((NodeInstanceImpl) nodeInstance).internalSetSlaTimerId(newTimer.getId());
+                logger.debug("New timer {} successfully registered", newTimer);
+                break;
+            }
             if (nodeInstance instanceof TimerNodeInstance) {
                 TimerNodeInstance tni = (TimerNodeInstance) nodeInstance;
                 if (tni.getTimerId() == timerId || (tni.getNodeName() != null && tni.getNodeName().equals(timerName))) {

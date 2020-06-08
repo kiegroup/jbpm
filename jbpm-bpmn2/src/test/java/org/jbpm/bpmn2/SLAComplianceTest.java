@@ -18,6 +18,7 @@ package org.jbpm.bpmn2;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -32,7 +33,9 @@ import java.util.concurrent.TimeUnit;
 import org.jbpm.bpmn2.objects.TestWorkItemHandler;
 import org.jbpm.process.audit.NodeInstanceLog;
 import org.jbpm.process.audit.ProcessInstanceLog;
+import org.jbpm.process.instance.command.UpdateTimerCommand;
 import org.jbpm.process.instance.impl.demo.SystemOutWorkItemHandler;
+import org.jbpm.workflow.instance.node.HumanTaskNodeInstance;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -42,6 +45,7 @@ import org.junit.runners.Parameterized.Parameters;
 import org.kie.api.KieBase;
 import org.kie.api.event.process.DefaultProcessEventListener;
 import org.kie.api.event.process.ProcessEventListener;
+import org.kie.api.event.process.ProcessNodeTriggeredEvent;
 import org.kie.api.event.process.SLAViolatedEvent;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.NodeInstance;
@@ -243,6 +247,67 @@ public class SLAComplianceTest extends JbpmBpmn2TestCase {
         
         ksession.dispose();
     }
+    
+    @Test
+    public void testSLAonUserTaskUpdated() throws Exception {
+    	CountDownLatch latch = new CountDownLatch(1);
+        TimerIdListener listener = new TimerIdListener();
+        KieBase kbase = createKnowledgeBase("BPMN2-UserTaskWithSLAOnTask.bpmn2");
+        KieSession ksession = createKnowledgeSession(kbase);
+        TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task", workItemHandler);        
+        ksession.addEventListener(listener);
+        
+        ProcessInstance processInstance = ksession.startProcess("UserTask");
+        assertTrue(processInstance.getState() == ProcessInstance.STATE_ACTIVE);
+        
+        WorkItem workItem = workItemHandler.getWorkItem();
+        assertNotNull(workItem);
+        assertEquals("john", workItem.getParameter("ActorId"));
+                
+        processInstance = ksession.getProcessInstance(processInstance.getId());
+        assertTrue(processInstance.getState() == ProcessInstance.STATE_ACTIVE);
+        
+        Collection<NodeInstance> active = ((WorkflowProcessInstance)processInstance).getNodeInstances();
+        assertEquals(1, active.size());
+        
+        long timerId = listener.getTimerId();
+        assertNotEquals(-1, timerId);
+        
+        ksession.execute(new UpdateTimerCommand(processInstance.getId(), (long) timerId, 10));
+        
+        boolean slaViolated = latch.await(5, TimeUnit.SECONDS);
+        assertFalse("SLA should not violated by timer", slaViolated);
+        
+        ksession.dispose();
+    }
+    
+    class TimerIdListener extends DefaultProcessEventListener {
+
+    	private long timerId = -1;
+    	private boolean slaViolated = false;
+    	
+    	@Override
+    	public void afterNodeTriggered(ProcessNodeTriggeredEvent event) {
+            if (event.getNodeInstance() instanceof HumanTaskNodeInstance) {
+                timerId = ((HumanTaskNodeInstance) event.getNodeInstance()).getSlaTimerId();
+            }
+        }
+    	
+    	public long getTimerId() {
+    		return timerId;
+    	}
+    	
+        @Override
+        public void afterSLAViolated(SLAViolatedEvent event) {
+            this.slaViolated = true;
+        }
+        
+        public boolean isViolated() {
+        	return slaViolated;
+        }
+        
+    };
     
     @Test
     public void testSLAonProcessViolatedExternalTracking() throws Exception {
