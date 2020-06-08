@@ -18,9 +18,9 @@ package org.jbpm.test.persistence.scripts.quartzdialects;
 
 import java.sql.Types;
 
-import org.hibernate.dialect.PostgreSQL82Dialect;
+import org.hibernate.dialect.PostgreSQL95Dialect;
 
-public class PostgreSQLCustomDialect extends PostgreSQL82Dialect {
+public class PostgreSQLCustomDialect extends PostgreSQL95Dialect {
 
     public PostgreSQLCustomDialect() {
         registerColumnType(Types.BLOB, "bytea");
