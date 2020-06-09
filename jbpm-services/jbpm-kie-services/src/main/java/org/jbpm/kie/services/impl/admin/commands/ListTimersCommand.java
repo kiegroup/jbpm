@@ -102,12 +102,11 @@ public class ListTimersCommand implements ExecutableCommand<List<TimerInstance>>
     protected void processNodeInstance(TimerManager tm, NodeInstanceContainer container, List<TimerInstance> timers) {
     	for (NodeInstance nodeInstance : container.getNodeInstances()) {
         	if (((NodeInstanceImpl) nodeInstance).getSlaTimerId() != -1) {
-    			org.jbpm.process.instance.timer.TimerInstance timer = tm.getTimerMap().get(((NodeInstanceImpl) nodeInstance).getSlaTimerId());
-            	TimerInstanceImpl details = buildTimer(timer);
-            	details.setTimerName("[SLA]" + resolveVariable(nodeInstance.getNodeName(), nodeInstance));
-            	timers.add(details);
+                org.jbpm.process.instance.timer.TimerInstance timer = tm.getTimerMap().get(((NodeInstanceImpl) nodeInstance).getSlaTimerId());
+                TimerInstanceImpl details = buildTimer(timer);
+                details.setTimerName("[SLA]" + resolveVariable(nodeInstance.getNodeName(), nodeInstance));
+                timers.add(details);
             }
-
             if (nodeInstance instanceof TimerNodeInstance) {
                 TimerNodeInstance tni = (TimerNodeInstance) nodeInstance;
             	org.jbpm.process.instance.timer.TimerInstance timer = tm.getTimerMap().get(tni.getTimerId());

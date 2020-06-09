@@ -250,8 +250,8 @@ public class SLAComplianceTest extends JbpmBpmn2TestCase {
     
     @Test
     public void testSLAonUserTaskUpdated() throws Exception {
-    	CountDownLatch latch = new CountDownLatch(1);
-        TimerIdListener listener = new TimerIdListener();
+        CountDownLatch latch = new CountDownLatch(1);
+        TimerIdListener listener = new TimerIdListener(latch);
         KieBase kbase = createKnowledgeBase("BPMN2-UserTaskWithSLAOnTask.bpmn2");
         KieSession ksession = createKnowledgeSession(kbase);
         TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
@@ -259,14 +259,14 @@ public class SLAComplianceTest extends JbpmBpmn2TestCase {
         ksession.addEventListener(listener);
         
         ProcessInstance processInstance = ksession.startProcess("UserTask");
-        assertTrue(processInstance.getState() == ProcessInstance.STATE_ACTIVE);
+        assertEquals(ProcessInstance.STATE_ACTIVE, processInstance.getState());
         
         WorkItem workItem = workItemHandler.getWorkItem();
         assertNotNull(workItem);
         assertEquals("john", workItem.getParameter("ActorId"));
                 
         processInstance = ksession.getProcessInstance(processInstance.getId());
-        assertTrue(processInstance.getState() == ProcessInstance.STATE_ACTIVE);
+        assertEquals(ProcessInstance.STATE_ACTIVE, processInstance.getState());
         
         Collection<NodeInstance> active = ((WorkflowProcessInstance)processInstance).getNodeInstances();
         assertEquals(1, active.size());
@@ -274,39 +274,42 @@ public class SLAComplianceTest extends JbpmBpmn2TestCase {
         long timerId = listener.getTimerId();
         assertNotEquals(-1, timerId);
         
-        ksession.execute(new UpdateTimerCommand(processInstance.getId(), (long) timerId, 10));
+        System.out.println();
+        ksession.execute(new UpdateTimerCommand(processInstance.getId(), (long) timerId, 7));
         
         boolean slaViolated = latch.await(5, TimeUnit.SECONDS);
-        assertFalse("SLA should not violated by timer", slaViolated);
+        assertFalse("SLA should not be violated by timer", slaViolated);
+        
+        slaViolated = latch.await(5, TimeUnit.SECONDS);
+        assertTrue("SLA should be violated by timer", slaViolated);
         
         ksession.dispose();
     }
     
     class TimerIdListener extends DefaultProcessEventListener {
 
-    	private long timerId = -1;
-    	private boolean slaViolated = false;
-    	
-    	@Override
-    	public void afterNodeTriggered(ProcessNodeTriggeredEvent event) {
+        private long timerId = -1;
+        private CountDownLatch latch;
+        
+        public TimerIdListener(CountDownLatch latch) {
+        	this.latch = latch;
+        }
+        	
+        @Override
+        public void afterNodeTriggered(ProcessNodeTriggeredEvent event) {
             if (event.getNodeInstance() instanceof HumanTaskNodeInstance) {
                 timerId = ((HumanTaskNodeInstance) event.getNodeInstance()).getSlaTimerId();
             }
         }
-    	
-    	public long getTimerId() {
-    		return timerId;
-    	}
-    	
+        
+        public long getTimerId() {
+            return timerId;
+        }
+        
         @Override
         public void afterSLAViolated(SLAViolatedEvent event) {
-            this.slaViolated = true;
+            latch.countDown();
         }
-        
-        public boolean isViolated() {
-        	return slaViolated;
-        }
-        
     };
     
     @Test
