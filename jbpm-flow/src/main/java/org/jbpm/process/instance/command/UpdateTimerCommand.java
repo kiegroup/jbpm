@@ -118,9 +118,9 @@ public class UpdateTimerCommand implements ExecutableCommand<Void>, ProcessInsta
             throw new IllegalArgumentException("Process instance with id " + processInstanceId + " not found");
         }
         for (NodeInstance nodeInstance : wfp.getNodeInstances(true)) {
-        	long slaTimerId = ((NodeInstanceImpl) nodeInstance).getSlaTimerId();
-        	if (slaTimerId != -1 && slaTimerId == timerId) {
-            	TimerInstance timer = tm.getTimerMap().get(timerId);
+            long slaTimerId = ((NodeInstanceImpl) nodeInstance).getSlaTimerId();
+            if (slaTimerId != -1 && slaTimerId == timerId) {
+                TimerInstance timer = tm.getTimerMap().get(timerId);
                 
                 TimerInstance newTimer = rescheduleTimer(timer, tm);
                 logger.debug("New SLA timer {} about to be registered", newTimer);
