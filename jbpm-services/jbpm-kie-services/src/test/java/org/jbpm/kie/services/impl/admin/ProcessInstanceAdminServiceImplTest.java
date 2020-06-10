@@ -82,6 +82,7 @@ public class ProcessInstanceAdminServiceImplTest extends AbstractKieServicesBase
         List<String> processes = new ArrayList<String>();
         processes.add("repo/processes/general/humanTask.bpmn");
         processes.add("repo/processes/general/BPMN2-IntermediateCatchEventTimerDuration.bpmn2");
+        processes.add("repo/processes/general/BPMN2-UserTaskWithSLAOnTask.bpmn2");
         processes.add("repo/processes/errors/BPMN2-BrokenScriptTask.bpmn2");
         processes.add("repo/processes/errors/BPMN2-UserTaskWithRollback.bpmn2");
         processes.add("repo/processes/general/AdHocSubProcess.bpmn2");
@@ -389,7 +390,30 @@ public class ProcessInstanceAdminServiceImplTest extends AbstractKieServicesBase
         processInstanceId = null;
     }
     
-    
+    @Test(timeout=10000)
+    public void testListSLATimer() throws Exception {
+        processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "UserTaskWithSLAOnTask");
+        assertNotNull(processInstanceId);
+        
+        Collection<NodeInstanceDesc> activeNodes = processAdminService.getActiveNodeInstances(processInstanceId);
+        assertNotNull(activeNodes);
+        assertEquals(1, activeNodes.size());
+        
+        Collection<TimerInstance> timers = processAdminService.getTimerInstances(processInstanceId);
+        assertNotNull(timers);
+        assertEquals(1, timers.size());
+        
+        TimerInstance timer = timers.iterator().next();
+        assertNotNull(timer.getActivationTime());
+        assertNotNull(timer.getDelay());
+        assertNotNull(timer.getNextFireTime());
+        assertNotNull(timer.getProcessInstanceId());
+        assertNotNull(timer.getSessionId());
+        assertNotNull(timer.getTimerId());
+        assertNotNull(timer.getId());
+        assertNotNull(timer.getTimerName());
+    }
+        
     @Test(timeout=10000)
     public void testUpdateTimerRelative() throws Exception {
         processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "IntermediateCatchEvent");
