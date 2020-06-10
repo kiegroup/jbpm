@@ -292,7 +292,7 @@ public class SLAComplianceTest extends JbpmBpmn2TestCase {
         private CountDownLatch latch;
         
         public TimerIdListener(CountDownLatch latch) {
-        	this.latch = latch;
+            this.latch = latch;
         }
         	
         @Override

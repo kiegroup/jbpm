@@ -394,7 +394,6 @@ public class ProcessInstanceAdminServiceImplTest extends AbstractKieServicesBase
     public void testListSLATimer() throws Exception {
         processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "UserTaskWithSLAOnTask");
         assertNotNull(processInstanceId);
-        long scheduleTime = System.currentTimeMillis();
         
         Collection<NodeInstanceDesc> activeNodes = processAdminService.getActiveNodeInstances(processInstanceId);
         assertNotNull(activeNodes);
