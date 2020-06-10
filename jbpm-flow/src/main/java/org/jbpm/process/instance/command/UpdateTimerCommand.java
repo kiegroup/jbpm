@@ -16,6 +16,7 @@
 
 package org.jbpm.process.instance.command;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -127,6 +128,7 @@ public class UpdateTimerCommand implements ExecutableCommand<Void>, ProcessInsta
                 tm.registerTimer(newTimer, wfp);                        
                 
                 ((NodeInstanceImpl) nodeInstance).internalSetSlaTimerId(newTimer.getId());
+                ((NodeInstanceImpl) nodeInstance).internalSetSlaDueDate(new Date(System.currentTimeMillis() + newTimer.getDelay()));
                 logger.debug("New SLA timer {} successfully registered", newTimer);
                 break;
             }
