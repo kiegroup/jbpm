@@ -24,6 +24,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -270,11 +271,14 @@ public class SLAComplianceTest extends JbpmBpmn2TestCase {
         
         Collection<NodeInstance> active = ((WorkflowProcessInstance)processInstance).getNodeInstances();
         assertEquals(1, active.size());
-        
+        NodeInstance userTaskNode = active.iterator().next();
+        Date firstSlaDueDate = getSLADueDateForNodeInstance(processInstance.getId(), 
+                                                            (org.jbpm.workflow.instance.NodeInstance) userTaskNode, 
+                                                            NodeInstanceLog.TYPE_ENTER);
+
         long timerId = listener.getTimerId();
         assertNotEquals(-1, timerId);
         
-        System.out.println();
         ksession.execute(new UpdateTimerCommand(processInstance.getId(), (long) timerId, 7));
         
         boolean slaViolated = latch.await(5, TimeUnit.SECONDS);
@@ -282,6 +286,14 @@ public class SLAComplianceTest extends JbpmBpmn2TestCase {
         
         slaViolated = latch.await(5, TimeUnit.SECONDS);
         assertTrue("SLA should be violated by timer", slaViolated);
+        
+        ksession.abortProcessInstance(processInstance.getId());
+        Date updatedSlaDueDate = getSLADueDateForNodeInstance(processInstance.getId(), 
+                                                              (org.jbpm.workflow.instance.NodeInstance) userTaskNode, 
+                                                              NodeInstanceLog.TYPE_ABORTED);
+
+        assertTrue(String.format("updatedSlaDueDate '%tc' should be around 4 seconds after firstSlaDueDate '%tc'", updatedSlaDueDate, firstSlaDueDate), 
+                   updatedSlaDueDate.after(firstSlaDueDate));
         
         ksession.dispose();
     }
@@ -634,5 +646,22 @@ public class SLAComplianceTest extends JbpmBpmn2TestCase {
             slaCompliance = nodeInstance.getSlaCompliance();
         }
         return slaCompliance;
+    }
+    
+    private Date getSLADueDateForNodeInstance(long processInstanceId, org.jbpm.workflow.instance.NodeInstance nodeInstance, int logType) {
+        if (!sessionPersistence) 
+            return nodeInstance.getSlaDueDate();
+        
+        List<NodeInstanceLog> logs = logService.findNodeInstances(processInstanceId);
+        if (logs == null)
+            throw new RuntimeException("NodeInstanceLog not found");
+        
+        for (NodeInstanceLog log : logs) {
+            if (log.getType() == logType && log.getNodeInstanceId().equals(String.valueOf(nodeInstance.getId()))) {
+               return log.getSlaDueDate();
+            }
+        }
+        
+        throw new RuntimeException("NodeInstanceLog not found for id "+nodeInstance.getId()+" and type "+logType);
     }
 }
