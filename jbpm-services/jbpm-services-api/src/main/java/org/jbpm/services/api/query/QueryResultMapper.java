@@ -70,6 +70,7 @@ public interface QueryResultMapper<T> extends Serializable {
     public static final String COLUMN_IDENTITY = "USER_IDENTITY";
     public static final String COLUMN_PROCESSVERSION = "PROCESSVERSION";
     public static final String COLUMN_PROCESSNAME = "PROCESSNAME";
+    public static final String COLUMN_PROCESSTYPE = "PROCESSTYPE";
     public static final String COLUMN_CORRELATIONKEY = "CORRELATIONKEY";
     public static final String COLUMN_EXTERNALID = "EXTERNALID";
     public static final String COLUMN_PROCESSINSTANCEDESCRIPTION = "PROCESSINSTANCEDESCRIPTION";

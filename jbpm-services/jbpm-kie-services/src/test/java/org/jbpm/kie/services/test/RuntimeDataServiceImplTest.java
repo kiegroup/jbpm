@@ -39,6 +39,7 @@ import org.jbpm.services.api.model.ProcessDefinition;
 import org.jbpm.services.api.model.ProcessInstanceDesc;
 import org.jbpm.services.api.model.UserTaskInstanceDesc;
 import org.jbpm.services.api.model.VariableDesc;
+import org.jbpm.workflow.core.WorkflowProcess;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 import org.jbpm.workflow.instance.node.WorkItemNodeInstance;
 import org.junit.After;
@@ -1039,19 +1040,23 @@ public class RuntimeDataServiceImplTest extends AbstractKieServicesBaseTest {
     	assertEquals("Write a Document", userTask.getName());
 
     	NodeInstanceDesc nodeInstanceDesc = runtimeDataService.getNodeInstanceForWorkItem(userTask.getWorkItemId());
-		assertNull(userTask.getSlaCompliance());
-		assertNull(userTask.getSlaDueDate());
+    	assertNull(userTask.getSlaCompliance());
+    	assertNull(userTask.getSlaDueDate());
 
-		userTask = runtimeDataService.getTaskById(taskId,true);
-		assertNotNull(userTask);
+    	userTask = runtimeDataService.getTaskById(taskId, true);
+    	assertNotNull(userTask);
+    	assertEquals(nodeInstanceDesc.getSlaCompliance(), userTask.getSlaCompliance());
+    	assertEquals(nodeInstanceDesc.getSlaDueDate(), userTask.getSlaDueDate());
+    	
+    	assertNotNull(userTask.getCorrelationKey());
+    	assertNotNull(userTask.getProcessType());
+    	assertEquals((int) WorkflowProcess.PROCESS_TYPE, (int) userTask.getProcessType());
+    	assertEquals(processInstanceId, userTask.getProcessInstanceId());
 
-		assertEquals(nodeInstanceDesc.getSlaCompliance(), userTask.getSlaCompliance());
-		assertEquals(nodeInstanceDesc.getSlaDueDate(), userTask.getSlaDueDate());
-
-		userTask = runtimeDataService.getTaskById(taskId,false);
-		assertNotNull(userTask);
-		assertNull(userTask.getSlaCompliance());
-		assertNull(userTask.getSlaDueDate());
+    	userTask = runtimeDataService.getTaskById(taskId,false);
+    	assertNotNull(userTask);
+    	assertNull(userTask.getSlaCompliance());
+    	assertNull(userTask.getSlaDueDate());
     }
 
     @Test

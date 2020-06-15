@@ -715,15 +715,18 @@
 	      a.processInstanceId,
 	      a.createdOn,
 	      a.dueDate,
-          a.workItemId,
-    	  t.formName,
-    	  t.subject
+	      a.workItemId,
+	      t.formName,
+	      t.subject,
+	      plog.correlationKey,
+	      plog.processType
 	      )
         from 
-        	AuditTaskImpl a
-        	left join TaskImpl t on t.id = a.taskId
+          AuditTaskImpl a
+          inner join ProcessInstanceLog plog ON a.processInstanceId = plog.processInstanceId
+          left join TaskImpl t on t.id = a.taskId
         where 
-        	a.taskId = :taskId
+          a.taskId = :taskId
     </query>
     <!-- hint name="org.hibernate.timeout" value="200"/ -->
   </named-query>
@@ -747,14 +750,16 @@
 	      a.dueDate,
 	      a.workItemId,
 	      t.formName,
-	      t.subject
+	      t.subject,
+	      plog.correlationKey,
+	      plog.processType
 	      )
         from 
-        	AuditTaskImpl a
-        left join TaskImpl t on t.id = a.taskId
-        where 
-        	a.workItemId = :workItemId 
-        	
+          AuditTaskImpl a
+          inner join ProcessInstanceLog plog ON a.processInstanceId = plog.processInstanceId
+          left join TaskImpl t on t.id = a.taskId
+        where
+          a.workItemId = :workItemId 
     </query>
     <!-- hint name="org.hibernate.timeout" value="200"/ -->
   </named-query>
@@ -778,11 +783,14 @@
         a.dueDate,
         a.workItemId,
         t.formName,
-        t.subject
+        t.subject,
+        plog.correlationKey,
+        plog.processType
         )
         from 
           AuditTaskImpl a 
-        left join TaskImpl t on t.id = a.taskId
+          inner join ProcessInstanceLog plog ON a.processInstanceId = plog.processInstanceId
+          left join TaskImpl t on t.id = a.taskId
         where 
           a.processInstanceId = :processInstanceId
           and a.status in ( :statuses) 
