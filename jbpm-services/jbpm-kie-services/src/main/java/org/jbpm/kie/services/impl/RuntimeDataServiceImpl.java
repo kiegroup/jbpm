@@ -16,10 +16,6 @@
 
 package org.jbpm.kie.services.impl;
 
-import static java.util.Objects.requireNonNull;
-import static org.jbpm.kie.services.impl.CommonUtils.getCallbackUserRoles;
-import static org.kie.internal.query.QueryParameterIdentifiers.FILTER;
-
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -69,6 +65,10 @@ import org.kie.internal.query.QueryFilter;
 import org.kie.internal.task.api.AuditTask;
 import org.kie.internal.task.api.model.TaskEvent;
 import org.kie.internal.task.query.TaskSummaryQueryBuilder;
+
+import static java.util.Objects.requireNonNull;
+import static org.jbpm.kie.services.impl.CommonUtils.getCallbackUserRoles;
+import static org.kie.internal.query.QueryParameterIdentifiers.FILTER;
 
 
 public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEventListener {
@@ -1124,18 +1124,20 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
     }
 
     public List<TaskEvent> getTaskEvents(long taskId, QueryFilter filter) {
+        UserTaskInstanceDesc task = getTaskById(taskId);
+        if (task == null) {
+            throw new TaskNotFoundException( MessageFormat.format(TASK_NOT_FOUND, taskId) );
+        }
     	Map<String, Object> params = new HashMap<String, Object>();
         params.put("taskId", taskId);
         applyQueryContext(params, filter);
         applyQueryFilter(params, filter);
         List<TaskEvent> taskEvents = commandService.execute(
     				new QueryNameCommand<List<TaskEvent>>("getAllTasksEvents", params));
-
-        if(taskEvents == null || taskEvents.isEmpty()) {
-            
-            UserTaskInstanceDesc task = getTaskById(taskId);
-            if (task == null) {
-                throw new TaskNotFoundException( MessageFormat.format(TASK_NOT_FOUND, taskId) );
+        if (taskEvents != null) {
+            for (TaskEvent taskEvent : taskEvents) {
+                taskEvent.setCorrelationKey(task.getCorrelationKey());
+                taskEvent.setProcessType(task.getProcessType());
             }
         }
         return taskEvents;

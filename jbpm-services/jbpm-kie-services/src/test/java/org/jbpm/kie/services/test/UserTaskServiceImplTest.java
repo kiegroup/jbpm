@@ -929,5 +929,6 @@ private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentSe
         UserTaskInstanceDesc task = runtimeDataService.getTaskById(taskId);
         assertNotNull(task);
         assertEquals(Status.Ready.toString(), task.getStatus());
+        assertCorrelationAndProcess(task, processInstanceId);
     }
 }

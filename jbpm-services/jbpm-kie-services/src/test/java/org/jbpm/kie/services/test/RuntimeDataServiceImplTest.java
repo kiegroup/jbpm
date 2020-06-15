@@ -39,6 +39,7 @@ import org.jbpm.services.api.model.ProcessDefinition;
 import org.jbpm.services.api.model.ProcessInstanceDesc;
 import org.jbpm.services.api.model.UserTaskInstanceDesc;
 import org.jbpm.services.api.model.VariableDesc;
+import org.jbpm.workflow.core.WorkflowProcess;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 import org.jbpm.workflow.instance.node.WorkItemNodeInstance;
 import org.junit.After;
@@ -1016,43 +1017,65 @@ public class RuntimeDataServiceImplTest extends AbstractKieServicesBaseTest {
     	assertNotNull(userTask);
     	assertEquals(processInstanceId, userTask.getProcessInstanceId());
     	assertEquals("Write a Document", userTask.getName());
+    	assertCorrelationAndProcess(userTask, processInstanceId);
 
     }
 
     @Test
-    public void testGetTaskById() {
-    	processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument");
-    	assertNotNull(processInstanceId);
-
-    	ProcessInstance instance = processService.getProcessInstance(processInstanceId);
-    	assertNotNull(instance);
-
-    	List<Long> taskIds = runtimeDataService.getTasksByProcessInstanceId(processInstanceId);
-    	assertNotNull(taskIds);
-    	assertEquals(1, taskIds.size());
-
-    	Long taskId = taskIds.get(0);
-
-    	UserTaskInstanceDesc userTask = runtimeDataService.getTaskById(taskId);
-    	assertNotNull(userTask);
-    	assertEquals(processInstanceId, userTask.getProcessInstanceId());
-    	assertEquals("Write a Document", userTask.getName());
-
-    	NodeInstanceDesc nodeInstanceDesc = runtimeDataService.getNodeInstanceForWorkItem(userTask.getWorkItemId());
-		assertNull(userTask.getSlaCompliance());
-		assertNull(userTask.getSlaDueDate());
-
-		userTask = runtimeDataService.getTaskById(taskId,true);
-		assertNotNull(userTask);
-
-		assertEquals(nodeInstanceDesc.getSlaCompliance(), userTask.getSlaCompliance());
-		assertEquals(nodeInstanceDesc.getSlaDueDate(), userTask.getSlaDueDate());
-
-		userTask = runtimeDataService.getTaskById(taskId,false);
-		assertNotNull(userTask);
-		assertNull(userTask.getSlaCompliance());
-		assertNull(userTask.getSlaDueDate());
+    public void testGetTaskByIdWithCorrelation() {
+        final String correlationKey = "javierito";
+        processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument", KieInternalServices.Factory.get().newCorrelationKeyFactory().newCorrelationKey(correlationKey));
+        assertNotNull(processInstanceId);
+        List<Long> taskIds = runtimeDataService.getTasksByProcessInstanceId(processInstanceId);
+        assertNotNull(taskIds);
+        assertEquals(1, taskIds.size());
+        Long taskId = taskIds.get(0);
+        UserTaskInstanceDesc userTask = runtimeDataService.getTaskById(taskId);
+        assertNotNull(userTask);
+        assertEquals(processInstanceId, userTask.getProcessInstanceId());
+        assertEquals("Write a Document", userTask.getName());
+        userTask = runtimeDataService.getTaskById(taskId, true);
+        assertNotNull(userTask);
+        assertCorrelationAndProcess(userTask, correlationKey);
+        assertEquals(processInstanceId, userTask.getProcessInstanceId());
+        processService.abortProcessInstance(processInstanceId);
     }
+    
+    @Test
+    public void testGetTaskById() {
+        processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument");
+        assertNotNull(processInstanceId);
+
+        ProcessInstance instance = processService.getProcessInstance(processInstanceId);
+        assertNotNull(instance);
+
+        List<Long> taskIds = runtimeDataService.getTasksByProcessInstanceId(processInstanceId);
+        assertNotNull(taskIds);
+        assertEquals(1, taskIds.size());
+
+        Long taskId = taskIds.get(0);
+
+        UserTaskInstanceDesc userTask = runtimeDataService.getTaskById(taskId);
+        assertNotNull(userTask);
+        assertEquals(processInstanceId, userTask.getProcessInstanceId());
+        assertEquals("Write a Document", userTask.getName());
+
+        NodeInstanceDesc nodeInstanceDesc = runtimeDataService.getNodeInstanceForWorkItem(userTask.getWorkItemId());
+        assertNull(userTask.getSlaCompliance());
+        assertNull(userTask.getSlaDueDate());
+
+        userTask = runtimeDataService.getTaskById(taskId,true);
+        assertNotNull(userTask);
+
+        assertEquals(nodeInstanceDesc.getSlaCompliance(), userTask.getSlaCompliance());
+        assertEquals(nodeInstanceDesc.getSlaDueDate(), userTask.getSlaDueDate());
+
+        userTask = runtimeDataService.getTaskById(taskId,false);
+        assertNotNull(userTask);
+        assertNull(userTask.getSlaCompliance());
+        assertNull(userTask.getSlaDueDate());
+    }
+
 
     @Test
     public void testGetTaskOwned() {
@@ -1074,6 +1097,7 @@ public class RuntimeDataServiceImplTest extends AbstractKieServicesBaseTest {
     	assertEquals("john", userTask.getActualOwnerId());
     	assertEquals("Reserved", userTask.getStatusId());
     	assertNotNull(userTask.getActualOwner());
+    	assertTask(userTask);
     }
 
     @Test
@@ -1089,6 +1113,7 @@ public class RuntimeDataServiceImplTest extends AbstractKieServicesBaseTest {
     	assertNotNull(userTask);
     	assertEquals(processInstanceId, userTask.getProcessInstanceId());
     	assertEquals("Write a Document", userTask.getName());
+        assertTask(userTask);
 
     	processService.abortProcessInstance(processInstanceId);
     	processInstanceId = null;
@@ -1118,11 +1143,7 @@ public class RuntimeDataServiceImplTest extends AbstractKieServicesBaseTest {
     
     @Test
     public void testGetTaskAssignedAsBusinessAdminByStatus() {
-
-        for (int i = 0; i < 10; i++) {
-
-            processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument");
-        }
+        startProcesses(10, "org.jbpm.writedocument");
         
         List<Status> statuses = new ArrayList<Status>();
         statuses.add(Status.Ready);
@@ -1137,7 +1158,7 @@ public class RuntimeDataServiceImplTest extends AbstractKieServicesBaseTest {
 
         tasks = runtimeDataService.getTasksAssignedAsBusinessAdministratorByStatus("Administrator", statuses, new QueryFilter(0, 5));
         assertNotNull(tasks);
-        assertEquals(0, tasks.size());
+        assertTrue(tasks.isEmpty());
 
         Collection<ProcessInstanceDesc> activeProcesses = runtimeDataService.getProcessInstances(new QueryContext(0,  20));
         for (ProcessInstanceDesc pi : activeProcesses) {
@@ -1147,7 +1168,6 @@ public class RuntimeDataServiceImplTest extends AbstractKieServicesBaseTest {
 
     @Test
     public void testGetTaskAssignedAsBusinessAdminPagingAndFiltering() {
-    	long processInstanceId = -1;
     	for (int i = 0; i < 10; i++) {
 
     		processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument");
@@ -1163,11 +1183,11 @@ public class RuntimeDataServiceImplTest extends AbstractKieServicesBaseTest {
     	List<TaskSummary> tasks = runtimeDataService.getTasksAssignedAsBusinessAdministrator("Administrator", qf);
     	assertNotNull(tasks);
     	assertEquals(1, tasks.size());
-
     	TaskSummary userTask = tasks.get(0);
     	assertNotNull(userTask);
     	assertEquals("Write a Document", userTask.getName());
-    	assertEquals(processInstanceId, (long)userTask.getProcessInstanceId());
+    	assertEquals(processInstanceId, userTask.getProcessInstanceId());
+        assertTask(userTask);
 
     	Collection<ProcessInstanceDesc> activeProcesses = runtimeDataService.getProcessInstances(new QueryContext(0,  20));
     	for (ProcessInstanceDesc pi : activeProcesses) {
@@ -1178,11 +1198,13 @@ public class RuntimeDataServiceImplTest extends AbstractKieServicesBaseTest {
     @Test
     public void testGetTasksAssignedAsPotentialOwnerByStatusPagingAndFiltering() {
     	List<Long> processInstanceIds = new ArrayList<Long>();
+    	Set<String> pids = new HashSet<>();
     	for (int i = 0; i < 10; i++) {
-
-    		processInstanceIds.add(processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument"));
+    	    Long pid = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument");
+    	    processInstanceIds.add(pid);
+    	    pids.add(Long.toString(pid));
     	}
-
+    	
     	Map<String, Object> params = new HashMap<String, Object>();
         params.put("processInstanceId", processInstanceIds);
 		QueryFilter qf = new QueryFilter( "t.taskData.processInstanceId in (:processInstanceId)",
@@ -1195,8 +1217,7 @@ public class RuntimeDataServiceImplTest extends AbstractKieServicesBaseTest {
 		statuses.add(Status.Reserved);
 
     	List<TaskSummary> tasks = runtimeDataService.getTasksAssignedAsPotentialOwnerByStatus("salaboy", statuses, qf);
-    	assertNotNull(tasks);
-    	assertEquals(5, tasks.size());
+    	assertTasks(tasks, 5, pids);
 
     	TaskSummary userTask = tasks.get(0);
     	assertNotNull(userTask);
@@ -1210,12 +1231,8 @@ public class RuntimeDataServiceImplTest extends AbstractKieServicesBaseTest {
     
     @Test
     public void testGetTasksAssignedAsPotentialOwnerSortedByAlias() {
-        List<Long> processInstanceIds = new ArrayList<Long>();
-        for (int i = 0; i < 10; i++) {
-
-            processInstanceIds.add(processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument"));
-        }
-
+        startProcesses(10, "org.jbpm.writedocument");
+        
         List<Status> statuses = new ArrayList<Status>();
         statuses.add(Status.Ready);
         statuses.add(Status.Reserved);
@@ -1225,7 +1242,6 @@ public class RuntimeDataServiceImplTest extends AbstractKieServicesBaseTest {
         List<TaskSummary> tasks = runtimeDataService.getTasksAssignedAsPotentialOwnerByStatus("salaboy", statuses, ctx);
         assertNotNull(tasks);
         assertEquals(5, tasks.size());
-
         TaskSummary userTask = tasks.get(0);
         assertNotNull(userTask);
         assertEquals("Write a Document", userTask.getName());
@@ -1239,7 +1255,7 @@ public class RuntimeDataServiceImplTest extends AbstractKieServicesBaseTest {
     @Test
     public void testTasksByStatusByProcessInstanceIdPagingAndFiltering() {
 
-    	Long pid = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument");
+    	processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument");
 
     	List<Status> statuses = new ArrayList<Status>();
 		statuses.add(Status.Ready);
@@ -1262,17 +1278,17 @@ public class RuntimeDataServiceImplTest extends AbstractKieServicesBaseTest {
 		qf.setCount(5);
 
 
-    	tasks = runtimeDataService.getTasksByStatusByProcessInstanceId(pid, statuses, qf);
+    	tasks = runtimeDataService.getTasksByStatusByProcessInstanceId(processInstanceId, statuses, qf);
     	assertNotNull(tasks);
     	assertEquals(1, tasks.size());
 
     	TaskSummary userTask = tasks.get(0);
     	assertNotNull(userTask);
     	assertEquals("Review Document", userTask.getName());
+    	assertTask(userTask);
 
-    	tasks = runtimeDataService.getTasksByStatusByProcessInstanceId(pid, statuses, new QueryFilter(0, 5));
-    	assertNotNull(tasks);
-    	assertEquals(2, tasks.size());
+    	tasks = runtimeDataService.getTasksByStatusByProcessInstanceId(processInstanceId, statuses, new QueryFilter(0, 5));
+        assertTasks(tasks, 2);
 
     	Collection<ProcessInstanceDesc> activeProcesses = runtimeDataService.getProcessInstances(new QueryContext(0,  20));
     	for (ProcessInstanceDesc pi : activeProcesses) {
@@ -1329,12 +1345,15 @@ public class RuntimeDataServiceImplTest extends AbstractKieServicesBaseTest {
     	assertNotNull(workItemId);
 
     	UserTaskInstanceDesc userTask = runtimeDataService.getTaskByWorkItemId(workItemId);
-    	assertNotNull(userTask);
+    	assertCorrelationAndProcess(userTask, processInstanceId);
 
     	List<TaskEvent> auditTasks = runtimeDataService.getTaskEvents(userTask.getTaskId(), new QueryFilter());
     	assertNotNull(auditTasks);
-        assertEquals(2, auditTasks.size());
-    	assertEquals(TaskEvent.TaskEventType.ADDED, auditTasks.get(0).getType());
+    	assertEquals(2, auditTasks.size());
+    	TaskEvent taskEvent = auditTasks.get(0);
+    	assertEquals(TaskEvent.TaskEventType.ADDED, taskEvent.getType());
+    	assertNotNull(taskEvent.getCorrelationKey());
+    	assertEquals(Integer.valueOf(WorkflowProcess.PROCESS_TYPE), taskEvent.getProcessType());
 
     	userTaskService.start(userTask.getTaskId(), "salaboy");
 
@@ -1439,7 +1458,7 @@ public class RuntimeDataServiceImplTest extends AbstractKieServicesBaseTest {
     	Long workItemId = ((WorkItemNodeInstance) node).getWorkItemId();
     	assertNotNull(workItemId);
 
-    	List<String> statuses = new ArrayList();
+    	List<String> statuses = new ArrayList<>();
     	statuses.add(Status.Reserved.toString());
 
     	Map<String, Object> params = new HashMap<String, Object>();
@@ -1476,7 +1495,7 @@ public class RuntimeDataServiceImplTest extends AbstractKieServicesBaseTest {
         for( Long id : normalTaskSumIds ) {
             extraNormalTaskSumids.append( id).append(",");
         }
-        assertTrue( "Task ids not found in query builder list: " + extraNormalTaskSumids, normalTaskSumIds.isEmpty() );
+        assertTrue( " ids not found in query builder list: " + extraNormalTaskSumids, normalTaskSumIds.isEmpty() );
     }
 
     @Test
@@ -1548,8 +1567,7 @@ public class RuntimeDataServiceImplTest extends AbstractKieServicesBaseTest {
         statuses.add(Status.Reserved);
 
         List<TaskSummary> tasks = runtimeDataService.getTasksAssignedAsPotentialOwnerByStatus("salaboy", statuses, new QueryFilter());
-        assertNotNull(tasks);
-        assertEquals(1, tasks.size());
+        assertTasks(tasks, 1);
 
         String userId = "salaboy";
         String varName = "Comment";
@@ -1630,6 +1648,7 @@ public class RuntimeDataServiceImplTest extends AbstractKieServicesBaseTest {
 
     }
     
+
     @Test
     public void testGetTasksByVariableAndValueSorted() {
         Map<String, Object> params = new HashMap<String, Object>();
@@ -1664,7 +1683,6 @@ public class RuntimeDataServiceImplTest extends AbstractKieServicesBaseTest {
         
         assertEquals(processInstanceId2, tasksByVariable.get(0).getProcessInstanceId());
         assertEquals(processInstanceId, tasksByVariable.get(1).getProcessInstanceId());
-        
 
         processService.abortProcessInstance(processInstanceId);
         processInstanceId = null;
@@ -1712,4 +1730,32 @@ public class RuntimeDataServiceImplTest extends AbstractKieServicesBaseTest {
 			processService.abortProcessInstance(pi.getId());
 		}
 	}
+
+    private void startProcesses(int numberOfProcesses, String processId) {
+        for (int i = 0; i < numberOfProcesses; i++) {
+            processService.startProcess(deploymentUnit.getIdentifier(), processId);
+        }
+    }
+    
+    private void assertTasks(List<TaskSummary> tasks, int expectedSize, Set<String> expectedCorrelationKeys) { 
+        assertNotNull(tasks);
+        assertEquals(expectedSize, tasks.size());
+        Set<String> correlationKeys = new HashSet<>();
+        for (TaskSummary task : tasks) {
+            assertNotNull(task);
+            assertEquals(Integer.valueOf(WorkflowProcess.PROCESS_TYPE), task.getProcessType());
+            correlationKeys.add(task.getCorrelationKey());
+        }
+        assertTrue(expectedCorrelationKeys.containsAll(correlationKeys));
+    }
+    
+    private void assertTasks(List<TaskSummary> tasks, int expectedSize) {
+        assertTasksSummary(tasks, expectedSize, processInstanceId);
+
+    }
+
+    private void assertTask(TaskSummary userTask) {
+        assertCorrelationAndProcess(userTask, processInstanceId);
+    }
+
 }

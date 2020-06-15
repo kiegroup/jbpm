@@ -23,7 +23,6 @@ import java.util.List;
 
 import org.kie.api.task.model.Status;
 import org.kie.api.task.model.User;
-import org.kie.internal.task.api.TaskModelFactory;
 import org.kie.internal.task.api.TaskModelProvider;
 import org.kie.internal.task.api.model.InternalTaskSummary;
 import org.kie.internal.task.api.model.SubTasksStrategy;
@@ -52,6 +51,8 @@ public class TaskSummaryImpl implements InternalTaskSummary {
     private SubTasksStrategy subTaskStrategy;
     private long parentId;
     private boolean quickTaskSummary;
+    private String correlationKey;
+    private Integer processType;
 
     // JPQL does not accept collections in constructor arguments
     // In short, this means that this field will never be filled
@@ -150,6 +151,28 @@ public class TaskSummaryImpl implements InternalTaskSummary {
 
         this.quickTaskSummary = false;
     }
+    
+    /*
+     * Construct a QuickTaskSummary
+     */
+    public TaskSummaryImpl(long id,
+                           String name,
+                           String subject, 
+                           String description,
+                           Status status,
+                           int priority,
+                           String actualOwner,
+                           String createdBy,
+                           Date createdOn,
+                           Date activationTime,
+                           Date expirationTime,
+                           String processId,
+                           long processInstanceId,
+                           long parentId,
+                           String deploymentId,
+                           boolean skipable) {
+        this(id,name,subject,description,status,priority,actualOwner,createdBy,createdOn,activationTime,expirationTime,processId,processInstanceId,parentId,deploymentId,skipable,null,null);
+    }
 
     /*
      * Construct a QuickTaskSummary
@@ -169,7 +192,9 @@ public class TaskSummaryImpl implements InternalTaskSummary {
             long processInstanceId,
             long parentId,
             String deploymentId,
-            boolean skipable) {
+            boolean skipable,
+            String correlationKey,
+            Integer processType) {
         this.id = id;
         this.processInstanceId = processInstanceId;
         this.name = name;
@@ -189,6 +214,8 @@ public class TaskSummaryImpl implements InternalTaskSummary {
         this.parentId = parentId;
         this.deploymentId = deploymentId;
         this.skipable = skipable;
+        this.correlationKey = correlationKey;
+        this.processType = processType;
         this.quickTaskSummary = true;
     }
 
@@ -688,8 +715,18 @@ public class TaskSummaryImpl implements InternalTaskSummary {
     }
 
     @Override
+    public String getCorrelationKey() {
+        return correlationKey;
+    }
+
+    @Override
+    public Integer getProcessType() {
+        return processType;
+    }
+
+    @Override
     public String toString() {
-        return "TaskSummaryImpl{" + "id=" + id + ", name=" + name + ", subject=" + subject + ", description=" + description + ", statusId=" + statusId + ", priority=" + priority + ", skipable=" + skipable + ", actualOwnerId=" + actualOwnerId + ", createdById=" + createdById + ", createdOn=" + createdOn + ", activationTime=" + activationTime + ", expirationTime=" + expirationTime + ", processInstanceId=" + processInstanceId + ", processId=" + processId + ", processSessionId=" + processSessionId + ", deploymentId=" + deploymentId + ", parentId=" + parentId + ", potentialOwners=" + potentialOwners + ", quickTaskSummary=" + quickTaskSummary + '}';
+        return "TaskSummaryImpl{" + "id=" + id + ", name=" + name + ", subject=" + subject + ", description=" + description + ", statusId=" + statusId + ", priority=" + priority + ", skipable=" + skipable + ", actualOwnerId=" + actualOwnerId + ", createdById=" + createdById + ", createdOn=" + createdOn + ", activationTime=" + activationTime + ", expirationTime=" + expirationTime + ", processInstanceId=" + processInstanceId + ", processId=" + processId + ", processSessionId=" + processSessionId + ", deploymentId=" + deploymentId + ", parentId=" + parentId + ", potentialOwners=" + potentialOwners + ", quickTaskSummary=" + quickTaskSummary +", correlationKey="+correlationKey+",processType="+processType+'}';
     }
 
 

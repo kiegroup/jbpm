@@ -134,15 +134,39 @@ public interface UserTaskInstanceDesc {
 	 */
 	void setSlaDueDate(Date slaDueDate);
 
-    /**
-       * Returns task subject 
-       * @return task subject
-       */
-    String getSubject();
+	/**
+	 * * Returns task subject 
+	 * @return task subject
+	 */
+	String getSubject();
 
-    /**
-     * Set task subject 
-     * @param subject task subject
-     */
-    void setSubject(String subject);
+	/**
+	 * Set task subject 
+	 * @param subject task subject
+	 */
+	void setSubject(String subject);
+
+	/**
+	 * Returns correlation key
+	 * @return correlation key
+	 */
+	String getCorrelationKey();
+
+	/**
+	 * Sets correlation key
+	 * @param correlationKey
+	 */
+	void setCorrelationKey(String correlationKey);
+
+	/**
+	 * Returns process type
+	 * @return 1 if process, 2 if case
+	 */
+	Integer getProcessType();
+
+	/**
+	 * Set process type
+	 * @param process type (1 for process, 2 for case)
+	 */
+	void setProcessType(Integer processType);
 }

@@ -15,9 +15,6 @@
  */
 package org.jbpm.services.cdi.test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -59,6 +56,9 @@ import org.kie.api.task.model.TaskSummary;
 import org.kie.internal.io.ResourceFactory;
 import org.kie.internal.query.QueryFilter;
 import org.kie.internal.runtime.manager.context.EmptyContext;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 
 @RunWith(Arquillian.class)
@@ -266,7 +266,8 @@ public class RuntimeDataServiceTest extends AbstractKieServicesBaseTest {
         List<TaskSummary> tasks = runtimeDataService.getTasksAssignedAsPotentialOwnerByStatus("katy", statuses, new QueryFilter());
         assertNotNull(tasks);
         assertEquals(1, tasks.size());
-        
+        TaskSummary task = tasks.get(0);
+        assertCorrelationAndProcess(task, processInstance.getId());
         ksession.abortProcessInstance(processInstance.getId());
         
     }

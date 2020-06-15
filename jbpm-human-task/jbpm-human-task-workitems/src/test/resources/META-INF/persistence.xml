@@ -28,6 +28,8 @@
     <class>org.jbpm.services.task.impl.model.TaskDataImpl</class>
     <class>org.jbpm.services.task.impl.model.UserImpl</class>
     
+    <class>org.jbpm.process.audit.ProcessInstanceLog</class>
+    
     <properties>
       <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect" />
 

@@ -16,8 +16,6 @@
 
 package org.jbpm.kie.test.util;
 
-import static org.junit.Assert.fail;
-
 import java.util.List;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
@@ -26,7 +24,9 @@ import org.dashbuilder.DataSetCore;
 import org.jbpm.kie.services.impl.FormManagerService;
 import org.jbpm.kie.services.impl.utils.DefaultKieServiceConfigurator;
 import org.jbpm.services.api.model.DeploymentUnit;
+import org.jbpm.services.api.model.UserTaskInstanceDesc;
 import org.jbpm.test.services.AbstractKieServicesTest;
+import org.jbpm.workflow.core.WorkflowProcess;
 import org.kie.api.KieServices;
 import org.kie.api.builder.KieFileSystem;
 import org.kie.api.builder.model.KieBaseModel;
@@ -35,7 +35,12 @@ import org.kie.api.builder.model.KieSessionModel;
 import org.kie.api.conf.EqualityBehaviorOption;
 import org.kie.api.conf.EventProcessingOption;
 import org.kie.api.runtime.conf.ClockTypeOption;
+import org.kie.api.task.model.TaskSummary;
 import org.kie.internal.io.ResourceFactory;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 public abstract class AbstractKieServicesBaseTest extends AbstractKieServicesTest {
 
@@ -110,4 +115,33 @@ public abstract class AbstractKieServicesBaseTest extends AbstractKieServicesTes
         return kfs;
     }
 
+    protected void assertCorrelationAndProcess(UserTaskInstanceDesc userTask, long processInstanceId) {
+        assertCorrelationAndProcess(userTask, Long.toString(processInstanceId));
+    }
+
+    protected void assertCorrelationAndProcess(UserTaskInstanceDesc userTask, String correlationKey) {
+        assertEquals(correlationKey, userTask.getCorrelationKey());
+        assertEquals(Integer.valueOf(WorkflowProcess.PROCESS_TYPE), userTask.getProcessType());
+    }
+
+    protected void assertTasksDesc(List<UserTaskInstanceDesc> tasks, int expectedSize, long processInstanceId) {
+        assertNotNull(tasks);
+        assertEquals(expectedSize, tasks.size());
+        for (UserTaskInstanceDesc task : tasks) {
+            assertCorrelationAndProcess(task, processInstanceId);
+        }
+    }
+
+    protected void assertCorrelationAndProcess(TaskSummary userTask, long processInstanceId) {
+        assertEquals(Long.toString(processInstanceId), userTask.getCorrelationKey());
+        assertEquals(Integer.valueOf(WorkflowProcess.PROCESS_TYPE), userTask.getProcessType());
+    }
+
+    protected void assertTasksSummary(List<TaskSummary> userTasks, int expectedSize, long processInstanceId) {
+        assertNotNull(userTasks);
+        assertEquals(expectedSize, userTasks.size());
+        for (TaskSummary task : userTasks) {
+            assertCorrelationAndProcess(task, processInstanceId);
+        }
+    }
 }

@@ -89,26 +89,61 @@
                     "methodName": "startProcessFromNodeIds",
                     "elementKind": "method",
                     "justification": "start nodes from an arbitray node"
-                }
-                ,
+                },
                 {
-				   "code": "java.method.addedToInterface",
-  					"new": "method java.lang.String org.jbpm.services.api.model.UserTaskInstanceDesc::getSubject()",
-   					"package": "org.jbpm.services.api.model",
-   					"classSimpleName": "UserTaskInstanceDesc",
-   					"methodName": "getSubject",
-   					"elementKind": "method",
-   					"justification": "subject should be returned by REST service"
- 				},
- 				{
-   					"code": "java.method.addedToInterface",
-   					"new": "method void org.jbpm.services.api.model.UserTaskInstanceDesc::setSubject(java.lang.String)",
-   					"package": "org.jbpm.services.api.model",
-   					"classSimpleName": "UserTaskInstanceDesc",
-   					"methodName": "setSubject",
-   					"elementKind": "method",
-   					"justification": "subject should be returned by REST service"
-				}
+                    "code": "java.method.addedToInterface",
+                    "new": "method java.lang.String org.jbpm.services.api.model.UserTaskInstanceDesc::getSubject()",
+                    "package": "org.jbpm.services.api.model",
+                    "classSimpleName": "UserTaskInstanceDesc",
+                    "methodName": "getSubject",
+                    "elementKind": "method",
+                    "justification": "subject should be returned by REST service"
+                },
+                {
+                    "code": "java.method.addedToInterface",
+                    "new": "method void org.jbpm.services.api.model.UserTaskInstanceDesc::setSubject(java.lang.String)",
+                    "package": "org.jbpm.services.api.model",
+                    "classSimpleName": "UserTaskInstanceDesc",
+                    "methodName": "setSubject",
+                    "elementKind": "method",
+                    "justification": "subject should be returned by REST service"
+                },
+                {
+                    "code": "java.method.addedToInterface",
+                    "new": "method java.lang.String org.jbpm.services.api.model.UserTaskInstanceDesc::getCorrelationKey()",
+                    "package": "org.jbpm.services.api.model",
+                    "classSimpleName": "UserTaskInstanceDesc",
+                    "methodName": "getCorrelationKey",
+                    "elementKind": "method",
+                    "justification": "https://issues.redhat.com/browse/BAPL-1623"
+                },
+                {
+                    "code": "java.method.addedToInterface",
+                    "new": "method void org.jbpm.services.api.model.UserTaskInstanceDesc::setCorrelationKey(java.lang.String)",
+                    "package": "org.jbpm.services.api.model",
+                    "classSimpleName": "UserTaskInstanceDesc",
+                    "methodName": "setCorrelationKey",
+                    "elementKind": "method",
+                    "justification": "https://issues.redhat.com/browse/BAPL-1623"
+                },
+                {
+                    "code": "java.method.addedToInterface",
+                    "new": "method java.lang.Integer org.jbpm.services.api.model.UserTaskInstanceDesc::getProcessType()",
+                    "package": "org.jbpm.services.api.model",
+                    "classSimpleName": "UserTaskInstanceDesc",
+                    "methodName": "getProcessType",
+                    "elementKind": "method",
+                    "justification": "https://issues.redhat.com/browse/BAPL-1623"
+                },
+                {
+                    "code": "java.method.addedToInterface",
+                    "new": "method void org.jbpm.services.api.model.UserTaskInstanceDesc::setProcessType(java.lang.Integer)",
+                    "package": "org.jbpm.services.api.model",
+                    "classSimpleName": "UserTaskInstanceDesc",
+                    "methodName": "setProcessType",
+                    "elementKind": "method",
+                    "justification": "https://issues.redhat.com/browse/BAPL-1623"
+                }
             ]
         }
     }

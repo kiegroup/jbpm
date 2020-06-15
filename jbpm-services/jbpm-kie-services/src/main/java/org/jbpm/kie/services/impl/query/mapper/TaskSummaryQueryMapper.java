@@ -82,7 +82,9 @@ public class TaskSummaryQueryMapper extends AbstractQueryMapper<TaskSummary> imp
                 getColumnLongValue(dataSetResult, COLUMN_TASK_PROCESSINSTANCEID, index),//processInstanceId,                                
                 -1l,
                 getColumnStringValue(dataSetResult, COLUMN_DEPLOYMENTID, index),//deploymentId,
-                false                
+                false,
+                getColumnStringValue(dataSetResult, COLUMN_CORRELATIONKEY, index),
+                getColumnIntValue(dataSetResult, COLUMN_PROCESSTYPE, index)
                 );
         
         return userTask;

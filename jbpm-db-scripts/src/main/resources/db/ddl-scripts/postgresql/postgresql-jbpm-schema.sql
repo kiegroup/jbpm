@@ -413,6 +413,8 @@
         userId varchar(255),
         OPTLOCK int4,
         workItemId int8,
+        correlationKey varchar(255),
+        processType int2,
         primary key (id)
     );
 
