@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2018 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ public class ${classPrefix}WorkItemHandlerTest extends AbstractBaseTest {
 
         TestWorkItemManager manager = new TestWorkItemManager();
 
-        ${classPrefix}WorkItemHandler handler = new ${classPrefix}WorkItemHandler("testParamValue", "testParamValue");
+        ${classPrefix}WorkItemHandler handler = new ${classPrefix}WorkItemHandler();
         handler.setLogThrownException(true);
         handler.executeWorkItem(workItem,
                                 manager);

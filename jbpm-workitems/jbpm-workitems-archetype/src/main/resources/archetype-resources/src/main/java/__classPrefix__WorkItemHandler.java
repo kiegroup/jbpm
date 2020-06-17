@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2018 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ import org.jbpm.process.workitem.core.util.WidMavenDepends;
             @WidResult(name="SampleResult")
         },
         mavenDepends={
-            @WidMavenDepends(group="${groupId}", artifact="${artifactId}", version="${version}")
+            @WidMavenDepends(group="${groupId}", artifact="${artifactId}", version="${archetypeVersion}")
         },
         serviceInfo = @WidService(category = "${artifactId}", description = "${description}",
                 keywords = "",
@@ -54,21 +54,16 @@ import org.jbpm.process.workitem.core.util.WidMavenDepends;
         )
 )
 public class ${classPrefix}WorkItemHandler extends AbstractLogOrThrowWorkItemHandler {
-        private String sampleParam;
-        private String sampleParamTwo;
 
-    public ${classPrefix}WorkItemHandler(String SampleParam, String SampleParamTwo){
-            this.sampleParam = sampleParam;
-            this.sampleParamTwo = sampleParamTwo;
-        }
-
-    public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
+    public void executeWorkItem(WorkItem workItem,
+                                WorkItemManager manager) {
         try {
-            RequiredParameterValidator.validate(this.getClass(), workItem);
+            RequiredParameterValidator.validate(this.getClass(),
+               workItem);
 
             // sample parameters
-            sampleParam = (String) workItem.getParameter("SampleParam");
-            sampleParamTwo = (String) workItem.getParameter("SampleParamTwo");
+            String sampleParam = (String) workItem.getParameter("SampleParam");
+            String sampleParamTwo = (String) workItem.getParameter("SampleParamTwo");
 
             // complete workitem impl...
 
