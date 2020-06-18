@@ -16,11 +16,26 @@
 
 package org.jbpm.services.task.commands;
 
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
+
 import org.drools.core.util.StringUtils;
 import org.jbpm.services.task.exception.CannotAddTaskException;
 import org.kie.api.runtime.Context;
 import org.kie.api.task.model.Attachment;
 import org.kie.api.task.model.Comment;
+import org.kie.api.task.model.Email;
 import org.kie.api.task.model.Group;
 import org.kie.api.task.model.OrganizationalEntity;
 import org.kie.api.task.model.Status;
@@ -40,19 +55,6 @@ import org.kie.internal.task.api.model.Notification;
 import org.kie.internal.task.api.model.Reassignment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
 
 @XmlTransient
 @XmlRootElement(name="user-group-callback-task-command")
@@ -98,6 +100,14 @@ public class UserGroupCallbackTaskCommand<T> extends TaskCommand<T> {
 
     }
     
+    protected boolean doCallbackEmailOperation(String emailId, TaskContext context) {
+        if (emailId != null) {
+            addEmailFromCallbackOperation(emailId, context);
+            return true;
+        }
+        return false;
+    }
+
     protected boolean doCallbackUserOperation(String userId, TaskContext context, boolean throwExceptionWhenNotFound) {
 
         if (userId != null && context.getUserGroupCallback().existsUser(userId)) {
@@ -110,7 +120,7 @@ public class UserGroupCallbackTaskCommand<T> extends TaskCommand<T> {
         return false;
 
     }
-    
+
     protected User doCallbackAndReturnUserOperation(String userId, TaskContext context) {
 
         if (userId != null && context.getUserGroupCallback().existsUser(userId)) {
@@ -144,12 +154,21 @@ public class UserGroupCallbackTaskCommand<T> extends TaskCommand<T> {
         return user;
     }
     
+    protected void addEmailFromCallbackOperation(String emailId, TaskContext context) {
+        Email email = context.getPersistenceContext().findEmail(emailId);
+        boolean emailExists = email != null;
+        if (!StringUtils.isEmpty(emailId) && !emailExists) {
+            persistIfNotExists(TaskModelProvider.getFactory().newEmail(emailId), context);
+        }
+
+    }
+
     protected void persistIfNotExists(final OrganizationalEntity entity, TaskContext context) {
     	TaskPersistenceContext tpc = context.getPersistenceContext();
     	OrganizationalEntity orgEntity = tpc.findOrgEntity(entity.getId());
     	if( orgEntity == null
     	    || (orgEntity instanceof Group && entity instanceof User)  
-    	    || (orgEntity instanceof User && entity instanceof Group) ) { 
+            || (orgEntity instanceof User && entity instanceof Group) || (orgEntity instanceof Email && entity instanceof Email)) {
     	    tpc.persistOrgEntity(entity);
     	}
     }
@@ -378,104 +397,60 @@ public class UserGroupCallbackTaskCommand<T> extends TaskCommand<T> {
         if(deadlines != null) {
             if(deadlines.getStartDeadlines() != null) {
                 List<? extends Deadline> startDeadlines = deadlines.getStartDeadlines();
-                for(Deadline startDeadline : startDeadlines) {
-                    List<? extends Escalation> escalations = startDeadline.getEscalations();
-                    if(escalations != null) {
-                        for(Escalation escalation : escalations) {
-                            List<? extends Notification> notifications = escalation.getNotifications();
-                            List<? extends Reassignment> ressignments = escalation.getReassignments();
-                            if(notifications != null) {
-                                for(Notification notification : notifications) {
-                                    List<? extends OrganizationalEntity> recipients = notification.getRecipients();
-                                    if(recipients != null) {
-                                        for(OrganizationalEntity recipient : recipients) {
-                                            if(recipient instanceof User) {
-                                                doCallbackUserOperation(recipient.getId(), context);
-                                            }
-                                            if(recipient instanceof Group) {
-                                                doCallbackGroupOperation(recipient.getId(), context);
-                                            }
-                                        }
-                                    }
-                                    List<? extends OrganizationalEntity> administrators = notification.getBusinessAdministrators();
-                                    if(administrators != null) {
-                                        for(OrganizationalEntity administrator : administrators) {
-                                            if(administrator instanceof User) {
-                                                doCallbackUserOperation(administrator.getId(), context);
-                                            }
-                                            if(administrator instanceof Group) {
-                                                doCallbackGroupOperation(administrator.getId(), context);
-                                            }
-                                        }
+                doCallbackDeadlines(startDeadlines, context);
+            }
+            
+            if(deadlines.getEndDeadlines() != null) {
+                List<? extends Deadline> endDeadlines = deadlines.getEndDeadlines();
+                doCallbackDeadlines(endDeadlines, context);
+            }
+        }
+    }
+
+    private void doCallbackDeadlines(List<? extends Deadline> deadlines, TaskContext context) {
+        for (Deadline endDeadline : deadlines) {
+            List<? extends Escalation> escalations = endDeadline.getEscalations();
+            if (escalations != null) {
+                for (Escalation escalation : escalations) {
+                    List<? extends Notification> notifications = escalation.getNotifications();
+                    List<? extends Reassignment> ressignments = escalation.getReassignments();
+                    if (notifications != null) {
+                        for (Notification notification : notifications) {
+                            List<? extends OrganizationalEntity> recipients = notification.getRecipients();
+                            if (recipients != null) {
+                                for (OrganizationalEntity recipient : recipients) {
+                                    if (recipient instanceof User) {
+                                        doCallbackUserOperation(recipient.getId(), context);
+                                    } else if (recipient instanceof Group) {
+                                        doCallbackGroupOperation(recipient.getId(), context);
+                                    } else if (recipient instanceof Email) {
+                                        doCallbackEmailOperation(recipient.getId(), context);
                                     }
                                 }
                             }
-                            if(ressignments != null) {
-                                for(Reassignment reassignment : ressignments) {
-                                    List<? extends OrganizationalEntity> potentialOwners = reassignment.getPotentialOwners();
-                                    if(potentialOwners != null) {
-                                        for(OrganizationalEntity potentialOwner : potentialOwners) {
-                                            if(potentialOwner instanceof User) {
-                                                doCallbackUserOperation(potentialOwner.getId(), context);
-                                            }
-                                            if(potentialOwner instanceof Group) {
-                                                doCallbackGroupOperation(potentialOwner.getId(), context);
-                                            }
-                                        }
+                            List<? extends OrganizationalEntity> administrators = notification.getBusinessAdministrators();
+                            if (administrators != null) {
+                                for (OrganizationalEntity administrator : administrators) {
+                                    if (administrator instanceof User) {
+                                        doCallbackUserOperation(administrator.getId(), context);
+                                    }
+                                    if (administrator instanceof Group) {
+                                        doCallbackGroupOperation(administrator.getId(), context);
                                     }
                                 }
                             }
                         }
                     }
-                }
-            }
-            
-            if(deadlines.getEndDeadlines() != null) {
-                List<? extends Deadline> endDeadlines = deadlines.getEndDeadlines();
-                for(Deadline endDeadline : endDeadlines) {
-                    List<? extends Escalation> escalations = endDeadline.getEscalations();
-                    if(escalations != null) {
-                        for(Escalation escalation : escalations) {
-                            List<? extends Notification> notifications = escalation.getNotifications();
-                            List<? extends Reassignment> ressignments = escalation.getReassignments();
-                            if(notifications != null) {
-                                for(Notification notification : notifications) {
-                                    List<? extends OrganizationalEntity> recipients = notification.getRecipients();
-                                    if(recipients != null) {
-                                        for(OrganizationalEntity recipient : recipients) {
-                                            if(recipient instanceof User) {
-                                                doCallbackUserOperation(recipient.getId(), context);
-                                            }
-                                            if(recipient instanceof Group) {
-                                                doCallbackGroupOperation(recipient.getId(), context);
-                                            }
-                                        }
+                    if (ressignments != null) {
+                        for (Reassignment reassignment : ressignments) {
+                            List<? extends OrganizationalEntity> potentialOwners = reassignment.getPotentialOwners();
+                            if (potentialOwners != null) {
+                                for (OrganizationalEntity potentialOwner : potentialOwners) {
+                                    if (potentialOwner instanceof User) {
+                                        doCallbackUserOperation(potentialOwner.getId(), context);
                                     }
-                                    List<? extends OrganizationalEntity> administrators = notification.getBusinessAdministrators();
-                                    if(administrators != null) {
-                                        for(OrganizationalEntity administrator : administrators) {
-                                            if(administrator instanceof User) {
-                                                doCallbackUserOperation(administrator.getId(), context);
-                                            }
-                                            if(administrator instanceof Group) {
-                                                doCallbackGroupOperation(administrator.getId(), context);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            if(ressignments != null) {
-                                for(Reassignment reassignment : ressignments) {
-                                    List<? extends OrganizationalEntity> potentialOwners = reassignment.getPotentialOwners();
-                                    if(potentialOwners != null) {
-                                        for(OrganizationalEntity potentialOwner : potentialOwners) {
-                                            if(potentialOwner instanceof User) {
-                                                doCallbackUserOperation(potentialOwner.getId(), context);
-                                            }
-                                            if(potentialOwner instanceof Group) {
-                                                doCallbackGroupOperation(potentialOwner.getId(), context);
-                                            }
-                                        }
+                                    if (potentialOwner instanceof Group) {
+                                        doCallbackGroupOperation(potentialOwner.getId(), context);
                                     }
                                 }
                             }
@@ -486,7 +461,7 @@ public class UserGroupCallbackTaskCommand<T> extends TaskCommand<T> {
         }
     }
      
-     protected void doCallbackOperationForComment(Comment comment, TaskContext context) {
+    protected void doCallbackOperationForComment(Comment comment, TaskContext context) {
          if (comment != null) {
              if (comment.getAddedBy() != null) {
                  User  entity = doCallbackAndReturnUserOperation(comment.getAddedBy().getId(), context);

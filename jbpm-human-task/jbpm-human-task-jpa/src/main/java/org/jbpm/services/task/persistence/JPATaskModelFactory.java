@@ -24,6 +24,7 @@ import org.jbpm.services.task.impl.model.ContentImpl;
 import org.jbpm.services.task.impl.model.DeadlineImpl;
 import org.jbpm.services.task.impl.model.DeadlinesImpl;
 import org.jbpm.services.task.impl.model.DelegationImpl;
+import org.jbpm.services.task.impl.model.EmailImpl;
 import org.jbpm.services.task.impl.model.EmailNotificationHeaderImpl;
 import org.jbpm.services.task.impl.model.EmailNotificationImpl;
 import org.jbpm.services.task.impl.model.EscalationImpl;
@@ -43,6 +44,7 @@ import org.jbpm.services.task.query.TaskSummaryImpl;
 import org.kie.api.task.model.Attachment;
 import org.kie.api.task.model.Comment;
 import org.kie.api.task.model.Content;
+import org.kie.api.task.model.Email;
 import org.kie.api.task.model.Group;
 import org.kie.api.task.model.I18NText;
 import org.kie.api.task.model.OrganizationalEntity;
@@ -202,6 +204,16 @@ public class JPATaskModelFactory implements TaskModelFactory {
     @Override
     public TaskSummary newTaskSummary() {
         return new TaskSummaryImpl();
+    }
+
+    @Override
+    public Email newEmail() {
+        return new EmailImpl();
+    }
+
+    @Override
+    public Email newEmail(String id) {
+        return new EmailImpl(id);
     }
 
 }

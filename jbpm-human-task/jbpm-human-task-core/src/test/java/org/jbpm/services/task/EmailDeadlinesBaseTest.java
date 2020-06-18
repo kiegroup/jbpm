@@ -23,14 +23,15 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.mail.Address;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMessage.RecipientType;
 
 import org.jbpm.services.task.impl.factories.TaskFactory;
-import org.jbpm.test.listener.task.CountDownTaskEventListener;
 import org.jbpm.services.task.utils.ContentMarshallerHelper;
+import org.jbpm.test.listener.task.CountDownTaskEventListener;
 import org.junit.Test;
 import org.kie.api.task.model.OrganizationalEntity;
 import org.kie.api.task.model.Status;
@@ -50,7 +51,9 @@ import org.slf4j.LoggerFactory;
 import org.subethamail.wiser.Wiser;
 import org.subethamail.wiser.WiserMessage;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -94,7 +97,7 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
         return this.wiser;
     }
 
-    @Test(timeout=10000)    
+    @Test(timeout = 10000)
     public void testDelayedEmailNotificationOnDeadline() throws Exception {  
         CountDownTaskEventListener countDownListener = new CountDownTaskEventListener(1, false, true);
         addCountDownListner(countDownListener);
@@ -399,7 +402,7 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
         
         List<OrganizationalEntity> po = new ArrayList<OrganizationalEntity>();
         User user2 = TaskModelProvider.getFactory().newUser();
-        ((InternalOrganizationalEntity) user2).setId("Administrator");        
+        ((InternalOrganizationalEntity) user2).setId("Administrator");
         po.add(user2);
         assignments.setPotentialOwners(po);
         
