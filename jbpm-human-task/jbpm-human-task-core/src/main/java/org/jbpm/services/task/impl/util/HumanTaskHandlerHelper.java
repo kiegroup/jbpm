@@ -22,6 +22,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.jbpm.process.core.timer.BusinessCalendar;
 import org.jbpm.process.core.timer.DateTimeUtils;
@@ -53,7 +55,7 @@ public class HumanTaskHandlerHelper {
 	private static final String ATTRIBUTES_ELEMENTS_SEPARATOR = ",";
 	private static final String KEY_VALUE_SEPARATOR = ":";
 	
-	private static final String[] KNOWN_KEYS = {"users", "groups", "from", "tousers", "togroups", "replyto", "subject","body"};
+    private static final String[] KNOWN_KEYS = {"users", "groups", "from", "tousers", "togroups", "replyto", "subject", "body", "toemails"};
 
 	public static Deadlines setDeadlines(Map<String, Object> parameters, List<OrganizationalEntity> businessAdministrators, Environment environment) {
 	    return setDeadlines(parameters, businessAdministrators, environment, false);
@@ -98,13 +100,17 @@ public class HumanTaskHandlerHelper {
         }
         
         for (String component : allComponents) {
-	        String[] mainComponents = component.split(ELEMENT_SEPARATOR);
-	        
-	        if (mainComponents!= null && mainComponents.length == 2) {
-	            String actionComponent = mainComponents[0].substring(1, mainComponents[0].length()-1);
-	            String expireComponents = mainComponents[1].substring(1, mainComponents[1].length()-1);
-	 
-	            String[] expireElements = expireComponents.split(ATTRIBUTES_ELEMENTS_SEPARATOR);
+            Pattern pattern = Pattern.compile("\\[(.*)\\]@\\[(.*)\\]");
+            Matcher matcher = pattern.matcher(component);
+            if (!matcher.find()) {
+                logger.warn("Incorrect syntax of deadline property {}", deadlineInfo);
+                continue;
+            }
+            String actionComponent = matcher.group(1);
+            String expireComponents = matcher.group(2);
+
+            if (actionComponent != null && expireComponents != null) {
+                String[] expireElements = expireComponents.split(ATTRIBUTES_ELEMENTS_SEPARATOR);
 
 	            for (String expiresAt : expireElements) {
 	                // if unbound repeatable only flag is set then parse only deadlines that are of such type (ISO format)
@@ -160,7 +166,7 @@ public class HumanTaskHandlerHelper {
 
 		List<Notification> notifications = new ArrayList<Notification>();
 		Map<String, String> parameters = asMap(notificationString);
-		if (parameters.containsKey("tousers") || parameters.containsKey("togroups")) {
+        if (parameters.containsKey("tousers") || parameters.containsKey("togroups") || parameters.containsKey("toemails")) {
 			String locale = parameters.get("locale");
 			if (locale == null) {
 				locale = "en-UK";
@@ -193,27 +199,30 @@ public class HumanTaskHandlerHelper {
 			subjects.add(subject);
 			names.add(subject);
 
-			String recipients = parameters.get("tousers");
-			if (recipients != null && recipients.trim().length() > 0) {
-				String[] recipientsIds = recipients.split(ATTRIBUTES_ELEMENTS_SEPARATOR);
+            String recipients = parameters.get("tousers");
+            if (recipients != null && recipients.trim().length() > 0) {
+                String[] recipientsIds = recipients.split(ATTRIBUTES_ELEMENTS_SEPARATOR);
+                for (String id : recipientsIds) {
+                    notificationRecipients.add(TaskModelProvider.getFactory().newUser(id.trim()));
+                }
+            }
 
-				for (String id : recipientsIds) {
-					User user = TaskModelProvider.getFactory().newUser();
-                	((InternalOrganizationalEntity) user).setId(id.trim());
-					notificationRecipients.add(user);
-				}
+            String groupRecipients = parameters.get("togroups");
+            if (groupRecipients != null && groupRecipients.trim().length() > 0) {
+                String[] groupRecipientsIds = groupRecipients.split(ATTRIBUTES_ELEMENTS_SEPARATOR);
 
-			}
-			String groupRecipients = parameters.get("togroups");
-			if (groupRecipients != null && groupRecipients.trim().length() > 0) {
-				String[] groupRecipientsIds = groupRecipients.split(ATTRIBUTES_ELEMENTS_SEPARATOR);
+                for (String id : groupRecipientsIds) {
+                    notificationRecipients.add(TaskModelProvider.getFactory().newGroup(id.trim()));
+                }
+            }
 
-				for (String id : groupRecipientsIds) {
-					Group group = TaskModelProvider.getFactory().newGroup();
-                	((InternalOrganizationalEntity) group).setId(id.trim());
-					notificationRecipients.add(group);
-				}
-			}
+            String emailRecipients = parameters.get("toemails");
+            if (emailRecipients != null && emailRecipients.trim().length() > 0) {
+                String[] emailRecipientsIds = emailRecipients.trim().split(ATTRIBUTES_ELEMENTS_SEPARATOR);
+                for (String id : emailRecipientsIds) {
+                    notificationRecipients.add(TaskModelProvider.getFactory().newEmail(id.trim()));
+                }
+            }
 
 			emailNotification.setEmailHeaders(emailHeaders);
 			emailNotification.setNames(names);
