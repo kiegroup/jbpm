@@ -86,7 +86,7 @@ public class AsyncMultisubprocessTest extends JbpmTestCase {
 
         Map<String, Object> properties = new HashMap<>();
         properties.put("number_reviews", 4);
-        properties.put("approvalsRequired", 2);
+        properties.put("approvalsRequired", 4);
         properties.put("employee", "egonzale");
 
         ProcessInstance processInstance = ksession.startProcess(PROCESS_AICS, properties);
