@@ -15,10 +15,19 @@
  */
 package org.jbpm.process.core.timer;
 
+import java.util.Collection;
+
 import org.drools.core.time.JobContext;
 import org.jbpm.process.instance.timer.TimerManager.ProcessJobContext;
 import org.jbpm.process.instance.timer.TimerManager.StartProcessJobContext;
+import org.jbpm.workflow.core.node.StateBasedNode;
+import org.jbpm.workflow.instance.NodeInstanceContainer;
+import org.jbpm.workflow.instance.impl.NodeInstanceImpl;
+import org.jbpm.workflow.instance.node.StateBasedNodeInstance;
+import org.jbpm.workflow.instance.node.TimerNodeInstance;
+import org.kie.api.definition.process.Node;
 import org.kie.api.runtime.EnvironmentName;
+import org.kie.api.runtime.process.NodeInstance;
 
 public class JobNameHelper {
 
@@ -32,12 +41,30 @@ public class JobNameHelper {
         String jobName;
         if (ctx instanceof ProcessJobContext) {
             ProcessJobContext processCtx = (ProcessJobContext) ctx;
-            final String timerName = "-" + (processCtx.getTimer().getName() != null && !processCtx.getTimer().getName().isEmpty() ? processCtx.getTimer().getName() + "-" : "") + processCtx.getTimer().getId();
-
+            long timerId = processCtx.getTimer().getTimerId();
             if (processCtx instanceof StartProcessJobContext) {
-                jobName = groupName + "-StartProcess-" + ((StartProcessJobContext) processCtx).getProcessId() + timerName;
+                jobName = groupName + "-StartProcess-" + ((StartProcessJobContext) processCtx).getProcessId() + timerId;
             } else {
-                jobName = processCtx.getSessionId() + "-" + processCtx.getProcessInstanceId() + timerName;
+                String timerName = null;
+                for (NodeInstance nodeInstance : ((NodeInstanceContainer) processCtx.getKnowledgeRuntime().getProcessInstance(processCtx.getProcessInstanceId())).getNodeInstances()) {
+                    Node foundNode = null;
+                    if (((NodeInstanceImpl) nodeInstance).getSlaTimerId() == timerId) {
+                        foundNode = nodeInstance.getNode();
+                    }
+                    else if (nodeInstance instanceof TimerNodeInstance) {
+                        if (((TimerNodeInstance) nodeInstance).getTimerId() == timerId) {
+                            foundNode = nodeInstance.getNode();
+                        }
+                    }
+                    else if (nodeInstance instanceof StateBasedNodeInstance) {
+                        foundNode = ((StateBasedNode) nodeInstance.getNode()).getBoundaryNode(processCtx.getTimer().getId());
+                    }
+                    if (foundNode != null) {
+                        timerName = TimerNameHelper.getTimerName(nodeInstance, foundNode);
+                        break;
+                    }
+                }
+                jobName = processCtx.getSessionId() + "-" + processCtx.getProcessInstanceId() + "-" + (timerName != null && !timerName.isEmpty() ? timerName + "-" : "") + processCtx.getTimer().getId();
             }
         } else if (ctx instanceof NamedJobContext) {
             jobName = ((NamedJobContext) ctx).getJobName();
@@ -63,5 +90,9 @@ public class JobNameHelper {
             }
         }
         return groupName;
+    }
+
+    private static <T> boolean safeContains(Collection<T> items, T item) {
+        return items != null && items.contains(item);
     }
 }

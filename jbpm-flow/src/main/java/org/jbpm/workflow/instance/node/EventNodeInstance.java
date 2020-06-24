@@ -90,7 +90,6 @@ public class EventNodeInstance extends ExtendedNodeInstanceImpl implements Event
         if (slaDueDateExpression != null) {
             TimerInstance timer = ((WorkflowProcessInstanceImpl)getProcessInstance()).configureSLATimer(slaDueDateExpression);
             if (timer != null) {
-                timer.setName(getNodeName());
                 this.slaTimerId = timer.getId();
                 this.slaDueDate = new Date(System.currentTimeMillis() + timer.getDelay());
                 this.slaCompliance = ProcessInstance.SLA_PENDING;

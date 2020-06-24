@@ -22,8 +22,7 @@ import java.io.Serializable;
  * 
  */
 public class Timer implements Serializable {
-    
-    private static final long serialVersionUID = 7860512151581377015L;
+
     public static final int TIME_DURATION = 1;
     public static final int TIME_CYCLE = 2;
     public static final int TIME_DATE = 3;
@@ -33,16 +32,7 @@ public class Timer implements Serializable {
     private String period;
     private String date;
     private int timeType;
-    private String name;
     
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public long getId() {
         return id;
     }
@@ -76,26 +66,24 @@ public class Timer implements Serializable {
     }
     
     public String toString() {
-    	StringBuilder result =  new StringBuilder("Timer");
-    	if (name != null)
-    	    result.append('-').append(name);
+    	String result =  "Timer";
     	if (delay != null || period != null) {
-    		result.append('[');
+    		result += "[";
     		if (delay != null) {
-    			result.append("delay=").append(delay);
+    			result += "delay=" + delay;
     			if (period != null) {
-    				result.append(", ");
+    				result += ", ";
     			}
     		}
     		if (period != null) {
-    			result.append("period=").append(period);
+    			result += "period=" + period;
     		}
     		if (date != null) {
-                result.append("date=").append(date);
+                result += "date=" + date;
             }
-    		result.append(']');
+    		result += "]";
     	}
-    	return result.toString();
+    	return result;
     }
 
     public int getTimeType() {

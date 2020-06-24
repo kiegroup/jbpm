@@ -461,13 +461,13 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
         String timeCycle = (String) node.getMetaData().get("TimeCycle");
         String timeDate = (String) node.getMetaData().get("TimeDate");
         Timer timer = new Timer();
-        timer.setName(node.getName());
         if (timeDuration != null) {
             timer.setDelay(timeDuration);
             timer.setTimeType(Timer.TIME_DURATION);
             DroolsConsequenceAction action = new DroolsConsequenceAction("java", null);
             action.setMetaData("Action", new SignalNodeInstanceAction("Timer-" + attachedTo + "-" + timeDuration + "-" + node.getId()));
             compositeNode.addTimer(timer, action);
+            compositeNode.addBoundaryEvent(timer.getId(), node.getId());
         } else if (timeCycle != null) {
             int index = timeCycle.indexOf("###");
             if (index != -1) {
@@ -480,12 +480,14 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
             DroolsConsequenceAction action = new DroolsConsequenceAction("java", null);
             action.setMetaData("Action", new SignalNodeInstanceAction("Timer-" + attachedTo + "-" + timeCycle + (timer.getPeriod() == null ? "" : "###" + timer.getPeriod()) + "-" + node.getId()));
             compositeNode.addTimer(timer, action);
+            compositeNode.addBoundaryEvent(timer.getId(), node.getId());
         } else if (timeDate != null) {
             timer.setDate(timeDate);
             timer.setTimeType(Timer.TIME_DATE);
             DroolsConsequenceAction action = new DroolsConsequenceAction("java", null);
             action.setMetaData("Action", new SignalNodeInstanceAction("Timer-" + attachedTo + "-" + timeDate + "-" + node.getId()));
             compositeNode.addTimer(timer, action);
+            compositeNode.addBoundaryEvent(timer.getId(), node.getId());
         }
         
         if (cancelActivity) {

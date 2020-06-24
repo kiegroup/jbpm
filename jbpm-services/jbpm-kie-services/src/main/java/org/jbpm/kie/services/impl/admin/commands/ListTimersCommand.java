@@ -18,21 +18,18 @@ package org.jbpm.kie.services.impl.admin.commands;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
 
 import org.drools.core.command.SingleSessionCommandService;
 import org.drools.core.command.impl.CommandBasedStatefulKnowledgeSession;
 import org.drools.core.impl.StatefulKnowledgeSessionImpl;
 import org.jbpm.kie.services.impl.admin.TimerInstanceImpl;
+import org.jbpm.process.core.timer.TimerNameHelper;
 import org.jbpm.process.instance.InternalProcessRuntime;
 import org.jbpm.process.instance.timer.TimerManager;
 import org.jbpm.ruleflow.instance.RuleFlowProcessInstance;
 import org.jbpm.services.api.ProcessInstanceNotFoundException;
 import org.jbpm.services.api.admin.TimerInstance;
-import org.jbpm.util.PatternConstants;
 import org.jbpm.workflow.instance.NodeInstanceContainer;
 import org.jbpm.workflow.instance.impl.NodeInstanceImpl;
 import org.jbpm.workflow.instance.node.StateBasedNodeInstance;
@@ -104,7 +101,7 @@ public class ListTimersCommand implements ExecutableCommand<List<TimerInstance>>
             if (((NodeInstanceImpl) nodeInstance).getSlaTimerId() != -1) {
                 org.jbpm.process.instance.timer.TimerInstance timer = tm.getTimerMap().get(((NodeInstanceImpl) nodeInstance).getSlaTimerId());
                 TimerInstanceImpl details = buildTimer(timer);
-                details.setTimerName("[SLA]" + resolveVariable(nodeInstance.getNodeName(), nodeInstance));
+                details.setTimerName("[SLA]" + TimerNameHelper.getTimerName(nodeInstance, nodeInstance.getNode()));
                 timers.add(details);
             }
             if (nodeInstance instanceof TimerNodeInstance) {
@@ -112,7 +109,7 @@ public class ListTimersCommand implements ExecutableCommand<List<TimerInstance>>
             	org.jbpm.process.instance.timer.TimerInstance timer = tm.getTimerMap().get(tni.getTimerId());
             	
             	TimerInstanceImpl details = buildTimer(timer);
-                details.setTimerName(resolveVariable(tni.getNodeName(), tni));
+                details.setTimerName(TimerNameHelper.getTimerName(tni, tni.getNode()));
                 
                 timers.add(details);
             
@@ -125,8 +122,7 @@ public class ListTimersCommand implements ExecutableCommand<List<TimerInstance>>
                         org.jbpm.process.instance.timer.TimerInstance timer = tm.getTimerMap().get(timerId);
 
                         TimerInstanceImpl details = buildTimer(timer);
-                        details.setTimerName(resolveVariable(sbni.getNodeName(), sbni));
-                        
+                        details.setTimerName(TimerNameHelper.getTimerName(sbni, sbni.getNode()));
                         timers.add(details);
                     }
             	}
@@ -139,29 +135,6 @@ public class ListTimersCommand implements ExecutableCommand<List<TimerInstance>>
         }
     }
 
-    protected String resolveVariable(String s, NodeInstance pi) {
-        if (s == null) {
-            return null;
-        }
-        // cannot parse delay, trying to interpret it
-        Map<String, String> replacements = new HashMap<String, String>();
-        Matcher matcher = PatternConstants.PARAMETER_MATCHER.matcher(s);
-        while (matcher.find()) {
-            String paramName = matcher.group(1);
-            if (replacements.get(paramName) == null) {
-
-                Object variableValue = pi.getVariable(paramName);
-                String variableValueString = variableValue == null ? "" : variableValue.toString();
-                replacements.put(paramName, variableValueString);
-
-            }
-        }
-        for (Map.Entry<String, String> replacement: replacements.entrySet()) {
-            s = s.replace("#{" + replacement.getKey() + "}", replacement.getValue());
-        }
-
-        return s;
-    }
 
     @Override
     public void setProcessInstanceId(Long procInstId) {

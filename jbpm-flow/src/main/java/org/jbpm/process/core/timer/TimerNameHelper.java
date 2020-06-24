@@ -1,0 +1,52 @@
+/*
+ * Copyright 2020 Red Hat, Inc. and/or its affiliates.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.jbpm.process.core.timer;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+
+import org.jbpm.util.PatternConstants;
+import org.kie.api.definition.process.Node;
+import org.kie.api.runtime.process.NodeInstance;
+
+public class TimerNameHelper {
+
+    private TimerNameHelper() {}
+
+    public static String getTimerName(NodeInstance nodeInstance, Node node) {
+        String s = node.getName();
+        if (s == null)
+            s = nodeInstance.getNodeName();
+        if (s != null) {
+            // cannot parse delay, trying to interpret it
+            Map<String, String> replacements = new HashMap<>();
+            Matcher matcher = PatternConstants.PARAMETER_MATCHER.matcher(s);
+            while (matcher.find()) {
+                String paramName = matcher.group(1);
+                if (replacements.get(paramName) == null) {
+                    Object variableValue = nodeInstance.getVariable(paramName);
+                    String variableValueString = variableValue == null ? "" : variableValue.toString();
+                    replacements.put(paramName, variableValueString);
+                }
+            }
+            for (Map.Entry<String, String> replacement : replacements.entrySet()) {
+                s = s.replace("#{" + replacement.getKey() + "}", replacement.getValue());
+            }
+        }
+        return s;
+    }
+
+}

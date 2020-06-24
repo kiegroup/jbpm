@@ -24,6 +24,7 @@ import java.util.Map;
 import org.jbpm.process.core.timer.Timer;
 import org.jbpm.workflow.core.DroolsAction;
 import org.jbpm.workflow.core.impl.ExtendedNodeImpl;
+import org.kie.api.definition.process.Node;
 
 public class StateBasedNode extends ExtendedNodeImpl {
 
@@ -31,6 +32,8 @@ public class StateBasedNode extends ExtendedNodeImpl {
 
 	private Map<Timer, DroolsAction> timers;
 	
+    private Map<Long, Long> boundaryEventsMap;
+
 	private List<String> boundaryEvents;
 	
 	public Map<Timer, DroolsAction> getTimers() {
@@ -72,6 +75,20 @@ public class StateBasedNode extends ExtendedNodeImpl {
 
     public List<String> getBoundaryEvents() {
         return boundaryEvents;
+    }
+
+    public void addBoundaryEvent(long timerId, long nodeId) {
+        if (boundaryEventsMap == null) {
+            boundaryEventsMap = new HashMap<>();
+        }
+        boundaryEventsMap.put(timerId, nodeId);
+    }
+
+    public Node getBoundaryNode(long timerId) {
+        if (boundaryEventsMap == null)
+            return null;
+        Long nodeId = boundaryEventsMap.get(timerId);
+        return nodeId != null ? ((org.jbpm.workflow.core.NodeContainer) this.getNodeContainer()).internalGetNode(nodeId) : null;
     }
 	
 }

@@ -124,7 +124,6 @@ public abstract class StateBasedNodeInstance extends ExtendedNodeInstanceImpl im
         if (slaDueDateExpression != null) {
             TimerInstance timer = ((WorkflowProcessInstanceImpl) getProcessInstance()).configureSLATimer(slaDueDateExpression);
             if (timer != null) {
-                timer.setName(getNodeName());
                 this.slaTimerId = timer.getId();
                 this.slaDueDate = new Date(System.currentTimeMillis() + timer.getDelay());
                 this.slaCompliance = org.kie.api.runtime.process.ProcessInstance.SLA_PENDING;
@@ -136,7 +135,6 @@ public abstract class StateBasedNodeInstance extends ExtendedNodeInstanceImpl im
 
     protected TimerInstance createTimerInstance(Timer timer) {
         TimerInstance timerInstance = new TimerInstance();
-        timerInstance.setName(timer.getName());
         KieRuntime kruntime = getProcessInstance().getKnowledgeRuntime();
         if (kruntime != null && kruntime.getEnvironment().get("jbpm.business.calendar") != null) {
             BusinessCalendar businessCalendar = (BusinessCalendar) kruntime.getEnvironment().get("jbpm.business.calendar");
