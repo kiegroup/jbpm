@@ -40,6 +40,7 @@ import org.jbpm.process.workitem.core.util.WidMavenDepends;
 import org.jbpm.process.workitem.core.util.WidParameter;
 import org.jbpm.process.workitem.core.util.WidResult;
 import org.jbpm.process.workitem.core.util.service.WidAction;
+import org.jbpm.process.workitem.core.util.service.WidAuth;
 import org.jbpm.process.workitem.core.util.service.WidService;
 import org.jbpm.workflow.core.impl.WorkflowProcessImpl;
 import org.kie.api.runtime.KieSession;
@@ -82,7 +83,8 @@ import org.slf4j.LoggerFactory;
         },
         serviceInfo = @WidService(category = "${name}", description = "${description}",
                 keywords = "webservice,call",
-                action = @WidAction(title = "Perform a WebService call")
+                action = @WidAction(title = "Perform a WebService call"),
+                authinfo = @WidAuth
         ))
 public class WebServiceWorkItemHandler extends AbstractLogOrThrowWorkItemHandler implements Cacheable {
 
