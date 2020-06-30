@@ -277,5 +277,4 @@ public abstract class AbstractCaseServicesTest extends AbstractServicesTest {
     protected Map<Long, ProcessInstanceDesc> mapProcessesInstances(Collection<ProcessInstanceDesc> processes) {
         return processes.stream().collect(toMap(ProcessInstanceDesc::getId, p -> p));
     }
-
 }

@@ -115,7 +115,7 @@ public class UserTaskServiceCDIImplTest extends UserTaskServiceImplTest {
     }
 	
     @PostConstruct
-    public void configure() {
+    public void setup() {
         this.configureServices();
     }
 

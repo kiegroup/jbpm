@@ -26,7 +26,7 @@ import java.util.concurrent.CountDownLatch;
 import javax.naming.InitialContext;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.LockModeType;
-import javax.persistence.PessimisticLockException;
+import javax.persistence.PersistenceException;
 import javax.transaction.UserTransaction;
 
 import org.jbpm.services.task.HumanTaskConfigurator;
@@ -34,7 +34,6 @@ import org.jbpm.services.task.HumanTaskServiceFactory;
 import org.jbpm.services.task.wih.ExternalTaskEventListener;
 import org.jbpm.test.JbpmTestCase;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.kie.api.runtime.EnvironmentName;
@@ -52,7 +51,9 @@ import org.kie.internal.runtime.manager.InternalRuntimeManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 public class PessimisticLockTasksServiceTest extends JbpmTestCase {
 
@@ -189,8 +190,7 @@ public class PessimisticLockTasksServiceTest extends JbpmTestCase {
         t2.join();
 
         assertEquals(1, exceptions.size());
-        assertEquals(PessimisticLockException.class.getName(), exceptions.get(0).getClass().getName());
-
+        assertThat(exceptions.get(0), instanceOf(PersistenceException.class));
 
         taskService.start(salaboysTasks.get(0).getId(), "salaboy");
 

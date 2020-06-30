@@ -17,7 +17,6 @@ package org.jbpm.test.persistence.util;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Field;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
@@ -46,7 +45,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
 import static org.kie.api.runtime.EnvironmentName.ENTITY_MANAGER_FACTORY;
 import static org.kie.api.runtime.EnvironmentName.GLOBALS;
 import static org.kie.api.runtime.EnvironmentName.TRANSACTION;
@@ -63,6 +61,17 @@ public class PersistenceUtil {
     public static final String JBPM_LOCAL_PERSISTENCE_UNIT_NAME = "org.jbpm.persistence.jpa.local";
         
     protected static final String DATASOURCE_PROPERTIES = "/datasource.properties";
+
+    public static final String MAX_POOL_SIZE = "maxPoolSize";
+    public static final String ALLOW_LOCAL_TXS = "allowLocalTransactions";
+    public static final String SERVER_NAME = "serverName";
+    public static final String SERVER_PORT = "portNumber";
+    public static final String DATABASE_NAME = "databaseName";
+    public static final String DATASOURCE_CLASS_NAME = "className";
+    public static final String DRIVER_CLASS_NAME = "driverClassName";
+    public static final String USER = "user";
+    public static final String PASSWORD = "password";
+    public static final String JDBC_URL = "url";
     
     private static TestH2Server h2Server = new TestH2Server();
     
@@ -92,12 +101,8 @@ public class PersistenceUtil {
     public static HashMap<String, Object> setupWithPoolingDataSource(final String persistenceUnitName, String dataSourceName) {
         HashMap<String, Object> context = new HashMap<String, Object>();
 
-        // set the right jdbc url
-        Properties dsProps = getDatasourceProperties();
-        startH2TcpServer(dsProps);
-
         // Setup the datasource
-        PoolingDataSourceWrapper ds1 = setupPoolingDataSource(dsProps, dataSourceName);
+        PoolingDataSourceWrapper ds1 = setupPoolingDataSource(getDatasourceProperties(), dataSourceName);
         context.put(DATASOURCE, ds1);
 
         // Setup persistence
@@ -116,8 +121,15 @@ public class PersistenceUtil {
     public static void startH2TcpServer(Properties datasourceProperties) {
         String jdbcUrl = datasourceProperties.getProperty("url");
         if (jdbcUrl != null && jdbcUrl.matches("jdbc:h2:tcp:.*")) {
-            h2Server.start();
+            h2Server.start(datasourceProperties.getProperty("tcpPort"));
         }
+    }
+
+    /**
+     * This method stops H2 database server (tcp).
+     */
+    public static void stopH2TcpServer() {
+        h2Server.stop();
     }
 
     /**
@@ -171,6 +183,7 @@ public class PersistenceUtil {
      * @return PoolingDataSourceWrapper that has been set up but _not_ initialized.
      */
     public static PoolingDataSourceWrapper setupPoolingDataSource(Properties dsProps, String datasourceName) {
+        startH2TcpServer(dsProps);
         return DataSourceFactory.setupPoolingDataSource(datasourceName, dsProps);
     }
 
@@ -185,22 +198,16 @@ public class PersistenceUtil {
      */
     private static Properties getDefaultProperties() {
         if (defaultProperties == null) {
-            String[] keyArr = { 
-                    "serverName", "portNumber", "databaseName", 
-                    "url", 
-                    "user", "password", 
-                    "driverClassName",
-                    "className", 
-                    "maxPoolSize", 
-                    "allowLocalTransactions" };
-            String[] defaultPropArr = { 
-                    "", "", "", 
-                    "jdbc:h2:tcp://localhost/target/jbpm-test", 
-                    "sa", "", 
-                    "org.h2.Driver",
-                    "org.h2.jdbcx.JdbcDataSource", 
-                    "16", 
-                    "true" };
+            String[] keyArr = {
+                    SERVER_NAME, SERVER_PORT, DATABASE_NAME, JDBC_URL,
+                    USER, PASSWORD,
+                    DRIVER_CLASS_NAME, DATASOURCE_CLASS_NAME,
+                    MAX_POOL_SIZE, ALLOW_LOCAL_TXS };
+            String[] defaultPropArr = {
+                    "", "", "", "jdbc:h2:mem:jbpm-db;MVCC=true",
+                    "sa", "",
+                    "org.h2.Driver", "org.h2.jdbcx.JdbcDataSource",
+                    "16", "true" };
             Assert.assertTrue("Unequal number of keys for default properties", keyArr.length == defaultPropArr.length);
             defaultProperties = new Properties();
             for (int i = 0; i < keyArr.length; ++i) {
@@ -234,7 +241,7 @@ public class PersistenceUtil {
             logger.warn("Stacktrace:", ioe);
         }
 
-        String password = props.getProperty("password");
+        String password = props.getProperty(PASSWORD);
         if ("${maven.jdbc.password}".equals(password) || propertiesNotFound) {
             props = getDefaultProperties();
         }
@@ -251,7 +258,7 @@ public class PersistenceUtil {
      */
     public static boolean useTransactions() {
         boolean useTransactions = false;
-        String databaseDriverClassName = getDatasourceProperties().getProperty("driverClassName");
+        String databaseDriverClassName = getDatasourceProperties().getProperty(DRIVER_CLASS_NAME);
 
         // Postgresql has a "Large Object" api which REQUIRES the use of transactions
         //  since @Lob/byte array is actually stored in multiple tables.
@@ -277,17 +284,17 @@ public class PersistenceUtil {
     }
     
    /**
-    * An class responsible for starting and stopping the H2 database (tcp)
+    * An class responsible for starting the H2 database (tcp)
     * server
     */
    private static class TestH2Server {
        private Server realH2Server;
 
-       public void start() {
+       public synchronized void start(String port) {
            if (realH2Server == null || !realH2Server.isRunning(false)) {
                try {
-                   DeleteDbFiles.execute("", "JPADroolsFlow", true);
-                   realH2Server = Server.createTcpServer(new String[0]);
+                   DeleteDbFiles.execute("", null, true);
+                   realH2Server = Server.createTcpServer((port != null && !port.isEmpty()) ? new String[]{"-tcpPort", port} : new String[0]);
                    realH2Server.start();
                } catch (SQLException e) {
                    throw new RuntimeException("can't start h2 server db", e);
@@ -297,11 +304,21 @@ public class PersistenceUtil {
 
        @Override
        protected void finalize() throws Throwable {
+           stop();
+           super.finalize();
+       }
+
+       /**
+        * An class responsible for stopping the H2 database (tcp)
+        * server
+        */
+       public synchronized void stop() {
            if (realH2Server != null) {
                realH2Server.stop();
+               realH2Server.shutdown();
+               DeleteDbFiles.execute("", null, true);
+               realH2Server = null;
            }
-           DeleteDbFiles.execute("", "target/jbpm-test", true);
-           super.finalize();
        }
 
    }

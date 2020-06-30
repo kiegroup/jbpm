@@ -27,7 +27,6 @@ import java.util.UUID;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
-import org.h2.tools.Server;
 import org.jbpm.executor.impl.ExecutorServiceImpl;
 import org.jbpm.executor.test.CountDownAsyncJobListener;
 import org.jbpm.test.persistence.util.PersistenceUtil;
@@ -47,33 +46,30 @@ import org.kie.test.util.db.PoolingDataSourceWrapper;
 
 public class DBUnavilabilityExecutorTest{
 
-    public static final Map<String, Object> cachedEntities = new HashMap<String, Object>();
+    public static final Map<String, Object> cachedEntities = new HashMap<>();
     private ExecutorService executorService;
 
+    private static Properties dsProps;
 
     private EntityManagerFactory emf = null;
 
 	private PoolingDataSourceWrapper pds;
 
-	private static Server h2Server;
-
 	@BeforeClass
-    public static void createDBServer() throws Exception {
-	    h2Server = Server.createTcpServer(new String[] { "-tcpPort", "9123" });
-	    h2Server.start();
+    public static void createDBServer() {
+        dsProps = ExecutorTestUtil.getDatasourceProperties();
+        dsProps.setProperty("url", "jdbc:h2:tcp://localhost:9123/target/jbpm-exec-test;MVCC=TRUE");
+        dsProps.setProperty("tcpPort", "9123");
+        PersistenceUtil.startH2TcpServer(dsProps);
     }
 
 	@AfterClass
 	public static void stopDBServer() {
-	    if (h2Server.isRunning(false)) {
-	        h2Server.stop();
-	    }
+        PersistenceUtil.stopH2TcpServer();
 	}
 
     @Before
     public void setUp() {
-        Properties dsProps = ExecutorTestUtil.getDatasourceProperties();
-        dsProps.setProperty("url", "jdbc:h2:tcp://localhost:9123/target/jbpm-exec-test;MVCC=TRUE");
         pds = PersistenceUtil.setupPoolingDataSource(dsProps, "jdbc/jbpm-ds");
         emf = Persistence.createEntityManagerFactory("org.jbpm.executor");
 
@@ -118,13 +114,13 @@ public class DBUnavilabilityExecutorTest{
         // wait for the first two jobs to successfully run
         countDownListener.waitTillCompleted();
         // stop db
-        h2Server.stop();
+        PersistenceUtil.stopH2TcpServer();
         // we need to use sleep here to allow the next job fail at connection to stopped db
         // listeners are not available until the job is actually fetched from db
         Thread.sleep(3000);
         //reset listeners and start db
         countDownListener.reset(2);
-        h2Server.start();
+        PersistenceUtil.startH2TcpServer(dsProps);
         // wait for additional two jobs to run as they are reoccuring
         countDownListener.waitTillCompleted();        
         

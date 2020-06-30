@@ -29,7 +29,6 @@ import java.util.Map;
 
 import org.drools.core.impl.InternalKnowledgeBase;
 import org.drools.core.impl.KnowledgeBaseFactory;
-import org.jbpm.bpmn2.concurrency.MultipleProcessesPerThreadTest;
 import org.jbpm.test.persistence.util.PersistenceUtil;
 import org.jbpm.test.listener.process.NodeLeftCountDownProcessEventListener;
 import org.jbpm.test.util.AbstractBaseTest;
@@ -51,7 +50,7 @@ import org.slf4j.LoggerFactory;
 
 public class UnmarshallingOverdueTimersTest extends AbstractBaseTest {
 
-    private static final Logger logger = LoggerFactory.getLogger(MultipleProcessesPerThreadTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(UnmarshallingOverdueTimersTest.class);
 
     private HashMap<String, Object> context;
 

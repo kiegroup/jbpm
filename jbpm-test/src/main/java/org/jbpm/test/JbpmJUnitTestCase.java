@@ -16,17 +16,12 @@
 
 package org.jbpm.test;
 
-import static org.jbpm.test.JbpmJUnitBaseTestCase.txStateName;
-import static org.junit.Assert.*;
-
 import java.io.File;
 import java.io.FilenameFilter;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -35,12 +30,9 @@ import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 
 import junit.framework.Assert;
-
 import org.drools.core.audit.WorkingMemoryInMemoryLogger;
 import org.drools.core.audit.event.LogEvent;
 import org.drools.core.audit.event.RuleFlowNodeLogEvent;
-import org.h2.tools.DeleteDbFiles;
-import org.h2.tools.Server;
 import org.jbpm.process.audit.AuditLogService;
 import org.jbpm.process.audit.JPAAuditLogService;
 import org.jbpm.process.audit.NodeInstanceLog;
@@ -49,8 +41,6 @@ import org.jbpm.process.instance.impl.DefaultProcessInstanceManagerFactory;
 import org.jbpm.services.task.HumanTaskServiceFactory;
 import org.jbpm.services.task.identity.JBossUserGroupCallbackImpl;
 import org.jbpm.services.task.identity.MvelUserGroupCallbackImpl;
-import org.kie.test.util.db.DataSourceFactory;
-import org.kie.test.util.db.PoolingDataSourceWrapper;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 import org.junit.After;
 import org.junit.Before;
@@ -77,8 +67,14 @@ import org.kie.internal.io.ResourceFactory;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
 import org.kie.internal.runtime.manager.context.EmptyContext;
 import org.kie.internal.task.api.InternalTaskService;
+import org.kie.test.util.db.PoolingDataSourceWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.jbpm.test.JbpmJUnitBaseTestCase.txStateName;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 /**
  * This test case is deprecated. JbpmJUnitBaseTestCase shall be used instead.
@@ -94,7 +90,6 @@ public abstract class JbpmJUnitTestCase extends AbstractBaseTest {
     private boolean sessionPersistence = false;
     private EntityManagerFactory emf;
     private PoolingDataSourceWrapper ds;
-    private H2Server server = new H2Server();
     private TaskService taskService;
     private TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
     private WorkingMemoryInMemoryLogger logger;    
@@ -103,13 +98,6 @@ public abstract class JbpmJUnitTestCase extends AbstractBaseTest {
     private RuntimeEnvironment environment;
     private AuditLogService logService;
 
-//    @Rule
-//    public KnowledgeSessionCleanup ksessionCleanupRule = new KnowledgeSessionCleanup();	
-//	protected static ThreadLocal<Set<StatefulKnowledgeSession>> knowledgeSessionSetLocal 
-//	    = KnowledgeSessionCleanup.knowledgeSessionSetLocal;
-//    @Rule
-//    public TestName testName = new TestName();
-    
     public JbpmJUnitTestCase() {
         this(false);
     }
@@ -118,18 +106,6 @@ public abstract class JbpmJUnitTestCase extends AbstractBaseTest {
         System.setProperty("jbpm.user.group.mapping", "classpath:/usergroups.properties");
         System.setProperty("jbpm.usergroup.callback", "org.jbpm.services.task.identity.DefaultUserGroupCallbackImpl");
         this.setupDataSource = setupDataSource;
-    }
-
-    public static PoolingDataSourceWrapper setupPoolingDataSource() {
-        Properties driverProperties = new Properties();
-        driverProperties.put("user", "sa");
-        driverProperties.put("password", "");
-        driverProperties.put("url", "jdbc:h2:tcp://localhost/~/jbpm-db;MVCC=true");
-        driverProperties.put("driverClassName", "org.h2.Driver");
-        driverProperties.put("className", "org.h2.jdbcx.JdbcDataSource");
-        
-        PoolingDataSourceWrapper pds = DataSourceFactory.setupPoolingDataSource("jdbc/jbpm-ds", driverProperties);
-        return pds;
     }
 
     public void setPersistence(boolean sessionPersistence) {
@@ -144,7 +120,6 @@ public abstract class JbpmJUnitTestCase extends AbstractBaseTest {
     public void setUp() throws Exception {
 
         if (setupDataSource) {
-            server.start();
             ds = setupPoolingDataSource();
             emf = Persistence.createEntityManagerFactory("org.jbpm.persistence.jpa");
         }
@@ -163,8 +138,6 @@ public abstract class JbpmJUnitTestCase extends AbstractBaseTest {
                 ds.close();
                 ds = null;
             }
-            server.stop();
-            DeleteDbFiles.execute("~", "jbpm-db", true);
 
             // Clean up possible transactions
             Transaction tx = com.arjuna.ats.jta.TransactionManager.transactionManager().getTransaction();
@@ -296,20 +269,6 @@ public abstract class JbpmJUnitTestCase extends AbstractBaseTest {
             return ksession;
         }
     }
-
-//    public StatefulKnowledgeSession loadSession(int id, String... process) {
-//        KnowledgeBase kbase = createKnowledgeBase(process);
-//
-//        final KieSessionConfiguration config = KnowledgeBaseFactory.newKnowledgeSessionConfiguration();
-//        // Do NOT use the Pseudo clock yet.. 
-//        // config.setOption(ClockTypeOption.get(ClockType.PSEUDO_CLOCK.getId()));
-//
-//        StatefulKnowledgeSession ksession = JPAKnowledgeService.loadStatefulKnowledgeSession(id, kbase, config, createEnvironment(emf));
-//        KnowledgeSessionCleanup.knowledgeSessionSetLocal.get().add(ksession);
-//        AuditLoggerFactory.newInstance(Type.JPA, ksession, null);
-//
-//        return ksession;
-//    }
 
     public Object getVariableValue(String name, long processInstanceId, KieSession ksession) {
         return ((WorkflowProcessInstance) ksession.getProcessInstance(processInstanceId)).getVariable(name);
@@ -538,31 +497,6 @@ public abstract class JbpmJUnitTestCase extends AbstractBaseTest {
         		.userGroupCallback(new MvelUserGroupCallbackImpl(true))
                 .entityManagerFactory(emf)
                 .getTaskService();
-    }
-    private static class H2Server {
-
-        private Server server;
-
-        public synchronized void start() {
-            if (server == null || !server.isRunning(false)) {
-                try {
-                    DeleteDbFiles.execute("~", "jbpm-db", true);
-                    server = Server.createTcpServer(new String[0]);
-                    server.start();
-                } catch (SQLException e) {
-                    throw new RuntimeException("Cannot start h2 server database", e);
-                }
-            }
-        }
-
-        public void stop() {
-            if (server != null) {
-                server.stop();
-                server.shutdown();
-                DeleteDbFiles.execute("~", "jbpm-db", true);
-                server = null;
-            }
-        }
     }
 
     public PoolingDataSourceWrapper getDs() {

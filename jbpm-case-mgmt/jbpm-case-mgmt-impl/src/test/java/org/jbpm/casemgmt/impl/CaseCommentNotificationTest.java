@@ -52,7 +52,7 @@ public class CaseCommentNotificationTest extends AbstractCaseServicesBaseTest {
     private static final Logger logger = LoggerFactory.getLogger(CaseCommentNotificationTest.class);
 
     @After
-    public void reset() {
+    public void cleanUp() {
         CommentNotificationEventListenerFactory.removeExisting("test");
     }
     

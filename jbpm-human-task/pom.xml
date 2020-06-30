@@ -44,13 +44,8 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
     <maven.tx.type>JTA</maven.tx.type>
     <maven.data.source>&lt;jta-data-source&gt;jdbc/jbpm-ds&lt;/jta-data-source&gt;</maven.data.source>
-    
-    <!-- H2
-     -->
-    <maven.jdbc.url>jdbc:h2:mem:jbpm-db;MVCC=true</maven.jdbc.url>
   </properties>
 
   <build>
