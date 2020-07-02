@@ -8,9 +8,4 @@
         primary key (taskId)
     );
 
-    alter table PlanningTask
-        add constraint FK_PlanningTask_Task
-        foreign key (taskId)
-        references Task;
-
     create index IDX_PlanningTask_assignedUser on PlanningTask(assignedUser);

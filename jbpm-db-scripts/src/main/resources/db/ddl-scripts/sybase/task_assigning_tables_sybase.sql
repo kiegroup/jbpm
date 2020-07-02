@@ -9,11 +9,5 @@
     ) lock datarows
     go
 
-    alter table PlanningTask
-        add constraint FK_PlanningTask_Task
-        foreign key (taskId)
-        references Task
-    go
-
     create index IDX_PlanningTask_assignedUser on PlanningTask(assignedUser)
     go
