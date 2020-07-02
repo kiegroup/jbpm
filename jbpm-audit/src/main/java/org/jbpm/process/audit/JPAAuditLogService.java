@@ -231,7 +231,7 @@ public class JPAAuditLogService extends JPAService implements AuditLogService {
     public List<VariableInstanceLog> findVariableInstances(long processInstanceId, String variableId) {
         EntityManager em = getEntityManager();
         Query query = em
-            .createQuery("FROM VariableInstanceLog v WHERE v.processInstanceId = :processInstanceId AND v.variableId = :variableId ORDER BY date")
+            .createQuery("FROM VariableInstanceLog v WHERE v.processInstanceId = :processInstanceId AND v.variableId = :variableId ORDER BY date,id")
                 .setParameter("processInstanceId", processInstanceId)
                 .setParameter("variableId", variableId);
         return executeQuery(query, em, VariableInstanceLog.class);
