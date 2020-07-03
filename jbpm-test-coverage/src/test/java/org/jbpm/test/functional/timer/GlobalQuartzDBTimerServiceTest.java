@@ -356,10 +356,9 @@ public class GlobalQuartzDBTimerServiceTest extends GlobalTimerServiceBaseTest {
             if(connection != null) {
                 connection.close();
             }
-            ksession.abortProcessInstance(processInstance.getId());
-            manager.disposeRuntimeEngine(runtime);
         }
-
+        ksession.abortProcessInstance(processInstance.getId());
+        manager.disposeRuntimeEngine(runtime);
     }
 
     @Test(timeout=25000)

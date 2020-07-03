@@ -347,7 +347,6 @@ public class CaseHandler extends BaseAbstractHandler implements Handler {
             timer.setTimeType(Timer.TIME_DURATION);
             compositeNode.addTimer(timer, new DroolsConsequenceAction("java",
                                                                       PROCESS_INSTANCE_SIGNAL_EVENT + "Timer-" + attachedTo + "-" + timeDuration + "-" + node.getId() + "\", kcontext.getNodeInstance().getId());"));
-            compositeNode.addBoundaryEvent(timer.getId(), node.getId());
         } else if (timeCycle != null) {
             int index = timeCycle.indexOf("###");
             if (index != -1) {
@@ -361,13 +360,11 @@ public class CaseHandler extends BaseAbstractHandler implements Handler {
                                                                       PROCESS_INSTANCE_SIGNAL_EVENT + "Timer-" + attachedTo + "-" + timeCycle + (timer.getPeriod() == null ? "" : "###" + timer.getPeriod()) + "-" + node
                                                                                                                                                                                                                          .getId() +
                                                                               "\", kcontext.getNodeInstance().getId());"));
-            compositeNode.addBoundaryEvent(timer.getId(), node.getId());
         } else if (timeDate != null) {
             timer.setDate(timeDate);
             timer.setTimeType(Timer.TIME_DATE);
             compositeNode.addTimer(timer, new DroolsConsequenceAction("java",
                                                                       PROCESS_INSTANCE_SIGNAL_EVENT + "Timer-" + attachedTo + "-" + timeDate + "-" + node.getId() + "\", kcontext.getNodeInstance().getId());"));
-            compositeNode.addBoundaryEvent(timer.getId(), node.getId());
         }
 
         if (cancelActivity) {
