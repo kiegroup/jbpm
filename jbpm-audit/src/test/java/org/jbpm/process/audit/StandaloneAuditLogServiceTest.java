@@ -30,6 +30,7 @@ import org.jbpm.process.audit.command.AuditCommand;
 import org.jbpm.process.audit.command.ClearHistoryLogsCommand;
 import org.jbpm.process.audit.command.FindNodeInstancesCommand;
 import org.jbpm.process.audit.command.FindProcessInstancesCommand;
+import org.jbpm.process.instance.impl.demo.DoNothingWorkItemHandler;
 import org.jbpm.process.instance.impl.demo.SystemOutWorkItemHandler;
 import org.junit.After;
 import org.junit.Before;
@@ -59,7 +60,8 @@ public class StandaloneAuditLogServiceTest extends AbstractAuditLogServiceTest {
         ksession = createKieSession(kbase, env);
         new JPAWorkingMemoryDbLogger(ksession);
         ksession.getWorkItemManager().registerWorkItemHandler("Human Task", new SystemOutWorkItemHandler());
-       
+        //Register a workitem that does not complete it when executed
+        ksession.getWorkItemManager().registerWorkItemHandler("Not completed task", new DoNothingWorkItemHandler());
         // log service
         auditLogService = new JPAAuditLogService(env);
     }
@@ -105,5 +107,24 @@ public class StandaloneAuditLogServiceTest extends AbstractAuditLogServiceTest {
         assertEquals(0, nodeInstances.size());
         processInstances = setAuditLogServiceAndExecute(new FindProcessInstancesCommand(PROCESS_ID));
         assertEquals(0, processInstances.size());
+    }
+    
+    @Test
+    public void whenAbortingProcessTaskShouldBeInAbortedStatus() { 
+        String PROCESS_ID = "com.sample.ruleflow4";
+        // start process instance
+        long processInstanceId = ksession.startProcess(PROCESS_ID).getId();
+        
+        logger.info("Checking process instances for process '{}' before aborting", PROCESS_ID);
+       
+        ksession.abortProcessInstance(processInstanceId);
+        
+        List<NodeInstanceLog> nodeInstances = auditLogService.findNodeInstances(processInstanceId);
+        
+        assertEquals("There should be 4 node instances", 4, nodeInstances.size());
+        assertEquals("Task node instance when aborting process should be in ABORTED status (2)", 
+                     NodeInstanceLog.TYPE_ABORTED, nodeInstances.get(3).getType().intValue());
+        
+        auditLogService.clear();
     }
 }
