@@ -16,16 +16,23 @@
 
 package org.jbpm.services.task.identity;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.jbpm.services.task.identity.DBUserGroupCallbackImpl.DS_JNDI_NAME;
+import static org.jbpm.services.task.identity.DBUserGroupCallbackImpl.PRINCIPAL_QUERY;
+import static org.jbpm.services.task.identity.DBUserGroupCallbackImpl.ROLES_QUERY;
+import static org.jbpm.services.task.identity.DBUserGroupCallbackImpl.USER_ROLES_QUERY;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 
@@ -34,12 +41,34 @@ import org.kie.test.util.db.PoolingDataSourceWrapper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
+@RunWith(Parameterized.class)
 public class DBUserGroupCallbackImplTest {
 
+    protected enum Configuration {
+        PROGRAMMATICALLY, DECLARATIVELY
+    }
+    
     protected static final String DATASOURCE_PROPERTIES = "/datasource.properties";
     private PoolingDataSourceWrapper pds;
     private Properties props;
+    
+    private Configuration config;
+    private DBUserGroupCallbackImpl callback;
+    
+    @Parameters(name="{0}")
+    public static Collection<Object[]> data() {
+        return Arrays.asList(new Object[][] {     
+                 { Configuration.PROGRAMMATICALLY }, { Configuration.DECLARATIVELY }
+           });
+    }
+    
+    public DBUserGroupCallbackImplTest(Configuration config) {
+        this.config = config;
+    }
 
     @Before
     public void setup() {
@@ -48,11 +77,33 @@ public class DBUserGroupCallbackImplTest {
 
         prepareDb();
 
+        configureProps();
+    }
+
+    private void configureProps() {
+        switch (config) {
+            case PROGRAMMATICALLY:
+                configurePropsProgrammatically();
+                break;
+
+            case DECLARATIVELY:
+                System.setProperty("jbpm.usergroup.callback.properties", "/jbpm.usergroup.callback.db.properties");
+                callback = new DBUserGroupCallbackImpl(true);
+                break;
+
+            default:
+                throw new IllegalArgumentException("unknown config type");
+        }
+    }
+
+    private void configurePropsProgrammatically() {
         props = new Properties();
-        props.setProperty(DBUserGroupCallbackImpl.DS_JNDI_NAME, "jdbc/jbpm-ds");
-        props.setProperty(DBUserGroupCallbackImpl.PRINCIPAL_QUERY, "select userId from Users where userId = ?");
-        props.setProperty(DBUserGroupCallbackImpl.ROLES_QUERY, "select groupId from UserGroups where groupId = ?");
-        props.setProperty(DBUserGroupCallbackImpl.USER_ROLES_QUERY, "select groupId from UserGroups where userId = ?");
+        props.setProperty(DS_JNDI_NAME, "jdbc/jbpm-ds");
+        props.setProperty(PRINCIPAL_QUERY, "select userId from Users where userId = ?");
+        props.setProperty(ROLES_QUERY, "select groupId from UserGroups where groupId = ?");
+        props.setProperty(USER_ROLES_QUERY, "select groupId from UserGroups where userId = ?");
+        
+        callback = new DBUserGroupCallbackImpl(props);
     }
 
     protected Properties loadDataSourceProperties() {
@@ -127,32 +178,25 @@ public class DBUserGroupCallbackImplTest {
 
     @After
     public void cleanup() {
+        System.clearProperty("jbpm.usergroup.callback.properties");
         cleanDb();
         pds.close();
     }
 
     @Test
     public void testUserExists() {
-
-
-
-        DBUserGroupCallbackImpl callback = new DBUserGroupCallbackImpl(props);
         boolean exists = callback.existsUser("john");
         assertTrue(exists);
     }
 
     @Test
     public void testGroupExists() {
-
-        DBUserGroupCallbackImpl callback = new DBUserGroupCallbackImpl(props);
         boolean exists = callback.existsGroup("PM");
         assertTrue(exists);
     }
 
     @Test
     public void testUserGroups() {
-
-        DBUserGroupCallbackImpl callback = new DBUserGroupCallbackImpl(props);
         List<String> groups = callback.getGroupsForUser("john");
         assertNotNull(groups);
         assertEquals(1, groups.size());
@@ -161,44 +205,50 @@ public class DBUserGroupCallbackImplTest {
 
     @Test
     public void testUserNotExists() {
-
-        DBUserGroupCallbackImpl callback = new DBUserGroupCallbackImpl(props);
         boolean exists = callback.existsUser("mike");
         assertFalse(exists);
     }
 
     @Test
     public void testGroupNotExists() {
-
-        DBUserGroupCallbackImpl callback = new DBUserGroupCallbackImpl(props);
         boolean exists = callback.existsGroup("HR");
         assertFalse(exists);
     }
 
     @Test
     public void testNoUserGroups() {
-
-        DBUserGroupCallbackImpl callback = new DBUserGroupCallbackImpl(props);
         List<String> groups = callback.getGroupsForUser("mike");
         assertNotNull(groups);
         assertEquals(0, groups.size());
 
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testInvalidConfiguration() {
+        assertThatThrownBy(this::configureWrongProps)
+          .isInstanceOf(IllegalArgumentException.class)
+          .hasMessageContaining("All properties must be given ("+ DS_JNDI_NAME + ","
+                  + PRINCIPAL_QUERY +"," + ROLES_QUERY +"," +USER_ROLES_QUERY +")");
+    }
+    
+    private void configureWrongProps() {
+        switch (config) {
+            case PROGRAMMATICALLY:
+                callback = new DBUserGroupCallbackImpl(new Properties());
+                break;
 
-        Properties invalidProps = new Properties();
-        DBUserGroupCallbackImpl callback = new DBUserGroupCallbackImpl(invalidProps);
-        callback.getGroupsForUser("mike");
-        fail("Should fail as it does not have valid configuration");
+            case DECLARATIVELY:
+                System.setProperty("jbpm.usergroup.callback.properties", "/fake.properties");
+                callback = new DBUserGroupCallbackImpl(true);
+                break;
 
+            default:
+                throw new IllegalArgumentException("unknown config type");
+        }
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testInvalidArgument() {
-
-        DBUserGroupCallbackImpl callback = new DBUserGroupCallbackImpl(props);
         callback.getGroupsForUser(null);
         fail("Should fail as it does not have valid configuration");
 
