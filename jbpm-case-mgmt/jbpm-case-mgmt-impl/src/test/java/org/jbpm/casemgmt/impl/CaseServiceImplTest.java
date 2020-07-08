@@ -1811,6 +1811,41 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
     }
 
     @Test
+    public void testCaseOwnedBy() {
+        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new UserImpl("john"));
+        roleAssignments.put("contact", new GroupImpl("HR"));
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("s", "description");
+        CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), USER_TASK_CASE_P_ID, data, roleAssignments);
+
+        String caseId = caseService.startCase(deploymentUnit.getIdentifier(), USER_TASK_CASE_P_ID, caseFile);
+        assertNotNull(caseId);
+        assertEquals(HR_CASE_ID, caseId);
+
+        try {
+            Collection<CaseInstance> instances = caseRuntimeDataService.getCaseInstancesOwnedBy("john", Collections.singletonList(CaseStatus.OPEN), true, new QueryContext());
+            assertNotNull(instances);
+            assertEquals(1, instances.size());
+            assertNotNull(instances.iterator().next().getCaseFile());
+
+            instances = caseRuntimeDataService.getCaseInstancesOwnedBy("john", Collections.singletonList(CaseStatus.OPEN), false, new QueryContext());
+            assertNotNull(instances);
+            assertEquals(1, instances.size());
+            assertNull(instances.iterator().next().getCaseFile());
+        } catch (Exception e) {
+            logger.error("Unexpected error {}", e.getMessage(), e);
+            fail("Unexpected exception " + e.getMessage());
+        } finally {
+            identityProvider.setName("john");
+            if (caseId != null) {
+                caseService.cancelCase(caseId);
+            }
+        }
+    }
+
+    @Test
     public void testCaseRolesWithQueries() {
         Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
         roleAssignments.put("owner", new UserImpl("john"));
@@ -1835,17 +1870,18 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
             assertNotNull(instances);
             assertEquals(0, instances.size());
 
-            List<CaseStatus> status = Arrays.asList(CaseStatus.CANCELLED);
+            List<CaseStatus> status = Collections.singletonList(CaseStatus.CANCELLED);
 
             instances = caseRuntimeDataService.getCaseInstancesAnyRole(status, new QueryContext());
             assertNotNull(instances);
             assertFalse("Opened case was returned when searching for cancelled case instances.", instances.stream().anyMatch(n -> n.getCaseId().equals(caseId)));
 
-            status = Arrays.asList(CaseStatus.OPEN);
+            status = Collections.singletonList(CaseStatus.OPEN);
 
             instances = caseRuntimeDataService.getCaseInstancesAnyRole(status, new QueryContext());
             assertNotNull(instances);
             assertEquals(1, instances.size());
+            assertNull(instances.iterator().next().getCaseFile());
 
             instances = caseRuntimeDataService.getCaseInstancesByRole(null, status, new QueryContext());
             assertNotNull(instances);
@@ -1854,6 +1890,12 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
             instances = caseRuntimeDataService.getCaseInstancesByRole("owner", status, new QueryContext());
             assertNotNull(instances);
             assertEquals(1, instances.size());
+            assertNull(instances.iterator().next().getCaseFile());
+
+            instances = caseRuntimeDataService.getCaseInstancesByRole("owner", status, true, new QueryContext());
+            assertNotNull(instances);
+            assertEquals(1, instances.size());
+            assertNotNull(instances.iterator().next().getCaseFile());
 
             identityProvider.setName("mary");
 
@@ -1866,6 +1908,7 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
             instances = caseRuntimeDataService.getCaseInstancesByRole("contact", status, new QueryContext());
             assertNotNull(instances);
             assertEquals(1, instances.size());
+            assertNull(instances.iterator().next().getCaseFile());
         } catch (Exception e) {
             logger.error("Unexpected error {}", e.getMessage(), e);
             fail("Unexpected exception " + e.getMessage());

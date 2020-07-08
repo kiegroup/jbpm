@@ -211,7 +211,7 @@ public class CaseInstanceImpl implements CaseInstance, Serializable {
         this.caseRoles = caseRoles;
     }
 
-    
+    @Override
     public void setCaseFile(CaseFileInstance caseFile) {
         this.caseFile = caseFile;
     }

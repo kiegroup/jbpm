@@ -19,6 +19,7 @@ package org.jbpm.casemgmt.impl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -88,21 +89,12 @@ public class CaseRuntimeDataServiceImplTest extends AbstractCaseServicesBaseTest
             assertEquals(FIRST_CASE_ID, cInstance.getCaseId());
             assertNotNull(cInstance.getCaseFile());
             assertEquals("my first case", cInstance.getCaseFile().getData("name"));
+            
+            List<CaseStatus> statuses = Collections.singletonList(CaseStatus.OPEN);
 
-            Collection<CaseInstance> instances = caseRuntimeDataService.getCaseInstances(new QueryContext());
-            assertNotNull(instances);
-
-            assertEquals(1, instances.size());
-            CaseInstance instance = instances.iterator().next();
-            assertNotNull(instance);
-
-            assertEquals(FIRST_CASE_ID, instance.getCaseId());
-            assertEquals(EMPTY_CASE_P_ID, instance.getCaseDefinitionId());
-            assertEquals("my first case", instance.getCaseDescription());
-            assertEquals(USER, instance.getOwner());
-            assertEquals(ProcessInstance.STATE_ACTIVE, instance.getStatus().intValue());
-            assertEquals(deploymentUnit.getIdentifier(), instance.getDeploymentId());
-            assertNotNull(instance.getStartedAt());
+            assertCaseInstance(caseRuntimeDataService.getCaseInstances(statuses, true, new QueryContext()));
+            assertCaseInstance(caseRuntimeDataService.getCaseInstancesByDefinition(EMPTY_CASE_P_ID, statuses, true, new QueryContext()));
+            assertCaseInstance(caseRuntimeDataService.getCaseInstancesByDeployment(deploymentUnit.getIdentifier(), statuses, true, new QueryContext()));
 
             // add dynamic user task to empty case instance - first by case id
             Map<String, Object> parameters = new HashMap<>();
@@ -130,6 +122,23 @@ public class CaseRuntimeDataServiceImplTest extends AbstractCaseServicesBaseTest
                 caseService.cancelCase(caseId);
             }
         }
+    }
+    
+    private void assertCaseInstance (Collection<CaseInstance> instances) {
+        assertNotNull(instances);
+
+        assertEquals(1, instances.size());
+        CaseInstance instance = instances.iterator().next();
+        assertNotNull(instance);
+
+        assertEquals(FIRST_CASE_ID, instance.getCaseId());
+        assertEquals(EMPTY_CASE_P_ID, instance.getCaseDefinitionId());
+        assertEquals("my first case", instance.getCaseDescription());
+        assertEquals(USER, instance.getOwner());
+        assertEquals(ProcessInstance.STATE_ACTIVE, instance.getStatus().intValue());
+        assertEquals(deploymentUnit.getIdentifier(), instance.getDeploymentId());
+        assertEquals("my first case", instance.getCaseFile().getData("name"));
+        assertNotNull(instance.getStartedAt());
     }
 
     @Test
