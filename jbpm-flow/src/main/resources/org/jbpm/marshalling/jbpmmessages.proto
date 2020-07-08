@@ -202,6 +202,7 @@ message ProcessTimer {
         optional int32 DEPRECATED_sessionId = 8;
         optional int64 sessionId = 9;
         optional int32 repeatLimit = 10;
+        optional string name=11;
     }
 }
 
