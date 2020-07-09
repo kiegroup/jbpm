@@ -81,6 +81,7 @@ public class ProcessInstanceAdminServiceImplTest extends AbstractKieServicesBase
         ReleaseId releaseId = ks.newReleaseId(ADMIN_GROUP_ID, ADMIN_ARTIFACT_ID, ADMIN_VERSION_V1);
         List<String> processes = new ArrayList<String>();
         processes.add("repo/processes/general/humanTask.bpmn");
+        processes.add("repo/processes/general/boundarytimer.bpmn2");
         processes.add("repo/processes/general/BPMN2-IntermediateCatchEventTimerDuration.bpmn2");
         processes.add("repo/processes/general/BPMN2-UserTaskWithSLAOnTask.bpmn2");
         processes.add("repo/processes/errors/BPMN2-BrokenScriptTask.bpmn2");
@@ -413,6 +414,21 @@ public class ProcessInstanceAdminServiceImplTest extends AbstractKieServicesBase
         assertNotNull(timer.getId());
         assertNotNull(timer.getTimerName());
     }
+    
+    @Test(timeout = 10000)
+    public void testTimerName() throws Exception {
+        processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.boundarytimer");
+        assertNotNull(processInstanceId);
+
+        Collection<TimerInstance> timers = processAdminService.getTimerInstances(processInstanceId);
+        assertNotNull(timers);
+        assertEquals(1, timers.size());
+
+        TimerInstance timer = timers.iterator().next();
+        assertEquals("usertask-timer", timer.getTimerName());
+    }
+    
+    
         
     @Test(timeout=10000)
     public void testUpdateTimerRelative() throws Exception {
