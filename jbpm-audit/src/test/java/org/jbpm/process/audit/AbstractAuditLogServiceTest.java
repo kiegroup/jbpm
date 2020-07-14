@@ -57,6 +57,7 @@ public abstract class AbstractAuditLogServiceTest extends AbstractBaseTest {
         kbuilder.add(new ClassPathResource("ruleflow.rf"), ResourceType.DRF);
         kbuilder.add(new ClassPathResource("ruleflow2.rf"), ResourceType.DRF);
         kbuilder.add(new ClassPathResource("ruleflow3.rf"), ResourceType.DRF);
+        kbuilder.add(new ClassPathResource("ruleflow4.rf"), ResourceType.DRF);
         InternalKnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
         kbase.addPackages(kbuilder.getKnowledgePackages());
         return kbase;
