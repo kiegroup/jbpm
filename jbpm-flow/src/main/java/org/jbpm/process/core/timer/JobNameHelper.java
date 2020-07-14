@@ -32,8 +32,7 @@ public class JobNameHelper {
         String jobName;
         if (ctx instanceof ProcessJobContext) {
             ProcessJobContext processCtx = (ProcessJobContext) ctx;
-            final String timerName = "-" + (processCtx.getTimer().getName() != null && !processCtx.getTimer().getName().isEmpty() ? processCtx.getTimer().getName() + "-" : "") + processCtx.getTimer().getId();
-
+            final String timerName = "-" + getTimerName (processCtx);
             if (processCtx instanceof StartProcessJobContext) {
                 jobName = groupName + "-StartProcess-" + ((StartProcessJobContext) processCtx).getProcessId() + timerName;
             } else {
@@ -41,11 +40,15 @@ public class JobNameHelper {
             }
         } else if (ctx instanceof NamedJobContext) {
             jobName = ((NamedJobContext) ctx).getJobName();
-
         } else {
             jobName = "Timer-" + ctx.getClass().getSimpleName() + "-" + id;
         }
         return jobName;
+    }
+    
+    private static String getTimerName (ProcessJobContext ctx) {
+        String timerName = ctx.getTimer().getName(); 
+        return  (timerName != null && !timerName.isEmpty() ? timerName + "-" : "") + ctx.getTimer().getId();
     }
 
     public static String getGroupName(JobContext ctx) {
