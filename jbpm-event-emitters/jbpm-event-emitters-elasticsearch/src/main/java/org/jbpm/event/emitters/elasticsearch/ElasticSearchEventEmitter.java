@@ -58,7 +58,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
  * 
  * This event emitter expects following parameters to configure itself - via system properties
  * <ul>
- *  <li>org.jbpm.event.emitters.elasticsearch.date_format - date and time format to be sent to ElasticSearch - default format is yyyy-MM-dd'T'hh:mm:ss.SSSZ</li>
+ *  <li>org.jbpm.event.emitters.elasticsearch.date_format - date and time format to be sent to ElasticSearch - default format is yyyy-MM-dd'T'HH:mm:ss.SSSZ</li>
  *  <li>org.jbpm.event.emitters.elasticsearch.url - location of the ElasticSearch server - defaults to http://localhost:9200</li>
  *  <li>org.jbpm.event.emitters.elasticsearch.user - optional user name for authentication to ElasticSearch server</li>
  *  <li>org.jbpm.event.emitters.elasticsearch.password - optional password for authentication to ElasticSearch server</li>
@@ -70,7 +70,7 @@ public class ElasticSearchEventEmitter implements EventEmitter {
 
     private static final Logger logger = LoggerFactory.getLogger(ElasticSearchEventEmitter.class);
     
-    private String dateFormatStr = System.getProperty("org.jbpm.event.emitters.elasticsearch.date_format", System.getProperty("org.kie.server.json.date_format", "yyyy-MM-dd'T'hh:mm:ss.SSSZ"));
+    private String dateFormatStr = System.getProperty("org.jbpm.event.emitters.elasticsearch.date_format", System.getProperty("org.kie.server.json.date_format", "yyyy-MM-dd'T'HH:mm:ss.SSSZ"));
     private String elasticSearchUrl = System.getProperty("org.jbpm.event.emitters.elasticsearch.url", "http://localhost:9200");
     private String elasticSearchUser = System.getProperty("org.jbpm.event.emitters.elasticsearch.user");
     private String elasticSearchPassword = System.getProperty("org.jbpm.event.emitters.elasticsearch.password");
