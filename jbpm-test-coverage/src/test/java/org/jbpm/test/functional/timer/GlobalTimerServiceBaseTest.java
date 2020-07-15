@@ -118,16 +118,16 @@ public abstract class GlobalTimerServiceBaseTest extends TimerBaseTest{
     }
 
     @Test(timeout=20000)
-    public void testInterediateTimerWithGlobalTestService() throws Exception {
+    public void testIntermediateTimerWithGlobalTestService() throws Exception {
         NodeLeftCountDownProcessEventListener countDownListener = new NodeLeftCountDownProcessEventListener("timer", 3);
         // prepare listener to assert results
-        final List<Long> timerExporations = new ArrayList<Long>();
+        final List<Long> timerExpirations = new ArrayList<Long>();
         ProcessEventListener listener = new DefaultProcessEventListener(){
 
             @Override
             public void afterNodeLeft(ProcessNodeLeftEvent event) {
                 if (event.getNodeInstance().getNodeName().equals("timer")) {
-                    timerExporations.add(event.getProcessInstance().getId());
+                    timerExpirations.add(event.getProcessInstance().getId());
                 }
             }
             
@@ -150,11 +150,10 @@ public abstract class GlobalTimerServiceBaseTest extends TimerBaseTest{
         
         ProcessInstance processInstance = ksession.startProcess("IntermediateCatchEvent");
         assertTrue(processInstance.getState() == ProcessInstance.STATE_ACTIVE);
-        // now wait for 1 second for first timer to trigger
-        Thread.sleep(1500);
         // dispose session to force session to be reloaded on timer expiration
         manager.disposeRuntimeEngine(runtime);
-        Thread.sleep(2000);
+        // let's wait to ensure no more timers are expired and triggered
+        countDownListener.waitTillCompleted();
         
         try {
             runtime = manager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstance.getId()));
@@ -166,10 +165,9 @@ public abstract class GlobalTimerServiceBaseTest extends TimerBaseTest{
         } catch (SessionNotFoundException e) {
             // expected for PerProcessInstanceManagers since process instance is completed
         }
-        // let's wait to ensure no more timers are expired and triggered
-        countDownListener.waitTillCompleted();
         
-        assertEquals(3, timerExporations.size());
+        
+        assertEquals(3, timerExpirations.size());
         manager.disposeRuntimeEngine(runtime);
     }
     
@@ -177,12 +175,12 @@ public abstract class GlobalTimerServiceBaseTest extends TimerBaseTest{
     public void testTimerStart() throws Exception {
         NodeLeftCountDownProcessEventListener countDownListener = new NodeLeftCountDownProcessEventListener("StartProcess", 5);
         // prepare listener to assert results
-        final List<Long> timerExporations = new ArrayList<Long>();
+        final List<Long> timerExpirations = new ArrayList<Long>();
         ProcessEventListener listener = new DefaultProcessEventListener(){
 
             @Override
             public void beforeProcessStarted(ProcessStartedEvent event) {
-                timerExporations.add(event.getProcessInstance().getId());
+                timerExpirations.add(event.getProcessInstance().getId());
             }
 
         };
@@ -199,12 +197,12 @@ public abstract class GlobalTimerServiceBaseTest extends TimerBaseTest{
         RuntimeEngine runtime = manager.getRuntimeEngine(ProcessInstanceIdContext.get());
         KieSession ksession = runtime.getKieSession();
         
-        assertEquals(0, timerExporations.size());
+        assertEquals(0, timerExpirations.size());
        
         countDownListener.waitTillCompleted();
         
         manager.disposeRuntimeEngine(runtime);
-        assertEquals(5, timerExporations.size());
+        assertEquals(5, timerExpirations.size());
 
     }
 
@@ -213,12 +211,12 @@ public abstract class GlobalTimerServiceBaseTest extends TimerBaseTest{
         int badNumTimers = 6;
         final CountDownLatch timerCompleted = new CountDownLatch(badNumTimers);
         // prepare listener to assert results
-        final List<String> timerExporations = new ArrayList<String>();
+        final List<String> timerExpirations = new ArrayList<String>();
         AgendaEventListener listener = new DefaultAgendaEventListener(){
 
             @Override
             public void beforeMatchFired(BeforeMatchFiredEvent event) {
-                timerExporations.add(event.getMatch().getRule().getId());
+                timerExpirations.add(event.getMatch().getRule().getId());
                 timerCompleted.countDown();
             }
 
@@ -235,12 +233,12 @@ public abstract class GlobalTimerServiceBaseTest extends TimerBaseTest{
         manager = getManager(environment, true);
         RuntimeEngine runtime = manager.getRuntimeEngine(ProcessInstanceIdContext.get());
         
-        assertEquals(0, timerExporations.size());
+        assertEquals(0, timerExpirations.size());
         boolean didNotWait = timerCompleted.await(6, TimeUnit.SECONDS);
         assertTrue("Too many timers elapsed: " + (badNumTimers - timerCompleted.getCount()), ! didNotWait );
         
         manager.disposeRuntimeEngine(runtime);
-        assertEquals(5, timerExporations.size());
+        assertEquals(5, timerExpirations.size());
     }
     
     @Test(timeout=20000)
@@ -317,13 +315,13 @@ public abstract class GlobalTimerServiceBaseTest extends TimerBaseTest{
     public void testInterediateTimerWithHTBeforeWithGlobalTestService() throws Exception {
         NodeLeftCountDownProcessEventListener countDownListener = new NodeLeftCountDownProcessEventListener("timer", 3);
         // prepare listener to assert results
-        final List<Long> timerExporations = new ArrayList<Long>();
+        final List<Long> timerExpirations = new ArrayList<Long>();
         ProcessEventListener listener = new DefaultProcessEventListener(){
 
             @Override
             public void afterNodeLeft(ProcessNodeLeftEvent event) {
                 if (event.getNodeInstance().getNodeName().equals("timer")) {
-                    timerExporations.add(event.getProcessInstance().getId());
+                    timerExpirations.add(event.getProcessInstance().getId());
                     
                 }
             }
@@ -384,11 +382,11 @@ public abstract class GlobalTimerServiceBaseTest extends TimerBaseTest{
    
         manager.disposeRuntimeEngine(runtime);
 
-        assertEquals(3, timerExporations.size());
+        assertEquals(3, timerExpirations.size());
     }
     
     @Test(timeout=20000)
-    public void testInterediateTimerWithGlobalTestServiceRollback() throws Exception {
+    public void testIntermediateTimerWithGlobalTestServiceRollback() throws Exception {
         
         environment = RuntimeEnvironmentBuilder.Factory.get()
     			.newDefaultBuilder()
@@ -731,16 +729,16 @@ public abstract class GlobalTimerServiceBaseTest extends TimerBaseTest{
     }
     
     @Test(timeout=20000)
-    public void testInterediateTimerWithGlobalTestServiceSimulateCMT() throws Exception {
+    public void testIntermediateTimerWithGlobalTestServiceSimulateCMT() throws Exception {
         NodeLeftCountDownProcessEventListener countDownListener = new NodeLeftCountDownProcessEventListener("timer", 3);
         // prepare listener to assert results
-        final List<Long> timerExporations = new ArrayList<Long>();
+        final List<Long> timerExpirations = new ArrayList<Long>();
         ProcessEventListener listener = new DefaultProcessEventListener(){
 
             @Override
             public void afterNodeLeft(ProcessNodeLeftEvent event) {
                 if (event.getNodeInstance().getNodeName().equals("timer")) {
-                    timerExporations.add(event.getProcessInstance().getId());
+                    timerExpirations.add(event.getProcessInstance().getId());
                 }
             }
             
@@ -842,19 +840,19 @@ public abstract class GlobalTimerServiceBaseTest extends TimerBaseTest{
         // let's wait to ensure no more timers are expired and triggered
         countDownListener.waitTillCompleted(3000);
         
-        assertEquals(3, timerExporations.size());
+        assertEquals(3, timerExpirations.size());
     }
     
     @Test(timeout=20000)
     public void testTimerFailureAndRetrigger() throws Exception {        
         NodeLeftCountDownProcessEventListener countDownListener = new NodeLeftCountDownProcessEventListener("Timer_1m", 3);        
-        final List<Long> timerExporations = new ArrayList<Long>();
+        final List<Long> timerExpirations = new ArrayList<Long>();
         ProcessEventListener listener = new DefaultProcessEventListener(){
 
             @Override
             public void afterNodeTriggered(ProcessNodeTriggeredEvent event) {
                 if (event.getNodeInstance().getNodeName().equals("Timer_1m")) {
-                    timerExporations.add(event.getNodeInstance().getId());
+                    timerExpirations.add(event.getNodeInstance().getId());
                 }
             }
         };
@@ -879,7 +877,7 @@ public abstract class GlobalTimerServiceBaseTest extends TimerBaseTest{
         final long processInstanceId = pi.getId();
         // let the timer (every 2 sec) fire three times as third will fail on gateway
         countDownListener.waitTillCompleted(8000);
-        assertEquals("There should be only 3 nodes as there third is failing", 3, timerExporations.size());
+        assertEquals("There should be only 3 nodes as there third is failing", 3, timerExpirations.size());
         
         runtime = manager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstanceId));
         ksession = runtime.getKieSession();
@@ -900,7 +898,7 @@ public abstract class GlobalTimerServiceBaseTest extends TimerBaseTest{
         countDownListener.reset(1);
         countDownListener.waitTillCompleted(5000);
         
-        assertEquals("There should be 3 expirations as the failing one should finally proceed", 3, timerExporations.size());
+        assertEquals("There should be 3 expirations as the failing one should finally proceed", 3, timerExpirations.size());
         try {
             runtime = manager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstanceId));
             ksession = runtime.getKieSession();
@@ -919,12 +917,12 @@ public abstract class GlobalTimerServiceBaseTest extends TimerBaseTest{
     public void testTimerStartMemoryLeak() throws Exception {
         NodeLeftCountDownProcessEventListener countDownListener = new NodeLeftCountDownProcessEventListener("StartProcess", 5);
         // prepare listener to assert results
-        final List<Long> timerExporations = new ArrayList<Long>();
+        final List<Long> timerExpirations = new ArrayList<Long>();
         ProcessEventListener listener = new DefaultProcessEventListener() {
 
             @Override
             public void beforeProcessStarted(ProcessStartedEvent event) {
-                timerExporations.add(event.getProcessInstance().getId());
+                timerExpirations.add(event.getProcessInstance().getId());
             }
 
         };
@@ -941,12 +939,12 @@ public abstract class GlobalTimerServiceBaseTest extends TimerBaseTest{
         RuntimeEngine runtime = manager.getRuntimeEngine(ProcessInstanceIdContext.get());
         KieSession ksession = runtime.getKieSession();
 
-        assertEquals(0, timerExporations.size());
+        assertEquals(0, timerExpirations.size());
 
         countDownListener.waitTillCompleted();
 
         manager.disposeRuntimeEngine(runtime);
-        assertEquals(5, timerExporations.size());
+        assertEquals(5, timerExpirations.size());
 
         TimerServiceRegistry timerServiceRegistry = TimerServiceRegistry.getInstance();
         GlobalTimerService timerService = (GlobalTimerService) timerServiceRegistry.get(manager.getIdentifier() + TimerServiceRegistry.TIMER_SERVICE_SUFFIX);
