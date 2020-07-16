@@ -70,6 +70,7 @@ public interface QueryResultMapper<T> extends Serializable {
     public static final String COLUMN_IDENTITY = "USER_IDENTITY";
     public static final String COLUMN_PROCESSVERSION = "PROCESSVERSION";
     public static final String COLUMN_PROCESSNAME = "PROCESSNAME";
+    public static final String COLUMN_PROCESSTYPE = "PROCESSTYPE";
     public static final String COLUMN_CORRELATIONKEY = "CORRELATIONKEY";
     public static final String COLUMN_EXTERNALID = "EXTERNALID";
     public static final String COLUMN_PROCESSINSTANCEDESCRIPTION = "PROCESSINSTANCEDESCRIPTION";
@@ -98,6 +99,8 @@ public interface QueryResultMapper<T> extends Serializable {
     public static final String COLUMN_TASK_PROCESSINSTANCEID = "PROCESSINSTANCEID";
     public static final String COLUMN_TASK_STATUS = "STATUS";
     public static final String COLUMN_TASKID = "TASKID";
+    public static final String COLUMN_TASK_SLA_DUE_DATE = "SLA_DUE_DATE";
+    public static final String COLUMN_TASK_SLA_COMPLIANCE = "SLACOMPLIANCE";
     public static final String COLUMN_WORKITEMID = "WORKITEMID";
     public static final String COLUMN_ORGANIZATIONAL_ENTITY = "ID";
     public static final String COLUMN_EXCLUDED_OWNER = "ENTITY_ID";

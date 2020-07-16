@@ -448,9 +448,11 @@
         processInstanceId numeric(19,0) null,
         taskId numeric(19,0) null,
         type varchar(255) null,
-        userId varchar(255) null,
+        userId varchar(255) null,			
         OPTLOCK int null,
         workItemId numeric(19,0) null,
+        correlationKey varchar(255),	
+        processType numeric(1,0),
         primary key (id)
     ) lock datarows
     go

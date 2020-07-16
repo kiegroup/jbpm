@@ -70,6 +70,10 @@ public class TaskEventImpl implements TaskEvent, Serializable {
 
   private String message;
 
+  private String correlationKey;
+
+  private Integer processType;
+
   @Temporal(javax.persistence.TemporalType.TIMESTAMP)
   private Date logTime;
 
@@ -146,6 +150,26 @@ public class TaskEventImpl implements TaskEvent, Serializable {
 
   public String getMessage() {
     return message;
+  }
+
+  @Override
+  public String getCorrelationKey() {
+    return correlationKey;
+}
+
+  @Override
+  public Integer getProcessType() {
+    return processType;
+  }
+
+  @Override
+  public void setCorrelationKey(String correlationKey) {
+    this.correlationKey = correlationKey;
+  }
+
+  @Override
+  public void setProcessType(Integer processType) {
+    this.processType = processType;
   }
 
   public void setMessage(String message) {

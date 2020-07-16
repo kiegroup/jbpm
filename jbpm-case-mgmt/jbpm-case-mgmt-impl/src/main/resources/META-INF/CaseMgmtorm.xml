@@ -444,12 +444,13 @@
                 t.taskData.processInstanceId,
                 t.taskData.parentId,
                 t.taskData.deploymentId,
-                t.taskData.skipable              )
+                t.taskData.skipable, plog.correlationKey, plog.processType)
             from
             TaskImpl t
+            inner join ProcessInstanceLog plog ON t.taskData.processInstanceId = plog.processInstanceId
             join t.peopleAssignments.businessAdministrators businessAdministrators
             where
-            t.taskData.processInstanceId in (select log.processInstanceId from ProcessInstanceLog log where log.correlationKey like :caseId) and 
+            plog.correlationKey like :caseId and 
             t.archived = 0 and
             ( businessAdministrators.id = :userId or businessAdministrators.id in (:groupIds) ) and 
             t.taskData.status in (:status) 
@@ -478,13 +479,14 @@
                 t.taskData.processInstanceId,
                 t.taskData.parentId,
                 t.taskData.deploymentId,
-                t.taskData.skipable              )
+                t.taskData.skipable, plog.correlationKey, plog.processType)
             from
             TaskImpl t
+            inner join ProcessInstanceLog plog ON t.taskData.processInstanceId = plog.processInstanceId
             join t.peopleAssignments.potentialOwners potentialOwners
             left join t.peopleAssignments.excludedOwners as excludedOwners
             where
-            t.taskData.processInstanceId in (select log.processInstanceId from ProcessInstanceLog log where log.correlationKey like :caseId) and
+            plog.correlationKey like :caseId and
             t.archived = 0 and            
             (t.taskData.actualOwner.id = :userId or t.taskData.actualOwner is null) and 
             t.taskData.status in (:status) and 
@@ -514,12 +516,13 @@
                 t.taskData.processInstanceId,
                 t.taskData.parentId,
                 t.taskData.deploymentId,
-                t.taskData.skipable              )
+                t.taskData.skipable, plog.correlationKey, plog.processType)
             from
             TaskImpl t
+            inner join ProcessInstanceLog plog ON t.taskData.processInstanceId = plog.processInstanceId
             join t.peopleAssignments.taskStakeholders taskStakeholders
             where
-            t.taskData.processInstanceId in (select log.processInstanceId from ProcessInstanceLog log where log.correlationKey like :caseId) and
+            plog.correlationKey like :caseId and
             t.archived = 0 and                        
             t.taskData.status in (:status) and 
             ( taskStakeholders.id = :userId or taskStakeholders.id in (:groupIds) )

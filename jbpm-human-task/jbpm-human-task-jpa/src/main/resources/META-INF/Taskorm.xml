@@ -23,9 +23,12 @@
                 t.taskData.processInstanceId,
                 t.taskData.parentId,
                 t.taskData.deploymentId,
-                t.taskData.skipable              )
+                t.taskData.skipable,
+                plog.correlationKey,
+                plog.processType)
             from
             TaskImpl t
+            left join ProcessInstanceLog plog ON t.taskData.processInstanceId = plog.processInstanceId
             join t.peopleAssignments.businessAdministrators businessAdministrators
             where
             t.archived = 0 and
@@ -53,9 +56,12 @@
                 t.taskData.processInstanceId,
                 t.taskData.parentId,
                 t.taskData.deploymentId,
-                t.taskData.skipable              )
+                t.taskData.skipable,
+                plog.correlationKey,
+                plog.processType)
             from
             TaskImpl t
+            left join ProcessInstanceLog plog ON t.taskData.processInstanceId = plog.processInstanceId
             join t.peopleAssignments.businessAdministrators businessAdministrators
             where
             t.archived = 0 and
@@ -85,9 +91,12 @@
                 t.taskData.processInstanceId,
                 t.taskData.parentId,
                 t.taskData.deploymentId,
-                t.taskData.skipable              )
+                t.taskData.skipable,
+                plog.correlationKey,
+                plog.processType)
             from
             TaskImpl t
+            left join ProcessInstanceLog plog ON t.taskData.processInstanceId = plog.processInstanceId
             join t.peopleAssignments.excludedOwners excludedOwners
             where
             t.archived = 0 and
@@ -115,9 +124,10 @@
                 t.taskData.processInstanceId,
                 t.taskData.parentId,
                 t.taskData.deploymentId,
-                t.taskData.skipable              )
+                t.taskData.skipable, plog.correlationKey, plog.processType)
             from
             TaskImpl t
+            left join ProcessInstanceLog plog ON t.taskData.processInstanceId = plog.processInstanceId
             join t.peopleAssignments.potentialOwners potentialOwners
             where
             t.archived = 0 and
@@ -148,9 +158,10 @@
                 t.taskData.processInstanceId,
                 t.taskData.parentId,
                 t.taskData.deploymentId,
-                t.taskData.skipable              )
+                t.taskData.skipable, plog.correlationKey, plog.processType)
             from
             TaskImpl t
+            left join ProcessInstanceLog plog ON t.taskData.processInstanceId = plog.processInstanceId
             join t.peopleAssignments.potentialOwners potentialOwners
             where
             t.archived = 0 and
@@ -181,9 +192,10 @@
                 t.taskData.processInstanceId,
                 t.taskData.parentId,
                 t.taskData.deploymentId,
-                t.taskData.skipable              )
+                t.taskData.skipable, plog.correlationKey, plog.processType)
             from
             TaskImpl t
+            left join ProcessInstanceLog plog ON t.taskData.processInstanceId = plog.processInstanceId
             join t.peopleAssignments.potentialOwners potentialOwners
             where
             t.archived = 0 and            
@@ -214,9 +226,10 @@
                 t.taskData.processInstanceId,
                 t.taskData.parentId,
                 t.taskData.deploymentId,
-                t.taskData.skipable              )
+                t.taskData.skipable, plog.correlationKey, plog.processType)
             from
             TaskImpl t
+            left join ProcessInstanceLog plog ON t.taskData.processInstanceId = plog.processInstanceId
             join t.peopleAssignments.potentialOwners potentialOwners
             where
             t.archived = 0 and            
@@ -247,9 +260,10 @@
                 t.taskData.processInstanceId,
                 t.taskData.parentId,
                 t.taskData.deploymentId,
-                t.taskData.skipable              )
+                t.taskData.skipable, plog.correlationKey, plog.processType)
             from
             TaskImpl t
+            left join ProcessInstanceLog plog ON t.taskData.processInstanceId = plog.processInstanceId
             join t.peopleAssignments.potentialOwners potentialOwners
             where
             t.archived = 0 and            
@@ -280,9 +294,10 @@
                 t.taskData.processInstanceId,
                 t.taskData.parentId,
                 t.taskData.deploymentId,
-                t.taskData.skipable              )
+                t.taskData.skipable, plog.correlationKey, plog.processType)
             from
             TaskImpl t
+            left join ProcessInstanceLog plog ON t.taskData.processInstanceId = plog.processInstanceId
             join t.peopleAssignments.potentialOwners potentialOwners 
             where
             t.archived = 0 and
@@ -334,9 +349,10 @@
                 t.taskData.processInstanceId,
                 t.taskData.parentId,
                 t.taskData.deploymentId,
-                t.taskData.skipable              )
+                t.taskData.skipable, plog.correlationKey, plog.processType)
             from
             TaskImpl t
+            left join ProcessInstanceLog plog ON t.taskData.processInstanceId = plog.processInstanceId
             join t.peopleAssignments.potentialOwners potentialOwners
             where
             t.archived = 0 and            
@@ -369,9 +385,10 @@
                 t.taskData.processInstanceId,
                 t.taskData.parentId,
                 t.taskData.deploymentId,
-                t.taskData.skipable              )
+                t.taskData.skipable, plog.correlationKey, plog.processType)
             from
             TaskImpl t
+            left join ProcessInstanceLog plog ON t.taskData.processInstanceId = plog.processInstanceId
             join t.peopleAssignments.potentialOwners potentialOwners 
             where
             t.archived = 0 and            
@@ -470,9 +487,10 @@
                 t.taskData.processInstanceId,
                 t.taskData.parentId,
                 t.taskData.deploymentId,
-                t.taskData.skipable              )
+                t.taskData.skipable, plog.correlationKey, plog.processType)
             from
             TaskImpl t
+            left join ProcessInstanceLog plog ON t.taskData.processInstanceId = plog.processInstanceId
             join t.peopleAssignments.potentialOwners potentialOwners
             where
             t.archived = 0 and
@@ -505,9 +523,9 @@
                 t.taskData.processInstanceId,
                 t.taskData.parentId,
                 t.taskData.deploymentId,
-                t.taskData.skipable              )
+                t.taskData.skipable, plog.correlationKey, plog.processType)
             from
-            TaskImpl t,
+            TaskImpl t left join ProcessInstanceLog plog ON t.taskData.processInstanceId = plog.processInstanceId,
             OrganizationalEntityImpl potentialOwners
             where
             t.archived = 0 and
@@ -538,9 +556,10 @@
                 t.taskData.processInstanceId,
                 t.taskData.parentId,
                 t.taskData.deploymentId,
-                t.taskData.skipable              )
+                t.taskData.skipable, plog.correlationKey, plog.processType)
             from
             TaskImpl t
+            left join ProcessInstanceLog plog ON t.taskData.processInstanceId = plog.processInstanceId
             join t.peopleAssignments.recipients recipients
             where
             t.archived = 0 and
@@ -568,9 +587,10 @@
                 t.taskData.processInstanceId,
                 t.taskData.parentId,
                 t.taskData.deploymentId,
-                t.taskData.skipable              )
+                t.taskData.skipable, plog.correlationKey, plog.processType)
             from
             TaskImpl t
+            left join ProcessInstanceLog plog ON t.taskData.processInstanceId = plog.processInstanceId
             join t.peopleAssignments.taskInitiator taskInitiators
             where
             t.archived = 0 and
@@ -598,9 +618,10 @@
                 t.taskData.processInstanceId,
                 t.taskData.parentId,
                 t.taskData.deploymentId,
-                t.taskData.skipable              )
+                t.taskData.skipable, plog.correlationKey, plog.processType)
             from
             TaskImpl t
+            left join ProcessInstanceLog plog ON t.taskData.processInstanceId = plog.processInstanceId
             join t.peopleAssignments.taskStakeholders taskStakeholders
             where
             t.archived = 0 and
@@ -629,10 +650,10 @@
                 t.taskData.processInstanceId,
                 t.taskData.parentId,
                 t.taskData.deploymentId,
-                t.taskData.skipable              )
+                t.taskData.skipable, plog.correlationKey, plog.processType)
             from
             TaskImpl t
-    
+            left join ProcessInstanceLog plog ON t.taskData.processInstanceId = plog.processInstanceId
             where
             t.archived = 0 and
             t.taskData.actualOwner.id = :userId 
@@ -662,9 +683,10 @@
                 t.taskData.processInstanceId,
                 t.taskData.parentId,
                 t.taskData.deploymentId,
-                t.taskData.skipable              )
+                t.taskData.skipable, plog.correlationKey, plog.processType)
             from
             TaskImpl t 
+            left join ProcessInstanceLog plog ON t.taskData.processInstanceId = plog.processInstanceId
             left join t.peopleAssignments.potentialOwners potOwners
             where
             t.archived = 0 and          
@@ -696,10 +718,10 @@
                 t.taskData.processInstanceId,
                 t.taskData.parentId,
                 t.taskData.deploymentId,
-                t.taskData.skipable              )
+                t.taskData.skipable, plog.correlationKey, plog.processType)
             from
             TaskImpl t 
-    
+            left join ProcessInstanceLog plog ON t.taskData.processInstanceId = plog.processInstanceId
             left join t.peopleAssignments.potentialOwners potOwners
             where
             t.archived = 0 and
@@ -731,9 +753,10 @@
                 t.taskData.processInstanceId,
                 t.taskData.parentId,
                 t.taskData.deploymentId,
-                t.taskData.skipable              )
+                t.taskData.skipable, plog.correlationKey, plog.processType)
             from
             TaskImpl t 
+            left join ProcessInstanceLog plog ON t.taskData.processInstanceId = plog.processInstanceId
             left join t.peopleAssignments.potentialOwners potOwners
             where
             t.archived = 0 and          
@@ -770,9 +793,10 @@
                 t.taskData.processInstanceId,
                 t.taskData.parentId,
                 t.taskData.deploymentId,
-                t.taskData.skipable              )
+                t.taskData.skipable, plog.correlationKey, plog.processType)
             from
                 TaskImpl t 
+                left join ProcessInstanceLog plog ON t.taskData.processInstanceId = plog.processInstanceId
             
             where
             t.archived = 0 and
@@ -800,10 +824,10 @@
                 t.taskData.processInstanceId,
                 t.taskData.parentId,
                 t.taskData.deploymentId,
-                t.taskData.skipable              )
+                t.taskData.skipable, plog.correlationKey, plog.processType)
             from
             TaskImpl t 
-            
+            left join ProcessInstanceLog plog ON t.taskData.processInstanceId = plog.processInstanceId
             where
             t.archived = 0 and
             t.taskData.status = :status and
@@ -834,9 +858,10 @@
                 t.taskData.processInstanceId,
                 t.taskData.parentId,
                 t.taskData.deploymentId,
-                t.taskData.skipable              )
+                t.taskData.skipable, plog.correlationKey, plog.processType)
             from
             TaskImpl t 
+            left join ProcessInstanceLog plog ON t.taskData.processInstanceId = plog.processInstanceId
             where
             t.archived = 1
 
@@ -864,10 +889,10 @@
                 t.taskData.processInstanceId,
                 t.taskData.parentId,
                 t.taskData.deploymentId,
-                t.taskData.skipable              )
+                t.taskData.skipable, plog.correlationKey, plog.processType)
             from
             TaskImpl t 
-    
+            left join ProcessInstanceLog plog ON t.taskData.processInstanceId = plog.processInstanceId
             where
             t.archived = 0 and          
             t.taskData.actualOwner.id = :userId and
@@ -899,10 +924,10 @@
                 t.taskData.processInstanceId,
                 t.taskData.parentId,
                 t.taskData.deploymentId,
-                t.taskData.skipable              )
+                t.taskData.skipable, plog.correlationKey, plog.processType)
             from
             TaskImpl t 
-    
+            left join ProcessInstanceLog plog ON t.taskData.processInstanceId = plog.processInstanceId
             where
             t.id in (:taskIds)  
             order by t.id DESC
@@ -1084,10 +1109,10 @@
                 t.taskData.processInstanceId,
                 t.taskData.parentId,
                 t.taskData.deploymentId,
-                t.taskData.skipable              )
+                t.taskData.skipable, plog.correlationKey, plog.processType)
             from
             TaskImpl t 
-            
+            left join ProcessInstanceLog plog ON t.taskData.processInstanceId = plog.processInstanceId
             where
             t.archived = 0 and
             t.taskData.processInstanceId = :processInstanceId and
@@ -1116,10 +1141,10 @@
                 t.taskData.processInstanceId,
                 t.taskData.parentId,
                 t.taskData.deploymentId,
-                t.taskData.skipable              )
+                t.taskData.skipable, plog.correlationKey, plog.processType)
             from
             TaskImpl t
-            
+            left join ProcessInstanceLog plog ON t.taskData.processInstanceId = plog.processInstanceId
             where
             t.archived = 0 and
             t.taskData.processInstanceId = :processInstanceId and
@@ -1179,9 +1204,10 @@
             t.taskData.processInstanceId,
             t.taskData.parentId,
             t.taskData.deploymentId,
-            t.taskData.skipable              )
+            t.taskData.skipable, plog.correlationKey, plog.processType)
             from
             TaskImpl t
+            left join ProcessInstanceLog plog ON t.taskData.processInstanceId = plog.processInstanceId
             join t.peopleAssignments.potentialOwners potentialOwners
             where
             t.archived = 0 and
@@ -1217,9 +1243,10 @@
             t.taskData.processInstanceId,
             t.taskData.parentId,
             t.taskData.deploymentId,
-            t.taskData.skipable              )
+            t.taskData.skipable, plog.correlationKey, plog.processType)
             from
             TaskImpl t
+            left join ProcessInstanceLog plog ON t.taskData.processInstanceId = plog.processInstanceId
             join t.peopleAssignments.potentialOwners potentialOwners
             where
             t.archived = 0 and            
@@ -1252,9 +1279,10 @@
             t.taskData.processInstanceId,
             t.taskData.parentId,
             t.taskData.deploymentId,
-            t.taskData.skipable              )
+            t.taskData.skipable, plog.correlationKey, plog.processType)
             from
             TaskImpl t
+            left join ProcessInstanceLog plog ON t.taskData.processInstanceId = plog.processInstanceId
             join t.peopleAssignments.potentialOwners potentialOwners
             where
             t.archived = 0 and            
@@ -1287,9 +1315,10 @@
                     t.taskData.processInstanceId,
                     t.taskData.parentId,
                     t.taskData.deploymentId,
-                    t.taskData.skipable               )
+                    t.taskData.skipable, plog.correlationKey, plog.processType )
             from
                 TaskImpl t
+                left join ProcessInstanceLog plog ON t.taskData.processInstanceId = plog.processInstanceId
                 join t.peopleAssignments.potentialOwners potentialOwners
             where
                 t.archived = 0 and
@@ -1321,9 +1350,10 @@
                     t.taskData.processInstanceId,
                     t.taskData.parentId,
                     t.taskData.deploymentId,
-                    t.taskData.skipable              )
+                    t.taskData.skipable, plog.correlationKey, plog.processType)
             from
                 TaskImpl t
+                left join ProcessInstanceLog plog ON t.taskData.processInstanceId = plog.processInstanceId
                 join t.peopleAssignments.potentialOwners potentialOwners
             where
             t.archived = 0 and            
@@ -1355,9 +1385,10 @@
                     t.taskData.processInstanceId,
                     t.taskData.parentId,
                     t.taskData.deploymentId,
-                    t.taskData.skipable              )
+                    t.taskData.skipable, plog.correlationKey, plog.processType)
             from
                 TaskImpl t
+                left join ProcessInstanceLog plog ON t.taskData.processInstanceId = plog.processInstanceId
                 join t.peopleAssignments.potentialOwners potentialOwners
             where
                 t.archived = 0 and
@@ -1389,9 +1420,10 @@
                     t.taskData.processInstanceId,
                     t.taskData.parentId,
                     t.taskData.deploymentId,
-                    t.taskData.skipable              )
+                    t.taskData.skipable, plog.correlationKey, plog.processType)
             from
                 TaskImpl t
+                left join ProcessInstanceLog plog ON t.taskData.processInstanceId = plog.processInstanceId
             where
                 t.archived = 0 and
                 t.taskData.actualOwner.id = :userId and

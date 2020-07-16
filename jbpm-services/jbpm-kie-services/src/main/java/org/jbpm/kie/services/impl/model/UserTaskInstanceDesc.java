@@ -42,6 +42,8 @@ public class UserTaskInstanceDesc implements org.jbpm.services.api.model.UserTas
 	private Date slaDueDate;
 	private Integer slaCompliance;
     private String subject;
+    private String correlationKey;
+    private Integer processType;
 
 
     public UserTaskInstanceDesc(Long taskId, String status,
@@ -57,20 +59,22 @@ public class UserTaskInstanceDesc implements org.jbpm.services.api.model.UserTas
 								Integer priority, String actualOwner, String createdBy, String deploymentId,
 								String processId, Long processInstanceId, Date createdOn, Date dueDate, Long workItemId) {
 		this(taskId, status, activationTime, name, description, priority, actualOwner, createdBy, deploymentId,
-             processId, processInstanceId, createdOn, dueDate, workItemId, null, null);
+             processId, processInstanceId, createdOn, dueDate, workItemId,null, null, null, null);
 	}
+	
 	
 	public UserTaskInstanceDesc(Long taskId, String status, Date activationTime, String name, String description,
                                 Integer priority, String actualOwner, String createdBy, String deploymentId,
-                                String processId, Long processInstanceId, Date createdOn, Date dueDate, Long workItemId, String formName, String subject) {
+                                String processId, Long processInstanceId, Date createdOn, Date dueDate, Long workItemId, String formName, String subject, String correlationKey, Integer processType) {
         this(taskId, status, activationTime, name, description, priority, actualOwner, createdBy, deploymentId,
-             processId, processInstanceId, createdOn, dueDate, workItemId, formName, subject, null, null);
+             processId, processInstanceId, createdOn, dueDate, workItemId, formName, subject, correlationKey, processType, null, null);
     }
-
+	
+	
     public UserTaskInstanceDesc(Long taskId, String status, Date activationTime, String name,
                                 String description,
                                 Integer priority, String actualOwner, String createdBy, String deploymentId,
-                                String processId, Long processInstanceId, Date createdOn, Date dueDate, Long workItemId, String formName, String subject,
+                                String processId, Long processInstanceId, Date createdOn, Date dueDate, Long workItemId, String formName, String subject, String correlationKey, Integer processType,
                                 Date slaDueDate, Integer slaCompliance) {
         this.taskId = taskId;
         this.status = status;
@@ -88,6 +92,8 @@ public class UserTaskInstanceDesc implements org.jbpm.services.api.model.UserTas
         this.workItemId = workItemId;
         this.formName = formName;
         this.subject = subject;
+        this.correlationKey = correlationKey;
+        this.processType = processType;
         this.slaDueDate = slaDueDate;
         this.slaCompliance = slaCompliance;
     }
@@ -246,22 +252,41 @@ public class UserTaskInstanceDesc implements org.jbpm.services.api.model.UserTas
 		this.slaCompliance = slaCompliance;
 	}
 
-
-    public String getSubject() {
-        return subject;
-    }
-
-    public void setSubject(String subject) {
+	@Override
+	public String getSubject() {
+	    return subject;
+	}
+	
+	@Override
+	public void setSubject(String subject) {
         this.subject = subject;
+	}
+
+	@Override
+	public String getCorrelationKey() {
+	    return correlationKey;
+	}
+
+	@Override
+	public void setCorrelationKey(String correlationKey) {
+	    this.correlationKey = correlationKey;
+	}
+
+	@Override
+	public Integer getProcessType() {
+	    return processType;
     }
 
 	@Override
-	public String toString() {
-		return "UserTaskInstanceDesc [taskId=" + taskId + ", name=" + name
-				+ ", deploymentId=" + deploymentId + ", processInstanceId="
-               + processInstanceId + ", workItemId=" + workItemId + ", subject=" + subject
-				+ ", slaCompliance=" + slaCompliance + ", slaDueDate=" + slaDueDate +"]";
+	public void setProcessType(Integer processType) {
+	    this.processType = processType;
 	}
 
-
+	@Override
+	public String toString() {
+	    return "UserTaskInstanceDesc [taskId=" + taskId + ", status=" + status + ", activationTime=" + activationTime + ", name=" + name + ", description=" + description + ", priority=" + priority + ", actualOwner=" +
+	            actualOwner + ", createdBy=" + createdBy + ", deploymentId=" + deploymentId + ", processId=" + processId + ", processInstanceId=" + processInstanceId + ", createdOn=" + createdOn + ", dueDate=" + dueDate +
+	            ", formName=" + formName + ", workItemId=" + workItemId + ", slaDueDate=" + slaDueDate + ", slaCompliance=" + slaCompliance + ", subject=" + subject + ", correlationKey=" + correlationKey +
+	            ", processType=" + processType + "]";
+	}
 }
