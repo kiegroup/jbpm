@@ -4011,6 +4011,24 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
     }
     
     @Test
+    public void testCaseWithMissingRequiredEmptyCaseFileItem() {
+        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new UserImpl("john"));
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("s", "");
+        CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), USER_TASK_REQUIRED_V_CASE_P_ID, data, roleAssignments);
+
+        assertThatExceptionOfType(VariableViolationException.class)
+            .isThrownBy(() -> caseService.startCase(deploymentUnit.getIdentifier(), USER_TASK_REQUIRED_V_CASE_P_ID, caseFile));
+      
+        
+        assertThatExceptionOfType(CaseNotFoundException.class)
+            .isThrownBy(() -> caseService.getCaseInstance(FIRST_CASE_ID));
+        
+    }
+    
+    @Test
     public void testCaseWithRestrictedCaseFileItem() {
         Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
         roleAssignments.put("owner", new UserImpl("john"));

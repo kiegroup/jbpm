@@ -181,7 +181,7 @@ public class VariableScopeInstance extends AbstractContextInstance {
                         
                     }
                     // otherwise check variables                    
-                } else if (!variables.containsKey(name)) {
+                } else if (!hasData(variables.get(name))) {
                     throw new VariableViolationException(getProcessInstance().getId(), name, "Variable '" + name + "' is required but not set");
                 }
                 
@@ -197,12 +197,16 @@ public class VariableScopeInstance extends AbstractContextInstance {
         Collection<CaseData> caseFiles = (Collection<CaseData>) getProcessInstance().getKnowledgeRuntime().getObjects(new ClassObjectFilter(CaseData.class));
         if (caseFiles.size() == 1) {
             CaseData caseData = caseFiles.iterator().next();
-            if (caseData.getData(nameInCaseFile) != null) {
+            if (hasData(caseData.getData(nameInCaseFile))) {
                 found = true;
             }
         }
         
         return found;
+    }
+    
+    private boolean hasData(Object data) {
+        return data != null && (!(data instanceof CharSequence) || !data.toString().trim().isEmpty());
     }
 
 }
