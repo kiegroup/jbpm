@@ -1038,7 +1038,6 @@ public class RuntimeDataServiceImplTest extends AbstractKieServicesBaseTest {
         assertNotNull(userTask);
         assertCorrelationAndProcess(userTask, correlationKey);
         assertEquals(processInstanceId, userTask.getProcessInstanceId());
-        processService.abortProcessInstance(processInstanceId);
     }
     
     @Test
@@ -1143,7 +1142,7 @@ public class RuntimeDataServiceImplTest extends AbstractKieServicesBaseTest {
     
     @Test
     public void testGetTaskAssignedAsBusinessAdminByStatus() {
-        startProcesses(10, "org.jbpm.writedocument");
+        Set<String> pids = startProcesses(10, "org.jbpm.writedocument");
         
         List<Status> statuses = new ArrayList<Status>();
         statuses.add(Status.Ready);
@@ -1152,6 +1151,7 @@ public class RuntimeDataServiceImplTest extends AbstractKieServicesBaseTest {
         List<TaskSummary> tasks = runtimeDataService.getTasksAssignedAsBusinessAdministratorByStatus("Administrator", statuses, new QueryFilter(0, 5));
         assertNotNull(tasks);
         assertEquals(5, tasks.size());
+        assertTasks(tasks, 5, pids);
         
         statuses = new ArrayList<Status>();
         statuses.add(Status.InProgress);
@@ -1231,7 +1231,7 @@ public class RuntimeDataServiceImplTest extends AbstractKieServicesBaseTest {
     
     @Test
     public void testGetTasksAssignedAsPotentialOwnerSortedByAlias() {
-        startProcesses(10, "org.jbpm.writedocument");
+        Set<String> pids = startProcesses(10, "org.jbpm.writedocument");
         
         List<Status> statuses = new ArrayList<Status>();
         statuses.add(Status.Ready);
@@ -1242,6 +1242,7 @@ public class RuntimeDataServiceImplTest extends AbstractKieServicesBaseTest {
         List<TaskSummary> tasks = runtimeDataService.getTasksAssignedAsPotentialOwnerByStatus("salaboy", statuses, ctx);
         assertNotNull(tasks);
         assertEquals(5, tasks.size());
+        assertTasks(tasks, 5, pids);
         TaskSummary userTask = tasks.get(0);
         assertNotNull(userTask);
         assertEquals("Write a Document", userTask.getName());
@@ -1731,10 +1732,13 @@ public class RuntimeDataServiceImplTest extends AbstractKieServicesBaseTest {
 		}
 	}
 
-    private void startProcesses(int numberOfProcesses, String processId) {
+    private Set<String> startProcesses(int numberOfProcesses, String processId) {
+        Set<String> pids = new HashSet<>();
         for (int i = 0; i < numberOfProcesses; i++) {
-            processService.startProcess(deploymentUnit.getIdentifier(), processId);
+            Long pid = processService.startProcess(deploymentUnit.getIdentifier(), processId);
+            pids.add(Long.toString(pid));
         }
+        return pids;
     }
     
     private void assertTasks(List<TaskSummary> tasks, int expectedSize, Set<String> expectedCorrelationKeys) { 

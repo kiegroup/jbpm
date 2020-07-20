@@ -173,7 +173,9 @@ public class RuntimeDataServiceCDIImplTest extends RuntimeDataServiceImplTest {
 	
 	@After
 	public void removeAllData() {
-		int deleted = 0;
+        //need to abort all processes before deleting all the tables
+        super.cleanup();
+        int deleted = 0;
         deleted += commandService.execute(new UpdateStringCommand("delete from  NodeInstanceLog nid"));
         deleted += commandService.execute(new UpdateStringCommand("delete from  ProcessInstanceLog pid"));        
         deleted += commandService.execute(new UpdateStringCommand("delete from  VariableInstanceLog vsd"));
