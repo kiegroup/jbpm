@@ -272,7 +272,11 @@ public abstract class MapPersistenceTest extends AbstractBaseTest {
         KieBase kbase = createKieBase(process);
         StatefulKnowledgeSession crmPersistentSession = createSession(kbase);
         
-        RuleFlowProcessInstance processInstance = (RuleFlowProcessInstance) crmPersistentSession.startProcess( processId );   
+        RuleFlowProcessInstance processInstance = (RuleFlowProcessInstance) crmPersistentSession.startProcess( processId );
+
+        // Ensure the Process Instance Start Date is set immediately when the processInstanceInfo is created
+        Assert.assertNotNull(processInstance.getStartDate());
+
         InternalKnowledgeRuntime kruntime = processInstance.getKnowledgeRuntime();
         Assert.assertEquals( ProcessInstance.STATE_ACTIVE,
                              processInstance.getState() );
@@ -280,7 +284,6 @@ public abstract class MapPersistenceTest extends AbstractBaseTest {
         ProcessInstanceInfo processInstanceInfo = new ProcessInstanceInfo(processInstance);
         processInstance = (RuleFlowProcessInstance) processInstanceInfo.getProcessInstance(kruntime, crmPersistentSession.getEnvironment());
 
-        Assert.assertNotNull(processInstance.getStartDate());
         Assert.assertEquals(processInstance.getStartDate(), processInstanceInfo.getStartDate());
     }
     
