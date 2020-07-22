@@ -456,6 +456,7 @@ public class FilteredKModuleDeploymentServiceTest extends AbstractKieServicesBas
             .setGroupId( groupId )
             .setArtifactId( projectArtifactId )
             .setVersion( version )
+            .addResourceFilePath("/example/simple.drl")
             .addDependencies( groupId + ":" + pojoArtifactId + ":" + version )
             .createKieJarAndDeployToMaven();
 
