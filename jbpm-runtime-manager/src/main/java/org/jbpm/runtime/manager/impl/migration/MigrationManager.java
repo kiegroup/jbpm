@@ -601,7 +601,7 @@ public class MigrationManager {
                                 List<TimerInstance> collected = new ArrayList<>();
                                 for (Long timerId : timers) {
                                     TimerInstance timerInstance = timerManager.getTimerMap().get(timerId);
-                                    if(timerInstance==null){
+                                    if (timerInstance==null) {
                                         report.addEntry(Type.WARN, "Could not find any timeer instance to cancel.");
                                     	break;
                                     }
