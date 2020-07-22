@@ -601,7 +601,10 @@ public class MigrationManager {
                                 List<TimerInstance> collected = new ArrayList<>();
                                 for (Long timerId : timers) {
                                     TimerInstance timerInstance = timerManager.getTimerMap().get(timerId);
-
+                                    if (timerInstance==null) {
+                                        report.addEntry(Type.WARN, "Could not find timer instance with id "+timerId+" to cancel.");
+                                        continue;
+                                    }
                                     timerManager.cancelTimer(timerInstance.getId());
                                     collected.add(timerInstance);
                                 }
