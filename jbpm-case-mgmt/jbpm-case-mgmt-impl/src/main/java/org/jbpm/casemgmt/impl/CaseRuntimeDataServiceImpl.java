@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 
 import org.jbpm.casemgmt.api.CaseNotFoundException;
 import org.jbpm.casemgmt.api.CaseRuntimeDataService;
+import org.jbpm.casemgmt.api.CaseService;
 import org.jbpm.casemgmt.api.auth.AuthorizationManager;
 import org.jbpm.casemgmt.api.generator.CaseIdGenerator;
 import org.jbpm.casemgmt.api.model.AdHocFragment;
@@ -101,6 +102,7 @@ public class CaseRuntimeDataServiceImpl implements CaseRuntimeDataService, Deplo
     
     private RuntimeDataService runtimeDataService;
     private TransactionalCommandService commandService;
+    private CaseService caseService;
 
     private IdentityProvider identityProvider;
     private DeploymentRolesManager deploymentRolesManager = new DeploymentRolesManager();
@@ -134,6 +136,10 @@ public class CaseRuntimeDataServiceImpl implements CaseRuntimeDataService, Deplo
     
     public void setRuntimeDataService(RuntimeDataService runtimeDataService) {
         this.runtimeDataService = runtimeDataService;
+    }
+    
+    public void setCaseService (CaseService caseService) {
+        this.caseService = caseService;
     }
     
     public void setCommandService(TransactionalCommandService commandService) {
@@ -423,20 +429,27 @@ public class CaseRuntimeDataServiceImpl implements CaseRuntimeDataService, Deplo
 
     @Override
     public Collection<CaseInstance> getCaseInstances(QueryContext queryContext) {
-
         return getCaseInstances(statuses, queryContext);
+    }
+
+    @Override
+    public Collection<CaseInstance> getCaseInstances(boolean withData, QueryContext queryContext) {
+        return getCaseInstances(statuses, withData, queryContext);
+    }
+
+    @Override
+    public Collection<CaseInstance> getCaseInstances(List<CaseStatus> statuses, QueryContext queryContext) {
+        return getCaseInstances (statuses, false, queryContext);
     }
     
     @Override
-    public Collection<CaseInstance> getCaseInstances(List<CaseStatus> statuses, QueryContext queryContext) {
+    public Collection<CaseInstance> getCaseInstances(List<CaseStatus> statuses, boolean withData, QueryContext queryContext) {
         
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("statuses", resolveCaseStatuses(statuses));
         applyQueryContext(params, queryContext);
         applyDeploymentFilter(params);
-        List<CaseInstance> processInstances =  commandService.execute(new QueryNameCommand<List<CaseInstance>>("getCaseInstances", params));
-
-        return processInstances;
+        return fillCaseFiles(commandService.execute(new QueryNameCommand<List<CaseInstance>>("getCaseInstances", params)),withData);
     }
 
     @Override
@@ -469,46 +482,58 @@ public class CaseRuntimeDataServiceImpl implements CaseRuntimeDataService, Deplo
 
     @Override
     public Collection<CaseInstance> getCaseInstancesByDeployment(String deploymentId, List<CaseStatus> statuses, QueryContext queryContext) {
+        return getCaseInstancesByDeployment(deploymentId, statuses, false, queryContext);
+    }
+
+    @Override
+    public Collection<CaseInstance> getCaseInstancesByDeployment(String deploymentId, List<CaseStatus> statuses, boolean withData, QueryContext queryContext) {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("deploymentId", deploymentId);
         params.put("statuses", resolveCaseStatuses(statuses));
         params.put("entities", collectUserAuthInfo());
         applyQueryContext(params, queryContext);
         applyDeploymentFilter(params);
-        List<CaseInstance> processInstances =  commandService.execute(new QueryNameCommand<List<CaseInstance>>("getCaseInstancesByDeployment", params));
-
-        return processInstances;
+        return fillCaseFiles(commandService.execute(new QueryNameCommand<List<CaseInstance>>("getCaseInstancesByDeployment", params)),withData);
     }
-
 
     @Override
     public Collection<CaseInstance> getCaseInstancesByDefinition(String definitionId, List<CaseStatus> statuses, QueryContext queryContext) {
+        return getCaseInstancesByDefinition(definitionId, statuses, false, queryContext);
+    }
+
+    @Override
+    public Collection<CaseInstance> getCaseInstancesByDefinition(String definitionId, List<CaseStatus> statuses, boolean withData, QueryContext queryContext) {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("definitionId", definitionId);
         params.put("statuses", resolveCaseStatuses(statuses));
         params.put("entities", collectUserAuthInfo());
         applyQueryContext(params, queryContext);
         applyDeploymentFilter(params);
-        List<CaseInstance> processInstances =  commandService.execute(new QueryNameCommand<List<CaseInstance>>("getCaseInstancesByDefinition", params));
-
-        return processInstances;
+        return fillCaseFiles(commandService.execute(new QueryNameCommand<List<CaseInstance>>("getCaseInstancesByDefinition", params)),withData);
     }
-
 
     @Override
     public Collection<CaseInstance> getCaseInstancesOwnedBy(String owner, List<CaseStatus> statuses, QueryContext queryContext) {
+        return getCaseInstancesOwnedBy(owner,statuses, false, queryContext);
+    }
+
+    @Override
+    public Collection<CaseInstance> getCaseInstancesOwnedBy(String owner, List<CaseStatus> statuses, boolean withData, QueryContext queryContext) {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("owner", owner);
         params.put("statuses", resolveCaseStatuses(statuses));
         applyQueryContext(params, queryContext);
         applyDeploymentFilter(params);
-        List<CaseInstance> processInstances =  commandService.execute(new QueryNameCommand<List<CaseInstance>>("getCaseInstancesOwnedBy", params));
-
-        return processInstances;
+        return fillCaseFiles(commandService.execute(new QueryNameCommand<List<CaseInstance>>("getCaseInstancesOwnedBy", params)),withData);
     }
     
     @Override
     public Collection<CaseInstance> getCaseInstancesByRole(String roleName, List<CaseStatus> statuses, QueryContext queryContext) {
+        return getCaseInstancesByRole(roleName, statuses, false, queryContext);
+    }
+    
+    @Override
+    public Collection<CaseInstance> getCaseInstancesByRole(String roleName, List<CaseStatus> statuses, boolean withData, QueryContext queryContext) {
    
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("roleName", roleName);
@@ -516,40 +541,47 @@ public class CaseRuntimeDataServiceImpl implements CaseRuntimeDataService, Deplo
         params.put("statuses", resolveCaseStatuses(statuses));
         applyQueryContext(params, queryContext);
         applyDeploymentFilter(params);
-        List<CaseInstance> processInstances =  commandService.execute(new QueryNameCommand<List<CaseInstance>>("getCaseInstancesByRole", params));
-
-        return processInstances;
+        return fillCaseFiles(commandService.execute(new QueryNameCommand<List<CaseInstance>>("getCaseInstancesByRole", params)),withData);
     }
     
     @Override
     public Collection<CaseInstance> getCaseInstancesAnyRole(List<CaseStatus> statuses, QueryContext queryContext) {
+        return getCaseInstancesAnyRole(statuses, false, queryContext);
+    }
+    
+    @Override
+    public Collection<CaseInstance> getCaseInstancesAnyRole(List<CaseStatus> statuses, boolean withData, QueryContext queryContext) {
 
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("entities", collectUserAuthInfo());
         params.put("statuses", resolveCaseStatuses(statuses));
         applyQueryContext(params, queryContext);
         applyDeploymentFilter(params);
-        List<CaseInstance> processInstances =  commandService.execute(new QueryNameCommand<List<CaseInstance>>("getCaseInstancesAnyRole", params));
-
-        return processInstances;
+        return fillCaseFiles(commandService.execute(new QueryNameCommand<List<CaseInstance>>("getCaseInstancesAnyRole", params)),withData);
     }
-    
+
     @Override
     public Collection<CaseInstance> getCaseInstancesByDataItem(String dataItemName, List<CaseStatus> statuses, QueryContext queryContext) {
+        return getCaseInstancesByDataItem(dataItemName, statuses, false, queryContext);
+    }
+
+    @Override
+    public Collection<CaseInstance> getCaseInstancesByDataItem(String dataItemName, List<CaseStatus> statuses, boolean withData, QueryContext queryContext) {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("itemName", dataItemName);
         params.put("entities", collectUserAuthInfo());
         params.put("statuses", resolveCaseStatuses(statuses));
         applyQueryContext(params, queryContext);
         applyDeploymentFilter(params);
-        List<CaseInstance> processInstances =  commandService.execute(new QueryNameCommand<List<CaseInstance>>("getCaseInstancesByVariableName", params));
-
-        return processInstances;
+        return fillCaseFiles(commandService.execute(new QueryNameCommand<List<CaseInstance>>("getCaseInstancesByVariableName", params)),withData);
     }
-
 
     @Override
     public Collection<CaseInstance> getCaseInstancesByDataItemAndValue(String dataItemName, String dataItemValue, List<CaseStatus> statuses, QueryContext queryContext) {
+        return getCaseInstancesByDataItemAndValue(dataItemName, dataItemValue, statuses, false, queryContext);
+    }
+    @Override
+    public Collection<CaseInstance> getCaseInstancesByDataItemAndValue(String dataItemName, String dataItemValue, List<CaseStatus> statuses, boolean withData, QueryContext queryContext) {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("itemName", dataItemName);
         params.put("itemValue", dataItemValue);
@@ -557,9 +589,7 @@ public class CaseRuntimeDataServiceImpl implements CaseRuntimeDataService, Deplo
         params.put("statuses", resolveCaseStatuses(statuses));
         applyQueryContext(params, queryContext);
         applyDeploymentFilter(params);
-        List<CaseInstance> processInstances =  commandService.execute(new QueryNameCommand<List<CaseInstance>>("getCaseInstancesByVariableNameAndValue", params));
-
-        return processInstances;
+        return fillCaseFiles(commandService.execute(new QueryNameCommand<List<CaseInstance>>("getCaseInstancesByVariableNameAndValue", params)),withData);
     }
     
     @Override
@@ -920,5 +950,14 @@ public class CaseRuntimeDataServiceImpl implements CaseRuntimeDataService, Deplo
         List<CaseFileItem> caseFileItems = commandService.execute(new QueryNameCommand<List<CaseFileItem>>("getCaseInstanceDataItemsByType", params));
 
         return caseFileItems;
+    }
+    
+    private Collection<CaseInstance> fillCaseFiles (Collection<CaseInstance> caseInstances, boolean withData) {
+        if (withData) {
+            for (CaseInstance caseInstance : caseInstances) {
+                caseInstance.setCaseFile(caseService.getCaseFileInstance(caseInstance.getCaseId()));
+            }
+        }
+        return caseInstances;
     }
 }

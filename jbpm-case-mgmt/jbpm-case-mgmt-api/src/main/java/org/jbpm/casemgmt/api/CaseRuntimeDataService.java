@@ -184,6 +184,14 @@ public interface CaseRuntimeDataService {
      *
      */
     Collection<CaseInstance> getCaseInstances(QueryContext queryContext);
+    
+    /**
+     * Returns all available active case instances
+     * @param withData indicates if case file data should be included in the result
+     * @param queryContext control parameters for the result e.g. sorting, paging
+     *
+     */
+    Collection<CaseInstance> getCaseInstances(boolean withData, QueryContext queryContext);
 
     /**
      * Returns all first level children cases given an parent id case.
@@ -209,6 +217,15 @@ public interface CaseRuntimeDataService {
     Collection<CaseInstance> getCaseInstances(List<CaseStatus> statuses, QueryContext queryContext);
     
     /**
+     * Returns all available active case instances that match given statuses
+     * @param statuses list of statuses that case should be in to match
+     * @param withData indicates if case file information should be included in returned instances
+     * @param queryContext control parameters for the result e.g. sorting, paging
+     *
+     */
+    Collection<CaseInstance> getCaseInstances(List<CaseStatus> statuses, boolean withData, QueryContext queryContext);
+    
+    /**
      * Returns all available case instances;
      * @param deploymentId deployment identifier that case instance is part of
      * @param statuses list of statuses that case should be in to match
@@ -216,6 +233,16 @@ public interface CaseRuntimeDataService {
      *
      */
     Collection<CaseInstance> getCaseInstancesByDeployment(String deploymentId, List<CaseStatus> statuses, QueryContext queryContext);
+    
+    /**
+     * Returns all available case instances;
+     * @param deploymentId deployment identifier that case instance is part of
+     * @param statuses list of statuses that case should be in to match
+     * @param withData indicates if case file data should be included in the result 
+     * @param queryContext control parameters for the result e.g. sorting, paging
+     *
+     */
+    Collection<CaseInstance> getCaseInstancesByDeployment(String deploymentId, List<CaseStatus> statuses, boolean withData, QueryContext queryContext);
     
     /**
      * Returns all available case instances;
@@ -227,12 +254,32 @@ public interface CaseRuntimeDataService {
     Collection<CaseInstance> getCaseInstancesByDefinition(String caseDefinitionId, List<CaseStatus> statuses, QueryContext queryContext);
     
     /**
+     * Returns all available case instances;
+     * @param caseDefinitionId case definition id
+     * @param statuses list of statuses that case should be in to match
+     * @param withData indicates if case file data should be included in the result 
+     * @param queryContext control parameters for the result e.g. sorting, paging 
+     *
+     */
+    Collection<CaseInstance> getCaseInstancesByDefinition(String caseDefinitionId, List<CaseStatus> statuses, boolean withData, QueryContext queryContext);
+    
+    /**
      * Returns all case instances owned by given user
+     * @param owner user owning task
      * @param statuses list of statuses that case should be in to match
      * @param queryContext control parameters for the result e.g. sorting, paging
      *
      */
     Collection<CaseInstance> getCaseInstancesOwnedBy(String owner, List<CaseStatus> statuses, QueryContext queryContext);
+    
+    /**
+     * Returns all case instances owned by given user
+     * @param owner user owning task
+     * @param statuses list of statuses that case should be in to match
+     * @param queryContext control parameters for the result e.g. sorting, paging
+     * @param withData indicates if case file data should be included in the result
+     */
+    Collection<CaseInstance> getCaseInstancesOwnedBy(String owner, List<CaseStatus> statuses, boolean withData, QueryContext queryContext);
     
     /**
      * Returns cases instances that given user (via identity provider) has access to with given role.
@@ -243,11 +290,28 @@ public interface CaseRuntimeDataService {
     Collection<CaseInstance> getCaseInstancesByRole(String roleName, List<CaseStatus> statuses, QueryContext queryContext);
     
     /**
+     * Returns cases instances that given user (via identity provider) has access to with given role.
+     * @param roleName name of the role that user should be
+     * @param statuses statuses of the case instances
+     * @param withData indicates if case file data should be included in the result
+     * @param queryContext control parameters for the result e.g. sorting, paging
+     */
+    Collection<CaseInstance> getCaseInstancesByRole(String roleName, List<CaseStatus> statuses, boolean withData, QueryContext queryContext);
+    
+    /**
      * Returns case instances that given user (via identity provider) is involved in in any role.
      * @param statuses statuses of the case instances
      * @param queryContext control parameters for the result e.g. sorting, paging
      */
     Collection<CaseInstance> getCaseInstancesAnyRole(List<CaseStatus> statuses, QueryContext queryContext);
+    
+    /**
+     * Returns case instances that given user (via identity provider) is involved in in any role.
+     * @param statuses statuses of the case instances
+     * @param withData indicates if case file data should be included in the result
+     * @param queryContext control parameters for the result e.g. sorting, paging
+     */
+    Collection<CaseInstance> getCaseInstancesAnyRole(List<CaseStatus> statuses, boolean withData, QueryContext queryContext);
     
     /**
      * Returns all available active case instances that match given statuses and has case file data item with given name
@@ -258,6 +322,15 @@ public interface CaseRuntimeDataService {
     Collection<CaseInstance> getCaseInstancesByDataItem(String dataItemName, List<CaseStatus> statuses, QueryContext queryContext);
     
     /**
+     * Returns all available active case instances that match given statuses and has case file data item with given name
+     * @param dataItemName name of the case file data item
+     * @param statuses list of statuses that case should be in to match
+     * @param withData indicates if case file data should be included in the result
+     * @param queryContext control parameters for the result e.g. sorting, paging
+     */
+    Collection<CaseInstance> getCaseInstancesByDataItem(String dataItemName, List<CaseStatus> statuses, boolean withData, QueryContext queryContext);
+    
+    /**
      * Returns all available active case instances that match given statuses and has case file data item with given name and value
      * @param dataItemName name of the case file data item
      * @param dataItemValue expected value of the data item
@@ -265,6 +338,16 @@ public interface CaseRuntimeDataService {
      * @param queryContext control parameters for the result e.g. sorting, paging
      */
     Collection<CaseInstance> getCaseInstancesByDataItemAndValue(String dataItemName, String dataItemValue, List<CaseStatus> statuses, QueryContext queryContext);
+    
+    /**
+     * Returns all available active case instances that match given statuses and has case file data item with given name and value
+     * @param dataItemName name of the case file data item
+     * @param dataItemValue expected value of the data item
+     * @param statuses list of statuses that case should be in to match
+     * @param withData indicates if case file data should be included in the result
+     * @param queryContext control parameters for the result e.g. sorting, paging
+     */
+    Collection<CaseInstance> getCaseInstancesByDataItemAndValue(String dataItemName, String dataItemValue, List<CaseStatus> statuses, boolean withData, QueryContext queryContext);
     
     /**
      * Returns all tasks associated with given case id that are eligible for user to see.
