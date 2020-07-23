@@ -135,6 +135,7 @@ public class CaseServiceImpl implements CaseService {
     
     public void setCaseRuntimeDataService(CaseRuntimeDataService caseRuntimeDataService) {
         this.caseRuntimeDataService = caseRuntimeDataService;
+        ((CaseRuntimeDataServiceImpl)caseRuntimeDataService).setCaseService(this);
     }
     
     public void setCaseIdGenerator(CaseIdGenerator caseIdGenerator) {
