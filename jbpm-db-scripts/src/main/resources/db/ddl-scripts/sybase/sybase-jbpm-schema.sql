@@ -452,7 +452,7 @@
         OPTLOCK int null,
         workItemId numeric(19,0) null,
         correlationKey varchar(255),	
-        processType numeric(1,0),
+        processType int,
         primary key (id)
     ) lock datarows
     go

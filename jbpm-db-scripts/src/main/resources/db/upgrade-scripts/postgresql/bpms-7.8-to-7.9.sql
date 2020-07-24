@@ -1,2 +1,2 @@
 ALTER TABLE TaskEvent ADD COLUMN correlationKey varchar(255);
-ALTER TABLE TaskEvent ADD COLUMN processType int2;
+ALTER TABLE TaskEvent ADD COLUMN processType int4;
