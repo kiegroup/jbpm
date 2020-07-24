@@ -13,6 +13,14 @@
    <groupId>org.kie</groupId>
    <artifactId>kie-api</artifactId>
    <version>${version.org.kie}</version>
+    <exclusions>
+      <exclusion>
+        <!-- Not needed as we need only org.kie.api.remote.Remotable from kie-api.
+             This avoids the need for defining the JBoss Public Repo in the main project. -->
+        <groupId>org.kie.soup</groupId>
+        <artifactId>kie-soup-maven-support</artifactId>
+      </exclusion>
+    </exclusions>
   </dependency>
  </dependencies>
 </project>
