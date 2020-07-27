@@ -414,7 +414,7 @@
         OPTLOCK int,
         workItemId numeric(19,0),
         correlationKey varchar(255),
-        processType numeric(1,0),
+        processType int,
         primary key (id)
     );
 
