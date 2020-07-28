@@ -236,6 +236,13 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
 	        ((org.jbpm.process.instance.ProcessInstance) processInstance).start(trigger);
 	        getProcessEventSupport().fireAfterProcessStarted( processInstance, kruntime );
 	        return processInstance;
+        } catch (Exception e) {
+            ProcessInstance processInstance = getProcessInstance(processInstanceId);
+            if (processInstance.getParentProcessInstanceId() > 0) {
+                ((org.jbpm.process.instance.ProcessInstance) processInstance).setState(ProcessInstance.STATE_ABORTED, e.getClass().getName());
+                return processInstance;
+            }
+            throw e;
         } finally {
         	kruntime.endOperation();
         }
