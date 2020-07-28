@@ -525,8 +525,7 @@
                 t.taskData.deploymentId,
                 t.taskData.skipable, plog.correlationKey, plog.processType)
             from
-            TaskImpl t left join ProcessInstanceLog plog ON t.taskData.processInstanceId = plog.processInstanceId,
-            OrganizationalEntityImpl potentialOwners
+            TaskImpl t left join ProcessInstanceLog plog ON t.taskData.processInstanceId = plog.processInstanceId
             where
             t.archived = 0 and
             t.taskData.parentId = :parentId and
