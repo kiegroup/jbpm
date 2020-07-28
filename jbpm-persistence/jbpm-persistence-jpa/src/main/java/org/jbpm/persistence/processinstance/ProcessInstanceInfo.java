@@ -48,14 +48,12 @@ import org.drools.core.marshalling.impl.MarshallerWriteContext;
 import org.drools.core.marshalling.impl.PersisterHelper;
 import org.drools.core.marshalling.impl.ProcessMarshallerWriteContext;
 import org.drools.core.marshalling.impl.ProtobufMarshaller;
-import org.drools.persistence.api.Transformable;
 import org.jbpm.marshalling.impl.JBPMMessages;
 import org.jbpm.marshalling.impl.ProcessInstanceMarshaller;
 import org.jbpm.marshalling.impl.ProcessMarshallerRegistry;
 import org.jbpm.marshalling.impl.ProtobufRuleFlowProcessInstanceMarshaller;
 import org.jbpm.persistence.api.PersistentProcessInstance;
 import org.jbpm.process.instance.impl.ProcessInstanceImpl;
-import org.jbpm.workflow.instance.WorkflowProcessInstance;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 import org.kie.api.runtime.Environment;
 import org.kie.api.runtime.process.ProcessInstance;
@@ -103,16 +101,12 @@ public class ProcessInstanceInfo implements PersistentProcessInstance {
     public ProcessInstanceInfo(ProcessInstance processInstance) {
         this.processInstance = processInstance;
         this.processId = processInstance.getProcessId();
-        startDate = new Date();
 
-        // If we are creating a second Process Instance Info for the same process instance,
-        // it should not generate a new start date
-        if (this.processInstance != null) {
-            if (((WorkflowProcessInstanceImpl) this.processInstance).getStartDate() == null) {
-                ((WorkflowProcessInstanceImpl) processInstance).internalSetStartDate(this.startDate);
-            } else {
-                startDate = ((WorkflowProcessInstanceImpl) this.processInstance).getStartDate();
-            }
+        if (((WorkflowProcessInstanceImpl) this.processInstance).getStartDate() == null) {
+            startDate = new Date();
+            ((WorkflowProcessInstanceImpl) processInstance).internalSetStartDate(this.startDate);
+        } else {
+            startDate = ((WorkflowProcessInstanceImpl) this.processInstance).getStartDate();
         }
     }
 
