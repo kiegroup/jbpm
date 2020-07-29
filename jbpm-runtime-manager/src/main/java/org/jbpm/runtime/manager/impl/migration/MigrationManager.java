@@ -603,7 +603,7 @@ public class MigrationManager {
                                     TimerInstance timerInstance = timerManager.getTimerMap().get(timerId);
                                     if (timerInstance==null) {
                                         report.addEntry(Type.WARN, "Could not find timer instance with id "+timerId+" to cancel.");
-                                    	break;
+                                        continue;
                                     }
                                     timerManager.cancelTimer(timerInstance.getId());
                                     collected.add(timerInstance);
