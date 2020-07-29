@@ -17,6 +17,7 @@
 package org.jbpm.persistence.scripts;
 
 import org.jbpm.test.persistence.scripts.ScriptsBase;
+import org.jbpm.test.persistence.scripts.util.ScriptFilter;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -33,13 +34,13 @@ public class DDLScriptsTest extends ScriptsBase {
      */
     @Test
     public void createAndDropSchemaUsingDDLs() throws Exception {
-        executeScriptRunner(DB_DDL_SCRIPTS_RESOURCE_PATH, true);
+        executeScriptRunner(DB_DDL_SCRIPTS_RESOURCE_PATH, ScriptFilter.init(false, true));
         validateAndPersistProcess();
         validateQuartz();
-        executeScriptRunner(DB_DDL_SCRIPTS_RESOURCE_PATH, false);
+        executeScriptRunner(DB_DDL_SCRIPTS_RESOURCE_PATH, ScriptFilter.init(false, false));
     }
 
-    private void validateAndPersistProcess() {
+    protected void validateAndPersistProcess() {
         final TestPersistenceContext dbTestingContext = createAndInitContext(DB_TESTING_VALIDATE);
         try {
             dbTestingContext.startAndPersistSomeProcess(TEST_PROCESS_ID);
@@ -49,7 +50,7 @@ public class DDLScriptsTest extends ScriptsBase {
         }
     }
 
-    private void validateQuartz() {
+    protected void validateQuartz() {
         final TestPersistenceContext dbquartzContext = createAndInitContext(DB_QUARTZ_VALIDATE);
         dbquartzContext.clean();
     }

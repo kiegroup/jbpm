@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 
 import org.jbpm.test.persistence.scripts.util.TestsUtil;
+import org.jbpm.test.persistence.scripts.util.ScriptFilter;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.rules.TestRule;
@@ -52,22 +53,22 @@ public class ScriptsBase {
     public static void cleanUp() throws IOException, SQLException {
         logger.info("Running with Hibernate " + org.hibernate.Version.getVersionString());
         TestsUtil.clearSchema();
-        executeScriptRunner(DB_DDL_SCRIPTS_RESOURCE_PATH, false);
+        executeScriptRunner(DB_DDL_SCRIPTS_RESOURCE_PATH, ScriptFilter.init(false, false));
     }
 
-    public static void executeScriptRunner(String resourcePath, boolean createFiles, String type) throws IOException, SQLException {
+    public static void executeScriptRunner(String resourcePath, ScriptFilter scriptFilter, String type) throws IOException, SQLException {
         final TestPersistenceContextBase scriptRunnerContext = createAndInitContext(PersistenceUnit.SCRIPT_RUNNER);
         try {
-            scriptRunnerContext.executeScripts(new File(ScriptsBase.class.getResource(resourcePath).getFile()), createFiles, type);
+            scriptRunnerContext.executeScripts(new File(ScriptsBase.class.getResource(resourcePath).getFile()), scriptFilter, type);
         } finally {
             scriptRunnerContext.clean();
         }
     }
 
-    public static void executeScriptRunner(String resourcePath, boolean createFiles) throws IOException, SQLException {
+    public static void executeScriptRunner(String resourcePath, ScriptFilter scriptFilter) throws IOException, SQLException {
         final TestPersistenceContextBase scriptRunnerContext = createAndInitContext(PersistenceUnit.SCRIPT_RUNNER);
         try {
-            scriptRunnerContext.executeScripts(new File(ScriptsBase.class.getResource(resourcePath).getFile()), createFiles);
+            scriptRunnerContext.executeScripts(new File(ScriptsBase.class.getResource(resourcePath).getFile()), scriptFilter);
         } finally {
             scriptRunnerContext.clean();
         }

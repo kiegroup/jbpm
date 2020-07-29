@@ -31,6 +31,7 @@ import javax.persistence.EntityManagerFactory;
 import org.drools.core.impl.KnowledgeBaseFactory;
 import org.drools.core.impl.KnowledgeBaseImpl;
 import org.drools.persistence.jta.JtaTransactionManager;
+import org.jbpm.test.persistence.scripts.util.ScriptFilter;
 import org.jbpm.test.persistence.scripts.util.SQLCommandUtil;
 import org.jbpm.test.persistence.scripts.util.SQLScriptUtil;
 import org.jbpm.test.persistence.scripts.util.TestsUtil;
@@ -118,17 +119,17 @@ public class TestPersistenceContextBase {
      * by using dialect that is defined in datasource.properties file.
      *
      * @param scriptsRootFolder Root folder containing folders with SQL scripts for all supported database systems.
-     * @param createFiles       indicates if files with create statements are included (true) or drop statements (false)
+     * @param scriptFilter       indicates the filter to apply, including springboot or not scripts and create/drop scripts
      * @throws IOException
      */
-    public void executeScripts(final File scriptsRootFolder, boolean createFiles) throws IOException, SQLException {
-        executeScripts(scriptsRootFolder, createFiles, null);
+    public void executeScripts(final File scriptsRootFolder, ScriptFilter scriptFilter) throws IOException, SQLException {
+        executeScripts(scriptsRootFolder, scriptFilter, null);
     }
 
-    public void executeScripts(final File scriptsRootFolder, boolean createFiles, String type) throws IOException, SQLException {
+    public void executeScripts(final File scriptsRootFolder, ScriptFilter scriptFilter, String type) throws IOException, SQLException {
         testIsInitialized();
-        final File[] sqlScripts = TestsUtil.getDDLScriptFilesByDatabaseType(scriptsRootFolder, databaseType, true, createFiles);
-        if (sqlScripts.length == 0 && createFiles) {
+        final File[] sqlScripts = TestsUtil.getDDLScriptFilesByDatabaseType(scriptsRootFolder, databaseType, scriptFilter);
+        if (sqlScripts.length == 0 && scriptFilter.isCreate()) {
             throw new RuntimeException("No create sql files found for db type "
                                                + databaseType + " in folder " + scriptsRootFolder.getAbsolutePath());
         }
@@ -142,7 +143,7 @@ public class TestPersistenceContextBase {
                     for (String command : scriptCommands) {
                         logger.info("query {} ", command);
                         final PreparedStatement statement = preparedStatement(connection, command);
-                        executeStatement(createFiles, statement);
+                        executeStatement(scriptFilter.isCreate(), statement);
                     }
                 }
             }
@@ -174,7 +175,7 @@ public class TestPersistenceContextBase {
                 throw ex;
             } else //Consume exceptions for dropping files
             {
-                logger.warn("Dropping statement failed: " + ex.getMessage());
+                logger.warn("Dropping statement failed: {} ", ex.getMessage());
             }
         }
     }
