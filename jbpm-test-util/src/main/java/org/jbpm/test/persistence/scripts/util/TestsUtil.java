@@ -17,11 +17,11 @@
 package org.jbpm.test.persistence.scripts.util;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Properties;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.jbpm.test.persistence.scripts.DatabaseType;
 import org.jbpm.test.persistence.scripts.PersistenceUnit;
@@ -41,35 +41,36 @@ public final class TestsUtil {
      * Gets SQL scripts for selected database type.
      * @param folderWithDDLs Root folder containing SQL scripts for all database types.
      * @param databaseType Database type.
-     * @param sortByName If true, resulting array of SQL script files will be sorted by filename using String
-     * comparator.
-     * @param dropFiles If true, return those files that don't contain 'drop' into the name. Otherwise,
-     * return those containing 'drop'
+     * @param scriptFilter Indicates the filter to apply, including springboot or not scripts and create/drop scripts
      * @return Array of SQL script files. If there are no SQL script files found, returns empty array.
      */
-    public static File[] getDDLScriptFilesByDatabaseType(final File folderWithDDLs, final DatabaseType databaseType,
-            final boolean sortByName, final boolean dropFiles) {
+    public static File[] getDDLScriptFilesByDatabaseType(final File folderWithDDLs,
+                                                         final DatabaseType databaseType,
+                                                         final ScriptFilter scriptFilter) {
         final File folderWithScripts = new File(folderWithDDLs.getPath() + File.separator + databaseType.getScriptsFolderName());
-        if (folderWithScripts.exists()) {
-            Predicate<File> filterNew = (name) -> name.getName().toLowerCase().contains("springboot");
-            Predicate<File> filterExtension = (name) -> name.getName().toLowerCase().endsWith(".sql");
-            Predicate<File> filterName = (name) -> name.getName().contains("drop");
-            Predicate<File> filter = filterExtension.and((!dropFiles) ? filterName : filterName.negate()).and(filterNew.negate());
-            File[] foundFiles = Arrays.asList(folderWithScripts.listFiles()).stream().filter(filter).toArray(File[]::new);
-
-            if (sortByName) {
-                foundFiles = Arrays.stream(foundFiles).map(DatabaseScript::new).sorted().map(DatabaseScript::getScript).toArray(File[]::new);
-
-                if (databaseType.equals(DatabaseType.POSTGRESQL)) {
-                    //Returns first schema sql
-                    Arrays.sort(foundFiles, Comparator.<File, Boolean>comparing(s -> s.getName().contains("schema")).reversed());
-                }
-            }
-
-            return foundFiles;
-        } else {
+        
+        if (!folderWithScripts.exists()) {
+            logger.warn("Folder with DDLs doesn't exist {}", folderWithDDLs);
             return new File[0];
         }
+        
+        Predicate<File> filterExtension = file -> file.getName().toLowerCase().endsWith(".sql");
+        Predicate<File> filterSpringboot = file -> file.getName().toLowerCase().contains("springboot");
+        Predicate<File> filterName = file -> file.getName().contains("drop");
+        Predicate<File> filter = filterExtension.and((!scriptFilter.isCreate()) ? filterName : filterName.negate())
+                                                .and((scriptFilter.isSpringboot()) ? filterSpringboot : filterSpringboot.negate());
+        
+        File[] foundFiles = Arrays.asList(folderWithScripts.listFiles()).stream().filter(filter).toArray(File[]::new);
+           
+        foundFiles = Arrays.stream(foundFiles).map(DatabaseScript::new).sorted().map(DatabaseScript::getScript).toArray(File[]::new);
+
+        if (databaseType.equals(DatabaseType.POSTGRESQL)) {               
+             //Returns first schema sql
+             Arrays.sort(foundFiles, Comparator.<File, Boolean>comparing(s -> s.getName().contains("schema")).reversed());
+        }
+            
+        logger.info("Returned DDL files: {}", Arrays.stream(foundFiles).map(File::getName).collect(Collectors.toList()));
+        return foundFiles;
     }
 
     /**
@@ -143,23 +144,5 @@ public final class TestsUtil {
     private TestsUtil() {
         // It makes no sense to create instances of util classes.
     }
-    
-    private static File[] filterOutDropFiles(final File folderWithScripts) {
-        return folderWithScripts.listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return name.toLowerCase().endsWith(".sql") && !name.contains("drop");
-            }
-        });
-    }
-    
-    private static File[] filterInDropFiles(final File folderWithScripts) {
-        return folderWithScripts.listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return name.toLowerCase().endsWith(".sql") && name.contains("drop");
-            }
-        });
-    }
-    
+        
 }
