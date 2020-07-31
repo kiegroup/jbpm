@@ -103,10 +103,10 @@ public class ProcessInstanceInfo implements PersistentProcessInstance {
         this.processId = processInstance.getProcessId();
 
         if (((WorkflowProcessInstanceImpl) this.processInstance).getStartDate() == null) {
-            this.startDate = new Date();
+            startDate = new Date();
             ((WorkflowProcessInstanceImpl) processInstance).internalSetStartDate(this.startDate);
         } else {
-            this.startDate = ((WorkflowProcessInstanceImpl) this.processInstance).getStartDate();
+            startDate = ((WorkflowProcessInstanceImpl) this.processInstance).getStartDate();
         }
     }
 
