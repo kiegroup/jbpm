@@ -286,24 +286,7 @@ public abstract class MapPersistenceTest extends AbstractBaseTest {
 
         Assert.assertEquals(processInstance.getStartDate(), processInstanceInfo.getStartDate());
     }
-
-    @Test
-    public void twoProcessInstanceInfoSameStartDateTest() {
-        String processId = "twoProcessInstanceInfoSameStartDateTest";
-        String eventType = "myEvent";
-        RuleFlowProcess process = ProcessCreatorForHelp.newSimpleEventProcess( processId,
-                eventType );
-
-        KieBase kbase = createKieBase(process);
-        StatefulKnowledgeSession crmPersistentSession = createSession(kbase);
-
-        RuleFlowProcessInstance processInstance = (RuleFlowProcessInstance) crmPersistentSession.startProcess( processId );
-        ProcessInstanceInfo firstProcessInstanceInfo = new ProcessInstanceInfo(processInstance);
-        ProcessInstanceInfo secondProcessInstanceInfo = new ProcessInstanceInfo(processInstance);
-
-        Assert.assertEquals(firstProcessInstanceInfo.getStartDate(), secondProcessInstanceInfo.getStartDate());
-    }
-
+    
     protected abstract StatefulKnowledgeSession createSession(KieBase kbase);
     
     protected abstract StatefulKnowledgeSession disposeAndReloadSession(StatefulKnowledgeSession crmPersistentSession,
