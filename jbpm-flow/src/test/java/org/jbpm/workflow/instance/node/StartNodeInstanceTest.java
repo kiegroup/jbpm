@@ -75,7 +75,8 @@ public class StartNodeInstanceTest extends AbstractBaseTest {
         assertEquals(  ProcessInstance.STATE_PENDING, processInstance.getState() );
         processInstance.start();        
         assertEquals(  ProcessInstance.STATE_ACTIVE, processInstance.getState() );
-        
+        assertNotNull(processInstance.getStartDate());
+
         MockNodeInstance mockNodeInstance = mockNodeFactory.getMockNodeInstance();
         List<NodeInstance> triggeredBy =
         	mockNodeInstance.getTriggers().get(org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE);
