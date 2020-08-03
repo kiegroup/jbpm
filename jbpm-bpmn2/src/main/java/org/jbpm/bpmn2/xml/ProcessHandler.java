@@ -87,6 +87,8 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
+import static java.util.stream.Collectors.toList;
+
 public class ProcessHandler extends BaseAbstractHandler implements Handler {
 	
     private static final Logger logger = LoggerFactory.getLogger(ProcessHandler.class);
@@ -202,8 +204,16 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
 	 public static void linkIntermediateLinks(NodeContainer process,
 	            List<IntermediateLink> links) {
 
-	        if (null != links) {
 
+        if (null != links) {
+            List<IntermediateLink> errors = links.stream().filter(l -> l.getName() == null || l.getName().isEmpty()).collect(toList());
+            if (!errors.isEmpty()) {
+                StringBuilder builder = new StringBuilder();
+                for (IntermediateLink l : errors) {
+                    builder.append("\tIntermediate Link: " + l.getUniqueId() + "\n");
+                }
+                throw new IllegalArgumentException("There are " + errors.size() + " links that does not have a name.\n" + builder.toString());
+            }
 	            // Search throw links
 	            ArrayList<IntermediateLink> throwLinks = new ArrayList<IntermediateLink>();
 	            for (IntermediateLink aLinks : links) {
