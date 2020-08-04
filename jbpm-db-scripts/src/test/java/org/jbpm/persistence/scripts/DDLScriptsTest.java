@@ -16,28 +16,119 @@
 
 package org.jbpm.persistence.scripts;
 
-import org.jbpm.test.persistence.scripts.ScriptsBase;
-import org.jbpm.test.persistence.scripts.util.ScriptFilter;
-import org.junit.Assert;
-import org.junit.Test;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.jbpm.test.persistence.scripts.DatabaseType;
+import org.jbpm.test.persistence.scripts.PersistenceUnit;
+import org.jbpm.test.persistence.scripts.ScriptsBase;
+import org.jbpm.test.persistence.scripts.TestPersistenceContextBase;
+import org.jbpm.test.persistence.scripts.util.ScriptFilter;
+import org.jbpm.test.persistence.scripts.util.ScriptFilter.Option;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
+
+import static org.jbpm.persistence.scripts.TestPersistenceContext.createAndInitContext;
 import static org.jbpm.test.persistence.scripts.PersistenceUnit.DB_QUARTZ_VALIDATE;
 import static org.jbpm.test.persistence.scripts.PersistenceUnit.DB_TESTING_VALIDATE;
-import static org.jbpm.persistence.scripts.TestPersistenceContext.createAndInitContext;
+import static org.jbpm.test.persistence.scripts.util.ScriptFilter.filter;
+import static org.junit.Assume.assumeTrue;
 
 /**
  * Contains tests that test DDL scripts.
  */
+@RunWith(Parameterized.class)
 public class DDLScriptsTest extends ScriptsBase {
+
+    @Parameters
+    public static Collection<ScriptFilter[]> data() {
+        ScriptFilter[] standard = new ScriptFilter[]{ScriptFilter.init(false, true),
+                                                     ScriptFilter.init(false, false)};
+
+
+
+        ScriptFilter[] sbPg = new ScriptFilter[]{filter("postgresql-springboot-jbpm-schema.sql",
+                                                        "quartz_tables_postgres.sql").setSupportedDatabase(DatabaseType.POSTGRESQL)
+                                                                                     .setOptions(Option.DISALLOW_EMTPY_RESULTS, Option.THROW_ON_SCRIPT_ERROR),
+                                                 filter("postgresql-springboot-jbpm-drop-schema.sql",
+                                                        "quartz_tables_drop_postgres.sql")};
+
+
+        ScriptFilter[] pqlBytea = new ScriptFilter[]{filter("postgresql-bytea-jbpm-schema.sql",
+                                                            "quartz_tables_postgres.sql")
+                                                                 .setSupportedDatabase(DatabaseType.POSTGRESQL)
+                                                                                         .setOptions(Option.DISALLOW_EMTPY_RESULTS, Option.THROW_ON_SCRIPT_ERROR)
+                                                                                         .env("org.kie.persistence.postgresql.useBytea", "true"),
+                                                     filter("postgresql-bytea-jbpm-drop-schema.sql",
+                                                            "quartz_tables_drop_postgres.sql")};
+
+        ScriptFilter[] pqlSpringBootBytea = new ScriptFilter[]{filter("postgresql-springboot-bytea-jbpm-schema.sql",
+                                                                      "quartz_tables_postgres.sql")
+                                                                           .setSupportedDatabase(DatabaseType.POSTGRESQL)
+                                                                                                   .setOptions(Option.DISALLOW_EMTPY_RESULTS, Option.THROW_ON_SCRIPT_ERROR)
+                                                                                                   .env("org.kie.persistence.postgresql.useBytea", "true"),
+                                                               filter("postgresql-springboot-bytea-jbpm-drop-schema.sql",
+                                                                      "quartz_tables_drop_postgres.sql")};
+
+        ScriptFilter[] sbOracle = new ScriptFilter[]{filter("oracle-springboot-jbpm-schema.sql",
+                                                            "quartz_tables_oracle.sql").setSupportedDatabase(DatabaseType.ORACLE)
+                                                                                       .setOptions(Option.DISALLOW_EMTPY_RESULTS, Option.THROW_ON_SCRIPT_ERROR),
+                                                     filter("oracle-springboot-jbpm-drop-schema.sql",
+                                                            "quartz_tables_drop_oracle.sql")};
+
+        return Arrays.asList(standard, sbPg, pqlBytea, pqlSpringBootBytea, sbOracle);
+    }
+
+    private ScriptFilter createScript;
+    private ScriptFilter dropScript;
+
+    public DDLScriptsTest(ScriptFilter createScript, ScriptFilter dropScript) {
+        this.createScript = createScript;
+        this.dropScript = dropScript;
+    }
+
+    private Map<String, Object> oldEnvironment;
+
+    @Before
+    public void prepare() {
+        oldEnvironment = new HashMap<>();
+        Map<String, Object> newEnvironment = createScript.getEnvironent();
+        for (Map.Entry<String, Object> entry : newEnvironment.entrySet()) {
+            oldEnvironment.put(entry.getKey(), System.getProperty(entry.getKey()));
+            System.setProperty(entry.getKey(), (String) entry.getValue());
+        }
+        TestPersistenceContextBase scriptRunnerContext = createAndInitContext(PersistenceUnit.SCRIPT_RUNNER);
+        DatabaseType dbType = scriptRunnerContext.getDatabaseType();
+        assumeTrue("Scripts test not supported this database " + dbType + ": " + createScript.getSupportedDatabase(), createScript.isSupportedDatabase(dbType));
+    }
+
+    @After
+    public void tear() {
+        for (Map.Entry<String, Object> entry : oldEnvironment.entrySet()) {
+            if (entry.getValue() != null) {
+                System.setProperty(entry.getKey(), (String) entry.getValue());
+            } else {
+                System.clearProperty(entry.getKey());
+            }
+        }
+        
+    }
     /**
      * Tests that DB schema is created properly using DDL scripts.
      */
     @Test
     public void createAndDropSchemaUsingDDLs() throws Exception {
-        executeScriptRunner(DB_DDL_SCRIPTS_RESOURCE_PATH, ScriptFilter.init(false, true));
+        executeScriptRunner(DB_DDL_SCRIPTS_RESOURCE_PATH, createScript);
         validateAndPersistProcess();
         validateQuartz();
-        executeScriptRunner(DB_DDL_SCRIPTS_RESOURCE_PATH, ScriptFilter.init(false, false));
+        executeScriptRunner(DB_DDL_SCRIPTS_RESOURCE_PATH, dropScript);
     }
 
     protected void validateAndPersistProcess() {

@@ -31,9 +31,10 @@ import javax.persistence.EntityManagerFactory;
 import org.drools.core.impl.KnowledgeBaseFactory;
 import org.drools.core.impl.KnowledgeBaseImpl;
 import org.drools.persistence.jta.JtaTransactionManager;
-import org.jbpm.test.persistence.scripts.util.ScriptFilter;
 import org.jbpm.test.persistence.scripts.util.SQLCommandUtil;
 import org.jbpm.test.persistence.scripts.util.SQLScriptUtil;
+import org.jbpm.test.persistence.scripts.util.ScriptFilter;
+import org.jbpm.test.persistence.scripts.util.ScriptFilter.Option;
 import org.jbpm.test.persistence.scripts.util.TestsUtil;
 import org.jbpm.test.persistence.util.PersistenceUtil;
 import org.jbpm.test.persistence.util.ProcessCreatorForHelp;
@@ -129,7 +130,7 @@ public class TestPersistenceContextBase {
     public void executeScripts(final File scriptsRootFolder, ScriptFilter scriptFilter, String type) throws IOException, SQLException {
         testIsInitialized();
         final File[] sqlScripts = TestsUtil.getDDLScriptFilesByDatabaseType(scriptsRootFolder, databaseType, scriptFilter);
-        if (sqlScripts.length == 0 && scriptFilter.isCreate()) {
+        if (sqlScripts.length == 0 && scriptFilter.hasOption(Option.DISALLOW_EMTPY_RESULTS)) {
             throw new RuntimeException("No create sql files found for db type "
                                                + databaseType + " in folder " + scriptsRootFolder.getAbsolutePath());
         }
@@ -143,7 +144,7 @@ public class TestPersistenceContextBase {
                     for (String command : scriptCommands) {
                         logger.info("query {} ", command);
                         final PreparedStatement statement = preparedStatement(connection, command);
-                        executeStatement(scriptFilter.isCreate(), statement);
+                        executeStatement(scriptFilter.hasOption(Option.THROW_ON_SCRIPT_ERROR), statement);
                     }
                 }
             }
