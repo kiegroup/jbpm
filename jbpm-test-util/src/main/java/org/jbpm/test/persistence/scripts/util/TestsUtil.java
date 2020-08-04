@@ -20,7 +20,6 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Properties;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.jbpm.test.persistence.scripts.DatabaseType;
@@ -53,14 +52,8 @@ public final class TestsUtil {
             logger.warn("Folder with DDLs doesn't exist {}", folderWithDDLs);
             return new File[0];
         }
-        
-        Predicate<File> filterExtension = file -> file.getName().toLowerCase().endsWith(".sql");
-        Predicate<File> filterSpringboot = file -> file.getName().toLowerCase().contains("springboot");
-        Predicate<File> filterName = file -> file.getName().contains("drop");
-        Predicate<File> filter = filterExtension.and((!scriptFilter.isCreate()) ? filterName : filterName.negate())
-                                                .and((scriptFilter.isSpringboot()) ? filterSpringboot : filterSpringboot.negate());
-        
-        File[] foundFiles = Arrays.asList(folderWithScripts.listFiles()).stream().filter(filter).toArray(File[]::new);
+
+        File[] foundFiles = Arrays.asList(folderWithScripts.listFiles()).stream().filter(scriptFilter.build()).toArray(File[]::new);
            
         foundFiles = Arrays.stream(foundFiles).map(DatabaseScript::new).sorted().map(DatabaseScript::getScript).toArray(File[]::new);
 

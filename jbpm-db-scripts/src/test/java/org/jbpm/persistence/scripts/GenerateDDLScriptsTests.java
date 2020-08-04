@@ -39,30 +39,34 @@ import static java.util.Arrays.asList;
 @Ignore
 public class GenerateDDLScriptsTests {
 
-    private static class ScriptFile {
+    static {
+        System.setProperty("org.kie.persistence.postgresql.useBytea", "false");
+    }
+
+    public static class ScriptFile {
 
         private String dialect;
         private String alias;
         private String prefix;
+        private String subtype;
         private boolean newGenerator;
 
-        public ScriptFile(String dialect, String alias, boolean newGenerator) {
-            this(dialect, alias, alias, newGenerator);
-        }
 
-        public ScriptFile(String dialect, String alias, String prefix, boolean newGenerator) {
+        public ScriptFile(String dialect, String alias, String prefix, String subtype, boolean newGenerator) {
             this.dialect = dialect;
             this.alias = alias;
             this.prefix = prefix;
+            this.subtype = subtype;
             this.newGenerator = newGenerator;
         }
 
         public Path buildCreateFile(Path basePath) {
-            return basePath.resolve(alias).resolve(prefix + "-" + (this.newGenerator ? "springboot-" : "") + "jbpm-schema.sql");
+            return basePath.resolve(alias).resolve(prefix + "-" + (subtype.isEmpty() ? "" : subtype + "-") + "jbpm-schema.sql");
         }
 
         public Path buildDropFile(Path basePath) {
-            return basePath.resolve(alias).resolve(prefix + "-" + (this.newGenerator ? "springboot-" : "") + "jbpm-drop-schema.sql");
+            return basePath.resolve(alias).resolve(prefix + "-" + (subtype.isEmpty() ? "" : subtype + "-") + "jbpm-drop-schema.sql");
+
         }
 
         public String getNewGenerator() {
@@ -99,13 +103,14 @@ public class GenerateDDLScriptsTests {
 
         @Override
         public String toString() {
-            return alias + " New Generator mappings " + this.newGenerator;
+            return alias + "-" + subtype + " new Generator mappings " + this.newGenerator;
         }
     }
 
     @Parameterized.Parameters(name = "{0}")
     public static Collection<ScriptFile> dialect() {
-        return asList(new ScriptFile("org.hibernate.dialect.Oracle12cDialect", "oracle", true));
+        return asList(new ScriptFile("org.hibernate.dialect.PostgreSQLDialect", "postgresql", "postgresql", "bytea", false),
+                      new ScriptFile("org.hibernate.dialect.PostgreSQLDialect", "postgresql", "postgresql", "springboot-bytea", true));
     }
 
     private ScriptFile scriptFile;
@@ -116,6 +121,7 @@ public class GenerateDDLScriptsTests {
 
     @Test
     public void generateDDL() throws Exception {
+
         Path basePath = Paths.get("src", "main", "resources", "db", "ddl-scripts");
 
         Path createFilePath = scriptFile.buildCreateFile(basePath);

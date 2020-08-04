@@ -16,25 +16,104 @@
 
 package org.jbpm.test.persistence.scripts.util;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.function.Predicate;
+
+import org.jbpm.test.persistence.scripts.DatabaseType;
+
+
 public class ScriptFilter {
 
-    private boolean springboot;
-    private boolean create;
-    
-    public ScriptFilter(boolean springboot, boolean create) {
-        this.springboot = springboot;
-        this.create = create;
+    public enum Option {
+        DISALLOW_EMTPY_RESULTS, // if the filter allow no results
+        THROW_ON_SCRIPT_ERROR // if the filter allows script errors
     }
-    
+
+    private Set<DatabaseType> dbTypes;
+    private Set<Option> options;
+    private List<Predicate<File>> predicates;
+    private Map<String, Object> env;
+
+    @SafeVarargs
+    public ScriptFilter(Predicate<File>... filters) {
+        this.predicates = new ArrayList<>();
+        this.options = new TreeSet<>();
+        this.dbTypes = new TreeSet<>();
+        Collections.addAll(this.dbTypes, DatabaseType.values());
+        Collections.addAll(this.predicates, filters);
+        env = new HashMap<String, Object>();
+    }
+
+    @SafeVarargs
+    public static ScriptFilter create(Predicate<File>... filters) {
+        return new ScriptFilter(filters);
+    }
+
+    public static ScriptFilter filter(String... scripts) {
+        Predicate<File> predicate = Arrays.asList(scripts).stream().map(s -> (Predicate<File>) file -> file.getName().contains(s)).reduce(x -> false, Predicate::or);
+        ScriptFilter filter = new ScriptFilter(predicate);
+        return filter;
+    }
+
+    public ScriptFilter env(String key, Object value) {
+        env.put(key, value);
+        return this;
+    }
+
     public static ScriptFilter init(boolean springboot, boolean create) {
-        return new ScriptFilter(springboot, create);
+        Predicate<File> filterExtension = file -> file.getName().toLowerCase().endsWith(".sql");
+
+        Predicate<File> filterSpringboot = file -> file.getName().toLowerCase().contains("springboot");
+        filterSpringboot = springboot ? filterSpringboot : filterSpringboot.negate();
+
+        Predicate<File> filterBytea = file -> !file.getName().toLowerCase().contains("bytea");
+
+        Predicate<File> filterName = file -> file.getName().contains("drop");
+        filterName = !create ? filterName : filterName.negate();
+        ScriptFilter filter = new ScriptFilter(filterExtension, filterName, filterSpringboot, filterBytea);
+        if (create) {
+            filter.setOptions(Option.DISALLOW_EMTPY_RESULTS, Option.THROW_ON_SCRIPT_ERROR);
+        }
+        return filter;
     }
-    
-    public boolean isSpringboot() {
-        return springboot;
+
+    public ScriptFilter setSupportedDatabase(DatabaseType... types) {
+        this.dbTypes.clear();
+        Collections.addAll(this.dbTypes, types);
+        return this;
     }
-    
-    public boolean isCreate() {
-        return create;
+
+    public boolean isSupportedDatabase(DatabaseType type) {
+        return dbTypes.contains(type);
     }
+
+    public ScriptFilter setOptions(Option... elements) {
+        Collections.addAll(this.options, elements);
+        return this;
+    }
+
+    public boolean hasOption(Option option) {
+        return options.contains(option);
+    }
+
+    public Predicate<File> build() {
+        return predicates.stream().reduce(x -> true, Predicate::and);
+    }
+
+    public Set<DatabaseType> getSupportedDatabase() {
+        return this.dbTypes;
+    }
+
+    public Map<String, Object> getEnvironent() {
+        return env;
+    }
+
 }
