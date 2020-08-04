@@ -26,6 +26,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
 import java.util.Set;
 
 import javax.activation.DataHandler;
@@ -78,43 +80,36 @@ public class EmailNotificationListener implements NotificationListener {
             Task task = event.getTask();
 
             // group users into languages
-            Map<String, List<User>> users = new HashMap<String, List<User>>();
-            for (OrganizationalEntity entity : notification.getBusinessAdministrators()) {
-                if (entity instanceof Group) {
-                    buildMapByLanguage(users, (Group) entity, userInfo);
-                } else {
-                    buildMapByLanguage(users, (User) entity, userInfo);
-                }
-            }
+            List<OrganizationalEntity> entities = new ArrayList<>();
+            entities.addAll(notification.getBusinessAdministrators());
+            entities.addAll(notification.getRecipients());
 
-            for (OrganizationalEntity entity : notification.getRecipients()) {
+            Map<String, List<OrganizationalEntity>> users = new HashMap<>();
+            for (OrganizationalEntity entity : entities) {
                 if (entity instanceof Group) {
                     buildMapByLanguage(users, (Group) entity, userInfo);
                 } else {
-                    buildMapByLanguage(users, (User) entity, userInfo);
+                    buildMapByLanguage(users, entity, userInfo);
                 }
             }
 
             Map<String, Object> variables = event.getContent();
-
-
             Map<? extends Language, ? extends EmailNotificationHeader> headers = notification.getEmailHeaders();
 
-            for (Iterator<Map.Entry<String, List<User>>> it = users.entrySet()
+            for (Iterator<Map.Entry<String, List<OrganizationalEntity>>> it = users.entrySet()
                     .iterator(); it.hasNext();) {
-               
                 try { 
-                    Map.Entry<String, List<User>> entry = it.next();
+                    Map.Entry<String, List<OrganizationalEntity>> entry = it.next();
                     Language lang = TaskModelProvider.getFactory().newLanguage();
                     lang.setMapkey(entry.getKey());
                     EmailNotificationHeader header = headers.get(lang);
     
                     Message msg = new MimeMessage(mailSession);
                     Set<String> toAddresses = new HashSet<String>();
-                    for (User user : entry.getValue()) {
+                    for (OrganizationalEntity user : entry.getValue()) {
     
-                        String emailAddress = userInfo.getEmailForEntity(user);
-                        if (emailAddress != null) {                        	
+                        String emailAddress = getEmailFromOrganizationEntity(userInfo, user);
+                        if (emailAddress != null && !emailAddress.isEmpty()) {
                         	if (toAddresses.add(emailAddress)) {
                         	    msg.addRecipients( Message.RecipientType.TO, InternetAddress.parse( emailAddress, false));
                         	}
@@ -197,6 +192,14 @@ public class EmailNotificationListener implements NotificationListener {
         }
     }
     
+    private String getEmailFromOrganizationEntity(UserInfo userInfo, OrganizationalEntity user) {
+        if (user instanceof User) {
+            return userInfo.getEmailForEntity(user);
+        } else {
+            return user.getId();
+        }
+    }
+
     protected URL getAttachemntURL(String attachment) throws MalformedURLException {
         if (attachment.startsWith("classpath:")) {
             String location = attachment.replaceFirst("classpath:", "");
@@ -218,7 +221,7 @@ public class EmailNotificationListener implements NotificationListener {
         }
     }
     
-    protected void buildMapByLanguage(Map<String, List<User>> map, Group group, UserInfo userInfo) {
+    protected void buildMapByLanguage(Map<String, List<OrganizationalEntity>> map, Group group, UserInfo userInfo) {
     	Iterator<OrganizationalEntity> it = userInfo.getMembersForGroup(group);
     	if (it != null) {
 	    	while (it.hasNext()) {
@@ -226,20 +229,26 @@ public class EmailNotificationListener implements NotificationListener {
 	            if (entity instanceof Group) {
 	                buildMapByLanguage(map, (Group) entity, userInfo);
 	            } else {
-	                buildMapByLanguage(map, (User) entity, userInfo);
+                    buildMapByLanguage(map, entity, userInfo);
 	            }
 	        }
     	}
     }
 
-    protected void buildMapByLanguage(Map<String, List<User>> map, User user, UserInfo userInfo) {
-        String language = userInfo.getLanguageForEntity(user);
-        List<User> list = map.get(language);
-        if (list == null) {
-            list = new ArrayList<User>();
-            map.put(language, list);
-        }
+    protected void buildMapByLanguage(Map<String, List<OrganizationalEntity>> map, OrganizationalEntity user, UserInfo userInfo) {
+        String language = Optional.ofNullable(userInfo.getLanguageForEntity(user)).orElse("en-UK");
+        List<OrganizationalEntity> list = map.computeIfAbsent(language, k -> new ArrayList<>());
         list.add(user);
+    }
+
+    @Override
+    public String toString() {
+        Properties properties = mailSession.getProperties();
+        List<String> prop = new ArrayList<>();
+        for (Object key : properties.keySet()) {
+            prop.add(key + "=" + properties.getProperty(((String) key)));
+        }
+        return "EmailNotificationListener (" + String.join(",", prop) + ")";
     }
 
 }

@@ -16,10 +16,6 @@
 
 package org.jbpm.services.task.wih.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
@@ -40,6 +36,10 @@ import org.kie.internal.task.api.model.EmailNotificationHeader;
 import org.kie.internal.task.api.model.Language;
 import org.kie.internal.task.api.model.Notification;
 import org.kie.internal.task.api.model.Reassignment;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class HumanTaskHandlerHelperTest extends AbstractBaseTest {
 
@@ -151,6 +151,49 @@ public class HumanTaskHandlerHelperTest extends AbstractBaseTest {
 			assertEquals((i + 1) * 4, roundExpirationTime(expirationTime));
 		}
 	}
+
+
+    @Test
+    public void testToEmailsNotStarted() {
+        WorkItem workItem = new WorkItemImpl();
+        workItem.setParameter("NotStartedNotify", "[toemails:salaboy@unkown.com,krisv@unknown.com]@[R3/PT4H]");
+
+        @SuppressWarnings("unchecked")
+        Deadlines deadlines = HumanTaskHandlerHelper.setDeadlines(workItem.getParameters(), Collections.EMPTY_LIST, null);
+        assertNotNull(deadlines);
+        assertEquals(3, deadlines.getStartDeadlines().size());
+        assertEquals(0, deadlines.getEndDeadlines().size());
+        assertEquals(1, deadlines.getStartDeadlines().get(0).getEscalations().size());
+        assertEquals(1, deadlines.getStartDeadlines().get(0).getEscalations().get(0).getNotifications().size());
+
+        // verify reassignment
+        Notification notification = deadlines.getStartDeadlines().get(0).getEscalations().get(0).getNotifications().get(0);
+        assertEquals(2, notification.getRecipients().size());
+        assertEquals("salaboy@unkown.com", notification.getRecipients().get(0).getId());
+        assertEquals("krisv@unknown.com", notification.getRecipients().get(1).getId());
+
+    }
+
+    @Test
+    public void testToEmailsNotCompleted() {
+        WorkItem workItem = new WorkItemImpl();
+        workItem.setParameter("NotCompletedNotify", "[toemails:salaboy@unkown.com,krisv@unknown.com]@[R3/PT4H]");
+
+        @SuppressWarnings("unchecked")
+        Deadlines deadlines = HumanTaskHandlerHelper.setDeadlines(workItem.getParameters(), Collections.EMPTY_LIST, null);
+        assertNotNull(deadlines);
+        assertEquals(0, deadlines.getStartDeadlines().size());
+        assertEquals(3, deadlines.getEndDeadlines().size());
+        assertEquals(1, deadlines.getEndDeadlines().get(0).getEscalations().size());
+        assertEquals(1, deadlines.getEndDeadlines().get(0).getEscalations().get(0).getNotifications().size());
+
+        // verify reassignment
+        Notification notification = deadlines.getEndDeadlines().get(0).getEscalations().get(0).getNotifications().get(0);
+        assertEquals(2, notification.getRecipients().size());
+        assertEquals("salaboy@unkown.com", notification.getRecipients().get(0).getId());
+        assertEquals("krisv@unknown.com", notification.getRecipients().get(1).getId());
+
+    }
 
 	@Test
 	public void testSetDeadlinesNotStartedReassignWithISOExpirationTimePeriodFormatWithStartEnd() {

@@ -16,14 +16,6 @@
 
 package org.jbpm.services.task.persistence;
 
-import static org.jbpm.services.task.persistence.TaskQueryManager.adaptQueryString;
-import static org.kie.internal.query.QueryParameterIdentifiers.FILTER;
-import static org.kie.internal.query.QueryParameterIdentifiers.FIRST_RESULT;
-import static org.kie.internal.query.QueryParameterIdentifiers.FLUSH_MODE;
-import static org.kie.internal.query.QueryParameterIdentifiers.MAX_RESULTS;
-import static org.kie.internal.query.QueryParameterIdentifiers.ORDER_BY;
-import static org.kie.internal.query.QueryParameterIdentifiers.ORDER_TYPE;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -52,6 +44,7 @@ import org.jbpm.services.task.impl.model.CommentImpl;
 import org.jbpm.services.task.impl.model.ContentImpl;
 import org.jbpm.services.task.impl.model.ContentImpl_;
 import org.jbpm.services.task.impl.model.DeadlineImpl;
+import org.jbpm.services.task.impl.model.EmailImpl;
 import org.jbpm.services.task.impl.model.GroupImpl;
 import org.jbpm.services.task.impl.model.OrganizationalEntityImpl;
 import org.jbpm.services.task.impl.model.TaskDataImpl_;
@@ -62,6 +55,7 @@ import org.kie.api.task.UserGroupCallback;
 import org.kie.api.task.model.Attachment;
 import org.kie.api.task.model.Comment;
 import org.kie.api.task.model.Content;
+import org.kie.api.task.model.Email;
 import org.kie.api.task.model.Group;
 import org.kie.api.task.model.OrganizationalEntity;
 import org.kie.api.task.model.Task;
@@ -74,6 +68,14 @@ import org.kie.internal.task.api.model.FaultData;
 import org.kie.internal.task.api.model.InternalTaskData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.jbpm.services.task.persistence.TaskQueryManager.adaptQueryString;
+import static org.kie.internal.query.QueryParameterIdentifiers.FILTER;
+import static org.kie.internal.query.QueryParameterIdentifiers.FIRST_RESULT;
+import static org.kie.internal.query.QueryParameterIdentifiers.FLUSH_MODE;
+import static org.kie.internal.query.QueryParameterIdentifiers.MAX_RESULTS;
+import static org.kie.internal.query.QueryParameterIdentifiers.ORDER_BY;
+import static org.kie.internal.query.QueryParameterIdentifiers.ORDER_TYPE;
 
 public class JPATaskPersistenceContext implements TaskPersistenceContext {
 
@@ -225,11 +227,48 @@ public class JPATaskPersistenceContext implements TaskPersistenceContext {
 	}
 
 	@Override
-	public User removeUser(User user) {
+    public User removeUser(User user) {
 		check();
-		em.remove( user );
-		return user;
+        em.remove(user);
+        return user;
 	}
+
+    @Override
+    public Email findEmail(String emailId) {
+        check();
+        if (this.pessimisticLocking) {
+            return this.em.find(EmailImpl.class, emailId, LockModeType.PESSIMISTIC_WRITE);
+        }
+        return this.em.find(EmailImpl.class, emailId);
+    }
+
+    @Override
+    public Email persistEmail(Email email) {
+        check();
+        try {
+            this.em.persist(email);
+            if (this.pessimisticLocking) {
+                this.em.flush();
+                return this.em.find(EmailImpl.class, email.getId(), LockModeType.PESSIMISTIC_WRITE);
+            }
+        } catch (EntityExistsException e) {
+            throw new RuntimeException("Email already exists with " + email + " id, please check that there is no email with same id");
+        }
+        return email;
+    }
+
+    @Override
+    public Email updateEmail(Email email) {
+        check();
+        return this.em.merge(email);
+    }
+
+    @Override
+    public Email removeEmail(Email email) {
+        check();
+        em.remove(email);
+        return email;
+    }
 
 	@Override
 	public OrganizationalEntity findOrgEntity(String orgEntityId) {

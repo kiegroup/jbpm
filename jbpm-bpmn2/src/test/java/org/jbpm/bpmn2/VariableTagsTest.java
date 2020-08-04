@@ -90,6 +90,17 @@ import static org.junit.Assert.assertTrue;
          
          assertThatExceptionOfType(VariableViolationException.class).isThrownBy(() -> ksession.startProcess("approvals", parameters));
      }
+     
+     @Test
+     public void testProcessWithEmptyRequiredVariable() throws Exception {
+         ksession = createSessionAndRegisterWorkItemHandler("variable-tags/approval-with-required-variable-tags.bpmn2");
+
+         Map<String, Object> parameters = new HashMap<>();
+         parameters.put("approver", "   ");
+         
+         assertThatExceptionOfType(VariableViolationException.class).isThrownBy(() -> ksession.startProcess("approvals", parameters));
+     }
+
 
      @Test
      public void testProcessWithRequiredVariable() throws Exception {
