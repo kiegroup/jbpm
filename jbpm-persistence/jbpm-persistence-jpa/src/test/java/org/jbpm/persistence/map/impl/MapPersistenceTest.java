@@ -281,7 +281,7 @@ public abstract class MapPersistenceTest extends AbstractBaseTest {
         processInstance = (RuleFlowProcessInstance) processInstanceInfo.getProcessInstance(kruntime, crmPersistentSession.getEnvironment());
 
         Assert.assertNotNull(processInstance.getStartDate());
-        Assert.assertEquals(processInstance.getStartDate(), processInstanceInfo.getStartDate());
+        Assert.assertTrue("Dates aren't close enough", (processInstance.getStartDate().getTime() - processInstanceInfo.getStartDate().getTime()) < 1000);
     }
     
     protected abstract StatefulKnowledgeSession createSession(KieBase kbase);

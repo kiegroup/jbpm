@@ -491,6 +491,7 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
     @Override
 	public void start(String trigger) {
 		synchronized (this) {
+			this.startDate = new Date();
 			registerExternalEventNodeListeners();
 			// activate timer event sub processes
 	        Node[] nodes = getNodeContainer().getNodes();
