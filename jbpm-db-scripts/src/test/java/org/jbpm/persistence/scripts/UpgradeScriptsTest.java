@@ -26,6 +26,7 @@ import java.util.Collection;
 import org.jbpm.test.persistence.scripts.DatabaseType;
 import org.jbpm.test.persistence.scripts.PersistenceUnit;
 import org.jbpm.test.persistence.scripts.ScriptsBase;
+import org.jbpm.test.persistence.scripts.util.ScriptFilter;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -77,14 +78,14 @@ public class UpgradeScriptsTest extends ScriptsBase {
     
     private void createSchema60UsingDDLs() throws IOException, SQLException {
         //create 6.0 schema
-        executeScriptRunner(DB_60_SCRIPTS_RESOURCE_PATH, true);
+        executeScriptRunner(DB_60_SCRIPTS_RESOURCE_PATH, ScriptFilter.init(false, true));
     }
     
     private void dropFinalSchemaAfterUpgradingUsingDDLs() throws IOException, SQLException {
         //drop schema
         //need to drop constraints from 6.0 first
-        executeScriptRunner(DB_60_SCRIPTS_RESOURCE_PATH, false);
-        executeScriptRunner(DB_DDL_SCRIPTS_RESOURCE_PATH, false);
+        executeScriptRunner(DB_60_SCRIPTS_RESOURCE_PATH, ScriptFilter.init(false, false));
+        executeScriptRunner(DB_DDL_SCRIPTS_RESOURCE_PATH, ScriptFilter.init(false, false));
     }
     
     /**
@@ -96,7 +97,7 @@ public class UpgradeScriptsTest extends ScriptsBase {
         logger.info("entering testExecutingScripts with type: {} ", product);
         try {
             createSchema60UsingDDLs();
-            executeScriptRunner(DB_UPGRADE_SCRIPTS_RESOURCE_PATH, true, product);
+            executeScriptRunner(DB_UPGRADE_SCRIPTS_RESOURCE_PATH, ScriptFilter.init(false, true), product);
             startAndPersistSomeProcess();
         }finally {
             dropFinalSchemaAfterUpgradingUsingDDLs();
@@ -138,7 +139,8 @@ public class UpgradeScriptsTest extends ScriptsBase {
             scriptRunnerContext.persistOldProcessAndSession(TEST_SESSION_ID, TEST_PROCESS_ID, TEST_PROCESS_INSTANCE_ID);
             scriptRunnerContext.createSomeTask();
             // Execute upgrade scripts.
-            scriptRunnerContext.executeScripts(new File(getClass().getResource(DB_UPGRADE_SCRIPTS_RESOURCE_PATH).getFile()), true, type);
+            scriptRunnerContext.executeScripts(new File(getClass().getResource(DB_UPGRADE_SCRIPTS_RESOURCE_PATH).getFile()), 
+                                               ScriptFilter.init(false, true), type);
         } finally {
             scriptRunnerContext.clean();
         }

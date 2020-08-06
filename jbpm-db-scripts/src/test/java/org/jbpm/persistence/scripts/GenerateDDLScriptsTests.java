@@ -58,11 +58,11 @@ public class GenerateDDLScriptsTests {
         }
 
         public Path buildCreateFile(Path basePath) {
-            return basePath.resolve(alias).resolve(prefix + "-" + (this.newGenerator ? "new-" : "") + "jbpm-schema.sql");
+            return basePath.resolve(alias).resolve(prefix + "-" + (this.newGenerator ? "springboot-" : "") + "jbpm-schema.sql");
         }
 
         public Path buildDropFile(Path basePath) {
-            return basePath.resolve(alias).resolve(prefix + "-" + (this.newGenerator ? "new-" : "") + "jbpm-drop-schema.sql");
+            return basePath.resolve(alias).resolve(prefix + "-" + (this.newGenerator ? "springboot-" : "") + "jbpm-drop-schema.sql");
         }
 
         public String getNewGenerator() {

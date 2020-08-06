@@ -106,6 +106,26 @@
       <groupId>org.mock-server</groupId>
       <artifactId>mockserver-netty</artifactId>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>jakarta.validation</groupId>
+          <artifactId>jakarta.validation-api</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>jakarta.xml.bind</groupId>
+          <artifactId>jakarta.xml.bind-api</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.bouncycastle</groupId>
+      <artifactId>bcprov-jdk15on</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.bouncycastle</groupId>
+      <artifactId>bcpkix-jdk15on</artifactId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
