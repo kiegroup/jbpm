@@ -138,7 +138,7 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
         list.add(getWiser().getMessages().get(0).getEnvelopeReceiver());
         list.add(getWiser().getMessages().get(1).getEnvelopeReceiver());
 
-        assertTrue(list.contains("tony@domain.com"));
+        assertTrue(list.contains("new-email@domain.com"));
         assertTrue(list.contains("darth@domain.com"));
 
         MimeMessage msg = ((WiserMessage) getWiser().getMessages().get(0)).getMimeMessage();
@@ -153,7 +153,7 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
         list = new ArrayList<String>(2);
         list.add(((InternetAddress) recipients[0]).getAddress());
         list.add(((InternetAddress) recipients[1]).getAddress());
-        assertTrue(list.contains("tony@domain.com"));
+        assertTrue(list.contains("new-email@domain.com"));
         assertTrue(list.contains("darth@domain.com"));
     }
     
