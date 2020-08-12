@@ -18,6 +18,8 @@ package org.jbpm.services.task.events;
 
 import java.util.Date;
 import java.util.EventObject;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.kie.api.task.model.Task;
 import org.kie.internal.task.api.TaskContext;
@@ -30,12 +32,14 @@ public class TaskEventImpl extends EventObject implements TaskEvent {
     private Task task;
     private transient TaskContext taskContext;
     private final Date eventDate;
+    private Map<String, Object> metadata;
 
     public TaskEventImpl(Task task, TaskContext context) {
         super(task);
         this.task = task;
         this.taskContext = context;
         this.eventDate = new Date();
+        this.metadata = new HashMap<>();
     }
 
     public Task getTask() {
@@ -57,6 +61,11 @@ public class TaskEventImpl extends EventObject implements TaskEvent {
     @Override
     public Date getEventDate() {
         return this.eventDate;
+    }
+
+    @Override
+    public Map<String, Object> getMetadata() {
+        return metadata;
     }
 
 }

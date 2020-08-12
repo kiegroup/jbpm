@@ -315,4 +315,130 @@ public class AuditTaskImpl implements Serializable,
     public void setLastModificationDate(Date lastModificationDate) {
         this.lastModificationDate = lastModificationDate;
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((activationTime == null) ? 0 : activationTime.hashCode());
+        result = prime * result + ((actualOwner == null) ? 0 : actualOwner.hashCode());
+        result = prime * result + ((createdBy == null) ? 0 : createdBy.hashCode());
+        result = prime * result + ((createdOn == null) ? 0 : createdOn.hashCode());
+        result = prime * result + ((deploymentId == null) ? 0 : deploymentId.hashCode());
+        result = prime * result + ((description == null) ? 0 : description.hashCode());
+        result = prime * result + ((dueDate == null) ? 0 : dueDate.hashCode());
+        result = prime * result + ((id == null) ? 0 : id.hashCode());
+        result = prime * result + ((lastModificationDate == null) ? 0 : lastModificationDate.hashCode());
+        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        result = prime * result + (int) (parentId ^ (parentId >>> 32));
+        result = prime * result + priority;
+        result = prime * result + ((processId == null) ? 0 : processId.hashCode());
+        result = prime * result + (int) (processInstanceId ^ (processInstanceId >>> 32));
+        result = prime * result + (int) (processSessionId ^ (processSessionId >>> 32));
+        result = prime * result + ((status == null) ? 0 : status.hashCode());
+        result = prime * result + ((taskId == null) ? 0 : taskId.hashCode());
+        result = prime * result + ((workItemId == null) ? 0 : workItemId.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        AuditTaskImpl other = (AuditTaskImpl) obj;
+        if (activationTime == null) {
+            if (other.activationTime != null)
+                return false;
+        } else if (!activationTime.equals(other.activationTime))
+            return false;
+        if (actualOwner == null) {
+            if (other.actualOwner != null)
+                return false;
+        } else if (!actualOwner.equals(other.actualOwner))
+            return false;
+        if (createdBy == null) {
+            if (other.createdBy != null)
+                return false;
+        } else if (!createdBy.equals(other.createdBy))
+            return false;
+        if (createdOn == null) {
+            if (other.createdOn != null)
+                return false;
+        } else if (!createdOn.equals(other.createdOn))
+            return false;
+        if (deploymentId == null) {
+            if (other.deploymentId != null)
+                return false;
+        } else if (!deploymentId.equals(other.deploymentId))
+            return false;
+        if (description == null) {
+            if (other.description != null)
+                return false;
+        } else if (!description.equals(other.description))
+            return false;
+        if (dueDate == null) {
+            if (other.dueDate != null)
+                return false;
+        } else if (!dueDate.equals(other.dueDate))
+            return false;
+        if (id == null) {
+            if (other.id != null)
+                return false;
+        } else if (!id.equals(other.id))
+            return false;
+        if (lastModificationDate == null) {
+            if (other.lastModificationDate != null)
+                return false;
+        } else if (!lastModificationDate.equals(other.lastModificationDate))
+            return false;
+        if (name == null) {
+            if (other.name != null)
+                return false;
+        } else if (!name.equals(other.name))
+            return false;
+        if (parentId != other.parentId)
+            return false;
+        if (priority != other.priority)
+            return false;
+        if (processId == null) {
+            if (other.processId != null)
+                return false;
+        } else if (!processId.equals(other.processId))
+            return false;
+        if (processInstanceId != other.processInstanceId)
+            return false;
+        if (processSessionId != other.processSessionId)
+            return false;
+        if (status == null) {
+            if (other.status != null)
+                return false;
+        } else if (!status.equals(other.status))
+            return false;
+        if (taskId == null) {
+            if (other.taskId != null)
+                return false;
+        } else if (!taskId.equals(other.taskId))
+            return false;
+        if (workItemId == null) {
+            if (other.workItemId != null)
+                return false;
+        } else if (!workItemId.equals(other.workItemId))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "AuditTaskImpl [id=" + id + ", taskId=" + taskId + ", status=" + status + ", activationTime=" +
+               activationTime + ", name=" + name + ", description=" + description + ", priority=" + priority +
+               ", createdBy=" + createdBy + ", actualOwner=" + actualOwner + ", createdOn=" + createdOn + ", dueDate=" +
+               dueDate + ", processInstanceId=" + processInstanceId + ", processId=" + processId +
+               ", processSessionId=" + processSessionId + ", parentId=" + parentId + ", deploymentId=" + deploymentId +
+               ", workItemId=" + workItemId + ", lastModificationDate=" + lastModificationDate + "]";
+    }
+
 }
