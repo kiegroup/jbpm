@@ -88,6 +88,13 @@ public class BAMTaskSummaryImpl implements Serializable {
     }
     
     
+    public Long getPk() {
+        return pk;
+    }
+
+    public void setPk(Long pk) {
+        this.pk = pk;
+    }
 
     public long getTaskId() {
         return taskId;

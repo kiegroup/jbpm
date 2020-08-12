@@ -215,7 +215,7 @@ public class TaskEventImpl implements TaskEvent, Serializable {
     if (this.type != other.type) {
       return false;
     }
-    if (!this.message.equals(other.message) ) {
+    if (!Objects.equals(this.message, other.message)) {
       return false;
     }
     if (!Objects.equals(this.processInstanceId, other.processInstanceId) && (this.processInstanceId == null || !this.processInstanceId.equals(other.processInstanceId))) {
@@ -230,4 +230,12 @@ public class TaskEventImpl implements TaskEvent, Serializable {
     return true;
   }
 
+    @Override
+    public String toString() {
+        return "TaskEventImpl [id=" + id + ", version=" + version + ", taskId=" + taskId + ", workItemId=" + workItemId +
+               ", type=" + type + ", processInstanceId=" + processInstanceId + ", userId=" + userId + ", message=" +
+               message + ", correlationKey=" + correlationKey + ", processType=" + processType + ", logTime=" + logTime +
+               "]";
+    }
+  
 }

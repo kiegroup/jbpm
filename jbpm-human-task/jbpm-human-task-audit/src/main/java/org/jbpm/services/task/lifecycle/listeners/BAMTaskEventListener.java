@@ -15,7 +15,6 @@
  */
 package org.jbpm.services.task.lifecycle.listeners;
 
-import java.util.Comparator;
 import java.util.Date;
 
 import javax.persistence.EntityManagerFactory;
@@ -64,6 +63,8 @@ import org.slf4j.LoggerFactory;
  * </ul>
  */
 public class BAMTaskEventListener extends PersistableEventListener  {
+
+    public static final String METADATA_BAMTASK_EVENT = "METADATA_BAMTASK_EVENT";
 
     /** Class logger. */
     private static final Logger logger = LoggerFactory.getLogger(BAMTaskEventListener.class);
@@ -233,7 +234,10 @@ public class BAMTaskEventListener extends PersistableEventListener  {
 	        }
 	
 	        result = new BAMTaskSummaryImpl(ti.getId(), ti.getName(), status.toString(), event.getEventDate(), actualOwner, ti.getTaskData().getProcessInstanceId());
-	        if (worker != null) worker.createTask(result, ti);
+	        if (worker != null) {
+	            worker.createTask(result, ti);
+	        }
+            event.getMetadata().put(METADATA_BAMTASK_EVENT, result);
 	        persistenceContext.persist(result);
 	    
 	
@@ -269,9 +273,11 @@ public class BAMTaskEventListener extends PersistableEventListener  {
 	        if (ti.getTaskData().getActualOwner() != null) {
 	            result.setUserId(ti.getTaskData().getActualOwner().getId());
 	        }
-	        if (worker != null) worker.updateTask(result, ti);
+	        if (worker != null) {
+	            worker.updateTask(result, ti);
+	        }
 	        persistenceContext.merge(result);
-
+            event.getMetadata().put(METADATA_BAMTASK_EVENT, result);
       
 	        return result;
         } finally {
@@ -374,11 +380,5 @@ public class BAMTaskEventListener extends PersistableEventListener  {
         return result;
 	}
 	
-	private class BAMSummaryComparator implements Comparator<BAMTaskSummaryImpl> {
 
-		@Override
-		public int compare(BAMTaskSummaryImpl o1, BAMTaskSummaryImpl o2) {	
-			return (o1.getTaskId()<o2.getTaskId() ? -1 : (o1.getTaskId()==o2.getTaskId() ? 0 : 1));
-		}
-	}
 }

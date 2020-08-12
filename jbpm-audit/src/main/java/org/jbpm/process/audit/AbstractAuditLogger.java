@@ -62,5 +62,6 @@ public abstract class AbstractAuditLogger implements ProcessEventListener {
     public void setBuilder(AuditEventBuilder builder) {
         this.builder = builder;
     }
+
     
 }

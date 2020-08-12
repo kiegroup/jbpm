@@ -99,7 +99,7 @@ public class NodeInstanceLog implements Serializable, AuditEvent, org.kie.api.ru
     	return id;
     }
     
-    void setId(long id) {
+    public void setId(long id) {
 		this.id = id;
 	}
 
