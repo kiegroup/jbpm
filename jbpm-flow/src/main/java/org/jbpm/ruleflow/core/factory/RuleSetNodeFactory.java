@@ -17,45 +17,49 @@
 package org.jbpm.ruleflow.core.factory;
 
 import org.jbpm.process.core.timer.Timer;
-import org.jbpm.ruleflow.core.RuleFlowNodeContainerFactory;
-import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.core.NodeContainer;
 import org.jbpm.workflow.core.impl.DroolsConsequenceAction;
 import org.jbpm.workflow.core.node.RuleSetNode;
+import org.kie.api.fluent.Dialect;
+import org.kie.api.fluent.NodeContainerBuilder;
+import org.kie.api.fluent.RuleSetNodeBuilder;
 
 /**
  *
  */
-public class RuleSetNodeFactory extends NodeFactory {
+public class RuleSetNodeFactory<T extends NodeContainerBuilder<T, ?>> extends NodeFactory<RuleSetNodeBuilder<T>, T> implements RuleSetNodeBuilder<T> {
 
-    public RuleSetNodeFactory(RuleFlowNodeContainerFactory nodeContainerFactory, NodeContainer nodeContainer, long id) {
-        super(nodeContainerFactory, nodeContainer, id);
-    }
-
-    protected Node createNode() {
-        return new RuleSetNode();
+    public RuleSetNodeFactory(T nodeContainerFactory, NodeContainer nodeContainer, long id) {
+        super(nodeContainerFactory, nodeContainer, new RuleSetNode(), id);
     }
     
     protected RuleSetNode getRuleSetNode() {
     	return (RuleSetNode) getNode();
     }
 
-    public RuleSetNodeFactory name(String name) {
+    @Override
+    public RuleSetNodeFactory<T> name(String name) {
         getNode().setName(name);
         return this;
     }
 
-    public RuleSetNodeFactory ruleFlowGroup(String ruleFlowGroup) {
+    @Override
+    public RuleSetNodeFactory<T> ruleFlowGroup(String ruleFlowGroup) {
         getRuleSetNode().setRuleFlowGroup(ruleFlowGroup);
         return this;
     }
     
-    public RuleSetNodeFactory timer(String delay, String period, String dialect, String action) {
+    public RuleSetNodeFactory<T> timer(String delay, String period, String dialect, String action) {
     	Timer timer = new Timer();
     	timer.setDelay(delay);
     	timer.setPeriod(period);
     	getRuleSetNode().addTimer(timer, new DroolsConsequenceAction(dialect, action));
     	return this;
+    }
+
+    @Override
+    public RuleSetNodeBuilder<T> timer(String delay, String period, Dialect dialect, String action) {
+        return timer(delay, period, DialectConverter.fromDialect(dialect), action);
     }
 
 }

@@ -16,37 +16,50 @@
 
 package org.jbpm.ruleflow.core.factory;
 
-import org.jbpm.ruleflow.core.RuleFlowNodeContainerFactory;
 import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.core.NodeContainer;
+import org.kie.api.fluent.NodeBuilder;
+import org.kie.api.fluent.NodeContainerBuilder;
 
-/**
- *
- */
-public abstract class NodeFactory {
+@SuppressWarnings("unchecked")
+public abstract class NodeFactory<T extends NodeBuilder<T, P>, P extends NodeContainerBuilder<P, ?>> implements NodeBuilder<T, P> {
 
-    private Node node;
-    private NodeContainer nodeContainer;
-    protected RuleFlowNodeContainerFactory nodeContainerFactory;
+    protected final Object node;
+    protected final NodeContainer nodeContainer;
+    protected final P nodeContainerFactory;
     
-    protected NodeFactory(RuleFlowNodeContainerFactory nodeContainerFactory, NodeContainer nodeContainer, long id) {
+    protected NodeFactory(P nodeContainerFactory, NodeContainer nodeContainer, Object node, Object id) {
         this.nodeContainerFactory = nodeContainerFactory;
         this.nodeContainer = nodeContainer;
-        this.node = createNode();
-        this.node.setId(id);
+        this.node = node;
+        setId(node, id);
     }
 
-    protected abstract Node createNode();
+    protected void setId(Object node, Object id) {
+        ((Node) node).setId((long) id);
+    }
 
-    public RuleFlowNodeContainerFactory done() {
-        nodeContainer.addNode(node);
+    @Override
+    public P done() {
+        nodeContainer.addNode((Node) node);
         return this.nodeContainerFactory;
     }
 
     protected Node getNode() {
-        return node;
+        return (Node) node;
+    }
+
+    @Override
+    public T name(String name) {
+        getNode().setName(name);
+        return (T) this;
+    }
+
+    @Override
+    public T setMetadata(String key, Object value) {
+        getNode().setMetaData(key, value);
+        return (T) this;
     }
 }
-
 
     

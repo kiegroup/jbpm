@@ -16,111 +16,27 @@
 
 package org.jbpm.ruleflow.core.factory;
 
-import org.jbpm.process.core.datatype.DataType;
-import org.jbpm.process.core.context.exception.ActionExceptionHandler;
-import org.jbpm.process.core.context.exception.ExceptionHandler;
-import org.jbpm.process.core.context.exception.ExceptionScope;
-import org.jbpm.process.core.context.variable.Variable;
-import org.jbpm.process.core.context.variable.VariableScope;
-import org.jbpm.ruleflow.core.RuleFlowNodeContainerFactory;
-import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.core.NodeContainer;
-import org.jbpm.workflow.core.impl.DroolsConsequenceAction;
-import org.jbpm.workflow.core.node.CompositeContextNode;
 import org.jbpm.workflow.core.node.DynamicNode;
+import org.kie.api.fluent.DynamicNodeBuilder;
+import org.kie.api.fluent.NodeContainerBuilder;
 
-/**
- *
- */
-public class DynamicNodeFactory extends RuleFlowNodeContainerFactory {
 
-	private RuleFlowNodeContainerFactory nodeContainerFactory;
-	private NodeContainer nodeContainer;
-	private long linkedIncomingNodeId = -1;
-	private long linkedOutgoingNodeId = -1;
-	
-    public DynamicNodeFactory(RuleFlowNodeContainerFactory nodeContainerFactory, NodeContainer nodeContainer, long id) {
-    	this.nodeContainerFactory = nodeContainerFactory;
-    	this.nodeContainer = nodeContainer;
-    	DynamicNode compositeNode = new DynamicNode();
-        compositeNode.setId(id);
-        setNodeContainer(compositeNode);
+public class DynamicNodeFactory<T extends NodeContainerBuilder<T, ?>> extends AbstractCompositeNodeFactory<DynamicNodeBuilder<T>, T> implements DynamicNodeBuilder<T> {
+
+    public DynamicNodeFactory(T nodeContainerFactory, NodeContainer nodeContainer, long id) {
+        super(nodeContainerFactory, nodeContainer, new DynamicNode(), id);
     }
-    
-    protected CompositeContextNode getCompositeNode() {
-    	return (CompositeContextNode) getNodeContainer();
-    }
-    
+
     protected DynamicNode getDynamicNode() {
-    	return (DynamicNode) getNodeContainer();
+        return (DynamicNode) node;
     }
 
-    public DynamicNodeFactory variable(String name, DataType type) {
-    	return variable(name, type, null);
-    }
     
-    public DynamicNodeFactory variable(String name, DataType type, Object value) {
-    	Variable variable = new Variable();
-    	variable.setName(name);
-    	variable.setType(type);
-    	variable.setValue(value);
-    	VariableScope variableScope = (VariableScope)
-			getCompositeNode().getDefaultContext(VariableScope.VARIABLE_SCOPE);
-		if (variableScope == null) {
-			variableScope = new VariableScope();
-			getCompositeNode().addContext(variableScope);
-			getCompositeNode().setDefaultContext(variableScope);
-		}
-		variableScope.getVariables().add(variable);
-        return this;
-    }
-    
-    public DynamicNodeFactory exceptionHandler(String exception, ExceptionHandler exceptionHandler) {
-    	ExceptionScope exceptionScope = (ExceptionScope)
-			getCompositeNode().getDefaultContext(ExceptionScope.EXCEPTION_SCOPE);
-		if (exceptionScope == null) {
-			exceptionScope = new ExceptionScope();
-			getCompositeNode().addContext(exceptionScope);
-			getCompositeNode().setDefaultContext(exceptionScope);
-		}
-		exceptionScope.setExceptionHandler(exception, exceptionHandler);
-    	return this;
-    }
-    
-    public DynamicNodeFactory exceptionHandler(String exception, String dialect, String action) {
-    	ActionExceptionHandler exceptionHandler = new ActionExceptionHandler();
-    	exceptionHandler.setAction(new DroolsConsequenceAction(dialect, action));
-    	return exceptionHandler(exception, exceptionHandler);
-    }
-    
-    public DynamicNodeFactory autoComplete(boolean autoComplete) {
+    @Override
+    public DynamicNodeFactory<T> autoComplete(boolean autoComplete) {
     	getDynamicNode().setAutoComplete(autoComplete);
     	return this;
-    }
-    
-    public DynamicNodeFactory linkIncomingConnections(long nodeId) {
-    	this.linkedIncomingNodeId = nodeId;
-        return this;
-    }
-
-    public DynamicNodeFactory linkOutgoingConnections(long nodeId) {
-    	this.linkedOutgoingNodeId = nodeId;
-    	return this;
-    }
-
-    public RuleFlowNodeContainerFactory done() {
-    	if (linkedIncomingNodeId != -1) {
-    		getCompositeNode().linkIncomingConnections(
-				Node.CONNECTION_DEFAULT_TYPE,
-		        linkedIncomingNodeId, Node.CONNECTION_DEFAULT_TYPE);
-    	}
-    	if (linkedOutgoingNodeId != -1) {
-    		getCompositeNode().linkOutgoingConnections(
-				linkedOutgoingNodeId, Node.CONNECTION_DEFAULT_TYPE,
-	            Node.CONNECTION_DEFAULT_TYPE);
-    	}
-        nodeContainer.addNode(getCompositeNode());
-        return nodeContainerFactory;
     }
 
 }

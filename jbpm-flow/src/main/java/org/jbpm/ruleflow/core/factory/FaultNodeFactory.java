@@ -16,35 +16,25 @@
 
 package org.jbpm.ruleflow.core.factory;
 
-import org.jbpm.ruleflow.core.RuleFlowNodeContainerFactory;
-import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.core.NodeContainer;
 import org.jbpm.workflow.core.node.FaultNode;
+import org.kie.api.fluent.FaultNodeBuilder;
+import org.kie.api.fluent.NodeContainerBuilder;
 
-/**
- *
- */
-public class FaultNodeFactory extends NodeFactory {
+public class FaultNodeFactory<T extends NodeContainerBuilder<T, ?>> extends NodeFactory<FaultNodeBuilder<T>, T> implements FaultNodeBuilder<T> {
 
-    public FaultNodeFactory(RuleFlowNodeContainerFactory nodeContainerFactory, NodeContainer nodeContainer, long id) {
-        super(nodeContainerFactory, nodeContainer, id);
+    public FaultNodeFactory(T nodeContainerFactory, NodeContainer nodeContainer, long id) {
+        super(nodeContainerFactory, nodeContainer, new FaultNode(), id);
     }
 
-    protected Node createNode() {
-        return new FaultNode();
-    }
-
-    public FaultNodeFactory name(String name) {
-        getNode().setName(name);
-        return this;
-    }
-
-    public FaultNodeFactory setFaultVariable(String faultVariable) {
+    @Override
+    public FaultNodeFactory<T> setFaultVariable(String faultVariable) {
         ((FaultNode) getNode()).setFaultVariable(faultVariable);
         return this;
     }
 
-    public FaultNodeFactory setFaultName(String faultName) {
+    @Override
+    public FaultNodeFactory<T> setFaultName(String faultName) {
         ((FaultNode) getNode()).setFaultName(faultName);
         return this;
     }

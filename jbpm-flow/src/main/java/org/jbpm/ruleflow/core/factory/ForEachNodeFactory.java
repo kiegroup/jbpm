@@ -17,71 +17,40 @@
 package org.jbpm.ruleflow.core.factory;
 
 import org.jbpm.process.core.datatype.DataType;
-import org.jbpm.ruleflow.core.RuleFlowNodeContainerFactory;
-import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.core.NodeContainer;
 import org.jbpm.workflow.core.node.ForEachNode;
+import org.kie.api.fluent.ForEachNodeBuilder;
+import org.kie.api.fluent.NodeContainerBuilder;
 
 /**
  *
  */
-public class ForEachNodeFactory extends RuleFlowNodeContainerFactory {
-	
-	private RuleFlowNodeContainerFactory nodeContainerFactory;
-	private NodeContainer nodeContainer;
-	private long linkedIncomingNodeId = -1;
-	private long linkedOutgoingNodeId = -1;
+public class ForEachNodeFactory<T extends NodeContainerBuilder<T, ?>> extends AbstractCompositeNodeFactory<ForEachNodeBuilder<T>, T> implements ForEachNodeBuilder<T> {
 
-    public ForEachNodeFactory(RuleFlowNodeContainerFactory nodeContainerFactory, NodeContainer nodeContainer, long id) {
-    	this.nodeContainerFactory = nodeContainerFactory;
-    	this.nodeContainer = nodeContainer;
-    	ForEachNode forEachNode = new ForEachNode();
-        forEachNode.setId(id);
-        setNodeContainer(forEachNode);
+    public ForEachNodeFactory(T nodeContainerFactory, NodeContainer nodeContainer, long id) {
+        super(nodeContainerFactory, nodeContainer, new ForEachNode(), id);
     }
+
     
     protected ForEachNode getForEachNode() {
-    	return (ForEachNode) getNodeContainer();
+        return (ForEachNode) node;
     }
 
-    public ForEachNodeFactory collectionExpression(String collectionExpression) {
+    @Override
+    public ForEachNodeFactory<T> collectionExpression(String collectionExpression) {
     	getForEachNode().setCollectionExpression(collectionExpression);
         return this;
     }
 
-    public ForEachNodeFactory variable(String variableName, DataType dataType) {
+    @Override
+    public ForEachNodeFactory<T> variable(String variableName, DataType dataType) {
     	getForEachNode().setVariable(variableName, dataType);
         return this;
     }
 
-    public ForEachNodeFactory waitForCompletion(boolean waitForCompletion) {
+    @Override
+    public ForEachNodeFactory<T> waitForCompletion(boolean waitForCompletion) {
     	getForEachNode().setWaitForCompletion(waitForCompletion);
         return this;
     }
-
-    public ForEachNodeFactory linkIncomingConnections(long nodeId) {
-    	this.linkedIncomingNodeId = nodeId;
-        return this;
-    }
-
-    public ForEachNodeFactory linkOutgoingConnections(long nodeId) {
-    	this.linkedOutgoingNodeId = nodeId;
-    	return this;
-    }
-
-    public RuleFlowNodeContainerFactory done() {
-    	if (linkedIncomingNodeId != -1) {
-			getForEachNode().linkIncomingConnections(
-				Node.CONNECTION_DEFAULT_TYPE,
-		        linkedIncomingNodeId, Node.CONNECTION_DEFAULT_TYPE);
-    	}
-    	if (linkedOutgoingNodeId != -1) {
-    		getForEachNode().linkOutgoingConnections(
-				linkedOutgoingNodeId, Node.CONNECTION_DEFAULT_TYPE,
-	            Node.CONNECTION_DEFAULT_TYPE);
-    	}
-        nodeContainer.addNode(getForEachNode());
-        return nodeContainerFactory;
-    }
-
 }

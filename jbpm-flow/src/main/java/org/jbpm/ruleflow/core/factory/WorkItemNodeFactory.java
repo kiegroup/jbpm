@@ -26,84 +26,82 @@ import org.jbpm.process.core.datatype.DataType;
 import org.jbpm.process.core.impl.ParameterDefinitionImpl;
 import org.jbpm.process.core.impl.WorkImpl;
 import org.jbpm.process.core.timer.Timer;
-import org.jbpm.ruleflow.core.RuleFlowNodeContainerFactory;
 import org.jbpm.workflow.core.DroolsAction;
-import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.core.NodeContainer;
 import org.jbpm.workflow.core.impl.DroolsConsequenceAction;
 import org.jbpm.workflow.core.node.MilestoneNode;
 import org.jbpm.workflow.core.node.WorkItemNode;
+import org.kie.api.fluent.Dialect;
+import org.kie.api.fluent.NodeContainerBuilder;
+import org.kie.api.fluent.WorkItemNodeBuilder;
 
 /**
  *
  */
-public class WorkItemNodeFactory extends NodeFactory {
+public class WorkItemNodeFactory<T extends NodeContainerBuilder<T, ?>> extends NodeFactory<WorkItemNodeBuilder<T>, T> implements WorkItemNodeBuilder<T> {
 
-    public WorkItemNodeFactory(RuleFlowNodeContainerFactory nodeContainerFactory, NodeContainer nodeContainer, long id) {
-        super(nodeContainerFactory, nodeContainer, id);
-    }
-
-    protected Node createNode() {
-        return new WorkItemNode();
+    public WorkItemNodeFactory(T nodeContainerFactory, NodeContainer nodeContainer, long id) {
+        super(nodeContainerFactory, nodeContainer, new WorkItemNode(), id);
     }
 
     protected WorkItemNode getWorkItemNode() {
         return (WorkItemNode) getNode();
     }
 
-    public WorkItemNodeFactory name(String name) {
-        getNode().setName(name);
+    
+    @Override
+    public WorkItemNodeFactory<T> waitForCompletion(boolean waitForCompletion) {
+        getWorkItemNode().setWaitForCompletion(waitForCompletion);
+        return this;
+    }
+
+    @Override
+    public WorkItemNodeFactory<T> inMapping(String parameterName, String variableName) {
+        getWorkItemNode().addInMapping(parameterName, variableName);
+        return this;
+    }
+
+    @Override
+    public WorkItemNodeFactory<T> outMapping(String parameterName, String variableName) {
+        getWorkItemNode().addOutMapping(parameterName, variableName);
         return this;
     }
     
-    public WorkItemNodeFactory waitForCompletion(boolean waitForCompletion) {
-    	getWorkItemNode().setWaitForCompletion(waitForCompletion);
-    	return this;
-    }
-    
-    public WorkItemNodeFactory inMapping(String parameterName, String variableName) {
-    	getWorkItemNode().addInMapping(parameterName, variableName);
-    	return this;
-    }
-
-    public WorkItemNodeFactory outMapping(String parameterName, String variableName) {
-    	getWorkItemNode().addOutMapping(parameterName, variableName);
-    	return this;
-    }
-    
-    public WorkItemNodeFactory workName(String name) {
-    	Work work = getWorkItemNode().getWork();
-    	if (work == null) {
-    		work = new WorkImpl();
-    		getWorkItemNode().setWork(work);
-    	}
-    	work.setName(name);
-    	return this;
+    @Override
+    public WorkItemNodeFactory<T> workName(String name) {
+        Work work = getWorkItemNode().getWork();
+        if (work == null) {
+            work = new WorkImpl();
+            getWorkItemNode().setWork(work);
+        }
+        work.setName(name);
+        return this;
     }
 
-    public WorkItemNodeFactory workParameter(String name, Object value) {
-    	Work work = getWorkItemNode().getWork();
-    	if (work == null) {
-    		work = new WorkImpl();
-    		getWorkItemNode().setWork(work);
-    	}
-    	work.setParameter(name, value);
-    	return this;
-    }
-    
-    public WorkItemNodeFactory workParameterDefinition(String name, DataType dataType) {
-    	Work work = getWorkItemNode().getWork();
-    	if (work == null) {
-    		work = new WorkImpl();
-    		getWorkItemNode().setWork(work);
-    	}
-    	Set<ParameterDefinition> parameterDefinitions = work.getParameterDefinitions();
-    	parameterDefinitions.add(new ParameterDefinitionImpl(name, dataType));
-    	work.setParameterDefinitions(parameterDefinitions);
-    	return this;
+    @Override
+    public WorkItemNodeFactory<T> workParameter(String name, Object value) {
+        Work work = getWorkItemNode().getWork();
+        if (work == null) {
+            work = new WorkImpl();
+            getWorkItemNode().setWork(work);
+        }
+        work.setParameter(name, value);
+        return this;
     }
 
-    public WorkItemNodeFactory onEntryAction(String dialect, String action) {
+    public WorkItemNodeFactory<T> workParameterDefinition(String name, DataType dataType) {
+        Work work = getWorkItemNode().getWork();
+        if (work == null) {
+            work = new WorkImpl();
+            getWorkItemNode().setWork(work);
+        }
+        Set<ParameterDefinition> parameterDefinitions = work.getParameterDefinitions();
+        parameterDefinitions.add(new ParameterDefinitionImpl(name, dataType));
+        work.setParameterDefinitions(parameterDefinitions);
+        return this;
+    }
+
+    public WorkItemNodeFactory<T> onEntryAction(String dialect, String action) {
         if (getWorkItemNode().getActions(dialect) != null) {
         	getWorkItemNode().getActions(dialect).add(new DroolsConsequenceAction(dialect, action));
         } else {
@@ -114,7 +112,7 @@ public class WorkItemNodeFactory extends NodeFactory {
         return this;
     }
 
-    public WorkItemNodeFactory onExitAction(String dialect, String action) {
+    public WorkItemNodeFactory<T> onExitAction(String dialect, String action) {
         if (getWorkItemNode().getActions(dialect) != null) {
         	getWorkItemNode().getActions(dialect).add(new DroolsConsequenceAction(dialect, action));
         } else {
@@ -125,7 +123,7 @@ public class WorkItemNodeFactory extends NodeFactory {
         return this;
     }
 
-    public WorkItemNodeFactory timer(String delay, String period, String dialect, String action) {
+    public WorkItemNodeFactory<T> timer(String delay, String period, String dialect, String action) {
     	Timer timer = new Timer();
     	timer.setDelay(delay);
     	timer.setPeriod(period);
@@ -133,4 +131,23 @@ public class WorkItemNodeFactory extends NodeFactory {
     	return this;
     }
     
+    @Override
+    public WorkItemNodeFactory<T> onEntryAction(Dialect dialect, String action) {
+        return onEntryAction(DialectConverter.fromDialect(dialect), action);
+    }
+
+    @Override
+    public WorkItemNodeFactory<T> onExitAction(Dialect dialect, String action) {
+        return onExitAction(DialectConverter.fromDialect(dialect), action);
+    }
+
+    @Override
+    public WorkItemNodeFactory<T> timer(String delay, String period, Dialect dialect, String action) {
+        return timer(delay, period, DialectConverter.fromDialect(dialect), action);
+    }
+
+    @Override
+    public WorkItemNodeBuilder<T> workParameterDefinition(String name, Class<?> type) {
+        return workParameterDefinition(name, TypeConverter.fromType(type));
+    }
 }

@@ -16,34 +16,23 @@
 
 package org.jbpm.ruleflow.core.factory;
 
-import org.jbpm.ruleflow.core.RuleFlowNodeContainerFactory;
-import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.core.NodeContainer;
 import org.jbpm.workflow.core.node.EndNode;
+import org.kie.api.fluent.EndNodeBuilder;
+import org.kie.api.fluent.NodeContainerBuilder;
 
-/**
- *
- */
-public class EndNodeFactory extends NodeFactory {
+public class EndNodeFactory<T extends NodeContainerBuilder<T, ?>> extends NodeFactory<EndNodeBuilder<T>, T> implements EndNodeBuilder<T> {
 
-    public EndNodeFactory(RuleFlowNodeContainerFactory nodeContainerFactory, NodeContainer nodeContainer, long id) {
-        super(nodeContainerFactory, nodeContainer, id);
-    }
-
-    protected Node createNode() {
-        return new EndNode();
+    public EndNodeFactory(T nodeContainerFactory, NodeContainer nodeContainer, long id) {
+        super(nodeContainerFactory, nodeContainer, new EndNode(), id);
     }
 
     protected EndNode getEndNode() {
         return (EndNode) getNode();
     }
 
-    public EndNodeFactory name(String name) {
-        getNode().setName(name);
-        return this;
-    }
-
-    public EndNodeFactory terminate(boolean terminate) {
+    @Override
+    public EndNodeFactory<T> terminate(boolean terminate) {
         getEndNode().setTerminate(terminate);
         return this;
     }
