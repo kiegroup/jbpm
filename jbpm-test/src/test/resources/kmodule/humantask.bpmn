@@ -1,32 +1,25 @@
-<?xml version="1.0" encoding="UTF-8"?> 
-<definitions id="Definition"
-             typeLanguage="http://www.java.com/javaTypes"
-             expressionLanguage="http://www.mvel.org/2.0"
-             xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
-             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-             xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd"
-             xmlns:g="http://www.jboss.org/drools/flow/gpd"
-             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
-             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
-             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
-             xmlns:tns="http://www.jboss.org/drools">
-
-  <process processType="Private" isExecutable="true" id="com.sample.bpmn.hello" name="Hello World" >
-
-    <!-- nodes -->
-    <startEvent id="_1" name="Start" />
-    <endEvent id="_3" name="End" >
-        <terminateEventDefinition/>
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- origin at X=0.0 Y=0.0 -->
+<definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:g="http://www.jboss.org/drools/flow/gpd" xmlns:java="http://www.java.com/javaTypes" xmlns:tns="http://www.jboss.org/drools" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd http://www.omg.org/spec/BPMN/20100524/DI http://www.omg.org/spec/BPMN/20100524/DI-XMI http://www.omg.org/spec/DD/20100524/DC http://www.omg.org/spec/DD/20100524/DC-XMI http://www.omg.org/spec/DD/20100524/DI http://www.omg.org/spec/DD/20100524/DI-XMI" id="Definition" exporter="org.eclipse.bpmn2.modeler.core" exporterVersion="1.5.2.SNAPSHOT-v20200602-1600-B1" expressionLanguage="http://www.mvel.org/2.0" typeLanguage="http://www.java.com/javaTypes">
+  <process id="com.sample.bpmn.hello" name="Hello World" isExecutable="true" processType="Private">
+    <startEvent id="_1" name="Start">
+      <outgoing>_1-_4</outgoing>
+    </startEvent>
+    <endEvent id="_3" name="End">
+      <incoming>SequenceFlow_1</incoming>
+      <terminateEventDefinition id="TerminateEventDefinition_1"/>
     </endEvent>
-    <userTask id="_4" name="Task 1" >
-      <ioSpecification>
-        <dataInput id="_4_CommentInput" name="Comment" />
-        <dataInput id="_4_SkippableInput" name="Skippable" />
-        <dataInput id="_4_TaskNameInput" name="TaskName" />
-        <dataInput id="_4_ContentInput" name="Content" />
-        <dataInput id="_4_GroupIdInput" name="GroupId" />
-        <dataInput id="_4_PriorityInput" name="Priority" />
-        <inputSet>
+    <userTask id="_4" name="Task 1">
+      <incoming>_1-_4</incoming>
+      <outgoing>_4-_5</outgoing>
+      <ioSpecification id="InputOutputSpecification_1">
+        <dataInput id="_4_CommentInput" name="Comment"/>
+        <dataInput id="_4_SkippableInput" name="Skippable"/>
+        <dataInput id="_4_TaskNameInput" name="TaskName"/>
+        <dataInput id="_4_ContentInput" name="Content"/>
+        <dataInput id="_4_GroupIdInput" name="GroupId"/>
+        <dataInput id="_4_PriorityInput" name="Priority"/>
+        <inputSet id="InputSet_1">
           <dataInputRefs>_4_CommentInput</dataInputRefs>
           <dataInputRefs>_4_SkippableInput</dataInputRefs>
           <dataInputRefs>_4_TaskNameInput</dataInputRefs>
@@ -34,66 +27,51 @@
           <dataInputRefs>_4_GroupIdInput</dataInputRefs>
           <dataInputRefs>_4_PriorityInput</dataInputRefs>
         </inputSet>
-        <outputSet>
-        </outputSet>
+        <outputSet id="OutputSet_1"/>
       </ioSpecification>
-      <dataInputAssociation>
+      <dataInputAssociation id="DataInputAssociation_1">
         <targetRef>_4_CommentInput</targetRef>
-        <assignment>
-          <from xsi:type="tFormalExpression"></from>
-          <to xsi:type="tFormalExpression">_4_CommentInput</to>
-        </assignment>
       </dataInputAssociation>
-      <dataInputAssociation>
+      <dataInputAssociation id="DataInputAssociation_2">
         <targetRef>_4_SkippableInput</targetRef>
-        <assignment>
-          <from xsi:type="tFormalExpression">false</from>
-          <to xsi:type="tFormalExpression">_4_SkippableInput</to>
+        <assignment id="Assignment_2">
+          <from xsi:type="tFormalExpression" id="FormalExpression_3">false</from>
+          <to xsi:type="tFormalExpression" id="FormalExpression_4">_4_SkippableInput</to>
         </assignment>
       </dataInputAssociation>
-      <dataInputAssociation>
+      <dataInputAssociation id="DataInputAssociation_3">
         <targetRef>_4_TaskNameInput</targetRef>
-        <assignment>
-          <from xsi:type="tFormalExpression">Task1</from>
-          <to xsi:type="tFormalExpression">_4_TaskNameInput</to>
+        <assignment id="Assignment_3">
+          <from xsi:type="tFormalExpression" id="FormalExpression_5">Task1</from>
+          <to xsi:type="tFormalExpression" id="FormalExpression_6">_4_TaskNameInput</to>
         </assignment>
       </dataInputAssociation>
-      <dataInputAssociation>
+      <dataInputAssociation id="DataInputAssociation_4">
         <targetRef>_4_ContentInput</targetRef>
-        <assignment>
-          <from xsi:type="tFormalExpression"></from>
-          <to xsi:type="tFormalExpression">_4_ContentInput</to>
-        </assignment>
       </dataInputAssociation>
-      <dataInputAssociation>
+      <dataInputAssociation id="DataInputAssociation_5">
         <targetRef>_4_GroupIdInput</targetRef>
-        <assignment>
-          <from xsi:type="tFormalExpression"></from>
-          <to xsi:type="tFormalExpression">_4_GroupIdInput</to>
-        </assignment>
       </dataInputAssociation>
-      <dataInputAssociation>
+      <dataInputAssociation id="DataInputAssociation_6">
         <targetRef>_4_PriorityInput</targetRef>
-        <assignment>
-          <from xsi:type="tFormalExpression"></from>
-          <to xsi:type="tFormalExpression">_4_PriorityInput</to>
-        </assignment>
       </dataInputAssociation>
-      <potentialOwner>
-        <resourceAssignmentExpression>
-          <formalExpression>john</formalExpression>
+      <potentialOwner id="PotentialOwner_1">
+        <resourceAssignmentExpression id="ResourceAssignmentExpression_1">
+          <formalExpression id="FormalExpression_13">john</formalExpression>
         </resourceAssignmentExpression>
       </potentialOwner>
     </userTask>
-    <userTask id="_5" name="Task 2" >
-      <ioSpecification>
-        <dataInput id="_5_CommentInput" name="Comment" />
-        <dataInput id="_5_SkippableInput" name="Skippable" />
-        <dataInput id="_5_TaskNameInput" name="TaskName" />
-        <dataInput id="_5_ContentInput" name="Content" />
-        <dataInput id="_5_GroupIdInput" name="GroupId" />
-        <dataInput id="_5_PriorityInput" name="Priority" />
-        <inputSet>
+    <userTask id="_5" name="Task 2">
+      <incoming>_4-_5</incoming>
+      <outgoing>_5-_3</outgoing>
+      <ioSpecification id="InputOutputSpecification_2">
+        <dataInput id="_5_CommentInput" name="Comment"/>
+        <dataInput id="_5_SkippableInput" name="Skippable"/>
+        <dataInput id="_5_TaskNameInput" name="TaskName"/>
+        <dataInput id="_5_ContentInput" name="Content"/>
+        <dataInput id="_5_GroupIdInput" name="GroupId"/>
+        <dataInput id="_5_PriorityInput" name="Priority"/>
+        <inputSet id="InputSet_2">
           <dataInputRefs>_5_CommentInput</dataInputRefs>
           <dataInputRefs>_5_SkippableInput</dataInputRefs>
           <dataInputRefs>_5_TaskNameInput</dataInputRefs>
@@ -101,92 +79,107 @@
           <dataInputRefs>_5_GroupIdInput</dataInputRefs>
           <dataInputRefs>_5_PriorityInput</dataInputRefs>
         </inputSet>
-        <outputSet>
-        </outputSet>
+        <outputSet id="OutputSet_2"/>
       </ioSpecification>
-      <dataInputAssociation>
+      <dataInputAssociation id="DataInputAssociation_7">
         <targetRef>_5_CommentInput</targetRef>
-        <assignment>
-          <from xsi:type="tFormalExpression"></from>
-          <to xsi:type="tFormalExpression">_5_CommentInput</to>
-        </assignment>
       </dataInputAssociation>
-      <dataInputAssociation>
+      <dataInputAssociation id="DataInputAssociation_8">
         <targetRef>_5_SkippableInput</targetRef>
-        <assignment>
-          <from xsi:type="tFormalExpression">false</from>
-          <to xsi:type="tFormalExpression">_5_SkippableInput</to>
+        <assignment id="Assignment_8">
+          <from xsi:type="tFormalExpression" id="FormalExpression_16">false</from>
+          <to xsi:type="tFormalExpression" id="FormalExpression_17">_5_SkippableInput</to>
         </assignment>
       </dataInputAssociation>
-      <dataInputAssociation>
+      <dataInputAssociation id="DataInputAssociation_9">
         <targetRef>_5_TaskNameInput</targetRef>
-        <assignment>
-          <from xsi:type="tFormalExpression">Task2</from>
-          <to xsi:type="tFormalExpression">_5_TaskNameInput</to>
+        <assignment id="Assignment_9">
+          <from xsi:type="tFormalExpression" id="FormalExpression_18">Task2</from>
+          <to xsi:type="tFormalExpression" id="FormalExpression_19">_5_TaskNameInput</to>
         </assignment>
       </dataInputAssociation>
-      <dataInputAssociation>
+      <dataInputAssociation id="DataInputAssociation_10">
         <targetRef>_5_ContentInput</targetRef>
-        <assignment>
-          <from xsi:type="tFormalExpression"></from>
-          <to xsi:type="tFormalExpression">_5_ContentInput</to>
-        </assignment>
       </dataInputAssociation>
-      <dataInputAssociation>
+      <dataInputAssociation id="DataInputAssociation_11">
         <targetRef>_5_GroupIdInput</targetRef>
-        <assignment>
-          <from xsi:type="tFormalExpression"></from>
-          <to xsi:type="tFormalExpression">_5_GroupIdInput</to>
-        </assignment>
       </dataInputAssociation>
-      <dataInputAssociation>
+      <dataInputAssociation id="DataInputAssociation_12">
         <targetRef>_5_PriorityInput</targetRef>
-        <assignment>
-          <from xsi:type="tFormalExpression"></from>
-          <to xsi:type="tFormalExpression">_5_PriorityInput</to>
-        </assignment>
       </dataInputAssociation>
-      <potentialOwner>
-        <resourceAssignmentExpression>
-          <formalExpression>mary</formalExpression>
+      <potentialOwner id="PotentialOwner_2">
+        <resourceAssignmentExpression id="ResourceAssignmentExpression_2">
+          <formalExpression id="FormalExpression_26">mary</formalExpression>
         </resourceAssignmentExpression>
       </potentialOwner>
     </userTask>
-
-    <!-- connections -->
-    <sequenceFlow id="_5-_3" sourceRef="_5" targetRef="_3" />
-    <sequenceFlow id="_1-_4" sourceRef="_1" targetRef="_4" />
-    <sequenceFlow id="_4-_5" sourceRef="_4" targetRef="_5" />
-
+    <sequenceFlow id="_5-_3" sourceRef="_5" targetRef="ScriptTask_1"/>
+    <sequenceFlow id="_1-_4" sourceRef="_1" targetRef="_4"/>
+    <sequenceFlow id="_4-_5" sourceRef="_4" targetRef="_5"/>
+    <scriptTask id="ScriptTask_1" name="Script Task 1" scriptFormat="http://www.java.com/java">
+      <incoming>_5-_3</incoming>
+      <outgoing>SequenceFlow_1</outgoing>
+      <script><![CDATA[System.out.println("****************Task completed");]]></script>
+    </scriptTask>
+    <sequenceFlow id="SequenceFlow_1" sourceRef="ScriptTask_1" targetRef="_3"/>
   </process>
-
-  <bpmndi:BPMNDiagram>
-    <bpmndi:BPMNPlane bpmnElement="com.sample.bpmn.hello" >
-      <bpmndi:BPMNShape bpmnElement="_1" >
-        <dc:Bounds x="16" y="16" width="48" height="48" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_1" bpmnElement="com.sample.bpmn.hello">
+      <bpmndi:BPMNShape id="BPMNShape_StartEvent_1" bpmnElement="_1">
+        <dc:Bounds height="48.0" width="48.0" x="16.0" y="16.0"/>
+        <bpmndi:BPMNLabel id="BPMNLabel_1" labelStyle="BPMNLabelStyle_1">
+          <dc:Bounds height="14.0" width="25.0" x="27.0" y="64.0"/>
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="_3" >
-        <dc:Bounds x="360" y="16" width="48" height="48" />
+      <bpmndi:BPMNShape id="BPMNShape_EndEvent_1" bpmnElement="_3">
+        <dc:Bounds height="48.0" width="48.0" x="567.0" y="16.0"/>
+        <bpmndi:BPMNLabel id="BPMNLabel_2" labelStyle="BPMNLabelStyle_1">
+          <dc:Bounds height="14.0" width="22.0" x="580.0" y="64.0"/>
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="_4" >
-        <dc:Bounds x="96" y="16" width="100" height="48" />
+      <bpmndi:BPMNShape id="BPMNShape_UserTask_1" bpmnElement="_4">
+        <dc:Bounds height="48.0" width="100.0" x="96.0" y="16.0"/>
+        <bpmndi:BPMNLabel id="BPMNLabel_3" labelStyle="BPMNLabelStyle_1">
+          <dc:Bounds height="14.0" width="35.0" x="128.0" y="33.0"/>
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="_5" >
-        <dc:Bounds x="228" y="16" width="100" height="48" />
+      <bpmndi:BPMNShape id="BPMNShape_UserTask_2" bpmnElement="_5">
+        <dc:Bounds height="48.0" width="100.0" x="228.0" y="16.0"/>
+        <bpmndi:BPMNLabel id="BPMNLabel_4" labelStyle="BPMNLabelStyle_1">
+          <dc:Bounds height="14.0" width="35.0" x="260.0" y="33.0"/>
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge bpmnElement="_5-_3" >
-        <di:waypoint x="278" y="40" />
-        <di:waypoint x="384" y="40" />
+      <bpmndi:BPMNShape id="BPMNShape_ScriptTask_1" bpmnElement="ScriptTask_1" isExpanded="true">
+        <dc:Bounds height="50.0" width="110.0" x="400.0" y="15.0"/>
+        <bpmndi:BPMNLabel id="BPMNLabel_8" labelStyle="BPMNLabelStyle_1">
+          <dc:Bounds height="14.0" width="69.0" x="420.0" y="33.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_1" bpmnElement="_5-_3" sourceElement="BPMNShape_UserTask_2" targetElement="BPMNShape_ScriptTask_1">
+        <di:waypoint xsi:type="dc:Point" x="328.0" y="40.0"/>
+        <di:waypoint xsi:type="dc:Point" x="364.0" y="40.0"/>
+        <di:waypoint xsi:type="dc:Point" x="400.0" y="40.0"/>
+        <bpmndi:BPMNLabel id="BPMNLabel_5"/>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="_1-_4" >
-        <di:waypoint x="40" y="40" />
-        <di:waypoint x="146" y="40" />
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_2" bpmnElement="_1-_4" sourceElement="BPMNShape_StartEvent_1" targetElement="BPMNShape_UserTask_1">
+        <di:waypoint xsi:type="dc:Point" x="40.0" y="40.0"/>
+        <di:waypoint xsi:type="dc:Point" x="146.0" y="40.0"/>
+        <bpmndi:BPMNLabel id="BPMNLabel_6"/>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="_4-_5" >
-        <di:waypoint x="146" y="40" />
-        <di:waypoint x="278" y="40" />
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_3" bpmnElement="_4-_5" sourceElement="BPMNShape_UserTask_1" targetElement="BPMNShape_UserTask_2">
+        <di:waypoint xsi:type="dc:Point" x="146.0" y="40.0"/>
+        <di:waypoint xsi:type="dc:Point" x="278.0" y="40.0"/>
+        <bpmndi:BPMNLabel id="BPMNLabel_7"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_4" bpmnElement="SequenceFlow_1" sourceElement="BPMNShape_ScriptTask_1" targetElement="BPMNShape_EndEvent_1">
+        <di:waypoint xsi:type="dc:Point" x="510.0" y="40.0"/>
+        <di:waypoint xsi:type="dc:Point" x="538.0" y="40.0"/>
+        <di:waypoint xsi:type="dc:Point" x="567.0" y="40.0"/>
+        <bpmndi:BPMNLabel id="BPMNLabel_9"/>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
+    <bpmndi:BPMNLabelStyle id="BPMNLabelStyle_1">
+      <dc:Font name="arial" size="9.0"/>
+    </bpmndi:BPMNLabelStyle>
   </bpmndi:BPMNDiagram>
-
 </definitions>

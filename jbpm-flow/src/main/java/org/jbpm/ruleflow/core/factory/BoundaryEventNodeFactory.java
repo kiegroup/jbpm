@@ -16,62 +16,57 @@
 
 package org.jbpm.ruleflow.core.factory;
 
+import java.util.function.UnaryOperator;
+
 import org.jbpm.process.core.event.EventFilter;
 import org.jbpm.process.core.event.EventTransformer;
 import org.jbpm.process.core.event.EventTypeFilter;
-import org.jbpm.ruleflow.core.RuleFlowNodeContainerFactory;
-import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.core.NodeContainer;
 import org.jbpm.workflow.core.node.BoundaryEventNode;
+import org.kie.api.fluent.BoundaryEventNodeBuilder;
+import org.kie.api.fluent.Dialect;
+import org.kie.api.fluent.NodeContainerBuilder;
 
-public class BoundaryEventNodeFactory extends NodeFactory {
-
-    private NodeContainer nodeContainer;
-
+public class BoundaryEventNodeFactory<T extends NodeContainerBuilder<T, ?>> extends NodeFactory<BoundaryEventNodeBuilder<T>, T> implements BoundaryEventNodeBuilder<T> {
     private String attachedToUniqueId;
 
-    public BoundaryEventNodeFactory(RuleFlowNodeContainerFactory nodeContainerFactory, NodeContainer nodeContainer, long id) {
-        super(nodeContainerFactory, nodeContainer, id);
-        this.nodeContainer = nodeContainer;
+    public BoundaryEventNodeFactory(T nodeContainerFactory, NodeContainer nodeContainer, long id) {
+        super(nodeContainerFactory, nodeContainer, new BoundaryEventNode(), id);
     }
 
-    public BoundaryEventNodeFactory attachedTo(long attachedToId) {
-        attachedToUniqueId = (String)nodeContainer.getNode(attachedToId).getMetaData().get("UniqueId");
+    @Override
+    public BoundaryEventNodeFactory<T> attachedTo(long attachedToId) {
+        attachedToUniqueId = (String) nodeContainer.getNode(attachedToId).getMetaData().get("UniqueId");
         getBoundaryEventNode().setAttachedToNodeId(attachedToUniqueId);
         getBoundaryEventNode().setMetaData("AttachedTo", attachedToUniqueId);
         return this;
-    }
-
-    protected Node createNode() {
-        return new BoundaryEventNode();
     }
 
     protected BoundaryEventNode getBoundaryEventNode() {
         return(BoundaryEventNode) getNode();
     }
 
-    public BoundaryEventNodeFactory name(String name) {
-        getNode().setName(name);
-        return this;
-    }
 
-    public BoundaryEventNodeFactory variableName(String variableName) {
+    @Override
+    public BoundaryEventNodeFactory<T> variableName(String variableName) {
         getBoundaryEventNode().setVariableName(variableName);
         return this;
     }
 
-    public BoundaryEventNodeFactory eventFilter(EventFilter eventFilter) {
+    public BoundaryEventNodeFactory<T> eventFilter(EventFilter eventFilter) {
         getBoundaryEventNode().addEventFilter(eventFilter);
         return this;
     }
 
-    public BoundaryEventNodeFactory eventType(String eventType) {
+    @Override
+    public BoundaryEventNodeFactory<T> eventType(String eventType) {
         EventTypeFilter filter = new EventTypeFilter();
         filter.setType(eventType);
         return eventFilter(filter);
     }
 
-    public BoundaryEventNodeFactory eventType(String eventTypePrefix, String eventTypeSurffix) {
+    @Override
+    public BoundaryEventNodeFactory<T> eventType(String eventTypePrefix, String eventTypeSurffix) {
         if (attachedToUniqueId == null) {
             throw new IllegalStateException("attachedTo() must be called before");
         }
@@ -80,42 +75,51 @@ public class BoundaryEventNodeFactory extends NodeFactory {
         return eventFilter(filter);
     }
 
-    public BoundaryEventNodeFactory timeCycle(String timeCycle) {
+    @Override
+    public BoundaryEventNodeFactory<T> timeCycle(String timeCycle) {
         eventType("Timer", timeCycle);
-        setMetaData("TimeCycle", timeCycle);
+        setMetadata("TimeCycle", timeCycle);
         return this;
     }
 
-    public BoundaryEventNodeFactory timeCycle(String timeCycle, String language) {
+    public BoundaryEventNodeFactory<T> timeCycle(String timeCycle, String language) {
         eventType("Timer", timeCycle);
-        setMetaData("TimeCycle", timeCycle);
-        setMetaData("Language", language);
+        setMetadata("TimeCycle", timeCycle);
+        setMetadata("Language", language);
         return this;
     }
 
-    public BoundaryEventNodeFactory timeDuration(String timeDuration) {
+    @Override
+    public BoundaryEventNodeFactory<T> timeDuration(String timeDuration) {
         eventType("Timer", timeDuration);
-        setMetaData("TimeDuration", timeDuration);
+        setMetadata("TimeDuration", timeDuration);
         return this;
     }
 
-    public BoundaryEventNodeFactory cancelActivity(boolean cancelActivity) {
-        setMetaData("CancelActivity", cancelActivity);
+    @Override
+    public BoundaryEventNodeFactory<T> cancelActivity(boolean cancelActivity) {
+        setMetadata("CancelActivity", cancelActivity);
         return this;
     }
 
-    public BoundaryEventNodeFactory eventTransformer(EventTransformer transformer) {
+    public BoundaryEventNodeFactory<T> eventTransformer(EventTransformer transformer) {
         getBoundaryEventNode().setEventTransformer(transformer);
         return this;
     }
 
-    public BoundaryEventNodeFactory scope(String scope) {
+    @Override
+    public BoundaryEventNodeFactory<T> scope(String scope) {
         getBoundaryEventNode().setScope(scope);
         return this;
     }
 
-    public BoundaryEventNodeFactory setMetaData(String name,Object value) {
-        getBoundaryEventNode().setMetaData(name, value);
-        return this;
+    @Override
+    public BoundaryEventNodeBuilder<T> timeCycle(String timeCycle, Dialect dialect) {
+        return timeCycle(timeCycle, DialectConverter.fromDialect(dialect));
+    }
+
+    @Override
+    public BoundaryEventNodeBuilder<T> eventTransformer(UnaryOperator<Object> function) {
+        return eventTransformer((EventTransformer) function::apply);
     }
 }

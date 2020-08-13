@@ -22,37 +22,38 @@ import java.util.List;
 import org.jbpm.process.core.Work;
 import org.jbpm.process.core.impl.WorkImpl;
 import org.jbpm.process.core.timer.Timer;
-import org.jbpm.ruleflow.core.RuleFlowNodeContainerFactory;
 import org.jbpm.workflow.core.DroolsAction;
-import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.core.NodeContainer;
 import org.jbpm.workflow.core.impl.DroolsConsequenceAction;
 import org.jbpm.workflow.core.node.HumanTaskNode;
 import org.jbpm.workflow.core.node.MilestoneNode;
+import org.kie.api.fluent.Dialect;
+import org.kie.api.fluent.HumanTaskNodeBuilder;
+import org.kie.api.fluent.NodeContainerBuilder;
 
 /**
  *
  */
-public class HumanTaskNodeFactory extends NodeFactory {
+public class HumanTaskNodeFactory<T extends NodeContainerBuilder<T, ?>> extends NodeFactory<HumanTaskNodeBuilder<T>,T> implements HumanTaskNodeBuilder<T> {
 
-    public HumanTaskNodeFactory(RuleFlowNodeContainerFactory nodeContainerFactory, NodeContainer nodeContainer, long id) {
-        super(nodeContainerFactory, nodeContainer, id);
+    public HumanTaskNodeFactory(T nodeContainerFactory, NodeContainer nodeContainer, long id) {
+        super(nodeContainerFactory, nodeContainer, new HumanTaskNode(), id);
     }
 
-    protected Node createNode() {
-        return new HumanTaskNode();
-    }
     
+
     protected HumanTaskNode getHumanTaskNode() {
     	return (HumanTaskNode) getNode();
     }
 
-    public HumanTaskNodeFactory name(String name) {
+    @Override
+    public HumanTaskNodeFactory<T> name(String name) {
         getNode().setName(name);
         return this;
     }
     
-    public HumanTaskNodeFactory taskName(String taskName) {
+    @Override
+    public HumanTaskNodeFactory<T> taskName(String taskName) {
     	Work work = getHumanTaskNode().getWork();
     	if (work == null) {
     		work = new WorkImpl();
@@ -62,7 +63,8 @@ public class HumanTaskNodeFactory extends NodeFactory {
     	return this;
     }
     
-    public HumanTaskNodeFactory actorId(String actorId) {
+    @Override
+    public HumanTaskNodeFactory<T> actorId(String actorId) {
     	Work work = getHumanTaskNode().getWork();
     	if (work == null) {
     		work = new WorkImpl();
@@ -72,7 +74,8 @@ public class HumanTaskNodeFactory extends NodeFactory {
     	return this;
     }
     
-    public HumanTaskNodeFactory priority(String priority) {
+    @Override
+    public HumanTaskNodeFactory<T> priority(String priority) {
     	Work work = getHumanTaskNode().getWork();
     	if (work == null) {
     		work = new WorkImpl();
@@ -82,7 +85,8 @@ public class HumanTaskNodeFactory extends NodeFactory {
     	return this;
     }
     
-    public HumanTaskNodeFactory comment(String comment) {
+    @Override
+    public HumanTaskNodeFactory<T> comment(String comment) {
     	Work work = getHumanTaskNode().getWork();
     	if (work == null) {
     		work = new WorkImpl();
@@ -92,7 +96,8 @@ public class HumanTaskNodeFactory extends NodeFactory {
     	return this;
     }
     
-    public HumanTaskNodeFactory skippable(boolean skippable) {
+    @Override
+    public HumanTaskNodeFactory<T> skippable(boolean skippable) {
     	Work work = getHumanTaskNode().getWork();
     	if (work == null) {
     		work = new WorkImpl();
@@ -102,7 +107,8 @@ public class HumanTaskNodeFactory extends NodeFactory {
     	return this;
     }
     
-    public HumanTaskNodeFactory content(String content) {
+    @Override
+    public HumanTaskNodeFactory<T> content(String content) {
     	Work work = getHumanTaskNode().getWork();
     	if (work == null) {
     		work = new WorkImpl();
@@ -112,27 +118,32 @@ public class HumanTaskNodeFactory extends NodeFactory {
     	return this;
     }
     
-    public HumanTaskNodeFactory inMapping(String parameterName, String variableName) {
+    @Override
+    public HumanTaskNodeFactory<T> inMapping(String parameterName, String variableName) {
     	getHumanTaskNode().addInMapping(parameterName, variableName);
         return this;
     }
 
-    public HumanTaskNodeFactory outMapping(String parameterName, String variableName) {
+    @Override
+    public HumanTaskNodeFactory<T> outMapping(String parameterName, String variableName) {
     	getHumanTaskNode().addOutMapping(parameterName, variableName);
         return this;
     }
 
-    public HumanTaskNodeFactory waitForCompletion(boolean waitForCompletion) {
+    @Override
+    public HumanTaskNodeFactory<T> waitForCompletion(boolean waitForCompletion) {
     	getHumanTaskNode().setWaitForCompletion(waitForCompletion);
         return this;
     }
 
-    public HumanTaskNodeFactory swimlane(String swimlane) {
+    @Override
+    public HumanTaskNodeFactory<T> swimlane(String swimlane) {
     	getHumanTaskNode().setSwimlane(swimlane);
         return this;
     }
 
-    public HumanTaskNodeFactory onEntryAction(String dialect, String action) {
+
+    public HumanTaskNodeFactory<T> onEntryAction(String dialect, String action) {
         if (getHumanTaskNode().getActions(dialect) != null) {
         	getHumanTaskNode().getActions(dialect).add(new DroolsConsequenceAction(dialect, action));
         } else {
@@ -143,7 +154,8 @@ public class HumanTaskNodeFactory extends NodeFactory {
         return this;
     }
 
-    public HumanTaskNodeFactory onExitAction(String dialect, String action) {
+
+    public HumanTaskNodeFactory<T> onExitAction(String dialect, String action) {
         if (getHumanTaskNode().getActions(dialect) != null) {
         	getHumanTaskNode().getActions(dialect).add(new DroolsConsequenceAction(dialect, action));
         } else {
@@ -154,7 +166,7 @@ public class HumanTaskNodeFactory extends NodeFactory {
         return this;
     }
 
-    public HumanTaskNodeFactory timer(String delay, String period, String dialect, String action) {
+    public HumanTaskNodeFactory<T> timer(String delay, String period, String dialect, String action) {
     	Timer timer = new Timer();
     	timer.setDelay(delay);
     	timer.setPeriod(period);
@@ -162,7 +174,8 @@ public class HumanTaskNodeFactory extends NodeFactory {
     	return this;
     }
 
-	public HumanTaskNodeFactory workParameter(String name, Object value) {
+	@Override
+    public HumanTaskNodeFactory<T> workParameter(String name, Object value) {
 		Work work = getHumanTaskNode().getWork();
 		if (work == null) {
 			work = new WorkImpl();
@@ -172,5 +185,19 @@ public class HumanTaskNodeFactory extends NodeFactory {
 		return this;
 	}
 
+    @Override
+    public HumanTaskNodeBuilder<T> onEntryAction(Dialect dialect, String action) {
+        return onEntryAction(DialectConverter.fromDialect(dialect), action);
+    }
+
+    @Override
+    public HumanTaskNodeBuilder<T> onExitAction(Dialect dialect, String action) {
+        return onExitAction(DialectConverter.fromDialect(dialect), action);
+    }
+
+    @Override
+    public HumanTaskNodeBuilder<T> timer(String delay, String period, Dialect dialect, String action) {
+        return timer(delay, period, DialectConverter.fromDialect(dialect), action);
+    }
 }
 

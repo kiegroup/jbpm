@@ -16,29 +16,17 @@
 
 package org.jbpm.ruleflow.core.factory;
 
-import org.jbpm.ruleflow.core.RuleFlowNodeContainerFactory;
-import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.core.NodeContainer;
 import org.jbpm.workflow.core.node.StartNode;
+import org.kie.api.fluent.NodeContainerBuilder;
+import org.kie.api.fluent.StartNodeBuilder;
 
 /**
  *
  */
-public class StartNodeFactory extends NodeFactory {
+public class StartNodeFactory<T extends NodeContainerBuilder<T, ?>> extends NodeFactory<StartNodeBuilder<T>, T> implements StartNodeBuilder<T> {
 
-    public StartNodeFactory(RuleFlowNodeContainerFactory nodeContainerFactory, NodeContainer nodeContainer, long id) {
-        super(nodeContainerFactory, nodeContainer, id);
+    public StartNodeFactory(T nodeContainerFactory, NodeContainer nodeContainer, long id) {
+        super(nodeContainerFactory, nodeContainer, new StartNode(), id);
     }
-
-    protected Node createNode() {
-        return new StartNode();
-    }
-
-    public StartNodeFactory name(String name) {
-        getNode().setName(name);
-        return this;
-    }
-    
-    // TODO event triggers
-    
 }

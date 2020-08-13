@@ -20,36 +20,30 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jbpm.process.core.timer.Timer;
-import org.jbpm.ruleflow.core.RuleFlowNodeContainerFactory;
 import org.jbpm.workflow.core.DroolsAction;
-import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.core.NodeContainer;
 import org.jbpm.workflow.core.impl.DroolsConsequenceAction;
 import org.jbpm.workflow.core.node.MilestoneNode;
+import org.kie.api.fluent.Dialect;
+import org.kie.api.fluent.MilestoneNodeBuilder;
+import org.kie.api.fluent.NodeContainerBuilder;
 
 /**
  *
  */
-public class MilestoneNodeFactory extends NodeFactory {
+public class MilestoneNodeFactory<T extends NodeContainerBuilder<T, ?>> extends NodeFactory<MilestoneNodeBuilder<T>, T> implements MilestoneNodeBuilder<T> {
 
-    public MilestoneNodeFactory(RuleFlowNodeContainerFactory nodeContainerFactory, NodeContainer nodeContainer, long id) {
-        super(nodeContainerFactory, nodeContainer, id);
+    public MilestoneNodeFactory(T nodeContainerFactory, NodeContainer nodeContainer, long id) {
+        super(nodeContainerFactory, nodeContainer, new MilestoneNode(), id);
     }
 
-    protected Node createNode() {
-        return new MilestoneNode();
-    }
 
     protected MilestoneNode getMilestoneNode() {
         return (MilestoneNode) getNode();
     }
 
-    public MilestoneNodeFactory name(String name) {
-        getNode().setName(name);
-        return this;
-    }
 
-    public MilestoneNodeFactory onEntryAction(String dialect, String action) {
+    public MilestoneNodeFactory<T> onEntryAction(String dialect, String action) {
         if (getMilestoneNode().getActions(dialect) != null) {
             getMilestoneNode().getActions(dialect).add(new DroolsConsequenceAction(dialect, action));
         } else {
@@ -60,7 +54,7 @@ public class MilestoneNodeFactory extends NodeFactory {
         return this;
     }
 
-    public MilestoneNodeFactory onExitAction(String dialect, String action) {
+    public MilestoneNodeFactory<T> onExitAction(String dialect, String action) {
         if (getMilestoneNode().getActions(dialect) != null) {
             getMilestoneNode().getActions(dialect).add(new DroolsConsequenceAction(dialect, action));
         } else {
@@ -71,17 +65,33 @@ public class MilestoneNodeFactory extends NodeFactory {
         return this;
     }
 
-    public MilestoneNodeFactory constraint(String constraint) {
+    @Override
+    public MilestoneNodeFactory<T> constraint(String constraint) {
         getMilestoneNode().setConstraint(constraint);
         return this;
     }
 
-    public MilestoneNodeFactory timer(String delay, String period, String dialect, String action) {
-    	Timer timer = new Timer();
-    	timer.setDelay(delay);
-    	timer.setPeriod(period);
-    	getMilestoneNode().addTimer(timer, new DroolsConsequenceAction(dialect, action));
-    	return this;
+    public MilestoneNodeFactory<T> timer(String delay, String period, String dialect, String action) {
+        Timer timer = new Timer();
+        timer.setDelay(delay);
+        timer.setPeriod(period);
+        getMilestoneNode().addTimer(timer, new DroolsConsequenceAction(dialect, action));
+        return this;
+    }
+
+    @Override
+    public MilestoneNodeBuilder<T> onEntryAction(Dialect dialect, String action) {
+        return onEntryAction(DialectConverter.fromDialect(dialect), action);
+    }
+
+    @Override
+    public MilestoneNodeBuilder<T> onExitAction(Dialect dialect, String action) {
+        return onExitAction(DialectConverter.fromDialect(dialect), action);
+    }
+
+    @Override
+    public MilestoneNodeBuilder<T> timer(String delay, String period, Dialect dialect, String action) {
+        return timer(delay, period, DialectConverter.fromDialect(dialect), action);
     }
     
 }
