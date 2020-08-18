@@ -1238,6 +1238,19 @@
             ORDER BY task.id ASC 
       </query>
   </named-native-query>
+  <named-native-query name="GetHistoryTasksByIdList">
+      <query>
+              SELECT task.taskId as id, task.name, 
+                     task.actualOwner, pilog.correlationKey, task.createdOn,
+                     task.createdBy, 
+                     task.status, pilog.processInstanceId, pilog.processId, pilog.externalId,
+                     pilog.processInstanceDescription 
+                FROM AuditTaskImpl task 
+          INNER JOIN ProcessInstanceLog pilog ON pilog.processInstanceId = task.processInstanceId
+               WHERE task.taskId IN (:idList)
+            ORDER BY task.taskId ASC 
+      </query>
+  </named-native-query>
   <named-native-query name="GetTaskVariablesByTaskIdList">
       <query>
            SELECT taskId, type, name, value 

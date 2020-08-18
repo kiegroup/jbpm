@@ -19,9 +19,12 @@ package org.jbpm.kie.services.impl;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -78,12 +81,24 @@ public abstract class AbstractAdvanceRuntimeDataServiceImpl {
                                                                                                                   int processType,
                                                                                                                   String varPrefix,
                                                                                                                   QueryContext queryContext) {
-        BiFunction<StringBuilder, StringBuilder, String> mainSQLProducer = (derivedTables, globalWhere) -> "SELECT DISTINCT pil.processInstanceId " +
-                                                                                                           " FROM Task task " +
-                                                                                                           " INNER JOIN ProcessInstanceLog pil ON pil.processInstanceId = task.processInstanceId \n " +
-                                                                                                           derivedTables +
-                                                                                                           " WHERE  pil.processType = :processType " + globalWhere +
-                                                                                                           " ORDER BY pil.processInstanceId ASC ";
+        BiFunction<StringBuilder, StringBuilder, String> mainSQLProducer;
+        Optional<QueryParam> param = findQueryParamMode(attributes);
+        if(param.isPresent() && param.get().getObjectValue().equals("HISTORY")) {
+            mainSQLProducer = (derivedTables, globalWhere) -> "SELECT DISTINCT pil.processInstanceId " +
+                                                              " FROM AuditTaskImpl task " +
+                                                              " INNER JOIN ProcessInstanceLog pil ON pil.processInstanceId = task.processInstanceId \n " +
+                                                              derivedTables +
+                                                              " WHERE  pil.processType = :processType " + globalWhere +
+                                                              " ORDER BY pil.processInstanceId ASC ";
+        } else {
+            mainSQLProducer = (derivedTables, globalWhere) -> "SELECT DISTINCT pil.processInstanceId " +
+                                                              " FROM Task task " +
+                                                              " INNER JOIN ProcessInstanceLog pil ON pil.processInstanceId = task.processInstanceId \n " +
+                                                              derivedTables +
+                                                              " WHERE  pil.processType = :processType " + globalWhere +
+                                                              " ORDER BY pil.processInstanceId ASC ";
+        }
+           
 
         return queryProcessUserTasksByVariables(attributes, processVariables, taskVariables, owners, processType, varPrefix, queryContext, mainSQLProducer, this::collectProcessData);
 
@@ -96,18 +111,32 @@ public abstract class AbstractAdvanceRuntimeDataServiceImpl {
                                                                                                            int processType,
                                                                                                            String varPrefix,
                                                                                                            QueryContext queryContext) {
+        BiFunction<StringBuilder, StringBuilder, String> mainSQLProducer;
+        Optional<QueryParam> param = findQueryParamMode(attributes);
+        if(param.isPresent() && param.get().getObjectValue().equals("HISTORY")) {
+            mainSQLProducer = (derivedTables, globalWhere) -> "SELECT DISTINCT task.taskId as id " +
+                                                              " FROM AuditTaskImpl task " +
+                                                              " INNER JOIN ProcessInstanceLog pil ON pil.processInstanceId = task.processInstanceId \n " +
+                                                              derivedTables +
+                                                              " WHERE  pil.processType = :processType " + globalWhere +
+                                                              " ORDER BY task.taskId ASC ";
+            return queryProcessUserTasksByVariables(attributes, processVariables, taskVariables, owners, processType, varPrefix, queryContext, mainSQLProducer, this::collectHistoryUserTaskData);
+        } else {
+            mainSQLProducer = (derivedTables, globalWhere) -> "SELECT DISTINCT task.id " +
+                                                              " FROM Task task " +
+                                                              " INNER JOIN ProcessInstanceLog pil ON pil.processInstanceId = task.processInstanceId \n " +
+                                                              derivedTables +
+                                                              " WHERE  pil.processType = :processType " + globalWhere +
+                                                              " ORDER BY task.id ASC ";
+            return queryProcessUserTasksByVariables(attributes, processVariables, taskVariables, owners, processType, varPrefix, queryContext, mainSQLProducer, this::collectRuntimeUserTaskData);
+        }
 
-        BiFunction<StringBuilder, StringBuilder, String> mainSQLProducer = (derivedTables, globalWhere) -> "SELECT DISTINCT task.id " +
-                                                                                                           " FROM Task task " +
-                                                                                                           " INNER JOIN ProcessInstanceLog pil ON pil.processInstanceId = task.processInstanceId \n " +
-                                                                                                           derivedTables +
-                                                                                                           " WHERE  pil.processType = :processType " + globalWhere +
-                                                                                                           " ORDER BY task.id ASC ";
-
-        return queryProcessUserTasksByVariables(attributes, processVariables, taskVariables, owners, processType, varPrefix, queryContext, mainSQLProducer, this::collectUserTaskData);
 
     }
 
+    private Optional<QueryParam> findQueryParamMode(List<QueryParam> params) {
+        return params.stream().filter(e -> e.getOperator().equals("MODE")).findFirst();
+    }
 
     protected <R> List<R> queryProcessUserTasksByVariables(List<QueryParam> attributesArg,
                                                            List<QueryParam> processVariablesArg,
@@ -120,6 +149,8 @@ public abstract class AbstractAdvanceRuntimeDataServiceImpl {
                                                            BiFunction<List<Number>, String, List<R>> dataCollector) {
 
         List<QueryParam> attributes = attributesArg != null ? attributesArg : emptyList();
+        attributes.removeIf(param -> param.getOperator().equals("MODE"));
+
         List<QueryParam> processVariables = processVariablesArg != null ? processVariablesArg : emptyList();
         List<QueryParam> taskVariables = taskVariablesArg != null ? taskVariablesArg : emptyList();
         List<String> owners = ownersArg != null ? ownersArg : emptyList();
@@ -215,6 +246,7 @@ public abstract class AbstractAdvanceRuntimeDataServiceImpl {
             }
         }
         return dataCollector.apply(ids, varPrefix);
+
     }
 
     private List<org.jbpm.services.api.model.ProcessInstanceWithVarsDesc> collectProcessData(List<Number> ids, String varPrefix) {
@@ -318,9 +350,17 @@ public abstract class AbstractAdvanceRuntimeDataServiceImpl {
         }
     }
 
-    private List<org.jbpm.services.api.model.UserTaskInstanceWithPotOwnerDesc> collectUserTaskData(List<Number> ids, String varPrefix) {
+    private List<org.jbpm.services.api.model.UserTaskInstanceWithPotOwnerDesc> collectRuntimeUserTaskData(List<Number> ids, String varPrefix) {
+        return collectUserTaskData("GetTasksByIdList", this::toUserTaskInstanceWithPotOwnerDesc, ids, varPrefix);
+    }
+    
+    private List<org.jbpm.services.api.model.UserTaskInstanceWithPotOwnerDesc> collectHistoryUserTaskData(List<Number> ids, String varPrefix) {
+        return collectUserTaskData("GetHistoryTasksByIdList", this::toHistoryUserTaskInstanceWithPotOwnerDesc, ids, varPrefix);
+    }
+
+    private List<org.jbpm.services.api.model.UserTaskInstanceWithPotOwnerDesc> collectUserTaskData(String taskRetriever, Function<Object[], UserTaskInstanceWithPotOwnerDesc> mapper, List<Number> ids, String varPrefix) {
         // query data
-        List<Object[]> taskRows = commandService.execute(new QueryNameCommand<List<Object[]>>("GetTasksByIdList", singletonMap(ID_LIST, ids)));
+        List<Object[]> taskRows = commandService.execute(new QueryNameCommand<List<Object[]>>(taskRetriever, singletonMap(ID_LIST, ids)));
         List<Object[]> varRows = commandService.execute(new QueryNameCommand<List<Object[]>>("GetTaskVariablesByTaskIdList", singletonMap(ID_LIST, ids)));
         List<Object[]> potRows = commandService.execute(new QueryNameCommand<List<Object[]>>("GetPotentialOwnersByTaskIdList", singletonMap(ID_LIST, ids)));
         List<Object[]> varProcSQLRows = commandService.execute(new QueryNameCommand<List<Object[]>>("GetProcessVariablesByTaskIdList", singletonMap(ID_LIST, ids)));
@@ -330,7 +370,7 @@ public abstract class AbstractAdvanceRuntimeDataServiceImpl {
         int currentVarProcIdx = 0;
         List<org.jbpm.services.api.model.UserTaskInstanceWithPotOwnerDesc> data = new ArrayList<>();
         for (Object[] row : taskRows) {
-            UserTaskInstanceWithPotOwnerDesc pwv = toUserTaskInstanceWithPotOwnerDesc(row);
+            UserTaskInstanceWithPotOwnerDesc pwv = mapper.apply(row);
 
             while (currentVarIdx < varRows.size() && row[0].equals(varRows.get(currentVarIdx)[0])) {
                 if (((Number) varRows.get(currentVarIdx)[1]).intValue() == 0) {
@@ -386,13 +426,43 @@ public abstract class AbstractAdvanceRuntimeDataServiceImpl {
         );
     }
 
+    private UserTaskInstanceWithPotOwnerDesc toHistoryUserTaskInstanceWithPotOwnerDesc(Object[] row) {
+        return new UserTaskInstanceWithPotOwnerDesc(
+                                                    ((Number) row[0]).longValue(), // id
+                                                    (String) row[1], // task name
+                                                    (String) null, // formName
+                                                    (String) null, // subject
+                                                    (String) row[2], // actualOwner_id
+                                                    (String) null, // potOwner
+                                                    (String) row[3], // correlationKey
+                                                    (Date) row[4], // createdOn
+                                                    (String) row[5], // createdBy
+                                                    (Date) null, // expiration time
+                                                    (Date) null, // lastModificationDate
+                                                    (String) null, // lastModificationUser
+                                                    (Integer) null, //priority
+                                                    (String) row[6], // Status
+                                                    ((Number) row[7]).longValue(), // processInstanceId
+                                                    (String) row[8], // processId
+                                                    (String) row[9], // deployment Id
+                                                    (String) row[10] // instance description
+        );
+    }
+
     protected List<QueryParam> translate(Map<String, String> translationTable, List<QueryParam> attributes) {
         if (attributes == null) {
             return emptyList();
         }
         List<QueryParam> translated = new ArrayList<>();
         for (QueryParam entry : attributes) {
-            translated.add(new QueryParam(translationTable.get(entry.getColumn()), entry.getOperator(), entry.getValue()));
+            String column = translationTable.get(entry.getColumn());
+            
+            // small correction for this column as it is not called the same
+            if(entry.getColumn() != null && entry.getColumn().equals("TASK_OWNER") && findQueryParamMode(attributes).isPresent()) {
+                column = "task.actualOwner";
+            }
+
+            translated.add(new QueryParam(column, entry.getOperator(), entry.getValue()));
         }
         return translated;
     }
