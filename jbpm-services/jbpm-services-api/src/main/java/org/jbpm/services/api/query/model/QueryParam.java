@@ -16,6 +16,8 @@
 
 package org.jbpm.services.api.query.model;
 
+import static java.util.Collections.singletonList;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -268,6 +270,10 @@ public class QueryParam implements Serializable {
     public static QueryParam type(String column, Comparable<?> type) {
         return new QueryParam(column, "TYPE", Arrays.asList(type));
     }
+
+    public static QueryParam history() {
+        return new QueryParam("TABLE", "MODE", singletonList("HISTORY"));
+    }
     /**
      * Returns the column.
      * @return column
@@ -364,6 +370,7 @@ public class QueryParam implements Serializable {
             case "GREATER_OR_EQUALS_TO":
             case "LESS_OR_EQUALS_TO":
             case "TYPE":
+            case "MODE":
                 return Type.BINARY_OPERAND;
             case "BETWEEN":
                 return Type.RANGE_OPERAND;

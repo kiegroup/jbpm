@@ -60,6 +60,7 @@ import static org.jbpm.services.api.AdvanceRuntimeDataService.PROCESS_ATTR_DEPLO
 import static org.jbpm.services.api.AdvanceRuntimeDataService.TASK_ATTR_NAME;
 import static org.jbpm.services.api.AdvanceRuntimeDataService.TASK_ATTR_OWNER;
 import static org.jbpm.services.api.query.model.QueryParam.equalsTo;
+import static org.jbpm.services.api.query.model.QueryParam.history;
 import static org.jbpm.services.api.query.model.QueryParam.in;
 import static org.jbpm.services.api.query.model.QueryParam.isNotNull;
 import static org.jbpm.services.api.query.model.QueryParam.isNull;
@@ -457,6 +458,57 @@ public class AdvanceRuntimeDataServiceImplTest extends AbstractKieServicesBaseTe
 
         for (UserTaskInstanceWithPotOwnerDesc userTask : dataOutput) {
             assertThat(userTask.getProcessVariables().get("var_b"), is("3"));
+        }
+    }
+    
+    @Test
+    public void testQueryHistoryAllNull() {
+        List<QueryParam> attributes = list(history());
+        List<UserTaskInstanceWithPotOwnerDesc> data = advanceVariableDataService.queryUserTasksByVariables(attributes, null, null, null, queryContext);
+        if (queryContext.getCount() > 0) {
+            assertThat(data.size(), is(queryContext.getCount()));
+        } else {
+            assertThat(data.size(), is(20));
+        }
+    }
+    
+    @Test
+    public void testQueryHistoryIsNotNullOperator() {
+
+        List<QueryParam> attributes = list(history(), isNull(TASK_ATTR_OWNER));
+
+        List<UserTaskInstanceWithPotOwnerDesc> data = advanceVariableDataService.queryUserTasksByVariables(attributes, emptyList(), emptyList(), emptyList(), queryContext);
+        assertThat(data.size(), is(0));
+
+    }
+
+    @Test
+    public void testQueryHistoryProcessByAttributes() {
+        List<QueryParam> attributes = list(history(), equalsTo(PROCESS_ATTR_DEFINITION_ID, "test.test_A"), equalsTo(PROCESS_ATTR_CORRELATION_KEY, "1"));
+
+        List<ProcessInstanceWithVarsDesc> data = advanceVariableDataService.queryProcessByVariables(attributes, emptyList(), queryContext);
+        assertThat(data.size(), is(1));
+    }
+
+    @Test
+    public void testQueryHistoryProcessByVariablesAndTask() {
+        List<QueryParam> attributes = list(history());
+
+        List<ProcessInstanceWithVarsDesc> data = advanceVariableDataService.queryProcessByVariablesAndTask(attributes, emptyList(), emptyList(), emptyList(), queryContext);
+        if (queryContext.getCount() > 0) {
+            assertThat(data.size(), is(queryContext.getCount()));
+        } else {
+            assertThat(data.size(), is(20));
+        }
+    }
+
+    @Test
+    public void testQueryProcessByVariablesAndTask() {
+        List<ProcessInstanceWithVarsDesc> data = advanceVariableDataService.queryProcessByVariablesAndTask(emptyList(), emptyList(), emptyList(), emptyList(), queryContext);
+        if (queryContext.getCount() > 0) {
+            assertThat(data.size(), is(queryContext.getCount()));
+        } else {
+            assertThat(data.size(), is(20));
         }
     }
 
