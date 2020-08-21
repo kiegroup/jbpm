@@ -700,7 +700,8 @@ public class UserTaskServiceImpl implements UserTaskService, VariablesAware {
 
     @Override
     public Long saveContent(String deploymentId, Long taskId, Map<String, Object> values) {
-        return saveContent(deploymentId, taskId, null, values);
+        String userId = System.getProperty("org.jbpm.ht.admin.user", "Administrator");
+        return saveContent(deploymentId, taskId, userId, values);
     }
 
     public Long saveContent(String deploymentId, Long taskId, String userId, Map<String, Object> values) {

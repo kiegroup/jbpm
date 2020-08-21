@@ -893,7 +893,7 @@ private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentSe
         assertEquals(TaskEvent.TaskEventType.STOPPED, auditTasks.get(3).getType());
         assertEquals("salaboy", auditTasks.get(3).getUserId());
         assertEquals(TaskEvent.TaskEventType.UPDATED, auditTasks.get(4).getType());
-        assertEquals("salaboy", auditTasks.get(4).getUserId());
+        assertEquals("Administrator", auditTasks.get(4).getUserId());
     
         identityProvider.setName("testUser");
         processService.abortProcessInstance(processInstanceId);
