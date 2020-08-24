@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import org.apache.commons.lang3.SystemUtils;
 import org.drools.core.common.InternalKnowledgeRuntime;
 import org.drools.core.runtime.process.InternalProcessRuntime;
 import org.drools.persistence.api.TransactionManager;
@@ -237,6 +238,11 @@ public class SingletonRuntimeManager extends AbstractRuntimeManager {
         this.singleton = null;   
     }
     
+    private File getPersistedFile(String location, String identifier) {
+        // if windows, replace ':' by '_'
+        return new File(location + File.separatorChar +
+                        (SystemUtils.IS_OS_WINDOWS ? identifier.replace(':', '_') : identifier) + "-jbpmSessionId.ser");
+    }
     /**
      * Retrieves session id from serialized file named jbpmSessionId.ser from given location.
      * @param location directory where jbpmSessionId.ser file should be
@@ -244,7 +250,7 @@ public class SingletonRuntimeManager extends AbstractRuntimeManager {
      * @return sessionId if file was found otherwise 0
      */
     protected Long getPersistedSessionId(String location, String identifier) {
-        File sessionIdStore = new File(location + File.separator + identifier+ "-jbpmSessionId.ser");
+        File sessionIdStore = getPersistedFile(location, identifier);
         if (sessionIdStore.exists()) {
         	Long knownSessionId = null; 
             FileInputStream fis = null;
@@ -284,6 +290,7 @@ public class SingletonRuntimeManager extends AbstractRuntimeManager {
         }
     }
     
+
     /**
      * Stores gives ksessionId in a serialized file in given location under jbpmSessionId.ser file name
      * @param location directory where serialized file should be stored
@@ -297,7 +304,7 @@ public class SingletonRuntimeManager extends AbstractRuntimeManager {
         FileOutputStream fos = null;
         ObjectOutputStream out = null;
         try {
-            fos = new FileOutputStream(location + File.separator + identifier + "-jbpmSessionId.ser");
+            fos = new FileOutputStream(getPersistedFile(location, identifier));
             out = new ObjectOutputStream(fos);
             out.writeObject(Long.valueOf(ksessionId));
             out.close();
