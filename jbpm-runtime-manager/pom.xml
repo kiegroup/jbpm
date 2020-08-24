@@ -294,6 +294,7 @@
               javax.xml.bind,
               javax.xml.bind.annotation,
               javax.xml.validation,
+              org.apache.commons.lang3,
               org.drools.compiler.kie.builder.impl,
               org.drools.compiler.kie.util,
               org.drools.core.builder.conf.impl,
