@@ -36,9 +36,9 @@ import static java.util.Collections.emptyList;
  */
 public class NotificationListenerManager {
 
-    public static final String KIE_LISTENER_EXCLUDE = "org.kie.jpbm.notification_listeners.exclude";
+    public static final String KIE_LISTENER_EXCLUDE = "org.kie.jbpm.notification_listeners.exclude";
 
-    public static final String KIE_LISTENER_INCLUDE = "org.kie.jpbm.notification_listeners.include";
+    public static final String KIE_LISTENER_INCLUDE = "org.kie.jbpm.notification_listeners.include";
 
     private static final Logger logger = LoggerFactory.getLogger(NotificationListenerManager.class);
 
