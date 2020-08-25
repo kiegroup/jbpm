@@ -503,6 +503,11 @@ public class TimerManager {
                 return null;
             }
             long then = date.getTime();
+            if(kruntime == null) {
+                // it means there was an error about session so kruntime could not be calculated
+                // we need to return null in this case to repeat the same trigger.
+                return null;
+            }
             long now = kruntime.getSessionClock().getCurrentTime();
             // overdue timer
             if (then < now) {
