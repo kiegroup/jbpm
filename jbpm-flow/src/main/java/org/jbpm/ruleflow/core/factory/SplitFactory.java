@@ -16,45 +16,41 @@
 
 package org.jbpm.ruleflow.core.factory;
 
-import org.jbpm.ruleflow.core.RuleFlowNodeContainerFactory;
 import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.core.NodeContainer;
 import org.jbpm.workflow.core.impl.ConnectionRef;
 import org.jbpm.workflow.core.impl.ConstraintImpl;
 import org.jbpm.workflow.core.node.Split;
+import org.kie.api.fluent.Dialect;
+import org.kie.api.fluent.NodeContainerBuilder;
+import org.kie.api.fluent.SplitNodeBuilder;
 
 /**
  *
  */
-public class SplitFactory extends NodeFactory {
+public class SplitFactory<T extends NodeContainerBuilder<T, ?>> extends NodeFactory<SplitNodeBuilder<T>, T> implements SplitNodeBuilder<T> {
 
-    public SplitFactory(RuleFlowNodeContainerFactory nodeContainerFactory, NodeContainer nodeContainer, long id) {
-        super(nodeContainerFactory, nodeContainer, id);
+    public SplitFactory(T nodeContainerFactory, NodeContainer nodeContainer, long id) {
+        super(nodeContainerFactory, nodeContainer, new Split(), id);
     }
 
-    protected Node createNode() {
-        return new Split();
-    }
     
     protected Split getSplit() {
     	return (Split) getNode();
     }
 
-    public SplitFactory name(String name) {
-        getNode().setName(name);
-        return this;
-    }
-
-    public SplitFactory type(int type) {
+    @Override
+    public SplitFactory<T> type(int type) {
     	getSplit().setType(type);
         return this;
     }
     
-    public SplitFactory constraint(long toNodeId, String name, String type, String dialect, String constraint) {
+    public SplitFactory<T> constraint(long toNodeId, String name, String type, String dialect, String constraint) {
     	return constraint(toNodeId, name, type, dialect, constraint, 0);
     }
     
-    public SplitFactory constraint(long toNodeId, String name, String type, String dialect, String constraint, int priority) {
+
+    public SplitFactory<T> constraint(long toNodeId, String name, String type, String dialect, String constraint, int priority) {
         ConstraintImpl constraintImpl = new ConstraintImpl();
         constraintImpl.setName(name);
         constraintImpl.setType(type); 
@@ -66,5 +62,9 @@ public class SplitFactory extends NodeFactory {
         return this;
     }
 
+    @Override
+    public SplitNodeBuilder<T> constraint(long toNodeId, String name, String type, Dialect dialect, String constraint, int priority) {
+        return constraint(toNodeId, name, type, DialectConverter.fromDialect(dialect), constraint, priority);
+    }
 
 }

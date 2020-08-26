@@ -16,39 +16,39 @@
 
 package org.jbpm.ruleflow.core.factory;
 
-import org.jbpm.ruleflow.core.RuleFlowNodeContainerFactory;
-import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.core.NodeContainer;
 import org.jbpm.workflow.core.node.Join;
+import org.kie.api.fluent.JoinNodeBuilder;
+import org.kie.api.fluent.NodeContainerBuilder;
 
 /**
  *
  */
-public class JoinFactory extends NodeFactory {
+public class JoinFactory<T extends NodeContainerBuilder<T, ?>> extends NodeFactory<JoinNodeBuilder<T>, T> implements JoinNodeBuilder<T> {
 
-    public JoinFactory(RuleFlowNodeContainerFactory nodeContainerFactory, NodeContainer nodeContainer, long id) {
-        super(nodeContainerFactory, nodeContainer, id);
+    public JoinFactory(T nodeContainerFactory, NodeContainer nodeContainer, long id) {
+        super(nodeContainerFactory, nodeContainer, new Join(), id);
     }
 
-    protected Node createNode() {
-        return new Join();
-    }
     
     protected Join getJoin() {
     	return (Join) getNode();
     }
 
-    public JoinFactory name(String name) {
+    @Override
+    public JoinFactory<T> name(String name) {
         getNode().setName(name);
         return this;
     }
 
-    public JoinFactory type(int type) {
+    @Override
+    public JoinFactory<T> type(int type) {
     	getJoin().setType(type);
         return this;
     }
     
-    public JoinFactory type(String n) {
+    @Override
+    public JoinFactory<T> type(String n) {
     	getJoin().setN(n);
         return this;
     }

@@ -17,34 +17,27 @@
 package org.jbpm.ruleflow.core.factory;
 
 import org.jbpm.process.core.timer.Timer;
-import org.jbpm.ruleflow.core.RuleFlowNodeContainerFactory;
-import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.core.NodeContainer;
 import org.jbpm.workflow.core.node.TimerNode;
+import org.kie.api.fluent.NodeContainerBuilder;
+import org.kie.api.fluent.TimerNodeBuilder;
 
 /**
  *
  */
-public class TimerNodeFactory extends NodeFactory {
+public class TimerNodeFactory<T extends NodeContainerBuilder<T, ?>> extends NodeFactory<TimerNodeBuilder<T>, T> implements TimerNodeBuilder<T>
+{
 
-    public TimerNodeFactory(RuleFlowNodeContainerFactory nodeContainerFactory, NodeContainer nodeContainer, long id) {
-        super(nodeContainerFactory, nodeContainer, id);
+    public TimerNodeFactory(T nodeContainerFactory, NodeContainer nodeContainer, long id) {
+        super(nodeContainerFactory, nodeContainer, new TimerNode(), id);
     }
 
-    protected Node createNode() {
-        return new TimerNode();
-    }
-    
     protected TimerNode getTimerNode() {
     	return (TimerNode) getNode();
     }
-
-    public TimerNodeFactory name(String name) {
-        getNode().setName(name);
-        return this;
-    }
     
-    public TimerNodeFactory delay(String delay) {
+    @Override
+    public TimerNodeFactory<T> delay(String delay) {
     	Timer timer = getTimerNode().getTimer();
     	if (timer == null) {
     		timer = new Timer();
@@ -54,7 +47,8 @@ public class TimerNodeFactory extends NodeFactory {
     	return this;
     }
     
-    public TimerNodeFactory period(String period) {
+    @Override
+    public TimerNodeFactory<T> period(String period) {
     	Timer timer = getTimerNode().getTimer();
     	if (timer == null) {
     		timer = new Timer();

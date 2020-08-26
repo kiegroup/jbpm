@@ -16,59 +16,64 @@
 
 package org.jbpm.ruleflow.core.factory;
 
+import java.util.function.UnaryOperator;
+
 import org.jbpm.process.core.event.EventFilter;
 import org.jbpm.process.core.event.EventTransformer;
 import org.jbpm.process.core.event.EventTypeFilter;
-import org.jbpm.ruleflow.core.RuleFlowNodeContainerFactory;
-import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.core.NodeContainer;
 import org.jbpm.workflow.core.node.EventNode;
+import org.kie.api.fluent.EventNodeBuilder;
+import org.kie.api.fluent.NodeContainerBuilder;
 
-/**
- *
- */
-public class EventNodeFactory extends NodeFactory {
 
-    public EventNodeFactory(RuleFlowNodeContainerFactory nodeContainerFactory, NodeContainer nodeContainer, long id) {
-        super(nodeContainerFactory, nodeContainer, id);
+public class EventNodeFactory<T extends NodeContainerBuilder<T, ?>> extends NodeFactory<EventNodeBuilder<T>, T> implements EventNodeBuilder<T>
+{
+    public EventNodeFactory(T nodeContainerFactory, NodeContainer nodeContainer, long id) {
+        super(nodeContainerFactory, nodeContainer, new EventNode(), id);
     }
 
-    protected Node createNode() {
-        return new EventNode();
-    }
-    
     protected EventNode getEventNode() {
     	return(EventNode) getNode();
     }
 
-    public EventNodeFactory name(String name) {
+    @Override
+    public EventNodeFactory<T> name(String name) {
         getNode().setName(name);
         return this;
     }
 
-    public EventNodeFactory variableName(String variableName) {
+    @Override
+    public EventNodeFactory<T> variableName(String variableName) {
     	getEventNode().setVariableName(variableName);
         return this;
     }
 
-    public EventNodeFactory eventFilter(EventFilter eventFilter) {
+    public EventNodeFactory<T> eventFilter(EventFilter eventFilter) {
     	getEventNode().addEventFilter(eventFilter);
         return this;
     }
 
-    public EventNodeFactory eventType(String eventType) {
+    @Override
+    public EventNodeFactory<T> eventType(String eventType) {
     	EventTypeFilter filter = new EventTypeFilter();
     	filter.setType(eventType);
     	return eventFilter(filter);
     }
 
-    public EventNodeFactory eventTransformer(EventTransformer transformer) {
+    public EventNodeFactory<T> eventTransformer(EventTransformer transformer) {
     	getEventNode().setEventTransformer(transformer);
         return this;
     }
 
-    public EventNodeFactory scope(String scope) {
+    @Override
+    public EventNodeFactory<T> scope(String scope) {
     	getEventNode().setScope(scope);
         return this;
+    }
+
+    @Override
+    public EventNodeFactory<T> eventTransformer(UnaryOperator<Object> function) {
+        return eventTransformer((EventTransformer) function::apply);
     }
 }

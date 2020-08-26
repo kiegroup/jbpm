@@ -16,23 +16,28 @@
 
 package org.jbpm.ruleflow.core;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-import org.jbpm.process.core.datatype.DataType;
 import org.jbpm.process.core.context.exception.ActionExceptionHandler;
 import org.jbpm.process.core.context.exception.ExceptionHandler;
 import org.jbpm.process.core.context.swimlane.Swimlane;
 import org.jbpm.process.core.context.variable.Variable;
+import org.jbpm.process.core.datatype.DataType;
 import org.jbpm.process.core.validation.ProcessValidationError;
 import org.jbpm.ruleflow.core.validation.RuleFlowProcessValidator;
 import org.jbpm.workflow.core.impl.DroolsConsequenceAction;
+import org.kie.api.definition.process.Process;
+import org.kie.api.fluent.ProcessBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RuleFlowProcessFactory extends RuleFlowNodeContainerFactory {
+
+public class RuleFlowProcessFactory extends RuleFlowNodeContainerFactory<ProcessBuilder, ProcessBuilder> implements ProcessBuilder {
     
     private static final Logger logger = LoggerFactory.getLogger(RuleFlowProcessFactory.class);
 
@@ -41,30 +46,48 @@ public class RuleFlowProcessFactory extends RuleFlowNodeContainerFactory {
     }
 
     protected RuleFlowProcessFactory(String id) {
-        RuleFlowProcess process = new RuleFlowProcess();
-        process.setId(id);
-        setNodeContainer(process);
+        super(null, null, new RuleFlowProcess(), id);
     }
     
-    protected RuleFlowProcess getRuleFlowProcess() {
-    	return (RuleFlowProcess) getNodeContainer();
+    @Override
+    protected void setId(Object node, Object id) {
+        getRuleFlowProcess().setId((String) id);
     }
 
+    protected RuleFlowProcess getRuleFlowProcess() {
+        return (RuleFlowProcess) node;
+    }
+
+    @Override
     public RuleFlowProcessFactory name(String name) {
     	getRuleFlowProcess().setName(name);
         return this;
     }
 
+    @Override
+    public RuleFlowProcessFactory setMetadata(String name, Object value) {
+        getRuleFlowProcess().setMetaData(name, value);
+        return this;
+    }
+
+    @Override
+    public ProcessBuilder done() {
+        return this;
+    }
+
+    @Override
     public RuleFlowProcessFactory dynamic(boolean dynamic) {
         getRuleFlowProcess().setDynamic(dynamic);
         return this;
     }
 
+    @Override
     public RuleFlowProcessFactory version(String version) {
     	getRuleFlowProcess().setVersion(version);
         return this;
     }
 
+    @Override
     public RuleFlowProcessFactory packageName(String packageName) {
     	getRuleFlowProcess().setPackageName(packageName);
         return this;
@@ -80,11 +103,13 @@ public class RuleFlowProcessFactory extends RuleFlowNodeContainerFactory {
         return this;
     }
     
+    @Override
     public RuleFlowProcessFactory globals(Map<String, String> globals) {
     	getRuleFlowProcess().setGlobals(globals);
         return this;
     }
     
+    @Override
     public RuleFlowProcessFactory global(String name, String type) {
     	Map<String, String> globals = getRuleFlowProcess().getGlobals();
     	if (globals == null) {
@@ -119,6 +144,7 @@ public class RuleFlowProcessFactory extends RuleFlowNodeContainerFactory {
     	return this;
     }
     
+    @Override
     public RuleFlowProcessFactory swimlane(String name) {
     	Swimlane swimlane = new Swimlane();
     	swimlane.setName(name);
@@ -126,11 +152,13 @@ public class RuleFlowProcessFactory extends RuleFlowNodeContainerFactory {
     	return this;
     }
     
+    @Override
     public RuleFlowProcessFactory exceptionHandler(String exception, ExceptionHandler exceptionHandler) {
     	getRuleFlowProcess().getExceptionScope().setExceptionHandler(exception, exceptionHandler);
     	return this;
     }
     
+    @Override
     public RuleFlowProcessFactory exceptionHandler(String exception, String dialect, String action) {
     	ActionExceptionHandler exceptionHandler = new ActionExceptionHandler();
     	exceptionHandler.setAction(new DroolsConsequenceAction(dialect, action));
@@ -148,12 +176,26 @@ public class RuleFlowProcessFactory extends RuleFlowNodeContainerFactory {
         return this;
     }
     
-    public RuleFlowNodeContainerFactory done() {
-    	throw new IllegalArgumentException("Already on the top-level.");
-    }
 
     public RuleFlowProcess getProcess() {
         return getRuleFlowProcess();
+    }
+
+    @Override
+    public ProcessBuilder imports(Collection<String> imports) {
+        getRuleFlowProcess().setImports(new HashSet<>(imports));
+        return this;
+    }
+
+    @Override
+    public ProcessBuilder functionImports(Collection<String> functionImports) {
+        getRuleFlowProcess().setFunctionImports(new ArrayList<>(functionImports));
+        return this;
+    }
+
+    @Override
+    public Process build() {
+        return validate().getProcess();
     }
 }
 
