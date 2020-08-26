@@ -18,7 +18,7 @@
         <parameters/>
       </org.kie.internal.runtime.conf.ObjectModel>
     </eventListeners>
-    <taskEventListeners class="linked-hash-set"/>
+    <taskEventListeners class="list"/>
     <globals class="linked-hash-set">
       <org.kie.internal.runtime.conf.NamedObjectModel>
         <resolver>mvel</resolver>
