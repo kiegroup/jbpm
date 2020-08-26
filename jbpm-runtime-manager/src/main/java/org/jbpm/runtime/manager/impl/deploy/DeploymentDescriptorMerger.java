@@ -16,6 +16,7 @@
 
 package org.jbpm.runtime.manager.impl.deploy;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Stack;
@@ -106,9 +107,17 @@ public class DeploymentDescriptorMerger {
 				for (ObjectModel model : slave.getMarshallingStrategies()) {
 					builder.addMarshalingStrategy(model);
 				}
-				for (ObjectModel model : slave.getTaskEventListeners()) {
-					builder.addTaskEventListener(model);
+				
+				// we need to keep the order of task listeners otherwise they will rise in different order
+				// so the master must be the latest ones
+				List<ObjectModel> taskEventListeners = new ArrayList<>(slave.getTaskEventListeners());
+				for(ObjectModel model : master.getTaskEventListeners()) {
+				    if(!taskEventListeners.contains(model)) {
+				        taskEventListeners.add(model);
+				    }
 				}
+				builder.setTaskEventListeners(taskEventListeners);
+
 				for (NamedObjectModel model : slave.getConfiguration()) {
 					builder.addConfiguration(model);
 				}

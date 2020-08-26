@@ -51,7 +51,6 @@ import org.jbpm.kie.services.impl.bpmn2.ProcessDescriptor;
 import org.jbpm.kie.services.impl.model.ProcessAssetDesc;
 import org.jbpm.process.audit.event.AuditEventBuilder;
 import org.jbpm.runtime.manager.impl.KModuleRegisterableItemsFactory;
-import org.jbpm.runtime.manager.impl.deploy.DeploymentDescriptorManagerUtil;
 import org.jbpm.runtime.manager.impl.deploy.DeploymentDescriptorMerger;
 import org.jbpm.runtime.manager.impl.jpa.EntityManagerFactoryManager;
 import org.jbpm.services.api.DefinitionService;
@@ -88,6 +87,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 
+import static org.jbpm.runtime.manager.impl.deploy.DeploymentDescriptorManagerUtil.getDeploymentDescriptor;
 import static org.kie.scanner.KieMavenRepository.getKieMavenRepository;
 
 
@@ -253,17 +253,12 @@ public class KModuleDeploymentService extends AbstractDeploymentService {
     	DeploymentDescriptor descriptor = deploymentUnit.getDeploymentDescriptor();
     	if (descriptor == null || ((DeploymentDescriptorImpl)descriptor).isEmpty()) { // skip empty descriptors as its default can override settings
 	    	DeploymentDescriptorManager descriptorManager = new DeploymentDescriptorManager("org.jbpm.domain");
-            List<DeploymentDescriptor> descriptorHierarchy = DeploymentDescriptorManagerUtil.getDeploymentDescriptorHierarchy(descriptorManager, kieContainer);
-
-			descriptor = merger.merge(descriptorHierarchy, mode);
-			deploymentUnit.setDeploymentDescriptor(descriptor);
-    	} else if (descriptor != null && !deploymentUnit.isDeployed()) {
+	    	descriptor = getDeploymentDescriptor(descriptorManager, kieContainer, mode);
+	        deploymentUnit.setDeploymentDescriptor(descriptor);
+    	} else if (!deploymentUnit.isDeployed()) {
     		DeploymentDescriptorManager descriptorManager = new DeploymentDescriptorManager("org.jbpm.domain");
-            List<DeploymentDescriptor> descriptorHierarchy = DeploymentDescriptorManagerUtil.getDeploymentDescriptorHierarchy(descriptorManager, kieContainer);
-
-	    	descriptorHierarchy.add(0, descriptor);
-	    	descriptor = merger.merge(descriptorHierarchy, mode);
-			deploymentUnit.setDeploymentDescriptor(descriptor);
+    		descriptor = getDeploymentDescriptor(descriptorManager, kieContainer, mode, deploymentUnit.getDeploymentDescriptor());
+            deploymentUnit.setDeploymentDescriptor(descriptor);
     	}
 
 		// first set on unit the strategy
