@@ -413,7 +413,6 @@ public class UserGroupCallbackTaskCommand<T> extends TaskCommand<T> {
             if (escalations != null) {
                 for (Escalation escalation : escalations) {
                     List<? extends Notification> notifications = escalation.getNotifications();
-                    List<? extends Reassignment> ressignments = escalation.getReassignments();
                     if (notifications != null) {
                         for (Notification notification : notifications) {
                             List<? extends OrganizationalEntity> recipients = notification.getRecipients();
@@ -441,13 +440,14 @@ public class UserGroupCallbackTaskCommand<T> extends TaskCommand<T> {
                             }
                         }
                     }
-                    if (ressignments != null) {
-                        for (Reassignment reassignment : ressignments) {
+                    List<? extends Reassignment> reassignments = escalation.getReassignments();
+                    if (reassignments != null) {
+                        for (Reassignment reassignment : reassignments) {
                             List<? extends OrganizationalEntity> potentialOwners = reassignment.getPotentialOwners();
                             if (potentialOwners != null) {
                                 for (OrganizationalEntity potentialOwner : potentialOwners) {
                                     if (potentialOwner instanceof User) {
-                                        doCallbackUserOperation(potentialOwner.getId(), context);
+                                        doCallbackUserOperation(potentialOwner.getId(), context, true);
                                     }
                                     if (potentialOwner instanceof Group) {
                                         doCallbackGroupOperation(potentialOwner.getId(), context);
