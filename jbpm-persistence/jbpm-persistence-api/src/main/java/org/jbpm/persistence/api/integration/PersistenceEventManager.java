@@ -49,4 +49,12 @@ public interface PersistenceEventManager {
      * Determines if event manager is actually active (there is emitter found)
      */
     boolean isActive();
+
+    /**
+     * Override programmatically the emitter found
+     * @param eventEmitter
+     */
+    default void setEventEmitter(EventEmitter eventEmitter) {
+        // do nothing
+    }
 }
