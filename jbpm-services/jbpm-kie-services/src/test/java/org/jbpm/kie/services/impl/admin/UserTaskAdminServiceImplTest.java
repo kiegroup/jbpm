@@ -612,14 +612,17 @@ public class UserTaskAdminServiceImplTest extends AbstractKieServicesBaseTest {
         userTaskService.start(task.getId(), "salaboy");
         
         Collection<TaskReassignment> reassignments = userTaskAdminService.getTaskReassignments(task.getId(), false);
-        Assertions.assertThat(reassignments).isNotNull();
-        Assertions.assertThat(reassignments).hasSize(0);
+        Assertions.assertThat(reassignments).isNotNull().isEmpty();
         
         userTaskAdminService.reassignWhenNotCompleted(task.getId(), "2s", factory.newUser("john"));
         reassignments = userTaskAdminService.getTaskReassignments(task.getId(), true);
         Assertions.assertThat(reassignments).isNotNull();
         Assertions.assertThat(reassignments).hasSize(1);
         
+        Assertions
+                  .assertThatThrownBy(() -> userTaskAdminService.reassignWhenNotCompleted(task.getId(), "2s", factory.newUser("pepe")))
+                  .isInstanceOf(IllegalArgumentException.class);
+
         CountDownListenerFactory.getExistingTask("userTaskAdminService").waitTillCompleted();
         
         tasks = runtimeDataService.getTasksAssignedAsPotentialOwner("salaboy", new QueryFilter());
