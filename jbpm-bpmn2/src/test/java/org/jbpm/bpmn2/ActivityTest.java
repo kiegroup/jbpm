@@ -2150,7 +2150,7 @@ public class ActivityTest extends JbpmBpmn2TestCase {
     public void testCallActivityChain() throws Exception {
 
         try {
-            System.setProperty("org.jbpm.correlationkey.length", "90");
+            System.setProperty("org.jbpm.correlationkey.length", "155");
             KieBase kbase = createKnowledgeBase("correlationkey/Process1.bpmn2",
                                                 "correlationkey/Process2.bpmn2",
                                                 "correlationkey/Process3.bpmn2",
@@ -2167,7 +2167,7 @@ public class ActivityTest extends JbpmBpmn2TestCase {
             assertNotNull(log.getCorrelationKey());
             assertTrue(log.getCorrelationKey().startsWith(processInstance.getId() + ":src.Process2:"));
             assertTrue(log.getCorrelationKey().contains(":src.Process4"));
-            assertTrue(log.getCorrelationKey().length() <= 90);
+            assertTrue(log.getCorrelationKey().length() <= 155);
         } finally {
             System.clearProperty("org.jbpm.correlationkey.length");
         }

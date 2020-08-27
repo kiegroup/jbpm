@@ -140,6 +140,7 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
     @After
     public void dispose() {
         if (ksession != null) {
+            abortProcessInstances(ksession);
             ksession.dispose();
             ksession = null;
         }
@@ -2769,7 +2770,7 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
         ksession.getWorkItemManager().registerWorkItemHandler("Human Task", handler);
         
         final List<Long> instances = new ArrayList<>();
-        
+
         ksession.addEventListener(new DefaultProcessEventListener() {
 
             @Override

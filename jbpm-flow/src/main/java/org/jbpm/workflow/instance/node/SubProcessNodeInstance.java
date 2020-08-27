@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.regex.Matcher;
 
 import org.drools.core.common.InternalKnowledgeRuntime;
@@ -207,11 +208,11 @@ public class SubProcessNodeInstance extends StateBasedNodeInstance implements Ev
             ProcessInstance processInstance = null;
             if (((WorkflowProcessInstanceImpl)getProcessInstance()).getCorrelationKey() != null) {
                 // in case there is correlation key on parent instance pass it along to child so it can be easily correlated 
-                // since correlation key must be unique for active instances it appends processId and timestamp
-                List<String> businessKeys = new ArrayList<String>();
+                // since correlation key must be unique for active instances it appends processId and UUID
+                List<String> businessKeys = new ArrayList<>();
                 businessKeys.add(((WorkflowProcessInstanceImpl)getProcessInstance()).getCorrelationKey());
                 businessKeys.add(processId);
-                businessKeys.add(String.valueOf(System.currentTimeMillis()));
+                businessKeys.add(UUID.randomUUID().toString());
                 CorrelationKeyFactory correlationKeyFactory = KieInternalServices.Factory.get().newCorrelationKeyFactory();
                 CorrelationKey subProcessCorrelationKey = correlationKeyFactory.newCorrelationKey(businessKeys);
                 processInstance = (ProcessInstance) ((CorrelationAwareProcessRuntime)kruntime).createProcessInstance(processId, subProcessCorrelationKey, parameters);

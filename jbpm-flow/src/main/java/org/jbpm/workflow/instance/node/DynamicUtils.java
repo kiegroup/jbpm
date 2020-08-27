@@ -19,6 +19,7 @@ package org.jbpm.workflow.instance.node;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.regex.Matcher;
 
 import org.drools.core.command.impl.CommandBasedStatefulKnowledgeSession;
@@ -275,7 +276,7 @@ public class DynamicUtils {
                 List<String> businessKeys = new ArrayList<>();
                 businessKeys.add(((WorkflowProcessInstanceImpl) processInstance).getCorrelationKey());
                 businessKeys.add(processId);
-                businessKeys.add(String.valueOf(System.currentTimeMillis()));
+                businessKeys.add(UUID.randomUUID().toString());
                 CorrelationKeyFactory correlationKeyFactory = KieInternalServices.Factory.get().newCorrelationKeyFactory();
                 CorrelationKey subProcessCorrelationKey = correlationKeyFactory.newCorrelationKey(businessKeys);
                 subProcessInstance = (ProcessInstance) ksession.createProcessInstance(processId,
