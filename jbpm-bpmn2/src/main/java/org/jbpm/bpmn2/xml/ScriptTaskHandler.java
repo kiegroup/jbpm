@@ -16,8 +16,8 @@
 
 package org.jbpm.bpmn2.xml;
 
-import org.drools.compiler.rule.builder.dialect.java.JavaDialect;
 import org.drools.core.xml.ExtensibleXmlParser;
+import org.drools.mvel.java.JavaDialect;
 import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.core.impl.DroolsConsequenceAction;
 import org.jbpm.workflow.core.node.ActionNode;
@@ -50,7 +50,7 @@ public class ScriptTaskHandler extends AbstractNodeHandler {
         }
 		String language = element.getAttribute("scriptFormat");
 		if (XmlBPMNProcessDumper.JAVA_LANGUAGE.equals(language)) {
-			action.setDialect(JavaDialect.ID);
+			action.setDialect( JavaDialect.ID);
 		} else if (XmlBPMNProcessDumper.JAVASCRIPT_LANGUAGE.equals(language)) {
 		    action.setDialect("JavaScript");
 		}

@@ -18,7 +18,7 @@ package org.jbpm.runtime.manager.impl.deploy;
 
 import java.util.Map;
 
-import org.drools.core.util.MVELSafeHelper;
+import org.drools.mvel.MVELSafeHelper;
 import org.kie.internal.runtime.Cacheable;
 import org.kie.internal.runtime.conf.ObjectModel;
 import org.kie.internal.runtime.conf.ObjectModelResolver;
