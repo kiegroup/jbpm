@@ -27,6 +27,7 @@ import org.kie.api.task.model.OrganizationalEntity;
 import org.kie.api.task.model.Status;
 import org.kie.api.task.model.Task;
 import org.kie.api.task.model.TaskData;
+import org.kie.internal.identity.IdentityProvider;
 import org.kie.internal.task.api.ContentMarshallerContext;
 import org.kie.internal.task.api.TaskDeadlinesService.DeadlineType;
 import org.kie.internal.task.api.TaskModelProvider;
@@ -119,8 +120,7 @@ public class ExecuteReminderCommand extends TaskCommand<Void> {
         		    	Map<String, Object> variables = getVariables(ctx, persistenceContext, task,
         							taskData);
         		        Notification notification = buildDefaultNotification(taskData,task);
-        		        NotificationListenerManager.get().broadcast(new NotificationEvent(notification, task, variables), userInfo);
-        		        
+        		        NotificationListenerManager.get().broadcast(ctx, new NotificationEvent(notification, task, variables), userInfo);
         		        taskEventSupport.fireAfterTaskNotified(task, ctx);
         		    }
         		}
@@ -177,7 +177,7 @@ public class ExecuteReminderCommand extends TaskCommand<Void> {
 		            for (Notification notification : escalation.getNotifications()) {
 		                if (notification.getNotificationType() == NotificationType.Email) {		                    
 		                    logger.debug("Sending an Email");
-		                    NotificationListenerManager.get().broadcast(new NotificationEvent(notification, task, variables), userInfo);
+		                    NotificationListenerManager.get().broadcast(ctx, new NotificationEvent(notification, task, variables), userInfo);
 		                }
 		            }
 		        }

@@ -23,6 +23,9 @@ import java.util.ServiceLoader;
 import java.util.function.Predicate;
 
 import org.jbpm.services.task.deadlines.NotificationListener;
+import org.kie.api.runtime.EnvironmentName;
+import org.kie.internal.identity.IdentityProvider;
+import org.kie.internal.task.api.TaskContext;
 import org.kie.internal.task.api.UserInfo;
 import org.kie.internal.task.api.model.NotificationEvent;
 import org.slf4j.Logger;
@@ -97,6 +100,21 @@ public class NotificationListenerManager {
 
     public List<NotificationListener> getNotificationListeners() {
         return listeners;
+    }
+
+    public void broadcast(TaskContext taskContext, NotificationEvent event, UserInfo userInfo) {
+        IdentityProvider identityProvider = (IdentityProvider) taskContext.get(EnvironmentName.IDENTITY_PROVIDER);
+        if(identityProvider != null) {
+            identityProvider.setContextIdentity(System.getProperty("org.jbpm.ht.admin.user", "Administrator"));
+        }
+
+        try {
+            broadcast(event, userInfo);
+        } finally {
+            if(identityProvider != null) {
+                identityProvider.removeContextIdentity();
+            }
+        }
     }
     /**
      * Broadcast given event to all listeners independently meaning catches possible exceptions to 

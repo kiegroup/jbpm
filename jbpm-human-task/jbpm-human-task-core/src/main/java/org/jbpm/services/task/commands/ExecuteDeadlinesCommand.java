@@ -161,7 +161,7 @@ public class ExecuteDeadlinesCommand extends TaskCommand<Void> {
 	                            
 	                            taskEventSupport.fireBeforeTaskNotified(task, ctx);
 	                            logger.debug("Sending an Email");
-	                            NotificationListenerManager.get().broadcast(new NotificationEvent(notification, task, variables), userInfo);
+	                            NotificationListenerManager.get().broadcast(ctx, new NotificationEvent(notification, task, variables), userInfo);
 	                            
 	                            taskEventSupport.fireAfterTaskNotified(task, ctx);
 	                        }
