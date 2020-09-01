@@ -243,6 +243,9 @@ public class EmailNotificationListener implements NotificationListener {
 
     @Override
     public String toString() {
+        if (mailSession == null) {
+            return "EmailNotificationListener (empty - no mailSession)";
+        }
         Properties properties = mailSession.getProperties();
         List<String> prop = new ArrayList<>();
         for (Object key : properties.keySet()) {
