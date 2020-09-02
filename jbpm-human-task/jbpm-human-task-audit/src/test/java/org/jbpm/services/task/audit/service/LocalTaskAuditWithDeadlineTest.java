@@ -87,7 +87,7 @@ public class LocalTaskAuditWithDeadlineTest extends HumanTaskServicesBaseTest {
     @Test(timeout=10000)
     public void testDelayedReassignmentOnDeadline() throws Exception {
         CountDownTaskEventListener countDownListener = new CountDownTaskEventListener(1, true, false);
-        addCountDownListner(countDownListener);
+        addCountDownListener(countDownListener);
         Map<String, Object> vars = new HashMap<String, Object>();
         vars.put("now", new Date());
     
@@ -144,7 +144,7 @@ public class LocalTaskAuditWithDeadlineTest extends HumanTaskServicesBaseTest {
     @Test(timeout=10000)
     public void testDelayedReassignmentOnDeadlineISOFormat() throws Exception {
         CountDownTaskEventListener countDownListener = new CountDownTaskEventListener(1, true, false);
-        addCountDownListner(countDownListener);
+        addCountDownListener(countDownListener);
         Map<String, Object> vars = new HashMap<String, Object>();
         vars.put("now", new Date());
 

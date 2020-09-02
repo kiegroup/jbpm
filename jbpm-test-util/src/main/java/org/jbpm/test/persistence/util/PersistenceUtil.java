@@ -188,6 +188,17 @@ public class PersistenceUtil {
     }
 
     /**
+     * Sets up a PoolingDataSourceWrapper with the specified datasource name based on
+     * the datasource.properties file existing in the classpath. If not found, default H2 datasource
+     * properties will be used instead.
+     * @param datasourceName Datasource name to setup
+     * @return PoolingDataSourceWrapper that has been set up but _not_ initialized.
+     */
+    public static PoolingDataSourceWrapper setupPoolingDataSource(String datasourceName){
+        return setupPoolingDataSource(getDatasourceProperties(), datasourceName);
+    }
+
+    /**
      * Return the default database/datasource properties - These properties use
      * an in-memory H2 database
      * 

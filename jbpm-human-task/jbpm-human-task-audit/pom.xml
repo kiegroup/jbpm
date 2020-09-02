@@ -210,6 +210,17 @@
   </dependencies>
 
   <build>
+    <testResources>
+      <testResource>
+        <directory>src/test/resources</directory>
+        <filtering>false</filtering>
+      </testResource>
+      <testResource>
+        <directory>src/test/filtered-resources</directory>
+        <filtering>true</filtering>
+      </testResource>
+    </testResources>
+
     <plugins>
       <plugin>
         <groupId>org.apache.felix</groupId>

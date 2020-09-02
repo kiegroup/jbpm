@@ -72,6 +72,19 @@
     </dependency>
   </dependencies>
 
+  <build>
+    <testResources>
+      <testResource>
+        <directory>src/test/resources</directory>
+        <filtering>false</filtering>
+      </testResource>
+      <testResource>
+        <directory>src/test/filtered-resources</directory>
+        <filtering>true</filtering>
+      </testResource>
+    </testResources>
+  </build>
+
   <profiles>
     <!-- Create the test WAR only in case we actually need it - when the tests are enabled -->
     <profile>
