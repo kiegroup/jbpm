@@ -44,7 +44,7 @@ public abstract class TaskReminderBaseTest extends HumanTaskServicesBaseTest {
     @Test(timeout=10000)
     public void testTaskReminderWithoutNotification() throws Exception {
         CountDownTaskEventListener countDownListener = new CountDownTaskEventListener(1, false, true);
-        addCountDownListner(countDownListener);
+        addCountDownListener(countDownListener);
         
         Map<String, Object> vars = new HashMap<String, Object>();
         vars.put("now", new Date());
@@ -72,7 +72,7 @@ public abstract class TaskReminderBaseTest extends HumanTaskServicesBaseTest {
     @Test(timeout=10000)
     public void testTaskReminderWithNotificationByTaskNostarted() throws Exception {
         CountDownTaskEventListener countDownListener = new CountDownTaskEventListener(1, false, true);
-        addCountDownListner(countDownListener);
+        addCountDownListener(countDownListener);
         
         Map<String, Object> vars = new HashMap<String, Object>();
         vars.put("now", new Date());
@@ -110,7 +110,7 @@ public abstract class TaskReminderBaseTest extends HumanTaskServicesBaseTest {
     @Test(timeout=10000)
     public void testTaskReminderWithNotificationByTaskNoCompleted() throws Exception {
         CountDownTaskEventListener countDownListener = new CountDownTaskEventListener(1, false, true);
-        addCountDownListner(countDownListener);
+        addCountDownListener(countDownListener);
         
         Map<String, Object> vars = new HashMap<String, Object>();
         vars.put("now", new Date());
