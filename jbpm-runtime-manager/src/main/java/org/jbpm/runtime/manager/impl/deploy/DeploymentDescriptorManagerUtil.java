@@ -20,13 +20,17 @@ import static java.util.stream.Collectors.toList;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.drools.compiler.kie.builder.impl.ClasspathKieProject;
 import org.drools.compiler.kie.builder.impl.InternalKieModule;
 import org.drools.compiler.kie.builder.impl.KieContainerImpl;
 import org.drools.compiler.kie.builder.impl.KieModuleKieProject;
+import org.drools.compiler.kie.builder.impl.KieProject;
+import org.drools.core.util.IoUtils;
 import org.kie.api.runtime.KieContainer;
 import org.kie.internal.runtime.conf.DeploymentDescriptor;
 import org.kie.internal.runtime.conf.MergeMode;
@@ -53,10 +57,20 @@ public class DeploymentDescriptorManagerUtil {
         if(presets != null) {
             descriptorHierarchy.addAll(stream(presets).filter(e -> e != null).collect(toList()));
         }
-
-        if (((KieContainerImpl)kieContainer).getKieProject() instanceof KieModuleKieProject) {
-            InternalKieModule module = ((KieModuleKieProject) ((KieContainerImpl)kieContainer).getKieProject()).getInternalKieModule();
+        KieProject kieProject = ((KieContainerImpl)kieContainer).getKieProject();
+        if (kieProject instanceof KieModuleKieProject) {
+            InternalKieModule module = ((KieModuleKieProject) kieProject).getInternalKieModule();
             collectDeploymentDescriptors(module, descriptorHierarchy);
+        } else if (kieProject instanceof ClasspathKieProject) {
+            InputStream is = ((ClasspathKieProject) kieProject).getClassLoader().getResourceAsStream(DeploymentDescriptor.META_INF_LOCATION);
+            if(is != null) {
+                try {
+                    descriptorHierarchy.add(getDescriptorFromContent(IoUtils.readBytesFromInputStream(is)));
+                } catch (IOException e) {
+                    logger.warn("Could not read deployment descriptor on classpath", e);
+                }
+
+            }
         }
 
         descriptorHierarchy.add(manager.getDefaultDescriptor());
@@ -66,9 +80,20 @@ public class DeploymentDescriptorManagerUtil {
     public static List<DeploymentDescriptor> getDeploymentDescriptorHierarchy(DeploymentDescriptorManager manager, KieContainer kieContainer) {
         List<DeploymentDescriptor> descriptorHierarchy = new ArrayList<DeploymentDescriptor>();
 
-        if (((KieContainerImpl)kieContainer).getKieProject() instanceof KieModuleKieProject) {
-            InternalKieModule module = ((KieModuleKieProject) ((KieContainerImpl)kieContainer).getKieProject()).getInternalKieModule();
+        KieProject kieProject = ((KieContainerImpl)kieContainer).getKieProject();
+        if (kieProject instanceof KieModuleKieProject) {
+            InternalKieModule module = ((KieModuleKieProject) kieProject).getInternalKieModule();
             collectDeploymentDescriptors(module, descriptorHierarchy);
+        } else if (kieProject instanceof ClasspathKieProject) {
+            InputStream is = ((ClasspathKieProject) kieProject).getClassLoader().getResourceAsStream(DeploymentDescriptor.META_INF_LOCATION);
+            if(is != null) {
+                try {
+                    descriptorHierarchy.add(getDescriptorFromContent(IoUtils.readBytesFromInputStream(is)));
+                } catch (IOException e) {
+                    logger.warn("Could not read deployment descriptor on classpath", e);
+                }
+
+            }
         }
         // last is the default descriptor
         descriptorHierarchy.add(manager.getDefaultDescriptor());
@@ -94,18 +119,19 @@ public class DeploymentDescriptorManagerUtil {
         DeploymentDescriptor desc = null;
         if (kmodule.isAvailable(DeploymentDescriptor.META_INF_LOCATION)) {
             byte[] content = kmodule.getBytes(DeploymentDescriptor.META_INF_LOCATION);
-            ByteArrayInputStream input = new ByteArrayInputStream(content);
-            try {
-                desc = DeploymentDescriptorIO.fromXml(input);
-            } finally {
-                try {
-                    input.close();
-                } catch (IOException e) {
-                    logger.debug("Error when closing stream of kie-deployment-descriptor.xml");
-                }
-            }
+            desc = getDescriptorFromContent(content);
         }
 
         return desc;
+    }
+
+
+    protected static DeploymentDescriptor getDescriptorFromContent(byte[] content) {
+        try (ByteArrayInputStream input = new ByteArrayInputStream(content)){
+            return DeploymentDescriptorIO.fromXml(input);
+        } catch (IOException e) {
+            logger.warn("Error while reading stream of kie-deployment-descriptor.xml");
+            return null;
+        }
     }
 }
