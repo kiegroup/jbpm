@@ -33,6 +33,7 @@ public class ErrorLinkProcessTest extends JbpmTestCase {
     public static final String PROCESS_MULTI_THROW = "org/jbpm/test/functional/common/MultipleThrowLinkProcess.bpmn2";
     public static final String PROCESS_MULTI_CATCH = "org/jbpm/test/functional/common/MultipleCatchLinkProcess.bpmn2";
     public static final String PROCESS_UNCONNECTED = "org/jbpm/test/functional/common/UnconnectedLinkProcess.bpmn2";
+    public static final String DIFFERENT_PROCESS = "org/jbpm/test/functional/common/DifferentLinkProcess.bpmn2";
     
     public ErrorLinkProcessTest() {
         super(false);
@@ -63,5 +64,13 @@ public class ErrorLinkProcessTest extends JbpmTestCase {
         exceptionRule.expect(IllegalArgumentException.class);
         exceptionRule.expectMessage("not connection");
         createKSession(PROCESS_UNCONNECTED);
+    }
+    
+    @Test
+    public void testDifferentProcess() {
+        exceptionRule.expect(IllegalArgumentException.class);
+        exceptionRule.expectMessage("not connection");
+        exceptionRule.expectMessage("subprocess");
+        createKSession (DIFFERENT_PROCESS);
     }
 }
