@@ -86,10 +86,12 @@ import org.jbpm.workflow.core.node.Trigger;
 import org.jbpm.workflow.core.node.WorkItemNode;
 import org.kie.api.definition.process.Node;
 import org.kie.api.definition.process.NodeContainer;
+import org.kie.api.definition.process.Process;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
+
 
 public class ProcessHandler extends BaseAbstractHandler implements Handler {
 	
@@ -258,19 +260,19 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
         // throw exception if any error (this is done at the end of the process to show the user as much errors as possible) 
         StringBuilder errors = new StringBuilder();
         if (!noNameLinks.isEmpty()) {
-            formatError(errors,"These nodes do not have a name ",noNameLinks.stream());
+            formatError(errors,"These nodes do not have a name ",noNameLinks.stream(), process);
         }
         if (!duplicatedTarget.isEmpty()) {
-            formatError(errors,"\nThere are multiple catch nodes with the same name ",duplicatedTarget.stream());
+            formatError(errors,"\nThere are multiple catch nodes with the same name ",duplicatedTarget.stream(), process);
         }
         if (!unconnectedTarget.isEmpty()) {
-            formatError(errors,"\nThere is not connection from any throw link to these catch links ",unconnectedTarget.stream());
+            formatError(errors,"\nThere is not connection from any throw link to these catch links ",unconnectedTarget.stream(), process);
         }
         if (!throwLinks.isEmpty()) {
             formatError(errors,"\nThere is not connection from any catch link to these throw links ",throwLinks
                                                .values()
                                                .stream()
-                                               .flatMap(Collection::stream));
+                                               .flatMap(Collection::stream), process);
         }
         if (errors.length() > 0) {
             throw new IllegalArgumentException (errors.toString());
@@ -278,8 +280,14 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
         
     }
     
-    private static void formatError (StringBuilder errors, String message, Stream<IntermediateLink> stream) {
+    private static void formatError (StringBuilder errors, String message, Stream<IntermediateLink> stream, NodeContainer container) {
         errors.append(message).append(stream.map(IntermediateLink::getUniqueId).collect(Collectors.joining(", ","{","}")));
+        if (container instanceof Process) {
+            errors.append(" for process ").append(((Process) container).getId());
+        }
+        else if (container instanceof Node) {
+            errors.append(" for subprocess ").append(((Node) container).getId());
+        }
     }
    
 
