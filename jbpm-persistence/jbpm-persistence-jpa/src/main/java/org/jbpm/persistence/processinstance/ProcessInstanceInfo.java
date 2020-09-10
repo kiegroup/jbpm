@@ -19,8 +19,6 @@ package org.jbpm.persistence.processinstance;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
@@ -39,16 +37,15 @@ import javax.persistence.Lob;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Transient;
 import javax.persistence.Version;
-
 import org.drools.core.common.InternalKnowledgeRuntime;
 import org.drools.core.impl.InternalKnowledgeBase;
 import org.drools.core.impl.StatefulKnowledgeSessionImpl;
 import org.drools.core.marshalling.impl.MarshallerReaderContext;
 import org.drools.core.marshalling.impl.MarshallerWriteContext;
-import org.drools.core.marshalling.impl.PersisterHelper;
-import org.drools.core.marshalling.impl.ProcessMarshallerWriteContext;
-import org.drools.core.marshalling.impl.ProtobufMarshaller;
-import org.drools.persistence.api.Transformable;
+import org.drools.serialization.protobuf.PersisterHelper;
+import org.drools.serialization.protobuf.ProtobufMarshaller;
+import org.drools.serialization.protobuf.ProtobufMarshallerReaderContext;
+import org.drools.serialization.protobuf.ProtobufProcessMarshallerWriteContext;
 import org.jbpm.marshalling.impl.JBPMMessages;
 import org.jbpm.marshalling.impl.ProcessInstanceMarshaller;
 import org.jbpm.marshalling.impl.ProcessMarshallerRegistry;
@@ -179,7 +176,7 @@ public class ProcessInstanceInfo implements PersistentProcessInstance {
         if ( processInstance == null ) {        	
             try {
                 ByteArrayInputStream bais = new ByteArrayInputStream( processInstanceByteArray );
-                MarshallerReaderContext context = new MarshallerReaderContext( bais,
+                ProtobufMarshallerReaderContext context = new ProtobufMarshallerReaderContext( bais,
                                                                                (InternalKnowledgeBase) kruntime.getKieBase(),
                                                                                null,
                                                                                null,
@@ -187,7 +184,7 @@ public class ProcessInstanceInfo implements PersistentProcessInstance {
                                                                                this.env
                                                                               );
                 ProcessInstanceMarshaller marshaller = getMarshallerFromContext( context );
-            	context.wm = ((StatefulKnowledgeSessionImpl) kruntime).getInternalWorkingMemory();
+            	context.setWorkingMemory( ((StatefulKnowledgeSessionImpl) kruntime).getInternalWorkingMemory() );
                 processInstance = marshaller.readProcessInstance(context);
                 ((WorkflowProcessInstanceImpl) processInstance).setPersisted(false);
                 if (readOnly) {
@@ -205,17 +202,15 @@ public class ProcessInstanceInfo implements PersistentProcessInstance {
     }
    
     private ProcessInstanceMarshaller getMarshallerFromContext(MarshallerReaderContext context) throws IOException {
-        ObjectInputStream stream = context.stream;
-        String processInstanceType = stream.readUTF();
+        String processInstanceType = context.readUTF();
         return ProcessMarshallerRegistry.INSTANCE.getMarshaller( processInstanceType );
     }
 
     private void saveProcessInstanceType(MarshallerWriteContext context,
                                          ProcessInstance processInstance,
                                          String processInstanceType) throws IOException {
-        ObjectOutputStream stream = context.stream;
         // saves the processInstance type first
-        stream.writeUTF( processInstanceType );
+        context.writeUTF( processInstanceType );
     }
 
     public void transform() {
@@ -225,15 +220,16 @@ public class ProcessInstanceInfo implements PersistentProcessInstance {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         boolean variablesChanged = false;
         try {
-            ProcessMarshallerWriteContext context = new ProcessMarshallerWriteContext( baos,
+            ProtobufProcessMarshallerWriteContext context = new ProtobufProcessMarshallerWriteContext( baos,
                                                                          null,
                                                                          null,
                                                                          null,
                                                                          null,
                                                                          this.env );
             context.setProcessInstanceId(processInstance.getId());
-            context.setState(processInstance.getState() == ProcessInstance.STATE_ACTIVE ? 
-                    ProcessMarshallerWriteContext.STATE_ACTIVE:ProcessMarshallerWriteContext.STATE_COMPLETED);
+            context.setState(processInstance.getState() == ProcessInstance.STATE_ACTIVE ?
+                    ProtobufProcessMarshallerWriteContext.STATE_ACTIVE :
+                    ProtobufProcessMarshallerWriteContext.STATE_COMPLETED);
             
             String processType = ((ProcessInstanceImpl) processInstance).getProcess().getType();
             saveProcessInstanceType( context,

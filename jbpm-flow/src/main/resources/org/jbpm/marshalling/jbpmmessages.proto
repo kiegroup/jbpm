@@ -1,6 +1,6 @@
 syntax = "proto2";
 
-import "org/drools/core/marshalling/droolsmessages.proto";
+import "org/drools/serialization/protobuf/droolsmessages.proto";
 
 package org.jbpm.marshalling;
 
@@ -27,7 +27,7 @@ option java_outer_classname = "JBPMMessages";
 //   fresh tag numbers (i.e. tag numbers that were never used in
 //   this protocol buffer, not even by deleted fields).
 
-extend org.drools.core.marshalling.ProcessData {
+extend org.drools.serialization.protobuf.ProcessData {
     repeated ProcessInstance process_instance = 10;
     repeated WorkItem work_item = 11;
     optional int64 timer_id = 13;
@@ -170,7 +170,7 @@ message Variable {
     optional bytes value = 3;
 }
 
-extend org.drools.core.marshalling.Timers.Timer {
+extend org.drools.serialization.protobuf.Timers.Timer {
     optional ProcessTimer proc_timer = 100;
 }
 
@@ -189,7 +189,7 @@ message WorkItem {
 
 message ProcessTimer {
     optional TimerInstance timer = 1;
-    optional org.drools.core.marshalling.Trigger trigger = 2;
+    optional org.drools.serialization.protobuf.Trigger trigger = 2;
 
     message TimerInstance {
         optional int64 id = 1;

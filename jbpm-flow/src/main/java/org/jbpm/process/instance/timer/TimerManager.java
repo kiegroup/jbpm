@@ -27,12 +27,12 @@ import org.drools.core.common.InternalKnowledgeRuntime;
 import org.drools.core.common.InternalWorkingMemory;
 import org.drools.core.marshalling.impl.MarshallerReaderContext;
 import org.drools.core.marshalling.impl.MarshallerWriteContext;
-import org.drools.core.marshalling.impl.ProtobufInputMarshaller;
-import org.drools.core.marshalling.impl.ProtobufMessages;
-import org.drools.core.marshalling.impl.ProtobufMessages.Timers.Timer;
-import org.drools.core.marshalling.impl.ProtobufOutputMarshaller;
-import org.drools.core.marshalling.impl.TimersInputMarshaller;
-import org.drools.core.marshalling.impl.TimersOutputMarshaller;
+import org.drools.serialization.protobuf.ProtobufInputMarshaller;
+import org.drools.serialization.protobuf.ProtobufMessages;
+import org.drools.serialization.protobuf.ProtobufMessages.Timers.Timer;
+import org.drools.serialization.protobuf.ProtobufOutputMarshaller;
+import org.drools.serialization.protobuf.TimersInputMarshaller;
+import org.drools.serialization.protobuf.TimersOutputMarshaller;
 import org.drools.core.time.Job;
 import org.drools.core.time.JobContext;
 import org.drools.core.time.JobHandle;
@@ -237,10 +237,10 @@ public class TimerManager {
 
     public static class ProcessTimerInputMarshaller implements TimersInputMarshaller {
 
-        public void deserialize(MarshallerReaderContext inCtx, Timer timer) throws ClassNotFoundException {
+        public void deserialize(MarshallerReaderContext inCtx, Timer timer) {
             JBPMMessages.ProcessTimer ptimer = timer.getExtension(JBPMMessages.procTimer);
 
-            TimerService ts = inCtx.wm.getTimerService();
+            TimerService ts = inCtx.getWorkingMemory().getTimerService();
 
             long processInstanceId = ptimer.getTimer().getProcessInstanceId();
 
@@ -248,12 +248,12 @@ public class TimerManager {
 
             TimerInstance timerInstance = ProtobufProcessMarshaller.readTimer(inCtx, ptimer.getTimer());
 
-            TimerManager tm = ((InternalProcessRuntime) inCtx.wm.getProcessRuntime()).getTimerManager();
+            TimerManager tm = ((InternalProcessRuntime) inCtx.getWorkingMemory().getProcessRuntime()).getTimerManager();
 
             // check if the timer instance is not already registered to avoid duplicated timers
             if (!tm.getTimerMap().containsKey(timerInstance.getId())) {
                 ProcessJobContext pctx = new ProcessJobContext(timerInstance, trigger, processInstanceId,
-                        inCtx.wm.getKnowledgeRuntime(), false);
+                        inCtx.getWorkingMemory().getKnowledgeRuntime(), false);
                 Date date = trigger.hasNextFireTime();
 
                 if (date != null) {

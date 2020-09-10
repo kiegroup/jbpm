@@ -30,10 +30,9 @@ import javax.naming.InitialContext;
 import javax.persistence.EntityManager;
 import javax.transaction.TransactionManager;
 import javax.transaction.UserTransaction;
-
 import org.drools.core.common.InternalKnowledgeRuntime;
 import org.drools.core.marshalling.impl.MarshallingConfigurationImpl;
-import org.drools.core.marshalling.impl.ProtobufMarshaller;
+import org.drools.serialization.protobuf.ProtobufMarshaller;
 import org.jbpm.process.instance.InternalProcessRuntime;
 import org.jbpm.process.instance.timer.TimerInstance;
 import org.jbpm.process.instance.timer.TimerManager;
@@ -51,7 +50,10 @@ import org.kie.internal.runtime.StatefulKnowledgeSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class SerializedTimerRollbackTest extends JbpmTestCase {
 
