@@ -142,7 +142,10 @@ public class NotifyParentCaseEventListener extends DefaultProcessEventListener i
             
             Map<String, Object> results = new HashMap<>(caseFileInstance.getData());
             results.put("CaseId", event.getCaseId());
-            processService.completeWorkItem(caseFileInstance.getParentWorkItemId(), results);
+            org.kie.api.runtime.process.ProcessInstance parentProcessInstance = processService.getProcessInstance(caseFileInstance.getParentInstanceId());
+            if (parentProcessInstance.getState() != ProcessInstance.STATE_ABORTED) {
+                processService.completeWorkItem(caseFileInstance.getParentWorkItemId(), results);
+            }
             logger.debug("Parent instance id {}, work item id {}, has been successfully notified about case {} completion", caseFileInstance.getParentInstanceId(), caseFileInstance.getParentWorkItemId(), event.getCaseId());
             
             caseFileInstance.setParentInstanceId(null);
