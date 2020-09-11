@@ -37,6 +37,8 @@ import org.kie.internal.runtime.manager.TaskServiceFactory;
 import org.kie.internal.runtime.manager.context.EmptyContext;
 import org.kie.internal.task.api.ContentMarshallerContext;
 import org.kie.internal.task.api.InternalTaskService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A RuntimeManager implementation that is backed by the "Per Request" strategy. This means that for every call to 
@@ -50,6 +52,8 @@ import org.kie.internal.task.api.InternalTaskService;
  *
  */
 public class PerRequestRuntimeManager extends AbstractRuntimeManager {
+
+    private static final Logger logger = LoggerFactory.getLogger(PerRequestRuntimeManager.class);
 
     private SessionFactory factory;
     private TaskServiceFactory taskServiceFactory;
@@ -131,7 +135,8 @@ public class PerRequestRuntimeManager extends AbstractRuntimeManager {
     @Override
     public void disposeRuntimeEngine(RuntimeEngine runtime) {
     	if (isClosed()) {
-    		throw new IllegalStateException("Runtime manager " + identifier + " is already closed");
+            logger.warn("Runtime manager {} is already closed", identifier);
+            return;
     	}
     	try {
         	if (canDispose(runtime)) {

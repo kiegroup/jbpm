@@ -219,7 +219,8 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
     @Override
     public void disposeRuntimeEngine(RuntimeEngine runtime) {
     	if (isClosed()) {
-    		throw new IllegalStateException("Runtime manager " + identifier + " is already closed");
+    	    logger.warn("Runtime manager {} is already closed", identifier);
+            return;
     	}
     	try {
         	if (canDispose(runtime)) {
