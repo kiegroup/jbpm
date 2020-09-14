@@ -23,6 +23,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -39,6 +40,7 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import org.apache.commons.codec.binary.Base64;
 import org.appformer.maven.support.DependencyFilter;
+import org.drools.compiler.kie.builder.impl.ClasspathKieProject;
 import org.drools.compiler.kie.builder.impl.InternalKieModule;
 import org.drools.compiler.kie.builder.impl.KieContainerImpl;
 import org.drools.compiler.kie.builder.impl.KieModuleKieProject;
@@ -188,7 +190,13 @@ public class KModuleDeploymentService extends AbstractDeploymentService {
     	        	processResources(depModule, files, kieContainer, kmoduleUnit, deployedUnit, depModule.getReleaseId(), processDescriptors);
     	        }
             }
-            Collection<ReleaseId> dependencies = module.getJarDependencies(new DependencyFilter.ExcludeScopeFilter("test", "provided"));
+            Collection<ReleaseId> dependencies = null;
+            if(kieContainer instanceof KieContainerImpl && ((KieContainerImpl) kieContainer).getKieProject() instanceof ClasspathKieProject) {
+                // dependencies are already computed by class loader.
+                dependencies = Collections.emptyList();
+            } else {
+                dependencies = module.getJarDependencies(new DependencyFilter.ExcludeScopeFilter("test", "provided"));
+            }
 
             // process deployment dependencies
             if (dependencies != null && !dependencies.isEmpty()) {
