@@ -15,7 +15,7 @@ with ( new Task() ) {
                         constraints = [new BooleanExpression( "mvel", "true" )],
                         notifications = [ 
                             (with (new EmailNotification()) {
-                                recipients = [ new org.jbpm.services.task.impl.model.EmailImpl('tony@domain.com'), new User('Darth Vader') ],
+                                recipients = [ new org.jbpm.services.task.impl.model.EmailImpl('new-email@domain.com'), new User('Darth Vader') ],
                                 emailHeaders = [ new Language("en-UK") : (with (new EmailNotificationHeader()) { 
                                     language = 'en-UK',
                                     subject = "@{doc.subject}",
