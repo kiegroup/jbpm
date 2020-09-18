@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Map.Entry;
 
 import org.drools.core.impl.EnvironmentFactory;
 import org.jbpm.process.audit.AbstractAuditLogger;
@@ -258,6 +259,12 @@ public class DefaultRegisterableItemsFactory extends SimpleRegisterableItemsFact
                 ((InternalRuntimeEngine) runtime).internalGetKieSession().getEnvironment().get(EnvironmentName.ENTITY_MANAGER_FACTORY));
         parameters.put("kieContainer", getRuntimeManager().getKieContainer());
         parameters.put("identityProvider", ((SimpleRuntimeEnvironment)getRuntimeManager().getEnvironment()).getEnvironmentTemplate().get(EnvironmentName.IDENTITY_PROVIDER));
+
+        Map<Object, Object> env = new HashMap<>();
+        for(Entry<Object, Object> set : System.getProperties().entrySet()) {
+            env.put(set.getKey().toString(), set.getValue());
+        }
+        parameters.put("env", env);
         
         return parameters;
     }
