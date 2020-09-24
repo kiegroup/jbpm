@@ -78,12 +78,6 @@
     </dependency>
     <dependency>
       <groupId>org.jbpm</groupId>
-      <artifactId>jbpm-executor</artifactId>
-      <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.jbpm</groupId>
       <artifactId>jbpm-db-scripts</artifactId>
       <scope>test</scope>
     </dependency>
