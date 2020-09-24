@@ -72,3 +72,4 @@ the most notable ones for quick reference:
 - [Accelerate your business](http://mswiderski.blogspot.com/) blog - includes a ton of great info from the jBPM devs
 - [Slideshare Presentations](https://www.slideshare.net/krisverlaenen/presentations) - includes many jBPM presentations and slides
 - [start.jBPM.org](https://start.jbpm.org/) - site where you can start building your jBPM Business Applications
+
