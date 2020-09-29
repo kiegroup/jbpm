@@ -18,7 +18,6 @@ package org.jbpm.test.services;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -133,7 +132,7 @@ public abstract class AbstractServicesTest extends AbstractBaseTest {
         DeploymentDescriptor customDescriptor = createDeploymentDescriptor();
 
         if (extraResources == null) {
-            extraResources = new HashMap<String, String>();
+            extraResources = new HashMap<>();
         }
         if (customDescriptor != null) {
             extraResources.put("src/main/resources/" + DeploymentDescriptor.META_INF_LOCATION, customDescriptor.toXml());
@@ -198,14 +197,7 @@ public abstract class AbstractServicesTest extends AbstractBaseTest {
         File tempDir = new File(System.getProperty("java.io.tmpdir"));
         if (tempDir.exists()) {
 
-            String[] jbpmSerFiles = tempDir.list(new FilenameFilter() {
-
-                @Override
-                public boolean accept(File dir, String name) {
-
-                    return name.endsWith("-jbpmSessionId.ser");
-                }
-            });
+            String[] jbpmSerFiles = tempDir.list((dir, name) -> name.endsWith("-jbpmSessionId.ser"));
             for (String file : jbpmSerFiles) {
                 logger.debug("Temp dir to be removed {} file {}", tempDir, file);
                 new File(tempDir, file).delete();
@@ -237,6 +229,10 @@ public abstract class AbstractServicesTest extends AbstractBaseTest {
     }
     
     protected List<ObjectModel> getTaskListeners() {
+        return new ArrayList<>();
+    }
+
+    protected List<NamedObjectModel> getEnvironmentEntries() {
         return new ArrayList<>();
     }
 }
