@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.drools.core.util.MVELSafeHelper;
+import org.drools.mvel.MVELSafeHelper;
 import org.kie.api.runtime.process.DataTransformer;
 import org.mvel2.MVEL;
 import org.mvel2.ParserConfiguration;

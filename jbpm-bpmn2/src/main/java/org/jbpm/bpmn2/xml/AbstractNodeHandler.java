@@ -26,16 +26,10 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.drools.compiler.compiler.xml.XmlDumper;
-import org.drools.compiler.rule.builder.dialect.java.JavaDialect;
-import org.jbpm.process.core.datatype.DataType;
-import org.jbpm.process.core.datatype.impl.type.BooleanDataType;
-import org.jbpm.process.core.datatype.impl.type.FloatDataType;
-import org.jbpm.process.core.datatype.impl.type.IntegerDataType;
-import org.jbpm.process.core.datatype.impl.type.ObjectDataType;
-import org.jbpm.process.core.datatype.impl.type.StringDataType;
 import org.drools.core.xml.BaseAbstractHandler;
 import org.drools.core.xml.ExtensibleXmlParser;
 import org.drools.core.xml.Handler;
+import org.drools.mvel.java.JavaDialect;
 import org.jbpm.bpmn2.core.Association;
 import org.jbpm.bpmn2.core.Definitions;
 import org.jbpm.bpmn2.core.Error;
@@ -45,6 +39,12 @@ import org.jbpm.bpmn2.core.SequenceFlow;
 import org.jbpm.bpmn2.core.Signal;
 import org.jbpm.compiler.xml.ProcessBuildData;
 import org.jbpm.process.core.context.variable.Variable;
+import org.jbpm.process.core.datatype.DataType;
+import org.jbpm.process.core.datatype.impl.type.BooleanDataType;
+import org.jbpm.process.core.datatype.impl.type.FloatDataType;
+import org.jbpm.process.core.datatype.impl.type.IntegerDataType;
+import org.jbpm.process.core.datatype.impl.type.ObjectDataType;
+import org.jbpm.process.core.datatype.impl.type.StringDataType;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
 import org.jbpm.workflow.core.DroolsAction;
 import org.jbpm.workflow.core.Node;
@@ -314,7 +314,7 @@ public abstract class AbstractNodeHandler extends BaseAbstractHandler implements
                 xmlDump.append(" name=\"" + name + "\"");
             }
             String dialect = consequenceAction.getDialect();
-            if (JavaDialect.ID.equals(dialect)) {
+            if ( JavaDialect.ID.equals(dialect)) {
                 xmlDump.append(" scriptFormat=\"" + XmlBPMNProcessDumper.JAVA_LANGUAGE + "\"");
             } else if ("JavaScript".equals(dialect)) {
                 xmlDump.append(" scriptFormat=\"" + XmlBPMNProcessDumper.JAVASCRIPT_LANGUAGE + "\"");
