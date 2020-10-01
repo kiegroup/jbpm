@@ -17,6 +17,8 @@
 package org.jbpm.marshalling.impl;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -30,12 +32,12 @@ import com.google.protobuf.ExtensionRegistry;
 import org.drools.core.common.InternalWorkingMemory;
 import org.drools.core.marshalling.impl.MarshallerReaderContext;
 import org.drools.core.marshalling.impl.MarshallerWriteContext;
-import org.drools.core.marshalling.impl.PersisterHelper;
 import org.drools.core.marshalling.impl.ProcessMarshaller;
-import org.drools.core.marshalling.impl.ProtobufMessages;
-import org.drools.core.marshalling.impl.ProtobufMessages.Header;
 import org.drools.core.process.instance.WorkItemManager;
 import org.drools.core.process.instance.impl.WorkItemImpl;
+import org.drools.serialization.protobuf.PersisterHelper;
+import org.drools.serialization.protobuf.ProtobufMessages;
+import org.drools.serialization.protobuf.ProtobufMessages.Header;
 import org.jbpm.marshalling.impl.JBPMMessages.ProcessTimer.TimerInstance.Builder;
 import org.jbpm.marshalling.impl.JBPMMessages.Variable;
 import org.jbpm.marshalling.impl.JBPMMessages.VariableContainer;
@@ -59,9 +61,9 @@ public class ProtobufProcessMarshaller
 	}
 
     public void writeProcessInstances(MarshallerWriteContext context) throws IOException {
-        ProtobufMessages.ProcessData.Builder _pdata = (ProtobufMessages.ProcessData.Builder) context.parameterObject;
+        ProtobufMessages.ProcessData.Builder _pdata = (ProtobufMessages.ProcessData.Builder) context.getParameterObject();
                                                   
-        List<org.kie.api.runtime.process.ProcessInstance> processInstances = new ArrayList<org.kie.api.runtime.process.ProcessInstance>( context.wm.getProcessInstances() );
+        List<org.kie.api.runtime.process.ProcessInstance> processInstances = new ArrayList<org.kie.api.runtime.process.ProcessInstance>( context.getWorkingMemory().getProcessInstances() );
         Collections.sort( processInstances,
                           new Comparator<org.kie.api.runtime.process.ProcessInstance>() {
                               public int compare(org.kie.api.runtime.process.ProcessInstance o1,
@@ -80,20 +82,20 @@ public class ProtobufProcessMarshaller
     }
 
     public void writeProcessTimers(MarshallerWriteContext outCtx) throws IOException {
-        outCtx.writersByClass.put( ProcessJobContext.class, new TimerManager.ProcessTimerOutputMarshaller() );
-        outCtx.writersByClass.put( StartProcessJobContext.class, new TimerManager.ProcessTimerOutputMarshaller() );
-        ProtobufMessages.ProcessData.Builder _pdata = (ProtobufMessages.ProcessData.Builder) outCtx.parameterObject;
+        outCtx.setWriterForClass( ProcessJobContext.class, new TimerManager.ProcessTimerOutputMarshaller() );
+        outCtx.setWriterForClass( StartProcessJobContext.class, new TimerManager.ProcessTimerOutputMarshaller() );
+        ProtobufMessages.ProcessData.Builder _pdata = (ProtobufMessages.ProcessData.Builder) outCtx.getParameterObject();
 
-        TimerManager timerManager = ((InternalProcessRuntime) ((InternalWorkingMemory) outCtx.wm).getProcessRuntime()).getTimerManager();
+        TimerManager timerManager = ((InternalProcessRuntime) outCtx.getWorkingMemory().getProcessRuntime()).getTimerManager();
         long timerId = timerManager.internalGetTimerId();
 
         _pdata.setExtension( JBPMMessages.timerId, timerId );
     }
 
     public void writeWorkItems(MarshallerWriteContext context) throws IOException {
-        ProtobufMessages.ProcessData.Builder _pdata = (ProtobufMessages.ProcessData.Builder) context.parameterObject;
+        ProtobufMessages.ProcessData.Builder _pdata = (ProtobufMessages.ProcessData.Builder) context.getParameterObject();
         
-        List<WorkItem> workItems = new ArrayList<WorkItem>( ((WorkItemManager) context.wm.getWorkItemManager()).getWorkItems() );
+        List<WorkItem> workItems = new ArrayList<WorkItem>( ((WorkItemManager) context.getWorkingMemory().getWorkItemManager()).getWorkItems() );
         Collections.sort( workItems,
                           new Comparator<WorkItem>() {
                               public int compare(WorkItem o1,
@@ -114,10 +116,10 @@ public class ProtobufProcessMarshaller
     }
 
     public List<ProcessInstance> readProcessInstances(MarshallerReaderContext context) throws IOException {
-        ProtobufMessages.ProcessData _pdata = (ProtobufMessages.ProcessData) context.parameterObject;
+        ProtobufMessages.ProcessData _pdata = (ProtobufMessages.ProcessData) context.getParameterObject();
         List<ProcessInstance> processInstanceList = new ArrayList<ProcessInstance>();
         for ( JBPMMessages.ProcessInstance _instance : _pdata.getExtension( JBPMMessages.processInstance ) ) {
-            context.parameterObject = _instance;
+            context.setParameterObject( _instance );
             ProcessInstance processInstance = ProcessMarshallerRegistry.INSTANCE.getMarshaller( _instance.getProcessType() ).readProcessInstance( context );
             processInstanceList.add( processInstance );
         }
@@ -125,8 +127,8 @@ public class ProtobufProcessMarshaller
     }
 
     public void readWorkItems(MarshallerReaderContext context) throws IOException {
-        ProtobufMessages.ProcessData _pdata = (ProtobufMessages.ProcessData) context.parameterObject;
-        InternalWorkingMemory wm = context.wm;
+        ProtobufMessages.ProcessData _pdata = (ProtobufMessages.ProcessData) context.getParameterObject();
+        InternalWorkingMemory wm = context.getWorkingMemory();
         for ( JBPMMessages.WorkItem _workItem : _pdata.getExtension( JBPMMessages.workItem ) ) {
             WorkItem workItem = readWorkItem( context,
                                               _workItem );
@@ -136,10 +138,10 @@ public class ProtobufProcessMarshaller
 
     public void readProcessTimers(MarshallerReaderContext inCtx) throws IOException,
                                                                 ClassNotFoundException {
-        inCtx.readersByInt.put( ProtobufMessages.Timers.TimerType.PROCESS_VALUE, new TimerManager.ProcessTimerInputMarshaller() );
-        ProtobufMessages.ProcessData _pdata = (ProtobufMessages.ProcessData) inCtx.parameterObject;
+        inCtx.setReaderForInt( ProtobufMessages.Timers.TimerType.PROCESS_VALUE, new TimerManager.ProcessTimerInputMarshaller() );
+        ProtobufMessages.ProcessData _pdata = (ProtobufMessages.ProcessData) inCtx.getParameterObject();
 
-        TimerManager timerManager = ((InternalProcessRuntime) ((InternalWorkingMemory) inCtx.wm).getProcessRuntime()).getTimerManager();
+        TimerManager timerManager = ((InternalProcessRuntime) ((InternalWorkingMemory) inCtx.getWorkingMemory()).getProcessRuntime()).getTimerManager();
         timerManager.internalSetTimerId( _pdata.getExtension( JBPMMessages.timerId ) );
 //
 //        int token;
@@ -267,11 +269,11 @@ public class ProtobufProcessMarshaller
                                             Object value) throws IOException {
         JBPMMessages.Variable.Builder builder = JBPMMessages.Variable.newBuilder().setName( name );
         if(value != null){
-            ObjectMarshallingStrategy strategy = context.objectMarshallingStrategyStore.getStrategyObject( value );
+            ObjectMarshallingStrategy strategy = context.getObjectMarshallingStrategyStore().getStrategyObject( value );
             Integer index = context.getStrategyIndex( strategy );
             builder.setStrategyIndex( index )
-                   .setValue( ByteString.copyFrom( strategy.marshal( context.strategyContext.get( strategy ),
-                                                                     context,
+                   .setValue( ByteString.copyFrom( strategy.marshal( context.getStrategyContext().get( strategy ),
+                                                                     (ObjectOutputStream) context,
                                                                      value ) ) );
         }
         return builder.build();
@@ -282,11 +284,11 @@ public class ProtobufProcessMarshaller
         for(String key : variables.keySet()){
             JBPMMessages.Variable.Builder builder = JBPMMessages.Variable.newBuilder().setName( key );
             if(variables.get(key) != null){
-                ObjectMarshallingStrategy strategy = context.objectMarshallingStrategyStore.getStrategyObject( variables.get(key) );
+                ObjectMarshallingStrategy strategy = context.getObjectMarshallingStrategyStore().getStrategyObject( variables.get(key) );
                 Integer index = context.getStrategyIndex( strategy );
                 builder.setStrategyIndex( index )
-                   .setValue( ByteString.copyFrom( strategy.marshal( context.strategyContext.get( strategy ),
-                                                                     context,
+                   .setValue( ByteString.copyFrom( strategy.marshal( context.getStrategyContext().get( strategy ),
+                                                                     (ObjectOutputStream) context,
                                                                      variables.get(key) ) ) );
                 
             } 
@@ -304,11 +306,11 @@ public class ProtobufProcessMarshaller
         for(String key : variables.keySet()){
             JBPMMessages.Variable.Builder builder = JBPMMessages.Variable.newBuilder().setName( key );
             if(variables.get(key) != null){
-                ObjectMarshallingStrategy strategy = context.objectMarshallingStrategyStore.getStrategyObject( variables.get(key) );
+                ObjectMarshallingStrategy strategy = context.getObjectMarshallingStrategyStore().getStrategyObject( variables.get(key) );
                 Integer index = context.getStrategyIndex( strategy );
                 builder.setStrategyIndex( index )
-                   .setValue( ByteString.copyFrom( strategy.marshal( context.strategyContext.get( strategy ),
-                                                                     context,
+                   .setValue( ByteString.copyFrom( strategy.marshal( context.getStrategyContext().get( strategy ),
+                                                                     ( ObjectOutputStream ) context,
                                                                      variables.get(key) ) ) );
                 
             } 
@@ -327,11 +329,11 @@ public class ProtobufProcessMarshaller
         if(_variable.getValue() == null || _variable.getValue().isEmpty()){
             return null;
         }
-        ObjectMarshallingStrategy strategy = context.usedStrategies.get( _variable.getStrategyIndex() );
-        Object value = strategy.unmarshal( context.strategyContexts.get( strategy ),
-                                           context,
+        ObjectMarshallingStrategy strategy = context.getUsedStrategies().get( _variable.getStrategyIndex() );
+        Object value = strategy.unmarshal( context.getStrategyContexts().get( strategy ),
+                                           ( ObjectInputStream ) context,
                                            _variable.getValue().toByteArray(), 
-                                           (context.kBase == null)?null:context.kBase.getRootClassLoader() );
+                                           (context.getKnowledgeBase() == null)?null:context.getKnowledgeBase().getRootClassLoader() );
         return value;
     }
     
@@ -352,7 +354,7 @@ public class ProtobufProcessMarshaller
 	}
 
     public void init(MarshallerReaderContext context) {
-        ExtensionRegistry registry = (ExtensionRegistry) context.parameterObject;
+        ExtensionRegistry registry = (ExtensionRegistry) context.getParameterObject();
         registry.add( JBPMMessages.processInstance );
         registry.add( JBPMMessages.processTimer );
         registry.add( JBPMMessages.procTimer );

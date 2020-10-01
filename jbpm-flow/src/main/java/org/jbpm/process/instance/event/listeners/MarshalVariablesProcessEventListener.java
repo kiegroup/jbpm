@@ -19,7 +19,7 @@ package org.jbpm.process.instance.event.listeners;
 import java.io.ByteArrayOutputStream;
 import java.util.Map;
 
-import org.drools.core.marshalling.impl.ProcessMarshallerWriteContext;
+import org.drools.serialization.protobuf.ProtobufProcessMarshallerWriteContext;
 import org.drools.core.marshalling.impl.SerializablePlaceholderResolverStrategy;
 import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
@@ -62,9 +62,9 @@ public class MarshalVariablesProcessEventListener extends DefaultProcessEventLis
 			    if (strategy.accept(variable.getValue())) {
 			        logger.debug("Strategy of type {} found to handle variable '{}'", strategy, variable.getKey());
 					try {
-					    ProcessMarshallerWriteContext context = new ProcessMarshallerWriteContext(new ByteArrayOutputStream(), null, null, null, null, event.getKieRuntime().getEnvironment());
+						ProtobufProcessMarshallerWriteContext context = new ProtobufProcessMarshallerWriteContext(new ByteArrayOutputStream(), null, null, null, null, event.getKieRuntime().getEnvironment());
 					    context.setProcessInstanceId(event.getProcessInstance().getId());
-			            context.setState(ProcessMarshallerWriteContext.STATE_COMPLETED);
+			            context.setState(ProtobufProcessMarshallerWriteContext.STATE_COMPLETED);
 			            
 						strategy.marshal(null, context, variable.getValue());
 						logger.debug("Variable '{}' successfully persisted by strategy {}", variable.getKey(), strategy);

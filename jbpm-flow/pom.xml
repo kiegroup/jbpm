@@ -44,7 +44,7 @@
               <executable>protoc</executable>
               <arguments>
                 <argument>-I=src/main/resources</argument>
-                <argument>-I=../../drools/drools-core/src/main/resources</argument>
+                <argument>-I=../../drools/drools-serialization-protobuf/src/main/resources</argument>
                 <argument>--java_out=src/main/java</argument>
                 <argument>src/main/resources/org/jbpm/marshalling/jbpmmessages.proto</argument>
               </arguments>
@@ -108,6 +108,10 @@
     <dependency>
       <groupId>org.drools</groupId>
       <artifactId>drools-mvel</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.drools</groupId>
+      <artifactId>drools-serialization-protobuf</artifactId>
     </dependency>
     <dependency>
       <groupId>org.kie.soup</groupId>

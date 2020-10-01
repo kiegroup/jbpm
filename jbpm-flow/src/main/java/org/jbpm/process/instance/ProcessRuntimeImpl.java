@@ -31,7 +31,7 @@ import org.drools.core.event.ProcessEventSupport;
 import org.drools.core.impl.InternalKnowledgeBase;
 import org.drools.core.marshalling.impl.MarshallerReaderContext;
 import org.drools.core.marshalling.impl.MarshallerWriteContext;
-import org.drools.core.marshalling.impl.ProtobufMessages.ActionQueue.Action;
+import org.drools.serialization.protobuf.ProtobufMessages.ActionQueue.Action;
 import org.drools.core.phreak.PropagationEntry;
 import org.drools.core.time.TimeUtils;
 import org.drools.core.time.TimerService;
@@ -618,13 +618,6 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
             initTimer(kruntime);
         }
 
-        @Override
-        public Action serialize(MarshallerWriteContext context)
-                throws IOException {
-            return null;
-        }
-        
-        
         private void initTimer(InternalKnowledgeRuntime kruntime) {
             
             for (StartNode startNode : startNodes) {
