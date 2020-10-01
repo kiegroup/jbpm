@@ -53,6 +53,7 @@ import org.jbpm.workflow.core.node.EventTrigger;
 import org.jbpm.workflow.core.node.StartNode;
 import org.jbpm.workflow.core.node.Trigger;
 import org.kie.api.KieBase;
+import org.kie.api.cluster.ClusterAwareService;
 import org.kie.api.command.ExecutableCommand;
 import org.kie.api.definition.process.Node;
 import org.kie.api.definition.process.Process;
@@ -60,6 +61,7 @@ import org.kie.api.event.process.ProcessEventListener;
 import org.kie.api.event.rule.DefaultAgendaEventListener;
 import org.kie.api.event.rule.MatchCreatedEvent;
 import org.kie.api.event.rule.RuleFlowGroupDeactivatedEvent;
+import org.kie.api.internal.utils.ServiceRegistry;
 import org.kie.api.runtime.Context;
 import org.kie.api.runtime.EnvironmentName;
 import org.kie.api.runtime.KieSession;
@@ -108,7 +110,12 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
 	}
 	
 	public void initStartTimers() {
-	    KieBase kbase = kruntime.getKieBase();
+	    // if there is no service implementation registered or is cluster coordinator we should start timers
+        if(ServiceRegistry.ifSupported(ClusterAwareService.class, cluster -> !cluster.isCoordinator()).orElse(Boolean.FALSE)) {
+            return;
+        }
+
+        KieBase kbase = kruntime.getKieBase();
         Collection<Process> processes = kbase.getProcesses();
         for (Process process : processes) {
             RuleFlowProcess p = (RuleFlowProcess) process;
