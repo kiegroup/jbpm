@@ -127,15 +127,20 @@ public class EJBTimerScheduler {
         try {
             ((Callable<?>) timerJobInstance).call();
         } catch (Exception e) {
-            logger.warn("Execution of time failed due to {}", e.getMessage(), e);
             throw e;
         }
     }
 
     private void recoverTimerJobInstance(EjbTimerJob ejbTimerJob, Exception e) {
-        // if we have next date fired means that it would have been reescheduled already by DefaultTimerJobInstance
         if (ejbTimerJob.getTimerJobInstance().getTrigger().hasNextFireTime() != null) {
-            logger.warn("Execution of time failed Interval Trigger failed {}", ejbTimerJob.getTimerJobInstance());
+            // this is an interval trigger. Problem here is that the timer scheduled by DefaultTimerJobInstance is lost
+            // because of the transaction, so we need to do this here.
+            try {
+                logger.warn("Execution of time failed Interval Trigger failed. Skipping {}", ejbTimerJob.getTimerJobInstance());
+                transaction(this::internalSchedule, ejbTimerJob.getTimerJobInstance());
+            } catch (Exception e1) {
+                logger.warn("Could not schedule the interval trigger {}", ejbTimerJob.getTimerJobInstance(), e1);
+            }
             return;
         }
 
@@ -189,6 +194,7 @@ public class EJBTimerScheduler {
             } catch (Exception re) {
                 logger.error("transaction could not be rolled back", re);
             }
+
             throw e;
         }
     }
