@@ -16,12 +16,22 @@
 
 package org.jbpm.process.workitem.webservice;
 
+import java.io.File;
 import java.lang.reflect.Array;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
@@ -34,6 +44,7 @@ import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.drools.core.process.instance.impl.WorkItemImpl;
 import org.jbpm.bpmn2.core.Bpmn2Import;
+import org.jbpm.bpmn2.handler.WorkItemHandlerRuntimeException;
 import org.jbpm.process.workitem.core.AbstractLogOrThrowWorkItemHandler;
 import org.jbpm.process.workitem.core.util.Wid;
 import org.jbpm.process.workitem.core.util.WidMavenDepends;
@@ -56,9 +67,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Web Service Work Item Handler that performs a WebService call.
- * It is not supported out of the box on JDK11+ when running inside WildFly/EAP container
- * with JDK11+ due to Apache CXF not properly resolving classpath.
- * @see https://issues.apache.org/jira/browse/CXF-7925
  */
 @Wid(widfile = "WebServiceDefinitions.wid", name = "WebService",
         displayName = "WebService",
@@ -532,12 +540,97 @@ public class WebServiceWorkItemHandler extends AbstractLogOrThrowWorkItemHandler
         // Do nothing, cannot be aborted
     }
 
+    /* CXF builds compiler classpath assuming that the hierarchy of ClassLoader is composed of URLClassLoader instances.
+     * Since ModuleClassLoader does not implement URLClassLoader, we need to provide an alternative way of retrieving these URLS
+     * so CXF can build a proper classpath, avoiding the issue mentioned below. 
+     * @see https://issues.apache.org/jira/browse/CXF-7925
+     */
+    @SuppressWarnings("squid:S1872")
     private ClassLoader getInternalClassLoader() {
-        if (this.classLoader != null) {
-            return this.classLoader;
+        ClassLoader cl = this.classLoader != null ? classLoader : Thread.currentThread().getContextClassLoader(), parent = cl;
+        Collection<File> uris = new HashSet<>();
+        do {
+            if (parent.getClass().getSimpleName().equals("ModuleClassLoader")) {
+                try {
+                    getJarsFromModuleClassLoader(parent, uris);
+                } catch (ReflectiveOperationException e) {
+                    throw new WorkItemHandlerRuntimeException(e, "Problem calculating list of URLs from ModuleClassLoader");
+                }
+            }
+            parent = parent.getParent();
+        } while (parent != null);
+        if (!uris.isEmpty()) {
+            cl = new CXFJavaCompileClassLoader(uris, cl);
+        }
+        return cl;
+    }
+
+    private static class CXFJavaCompileClassLoader extends URLClassLoader {
+
+        private URL[] jarUrls;
+
+        public CXFJavaCompileClassLoader(Collection<File> files, ClassLoader parent) {
+            super(new URL[0], parent);
+            this.jarUrls = files.stream().map(CXFJavaCompileClassLoader::toUrl).toArray(URL[]::new);
         }
 
-        return Thread.currentThread().getContextClassLoader();
+        @Override
+        public URL[] getURLs() {
+            return jarUrls;
+        }
+
+        private static URL toUrl(File file) {
+            try {
+                return file.toURI().toURL();
+            } catch (MalformedURLException e) {
+                throw new WorkItemHandlerRuntimeException(e, "Problem converting file to URL: " + file);
+            }
+        }
+    }
+
+    /* This method makes assumptions over the internal structure of ModuleClassLoader. If this class is changed, this method
+     * will need to change accordingly
+     */
+    @SuppressWarnings({"squid:S3740", "squid:S3011"})
+    private void getJarsFromModuleClassLoader(ClassLoader cl, Collection<File> collector) throws ReflectiveOperationException {
+        AtomicReference<?> paths = (AtomicReference<?>) getFieldValue(cl, "paths");
+        Object sourceList = getFieldValue(paths.get(), "sourceList");
+        int size = Array.getLength(sourceList);
+        Method getVFSResource = null;
+        Method getPhysicalFile = null;
+        Field rootField = null;
+        Field rootNameField = null;
+        for (int i = 0; i < size; i++) {
+            Object resource = Array.get(sourceList, i);
+            if (getVFSResource == null) {
+                getVFSResource = resource.getClass().getDeclaredMethod("getResourceLoader");
+                getVFSResource.setAccessible(true);
+            }
+            resource = getVFSResource.invoke(resource);
+            if (rootField == null) {
+                Class<?> resourceClass = resource.getClass();
+                rootField = resourceClass.getDeclaredField("root");
+                rootNameField = resourceClass.getDeclaredField("rootName");
+                rootField.setAccessible(true);
+                rootNameField.setAccessible(true);
+            }
+            String rootName = (String) rootNameField.get(resource);
+            if (rootName.endsWith("jar")) {
+                Object root = rootField.get(resource);
+                if (getPhysicalFile == null) {
+                    getPhysicalFile = root.getClass().getDeclaredMethod("getPhysicalFile");
+                    getPhysicalFile.setAccessible(true);
+                }
+                collector.add(new File(((File) getPhysicalFile.invoke(root)).getParentFile(), rootName));
+            }
+        }
+    }
+
+    @SuppressWarnings("squid:S3011")
+    private Object getFieldValue(Object container, String fieldName) throws NoSuchFieldException, IllegalAccessException {
+        Field field = container.getClass().getDeclaredField(fieldName);
+        field.setAccessible(true);
+        return field.get(container);
     }
 
     public ClassLoader getClassLoader() {
