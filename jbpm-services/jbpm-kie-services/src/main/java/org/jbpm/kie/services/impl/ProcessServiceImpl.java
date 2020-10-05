@@ -296,6 +296,48 @@ public class ProcessServiceImpl implements ProcessService, VariablesAware {
     }
 
     @Override
+    public void signalProcessInstanceByCorrelationKey(CorrelationKey correlationKey, String signalName, Object event) {
+        ProcessInstanceDesc pi = dataService.getProcessInstanceByCorrelationKey(correlationKey);
+        if(pi == null) {
+            throw new ProcessInstanceNotFoundException("Process with correlation key " + correlationKey + " not found");
+        }
+        signalProcessInstance(pi.getId(), signalName, event);
+        
+    }
+
+    @Override
+    public void signalProcessInstanceByCorrelationKey(String deploymentId,
+                                                      CorrelationKey correlationKey,
+                                                      String signalName,
+                                                      Object event) {
+        ProcessInstanceDesc pi = dataService.getProcessInstanceByCorrelationKey(correlationKey);
+        if(pi == null) {
+            throw new ProcessInstanceNotFoundException("Process with correlation key " + correlationKey + " not found");
+        }
+        signalProcessInstance(deploymentId, pi.getId(), signalName, event);
+    }
+
+    @Override
+    public void signalProcessInstancesByCorrelationKeys(List<CorrelationKey> correlationKeys, String signalName, Object event) {
+        if(correlationKeys == null) {
+            return;
+        }
+        correlationKeys.forEach(key -> signalProcessInstanceByCorrelationKey(key, signalName, event));
+    }
+
+    @Override
+    public void signalProcessInstancesByCorrelationKeys(String deploymentId,
+                                                        List<CorrelationKey> correlationKeys,
+                                                        String signalName,
+                                                        Object event) {
+        if(correlationKeys == null) {
+            return;
+        }
+        correlationKeys.forEach(key -> signalProcessInstanceByCorrelationKey(deploymentId, key, signalName, event));
+
+    }
+
+    @Override
     public void signalEvent(String deploymentId, String signalName, Object event) {
         DeployedUnit deployedUnit = deploymentService.getDeployedUnit(deploymentId);
         if (deployedUnit == null) {
