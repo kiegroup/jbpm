@@ -180,7 +180,7 @@ public interface ProcessService {
 	 * @throws ProcessInstanceNotFoundException in case process instance with given id was not found
 	 */
     void signalProcessInstances(List<Long> processInstanceIds, String signalName, Object event);
-    
+
     /**
      * Signal an event to given list of process instances
      * 
@@ -192,7 +192,53 @@ public interface ProcessService {
      * @throws ProcessInstanceNotFoundException in case process instance with given id was not found
      */
     void signalProcessInstances(String deploymentId, List<Long> processInstanceIds, String signalName, Object event);
-    
+
+    /**
+     * Signal an event to a single process instance by correlation key
+     * 
+     * @param correlationKey the process instances unique correlation key
+     * @param signalName the signals id in the process
+     * @param event the event object to be passed in with the event
+     * @throws DeploymentNotFoundException in case deployment unit was not found
+     * @throws ProcessInstanceNotFoundException in case process instance with given id was not found
+     */
+    void signalProcessInstanceByCorrelationKey(CorrelationKey correlationKey, String signalName, Object event);
+
+    /**
+     * Signal an event to a single process instance by correlation key
+     * 
+     * @param deploymentId deployment that process instance belongs to
+     * @param correlationKey the process instances unique correlation key
+     * @param signalName the signals id in the process
+     * @param event the event object to be passed in with the event
+     * @throws DeploymentNotFoundException in case deployment unit was not found
+     * @throws ProcessInstanceNotFoundException in case process instance with given id was not found
+     */
+    void signalProcessInstanceByCorrelationKey(String deploymentId, CorrelationKey correlationKey, String signalName, Object event);
+
+    /**
+     * Signal an event to given list of correlation keys
+     * 
+     * @param correlationKeys list of process instance unique correlation keys
+     * @param signalName the signal's id in the process
+     * @param event the event object to be passed in with the event
+     * @throws DeploymentNotFoundException in case deployment unit was not found
+     * @throws ProcessInstanceNotFoundException in case process instance with given id was not found
+     */
+    void signalProcessInstancesByCorrelationKeys(List<CorrelationKey> correlationKeys, String signalName, Object event);
+
+    /**
+     * Signal an event to given list of correlation keys
+     * 
+     * @param deploymentId deployment that process instance belongs to
+     * @param correlationKeys list of process instance unique correlation keys
+     * @param signalName the signal's id in the process
+     * @param event the event object to be passed in with the event
+     * @throws DeploymentNotFoundException in case deployment unit was not found
+     * @throws ProcessInstanceNotFoundException in case process instance with given id was not found
+     */
+    void signalProcessInstancesByCorrelationKeys(String deploymentId, List<CorrelationKey> correlationKeys, String signalName, Object event);
+
     /**
      * Signal an event to a any process instance that listens to give signal that belongs to given deployment
      * 

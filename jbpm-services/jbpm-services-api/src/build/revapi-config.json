@@ -53,7 +53,44 @@
                     "methodName": "setProcessType",
                     "elementKind": "method",
                     "justification": "https://issues.redhat.com/browse/BAPL-1623"
+                },
+                {
+                  "code": "java.method.addedToInterface",
+                  "new": "method void org.jbpm.services.api.ProcessService::signalProcessInstanceByCorrelationKey(org.kie.internal.process.CorrelationKey, java.lang.String, java.lang.Object)",
+                  "package": "org.jbpm.services.api",
+                   "classSimpleName": "ProcessService",
+                  "methodName": "signalProcessInstanceByCorrelationKey",
+                  "elementKind": "method",
+                  "justification": "JBPM-9405 Provide API method to signal process instance with correlationKey"
+                },
+                {
+                  "code": "java.method.addedToInterface",
+                  "new": "method void org.jbpm.services.api.ProcessService::signalProcessInstanceByCorrelationKey(java.lang.String, org.kie.internal.process.CorrelationKey, java.lang.String, java.lang.Object)",
+                  "package": "org.jbpm.services.api",
+                  "classSimpleName": "ProcessService",
+                  "methodName": "signalProcessInstanceByCorrelationKey",
+                  "elementKind": "method",
+                  "justification": "JBPM-9405 Provide API method to signal process instance with correlationKey"
+                },
+                {
+                  "code": "java.method.addedToInterface",
+                  "new": "method void org.jbpm.services.api.ProcessService::signalProcessInstancesByCorrelationKeys(java.lang.String, java.util.List<org.kie.internal.process.CorrelationKey>, java.lang.String, java.lang.Object)",
+                  "package": "org.jbpm.services.api",
+                  "classSimpleName": "ProcessService",
+                  "methodName": "signalProcessInstancesByCorrelationKeys",
+                  "elementKind": "method",
+                  "justification": "JBPM-9405 Provide API method to signal process instance with correlationKey"
+                },
+                {
+                  "code": "java.method.addedToInterface",
+                  "new": "method void org.jbpm.services.api.ProcessService::signalProcessInstancesByCorrelationKeys(java.util.List<org.kie.internal.process.CorrelationKey>, java.lang.String, java.lang.Object)",
+                  "package": "org.jbpm.services.api",
+                  "classSimpleName": "ProcessService",
+                  "methodName": "signalProcessInstancesByCorrelationKeys",
+                  "elementKind": "method",
+                  "justification": "JBPM-9405 Provide API method to signal process instance with correlationKey"
                 }
+
             ]
         }
     }
