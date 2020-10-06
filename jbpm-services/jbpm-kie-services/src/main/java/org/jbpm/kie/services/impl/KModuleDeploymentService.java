@@ -283,23 +283,20 @@ public class KModuleDeploymentService extends AbstractDeploymentService {
 		EntityManagerFactory emf = EntityManagerFactoryManager.get().getOrCreate(descriptor.getPersistenceUnit());
 		builder.entityManagerFactory(emf);
 
-		Map<String, Object> contaxtParams = new HashMap<String, Object>();
-		contaxtParams.put("entityManagerFactory", emf);
-		contaxtParams.put("classLoader", kieContainer.getClassLoader());
-		contaxtParams.put("identityProvider", identityProvider);
+		Map<String, Object> contextParams = buildContextParameters(kieContainer);
 		// process object models that are globally configured (environment entries, session configuration)
 		for (NamedObjectModel model : descriptor.getEnvironmentEntries()) {
-			Object entry = getInstanceFromModel(model, kieContainer, contaxtParams);
+			Object entry = getInstanceFromModel(model, kieContainer, contextParams);
 			builder.addEnvironmentEntry(model.getName(), entry);
 		}
 
 		for (NamedObjectModel model : descriptor.getConfiguration()) {
-			Object entry = getInstanceFromModel(model, kieContainer, contaxtParams);
+			Object entry = getInstanceFromModel(model, kieContainer, contextParams);
 			builder.addConfiguration(model.getName(), (String) entry);
 		}
 		List<ObjectMarshallingStrategy> mStrategies = new ArrayList<>();
 		for (ObjectModel model : descriptor.getMarshallingStrategies()) {
-			Object strategy = getInstanceFromModel(model, kieContainer, contaxtParams);
+			Object strategy = getInstanceFromModel(model, kieContainer, contextParams);
 			mStrategies.add((ObjectMarshallingStrategy)strategy);
 		}
 		// lastly add the main default strategy
@@ -345,6 +342,13 @@ public class KModuleDeploymentService extends AbstractDeploymentService {
     	return builder;
     }
 
+    protected Map<String, Object> buildContextParameters(KieContainer kieContainer) {
+        Map<String, Object> contextParams = new HashMap<>();
+        contextParams.put("entityManagerFactory", emf);
+        contextParams.put("classLoader", kieContainer.getClassLoader());
+        contextParams.put("identityProvider", identityProvider);
+        return contextParams;
+    }
 
     protected Object getInstanceFromModel(ObjectModel model, KieContainer kieContainer, Map<String, Object> contaxtParams) {
     	ObjectModelResolver resolver = ObjectModelResolverProvider.get(model.getResolver());
