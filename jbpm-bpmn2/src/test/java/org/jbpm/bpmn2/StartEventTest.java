@@ -409,7 +409,7 @@ public class StartEventTest extends JbpmBpmn2TestCase {
             }
         });
 
-        ksession.startProcess("muliplestartevents", null);
+        ksession.startProcess("muliplestartevents");
 
         assertThat(list.size()).isEqualTo(1);
         WorkItem workItem = workItemHandler.getWorkItem();

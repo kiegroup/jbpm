@@ -319,7 +319,7 @@ public class DataTest extends JbpmBpmn2TestCase {
 
                 });
         ProcessInstance processInstance = ksession
-                .startProcess("process", null);
+                .startProcess("process");
         
     }
 
@@ -343,7 +343,7 @@ public class DataTest extends JbpmBpmn2TestCase {
 
                 });
         ProcessInstance processInstance = ksession
-                .startProcess("process", null);
+                .startProcess("process");
         
     }
 
@@ -370,7 +370,7 @@ public class DataTest extends JbpmBpmn2TestCase {
 
                 });
         ProcessInstance processInstance = ksession
-                .startProcess("process", null);
+                .startProcess("process");
         
     }
 
@@ -494,7 +494,7 @@ public class DataTest extends JbpmBpmn2TestCase {
 
                 });
         ProcessInstance processInstance = ksession
-                .startProcess("process", null);
+                .startProcess("process");
         
     }
 
@@ -530,7 +530,7 @@ public class DataTest extends JbpmBpmn2TestCase {
 
                 });
         ProcessInstance processInstance = ksession
-                .startProcess("process", null);
+                .startProcess("process");
         
     }
 

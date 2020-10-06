@@ -74,10 +74,10 @@ public class AsyncThrowSignalTest extends JbpmTestCase {
     @Test(timeout = 10000)
     public void testCorrectProcessStateAfterExceptionThrowSignal() {
         KieSession ksession = createKSession(BPMN_AICS, BPMN_ATS);
-        ProcessInstance pi1 = ksession.startProcess(PROCESS_AICS, null);
+        ProcessInstance pi1 = ksession.startProcess(PROCESS_AICS);
         long pid1 = pi1.getId();
 
-        ProcessInstance pi2 = ksession.startProcess(PROCESS_ATS, null);
+        ProcessInstance pi2 = ksession.startProcess(PROCESS_ATS);
         long pid2 = pi2.getId();
 
         synchronized (LOCK) {
