@@ -11,5 +11,6 @@
   <description>jBPM Event Emitters</description>
   <modules>
     <module>jbpm-event-emitters-elasticsearch</module>
+    <module>jbpm-event-emitters-kafka</module>
   </modules>
 </project>
