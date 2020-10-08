@@ -74,7 +74,7 @@ public class CallActivityWithReadOnlyProcessInstanceTest extends JbpmTestCase {
 
         ut.begin();
 
-        ProcessInstance processInstance = ksession.startProcess("helloMain", null);
+        ProcessInstance processInstance = ksession.startProcess("helloMain");
         long parentProcessInstanceId = processInstance.getId();
 
         ut.commit();

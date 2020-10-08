@@ -21,6 +21,7 @@ import java.util.Map;
 
 import org.drools.core.common.InternalKnowledgeRuntime;
 import org.kie.api.definition.process.Process;
+import org.kie.api.runtime.rule.AgendaFilter;
 
 /**
  * A process instance is the representation of a process during its execution.
@@ -73,5 +74,9 @@ public interface ProcessInstance extends org.kie.api.runtime.process.ProcessInst
 	Date getSlaDueDate();
 	
 	void configureSLA();
-    
+
+    AgendaFilter getAgendaFilter();
+
+    void setAgendaFilter( AgendaFilter agendaFilter );
+
 }

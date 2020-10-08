@@ -172,6 +172,14 @@ public class TestStatefulKnowledgeSession extends AbstractRuntime implements Sta
         return null;
     }
 
+    public ProcessInstance startProcess(String arg0, Map<String, Object> arg1, AgendaFilter arg3) {
+        return null;
+    }
+
+    public ProcessInstance startProcess(String arg0, AgendaFilter arg3) {
+        return null;
+    }
+
     public ProcessInstance startProcessInstance(long arg0) {
         return null;
     }

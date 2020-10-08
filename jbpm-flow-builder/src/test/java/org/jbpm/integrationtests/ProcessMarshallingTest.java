@@ -512,7 +512,7 @@ public class ProcessMarshallingTest extends AbstractBaseTest {
 
         final KieSession session = createKieSession(builder.getPackages());
         
-        session.startProcess("com.sample.ruleflow", null);
+        session.startProcess("com.sample.ruleflow");
         assertEquals(1, session.getProcessInstances().size());
         session.halt();
         
@@ -558,7 +558,7 @@ public class ProcessMarshallingTest extends AbstractBaseTest {
 
         KieSession session = createKieSession(builder.getPackages());
         
-        session.startProcess("com.sample.ruleflow", null);
+        session.startProcess("com.sample.ruleflow");
         
         // serialize session
         Marshaller marshaller = MarshallerFactory.newMarshaller( session.getKieBase() );

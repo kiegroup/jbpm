@@ -73,6 +73,7 @@ import org.kie.api.runtime.manager.RuntimeManager;
 import org.kie.api.runtime.process.EventListener;
 import org.kie.api.runtime.process.NodeInstanceContainer;
 import org.kie.api.runtime.process.ProcessInstance;
+import org.kie.api.runtime.rule.AgendaFilter;
 import org.kie.internal.process.CorrelationKey;
 import org.kie.internal.runtime.manager.InternalRuntimeManager;
 import org.kie.internal.runtime.manager.SessionNotFoundException;
@@ -119,6 +120,8 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 	private int slaCompliance = SLA_NA;
 	private Date slaDueDate;
 	private long slaTimerId = -1;
+
+	private AgendaFilter agendaFilter;
 
     @Override
     public NodeContainer getNodeContainer() {
@@ -990,4 +993,13 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
         return matcher.find();
     }
 
+    @Override
+    public AgendaFilter getAgendaFilter() {
+        return agendaFilter;
+    }
+
+    @Override
+    public void setAgendaFilter( AgendaFilter agendaFilter ) {
+        this.agendaFilter = agendaFilter;
+    }
 }
