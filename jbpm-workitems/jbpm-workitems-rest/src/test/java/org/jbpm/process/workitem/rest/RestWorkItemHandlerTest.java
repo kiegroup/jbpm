@@ -225,9 +225,9 @@ public class RestWorkItemHandlerTest {
         workItem.setParameter("Method",
                               "GET");
         workItem.setParameter(PARAM_CONNECT_TIMEOUT,
-                              "30000");
+                              "PT30S");
         workItem.setParameter(PARAM_READ_TIMEOUT,
-                              "25000");
+                              "PT25S");
 
         WorkItemManager manager = new TestWorkItemManager();
         handler.executeWorkItem(workItem,

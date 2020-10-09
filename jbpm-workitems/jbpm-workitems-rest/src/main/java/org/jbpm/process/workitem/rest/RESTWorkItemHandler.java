@@ -21,6 +21,9 @@ import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.nio.charset.UnsupportedCharsetException;
+import java.time.Duration;
+import java.time.OffsetDateTime;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -779,11 +782,11 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler imple
         }
 
         // optional timeout config parameters, defaulted to 60 seconds
-        Integer connectTimeout = getParamAsInt(params.get(PARAM_CONNECT_TIMEOUT));
+        Integer connectTimeout = parseTimeout((String) params.get(PARAM_CONNECT_TIMEOUT));
         if (connectTimeout == null) {
             connectTimeout = 60000;
         }
-        Integer readTimeout = getParamAsInt(params.get(PARAM_READ_TIMEOUT));
+        Integer readTimeout = parseTimeout((String) params.get(PARAM_READ_TIMEOUT));
         if (readTimeout == null) {
             readTimeout = 60000;
         }
@@ -857,17 +860,33 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler imple
         }
     }
 
-    protected Integer getParamAsInt(Object param) {
-        if (param == null) {
+    protected Integer parseTimeout(String durationStr) {
+
+        if (durationStr == null) {
             return null;
         }
-        if (param instanceof String && !((String) param).isEmpty()) {
-            return Integer.parseInt((String) param);
-        }
-        if (param instanceof Number) {
-            return ((Number) param).intValue();
-        }
+        if (!durationStr.isEmpty()) {
+            try {
+                if (durationStr.startsWith("PT")) { // ISO-8601 PTnHnMn.nS
+                    return (int) Duration.parse(durationStr).toMillis();
+                } else if (!durationStr.contains("T")) { // ISO-8601 PnYnMnWnD
+                    Period period = Period.parse(durationStr);
+                    OffsetDateTime now = OffsetDateTime.now();
+                    return (int) Duration.between(now, now.plus(period)).toMillis();
+                } else { // ISO-8601 PnYnMnWnDTnHnMn.nS
+                    String[] elements = durationStr.split("T");
+                    Period period = Period.parse(elements[0]);
+                    Duration duration = Duration.parse("PT" + elements[1]);
+                    OffsetDateTime now = OffsetDateTime.now();
+                    return (int) Duration.between(now, now.plus(period).plus(duration)).toMillis();
+                }
+            } catch (Exception e) {
+                logger.error("Exception occured while parsing provided timeout" + durationStr
+                            + ".Default timeout of 60 seconds is used.");
+                return null;
 
+            }
+        }
         return null;
     }
 
