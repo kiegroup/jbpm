@@ -16,7 +16,6 @@
 
 package org.jbpm.casemgmt.impl.event;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -57,26 +56,16 @@ public class CaseEventSupport extends AbstractEventSupport<CaseEventListener> {
      */
     
     public void fireBeforeCaseStarted(String caseId, String deploymentId, String caseDefinitionId, CaseFileInstance caseFile) {
-        final Iterator<CaseEventListener> iter = getEventListenersIterator();
-
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final CaseStartEvent event = new CaseStartEvent(identityProvider.getName(), caseId, deploymentId, caseDefinitionId, caseFile);
-
-            do{
-                iter.next().beforeCaseStarted(event);
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.beforeCaseStarted(e) );
         }
     }
 
     public void fireAfterCaseStarted(String caseId, String deploymentId, String caseDefinitionId, CaseFileInstance caseFile, long processInstanceId) {
-        final Iterator<CaseEventListener> iter = getEventListenersIterator();
-
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final CaseStartEvent event = new CaseStartEvent(identityProvider.getName(), caseId, deploymentId, caseDefinitionId, caseFile, processInstanceId);
-
-            do {
-                iter.next().afterCaseStarted(event);
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.afterCaseStarted(e) );
         }
     }
     
@@ -84,26 +73,16 @@ public class CaseEventSupport extends AbstractEventSupport<CaseEventListener> {
      * fire*CaseClosed
      */
     public void fireBeforeCaseClosed(String caseId, CaseFileInstance caseFile, String comment) {
-        final Iterator<CaseEventListener> iter = getEventListenersIterator();
-
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final CaseCloseEvent event = new CaseCloseEvent(identityProvider.getName(), caseId, caseFile, comment);
-
-            do{
-                iter.next().beforeCaseClosed(event);
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.beforeCaseClosed(e) );
         }
     }
 
     public void fireAfterCaseClosed(String caseId, CaseFileInstance caseFile, String comment) {
-        final Iterator<CaseEventListener> iter = getEventListenersIterator();
-
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final CaseCloseEvent event = new CaseCloseEvent(identityProvider.getName(), caseId, caseFile, comment);
-
-            do {
-                iter.next().afterCaseClosed(event);
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.afterCaseClosed(e) );
         }
     }
     
@@ -111,26 +90,16 @@ public class CaseEventSupport extends AbstractEventSupport<CaseEventListener> {
      * fire*CaseCancelled
      */
     public void fireBeforeCaseCancelled(String caseId, CaseFileInstance caseFile, List<Long> processInstanceIds) {
-        final Iterator<CaseEventListener> iter = getEventListenersIterator();
-
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final CaseCancelEvent event = new CaseCancelEvent(identityProvider.getName(), caseId, caseFile, processInstanceIds);
-
-            do{
-                iter.next().beforeCaseCancelled(event);
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.beforeCaseCancelled(e) );
         }
     }
 
     public void fireAfterCaseCancelled(String caseId, CaseFileInstance caseFile, List<Long> processInstanceIds) {
-        final Iterator<CaseEventListener> iter = getEventListenersIterator();
-
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final CaseCancelEvent event = new CaseCancelEvent(identityProvider.getName(), caseId, caseFile, processInstanceIds);
-
-            do {
-                iter.next().afterCaseCancelled(event);
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.afterCaseCancelled(e) );
         }
     }
     
@@ -138,54 +107,34 @@ public class CaseEventSupport extends AbstractEventSupport<CaseEventListener> {
      * fire*CaseDestroyed
      */
     public void fireBeforeCaseDestroyed(String caseId, CaseFileInstance caseFile, List<Long> processInstanceIds) {
-        final Iterator<CaseEventListener> iter = getEventListenersIterator();
-
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final CaseDestroyEvent event = new CaseDestroyEvent(identityProvider.getName(), caseId, caseFile, processInstanceIds);
-
-            do{
-                iter.next().beforeCaseDestroyed(event);
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.beforeCaseDestroyed(e) );
         }
     }
 
     public void fireAfterCaseDestroyed(String caseId, CaseFileInstance caseFile, List<Long> processInstanceIds) {
-        final Iterator<CaseEventListener> iter = getEventListenersIterator();
-
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final CaseDestroyEvent event = new CaseDestroyEvent(identityProvider.getName(), caseId, caseFile, processInstanceIds);
-
-            do {
-                iter.next().afterCaseDestroyed(event);
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.afterCaseDestroyed(e) );
         }
-    }  
+    }
     
     /*
      * fire*CaseReopened
      */
     
     public void fireBeforeCaseReopened(String caseId, CaseFileInstance caseFile, String deploymentId, String caseDefinitionId, Map<String, Object> data) {
-        final Iterator<CaseEventListener> iter = getEventListenersIterator();
-
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final CaseReopenEvent event = new CaseReopenEvent(identityProvider.getName(), caseId, caseFile, deploymentId, caseDefinitionId, data);
-
-            do{
-                iter.next().beforeCaseReopen(event);
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.beforeCaseReopen(e) );
         }
     }
 
     public void fireAfterCaseReopened(String caseId, CaseFileInstance caseFile, String deploymentId, String caseDefinitionId, Map<String, Object> data, long processInstanceId) {
-        final Iterator<CaseEventListener> iter = getEventListenersIterator();
-
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final CaseReopenEvent event = new CaseReopenEvent(identityProvider.getName(), caseId, caseFile, deploymentId, caseDefinitionId, data, processInstanceId);
-
-            do {
-                iter.next().afterCaseReopen(event);
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.afterCaseReopen(e) );
         }
     }
     
@@ -193,244 +142,154 @@ public class CaseEventSupport extends AbstractEventSupport<CaseEventListener> {
      * fire*CaseCommentAdded
      */
     public void fireBeforeCaseCommentAdded(String caseId, CaseFileInstance caseFile, CommentInstance commentInstance) {
-        final Iterator<CaseEventListener> iter = getEventListenersIterator();
-
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final CaseCommentEvent event = new CaseCommentEvent(identityProvider.getName(), caseId, caseFile, commentInstance);
-
-            do {
-                iter.next().beforeCaseCommentAdded(event);
-            } while (iter.hasNext());
-        }        
+            notifyAllListeners( event, ( l, e ) -> l.beforeCaseCommentAdded(e) );
+        }
     }
     
     public void fireAfterCaseCommentAdded(String caseId, CaseFileInstance caseFile, CommentInstance commentInstance) {
-        final Iterator<CaseEventListener> iter = getEventListenersIterator();
-
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final CaseCommentEvent event = new CaseCommentEvent(identityProvider.getName(), caseId, caseFile, commentInstance);
-
-            do {
-                iter.next().afterCaseCommentAdded(event);
-            } while (iter.hasNext());
-        }        
+            notifyAllListeners( event, ( l, e ) -> l.afterCaseCommentAdded(e) );
+        }
     }
     
     /*
      * fire*CaseCommentUpdated
      */
     public void fireBeforeCaseCommentUpdated(String caseId, CaseFileInstance caseFile, CommentInstance commentInstance) {
-        final Iterator<CaseEventListener> iter = getEventListenersIterator();
-
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final CaseCommentEvent event = new CaseCommentEvent(identityProvider.getName(), caseId, caseFile, commentInstance);
-
-            do {
-                iter.next().beforeCaseCommentUpdated(event);
-            } while (iter.hasNext());
-        }        
+            notifyAllListeners( event, ( l, e ) -> l.beforeCaseCommentUpdated(e) );
+        }
     }
     
     public void fireAfterCaseCommentUpdated(String caseId, CaseFileInstance caseFile, CommentInstance commentInstance) {
-        final Iterator<CaseEventListener> iter = getEventListenersIterator();
-
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final CaseCommentEvent event = new CaseCommentEvent(identityProvider.getName(), caseId, caseFile, commentInstance);
-
-            do {
-                iter.next().afterCaseCommentUpdated(event);
-            } while (iter.hasNext());
-        }        
+            notifyAllListeners( event, ( l, e ) -> l.afterCaseCommentUpdated(e) );
+        }
     }
     
     /*
      * fire*CaseCommentRemoved
      */
     public void fireBeforeCaseCommentRemoved(String caseId, CaseFileInstance caseFile, CommentInstance commentInstance) {
-        final Iterator<CaseEventListener> iter = getEventListenersIterator();
-
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final CaseCommentEvent event = new CaseCommentEvent(identityProvider.getName(), caseId, caseFile, commentInstance);
-
-            do {
-                iter.next().beforeCaseCommentRemoved(event);
-            } while (iter.hasNext());
-        }        
+            notifyAllListeners( event, ( l, e ) -> l.beforeCaseCommentRemoved(e) );
+        }
     }
     
     public void fireAfterCaseCommentRemoved(String caseId, CaseFileInstance caseFile, CommentInstance commentInstance) {
-        final Iterator<CaseEventListener> iter = getEventListenersIterator();
-
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final CaseCommentEvent event = new CaseCommentEvent(identityProvider.getName(), caseId, caseFile, commentInstance);
-
-            do {
-                iter.next().afterCaseCommentRemoved(event);
-            } while (iter.hasNext());
-        }        
+            notifyAllListeners( event, ( l, e ) -> l.afterCaseCommentRemoved(e) );
+        }
     }
     
     /*
      * fire*CaseRoleAssignmentAdded
      */
     public void fireBeforeCaseRoleAssignmentAdded(String caseId, CaseFileInstance caseFile, String role, OrganizationalEntity entity) {
-        final Iterator<CaseEventListener> iter = getEventListenersIterator();
-
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final CaseRoleAssignmentEvent event = new CaseRoleAssignmentEvent(identityProvider.getName(), caseId, caseFile, role, entity);
-
-            do {
-                iter.next().beforeCaseRoleAssignmentAdded(event);
-            } while (iter.hasNext());
-        }        
+            notifyAllListeners( event, ( l, e ) -> l.beforeCaseRoleAssignmentAdded(e) );
+        }
     }
     
     public void fireAfterCaseRoleAssignmentAdded(String caseId, CaseFileInstance caseFile, String role, OrganizationalEntity entity) {
-        final Iterator<CaseEventListener> iter = getEventListenersIterator();
-
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final CaseRoleAssignmentEvent event = new CaseRoleAssignmentEvent(identityProvider.getName(), caseId, caseFile, role, entity);
-
-            do {
-                iter.next().afterCaseRoleAssignmentAdded(event);
-            } while (iter.hasNext());
-        }        
+            notifyAllListeners( event, ( l, e ) -> l.afterCaseRoleAssignmentAdded(e) );
+        }
     }
     
     /*
      * fire*CaseRoleAssignmentRemoved
      */
     public void fireBeforeCaseRoleAssignmentRemoved(String caseId, CaseFileInstance caseFile, String role, OrganizationalEntity entity) {
-        final Iterator<CaseEventListener> iter = getEventListenersIterator();
-
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final CaseRoleAssignmentEvent event = new CaseRoleAssignmentEvent(identityProvider.getName(), caseId, caseFile, role, entity);
-
-            do {
-                iter.next().beforeCaseRoleAssignmentRemoved(event);
-            } while (iter.hasNext());
-        }        
+            notifyAllListeners( event, ( l, e ) -> l.beforeCaseRoleAssignmentRemoved(e) );
+        }
     }
     
     public void fireAfterCaseRoleAssignmentRemoved(String caseId, CaseFileInstance caseFile, String role, OrganizationalEntity entity) {
-        final Iterator<CaseEventListener> iter = getEventListenersIterator();
-
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final CaseRoleAssignmentEvent event = new CaseRoleAssignmentEvent(identityProvider.getName(), caseId, caseFile, role, entity);
-
-            do {
-                iter.next().afterCaseRoleAssignmentRemoved(event);
-            } while (iter.hasNext());
-        }        
+            notifyAllListeners( event, ( l, e ) -> l.afterCaseRoleAssignmentRemoved(e) );
+        }
     }
 
     /*
      * fire*CaseDataAdded
      */
     public void fireBeforeCaseDataAdded(String caseId, CaseFileInstance caseFile, String definitionId, Map<String, Object> data) {
-        final Iterator<CaseEventListener> iter = getEventListenersIterator();
-
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final CaseDataEvent event = new CaseDataEvent(identityProvider.getName(), caseId, caseFile, definitionId, data);
-
-            do {
-                iter.next().beforeCaseDataAdded(event);
-            } while (iter.hasNext());
-        }        
+            notifyAllListeners( event, ( l, e ) -> l.beforeCaseDataAdded(e) );
+        }
     }
     
     public void fireAfterCaseDataAdded(String caseId, CaseFileInstance caseFile, String definitionId, Map<String, Object> data) {
-        final Iterator<CaseEventListener> iter = getEventListenersIterator();
-
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final CaseDataEvent event = new CaseDataEvent(identityProvider.getName(), caseId, caseFile, definitionId, data);
-
-            do {
-                iter.next().afterCaseDataAdded(event);
-            } while (iter.hasNext());
-        }        
+            notifyAllListeners( event, ( l, e ) -> l.afterCaseDataAdded(e) );
+        }
     }
     
     /*
      * fire*CaseDataRemoved
      */
     public void fireBeforeCaseDataRemoved(String caseId, CaseFileInstance caseFile, String definitionId, Map<String, Object> data) {
-        final Iterator<CaseEventListener> iter = getEventListenersIterator();
-
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final CaseDataEvent event = new CaseDataEvent(identityProvider.getName(), caseId, caseFile, definitionId, data);
-
-            do {
-                iter.next().beforeCaseDataRemoved(event);
-            } while (iter.hasNext());
-        }        
+            notifyAllListeners( event, ( l, e ) -> l.beforeCaseDataRemoved(e) );
+        }
     }
     
     public void fireAfterCaseDataRemoved(String caseId, CaseFileInstance caseFile, String definitionId, Map<String, Object> data) {
-        final Iterator<CaseEventListener> iter = getEventListenersIterator();
-
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final CaseDataEvent event = new CaseDataEvent(identityProvider.getName(), caseId, caseFile, definitionId, data);
-
-            do {
-                iter.next().afterCaseDataRemoved(event);
-            } while (iter.hasNext());
-        }        
+            notifyAllListeners( event, ( l, e ) -> l.afterCaseDataRemoved(e) );
+        }
     }
     
     /*
      * fire*CaseDynamicTaskAdded
      */
     public void fireBeforeDynamicTaskAdded(String caseId, CaseFileInstance caseFile, long processInstanceId, String nodeType, Map<String, Object> parameters) {
-        final Iterator<CaseEventListener> iter = getEventListenersIterator();
-
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final CaseDynamicTaskEvent event = new CaseDynamicTaskEvent(identityProvider.getName(), caseId, caseFile, nodeType, parameters, processInstanceId);
-
-            do {
-                iter.next().beforeDynamicTaskAdded(event);
-            } while (iter.hasNext());
-        }        
+            notifyAllListeners( event, ( l, e ) -> l.beforeDynamicTaskAdded(e) );
+        }
     }
     
     public void fireAfterDynamicTaskAdded(String caseId, CaseFileInstance caseFile, long processInstanceId, String nodeType, Map<String, Object> parameters) {
-        final Iterator<CaseEventListener> iter = getEventListenersIterator();
-
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final CaseDynamicTaskEvent event = new CaseDynamicTaskEvent(identityProvider.getName(), caseId, caseFile, nodeType, parameters, processInstanceId);
-
-            do {
-                iter.next().afterDynamicTaskAdded(event);
-            } while (iter.hasNext());
-        }        
+            notifyAllListeners( event, ( l, e ) -> l.afterDynamicTaskAdded(e) );
+        }
     }
-    
+
     /*
      * fire*CaseDynamicProcessAdded
      */
     public void fireBeforeDynamicProcessAdded(String caseId, CaseFileInstance caseFile, long processInstanceId, String processId, Map<String, Object> parameters) {
-        final Iterator<CaseEventListener> iter = getEventListenersIterator();
-
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final CaseDynamicSubprocessEvent event = new CaseDynamicSubprocessEvent(identityProvider.getName(), caseId, caseFile, processId, parameters, processInstanceId);
-
-            do {
-                iter.next().beforeDynamicProcessAdded(event);
-            } while (iter.hasNext());
-        }        
+            notifyAllListeners( event, ( l, e ) -> l.beforeDynamicProcessAdded(e) );
+        }
     }
     
     public void fireAfterDynamicProcessAdded(String caseId, CaseFileInstance caseFile, long processInstanceId, String processId, Map<String, Object> parameters, long subProcessInstanceId) {
-        final Iterator<CaseEventListener> iter = getEventListenersIterator();
-
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final CaseDynamicSubprocessEvent event = new CaseDynamicSubprocessEvent(identityProvider.getName(), caseId, caseFile, processId, parameters, processInstanceId, subProcessInstanceId);
-
-            do {
-                iter.next().afterDynamicProcessAdded(event);
-            } while (iter.hasNext());
-        }        
-    }  
+            notifyAllListeners( event, ( l, e ) -> l.afterDynamicProcessAdded(e) );
+        }
+    }
     public void reset() {
         this.clear();
     }

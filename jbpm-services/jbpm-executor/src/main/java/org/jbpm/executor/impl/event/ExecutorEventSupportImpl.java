@@ -16,8 +16,6 @@
 
 package org.jbpm.executor.impl.event;
 
-import java.util.Iterator;
-
 import org.drools.core.event.AbstractEventSupport;
 import org.jbpm.executor.AsynchronousJobListener;
 import org.kie.api.executor.RequestInfo;
@@ -27,61 +25,43 @@ public class ExecutorEventSupportImpl extends AbstractEventSupport<AsynchronousJ
 
     @Override
     public void fireBeforeJobScheduled(final RequestInfo job, Throwable exception) {
-        final Iterator<AsynchronousJobListener> iter = getEventListenersIterator();
-        if (iter.hasNext()) {
-            do{
-                iter.next().beforeJobScheduled(new AsynchronousJobEventImpl(job, exception));
-            } while (iter.hasNext());
+        if ( hasListeners() ) {
+            notifyAllListeners( new AsynchronousJobEventImpl(job, exception), ( l, e ) -> l.beforeJobScheduled(e) );
         }
     }
     
     @Override
     public void fireBeforeJobExecuted(final RequestInfo job, Throwable exception) {
-        final Iterator<AsynchronousJobListener> iter = getEventListenersIterator();
-        if (iter.hasNext()) {
-            do{
-                iter.next().beforeJobExecuted(new AsynchronousJobEventImpl(job, exception));
-            } while (iter.hasNext());
+        if ( hasListeners() ) {
+            notifyAllListeners( new AsynchronousJobEventImpl(job, exception), ( l, e ) -> l.beforeJobExecuted(e) );
         }
     }
     
     @Override
     public void fireBeforeJobCancelled(final RequestInfo job, Throwable exception) {
-        final Iterator<AsynchronousJobListener> iter = getEventListenersIterator();
-        if (iter.hasNext()) {
-            do{
-                iter.next().beforeJobCancelled(new AsynchronousJobEventImpl(job, exception));
-            } while (iter.hasNext());
+        if ( hasListeners() ) {
+            notifyAllListeners( new AsynchronousJobEventImpl(job, exception), ( l, e ) -> l.beforeJobCancelled(e) );
         }
     }
     
     @Override
     public void fireAfterJobScheduled(final RequestInfo job, Throwable exception) {
-        final Iterator<AsynchronousJobListener> iter = getEventListenersIterator();
-        if (iter.hasNext()) {
-            do{
-                iter.next().afterJobScheduled(new AsynchronousJobEventImpl(job, exception));
-            } while (iter.hasNext());
+        if ( hasListeners() ) {
+            notifyAllListeners( new AsynchronousJobEventImpl(job, exception), ( l, e ) -> l.afterJobScheduled(e) );
         }
     }
     
     @Override
     public void fireAfterJobExecuted(final RequestInfo job, Throwable exception) {
-        final Iterator<AsynchronousJobListener> iter = getEventListenersIterator();
-        if (iter.hasNext()) {
-            do{
-                iter.next().afterJobExecuted(new AsynchronousJobEventImpl(job, exception));
-            } while (iter.hasNext());
+        if ( hasListeners() ) {
+            notifyAllListeners( new AsynchronousJobEventImpl(job, exception), ( l, e ) -> l.afterJobExecuted(e) );
         }
     }
     
     @Override
     public void fireAfterJobCancelled(final RequestInfo job, Throwable exception) {
-        final Iterator<AsynchronousJobListener> iter = getEventListenersIterator();
-        if (iter.hasNext()) {
-            do{
-                iter.next().afterJobCancelled(new AsynchronousJobEventImpl(job, exception));
-            } while (iter.hasNext());
+        if ( hasListeners() ) {
+            notifyAllListeners( new AsynchronousJobEventImpl(job, exception), ( l, e ) -> l.afterJobCancelled(e) );
         }
     }
 }

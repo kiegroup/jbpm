@@ -16,7 +16,6 @@
 
 package org.jbpm.services.task.events;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -30,253 +29,157 @@ import org.kie.internal.task.api.TaskContext;
 public class TaskEventSupport extends AbstractEventSupport<TaskLifeCycleEventListener> {
 
     public void fireBeforeTaskActivated(final Task task, TaskContext context) {
-        final Iterator<TaskLifeCycleEventListener> iter = getEventListenersIterator();
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final TaskEventImpl event = new TaskEventImpl(task, context);
-            
-            do{
-                iter.next().beforeTaskActivatedEvent(event);
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.beforeTaskActivatedEvent( e ) );
         }
     }
     
     public void fireBeforeTaskClaimed(final Task task, TaskContext context) {
-        final Iterator<TaskLifeCycleEventListener> iter = getEventListenersIterator();
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final TaskEventImpl event = new TaskEventImpl(task, context);
-            
-            do{
-                iter.next().beforeTaskClaimedEvent(event);
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.beforeTaskClaimedEvent( e ) );
         }
     }
     
     public void fireBeforeTaskSkipped(final Task task, TaskContext context) {
-        final Iterator<TaskLifeCycleEventListener> iter = getEventListenersIterator();
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final TaskEventImpl event = new TaskEventImpl(task, context);
-            
-            do{
-                iter.next().beforeTaskSkippedEvent(event);
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.beforeTaskSkippedEvent( e ) );
         }
     }
     
     public void fireBeforeTaskStarted(final Task task, TaskContext context) {
-        final Iterator<TaskLifeCycleEventListener> iter = getEventListenersIterator();
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final TaskEventImpl event = new TaskEventImpl(task, context);
-            
-            do{
-                iter.next().beforeTaskStartedEvent(event);
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.beforeTaskStartedEvent( e ) );
         }
     }
     
     public void fireBeforeTaskStopped(final Task task, TaskContext context) {
-        final Iterator<TaskLifeCycleEventListener> iter = getEventListenersIterator();
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final TaskEventImpl event = new TaskEventImpl(task, context);
-            
-            do{
-                iter.next().beforeTaskStoppedEvent(event);
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.beforeTaskStoppedEvent( e ) );
         }
     }
     
     public void fireBeforeTaskCompleted(final Task task, TaskContext context) {
-        final Iterator<TaskLifeCycleEventListener> iter = getEventListenersIterator();
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final TaskEventImpl event = new TaskEventImpl(task, context);
-            
-            do{
-                iter.next().beforeTaskCompletedEvent(event);
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.beforeTaskCompletedEvent( e ) );
         }
     }
     
     public void fireBeforeTaskFailed(final Task task, TaskContext context) {
-        final Iterator<TaskLifeCycleEventListener> iter = getEventListenersIterator();
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final TaskEventImpl event = new TaskEventImpl(task, context);
-            
-            do{
-                iter.next().beforeTaskFailedEvent(event);
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.beforeTaskFailedEvent( e ) );
         }
     }
     
     public void fireBeforeTaskAdded(final Task task, TaskContext context) {
-        final Iterator<TaskLifeCycleEventListener> iter = getEventListenersIterator();
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final TaskEventImpl event = new TaskEventImpl(task, context);
-            
-            do{
-                iter.next().beforeTaskAddedEvent(event);
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.beforeTaskAddedEvent( e ) );
         }
     }
     
     public void fireBeforeTaskExited(final Task task, TaskContext context) {
-        final Iterator<TaskLifeCycleEventListener> iter = getEventListenersIterator();
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final TaskEventImpl event = new TaskEventImpl(task, context);
-            
-            do{
-                iter.next().beforeTaskExitedEvent(event);
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.beforeTaskExitedEvent( e ) );
         }
     }
     
     public void fireBeforeTaskReleased(final Task task, TaskContext context) {
-        final Iterator<TaskLifeCycleEventListener> iter = getEventListenersIterator();
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final TaskEventImpl event = new TaskEventImpl(task, context);
-            
-            do{
-                iter.next().beforeTaskReleasedEvent(event);
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.beforeTaskReleasedEvent( e ) );
         }
     }
     
     public void fireBeforeTaskResumed(final Task task, TaskContext context) {
-        final Iterator<TaskLifeCycleEventListener> iter = getEventListenersIterator();
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final TaskEventImpl event = new TaskEventImpl(task, context);
-            
-            do{
-                iter.next().beforeTaskResumedEvent(event);
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.beforeTaskResumedEvent( e ) );
         }
     }
     
     public void fireBeforeTaskSuspended(final Task task, TaskContext context) {
-        final Iterator<TaskLifeCycleEventListener> iter = getEventListenersIterator();
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final TaskEventImpl event = new TaskEventImpl(task, context);
-            
-            do{
-                iter.next().beforeTaskSuspendedEvent(event);
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.beforeTaskSuspendedEvent( e ) );
         }
     }
     
     public void fireBeforeTaskForwarded(final Task task, TaskContext context) {
-        final Iterator<TaskLifeCycleEventListener> iter = getEventListenersIterator();
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final TaskEventImpl event = new TaskEventImpl(task, context);
-            
-            do{
-                iter.next().beforeTaskForwardedEvent(event);
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.beforeTaskForwardedEvent( e ) );
         }
     }
     
     public void fireBeforeTaskDelegated(final Task task, TaskContext context) {
-        final Iterator<TaskLifeCycleEventListener> iter = getEventListenersIterator();
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final TaskEventImpl event = new TaskEventImpl(task, context);
-            
-            do{
-                iter.next().beforeTaskDelegatedEvent(event);
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.beforeTaskDelegatedEvent( e ) );
         }
     }
     
     public void fireBeforeTaskNominated(final Task task, TaskContext context) {
-        final Iterator<TaskLifeCycleEventListener> iter = getEventListenersIterator();
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final TaskEventImpl event = new TaskEventImpl(task, context);
-            
-            do{
-                iter.next().beforeTaskNominatedEvent(event);
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.beforeTaskNominatedEvent( e ) );
         }
     }
     
     public void fireBeforeTaskUpdated(final Task task, TaskContext context) {
-        final Iterator<TaskLifeCycleEventListener> iter = getEventListenersIterator();
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final TaskEventImpl event = new TaskEventImpl(task, context);
-            
-            do{
-            	TaskLifeCycleEventListener listener = iter.next();
-        		listener.beforeTaskUpdatedEvent(event);
-            	
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.beforeTaskUpdatedEvent( e ) );
         }
     }
     
     public void fireBeforeTaskReassigned(final Task task, TaskContext context) {
-        final Iterator<TaskLifeCycleEventListener> iter = getEventListenersIterator();
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final TaskEventImpl event = new TaskEventImpl(task, context);
-            
-            do{
-                TaskLifeCycleEventListener listener = iter.next();                
-                listener.beforeTaskReassignedEvent(event);                
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.beforeTaskReassignedEvent( e ) );
         }
     }
     
     public void fireBeforeTaskNotified(final Task task, TaskContext context) {
-        final Iterator<TaskLifeCycleEventListener> iter = getEventListenersIterator();
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final TaskEventImpl event = new TaskEventImpl(task, context);
-            
-            do{
-                TaskLifeCycleEventListener listener = iter.next();
-                listener.beforeTaskNominatedEvent(event);
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.beforeTaskNominatedEvent( e ) );
         }
     }
     
     public void fireBeforeTaskInputVariablesChanged(final Task task, TaskContext context, Map<String, Object> variables) {
-        final Iterator<TaskLifeCycleEventListener> iter = getEventListenersIterator();
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final TaskEventImpl event = new TaskEventImpl(task, context);
-            
-            do{
-                TaskLifeCycleEventListener listener = iter.next();
-                listener.beforeTaskInputVariableChangedEvent(event, variables);                
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.beforeTaskInputVariableChangedEvent( e, variables ) );
         }
     }
     
     
     public void fireBeforeTaskOutputVariablesChanged(final Task task, TaskContext context, Map<String, Object> variables) {
-        final Iterator<TaskLifeCycleEventListener> iter = getEventListenersIterator();
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final TaskEventImpl event = new TaskEventImpl(task, context);
-            
-            do{
-                TaskLifeCycleEventListener listener = iter.next();
-                listener.beforeTaskOutputVariableChangedEvent(event, variables);                
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.beforeTaskOutputVariableChangedEvent( e, variables ) );
         }
     }
     
     public void fireBeforeTaskAssignmentsAddedEvent(final Task task, TaskContext context, AssignmentType type, List<OrganizationalEntity> entities) {
-        final Iterator<TaskLifeCycleEventListener> iter = getEventListenersIterator();
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final TaskEventImpl event = new TaskEventImpl(task, context);
-            
-            do{
-                TaskLifeCycleEventListener listener = iter.next();
-                listener.beforeTaskAssignmentsAddedEvent(event, type, entities);                
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.beforeTaskAssignmentsAddedEvent(e, type, entities) );
         }
     }
     
     public void fireBeforeTaskAssignmentsRemovedEvent(final Task task, TaskContext context, AssignmentType type, List<OrganizationalEntity> entities) {
-        final Iterator<TaskLifeCycleEventListener> iter = getEventListenersIterator();
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final TaskEventImpl event = new TaskEventImpl(task, context);
-            
-            do{
-                TaskLifeCycleEventListener listener = iter.next();
-                listener.beforeTaskAssignmentsRemovedEvent(event, type, entities);                
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.beforeTaskAssignmentsRemovedEvent(e, type, entities) );
         }
     }
 
@@ -284,252 +187,157 @@ public class TaskEventSupport extends AbstractEventSupport<TaskLifeCycleEventLis
     // after methods
     
     public void fireAfterTaskActivated(final Task task, TaskContext context) {
-        final Iterator<TaskLifeCycleEventListener> iter = getEventListenersIterator();
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final TaskEventImpl event = new TaskEventImpl(task, context);
-            
-            do{
-                iter.next().afterTaskActivatedEvent(event);
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.afterTaskActivatedEvent(e) );
         }
     }
     
     public void fireAfterTaskClaimed(final Task task, TaskContext context) {
-        final Iterator<TaskLifeCycleEventListener> iter = getEventListenersIterator();
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final TaskEventImpl event = new TaskEventImpl(task, context);
-            
-            do{
-                iter.next().afterTaskClaimedEvent(event);
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.afterTaskClaimedEvent(e) );
         }
     }
     
     public void fireAfterTaskSkipped(final Task task, TaskContext context) {
-        final Iterator<TaskLifeCycleEventListener> iter = getEventListenersIterator();
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final TaskEventImpl event = new TaskEventImpl(task, context);
-            
-            do{
-                iter.next().afterTaskSkippedEvent(event);
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.afterTaskSkippedEvent(e) );
         }
     }
     
     public void fireAfterTaskStarted(final Task task, TaskContext context) {
-        final Iterator<TaskLifeCycleEventListener> iter = getEventListenersIterator();
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final TaskEventImpl event = new TaskEventImpl(task, context);
-            
-            do{
-                iter.next().afterTaskStartedEvent(event);
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.afterTaskStartedEvent(e) );
         }
     }
     
     public void fireAfterTaskStopped(final Task task, TaskContext context) {
-        final Iterator<TaskLifeCycleEventListener> iter = getEventListenersIterator();
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final TaskEventImpl event = new TaskEventImpl(task, context);
-            
-            do{
-                iter.next().afterTaskStoppedEvent(event);
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.afterTaskStoppedEvent(e) );
         }
     }
     
     public void fireAfterTaskCompleted(final Task task, TaskContext context) {
-        final Iterator<TaskLifeCycleEventListener> iter = getEventListenersIterator();
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final TaskEventImpl event = new TaskEventImpl(task, context);
-            
-            do{
-                iter.next().afterTaskCompletedEvent(event);
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.afterTaskCompletedEvent(e) );
         }
     }
     
     public void fireAfterTaskFailed(final Task task, TaskContext context) {
-        final Iterator<TaskLifeCycleEventListener> iter = getEventListenersIterator();
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final TaskEventImpl event = new TaskEventImpl(task, context);
-            
-            do{
-                iter.next().afterTaskFailedEvent(event);
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.afterTaskFailedEvent(e) );
         }
     }
     
     public void fireAfterTaskAdded(final Task task, TaskContext context) {
-        final Iterator<TaskLifeCycleEventListener> iter = getEventListenersIterator();
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final TaskEventImpl event = new TaskEventImpl(task, context);
-            
-            do{
-                iter.next().afterTaskAddedEvent(event);
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.afterTaskAddedEvent(e) );
         }
     }
     
     public void fireAfterTaskExited(final Task task, TaskContext context) {
-        final Iterator<TaskLifeCycleEventListener> iter = getEventListenersIterator();
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final TaskEventImpl event = new TaskEventImpl(task, context);
-            
-            do{
-                iter.next().afterTaskExitedEvent(event);
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.afterTaskExitedEvent(e) );
         }
     }
     
     public void fireAfterTaskReleased(final Task task, TaskContext context) {
-        final Iterator<TaskLifeCycleEventListener> iter = getEventListenersIterator();
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final TaskEventImpl event = new TaskEventImpl(task, context);
-            
-            do{
-                iter.next().afterTaskReleasedEvent(event);
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.afterTaskReleasedEvent(e) );
         }
     }
     
     public void fireAfterTaskResumed(final Task task, TaskContext context) {
-        final Iterator<TaskLifeCycleEventListener> iter = getEventListenersIterator();
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final TaskEventImpl event = new TaskEventImpl(task, context);
-            
-            do{
-                iter.next().afterTaskResumedEvent(event);
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.afterTaskResumedEvent(e) );
         }
     }
     
     public void fireAfterTaskSuspended(final Task task, TaskContext context) {
-        final Iterator<TaskLifeCycleEventListener> iter = getEventListenersIterator();
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final TaskEventImpl event = new TaskEventImpl(task, context);
-            
-            do{
-                iter.next().afterTaskSuspendedEvent(event);
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.afterTaskSuspendedEvent(e) );
         }
     }
     
     public void fireAfterTaskForwarded(final Task task, TaskContext context) {
-        final Iterator<TaskLifeCycleEventListener> iter = getEventListenersIterator();
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final TaskEventImpl event = new TaskEventImpl(task, context);
-            
-            do{
-                iter.next().afterTaskForwardedEvent(event);
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.afterTaskForwardedEvent(e) );
         }
     }
     
     public void fireAfterTaskDelegated(final Task task, TaskContext context) {
-        final Iterator<TaskLifeCycleEventListener> iter = getEventListenersIterator();
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final TaskEventImpl event = new TaskEventImpl(task, context);
-            
-            do{
-                iter.next().afterTaskDelegatedEvent(event);
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.afterTaskDelegatedEvent(e) );
         }
     }
     
     public void fireAfterTaskNominated(final Task task, TaskContext context) {
-        final Iterator<TaskLifeCycleEventListener> iter = getEventListenersIterator();
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final TaskEventImpl event = new TaskEventImpl(task, context);
-            
-            do{
-                iter.next().afterTaskNominatedEvent(event);
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.afterTaskNominatedEvent(e) );
         }
     }
     
     public void fireAfterTaskUpdated(final Task task, TaskContext context) {
-        final Iterator<TaskLifeCycleEventListener> iter = getEventListenersIterator();
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final TaskEventImpl event = new TaskEventImpl(task, context);
-            
-            do{
-            	TaskLifeCycleEventListener listener = iter.next();
-            	listener.afterTaskUpdatedEvent(event);
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.afterTaskUpdatedEvent(e) );
         }
     }
     
     public void fireAfterTaskReassigned(final Task task, TaskContext context) {
-        final Iterator<TaskLifeCycleEventListener> iter = getEventListenersIterator();
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final TaskEventImpl event = new TaskEventImpl(task, context);
-            
-            do{
-                TaskLifeCycleEventListener listener = iter.next();
-                listener.afterTaskReassignedEvent(event);
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.afterTaskReassignedEvent(e) );
         }
     }
     
     public void fireAfterTaskNotified(final Task task, TaskContext context) {
-        final Iterator<TaskLifeCycleEventListener> iter = getEventListenersIterator();
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final TaskEventImpl event = new TaskEventImpl(task, context);
-            
-            do{
-                TaskLifeCycleEventListener listener = iter.next();
-                listener.afterTaskNotificationEvent(event);                
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.afterTaskNotificationEvent(e) );
         }
     }
     
     public void fireAfterTaskInputVariablesChanged(final Task task, TaskContext context, Map<String, Object> variables) {
-        final Iterator<TaskLifeCycleEventListener> iter = getEventListenersIterator();
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final TaskEventImpl event = new TaskEventImpl(task, context);
-            
-            do{
-                TaskLifeCycleEventListener listener = iter.next();
-                listener.afterTaskInputVariableChangedEvent(event, variables);                
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.afterTaskInputVariableChangedEvent(e, variables) );
         }
     }
     
     
     public void fireAfterTaskOutputVariablesChanged(final Task task, TaskContext context, Map<String, Object> variables) {
-        final Iterator<TaskLifeCycleEventListener> iter = getEventListenersIterator();
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final TaskEventImpl event = new TaskEventImpl(task, context);
-            
-            do{
-                TaskLifeCycleEventListener listener = iter.next();
-                listener.afterTaskOutputVariableChangedEvent(event, variables);                
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.afterTaskOutputVariableChangedEvent(e, variables) );
         }
     }
     
     public void fireAfterTaskAssignmentsAddedEvent(final Task task, TaskContext context, AssignmentType type, List<OrganizationalEntity> entities) {
-        final Iterator<TaskLifeCycleEventListener> iter = getEventListenersIterator();
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final TaskEventImpl event = new TaskEventImpl(task, context);
-            
-            do{
-                TaskLifeCycleEventListener listener = iter.next();
-                listener.afterTaskAssignmentsAddedEvent(event, type, entities);                
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.afterTaskAssignmentsAddedEvent(e, type, entities) );
         }
     }
     
     public void fireAfterTaskAssignmentsRemovedEvent(final Task task, TaskContext context, AssignmentType type, List<OrganizationalEntity> entities) {
-        final Iterator<TaskLifeCycleEventListener> iter = getEventListenersIterator();
-        if (iter.hasNext()) {
+        if ( hasListeners() ) {
             final TaskEventImpl event = new TaskEventImpl(task, context);
-            
-            do{
-                TaskLifeCycleEventListener listener = iter.next();
-                listener.afterTaskAssignmentsRemovedEvent(event, type, entities);                
-            } while (iter.hasNext());
+            notifyAllListeners( event, ( l, e ) -> l.afterTaskAssignmentsRemovedEvent(e, type, entities) );
         }
     }
 }
