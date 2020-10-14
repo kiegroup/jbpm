@@ -119,7 +119,8 @@ public class AddTaskCommand extends UserGroupCallbackTaskCommand<Long> {
 
         // if the status is different from created it means it has been activated in the middle
         if (!Status.Created.equals(taskImpl.getTaskData().getStatus())) {
-            context.getTaskInstanceService().fireEvent(Operation.Activate, task.getId());
+            ((InternalTask) taskImpl).setId(taskId);
+            context.getTaskInstanceService().fireEvent(Operation.Activate, taskImpl);
         }
 
         DeadlineSchedulerHelper.scheduleDeadlinesForTask((InternalTask) taskImpl, context, DeadlineType.values());
