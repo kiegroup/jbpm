@@ -202,7 +202,7 @@
             (t.taskData.actualOwner.id = :userId or t.taskData.actualOwner is null) and 
             t.taskData.status in (:status) and 
             ( potentialOwners.id = :userId or potentialOwners.id in (:groupIds) ) and 
-            (:userId not member of t.peopleAssignments.excludedOwners) 
+            (:userId IS NULL OR :userId NOT MEMBER OF t.peopleAssignments.excludedOwners) 
             order by t.id DESC
         </query>
         <!-- hint name="org.hibernate.timeout" value="200"/ -->
@@ -236,7 +236,7 @@
             (t.taskData.actualOwner.id = :userId or t.taskData.actualOwner is null) and 
             t.taskData.status in ('Created', 'Ready', 'Reserved', 'InProgress', 'Suspended') and 
             ( potentialOwners.id = :userId or potentialOwners.id in (:groupIds) )  and 
-            (:userId not member of t.peopleAssignments.excludedOwners) 
+            (:userId IS NULL OR :userId NOT MEMBER OF t.peopleAssignments.excludedOwners) 
             order by t.id DESC          
         </query>
         <!-- hint name="org.hibernate.timeout" value="200"/ -->
@@ -270,7 +270,7 @@
             (t.taskData.actualOwner.id = :userId or t.taskData.actualOwner is null) and 
             t.taskData.status in (:status) and 
             ( potentialOwners.id = :userId or potentialOwners.id in (:groupIds) )  and 
-            (:userId not member of t.peopleAssignments.excludedOwners) 
+            (:userId IS NULL OR :userId NOT MEMBER OF t.peopleAssignments.excludedOwners) 
             order by t.id DESC
         </query>
         <!-- hint name="org.hibernate.timeout" value="200"/ -->
@@ -360,7 +360,7 @@
             t.taskData.expirationTime = :expirationDate and
             t.taskData.status in (:status) and 
             ( potentialOwners.id = :userId or potentialOwners.id in (:groupIds) )  and 
-            (:userId not member of t.peopleAssignments.excludedOwners) 
+            (:userId IS NULL OR :userId NOT MEMBER OF t.peopleAssignments.excludedOwners) 
             order by t.id DESC
         </query>
         <!-- hint name="org.hibernate.timeout" value="200"/ -->
@@ -396,7 +396,7 @@
             (t.taskData.expirationTime = :expirationDate or t.taskData.expirationTime is null) and
             t.taskData.status in (:status) and 
             ( potentialOwners.id = :userId or potentialOwners.id in (:groupIds) )  and 
-            (:userId not member of t.peopleAssignments.excludedOwners) 
+            (:userId IS NULL OR :userId NOT MEMBER OF t.peopleAssignments.excludedOwners) 
             order by t.id DESC     
         </query>
         <!-- hint name="org.hibernate.timeout" value="200"/ -->
@@ -498,7 +498,7 @@
             (t.taskData.actualOwner.id = :userId or t.taskData.actualOwner is null) and 
             t.taskData.status in ('Created', 'Ready', 'Reserved', 'InProgress', 'Suspended') and 
             (potentialOwners.id = :userId or potentialOwners.id in (:groupIds)) and 
-            (:userId not member of t.peopleAssignments.excludedOwners) 
+            (:userId IS NULL OR :userId NOT MEMBER OF t.peopleAssignments.excludedOwners) 
             order by t.id DESC
         </query>
         <!-- hint name="org.hibernate.timeout" value="200"/ -->
@@ -1213,7 +1213,7 @@
             (t.taskData.actualOwner.id = :userId or t.taskData.actualOwner is null) and 
             t.taskData.status in (:status) and 
             ( potentialOwners.id = :userId or potentialOwners.id in (:groupIds) ) and 
-            (:userId not member of t.peopleAssignments.excludedOwners) 
+            (:userId IS NULL OR :userId NOT MEMBER OF t.peopleAssignments.excludedOwners) 
             order by t.id DESC          
         </query>
         <!-- hint name="org.hibernate.timeout" value="200"/ -->
@@ -1253,7 +1253,7 @@
             (t.taskData.expirationTime = :expirationDate or t.taskData.expirationTime is null) and
             t.taskData.status in (:status) and 
             ( potentialOwners.id = :userId or potentialOwners.id in (:groupIds) ) and 
-            (:userId not member of t.peopleAssignments.excludedOwners) 
+            (:userId IS NULL OR :userId NOT MEMBER OF t.peopleAssignments.excludedOwners) 
             order by t.id DESC     
         </query>
         <!-- hint name="org.hibernate.timeout" value="200"/ -->
@@ -1289,7 +1289,7 @@
             t.taskData.expirationTime = :expirationDate and
             t.taskData.status in (:status) and 
             ( potentialOwners.id = :userId or potentialOwners.id in (:groupIds) )  and 
-            (:userId not member of t.peopleAssignments.excludedOwners) 
+            (:userId IS NULL OR :userId NOT MEMBER OF t.peopleAssignments.excludedOwners) 
             order by t.id DESC
         </query>
         <!-- hint name="org.hibernate.timeout" value="200"/ -->
@@ -1324,7 +1324,7 @@
                 (t.taskData.actualOwner.id = :userId or t.taskData.actualOwner is null) and
                 t.taskData.status in (:status) and 
                 (potentialOwners.id  = :userId or potentialOwners.id in (:groupIds)) and 
-                (:userId not member of t.peopleAssignments.excludedOwners)           
+                (:userId IS NULL OR :userId NOT MEMBER OF t.peopleAssignments.excludedOwners)           
             order by t.id DESC    
         </query>
         <!-- hint name="org.hibernate.timeout" value="200"/ -->
@@ -1360,7 +1360,7 @@
             (t.taskData.expirationTime = :expirationDate or t.taskData.expirationTime is null) and
             t.taskData.status in (:status) and 
             ( potentialOwners.id = :userId or potentialOwners.id in (:groupIds) )  and 
-            (:userId not member of t.peopleAssignments.excludedOwners) 
+            (:userId IS NULL OR :userId NOT MEMBER OF t.peopleAssignments.excludedOwners) 
             order by t.id DESC     
         </query>
         <!-- hint name="org.hibernate.timeout" value="200"/ -->
@@ -1395,7 +1395,7 @@
                 t.taskData.expirationTime = :expirationDate and
                 t.taskData.status in (:status) and 
 	            ( potentialOwners.id = :userId or potentialOwners.id in (:groupIds) )  and 
-                (:userId not member of t.peopleAssignments.excludedOwners) 
+                (:userId IS NULL OR :userId NOT MEMBER OF t.peopleAssignments.excludedOwners) 
                 order by t.id DESC
         </query>
         <!-- hint name="org.hibernate.timeout" value="200"/ -->

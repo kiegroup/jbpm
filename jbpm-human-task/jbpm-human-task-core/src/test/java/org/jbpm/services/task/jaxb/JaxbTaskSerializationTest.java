@@ -46,6 +46,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.Map.Entry;
 
 import javax.xml.bind.JAXBContext;
@@ -117,22 +118,20 @@ public class JaxbTaskSerializationTest extends AbstractTaskSerializationTest {
     }
 
     @Test
-    public void taskCommandSubTypesCanBeSerialized() throws Exception {
-        for (Class<?> jaxbClass : reflections.getSubTypesOf(TaskCommand.class)) {
-            if (jaxbClass.equals(UserGroupCallbackTaskCommand.class)
-            		|| jaxbClass.equals(GetCurrentTxTasksCommand.class)) {
-                continue;
+    public void taskCommandSubTypesCanBeSerialized() {
+        reflections.getSubTypesOf(TaskCommand.class).stream().filter(e -> !e.getName().contains("$")).forEach(jaxbClass ->  {
+            if (jaxbClass.equals(UserGroupCallbackTaskCommand.class) || jaxbClass.equals(GetCurrentTxTasksCommand.class)) {
+                return;
             }
-            addClassesToSerializationContext(jaxbClass);
-            Constructor<?> construct = jaxbClass.getConstructor(new Class[] {});
             try {
-                Object jaxbInst = construct.newInstance(new Object[] {});
+                addClassesToSerializationContext(jaxbClass);
+                Object jaxbInst = jaxbClass.newInstance();
                 testRoundTrip(jaxbInst);
             } catch (Exception e) {
                 logger.warn("Testing failed for" + jaxbClass.getName());
-                throw e;
+                throw new RuntimeException(e);
             }
-        }
+        });
     }
 
     @Test
@@ -141,7 +140,7 @@ public class JaxbTaskSerializationTest extends AbstractTaskSerializationTest {
        for( Field field : comCmdFields ) {
            XmlElements xmlElemsAnno = field.getAnnotation(XmlElements.class);
            if( xmlElemsAnno != null ) {
-               Set<Class<? extends TaskCommand>> taskCmdSubTypes = reflections.getSubTypesOf(TaskCommand.class);
+               Set<Class<? extends TaskCommand>> taskCmdSubTypes = reflections.getSubTypesOf(TaskCommand.class).stream().filter(e -> !e.getName().contains("$")).collect(Collectors.toSet());
                Set<Class<? extends UserGroupCallbackTaskCommand>> userGrpTaskCmdSubTypes = reflections.getSubTypesOf(UserGroupCallbackTaskCommand.class);
                taskCmdSubTypes.addAll(userGrpTaskCmdSubTypes);
 
