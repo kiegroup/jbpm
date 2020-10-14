@@ -499,7 +499,11 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
 
     @Override
     public void fireEvent(Operation operation, long taskId) {
-        Task task = context.getPersistenceContext().findTask(taskId);
+        fireEvent(operation, context.getPersistenceContext().findTask(taskId));
+    }
+
+    @Override
+    public void fireEvent(Operation operation, Task task) {
         switch (operation) {
             case Activate:
                 this.taskEventSupport.fireBeforeTaskActivated(task, context);
