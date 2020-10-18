@@ -1069,7 +1069,29 @@ public class RestWorkItemHandlerTest {
         RESTWorkItemHandler handler = new RESTWorkItemHandler();
         String headerKey = "headerKey";
         String headerValue = "headerValue";
-        String headers = headerKey + "=" + headerValue;
+        String headers = headerKey + ":" + headerValue;
+         
+        WorkItemImpl workItem = new WorkItemImpl();
+        workItem.setParameter("Url",
+                              serverURL + "/header/" + headerKey);
+        workItem.setParameter("Method",
+                              "GET");
+        workItem.setParameter(PARAM_HEADERS, headers);
+        
+        WorkItemManager manager = new TestWorkItemManager();
+        handler.executeWorkItem(workItem,
+                                manager);
+        Map<String, Object> results = ((TestWorkItemManager) manager).getResults(workItem.getId());
+        String result = (String) results.get(PARAM_RESULT);
+        assertEquals(result, headerValue);
+    }
+    
+    @Test
+    public void testHeadersValueWithEquals() {
+        RESTWorkItemHandler handler = new RESTWorkItemHandler();
+        String headerKey = "Authorization";
+        String headerValue = "Basic bcdabcdabcdabcdabcdabcdabcd==";
+        String headers = headerKey + ":" + headerValue;
          
         WorkItemImpl workItem = new WorkItemImpl();
         workItem.setParameter("Url",
@@ -1091,7 +1113,7 @@ public class RestWorkItemHandlerTest {
         RESTWorkItemHandler handler = new RESTWorkItemHandler();
         String headerKey = "headerKey";
         String headerValues = "headerValue,headerValue2,headerValue3";
-        String headers = headerKey + "=" + headerValues;
+        String headers = headerKey + ":" + headerValues;
          
         WorkItemImpl workItem = new WorkItemImpl();
         workItem.setParameter("Url",
@@ -1115,8 +1137,8 @@ public class RestWorkItemHandlerTest {
         String headerValues1 = "headerValue,headerValue2,headerValue3";
         String headerKey2 = "headerKey2";
         String headerValues2 = "headerValue2,headerValue22,headerValue23";
-        String headers = headerKey1 + "=" + headerValues1 + ";" 
-                           + headerKey2 + "=" + headerValues2;
+        String headers = headerKey1 + ":" + headerValues1 + ";" 
+                           + headerKey2 + ":" + headerValues2;
            
         WorkItemImpl workItem = new WorkItemImpl();
         workItem.setParameter("Url",
