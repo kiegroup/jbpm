@@ -111,7 +111,7 @@ import org.apache.http.conn.routing.HttpRoutePlanner;
  * <li>ResultClass - fully qualified class name of the class that response should be transformed to,
  * if not given string format will be returned</li>
  * <li>AcceptHeader - accept header value</li>
- * <li>Headers - additional HTTP Headers in format: header1:val1;header2:val2</li>
+ * <li>Headers - additional HTTP Headers in format: header1=val1;header2=val2</li>
  * </ul>
  */
 
@@ -905,7 +905,7 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler imple
     protected void addCustomHeaders(String headers,
             BiConsumer<String, String> consumer) {
         for(String h : headers.split(";")) {
-             String[] headerParts = h.split(":");
+             String[] headerParts = h.split("=",2);
              if(headerParts.length == 2) {
                  consumer.accept(headerParts[0], headerParts[1]);
              } 
