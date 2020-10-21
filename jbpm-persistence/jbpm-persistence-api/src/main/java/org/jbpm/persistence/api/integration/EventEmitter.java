@@ -31,7 +31,7 @@ import java.util.Collection;
  * </ul>
  *
  */
-public interface EventEmitter {
+public interface EventEmitter extends AutoCloseable {
 
     /**
      * Invoked just before persistence layer is completed - e.g. beforeCompletion in JTA transaction
