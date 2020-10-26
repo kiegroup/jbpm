@@ -36,7 +36,9 @@ import org.jbpm.kie.test.objects.Thing;
 import org.jbpm.kie.test.util.AbstractKieServicesBaseTest;
 import org.jbpm.process.instance.impl.demo.SystemOutWorkItemHandler;
 import org.jbpm.services.api.model.DeploymentUnit;
+import org.jbpm.services.api.model.MessageDesc;
 import org.jbpm.services.api.model.ProcessDefinition;
+import org.jbpm.services.api.model.SignalDesc;
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
@@ -54,7 +56,13 @@ import org.kie.scanner.KieMavenRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.kie.scanner.KieMavenRepository.getKieMavenRepository;
 
 
@@ -125,7 +133,10 @@ public class BPMN2DataServicesReferencesTest extends AbstractKieServicesBaseTest
         // qualified class in script
         if( loadSignalGlobalInfoProcess ) {
             resources.add("repo/processes/general/signal.bpmn");
+
         }
+        resources.add("repo/processes/general/boundarysignal.bpmn2");
+        resources.add("repo/processes/general/BPMN2-MessageStart.bpmn2");
 
         InternalKieModule kJar1 = createKieJar(ks, releaseId, resources);
         File pom = new File("target/kmodule", "pom.xml");
@@ -510,7 +521,42 @@ public class BPMN2DataServicesReferencesTest extends AbstractKieServicesBaseTest
                     "person".equals(globalName) || "name".equals(globalName) );
         }
 
+        assertNotNull("Signals description should not be null", procDef.getSignalsDesc());
+        assertNotNull("Messages description should not be null", procDef.getMessagesDesc());
+        assertTrue("Signal description should be empty", procDef.getSignalsDesc().isEmpty());
+        assertTrue("Messages description should be empty", procDef.getMessagesDesc().isEmpty());
+
         // cleanup
         processService.abortProcessInstance(procInstId);
+    }
+
+    @Test
+    public void testSignalsDesc() {
+        ProcessDefinition procDef = bpmn2Service.getProcessDefinition(deploymentId, "org.jbpm.boundarysignal");
+        assertNotNull(procDef);
+
+        Collection<SignalDesc> signals = procDef.getSignalsDesc();
+        assertNotNull("Signals description should not be null", signals);
+        assertFalse("Signal description should not be empty", signals.isEmpty());
+
+        SignalDesc signal = signals.iterator().next();
+        assertEquals("_3b677877-9be0-3fe7-bfc4-94a862fdc919", signal.getId());
+        assertEquals("MySignal", signal.getName());
+        assertNull("Structure Ref is expected to be null", signal.getStructureRef());
+    }
+
+    @Test
+    public void testMessageDesc() {
+        ProcessDefinition procDef = bpmn2Service.getProcessDefinition(deploymentId, "Minimal");
+        assertNotNull(procDef);
+
+        Collection<MessageDesc> signals = procDef.getMessagesDesc();
+        assertNotNull("Message description should not be null", signals);
+        assertFalse("Message description should not be empty", signals.isEmpty());
+
+        MessageDesc message = signals.iterator().next();
+        assertEquals("HelloMessage", message.getId());
+        assertEquals("HelloMessage", message.getName());
+        assertEquals("String", message.getStructureRef());
     }
 }

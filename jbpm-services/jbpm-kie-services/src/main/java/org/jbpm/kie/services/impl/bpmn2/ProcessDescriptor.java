@@ -29,7 +29,9 @@ import java.util.Set;
 
 import org.jbpm.kie.services.impl.model.ProcessAssetDesc;
 import org.jbpm.process.instance.StartProcessHelper;
+import org.jbpm.services.api.model.MessageDesc;
 import org.jbpm.services.api.model.NodeDesc;
+import org.jbpm.services.api.model.SignalDesc;
 import org.jbpm.services.api.model.TimerDesc;
 import org.jbpm.services.api.model.UserTaskDefinition;
 import org.kie.api.definition.process.Process;
@@ -64,6 +66,8 @@ public class ProcessDescriptor implements Serializable {
     private Set<String> referencedRules = new HashSet<String>(1);
 
     private Collection<String> signals = Collections.emptySet();
+    private Collection<SignalDesc> signalsDesc = Collections.emptySet();
+    private Collection<MessageDesc> messagesDesc = Collections.emptySet();
     private Collection<String> globals = Collections.emptySet();
 
     private Queue<String> unresolvedReusableSubProcessNames = new ArrayDeque<String>();
@@ -177,6 +181,22 @@ public class ProcessDescriptor implements Serializable {
        this.signals = signals;
     }
 
+    public Collection<SignalDesc> getSignalsDesc() {
+        return signalsDesc;
+    }
+
+    public void setSignalsDesc(Collection<SignalDesc> signalsDesc) {
+        this.signalsDesc = signalsDesc;
+    }
+
+    public Collection<MessageDesc> getMessages() {
+        return messagesDesc;
+    }
+
+    public void setMessages(Collection<MessageDesc> messages) {
+        this.messagesDesc = messages;
+    }
+
     public Collection<String> getGlobals() {
         return globals;
     }
@@ -229,6 +249,8 @@ public class ProcessDescriptor implements Serializable {
         cloned.unqualifiedClasses = new HashSet<String>(this.unqualifiedClasses);
         cloned.signals = new HashSet<String>(this.signals);
         cloned.globals = new HashSet<String>(this.globals);
+        cloned.signalsDesc = new HashSet<>(this.signalsDesc);
+        cloned.messagesDesc = new HashSet<>(this.messagesDesc);
         cloned.nodes = new HashSet<>(this.nodes);
         cloned.timers = new HashSet<>(this.timers);
 
