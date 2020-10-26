@@ -526,8 +526,11 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
             }
         }
     }
-
-    public TimerInstance configureSLATimer(String slaDueDateExpression) {
+	public TimerInstance configureSLATimer(String slaDueDateExpression) {
+	    return this.configureSLATimer(slaDueDateExpression, null);
+	}
+	
+    public TimerInstance configureSLATimer(String slaDueDateExpression, String timerName) {
         // setup SLA if provided
         slaDueDateExpression = resolveVariable(slaDueDateExpression);
         if (slaDueDateExpression == null || slaDueDateExpression.trim().isEmpty()) {
@@ -549,6 +552,7 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
         timerInstance.setId(-1);
         timerInstance.setDelay(duration);
         timerInstance.setPeriod(0);
+        timerInstance.setName(timerName);
         if (useTimerSLATracking()) {
             ((InternalProcessRuntime) kruntime.getProcessRuntime()).getTimerManager().registerTimer(timerInstance, this);
         }
