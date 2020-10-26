@@ -27,6 +27,8 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
+import org.jbpm.bpmn2.core.Message;
+import org.jbpm.bpmn2.core.Signal;
 import org.jbpm.kie.services.impl.model.ProcessAssetDesc;
 import org.jbpm.process.instance.StartProcessHelper;
 import org.jbpm.services.api.model.NodeDesc;
@@ -64,6 +66,8 @@ public class ProcessDescriptor implements Serializable {
     private Set<String> referencedRules = new HashSet<String>(1);
 
     private Collection<String> signals = Collections.emptySet();
+    private Collection<Signal> signalsMetadata = Collections.emptySet();
+    private Collection<Message> messages = Collections.emptySet();
     private Collection<String> globals = Collections.emptySet();
 
     private Queue<String> unresolvedReusableSubProcessNames = new ArrayDeque<String>();
@@ -177,6 +181,22 @@ public class ProcessDescriptor implements Serializable {
        this.signals = signals;
     }
 
+    public Collection<Signal> getSignalsMetadata() {
+        return signalsMetadata;
+    }
+
+    public void setSignalsMetadata(Collection<Signal> signalsMetadata) {
+        this.signalsMetadata = signalsMetadata;
+    }
+
+    public Collection<Message> getMessages() {
+        return messages;
+    }
+
+    public void setMessages(Collection<Message> messages) {
+        this.messages = messages;
+    }
+
     public Collection<String> getGlobals() {
         return globals;
     }
@@ -229,6 +249,8 @@ public class ProcessDescriptor implements Serializable {
         cloned.unqualifiedClasses = new HashSet<String>(this.unqualifiedClasses);
         cloned.signals = new HashSet<String>(this.signals);
         cloned.globals = new HashSet<String>(this.globals);
+        cloned.signalsMetadata = new HashSet<>(this.signalsMetadata);
+        cloned.messages = new HashSet<>(this.messages);
         cloned.nodes = new HashSet<>(this.nodes);
         cloned.timers = new HashSet<>(this.timers);
 

@@ -576,6 +576,8 @@ public abstract class AbstractNodeHandler extends BaseAbstractHandler implements
     }
 
     private static final String SIGNAL_NAMES = "signalNames";
+    private static final String SIGNALS = "Signals";
+    
 
     protected String checkSignalAndConvertToRealSignalNam(ExtensibleXmlParser parser, String signalName) {
         ProcessBuildData buildData = ((ProcessBuildData) parser.getData());
@@ -587,7 +589,7 @@ public abstract class AbstractNodeHandler extends BaseAbstractHandler implements
         }
         signalNames.add(signalName);
 
-        Map<String, Signal> signals = (Map<String, Signal>) buildData.getMetaData("Signals");
+        Map<String, Signal> signals = (Map<String, Signal>) buildData.getMetaData(SIGNALS);
         if (signals != null ) {
             if( signals.containsKey(signalName)) {
                 Signal signal = signals.get(signalName);
@@ -595,9 +597,18 @@ public abstract class AbstractNodeHandler extends BaseAbstractHandler implements
                 if (signalName == null) {
                     throw new IllegalArgumentException("Signal definition must have a name attribute");
                 }
+            } else {
+                // align signals metadata with signal names 
+                // (for backward compatibility we need to support signals even if not defined)
+                signals.put(signalName, new Signal(signalName, signalName, null));
             }
         }
-
+        else {
+            // align signals metadata with signal names 
+            signals = new HashMap<>();
+            signals.put(signalName, new Signal(signalName, signalName, null));
+            buildData.setMetaData(SIGNALS, signals);
+        }
         return signalName;
     }
 }

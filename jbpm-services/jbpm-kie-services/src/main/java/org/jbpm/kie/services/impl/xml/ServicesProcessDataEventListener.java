@@ -27,6 +27,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.jbpm.bpmn2.core.ItemDefinition;
+import org.jbpm.bpmn2.core.Message;
+import org.jbpm.bpmn2.core.Signal;
 import org.jbpm.compiler.xml.ProcessDataEventListener;
 import org.jbpm.kie.services.impl.bpmn2.ProcessDescriptor;
 import org.jbpm.kie.services.impl.bpmn2.UserTaskDefinitionImpl;
@@ -57,8 +59,12 @@ public class ServicesProcessDataEventListener implements ProcessDataEventListene
 
     private Map<String, ItemDefinition> itemDefinitions;
     private Set<String> signals;
+    private Collection<Signal> signalsMetadata;
+    private Collection<Message> messages;
 
     private List<Variable> variables = new ArrayList<Variable>();
+
+
 
     @SuppressWarnings("unchecked")
     @Override
@@ -176,7 +182,12 @@ public class ServicesProcessDataEventListener implements ProcessDataEventListene
             itemDefinitions = (Map<String, ItemDefinition>) data;
         } else if ("signalNames".equals(name)) {
             signals = (Set<String>) data;
+        } else if ("Signals".equals(name)) {
+            signalsMetadata = ((Map<String, Signal>) data).values();
+        } else if ("Messages".equals(name)) {
+            messages = ((Map<String, Message>) data).values();
         }
+
     }
 
 
@@ -230,20 +241,6 @@ public class ServicesProcessDataEventListener implements ProcessDataEventListene
                 }
             }
         }
-    }
-
-    // helper methods
-    private Integer getInteger(String value) {
-        int priority = 0;
-        if (value != null) {
-            try {
-                priority = new Integer(value);
-            } catch (NumberFormatException e) {
-                // do nothing
-            }
-        }
-
-        return priority;
     }
 
     protected void resolveUnqualifiedClasses() {
@@ -327,6 +324,12 @@ public class ServicesProcessDataEventListener implements ProcessDataEventListene
         // process signals
         if( signals != null ) {
             processDescriptor.setSignals(signals);
+        }
+        if (messages != null) {
+            processDescriptor.setMessages(messages);
+        }
+        if (signalsMetadata != null) {
+            processDescriptor.setSignalsMetadata(signalsMetadata);
         }
     }
 

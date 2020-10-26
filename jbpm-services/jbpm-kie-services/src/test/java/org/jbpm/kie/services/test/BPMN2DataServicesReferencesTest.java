@@ -37,6 +37,8 @@ import org.jbpm.kie.test.util.AbstractKieServicesBaseTest;
 import org.jbpm.process.instance.impl.demo.SystemOutWorkItemHandler;
 import org.jbpm.services.api.model.DeploymentUnit;
 import org.jbpm.services.api.model.ProcessDefinition;
+import org.jbpm.services.api.model.SignalDesc;
+import org.jbpm.services.api.model.SignalType;
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
@@ -54,7 +56,13 @@ import org.kie.scanner.KieMavenRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.kie.scanner.KieMavenRepository.getKieMavenRepository;
 
 
@@ -500,7 +508,13 @@ public class BPMN2DataServicesReferencesTest extends AbstractKieServicesBaseTest
         assertNotNull( "Null signals list", procDef.getSignals() );
         assertFalse( "Empty signals list", procDef.getSignals().isEmpty() );
         assertEquals( "Unexpected signal", "MySignal", procDef.getSignals().iterator().next() );
-
+        
+        assertNotNull( "Null signals list", procDef.getSignalsMetadata() );
+        assertFalse( "Empty signals list", procDef.getSignalsMetadata().isEmpty() );
+        SignalDesc signalDesc = procDef.getSignalsMetadata().iterator().next();
+        assertEquals( "MySignal", signalDesc.getId() );
+        assertEquals( SignalType.SIGNAL, signalDesc.getSignalType() );
+        
         Collection<String> globalNames = procDef.getGlobals();
         assertNotNull( "Null globals list", globalNames );
         assertFalse( "Empty globals list", globalNames.isEmpty() );
@@ -513,4 +527,6 @@ public class BPMN2DataServicesReferencesTest extends AbstractKieServicesBaseTest
         // cleanup
         processService.abortProcessInstance(procInstId);
     }
+    
+  
 }
