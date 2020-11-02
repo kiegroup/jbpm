@@ -476,14 +476,17 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
         	exceptionScope.setExceptionHandler(errorStructureRef, exceptionHandler);
         }
 
-        List<DroolsAction> actions = ((EventNode)node).getActions(EndNode.EVENT_NODE_EXIT);
+
+        List<DroolsAction> actions = ((EventNode) node).getActions(EndNode.EVENT_NODE_EXIT);
         if (actions == null) {
             actions = new ArrayList<DroolsAction>();
         }
         DroolsConsequenceAction cancelAction =  new DroolsConsequenceAction("java", null);
         cancelAction.setMetaData("Action", new CancelNodeInstanceAction(attachedTo));
         actions.add(cancelAction);
+        
         ((EventNode)node).setActions(EndNode.EVENT_NODE_EXIT, actions);
+        
     }
     
     private static String concatName(String prefix, String suffix) {

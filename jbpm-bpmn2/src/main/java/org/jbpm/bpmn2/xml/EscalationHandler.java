@@ -61,6 +61,7 @@ public class EscalationHandler extends BaseAbstractHandler implements Handler {
 
 		String id = attrs.getValue("id");
 		String escalationCode = attrs.getValue("escalationCode");
+		String structureRef = attrs.getValue("structureRef");
 
 		ProcessBuildData buildData = (ProcessBuildData) parser.getData();
 		Map<String, Escalation> escalations = (Map<String, Escalation>) buildData.getMetaData(ProcessHandler.ESCALATIONS);
@@ -68,7 +69,7 @@ public class EscalationHandler extends BaseAbstractHandler implements Handler {
         	escalations = new HashMap<String, Escalation>();
             buildData.setMetaData(ProcessHandler.ESCALATIONS, escalations);
         }
-        Escalation e = new Escalation(id, escalationCode); 
+        Escalation e = new Escalation(id, structureRef, escalationCode); 
         escalations.put(id, e);
 		return e;
 	}
