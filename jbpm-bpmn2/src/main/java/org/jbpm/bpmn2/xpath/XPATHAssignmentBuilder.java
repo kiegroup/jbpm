@@ -16,16 +16,30 @@
 
 package org.jbpm.bpmn2.xpath;
 
+import java.util.function.BiFunction;
+
 import org.drools.compiler.rule.builder.PackageBuildContext;
 import org.jbpm.process.builder.AssignmentBuilder;
 import org.jbpm.process.core.ContextResolver;
+import org.jbpm.process.instance.impl.AssignmentProducer;
 import org.jbpm.workflow.core.node.Assignment;
+import org.kie.api.runtime.process.NodeInstance;
+import org.kie.api.runtime.process.ProcessContext;
 
 public class XPATHAssignmentBuilder implements AssignmentBuilder {
 
-	public void build(PackageBuildContext context, Assignment assignment, String sourceExpr, String targetExpr,
-					  ContextResolver contextResolver, boolean isInput) {
-		assignment.setMetaData("Action", new XPATHAssignmentAction(assignment, sourceExpr, targetExpr, isInput));
-	}
+
+
+    @Override
+    public void build(PackageBuildContext context,
+                      Assignment assignment,
+                      String sourceExpr,
+                      String targetExpr,
+                      BiFunction<ProcessContext, NodeInstance, Object> source,
+                      BiFunction<ProcessContext, NodeInstance, Object> target,
+                      AssignmentProducer producer) {
+        assignment.setMetaData("Action", new XPATHAssignmentAction(assignment, sourceExpr, targetExpr, source, target, producer));
+        
+    }
 
 }

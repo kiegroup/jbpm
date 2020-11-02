@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<definitions id="Definition"
+             typeLanguage="http://www.java.com/javaTypes"
+             expressionLanguage="http://www.mvel.org/2.0"
+             xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:drools="http://www.jboss.org/drools"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd"
+             xmlns:g="http://www.jboss.org/drools/flow/gpd"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             xmlns:tns="http://www.jboss.org/drools">
+             
+  <itemDefinition id="item_nodeInstance_ref_process" structureRef="String"  />
+  <itemDefinition id="item_signal_ref_process" structureRef="String"  />
+  <itemDefinition id="item_event_ref_process" structureRef="Object"  />
+  <itemDefinition id="item_message_ref" structureRef="Object"  />
+  <escalation id="escalationRef" escalationCode="201" />
+	
+  <process processType="Private" 
+           isExecutable="true"
+           id="BoundaryEscalationEventProcess" 
+           name="Boundary Escalation Event Example" 
+           tns:packageName="org.jbpm.persistence.timer" >
+
+	<property id="nodeInstanceProcess" itemSubjectRef="item_nodeInstance_ref_process"/>
+	<property id="signalProcess" itemSubjectRef="item_signal_ref_process"/>
+	<property id="eventProcess" itemSubjectRef="item_event_ref_process"/>
+	
+    <!-- nodes -->
+    <startEvent id="_1" name="StartProcess" />
+
+	<subProcess id="_2" name="service-subprocess">
+      <startEvent id="_2-1" name="StartSubProcess" />
+
+      <intermediateThrowEvent id="_2-4" name="ErrorEvent">
+        <escalationEventDefinition escalationRef="escalationRef" />
+      </intermediateThrowEvent>
+
+      <endEvent id="_2-11" />
+
+	  <sequenceFlow id="_2-1-_2-2" sourceRef="_2-1" targetRef="_2-4" />
+      <sequenceFlow id="_2-5-_2-11" sourceRef="_2-4" targetRef="_2-11" />
+
+    </subProcess>
+      
+  
+    <endEvent id="_3" name="End Main Process">
+      <terminateEventDefinition/>
+    </endEvent>
+  
+    <boundaryEvent id="_6" name="Escalation Event" attachedToRef="_2" cancelActivity="false">
+      <escalationEventDefinition escalationRef="escalationRef"/>
+  	  <dataOutput id="nodeInstanceRef" name="nodeInstance" />
+  	  <dataOutput id="signalRef" name="signal" />
+  	  <dataOutput id="eventRef" name="event" />
+      <outputSet>
+        <dataOutputRefs>nodeInstanceRef</dataOutputRefs>
+        <dataOutputRefs>signalRef</dataOutputRefs>
+        <dataOutputRefs>eventRef</dataOutputRefs>
+      </outputSet>
+      <dataOutputAssociation>
+        <sourceRef>nodeInstanceRef</sourceRef>
+        <targetRef>nodeInstanceProcess</targetRef>
+      </dataOutputAssociation>
+      <dataOutputAssociation>
+        <sourceRef>signalRef</sourceRef>
+        <targetRef>signalProcess</targetRef>
+      </dataOutputAssociation>
+      <dataOutputAssociation>
+        <sourceRef>eventRef</sourceRef>
+        <targetRef>eventProcess</targetRef>
+      </dataOutputAssociation>
+    </boundaryEvent>
+  
+  	<task id="_7" drools:taskName="DataCaptureTask">
+  		<ioSpecification>
+			<dataInput id="nodeInstanceRef" name="nodeInstance"/>
+			<dataInput id="signalRef" name="signal"/>
+			<dataInput id="eventRef" name="event"/>
+			<dataInput id="workItemRef" name="workItem"/>
+			<inputSet>
+		  		<dataInputRefs>nodeInstanceRef</dataInputRefs>
+		  		<dataInputRefs>signalRef</dataInputRefs>
+		  		<dataInputRefs>eventRef</dataInputRefs>
+		  		<dataInputRefs>workItemRef</dataInputRefs>
+			</inputSet>
+			<outputSet>
+			</outputSet>
+	    </ioSpecification>
+		<dataInputAssociation>
+			<sourceRef>nodeInstanceProcess</sourceRef>
+			<targetRef>nodeInstanceRef</targetRef>
+		</dataInputAssociation>
+		<dataInputAssociation>
+			<sourceRef>signalProcess</sourceRef>
+			<targetRef>signalRef</targetRef>
+		</dataInputAssociation>
+	    <dataInputAssociation>
+			<sourceRef>eventProcess</sourceRef>
+			<targetRef>eventRef</targetRef>
+		</dataInputAssociation>
+		<dataInputAssociation>
+			<sourceRef>workItemProcess</sourceRef>
+			<targetRef>workItemRef</targetRef>
+		</dataInputAssociation>
+	</task>
+  
+    <endEvent id="_8" name="End Event Process" >
+      
+    </endEvent>
+
+    <!-- connections -->
+    <sequenceFlow sourceRef="_1" targetRef="_2" />
+    <sequenceFlow sourceRef="_2" targetRef="_3" />
+    <sequenceFlow sourceRef="_6" targetRef="_7"/>
+    <sequenceFlow sourceRef="_7" targetRef="_8"/>
+  </process>
+
+</definitions>

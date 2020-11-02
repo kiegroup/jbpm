@@ -26,19 +26,17 @@ import org.jbpm.bpmn2.core.Error;
 import org.jbpm.bpmn2.core.Escalation;
 import org.jbpm.bpmn2.core.ItemDefinition;
 import org.jbpm.bpmn2.core.Message;
+import org.jbpm.bpmn2.xml.elements.DataAssociationFactory;
 import org.jbpm.compiler.xml.ProcessBuildData;
 import org.jbpm.process.core.event.EventFilter;
-import org.jbpm.process.core.event.EventTransformerImpl;
 import org.jbpm.process.core.event.EventTypeFilter;
 import org.jbpm.process.core.event.NonAcceptingEventTypeFilter;
-import org.jbpm.process.core.impl.DataTransformerRegistry;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
 import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.core.NodeContainer;
 import org.jbpm.workflow.core.node.BoundaryEventNode;
+import org.jbpm.workflow.core.node.DataAssociation;
 import org.jbpm.workflow.core.node.EventNode;
-import org.jbpm.workflow.core.node.Transformation;
-import org.kie.api.runtime.process.DataTransformer;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -47,14 +45,11 @@ import org.xml.sax.SAXException;
 
 public class BoundaryEventHandler extends AbstractNodeHandler {
 
-	private DataTransformerRegistry transformerRegistry = DataTransformerRegistry.get();
-
     protected Node createNode(Attributes attrs) {
         return new BoundaryEventNode();
     }
 
-    @SuppressWarnings("unchecked")
-	public Class generateNodeFor() {
+	public Class<BoundaryEventNode> generateNodeFor() {
         return BoundaryEventNode.class;
     }
 
@@ -99,6 +94,14 @@ public class BoundaryEventHandler extends AbstractNodeHandler {
             }
             xmlNode = xmlNode.getNextSibling();
         }
+
+        List<DataAssociation> dataAssociations = ((BoundaryEventNode) parser.getCurrent()).getOutAssociations();
+        if(!dataAssociations.isEmpty()) {
+            // this is for backward compatibility
+            // the first one is related to the variable 
+            ((BoundaryEventNode) parser.getCurrent()).setVariableName(dataAssociations.get(0).getTarget());
+        }
+
         NodeContainer nodeContainer = (NodeContainer) parser.getParent();
         nodeContainer.addNode(node);
         ((ProcessBuildData) parser.getData()).addNode(node);
@@ -130,9 +133,10 @@ public class BoundaryEventHandler extends AbstractNodeHandler {
                 String outputName = ((Element) xmlNode).getAttribute("name");
                 dataOutputs.put(id, outputName);
             } else if ("dataOutputAssociation".equals(nodeName)) {
-                readDataOutputAssociation(xmlNode, eventNode);
+                ((BoundaryEventNode) parser.getCurrent()).addOutAssociation(DataAssociationFactory.readDataOutputAssociation(xmlNode, dataOutputs));  
             } else if ("escalationEventDefinition".equals(nodeName)) {
                 String escalationRef = ((Element) xmlNode).getAttribute("escalationRef");
+
                 if (escalationRef != null && escalationRef.trim().length() > 0) {
                     Map<String, Escalation> escalations = (Map<String, Escalation>)
 		                ((ProcessBuildData) parser.getData()).getMetaData(ProcessHandler.ESCALATIONS);
@@ -150,6 +154,7 @@ public class BoundaryEventHandler extends AbstractNodeHandler {
                     eventFilters.add(eventFilter);
                     eventNode.setEventFilters(eventFilters);
                     eventNode.setMetaData("EscalationEvent", type);
+                    eventNode.setMetaData("EscalationStructureRef", escalation.getStructureRef());
                 } else {
                     throw new UnsupportedOperationException("General escalation is not yet supported.");
                 }
@@ -174,7 +179,7 @@ public class BoundaryEventHandler extends AbstractNodeHandler {
                 String outputName = ((Element) xmlNode).getAttribute("name");
                 dataOutputs.put(id, outputName);
             } else if ("dataOutputAssociation".equals(nodeName)) {
-                readDataOutputAssociation(xmlNode, eventNode);
+                ((BoundaryEventNode) parser.getCurrent()).addOutAssociation(DataAssociationFactory.readDataOutputAssociation(xmlNode, dataOutputs));  
             } else if ("errorEventDefinition".equals(nodeName)) {
                 String errorRef = ((Element) xmlNode).getAttribute("errorRef");
                 if (errorRef != null && errorRef.trim().length() > 0) {
@@ -277,6 +282,12 @@ public class BoundaryEventHandler extends AbstractNodeHandler {
                     eventNode.setMetaData("TimeDate", timeDate);
                 }
 
+            } else if ("dataOutput".equals(nodeName)) {
+                String id = ((Element) xmlNode).getAttribute("id");
+                String outputName = ((Element) xmlNode).getAttribute("name");
+                dataOutputs.put(id, outputName);
+            } else if ("dataOutputAssociation".equals(nodeName)) {
+                ((BoundaryEventNode) parser.getCurrent()).addOutAssociation(DataAssociationFactory.readDataOutputAssociation(xmlNode, dataOutputs));   
             }
             xmlNode = xmlNode.getNextSibling();
         }
@@ -291,13 +302,19 @@ public class BoundaryEventHandler extends AbstractNodeHandler {
         NodeList childs = element.getChildNodes();
         for (int i = 0; i < childs.getLength(); i++) {
             if (childs.item(i) instanceof Element) {
-                Element el = (Element) childs.item(i);
-                if ("compensateEventDefinition".equalsIgnoreCase(el.getNodeName())) {
-                    String activityRef = el.getAttribute("activityRef");
+                org.w3c.dom.Node subNode = (org.w3c.dom.Node) childs.item(i);
+                if ("compensateEventDefinition".equalsIgnoreCase(subNode.getNodeName())) {
+                    String activityRef = ((Element) subNode).getAttribute("activityRef");
                     if( activityRef != null && activityRef.length() > 0 ) {
                         logger.warn("activityRef value [" + activityRef + "] on Boundary Event '" + eventNode.getMetaData("UniqueId")
                                 + "' ignored per the BPMN2 specification.");
                     }
+                } else if ("dataOutput".equals(subNode.getNodeName())) {
+                    String id = ((Element) subNode).getAttribute("id");
+                    String outputName = ((Element) subNode).getAttribute("name");
+                    dataOutputs.put(id, outputName);
+                } else if ("dataOutputAssociation".equals(subNode.getNodeName())) {
+                    ((BoundaryEventNode) parser.getCurrent()).addOutAssociation(DataAssociationFactory.readDataOutputAssociation(subNode, dataOutputs));   
                 }
             }
         }
@@ -335,7 +352,7 @@ public class BoundaryEventHandler extends AbstractNodeHandler {
                 String outputName = ((Element) xmlNode).getAttribute("name");
                 dataOutputs.put(id, outputName);
             } if ("dataOutputAssociation".equals(nodeName)) {
-                readDataOutputAssociation(xmlNode, eventNode);
+                ((BoundaryEventNode) parser.getCurrent()).addOutAssociation(DataAssociationFactory.readDataOutputAssociation(xmlNode, dataOutputs));  
             } else if ("signalEventDefinition".equals(nodeName)) {
                 String type = ((Element) xmlNode).getAttribute("signalRef");
                 if (type != null && type.trim().length() > 0) {
@@ -372,7 +389,7 @@ public class BoundaryEventHandler extends AbstractNodeHandler {
                 String outputName = ((Element) xmlNode).getAttribute("name");
                 dataOutputs.put(id, outputName);
             } else if ("dataOutputAssociation".equals(nodeName)) {
-                readDataOutputAssociation(xmlNode, eventNode);
+                ((BoundaryEventNode) parser.getCurrent()).addOutAssociation(DataAssociationFactory.readDataOutputAssociation(xmlNode, dataOutputs));  
             } else if ("conditionalEventDefinition".equals(nodeName)) {
                 org.w3c.dom.Node subNode = xmlNode.getFirstChild();
                 while (subNode != null) {
@@ -411,7 +428,7 @@ public class BoundaryEventHandler extends AbstractNodeHandler {
                 String outputName = ((Element) xmlNode).getAttribute("name");
                 dataOutputs.put(id, outputName);
             } else if ("dataOutputAssociation".equals(nodeName)) {
-                readDataOutputAssociation(xmlNode, eventNode);
+                ((BoundaryEventNode) parser.getCurrent()).addOutAssociation(DataAssociationFactory.readDataOutputAssociation(xmlNode, dataOutputs));
             } else if ("messageEventDefinition".equals(nodeName)) {
                 String messageRef = ((Element) xmlNode).getAttribute("messageRef");
                 Map<String, Message> messages = (Map<String, Message>) ((ProcessBuildData) parser
@@ -433,34 +450,7 @@ public class BoundaryEventHandler extends AbstractNodeHandler {
             }
             xmlNode = xmlNode.getNextSibling();
         }
-    }
-
-    protected void readDataOutputAssociation(org.w3c.dom.Node xmlNode,  EventNode eventNode) {
-        // sourceRef
-        org.w3c.dom.Node subNode = xmlNode.getFirstChild();
-        String from = subNode.getTextContent();
-        // targetRef
-        subNode = subNode.getNextSibling();
-        String to = subNode.getTextContent();
-        // transformation
- 		Transformation transformation = null;
- 		subNode = subNode.getNextSibling();
- 		if (subNode != null && "transformation".equals(subNode.getNodeName())) {
- 			String lang = subNode.getAttributes().getNamedItem("language").getNodeValue();
- 			String expression = subNode.getTextContent();
- 			DataTransformer transformer = transformerRegistry.find(lang);
- 			if (transformer == null) {
- 				throw new IllegalArgumentException("No transformer registered for language " + lang);
- 			}
- 			transformation = new Transformation(lang, expression, dataOutputs.get(from));
- 			eventNode.setMetaData("Transformation", transformation);
-
- 			eventNode.setEventTransformer(new EventTransformerImpl(transformation));
- 		}
-
-        eventNode.setVariableName(to);
-
-    }
+    } 
 
     public void writeNode(Node node, StringBuilder xmlDump, int metaDataType) {
         EventNode eventNode = (EventNode) node;

@@ -16,17 +16,23 @@
 
 package org.jbpm.process.builder;
 
+import java.util.function.BiFunction;
+
 import org.drools.compiler.rule.builder.PackageBuildContext;
-import org.jbpm.process.core.ContextResolver;
+import org.jbpm.process.instance.impl.AssignmentProducer;
 import org.jbpm.workflow.core.node.Assignment;
+import org.kie.api.runtime.process.NodeInstance;
+import org.kie.api.runtime.process.ProcessContext;
 
 public interface AssignmentBuilder {
 
+    
     public void build(final PackageBuildContext context,
                       final Assignment assignment,
                       final String sourceExpr,
                       final String targetExpr,
-                      final ContextResolver contextResolver,
-                      boolean isInput);
+                      BiFunction<ProcessContext, NodeInstance, Object> source,
+                      BiFunction<ProcessContext, NodeInstance, Object> target,
+                      AssignmentProducer producer);
 
 }

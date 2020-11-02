@@ -72,9 +72,15 @@ public class EventNodeInstance extends ExtendedNodeInstanceImpl implements Event
         		}
         		variableScopeInstance.setVariable(variableName, event);
         	}
-        	triggerCompleted();
+        	triggerCompleted(type, event);
         }
     }
+
+    
+    protected void triggerCompleted(String type, Object event) {
+        triggerCompleted();
+    }
+
 
     public void internalTrigger(final NodeInstance from, String type) {
     	if (!org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE.equals(type)) {
