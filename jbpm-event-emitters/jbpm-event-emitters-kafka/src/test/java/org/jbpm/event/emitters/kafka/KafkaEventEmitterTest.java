@@ -24,34 +24,38 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.apache.kafka.clients.producer.MockProducer;
-import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.jbpm.persistence.api.integration.EventEmitter;
 import org.jbpm.persistence.api.integration.InstanceView;
 import org.jbpm.persistence.api.integration.model.CaseInstanceView;
 import org.jbpm.persistence.api.integration.model.ProcessInstanceView;
 import org.jbpm.persistence.api.integration.model.TaskInstanceView;
+import org.junit.Before;
 import org.junit.Test;
 import org.kie.api.runtime.process.ProcessInstance;
+import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class KafkaEventEmitterTest {
 
-    private static class MockKafkaEventEmitter extends KafkaEventEmitter {
 
-        public MockProducer<String, byte[]> producer = new MockProducer<>();
+    private MockProducer<String, byte[]> producer;
 
-        @Override
-        protected Producer<String, byte[]> getProducer() {
-            return producer;
-        }
+    @Before
+    public void setup() {
+        producer = new MockProducer<>();
     }
 
     @SuppressWarnings("unchecked")
@@ -94,10 +98,10 @@ public class KafkaEventEmitterTest {
 
         System.setProperty("org.kie.jbpm.event.emitters.kafka.topic.cases", "customer-cases");
 
-        try (MockKafkaEventEmitter emitter = new MockKafkaEventEmitter()) {
+        try (KafkaEventEmitter emitter = new KafkaEventEmitter(producer)) {
             emit(emitter, Arrays.asList(piView, taskView, caseView));
 
-            List<ProducerRecord<String, byte[]>> producedEvents = emitter.producer.history();
+            List<ProducerRecord<String, byte[]>> producedEvents = producer.history();
             assertEquals(3, producedEvents.size());
 
             ProducerRecord<String, byte[]> record = producedEvents.get(0);
@@ -164,17 +168,19 @@ public class KafkaEventEmitterTest {
 
             }
         };
-        try (MockKafkaEventEmitter emitter = new MockKafkaEventEmitter()) {
+        try (KafkaEventEmitter emitter = new KafkaEventEmitter(producer)) {
             emit(emitter, Collections.singletonList(piView));
-            List<ProducerRecord<String, byte[]>> producedEvents = emitter.producer.history();
+            List<ProducerRecord<String, byte[]>> producedEvents = producer.history();
             assertEquals(0, producedEvents.size());
         }
     }
 
     private static class NotSerializable {
 
+        @SuppressWarnings("unused")
         private int tryMe;
 
+        @SuppressWarnings("unused")
         public int getTryMe() {
             throw new IllegalStateException("NOOOO!!!!");
         }
@@ -194,11 +200,36 @@ public class KafkaEventEmitterTest {
         processView.setVariables(Collections.singletonMap("tryIt", new NotSerializable()));
         processView.setInitiator("pepe");
 
-        try (MockKafkaEventEmitter emitter = new MockKafkaEventEmitter()) {
+        try (KafkaEventEmitter emitter = new KafkaEventEmitter(producer)) {
             emit(emitter, Arrays.asList(taskView, processView));
-            List<ProducerRecord<String, byte[]>> producedEvents = emitter.producer.history();
-            assertEquals(0, producedEvents.size());
+            List<ProducerRecord<String, byte[]>> producedEvents = producer.history();
+            assertEquals(1, producedEvents.size());
         }
+    }
+
+    @Test
+    public void testProducerExceptionLoggerAtCallback() throws IOException, ParseException {
+        Logger logger = (Logger) LoggerFactory.getLogger(KafkaEventEmitter.class);
+        ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
+        listAppender.start();
+        logger.addAppender(listAppender);
+        ProcessInstanceView processView = new ProcessInstanceView();
+        processView.setProcessId("Test");
+        processView.setId(1L);
+        RuntimeException ex = new IllegalStateException("Something bad has happened!!");
+        try (KafkaEventEmitter emitter = new KafkaEventEmitter(producer)) {
+            emit(emitter, Collections.singletonList(processView));
+            producer.errorNext(ex);
+            List<ProducerRecord<String, byte[]>> producedEvents = producer.history();
+            assertEquals(1, producedEvents.size());
+        }
+        Optional<ILoggingEvent> logEvent = listAppender.list.stream().filter(log -> log.getLevel() == Level.ERROR)
+                .findAny();
+        assertTrue("no trace printed when failed", logEvent.isPresent());
+        assertTrue(Arrays.asList(logEvent.get().getArgumentArray()).contains(processView));
+        assertEquals(ex.getClass().getCanonicalName(), logEvent.get().getThrowableProxy().getClassName());
+        assertEquals(ex.getMessage(), logEvent.get().getThrowableProxy().getMessage());
+
     }
 
     private void emit(EventEmitter emitter, Collection<InstanceView<?>> views) {
