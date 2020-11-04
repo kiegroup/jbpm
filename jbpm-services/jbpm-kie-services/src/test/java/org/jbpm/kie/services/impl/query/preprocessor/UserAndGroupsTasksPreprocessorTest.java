@@ -112,11 +112,6 @@ public class UserAndGroupsTasksPreprocessorTest {
 
     @Test
     public void testPotOwnerFilterNoIdentityProvider() {
-        String userId = "userId";
-
-        when(userGroupCallback.getGroupsForUser(userId)).thenReturn(null);
-        when(identityProvider.getName()).thenReturn(userId);
-
         String potOwner = "potOwner";
         when(userGroupCallback.getGroupsForUser(potOwner)).thenReturn(Arrays.asList("role1",
                 "role2"));
@@ -142,11 +137,6 @@ public class UserAndGroupsTasksPreprocessorTest {
 
     @Test
     public void testPotOwnerFilterComplexExpression() {
-        String userId = "userId";
-
-        when(userGroupCallback.getGroupsForUser(userId)).thenReturn(null);
-        when(identityProvider.getName()).thenReturn(userId);
-
         String potOwner = "potOwner";
         when(userGroupCallback.getGroupsForUser(potOwner)).thenReturn(Arrays.asList("role1", "role2"));
 
@@ -200,11 +190,6 @@ public class UserAndGroupsTasksPreprocessorTest {
 
     @Test
     public void testPotOwnerFilterNoIdentityProviderAndNullGroups() {
-        String userId = "userId";
-
-        when(userGroupCallback.getGroupsForUser(userId)).thenReturn(null);
-        when(identityProvider.getName()).thenReturn(userId);
-
         String potOwner = "potOwner";
         when(userGroupCallback.getGroupsForUser(potOwner)).thenReturn(null);
 
