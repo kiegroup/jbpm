@@ -53,10 +53,10 @@ public class WebServiceCommandTest {
     public void testExecuteCommand() throws Exception {
         Object[] clientObject = Arrays.asList("testResults").toArray();
 
-        when(clients.containsKey(anyObject())).thenReturn(true);
-        when(clients.get(anyObject())).thenReturn(client);
-        when(client.invoke(anyString(),
-                           any(Object[].class))).thenReturn(clientObject);
+        when(clients.containsKey(any())).thenReturn(true);
+        when(clients.get(any())).thenReturn(client);
+        when(client.invoke(Mockito.<String>any(),
+                           any())).thenReturn(clientObject);
 
         WorkItemImpl workItem = new WorkItemImpl();
         workItem.setParameter("Interface",
@@ -79,10 +79,10 @@ public class WebServiceCommandTest {
     public void testExecuteCommandWithBasicAuth() throws Exception {
         Object[] clientObject = Arrays.asList("testResults").toArray();
 
-        when(clients.containsKey(anyObject())).thenReturn(true);
-        when(clients.get(anyObject())).thenReturn(client);
-        when(client.invoke(anyString(),
-                           any(Object[].class))).thenReturn(clientObject);
+        when(clients.containsKey(any())).thenReturn(true);
+        when(clients.get(any())).thenReturn(client);
+        when(client.invoke(Mockito.<String>any(),
+                           any())).thenReturn(clientObject);
 
         WorkItemImpl workItem = new WorkItemImpl();
         workItem.setParameter("Interface",
