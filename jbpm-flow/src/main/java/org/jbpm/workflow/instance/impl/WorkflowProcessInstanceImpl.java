@@ -382,6 +382,11 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 
     @Override
     public void setState(final int state, String outcome) {
+        if(getMetaData().containsKey("SUB_PROCESS_INTERRUPTION") || getState() == ProcessInstance.STATE_COMPLETED || getState() == ProcessInstance.STATE_ABORTED) {
+            // avoid duplication calls
+            return;
+        }
+
         // TODO move most of this to ProcessInstanceImpl
         if (state == ProcessInstance.STATE_COMPLETED
                 || state == ProcessInstance.STATE_ABORTED) {
