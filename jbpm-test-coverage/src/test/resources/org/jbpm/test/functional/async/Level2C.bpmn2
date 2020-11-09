@@ -1,0 +1,145 @@
+<bpmn2:definitions xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:bpsim="http://www.bpsim.org/schemas/1.0" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:drools="http://www.jboss.org/drools" id="_lJnaAPC-EDiFTownq8X-mw" exporter="jBPM Process Modeler" exporterVersion="2.0" targetNamespace="http://www.omg.org/bpmn20">
+  <bpmn2:process id="nested-abort.level2C" drools:packageName="com.jbpm.test.funcional.async" drools:version="1.0" drools:adHoc="false" name="level2C" isExecutable="true" processType="Public">
+    <bpmn2:sequenceFlow id="_D6661711-32F8-4146-BEEF-5620727B4F10" sourceRef="_51243B72-3AC7-4566-A843-F0612660E95F" targetRef="_93611971-2714-474F-8CFE-B162040C677D">
+      <bpmn2:extensionElements>
+        <drools:metaData name="isAutoConnection.source">
+          <drools:metaValue><![CDATA[true]]></drools:metaValue>
+        </drools:metaData>
+        <drools:metaData name="isAutoConnection.target">
+          <drools:metaValue><![CDATA[true]]></drools:metaValue>
+        </drools:metaData>
+      </bpmn2:extensionElements>
+    </bpmn2:sequenceFlow>
+    <bpmn2:sequenceFlow id="_9D26D501-A828-4657-BA0F-4A1F24B31B53" sourceRef="_2B95505C-31DD-41D9-B2A0-44949B1108A7" targetRef="_69F3D7F3-C7FC-40A9-9CFD-311F21DA2869">
+      <bpmn2:extensionElements>
+        <drools:metaData name="isAutoConnection.target">
+          <drools:metaValue><![CDATA[true]]></drools:metaValue>
+        </drools:metaData>
+      </bpmn2:extensionElements>
+    </bpmn2:sequenceFlow>
+    <bpmn2:sequenceFlow id="_A5F4D813-572B-4CBD-8EE4-41C10341C544" sourceRef="_93611971-2714-474F-8CFE-B162040C677D" targetRef="_2B95505C-31DD-41D9-B2A0-44949B1108A7">
+      <bpmn2:extensionElements>
+        <drools:metaData name="isAutoConnection.source">
+          <drools:metaValue><![CDATA[true]]></drools:metaValue>
+        </drools:metaData>
+      </bpmn2:extensionElements>
+    </bpmn2:sequenceFlow>
+    <bpmn2:startEvent id="_51243B72-3AC7-4566-A843-F0612660E95F">
+      <bpmn2:outgoing>_D6661711-32F8-4146-BEEF-5620727B4F10</bpmn2:outgoing>
+    </bpmn2:startEvent>
+    <bpmn2:scriptTask id="_93611971-2714-474F-8CFE-B162040C677D" name="Init" scriptFormat="http://www.java.com/java">
+      <bpmn2:extensionElements>
+        <drools:metaData name="elementname">
+          <drools:metaValue><![CDATA[Init]]></drools:metaValue>
+        </drools:metaData>
+        <drools:metaData name="customAsync">
+          <drools:metaValue><![CDATA[true]]></drools:metaValue>
+        </drools:metaData>
+      </bpmn2:extensionElements>
+      <bpmn2:incoming>_D6661711-32F8-4146-BEEF-5620727B4F10</bpmn2:incoming>
+      <bpmn2:outgoing>_A5F4D813-572B-4CBD-8EE4-41C10341C544</bpmn2:outgoing>
+      <bpmn2:script>//throw new java.lang.RuntimeException("Test");</bpmn2:script>
+    </bpmn2:scriptTask>
+    <bpmn2:endEvent id="_69F3D7F3-C7FC-40A9-9CFD-311F21DA2869">
+      <bpmn2:incoming>_9D26D501-A828-4657-BA0F-4A1F24B31B53</bpmn2:incoming>
+    </bpmn2:endEvent>
+    <bpmn2:callActivity id="_2B95505C-31DD-41D9-B2A0-44949B1108A7" drools:independent="false" drools:waitForCompletion="true" name="call-level3sc" calledElement="nested-abort.level3SC">
+      <bpmn2:extensionElements>
+        <drools:metaData name="elementname">
+          <drools:metaValue><![CDATA[call-level3sc]]></drools:metaValue>
+        </drools:metaData>
+        <drools:metaData name="customAsync">
+          <drools:metaValue><![CDATA[true]]></drools:metaValue>
+        </drools:metaData>
+      </bpmn2:extensionElements>
+      <bpmn2:incoming>_A5F4D813-572B-4CBD-8EE4-41C10341C544</bpmn2:incoming>
+      <bpmn2:outgoing>_9D26D501-A828-4657-BA0F-4A1F24B31B53</bpmn2:outgoing>
+    </bpmn2:callActivity>
+  </bpmn2:process>
+  <bpmndi:BPMNDiagram>
+    <bpmndi:BPMNPlane bpmnElement="nested-abort.level2C">
+      <bpmndi:BPMNShape id="shape__2B95505C-31DD-41D9-B2A0-44949B1108A7" bpmnElement="_2B95505C-31DD-41D9-B2A0-44949B1108A7">
+        <dc:Bounds height="101" width="153" x="645.5" y="58"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape__69F3D7F3-C7FC-40A9-9CFD-311F21DA2869" bpmnElement="_69F3D7F3-C7FC-40A9-9CFD-311F21DA2869">
+        <dc:Bounds height="56" width="56" x="892" y="81"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape__93611971-2714-474F-8CFE-B162040C677D" bpmnElement="_93611971-2714-474F-8CFE-B162040C677D">
+        <dc:Bounds height="102" width="154" x="398" y="58"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape__51243B72-3AC7-4566-A843-F0612660E95F" bpmnElement="_51243B72-3AC7-4566-A843-F0612660E95F">
+        <dc:Bounds height="56" width="56" x="262" y="81"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="edge_shape__93611971-2714-474F-8CFE-B162040C677D_to_shape__2B95505C-31DD-41D9-B2A0-44949B1108A7" bpmnElement="_A5F4D813-572B-4CBD-8EE4-41C10341C544">
+        <di:waypoint x="552" y="109"/>
+        <di:waypoint x="722" y="108.5"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_shape__2B95505C-31DD-41D9-B2A0-44949B1108A7_to_shape__69F3D7F3-C7FC-40A9-9CFD-311F21DA2869" bpmnElement="_9D26D501-A828-4657-BA0F-4A1F24B31B53">
+        <di:waypoint x="722" y="108.5"/>
+        <di:waypoint x="892" y="109"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_shape__51243B72-3AC7-4566-A843-F0612660E95F_to_shape__93611971-2714-474F-8CFE-B162040C677D" bpmnElement="_D6661711-32F8-4146-BEEF-5620727B4F10">
+        <di:waypoint x="318" y="109"/>
+        <di:waypoint x="398" y="109"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+  <bpmn2:relationship type="BPSimData">
+    <bpmn2:extensionElements>
+      <bpsim:BPSimData>
+        <bpsim:Scenario id="default" name="Simulationscenario">
+          <bpsim:ScenarioParameters/>
+          <bpsim:ElementParameters elementRef="_2B95505C-31DD-41D9-B2A0-44949B1108A7">
+            <bpsim:TimeParameters>
+              <bpsim:ProcessingTime>
+                <bpsim:NormalDistribution mean="0" standardDeviation="0"/>
+              </bpsim:ProcessingTime>
+            </bpsim:TimeParameters>
+            <bpsim:ResourceParameters>
+              <bpsim:Availability>
+                <bpsim:FloatingParameter value="0"/>
+              </bpsim:Availability>
+              <bpsim:Quantity>
+                <bpsim:FloatingParameter value="0"/>
+              </bpsim:Quantity>
+            </bpsim:ResourceParameters>
+            <bpsim:CostParameters>
+              <bpsim:UnitCost>
+                <bpsim:FloatingParameter value="0"/>
+              </bpsim:UnitCost>
+            </bpsim:CostParameters>
+          </bpsim:ElementParameters>
+          <bpsim:ElementParameters elementRef="_93611971-2714-474F-8CFE-B162040C677D">
+            <bpsim:TimeParameters>
+              <bpsim:ProcessingTime>
+                <bpsim:NormalDistribution mean="0" standardDeviation="0"/>
+              </bpsim:ProcessingTime>
+            </bpsim:TimeParameters>
+            <bpsim:ResourceParameters>
+              <bpsim:Availability>
+                <bpsim:FloatingParameter value="0"/>
+              </bpsim:Availability>
+              <bpsim:Quantity>
+                <bpsim:FloatingParameter value="0"/>
+              </bpsim:Quantity>
+            </bpsim:ResourceParameters>
+            <bpsim:CostParameters>
+              <bpsim:UnitCost>
+                <bpsim:FloatingParameter value="0"/>
+              </bpsim:UnitCost>
+            </bpsim:CostParameters>
+          </bpsim:ElementParameters>
+          <bpsim:ElementParameters elementRef="_51243B72-3AC7-4566-A843-F0612660E95F">
+            <bpsim:TimeParameters>
+              <bpsim:ProcessingTime>
+                <bpsim:NormalDistribution mean="0" standardDeviation="0"/>
+              </bpsim:ProcessingTime>
+            </bpsim:TimeParameters>
+          </bpsim:ElementParameters>
+        </bpsim:Scenario>
+      </bpsim:BPSimData>
+    </bpmn2:extensionElements>
+    <bpmn2:source>_lJnaAPC-EDiFTownq8X-mw</bpmn2:source>
+    <bpmn2:target>_lJnaAPC-EDiFTownq8X-mw</bpmn2:target>
+  </bpmn2:relationship>
+</bpmn2:definitions>
