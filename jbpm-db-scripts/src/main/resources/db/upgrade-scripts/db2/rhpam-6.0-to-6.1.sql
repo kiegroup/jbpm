@@ -3,7 +3,7 @@
 SET CURRENT SCHEMA BPMS@
 
 -- to execute this script open connect in the DB2 console: db2 connect to BPMS
--- Then perform this command: db2 -tf bpms-6.0-to-6.1.sql
+-- Then perform this command: db2 -tf rhpam-6.0-to-6.1.sql
 
 -- update context mapping info table with owner id (deployment id) for per process instance strategies
 

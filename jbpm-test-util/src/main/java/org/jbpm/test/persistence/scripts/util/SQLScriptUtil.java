@@ -164,12 +164,12 @@ public final class SQLScriptUtil {
         if (databaseType == SQLSERVER || databaseType == SQLSERVER2008) {
             if (script.getName().contains("quartz"))
                 delimiter = DELIMITER_MSSQL_SYBASE;
-            if (script.getName().contains("jbpm-6.1-to-6.2") || script.getName().contains("bpms-6.0-to-6.1"))
+            if (script.getName().contains("jbpm-6.1-to-6.2") || script.getName().contains("rhpam-6.0-to-6.1"))
                 delimiter = DELIMITER_STANDARD.concat(REGEX_OR).concat(DELIMITER_MSSQL_SYBASE);
         }
         
         if (databaseType == DB2 && 
-            (script.getName().contains("bpms-6.0-to-6.1") || script.getName().contains("jbpm-6.1-to-6.2")))
+            (script.getName().contains("rhpam-6.0-to-6.1") || script.getName().contains("jbpm-6.1-to-6.2")))
             delimiter = DELIMITER_ALTER;
         
         if (databaseType == SYBASE)
