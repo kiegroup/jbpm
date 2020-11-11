@@ -33,6 +33,9 @@ public interface AdvanceCaseRuntimeDataService {
     String CASE_ATTR_DEFINITION_ID = "CASE_DEFINITION_ID";
     String CASE_ATTR_DEPLOYMENT_ID = "CASE_DEPLOYMENT_ID";
 
+    // to work with query param exclude
+    String CASE_COLLECTION_VARIABLES = "ATTR_COLLECTION_VARIABLES";
+
     List<ProcessInstanceWithVarsDesc> queryCaseByVariables(List<QueryParam> attributes,
                                                            List<QueryParam> caseVariables,
                                                            QueryContext queryContext);

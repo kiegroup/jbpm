@@ -57,9 +57,11 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.jbpm.services.api.AdvanceRuntimeDataService.PROCESS_ATTR_CORRELATION_KEY;
 import static org.jbpm.services.api.AdvanceRuntimeDataService.PROCESS_ATTR_DEFINITION_ID;
 import static org.jbpm.services.api.AdvanceRuntimeDataService.PROCESS_ATTR_DEPLOYMENT_ID;
+import static org.jbpm.services.api.AdvanceRuntimeDataService.PROCESS_COLLECTION_VARIABLES;
 import static org.jbpm.services.api.AdvanceRuntimeDataService.TASK_ATTR_NAME;
 import static org.jbpm.services.api.AdvanceRuntimeDataService.TASK_ATTR_OWNER;
 import static org.jbpm.services.api.query.model.QueryParam.equalsTo;
+import static org.jbpm.services.api.query.model.QueryParam.exclude;
 import static org.jbpm.services.api.query.model.QueryParam.history;
 import static org.jbpm.services.api.query.model.QueryParam.in;
 import static org.jbpm.services.api.query.model.QueryParam.isNotNull;
@@ -69,6 +71,7 @@ import static org.jbpm.services.api.query.model.QueryParam.list;
 import static org.jbpm.services.api.query.model.QueryParam.notEqualsTo;
 import static org.jbpm.services.api.query.model.QueryParam.notIn;
 import static org.jbpm.services.api.query.model.QueryParam.type;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
@@ -180,9 +183,9 @@ public class AdvanceRuntimeDataServiceImplTest extends AbstractKieServicesBaseTe
             assertThat(data.size(), is(queryContext.getCount()));
         }
         for (ProcessInstanceWithVarsDesc p : data) {
-            Assert.assertEquals("a1", p.getVariables().get("var_a"));
-            Assert.assertEquals("1", p.getVariables().get("var_b"));
-            Assert.assertEquals("test.test_A", p.getProcessId());
+            assertEquals("a1", p.getVariables().get("var_a"));
+            assertEquals("1", p.getVariables().get("var_b"));
+            assertEquals("test.test_A", p.getProcessId());
         }
     }
 
@@ -199,7 +202,7 @@ public class AdvanceRuntimeDataServiceImplTest extends AbstractKieServicesBaseTe
         List<String> values = Arrays.asList("a1", "a2");
         for (ProcessInstanceWithVarsDesc p : data) {
             assertTrue(values.contains(p.getVariables().get("var_a")));
-            Assert.assertEquals("test.test_A", p.getProcessId());
+            assertEquals("test.test_A", p.getProcessId());
         }
     }
 
@@ -216,7 +219,23 @@ public class AdvanceRuntimeDataServiceImplTest extends AbstractKieServicesBaseTe
 
         for (ProcessInstanceWithVarsDesc p : data) {
             assertTrue(((String) p.getVariables().get("var_a")).startsWith("a"));
-            Assert.assertEquals("test.test_A", p.getProcessId());
+            assertEquals("test.test_A", p.getProcessId());
+        }
+    }
+
+    @Test
+    public void testQueryProcVarsExclusion() {
+
+        List<QueryParam> variables = list(likeTo("var_a", false, "a%"));
+        List<QueryParam> attributes = list(exclude(PROCESS_COLLECTION_VARIABLES));
+
+        List<ProcessInstanceWithVarsDesc> data = advanceVariableDataService.queryProcessByVariables(attributes, variables, queryContext);
+        if (queryContext.getCount() > 0) {
+            assertEquals((int) queryContext.getCount(), data.size());
+        }
+
+        for (ProcessInstanceWithVarsDesc p : data) {
+            assertEquals(0, p.getVariables().size());
         }
     }
 
@@ -258,7 +277,7 @@ public class AdvanceRuntimeDataServiceImplTest extends AbstractKieServicesBaseTe
         List<String> values = Arrays.asList("a1", "a2");
         for (ProcessInstanceWithVarsDesc p : data) {
             assertTrue(!values.contains(p.getVariables().get("var_a")));
-            Assert.assertEquals("test.test_A", p.getProcessId());
+            assertEquals("test.test_A", p.getProcessId());
         }
     }
 
@@ -295,11 +314,26 @@ public class AdvanceRuntimeDataServiceImplTest extends AbstractKieServicesBaseTe
             assertThat(data.size(), is(queryContext.getCount()));
         }
         for (UserTaskInstanceWithPotOwnerDesc p : data) {
-            Assert.assertEquals("a0", p.getInputdata().get("task_in_a1"));
-            Assert.assertEquals("org.jbpm.test:test-module:1.0.0", p.getDeploymentId());
+            assertEquals("a0", p.getInputdata().get("task_in_a1"));
+            assertEquals("org.jbpm.test:test-module:1.0.0", p.getDeploymentId());
         }
     }
 
+    @Test
+    public void testQueryTaskExcludeByVariables() {
+        List<QueryParam> variables = list(equalsTo("task_in_a1", "a0"));
+        List<QueryParam> attributes = list(equalsTo(PROCESS_ATTR_DEPLOYMENT_ID, "org.jbpm.test:test-module:1.0.0"), exclude(PROCESS_COLLECTION_VARIABLES));
+
+        List<String> potOwners = emptyList();
+        List<UserTaskInstanceWithPotOwnerDesc> data = advanceVariableDataService.queryUserTasksByVariables(attributes, variables, emptyList(), potOwners, queryContext);
+        if (queryContext.getCount() > 0) {
+            assertEquals((int) queryContext.getCount(), data.size());
+        }
+        for (UserTaskInstanceWithPotOwnerDesc p : data) {
+            assertEquals(0, p.getProcessVariables().size());
+        }
+    }
+    
     @Test
     public void testQueryTaskNotEqualsByVariables() {
         List<QueryParam> attributes = list(notEqualsTo(PROCESS_ATTR_DEFINITION_ID, "test.test_A"));
@@ -332,7 +366,7 @@ public class AdvanceRuntimeDataServiceImplTest extends AbstractKieServicesBaseTe
     public void testQueryTaskByVariablesWithAllOwners() {
         List<String> potOwners = Arrays.asList("katy", "nobody");
         List<UserTaskInstanceWithPotOwnerDesc> data = advanceVariableDataService.queryUserTasksByVariables(emptyList(), emptyList(), emptyList(), potOwners, queryContext);
-        Assert.assertEquals(0, data.size());
+        assertEquals(0, data.size());
 
     }
 
