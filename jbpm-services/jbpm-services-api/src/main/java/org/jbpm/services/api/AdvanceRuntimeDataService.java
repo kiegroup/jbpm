@@ -33,6 +33,9 @@ public interface AdvanceRuntimeDataService {
     String PROCESS_ATTR_DEFINITION_ID = "PROCESS_DEFINITION_ID";
     String PROCESS_ATTR_DEPLOYMENT_ID = "PROCESS_DEPLOYMENT_ID";
 
+    // to work with query param exclude
+    String PROCESS_COLLECTION_VARIABLES = "ATTR_COLLECTION_VARIABLES";
+
     List<ProcessInstanceWithVarsDesc> queryProcessByVariables(List<QueryParam> attributes,
                                                               List<QueryParam> processVariables,
                                                               QueryContext queryContext);
