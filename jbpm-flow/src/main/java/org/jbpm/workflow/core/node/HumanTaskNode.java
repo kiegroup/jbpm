@@ -24,6 +24,7 @@ import org.jbpm.process.core.Work;
 import org.jbpm.process.core.datatype.impl.type.StringDataType;
 import org.jbpm.process.core.impl.ParameterDefinitionImpl;
 import org.jbpm.process.core.impl.WorkImpl;
+import org.kie.api.definition.process.NodeType;
 
 public class HumanTaskNode extends WorkItemNode {
 
@@ -32,6 +33,7 @@ public class HumanTaskNode extends WorkItemNode {
     private String swimlane;
     
     public HumanTaskNode() {
+        super(NodeType.HUMAN_TASK);
         Work work = new WorkImpl();
         work.setName("Human Task");
         Set<ParameterDefinition> parameterDefinitions = new HashSet<ParameterDefinition>();

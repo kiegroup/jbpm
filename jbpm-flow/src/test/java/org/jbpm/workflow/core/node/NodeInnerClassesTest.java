@@ -19,8 +19,8 @@ package org.jbpm.workflow.core.node;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jbpm.process.core.datatype.impl.type.ObjectDataType;
 import org.jbpm.process.core.context.variable.Variable;
+import org.jbpm.process.core.datatype.impl.type.ObjectDataType;
 import org.jbpm.process.test.TestProcessEventListener;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
 import org.jbpm.test.util.AbstractBaseTest;
@@ -54,10 +54,7 @@ public class NodeInnerClassesTest extends AbstractBaseTest {
         process.getVariableScope().setVariables(variables);
 
         process.setDynamic(true);
-        CompositeNode compositeNode = new CompositeNode();
-        compositeNode.setName("CompositeNode");
-        compositeNode.setId(2);
-        
+
         ForEachNode forEachNode = new ForEachNode();
         ForEachNode.ForEachSplitNode split = new ForEachNode.ForEachSplitNode();
         split.setName("ForEachSplit");

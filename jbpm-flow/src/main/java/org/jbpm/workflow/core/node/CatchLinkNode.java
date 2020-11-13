@@ -17,10 +17,15 @@
 package org.jbpm.workflow.core.node;
 
 import org.jbpm.workflow.core.impl.ExtendedNodeImpl;
+import org.kie.api.definition.process.NodeType;
 
 public class CatchLinkNode extends ExtendedNodeImpl {
 
 
 	private static final long serialVersionUID = 201105121554L;
+
+    public CatchLinkNode() {
+        super(NodeType.CATCH_LINK);
+    }
 
 }

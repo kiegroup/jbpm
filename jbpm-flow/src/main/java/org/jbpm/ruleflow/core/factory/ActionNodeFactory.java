@@ -30,10 +30,7 @@ public class ActionNodeFactory<T extends NodeContainerBuilder<T, ?>> extends Nod
     public ActionNodeFactory(T nodeContainerFactory,
                              NodeContainer nodeContainer,
                              long id) {
-        super(nodeContainerFactory,
-              nodeContainer,
-              new ActionNode(),
-              id);
+        super(nodeContainerFactory, nodeContainer, new ActionNode(), id);
     }
 
     protected ActionNode getActionNode() {
@@ -56,20 +53,17 @@ public class ActionNodeFactory<T extends NodeContainerBuilder<T, ?>> extends Nod
                                     boolean isDroolsAction) {
         if (isDroolsAction) {
             DroolsAction droolsAction = new DroolsAction();
-            droolsAction.setMetaData("Action",
-                                     action);
+            droolsAction.setMetaData("Action", action);
             getActionNode().setAction(droolsAction);
         } else {
-            getActionNode().setAction(new DroolsConsequenceAction(dialect,
-                                                                  action));
+            getActionNode().setAction(new DroolsConsequenceAction(dialect, action));
         }
         return this;
     }
 
     public ActionNodeFactory<T> action(Action action) {
         DroolsAction droolsAction = new DroolsAction();
-        droolsAction.setMetaData("Action",
-                                 action);
+        droolsAction.setMetaData("Action", action);
         getActionNode().setAction(droolsAction);
         return this;
     }

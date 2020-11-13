@@ -16,9 +16,10 @@
 
 package org.jbpm.workflow.core.node;
 
-import org.kie.api.definition.process.Connection;
 import org.jbpm.workflow.core.DroolsAction;
 import org.jbpm.workflow.core.impl.ExtendedNodeImpl;
+import org.kie.api.definition.process.Connection;
+import org.kie.api.definition.process.NodeType;
 
 
 /**
@@ -30,6 +31,14 @@ public class ActionNode extends ExtendedNodeImpl {
 	private static final long serialVersionUID = 510l;
 	
 	private DroolsAction action;
+
+    public ActionNode() {
+        super(NodeType.SCRIPT_TASK);
+    }
+
+    public ActionNode(NodeType nodeType) {
+        super(nodeType);
+    }
 
 	public DroolsAction getAction() {
 		return action;

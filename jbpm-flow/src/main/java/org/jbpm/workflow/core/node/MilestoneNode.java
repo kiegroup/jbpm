@@ -16,9 +16,10 @@
 
 package org.jbpm.workflow.core.node;
 
-import org.kie.api.definition.process.Connection;
 import org.jbpm.workflow.core.Constraint;
 import org.jbpm.workflow.core.impl.ConnectionRef;
+import org.kie.api.definition.process.Connection;
+import org.kie.api.definition.process.NodeType;
 
 /**
  * Default implementation of a milestone node.
@@ -30,6 +31,10 @@ public class MilestoneNode extends StateBasedNode implements Constrainable {
 
 	private String constraint;
 	private String matchVariable;
+
+    public MilestoneNode() {
+        super(NodeType.MILESTONE);
+    }
 
     public void addConstraint(ConnectionRef connection, Constraint constraint) {
     	if (connection != null) {

@@ -23,13 +23,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.kie.api.definition.process.Connection;
-import org.jbpm.process.core.Work;
 import org.jbpm.process.core.Context;
 import org.jbpm.process.core.ContextContainer;
+import org.jbpm.process.core.Work;
 import org.jbpm.process.core.context.AbstractContext;
 import org.jbpm.process.core.context.variable.Mappable;
 import org.jbpm.process.core.impl.ContextContainerImpl;
+import org.kie.api.definition.process.Connection;
+import org.kie.api.definition.process.NodeType;
 
 /**
  * Default implementation of a task node.
@@ -47,6 +48,14 @@ public class WorkItemNode extends StateBasedNode implements Mappable, ContextCon
 	private List<DataAssociation> outMapping = new LinkedList<DataAssociation>();
     private boolean waitForCompletion = true;
     // TODO boolean independent (cancel work item if node gets cancelled?)
+
+    public WorkItemNode() {
+        super(NodeType.WORKITEM_TASK);
+    }
+
+    protected WorkItemNode(NodeType nodeType) {
+        super(nodeType);
+    }
 
 	public Work getWork() {
 		return work;

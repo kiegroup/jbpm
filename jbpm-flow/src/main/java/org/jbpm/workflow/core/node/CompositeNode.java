@@ -28,6 +28,7 @@ import org.jbpm.workflow.core.impl.NodeContainerImpl;
 import org.jbpm.workflow.core.impl.NodeImpl;
 import org.kie.api.definition.process.Connection;
 import org.kie.api.definition.process.Node;
+import org.kie.api.definition.process.NodeType;
 
 /**
  * 
@@ -44,6 +45,11 @@ public class CompositeNode extends StateBasedNode implements NodeContainer, Even
 	private boolean autoComplete = true;
 	
     public CompositeNode() {
+        this(NodeType.INTERNAL);
+    }
+
+    protected CompositeNode(NodeType type) {
+        super(type);
         this.nodeContainer = new NodeContainerImpl();
     }
     
@@ -435,6 +441,7 @@ public class CompositeNode extends StateBasedNode implements NodeContainer, Even
         private String inType;
         
         public CompositeNodeStart(CompositeNode parentNode, Node outNode, String outType) {
+            super(NodeType.INTERNAL);
             setName("Composite node start");
             this.inNodeId = outNode.getId();
             this.inNode = outNode;
@@ -470,6 +477,7 @@ public class CompositeNode extends StateBasedNode implements NodeContainer, Even
         private String outType;
         
         public CompositeNodeEnd(CompositeNode parentNode, Node outNode, String outType) {
+            super(NodeType.INTERNAL);
             setName("Composite node end");
             this.outNodeId = outNode.getId();
             this.outNode = outNode;

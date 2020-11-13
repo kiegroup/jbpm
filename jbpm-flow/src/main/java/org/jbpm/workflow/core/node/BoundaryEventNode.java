@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.function.Function;
 
 import org.jbpm.process.core.event.EventFilter;
+import org.kie.api.definition.process.NodeType;
 
 public class BoundaryEventNode extends EventNode {
 
@@ -29,6 +30,10 @@ public class BoundaryEventNode extends EventNode {
     private String attachedToNodeId;
 
     private List<DataAssociation> outMapping = new LinkedList<DataAssociation>();
+
+    public BoundaryEventNode() {
+        super(NodeType.BOUNDARY_EVENT);
+    }
 
     public String getAttachedToNodeId() {
         return attachedToNodeId;

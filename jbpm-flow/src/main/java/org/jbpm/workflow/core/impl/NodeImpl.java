@@ -31,6 +31,7 @@ import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.core.node.CompositeNode;
 import org.kie.api.definition.process.Connection;
 import org.kie.api.definition.process.NodeContainer;
+import org.kie.api.definition.process.NodeType;
 
 /**
  * Default implementation of a node.
@@ -51,19 +52,35 @@ public abstract class NodeImpl implements Node, Serializable, ContextResolver {
     private NodeContainer parentNodeContainer;
     private Map<String, Context> contexts = new HashMap<String, Context>();
     private Map<String, Object> metaData = new HashMap<String, Object>();
+    private NodeType nodeType;
     
     protected Map<ConnectionRef, Constraint> constraints = new HashMap<ConnectionRef, Constraint>();
 
+    // needed to keep backward compatibility
     public NodeImpl() {
+        this(NodeType.INTERNAL);
+    }
+
+    protected NodeImpl(NodeType nodeType) {
         this.id = -1;
         this.incomingConnections = new HashMap<String, List<Connection>>();
         this.outgoingConnections = new HashMap<String, List<Connection>>();
+        this.nodeType = nodeType;
     }
 
     public long getId() {
         return this.id;
     }
     
+    @Override
+    public NodeType getNodeType() {
+        return nodeType;
+    }
+
+    protected void setNodeType(NodeType nodeType) {
+        this.nodeType = nodeType;
+    }
+
     public String getNodeUniqueId() {
         return (String) getMetaData().get("UniqueId");
     }
