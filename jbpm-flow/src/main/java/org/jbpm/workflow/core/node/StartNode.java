@@ -28,6 +28,7 @@ import org.jbpm.process.core.event.EventTransformer;
 import org.jbpm.process.core.timer.Timer;
 import org.jbpm.workflow.core.impl.ExtendedNodeImpl;
 import org.kie.api.definition.process.Connection;
+import org.kie.api.definition.process.NodeType;
 
 /**
  * Default implementation of a start node.
@@ -49,6 +50,10 @@ public class StartNode extends ExtendedNodeImpl implements Mappable {
     private Timer timer;
     
     private EventTransformer transformer;
+
+    public StartNode() {
+        super(NodeType.START);
+    }
 
 
 	public void addTrigger(Trigger trigger) {

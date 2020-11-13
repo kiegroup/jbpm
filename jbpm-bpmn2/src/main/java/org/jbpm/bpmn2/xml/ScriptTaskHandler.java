@@ -21,6 +21,7 @@ import org.drools.mvel.java.JavaDialect;
 import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.core.impl.DroolsConsequenceAction;
 import org.jbpm.workflow.core.node.ActionNode;
+import org.kie.api.definition.process.NodeType;
 import org.w3c.dom.Element;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -28,13 +29,13 @@ import org.xml.sax.SAXException;
 public class ScriptTaskHandler extends AbstractNodeHandler {
     
     protected Node createNode(Attributes attrs) {
-        ActionNode result = new ActionNode();
+        ActionNode result = new ActionNode(NodeType.SCRIPT_TASK);
         result.setAction(new DroolsConsequenceAction());
         return result;
     }
     
-    @SuppressWarnings("unchecked")
-	public Class generateNodeFor() {
+
+    public Class<?> generateNodeFor() {
         return Node.class;
     }
 

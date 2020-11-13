@@ -32,13 +32,13 @@ public class NodeCreator<T extends NodeImpl> {
 
     private static long idGen = 1;
 
-    public NodeCreator(NodeContainer nodeContainer, Class<T> clazz) {
+    public NodeCreator(NodeContainer nodeContainer, Class<T> clazz) throws NoSuchMethodException {
         this.nodeContainer = nodeContainer;
-        this.constructor = (Constructor<T>) clazz.getConstructors()[0];
+        this.constructor = clazz.getConstructor();
     }
 
     public T createNode(String name) throws Exception {
-        T result = this.constructor.newInstance(new Object[0]);
+        T result = this.constructor.newInstance();
         result.setId(idGen++);
         result.setName(name);
         this.nodeContainer.addNode(result);

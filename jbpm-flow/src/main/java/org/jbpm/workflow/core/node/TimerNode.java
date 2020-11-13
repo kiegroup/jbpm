@@ -16,9 +16,10 @@
 
 package org.jbpm.workflow.core.node;
 
-import org.kie.api.definition.process.Connection;
 import org.jbpm.process.core.timer.Timer;
 import org.jbpm.workflow.core.impl.ExtendedNodeImpl;
+import org.kie.api.definition.process.Connection;
+import org.kie.api.definition.process.NodeType;
 
 public class TimerNode extends ExtendedNodeImpl {
 
@@ -26,6 +27,10 @@ public class TimerNode extends ExtendedNodeImpl {
     
     private Timer timer;
     
+    public TimerNode() {
+        super(NodeType.TIMER);
+    }
+
     public void setTimer(Timer timer) {
         this.timer = timer;
     }

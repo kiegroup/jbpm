@@ -35,6 +35,7 @@ import org.jbpm.workflow.core.node.ActionNode;
 import org.jbpm.workflow.core.node.CompositeNode;
 import org.jbpm.workflow.core.node.ThrowLinkNode;
 import org.jbpm.workflow.core.node.Transformation;
+import org.kie.api.definition.process.NodeType;
 import org.kie.api.runtime.process.DataTransformer;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -52,7 +53,7 @@ public class IntermediateThrowEventHandler extends AbstractNodeHandler {
 	public static final String LINK_TARGET = "target";
 
 	protected Node createNode(Attributes attrs) {
-		return new ActionNode();
+        return new ActionNode(NodeType.THROW_EVENT);
 	}
 
 	@SuppressWarnings("unchecked")

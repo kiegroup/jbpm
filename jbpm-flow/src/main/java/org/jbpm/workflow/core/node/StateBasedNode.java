@@ -24,8 +24,9 @@ import java.util.Map;
 import org.jbpm.process.core.timer.Timer;
 import org.jbpm.workflow.core.DroolsAction;
 import org.jbpm.workflow.core.impl.ExtendedNodeImpl;
+import org.kie.api.definition.process.NodeType;
 
-public class StateBasedNode extends ExtendedNodeImpl {
+public abstract class StateBasedNode extends ExtendedNodeImpl {
 
     private static final long serialVersionUID = 510l;
 
@@ -33,6 +34,10 @@ public class StateBasedNode extends ExtendedNodeImpl {
 	
 	private List<String> boundaryEvents;
 	
+    protected StateBasedNode(NodeType nodeType) {
+        super(nodeType);
+    }
+
 	public Map<Timer, DroolsAction> getTimers() {
 		return timers;
 	}
