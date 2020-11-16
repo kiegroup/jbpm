@@ -116,6 +116,7 @@ public class UpdateTaskCommand extends UserGroupCallbackTaskCommand<Void> {
                 persistenceContext.persistContent(inputContent);
             }
             ((InternalTaskData)task.getTaskData()).setTaskInputVariables(mergedContent);
+            taskEventSupport.fireAfterTaskInputVariablesChanged(task, context, inputs);
         }
         
         if (outputs != null) {
