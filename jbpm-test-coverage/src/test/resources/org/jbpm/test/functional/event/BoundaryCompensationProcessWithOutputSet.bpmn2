@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<definitions id="Definition"
+             typeLanguage="http://www.java.com/javaTypes"
+             expressionLanguage="http://www.mvel.org/2.0"
+             xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:drools="http://www.jboss.org/drools"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd"
+             xmlns:g="http://www.jboss.org/drools/flow/gpd"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             xmlns:tns="http://www.jboss.org/drools">
+             
+  <itemDefinition id="item_nodeInstance_ref_process" structureRef="String"  />
+  <itemDefinition id="item_signal_ref_process" structureRef="String"  />
+  <itemDefinition id="item_event_ref_process" structureRef="Object"  />
+	
+  <process processType="Private" 
+           isExecutable="true"
+           id="BoundaryCompensationEventProcess" 
+           name="Boundary Compensation Event Example" 
+           tns:packageName="org.jbpm.persistence.timer" >
+
+	<property id="nodeInstanceProcess" itemSubjectRef="item_nodeInstance_ref_process"/>
+	<property id="signalProcess" itemSubjectRef="item_signal_ref_process"/>
+	<property id="eventProcess" itemSubjectRef="item_event_ref_process"/>
+	
+    <!-- nodes -->
+    <startEvent id="_1" name="StartProcess" />
+
+      <userTask id="_2" name="Human Task" tns:taskName="Human Task" >
+        <ioSpecification>
+          <inputSet></inputSet>
+          <outputSet></outputSet>
+        </ioSpecification>
+      </userTask>
+  
+      <userTask id="_3" name="Human Task 2" tns:taskName="Human Task" >
+        <ioSpecification>
+          <inputSet></inputSet>
+          <outputSet></outputSet>
+        </ioSpecification>
+      </userTask>
+          
+  
+    <endEvent id="_4" name="End Main Process">
+      <terminateEventDefinition/>
+    </endEvent>
+  
+    <boundaryEvent id="_6" name="Timer Event" attachedToRef="_2">
+      <compensateEventDefinition />
+  	  <dataOutput id="nodeInstanceRef" name="nodeInstance" />
+  	  <dataOutput id="signalRef" name="signal" />
+  	  <dataOutput id="eventRef" name="event" />
+      <outputSet>
+        <dataOutputRefs>nodeInstanceRef</dataOutputRefs>
+        <dataOutputRefs>signalRef</dataOutputRefs>
+        <dataOutputRefs>eventRef</dataOutputRefs>
+      </outputSet>
+      <dataOutputAssociation>
+        <sourceRef>nodeInstanceRef</sourceRef>
+        <targetRef>nodeInstanceProcess</targetRef>
+      </dataOutputAssociation>
+      <dataOutputAssociation>
+        <sourceRef>signalRef</sourceRef>
+        <targetRef>signalProcess</targetRef>
+      </dataOutputAssociation>
+      <dataOutputAssociation>
+        <sourceRef>eventRef</sourceRef>
+        <targetRef>eventProcess</targetRef>
+      </dataOutputAssociation>
+    </boundaryEvent>
+  
+  	<task id="_7" drools:taskName="DataCaptureTask">
+  		<ioSpecification>
+			<dataInput id="nodeInstanceRef" name="nodeInstance"/>
+			<dataInput id="signalRef" name="signal"/>
+			<dataInput id="eventRef" name="event"/>
+			<dataInput id="workItemRef" name="workItem"/>
+			<inputSet>
+		  		<dataInputRefs>nodeInstanceRef</dataInputRefs>
+		  		<dataInputRefs>signalRef</dataInputRefs>
+		  		<dataInputRefs>eventRef</dataInputRefs>
+		  		<dataInputRefs>workItemRef</dataInputRefs>
+			</inputSet>
+			<outputSet>
+			</outputSet>
+	    </ioSpecification>
+		<dataInputAssociation>
+			<sourceRef>nodeInstanceProcess</sourceRef>
+			<targetRef>nodeInstanceRef</targetRef>
+		</dataInputAssociation>
+		<dataInputAssociation>
+			<sourceRef>signalProcess</sourceRef>
+			<targetRef>signalRef</targetRef>
+		</dataInputAssociation>
+	    <dataInputAssociation>
+			<sourceRef>eventProcess</sourceRef>
+			<targetRef>eventRef</targetRef>
+		</dataInputAssociation>
+		<dataInputAssociation>
+			<sourceRef>workItemProcess</sourceRef>
+			<targetRef>workItemRef</targetRef>
+		</dataInputAssociation>
+	</task>
+        
+
+    <!-- connections -->
+    <sequenceFlow sourceRef="_1" targetRef="_2" />
+    <sequenceFlow sourceRef="_2" targetRef="_3" />
+    <sequenceFlow sourceRef="_3" targetRef="_4" />
+
+	<association id="_4" associationDirection="One" sourceRef="_6" targetRef="_7"/>
+  </process>
+
+</definitions>

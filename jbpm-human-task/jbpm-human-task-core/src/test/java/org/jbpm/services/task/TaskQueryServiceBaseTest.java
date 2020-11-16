@@ -471,7 +471,7 @@ public abstract class TaskQueryServiceBaseTest extends HumanTaskServicesBaseTest
     }
     
     private Task startBaseTest() {
-        String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData() ) { expirationTime = new Date( ), parentId = 2} ), ";
+        String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData() ) { expirationTime = Date.from(java.time.OffsetDateTime.now().withNano(0).toInstant()), parentId = 2} ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { " +
                 "   potentialOwners = [new Group('Crusaders'), ], " +
                 "   excludedOwners = [new Group('Administrators'), ], " +

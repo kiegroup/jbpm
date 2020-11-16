@@ -24,8 +24,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.jbpm.services.api.model.MessageDesc;
 import org.jbpm.services.api.model.NodeDesc;
 import org.jbpm.services.api.model.ProcessDefinition;
+import org.jbpm.services.api.model.SignalDesc;
 import org.jbpm.services.api.model.TimerDesc;
 
 /**
@@ -50,6 +52,8 @@ public class ProcessAssetDesc implements ProcessDefinition {
     private Collection<String> signals = Collections.emptyList();
     private Collection<String> globals = Collections.emptyList();
     private Collection<String> rules = Collections.emptyList();
+    private Collection<SignalDesc> signalsDesc = Collections.emptyList();
+    private Collection<MessageDesc> messagesDesc = Collections.emptyList();
 
     private Map<String, Collection<String>> associatedEntities = new HashMap<String, Collection<String>>();
     private Map<String, String> serviceTasks = new HashMap<String, String>();
@@ -60,6 +64,7 @@ public class ProcessAssetDesc implements ProcessDefinition {
     private boolean dynamic = true;
     
     private boolean active = true;
+
 
 	public ProcessAssetDesc() {
     }
@@ -211,6 +216,25 @@ public class ProcessAssetDesc implements ProcessDefinition {
     }
 
     @Override
+    public Collection<SignalDesc> getSignalsDesc() {
+        return signalsDesc;
+    }
+
+    @Override
+    public Collection<MessageDesc> getMessagesDesc() {
+        return messagesDesc;
+    }
+
+    public void setSignalsDesc(Collection<SignalDesc> signalsDesc) {
+        this.signalsDesc = signalsDesc;
+
+    }
+
+    public void setMessagesDesc(Collection<MessageDesc> messagesDesc) {
+        this.messagesDesc = messagesDesc;
+    }
+
+    @Override
     public Collection<String> getGlobals() {
         return globals;
     }
@@ -313,6 +337,8 @@ public class ProcessAssetDesc implements ProcessDefinition {
                 ", forms=" + forms +
                 ", roles=" + roles +
                 ", signals=" + signals +
+                ", signalsDesc=" + signalsDesc +
+               ", messageDesc=" + messagesDesc +
                 ", globals=" + globals +
                 ", rules=" + rules +
                 ", associatedEntities=" + associatedEntities +
@@ -346,6 +372,8 @@ public class ProcessAssetDesc implements ProcessDefinition {
         result = prime * result + ((roles == null) ? 0 : roles.hashCode());
         result = prime * result + ((serviceTasks == null) ? 0 : serviceTasks.hashCode());
         result = prime * result + ((signals == null) ? 0 : signals.hashCode());
+        result = prime * result + ((signalsDesc == null) ? 0 : signalsDesc.hashCode());
+        result = prime * result + ((messagesDesc == null) ? 0 : messagesDesc.hashCode());
         result = prime * result + ((type == null) ? 0 : type.hashCode());
         result = prime * result + ((version == null) ? 0 : version.hashCode());
         result = prime * result + (dynamic ? 1 : 0);
@@ -438,6 +466,16 @@ public class ProcessAssetDesc implements ProcessDefinition {
                 return false;
         } else if (!signals.equals(other.signals))
             return false;
+        if (signalsDesc == null) {
+            if (other.signalsDesc != null)
+                return false;
+        } else if (!signalsDesc.equals(other.signalsDesc))
+            return false;
+        if (messagesDesc == null) {
+            if (other.messagesDesc != null)
+                return false;
+        } else if (!messagesDesc.equals(other.messagesDesc))
+            return false;
         if (type == null) {
             if (other.type != null)
                 return false;
@@ -463,6 +501,8 @@ public class ProcessAssetDesc implements ProcessDefinition {
         copied.forms = new HashMap<String, String>(this.forms);
         copied.roles = new ArrayList<String>(this.roles);
         copied.signals = new ArrayList<String>(this.signals);
+        copied.signalsDesc = new ArrayList<>(this.signalsDesc);
+        copied.messagesDesc = new ArrayList<>(this.messagesDesc);
         copied.globals = new ArrayList<String>(this.globals);
         copied.rules = new ArrayList<String>(this.rules);
 
@@ -475,5 +515,7 @@ public class ProcessAssetDesc implements ProcessDefinition {
         return copied;
         
     }
+
+
 
 }

@@ -53,9 +53,25 @@
                   "methodName": "signalProcessInstancesByCorrelationKeys",
                   "elementKind": "method",
                   "justification": "JBPM-9405 Provide API method to signal process instance with correlationKey"
+                },
+                {
+                  "code": "java.method.addedToInterface",
+                  "new": "method java.util.Collection<org.jbpm.services.api.model.SignalDesc> org.jbpm.services.api.model.ProcessDefinition::getSignalsDesc()",
+                  "package": "org.jbpm.services.api.model",
+                  "classSimpleName": "ProcessDefinition",
+                  "methodName": "getSignalsDesc",
+                  "elementKind": "method",
+                  "justification": "https://issues.redhat.com/browse/JBPM-9436"
+                },
+                {
+                  "code": "java.method.addedToInterface",
+                  "new": "method java.util.Collection<org.jbpm.services.api.model.MessageDesc> org.jbpm.services.api.model.ProcessDefinition::getMessagesDesc()",
+                  "package": "org.jbpm.services.api.model",
+                  "classSimpleName": "ProcessDefinition",
+                  "methodName": "getMessagesDesc",
+                  "elementKind": "method",
+                  "justification": "https://issues.redhat.com/browse/JBPM-9436"
                 }
-
-
             ]
         }
     }
