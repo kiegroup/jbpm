@@ -31,11 +31,14 @@ import org.jbpm.services.api.DeploymentService;
 import org.jbpm.services.api.ProcessService;
 import org.jbpm.services.api.RuntimeDataService;
 import org.jbpm.services.api.UserTaskService;
+import org.jbpm.services.task.audit.TaskAuditServiceFactory;
+import org.jbpm.services.task.audit.service.TaskAuditService;
 import org.jbpm.shared.services.impl.TransactionalCommandService;
 import org.jbpm.shared.services.impl.commands.UpdateStringCommand;
 import org.jbpm.test.services.TestIdentityProvider;
 import org.junit.After;
 import org.junit.runner.RunWith;
+import org.kie.api.task.TaskService;
 
 @RunWith(Arquillian.class)
 public class UserTaskServiceCDIImplTest extends UserTaskServiceImplTest {
@@ -130,6 +133,15 @@ public class UserTaskServiceCDIImplTest extends UserTaskServiceImplTest {
 	@Override
 	protected void configureServices() {
 		// do nothing here and let CDI configure services 
+	}
+
+	// Needed for correct initialization of the TaskAuditService
+	@Inject
+	private TaskService taskService;
+
+	@Override
+	protected TaskAuditService getTaskAuditService() {
+		return TaskAuditServiceFactory.newTaskAuditServiceConfigurator().setTaskService(taskService).getTaskAuditService();
 	}
 
 	@Inject	
