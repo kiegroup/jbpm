@@ -47,13 +47,12 @@ public class NodeInstanceResolverFactory extends ImmutableDefaultFactory {
 	public boolean isResolveable(String name) {
 		boolean found = nodeInstance.resolveContextInstance(VariableScope.VARIABLE_SCOPE, name) != null;
 		if (!found) {
-		    return extraParameters.containsKey(name);
+            found = extraParameters.containsKey(name);
 		}
-		
 		return found;
 	}
-	
-	
+
+
 	public VariableResolver getVariableResolver(String name) {
 	    if (extraParameters.containsKey(name)) {
 	        return new SimpleValueResolver(extraParameters.get(name));
@@ -64,5 +63,12 @@ public class NodeInstanceResolverFactory extends ImmutableDefaultFactory {
 					VariableScope.VARIABLE_SCOPE, name)).getVariable(name);
 		return new SimpleValueResolver(value);
 	}
+
+    public void addExtraParameter(String key, Object value) {
+        if (value != null) {
+            extraParameters.putIfAbsent(key, value);
+        }
+
+    }
 	
 }

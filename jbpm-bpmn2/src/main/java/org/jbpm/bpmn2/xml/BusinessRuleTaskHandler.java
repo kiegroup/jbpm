@@ -16,15 +16,13 @@
 
 package org.jbpm.bpmn2.xml;
 
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import org.drools.compiler.compiler.xml.XmlDumper;
 import org.drools.core.xml.ExtensibleXmlParser;
+import org.jbpm.bpmn2.xml.elements.DataAssociationFactory;
 import org.jbpm.process.core.impl.DataTransformerRegistry;
 import org.jbpm.workflow.core.Node;
-import org.jbpm.workflow.core.node.Assignment;
 import org.jbpm.workflow.core.node.DataAssociation;
 import org.jbpm.workflow.core.node.RuleSetNode;
 import org.jbpm.workflow.core.node.Transformation;
@@ -125,17 +123,8 @@ public class BusinessRuleTaskHandler extends AbstractNodeHandler {
     			subNode = subNode.getNextSibling();
     		}
     		// assignments  
-            List<Assignment> assignments = new LinkedList<Assignment>();
-            while(subNode != null){
-                org.w3c.dom.Node ssubNode = subNode.getFirstChild();
-                String from = ssubNode.getTextContent();
-                String to = ssubNode.getNextSibling().getTextContent();
-                assignments.add(new Assignment("XPath", from, to));
-                subNode = subNode.getNextSibling();
-            }
-            ruleSetNode.addInAssociation(new DataAssociation(
-                    source,
-                    dataInputs.get(target), assignments, transformation));
+            ruleSetNode.addInAssociation(new DataAssociation(source, dataInputs.get(target), DataAssociationFactory
+                    .readAssignments(subNode), transformation));
         } else {
             // targetRef
             String to = subNode.getTextContent();
@@ -189,15 +178,8 @@ public class BusinessRuleTaskHandler extends AbstractNodeHandler {
  			subNode = subNode.getNextSibling();
  		}
  		// assignments 
-        List<Assignment> assignments = new LinkedList<Assignment>();
-        while(subNode != null){
-            org.w3c.dom.Node ssubNode = subNode.getFirstChild();
-            String from = ssubNode.getTextContent();
-            String to = ssubNode.getNextSibling().getTextContent();
-            assignments.add(new Assignment("XPath", from, to));
-            subNode = subNode.getNextSibling();
-        }
-        ruleSetNode.addOutAssociation(new DataAssociation(dataOutputs.get(source), target, assignments, transformation));
+        ruleSetNode.addOutAssociation(new DataAssociation(dataOutputs.get(source), target, DataAssociationFactory
+                .readAssignments(subNode), transformation));
     }
     
     protected void writeIO(RuleSetNode ruleSetNode, StringBuilder xmlDump) {
