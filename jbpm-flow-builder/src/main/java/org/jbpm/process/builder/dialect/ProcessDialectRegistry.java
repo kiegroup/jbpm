@@ -16,6 +16,8 @@
 
 package org.jbpm.process.builder.dialect;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -42,6 +44,10 @@ public class ProcessDialectRegistry {
 
     public static void setDialect(String dialectName, ProcessDialect dialect) {
         dialects.put(dialectName, dialect);
+    }
+
+    public static Collection<String> getDialects() {
+        return Collections.unmodifiableSet(dialects.keySet());
     }
 
 }

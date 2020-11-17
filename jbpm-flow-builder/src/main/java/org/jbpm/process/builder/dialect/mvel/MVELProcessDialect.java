@@ -29,40 +29,41 @@ import org.jbpm.process.builder.dialect.ProcessDialect;
  */
 public class MVELProcessDialect implements ProcessDialect {
 
-	private static ActionBuilder actionBuilder = new MVELActionBuilder();
-	private static ReturnValueEvaluatorBuilder returnValueBuilder = new MVELReturnValueEvaluatorBuilder();
-	
-	public void addProcess(final ProcessBuildContext context) {
+    private static ActionBuilder actionBuilder = new MVELActionBuilder();
+    private static ReturnValueEvaluatorBuilder returnValueBuilder = new MVELReturnValueEvaluatorBuilder();
+    private static AssignmentBuilder assignmentBuilder = new MVELAssignmentBuilder();
+
+    public void addProcess(final ProcessBuildContext context) {
         // @TODO setup line mappings
-	}
+    }
 
-	public ActionBuilder getActionBuilder() {
-		return actionBuilder;
-	}
+    public ActionBuilder getActionBuilder() {
+        return actionBuilder;
+    }
 
-	public ProcessClassBuilder getProcessClassBuilder() {
-        throw new UnsupportedOperationException( "MVELProcessDialect.getProcessClassBuilder is not supported" );
-	}
+    public ProcessClassBuilder getProcessClassBuilder() {
+        throw new UnsupportedOperationException("MVELProcessDialect.getProcessClassBuilder is not supported");
+    }
 
-	public ReturnValueEvaluatorBuilder getReturnValueEvaluatorBuilder() {
-		return returnValueBuilder;
-	}
+    public ReturnValueEvaluatorBuilder getReturnValueEvaluatorBuilder() {
+        return returnValueBuilder;
+    }
 
-	public AssignmentBuilder getAssignmentBuilder() {
-		throw new UnsupportedOperationException("MVEL assignments not supported");
-	}
+    public AssignmentBuilder getAssignmentBuilder() {
+        return assignmentBuilder;
+    }
 
     /**
      * These methods are necessary for code in the jbpm-kie-services, that has
      * it's own {@link ReturnValueEvaluatorBuilder}, {@link ActionBuilder} and
      * {@link ProcessClassBuilder} implementations.
      */
-	
-    public static void setActionbuilder( ActionBuilder actionbuilder ) {
+
+    public static void setActionbuilder(ActionBuilder actionbuilder) {
         actionBuilder = actionbuilder;
     }
 
-    public static void setReturnvaluebuilder( ReturnValueEvaluatorBuilder returnvaluebuilder ) {
+    public static void setReturnvaluebuilder(ReturnValueEvaluatorBuilder returnvaluebuilder) {
         returnValueBuilder = returnvaluebuilder;
     }
 
