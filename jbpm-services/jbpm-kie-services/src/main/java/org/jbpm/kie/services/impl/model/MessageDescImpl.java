@@ -15,18 +15,23 @@
  */
 package org.jbpm.kie.services.impl.model;
 
+import java.util.Collection;
+
 import org.jbpm.bpmn2.core.Message;
 import org.jbpm.services.api.model.MessageDesc;
+import org.kie.api.definition.process.Node;
 
 public class MessageDescImpl extends SignalDescBaseImpl implements MessageDesc {
 
     private static final long serialVersionUID = 1L;
 
     public static MessageDescImpl from(Message message) {
-        return new MessageDescImpl(message.getId(), message.getName(), message.getType());
+        return new MessageDescImpl(message.getId(), message.getName(), message.getType(), message.getIncomingNodes(),
+                message.getOutgoingNodes());
     }
 
-    private MessageDescImpl(String id, String name, String structureRef) {
-        super(id, name, structureRef);
+    private MessageDescImpl(String id, String name, String structureRef, Collection<Node> incomingNodes,
+                            Collection<Node> outgoingNodes) {
+        super(id, name, structureRef, incomingNodes, outgoingNodes);
     }
 }
