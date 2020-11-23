@@ -63,6 +63,7 @@ import org.kie.api.KieBase;
 import org.kie.api.command.ExecutableCommand;
 import org.kie.api.definition.process.NodeType;
 import org.kie.api.event.process.DefaultProcessEventListener;
+import org.kie.api.event.process.MessageEvent;
 import org.kie.api.event.process.ProcessEventListener;
 import org.kie.api.event.process.ProcessNodeLeftEvent;
 import org.kie.api.event.process.ProcessNodeTriggeredEvent;
@@ -81,11 +82,13 @@ import org.kie.api.runtime.rule.FactHandle;
 import org.kie.internal.command.RegistryContext;
 import org.kie.internal.persistence.jpa.JPAKnowledgeService;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
+import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -958,14 +961,23 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
     @Test
     public void testMessageIntermediateThrow() throws Exception {
         KieBase kbase = createKnowledgeBase("BPMN2-IntermediateThrowEventMessage.bpmn2");
+        DefaultProcessEventListener listener = Mockito.spy(new DefaultProcessEventListener() {
+            @Override
+            public void onMessage(MessageEvent event) {
+                assertEquals("_2_Message", event.getMessageName());
+                assertEquals("MyValue", event.getMessage());
+            }
+        });
         ksession = createKnowledgeSession(kbase);
         ksession.getWorkItemManager().registerWorkItemHandler("Send Task",
                 new SendTaskHandler());
+        ksession.addEventListener(listener);
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("x", "MyValue");
         ProcessInstance processInstance = ksession.startProcess(
                 "MessageIntermediateEvent", params);
         assertProcessInstanceCompleted(processInstance);
+        Mockito.verify(listener).onMessage(Mockito.any(MessageEvent.class));
 
     }
 

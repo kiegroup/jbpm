@@ -53,6 +53,7 @@ public class SendTaskHandler extends TaskHandler {
         if (message == null) {
             throw new IllegalArgumentException("Could not find message " + messageRef);
         }
+        message.addOutgoingNode(node);
         workItemNode.getWork().setParameter("MessageType", message.getType());
     }
     

@@ -24,6 +24,8 @@ import org.drools.core.xml.ExtensibleXmlParser;
 import org.jbpm.bpmn2.core.Escalation;
 import org.jbpm.bpmn2.core.IntermediateLink;
 import org.jbpm.bpmn2.core.Message;
+import org.jbpm.bpmn2.handler.SendMessageAction;
+import org.jbpm.bpmn2.handler.SendSignalAction;
 import org.jbpm.compiler.xml.ProcessBuildData;
 import org.jbpm.process.core.context.variable.Variable;
 import org.jbpm.process.core.impl.DataTransformerRegistry;
@@ -31,6 +33,7 @@ import org.jbpm.ruleflow.core.RuleFlowProcess;
 import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.core.NodeContainer;
 import org.jbpm.workflow.core.impl.DroolsConsequenceAction;
+import org.jbpm.workflow.core.impl.JavaDroolsAction;
 import org.jbpm.workflow.core.node.ActionNode;
 import org.jbpm.workflow.core.node.CompositeNode;
 import org.jbpm.workflow.core.node.ThrowLinkNode;
@@ -194,32 +197,14 @@ public class IntermediateThrowEventHandler extends AbstractNodeHandler {
             } else if ("dataInputAssociation".equals(nodeName)) {
 				readDataInputAssociation(xmlNode, actionNode);
 			} else if ("signalEventDefinition".equals(nodeName)) {
-				String signalName = ((Element) xmlNode).getAttribute("signalRef");
-				String variable = (String) actionNode.getMetaData("MappingVariable");
-
-				signalName = checkSignalAndConvertToRealSignalNam(parser, signalName);
-
+                String signalName = checkSignalAndConvertToRealSignalNam(parser, ((Element) xmlNode).getAttribute(
+                        "signalRef"), s -> s.addOutgoingNode(node));
+                String variable = (String) actionNode.getMetaData("MappingVariable");
                 actionNode.setMetaData("EventType", "signal");
                 actionNode.setMetaData("Ref", signalName);
                 actionNode.setMetaData("Variable", variable);
-
-				// check if signal should be send async
-				if (dataInputs.containsValue("async")) {
-				    signalName = "ASYNC-" + signalName;
-				}
-
-				String signalExpression = getSignalExpression(actionNode, signalName, "tVariable");
-
-				actionNode
-						.setAction(new DroolsConsequenceAction(
-								"java",
-								" Object tVariable = "+ (variable == null ? "null" : variable)+";"
-								+ "org.jbpm.workflow.core.node.Transformation transformation = (org.jbpm.workflow.core.node.Transformation)kcontext.getNodeInstance().getNode().getMetaData().get(\"Transformation\");"
-								+ "if (transformation != null) {"
-								+ "  tVariable = new org.jbpm.process.core.event.EventTransformerImpl(transformation)"
-								+ "  .transformEvent("+(variable == null ? "null" : variable)+");"
-								+ "}"+
-								signalExpression));
+                actionNode.setAction(new JavaDroolsAction(new SendSignalAction(actionNode, variable, signalName,
+                        dataInputs.containsValue("async"))));
 			}
 			xmlNode = xmlNode.getNextSibling();
 		}
@@ -252,40 +237,12 @@ public class IntermediateThrowEventHandler extends AbstractNodeHandler {
 					throw new IllegalArgumentException(
 							"Could not find message " + messageRef);
 				}
-                String variable = (String) actionNode.getMetaData("MappingVariable");
+                message.addOutgoingNode(node);
+                String mappingVariable = (String) actionNode.getMetaData("MappingVariable");
                 Variable v = (Variable) ((ProcessBuildData) parser.getData()).getMetaData("Variable");
-                if (v != null) {
-                    variable = (String) v.getMetaData(variable);
-                }
-				actionNode.setMetaData("MessageType", message.getType());
-				actionNode
-						.setAction(new DroolsConsequenceAction(
-								"java",
-								" Object tVariable = "+ (variable == null ? "null" : variable)+";"
-								+ "org.jbpm.workflow.core.node.Transformation transformation = (org.jbpm.workflow.core.node.Transformation)kcontext.getNodeInstance().getNode().getMetaData().get(\"Transformation\");"
-								+ "if (transformation != null) {"
-								+ "  tVariable = new org.jbpm.process.core.event.EventTransformerImpl(transformation)"
-								+ "  .transformEvent("+(variable == null ? "null" : variable)+");"
-								+ "}"
-								+ "org.drools.core.process.instance.impl.WorkItemImpl workItem = new org.drools.core.process.instance.impl.WorkItemImpl();"
-										+ EOL
-										+ "workItem.setName(\"Send Task\");"
-										+ EOL
-										+ "workItem.setProcessInstanceId(kcontext.getProcessInstance().getId());"
-										+ EOL
-										+ "workItem.setParameter(\"MessageType\", \""
-										+ message.getType()
-										+ "\");"
-										+ EOL
-										+ "workItem.setNodeInstanceId(kcontext.getNodeInstance().getId());"
-										+ EOL
-										+ "workItem.setNodeId(kcontext.getNodeInstance().getNodeId());"
-										+ EOL
-										+ "workItem.setDeploymentId((String) kcontext.getKnowledgeRuntime().getEnvironment().get(\"deploymentId\"));"
-										+ EOL
-										+ (variable == null ? ""
-												: "workItem.setParameter(\"Message\", tVariable);" + EOL)
-										+ "((org.drools.core.process.instance.WorkItemManager) kcontext.getKnowledgeRuntime().getWorkItemManager()).internalExecuteWorkItem(workItem);"));
+                String varName = v != null ? (String) v.getMetaData(mappingVariable) : mappingVariable;
+                actionNode.setMetaData("MessageType", message.getType());
+                actionNode.setAction(new JavaDroolsAction(new SendMessageAction(varName, message)));
 			}
 			xmlNode = xmlNode.getNextSibling();
 		}

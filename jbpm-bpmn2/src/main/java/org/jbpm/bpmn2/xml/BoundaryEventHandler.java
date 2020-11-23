@@ -357,7 +357,7 @@ public class BoundaryEventHandler extends AbstractNodeHandler {
                 String type = ((Element) xmlNode).getAttribute("signalRef");
                 if (type != null && type.trim().length() > 0) {
 
-                    type = checkSignalAndConvertToRealSignalNam(parser, type);
+                    type = checkSignalAndConvertToRealSignalNam(parser, type, s -> s.addIncomingNode(node));
 
                     List<EventFilter> eventFilters = new ArrayList<EventFilter>();
                     EventTypeFilter eventFilter = new EventTypeFilter();
@@ -440,6 +440,8 @@ public class BoundaryEventHandler extends AbstractNodeHandler {
                 if (message == null) {
                     throw new IllegalArgumentException("Could not find message " + messageRef);
                 }
+                message.addIncomingNode(node);
+
                 eventNode.setMetaData("MessageType", message.getType());
                 List<EventFilter> eventFilters = new ArrayList<EventFilter>();
                 EventTypeFilter eventFilter = new EventTypeFilter();

@@ -15,20 +15,29 @@
  */
 package org.jbpm.kie.services.impl.model;
 
+import java.io.Serializable;
+import java.util.Collection;
+
 import org.jbpm.services.api.model.SignalDescBase;
+import org.kie.api.definition.process.Node;
 
 
-abstract class SignalDescBaseImpl implements SignalDescBase {
+abstract class SignalDescBaseImpl implements SignalDescBase, Serializable {
 
     private static final long serialVersionUID = 1L;
     private String id;
     private String name;
     private String structureRef;
+    private Collection<Node> incomingNodes;
+    private Collection<Node> outgoingNodes;
 
-    protected SignalDescBaseImpl(String id, String name, String structureRef) {
+    protected SignalDescBaseImpl(String id, String name, String structureRef, Collection<Node> incomingNodes,
+                                 Collection<Node> outgoingNodes) {
         this.id = id;
         this.name = name;
         this.structureRef = structureRef;
+        this.incomingNodes = incomingNodes;
+        this.outgoingNodes = outgoingNodes;
     }
 
     @Override
@@ -44,6 +53,16 @@ abstract class SignalDescBaseImpl implements SignalDescBase {
     @Override
     public String getStructureRef() {
         return structureRef;
+    }
+
+    @Override
+    public Collection<Node> getIncomingNodes() {
+        return incomingNodes;
+    }
+
+    @Override
+    public Collection<Node> getOutgoingNodes() {
+        return outgoingNodes;
     }
 
     @Override
@@ -84,7 +103,8 @@ abstract class SignalDescBaseImpl implements SignalDescBase {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + " [id=" + id + ", name=" + name + ", structureRef=" + structureRef + "]";
+        return getClass().getSimpleName() + " [id=" + id + ", name=" + name + ", structureRef=" + structureRef +
+               ", incomingNodes=" + incomingNodes + ", outgoingNodes=" + outgoingNodes + "]";
     }
 
 }
