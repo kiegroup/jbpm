@@ -84,7 +84,7 @@ public class FeelReturnValueEvaluator implements ReturnValueEvaluator, Externali
         DMNRuntime runtime = ((KieSession) context.getKieRuntime()).getKieRuntime(DMNRuntime.class);
         List<FEELProfile> profiles = (List)((DMNRuntimeImpl) runtime).getProfiles();
         FEEL feel = FEEL.newInstance(runtime.getRootClassLoader(), profiles);
-        FeelReturnValueEvaluatorListener listener = new FeelReturnValueEvaluatorListener();
+        FeelErrorEvaluatorListener listener = new FeelErrorEvaluatorListener();
         feel.addListener(listener);
         
         Object value = feel.evaluate(expr, variables);
