@@ -154,6 +154,8 @@ public class KafkaEventEmitter implements EventEmitter {
         if (clientId != null) {
             configs.put(ProducerConfig.CLIENT_ID_CONFIG, clientId);
         }
+        configs.put(ProducerConfig.MAX_BLOCK_MS_CONFIG, 
+                    System.getProperty("org.kie.jbpm.event.emitters.kafka.max.block.ms", "2000"));
         return new KafkaProducer<>(configs, new StringSerializer(), new ByteArraySerializer());
     }
 

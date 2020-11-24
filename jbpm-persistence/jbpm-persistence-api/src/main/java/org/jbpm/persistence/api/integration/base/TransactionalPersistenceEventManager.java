@@ -153,5 +153,6 @@ public class TransactionalPersistenceEventManager implements PersistenceEventMan
         }
         
         this.emitter.close();
+        emitter = null;
     }
 }
