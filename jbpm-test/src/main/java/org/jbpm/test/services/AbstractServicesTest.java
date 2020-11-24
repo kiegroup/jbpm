@@ -153,7 +153,7 @@ public abstract class AbstractServicesTest extends AbstractBaseTest {
             for (Message message : messages) {
                 logger.error("Error Message: ({}) {}", message.getPath(), message.getText());
             }
-            throw new RuntimeException("There are errors builing the package, please check your knowledge assets!");
+            throw new RuntimeException("There are errors building the package, please check your knowledge assets!");
         }
 
         return (InternalKieModule) kieBuilder.getKieModule();

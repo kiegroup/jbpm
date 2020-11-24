@@ -100,7 +100,7 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
     @Test(timeout = 10000)
     public void testDelayedEmailNotificationOnDeadline() throws Exception {  
         CountDownTaskEventListener countDownListener = new CountDownTaskEventListener(1, false, true);
-        addCountDownListner(countDownListener);
+        addCountDownListener(countDownListener);
         
         Map<String, Object> vars = new HashMap<String, Object>();
         vars.put("now", new Date());
@@ -160,7 +160,7 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
     @Test(timeout=10000)     
     public void testDelayedEmailNotificationOnDeadlineContentSingleObject() throws Exception {
         CountDownTaskEventListener countDownListener = new CountDownTaskEventListener(1, false, true);
-        addCountDownListner(countDownListener);
+        addCountDownListener(countDownListener);
         
         Map<String, Object> vars = new HashMap<String, Object>();
         vars.put("now", new Date());
@@ -215,7 +215,7 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
     @Test(timeout=10000)     
     public void testDelayedEmailNotificationOnDeadlineTaskCompleted() throws Exception {
         CountDownTaskEventListener countDownListener = new CountDownTaskEventListener(1, false, true);
-        addCountDownListner(countDownListener);
+        addCountDownListener(countDownListener);
         
         Map<String, Object> vars = new HashMap<String, Object>();
         vars.put("now", new Date());
@@ -271,7 +271,7 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
     @Test(timeout=10000)     
     public void testDelayedEmailNotificationOnDeadlineTaskFailed() throws Exception {
         CountDownTaskEventListener countDownListener = new CountDownTaskEventListener(1, false, true);
-        addCountDownListner(countDownListener);
+        addCountDownListener(countDownListener);
         
         Map<String, Object> vars = new HashMap<String, Object>();
         vars.put("now", new Date());
@@ -329,7 +329,7 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
     @Test(timeout=10000)     
     public void testDelayedEmailNotificationOnDeadlineTaskSkipped() throws Exception {
         CountDownTaskEventListener countDownListener = new CountDownTaskEventListener(1, false, true);
-        addCountDownListner(countDownListener);
+        addCountDownListener(countDownListener);
         
         Map<String, Object> vars = new HashMap<String, Object>();
         vars.put("now", new Date());
@@ -384,7 +384,7 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
     @Test(timeout=10000)         
     public void testDelayedEmailNotificationOnDeadlineTaskExited() throws Exception {
         CountDownTaskEventListener countDownListener = new CountDownTaskEventListener(1, false, true);
-        addCountDownListner(countDownListener);
+        addCountDownListener(countDownListener);
         
         Map<String, Object> vars = new HashMap<String, Object>();
         vars.put("now", new Date());
@@ -439,7 +439,7 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
     @Test(timeout=10000)     
     public void testDelayedReassignmentOnDeadline() throws Exception {
         CountDownTaskEventListener countDownListener = new CountDownTaskEventListener(1, true, false);
-        addCountDownListner(countDownListener);
+        addCountDownListener(countDownListener);
         
 
         Map<String, Object> vars = new HashMap<String, Object>();
@@ -477,7 +477,7 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
     @Test(timeout=10000)     
     public void testDelayedEmailNotificationStartDeadlineStatusDoesNotMatch() throws Exception {
         CountDownTaskEventListener countDownListener = new CountDownTaskEventListener(2, false, true);
-        addCountDownListner(countDownListener);
+        addCountDownListener(countDownListener);
         
         Map<String, Object> vars = new HashMap<String, Object>();
         vars.put("now", new Date());

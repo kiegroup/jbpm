@@ -8,7 +8,7 @@
 
   <persistence-unit name="org.jbpm.domain" transaction-type="JTA">
     <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
-    <jta-data-source>jdbc/testDS1</jta-data-source>       
+    <jta-data-source>jdbc/testDS1</jta-data-source>
     <mapping-file>META-INF/Taskorm.xml</mapping-file>
     <mapping-file>META-INF/JBPMorm.xml</mapping-file>
     <mapping-file>META-INF/Servicesorm.xml</mapping-file>
@@ -76,9 +76,10 @@
     
     <!-- error handling -->
     <class>org.jbpm.runtime.manager.impl.jpa.ExecutionErrorInfo</class>
-    
+
     <properties>
-      <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect" />
+      <property name="hibernate.dialect" value="${maven.hibernate.dialect}" />
+      <property name="hibernate.default_schema" value="${maven.jdbc.schema}"/>
       <property name="hibernate.connection.autocommit" value="false" />
 
       <property name="hibernate.max_fetch_depth" value="3" />
@@ -104,8 +105,8 @@
         <property name="hibernate.max_fetch_depth" value="3"/>
         <property name="hibernate.hbm2ddl.auto" value="update" />
         <property name="hibernate.show_sql" value="false" />
-        <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect" />
-                       
+        <property name="hibernate.dialect" value="${maven.hibernate.dialect}" />
+        <property name="hibernate.default_schema" value="${maven.jdbc.schema}"/>
         
         <property name="hibernate.transaction.jta.platform" value="org.hibernate.service.jta.platform.internal.JBossStandAloneJtaPlatform" /> 
       </properties>        
