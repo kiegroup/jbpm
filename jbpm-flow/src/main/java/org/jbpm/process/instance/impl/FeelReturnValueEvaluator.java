@@ -23,6 +23,7 @@ import java.io.ObjectOutput;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
@@ -88,7 +89,7 @@ public class FeelReturnValueEvaluator implements ReturnValueEvaluator, Externali
         
         Object value = feel.evaluate(expr, variables);
 
-        listener.getEvents().forEach(FeelReturnValueEvaluator::processEvents);
+        processErrorEvents(listener.getErrorEvents());
         if ( !(value instanceof Boolean) ) {
             throw new RuntimeException( "Constraints must return boolean values: " + 
         		expr + " returns " + value + 
@@ -98,33 +99,23 @@ public class FeelReturnValueEvaluator implements ReturnValueEvaluator, Externali
         return ((Boolean) value).booleanValue();
     }
 
-    private static void processEvents(FEELEvent event) {
-        switch (event.getSeverity()) {
-            case ERROR:
-                LOG.error("{}", event);
-                StringBuilder messageBuilder = new StringBuilder(event.getSeverity().toString()).append(" ").append(event.getMessage());
-                if (event.getOffendingSymbol() != null) {
-                    messageBuilder.append(" ( offending symbol: '").append(event.getOffendingSymbol()).append("' )");
-                }
-                if (event.getSourceException() != null) {
-                    messageBuilder.append("  ").append(event.getSourceException().getMessage());
-                }
-                String exceptionMessage = messageBuilder.toString();
-                if (event.getSourceException() != null) {
-                    throw new FeelReturnValueEvaluatorException(exceptionMessage, event.getSourceException());
-                }
-                throw new FeelReturnValueEvaluatorException(exceptionMessage);
-            case TRACE:
-                LOG.debug("{}", event);
-                break;
-            case WARN:
-                LOG.warn("{}", event);
-                break;
-            case INFO:
-            default:
-                LOG.info("{}", event);
-                break;
+    private void processErrorEvents(List<FEELEvent> errorEvents) {
+        if (errorEvents.isEmpty()) {
+            return;
         }
+        String exceptionMessage = errorEvents.stream().map(FeelReturnValueEvaluator::eventToMessage).collect(Collectors.joining(", "));
+        throw new FeelReturnValueEvaluatorException(exceptionMessage);
+    }
+
+    private static String eventToMessage(FEELEvent event) {
+        StringBuilder messageBuilder = new StringBuilder(event.getSeverity().toString()).append(" ").append(event.getMessage());
+        if (event.getOffendingSymbol() != null) {
+            messageBuilder.append(" ( offending symbol: '").append(event.getOffendingSymbol()).append("' )");
+        }
+        if (event.getSourceException() != null) {
+            messageBuilder.append("  ").append(event.getSourceException().getMessage());
+        }
+        return messageBuilder.toString();
     }
 
     public String toString() {
