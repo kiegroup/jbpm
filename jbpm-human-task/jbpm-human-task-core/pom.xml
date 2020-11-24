@@ -275,6 +275,13 @@
       <artifactId>jboss-jaxb-api_2.3_spec</artifactId>
       <scope>provided</scope>
     </dependency>
+    
+    <!-- needed for ibm jdk1.8 tests -->
+    <dependency>
+      <groupId>org.drools</groupId>
+      <artifactId>drools-ecj</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
