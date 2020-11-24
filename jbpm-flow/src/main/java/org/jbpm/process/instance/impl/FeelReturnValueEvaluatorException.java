@@ -20,10 +20,6 @@ public class FeelReturnValueEvaluatorException extends RuntimeException {
 
     private static final long serialVersionUID = 2323430157674272027L;
 
-    public FeelReturnValueEvaluatorException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
     public FeelReturnValueEvaluatorException(String message) {
         super(message);
     }
