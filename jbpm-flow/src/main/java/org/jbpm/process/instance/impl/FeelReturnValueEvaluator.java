@@ -23,7 +23,6 @@ import java.io.ObjectOutput;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
@@ -32,12 +31,17 @@ import org.kie.api.runtime.Globals;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessContext;
 import org.kie.dmn.api.core.DMNRuntime;
+import org.kie.dmn.api.feel.runtime.events.FEELEvent;
 import org.kie.dmn.core.impl.DMNRuntimeImpl;
 import org.kie.dmn.feel.FEEL;
 import org.kie.dmn.feel.lang.FEELProfile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FeelReturnValueEvaluator implements ReturnValueEvaluator, Externalizable {
     
+    private static final Logger LOG = LoggerFactory.getLogger(FeelReturnValueEvaluator.class);
+
     private static final long   serialVersionUID = 630l;
 
     private String expr;
@@ -74,16 +78,17 @@ public class FeelReturnValueEvaluator implements ReturnValueEvaluator, Externali
             VariableScopeInstance variableScope = (VariableScopeInstance) ((WorkflowProcessInstance)context.getProcessInstance())
                     .getContextInstance(VariableScope.VARIABLE_SCOPE);
     
-            if (variables != null ) {
-                variables.putAll(variableScope.getVariables());
-            }
+            variables.putAll(variableScope.getVariables());
         }
         DMNRuntime runtime = ((KieSession) context.getKieRuntime()).getKieRuntime(DMNRuntime.class);
         List<FEELProfile> profiles = (List)((DMNRuntimeImpl) runtime).getProfiles();
         FEEL feel = FEEL.newInstance(runtime.getRootClassLoader(), profiles);
+        FeelReturnValueEvaluatorListener listener = new FeelReturnValueEvaluatorListener();
+        feel.addListener(listener);
         
         Object value = feel.evaluate(expr, variables);
 
+        listener.getEvents().forEach(FeelReturnValueEvaluator::processEvents);
         if ( !(value instanceof Boolean) ) {
             throw new RuntimeException( "Constraints must return boolean values: " + 
         		expr + " returns " + value + 
@@ -93,9 +98,36 @@ public class FeelReturnValueEvaluator implements ReturnValueEvaluator, Externali
         return ((Boolean) value).booleanValue();
     }
 
+    private static void processEvents(FEELEvent event) {
+        switch (event.getSeverity()) {
+            case ERROR:
+                LOG.error("{}", event);
+                StringBuilder messageBuilder = new StringBuilder(event.getSeverity().toString()).append(" ").append(event.getMessage());
+                if (event.getOffendingSymbol() != null) {
+                    messageBuilder.append(" ( offending symbol: '").append(event.getOffendingSymbol()).append("' )");
+                }
+                if (event.getSourceException() != null) {
+                    messageBuilder.append("  ").append(event.getSourceException().getMessage());
+                }
+                String exceptionMessage = messageBuilder.toString();
+                if (event.getSourceException() != null) {
+                    throw new FeelReturnValueEvaluatorException(exceptionMessage, event.getSourceException());
+                }
+                throw new FeelReturnValueEvaluatorException(exceptionMessage);
+            case TRACE:
+                LOG.debug("{}", event);
+                break;
+            case WARN:
+                LOG.warn("{}", event);
+                break;
+            case INFO:
+            default:
+                LOG.info("{}", event);
+                break;
+        }
+    }
+
     public String toString() {
         return this.expr;
-    }    
-
-
+    }
 }
