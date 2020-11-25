@@ -182,8 +182,7 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
     }
 
     public static PoolingDataSourceWrapper setupPoolingDataSource() {
-        Properties dsProps = PersistenceUtil.getDatasourceProperties();
-        return PersistenceUtil.setupPoolingDataSource(dsProps, "jdbc/testDS1");
+        return PersistenceUtil.setupPoolingDataSource("jdbc/testDS1");
     }
 
     public void setPersistence(boolean sessionPersistence) {

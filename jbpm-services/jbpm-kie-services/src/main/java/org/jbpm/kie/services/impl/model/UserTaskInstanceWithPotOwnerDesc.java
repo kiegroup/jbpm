@@ -52,6 +52,7 @@ public class UserTaskInstanceWithPotOwnerDesc extends UserTaskInstanceDesc imple
         this.lastModificationUser = lastModificationUser;
         this.subject = subject;
         this.processInstanceDescription = processInstanceDescription;
+        this.processVariables = new HashMap<>();
     }
     
     public UserTaskInstanceWithPotOwnerDesc(String actualOwner, String createdBy,
@@ -67,6 +68,7 @@ public class UserTaskInstanceWithPotOwnerDesc extends UserTaskInstanceDesc imple
               this.correlationKey = correlationKey;
               this.processInstanceDescription = processInstanceDescription;
               this.subject = subject;
+              this.processVariables = new HashMap<>();
     }
     
     @Override

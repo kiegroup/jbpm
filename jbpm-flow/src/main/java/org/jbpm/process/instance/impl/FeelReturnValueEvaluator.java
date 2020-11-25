@@ -32,12 +32,17 @@ import org.kie.api.runtime.Globals;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessContext;
 import org.kie.dmn.api.core.DMNRuntime;
+import org.kie.dmn.api.feel.runtime.events.FEELEvent;
 import org.kie.dmn.core.impl.DMNRuntimeImpl;
 import org.kie.dmn.feel.FEEL;
 import org.kie.dmn.feel.lang.FEELProfile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FeelReturnValueEvaluator implements ReturnValueEvaluator, Externalizable {
     
+    private static final Logger LOG = LoggerFactory.getLogger(FeelReturnValueEvaluator.class);
+
     private static final long   serialVersionUID = 630l;
 
     private String expr;
@@ -74,16 +79,17 @@ public class FeelReturnValueEvaluator implements ReturnValueEvaluator, Externali
             VariableScopeInstance variableScope = (VariableScopeInstance) ((WorkflowProcessInstance)context.getProcessInstance())
                     .getContextInstance(VariableScope.VARIABLE_SCOPE);
     
-            if (variables != null ) {
-                variables.putAll(variableScope.getVariables());
-            }
+            variables.putAll(variableScope.getVariables());
         }
         DMNRuntime runtime = ((KieSession) context.getKieRuntime()).getKieRuntime(DMNRuntime.class);
         List<FEELProfile> profiles = (List)((DMNRuntimeImpl) runtime).getProfiles();
         FEEL feel = FEEL.newInstance(runtime.getRootClassLoader(), profiles);
+        FeelErrorEvaluatorListener listener = new FeelErrorEvaluatorListener();
+        feel.addListener(listener);
         
         Object value = feel.evaluate(expr, variables);
 
+        processErrorEvents(listener.getErrorEvents());
         if ( !(value instanceof Boolean) ) {
             throw new RuntimeException( "Constraints must return boolean values: " + 
         		expr + " returns " + value + 
@@ -93,9 +99,26 @@ public class FeelReturnValueEvaluator implements ReturnValueEvaluator, Externali
         return ((Boolean) value).booleanValue();
     }
 
+    private void processErrorEvents(List<FEELEvent> errorEvents) {
+        if (errorEvents.isEmpty()) {
+            return;
+        }
+        String exceptionMessage = errorEvents.stream().map(FeelReturnValueEvaluator::eventToMessage).collect(Collectors.joining(", "));
+        throw new FeelReturnValueEvaluatorException(exceptionMessage);
+    }
+
+    private static String eventToMessage(FEELEvent event) {
+        StringBuilder messageBuilder = new StringBuilder(event.getSeverity().toString()).append(" ").append(event.getMessage());
+        if (event.getOffendingSymbol() != null) {
+            messageBuilder.append(" ( offending symbol: '").append(event.getOffendingSymbol()).append("' )");
+        }
+        if (event.getSourceException() != null) {
+            messageBuilder.append("  ").append(event.getSourceException().getMessage());
+        }
+        return messageBuilder.toString();
+    }
+
     public String toString() {
         return this.expr;
-    }    
-
-
+    }
 }
