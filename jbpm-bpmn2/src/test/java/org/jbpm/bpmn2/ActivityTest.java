@@ -46,6 +46,7 @@ import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.core.impl.DataTransformerRegistry;
 import org.jbpm.process.instance.event.listeners.RuleAwareProcessEventLister;
 import org.jbpm.process.instance.event.listeners.TriggerRulesEventListener;
+import org.jbpm.process.instance.impl.FeelReturnValueEvaluatorException;
 import org.jbpm.process.instance.impl.demo.DoNothingWorkItemHandler;
 import org.jbpm.process.instance.impl.demo.SystemOutWorkItemHandler;
 import org.jbpm.test.listener.process.NodeLeftCountDownProcessEventListener;
@@ -2127,6 +2128,47 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         assertNodeTriggered(processInstance.getId(), "Script1");
     }
     
+    @Test
+    public void testGatewayFEEL() throws Exception {
+        KieBase kbase = createKnowledgeBase("BPMN2-GatewayFEEL.bpmn2");
+        ksession = createKnowledgeSession(kbase);
+
+        Map<String, Object> params1 = new HashMap<String, Object>();
+        params1.put("VA", Boolean.TRUE);
+        params1.put("VB", Boolean.FALSE);
+        WorkflowProcessInstance procInstance1 = (WorkflowProcessInstance) ksession.startProcess("BPMN2-GatewayFEEL", params1);
+        assertEquals("ok", procInstance1.getVariable("Task1"));
+        assertEquals("ok", procInstance1.getVariable("Task2"));
+        assertNull(procInstance1.getVariable("Task3"));
+        assertNodeTriggered(procInstance1.getId(), "Task2", "VA and not(VB)");
+
+        Map<String, Object> params2 = new HashMap<String, Object>();
+        params2.put("VA", Boolean.FALSE);
+        params2.put("VB", Boolean.TRUE);
+        WorkflowProcessInstance procInstance2 = (WorkflowProcessInstance) ksession.startProcess("BPMN2-GatewayFEEL", params2);
+        assertEquals("ok", procInstance2.getVariable("Task1"));
+        assertNull(procInstance2.getVariable("Task2"));
+        assertEquals("ok", procInstance2.getVariable("Task3"));
+        assertNodeTriggered(procInstance2.getId(), "Task3", "VB or not(VA)");
+    }
+
+    @Test
+    public void testGatewayFEELWrong() throws Exception {
+        KieBase kbase = createKnowledgeBase("BPMN2-GatewayFEEL-wrong.bpmn2");
+        ksession = createKnowledgeSession(kbase);
+
+        Map<String, Object> params1 = new HashMap<String, Object>();
+        params1.put("VA", Boolean.TRUE);
+        params1.put("VB", Boolean.FALSE);
+        assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> { 
+            ksession.startProcess("BPMN2-GatewayFEEL", params1);
+        })
+        .withStackTraceContaining("offending symbol: 'Not'")
+        .satisfies((RuntimeException re) -> {
+            assertThat(re).hasRootCauseInstanceOf(FeelReturnValueEvaluatorException.class);
+        });
+    }
+
     @Test
     public void testBusinessRuleTaskException() throws Exception {
         KieBase kbase = createKnowledgeBaseWithoutDumper("BPMN2-BusinessRuleTask.bpmn2",
