@@ -71,9 +71,10 @@
             <Import-Package>
                 javax.swing.*;resolution:=optional,
                 org.jbpm.persistence.timer;resolution:=optional,
-                org.kie.dmn.api.core;resolution:=optional,  
+                org.kie.dmn.api.core;resolution:=optional,
+                org.kie.dmn.api.feel.runtime.events;resolution:=optional,
                 org.kie.dmn.core.impl;resolution:=optional,
-                org.kie.dmn.feel;resolution:=optional,                 
+                org.kie.dmn.feel;resolution:=optional,
                 *
             </Import-Package>
             <Export-Package>
@@ -83,7 +84,7 @@
             	org.jbpm.ruleflow.*,
             	org.jbpm.workflow.*,
             	org.jbpm.osgi.flow.core.*,
-              org.jbpm.util.*
+                org.jbpm.util.*
             </Export-Package>
             <Bundle-Activator>org.jbpm.osgi.flow.core.Activator</Bundle-Activator>
           </instructions>
