@@ -142,7 +142,7 @@ public abstract class AbstractCaseServicesTest extends AbstractServicesTest {
 
     protected void configureServices() {
         buildDatasource();
-        identityProvider = new TestIdentityProvider();
+        identityProvider = new TestIdentityProviderImpl();
         caseConfigurator.configureServices(getPersistenceUnitName(), identityProvider);
 
         authorizationManager = caseConfigurator.getAuthorizationManager();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2020 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.jbpm.test.services;
 
-package org.jbpm.services.cdi.test;
+import org.kie.api.task.UserGroupCallback;
 
-import javax.enterprise.context.ApplicationScoped;
+import java.util.List;
 
-import org.jbpm.test.services.TestIdentityProviderImpl;
+public interface TestUserGroupCallback extends UserGroupCallback {
 
-@ApplicationScoped
-public class TestIdentifyProviderCDI extends TestIdentityProviderImpl {
-
+    void setUserGroups(String user, List<String> groups);
 }

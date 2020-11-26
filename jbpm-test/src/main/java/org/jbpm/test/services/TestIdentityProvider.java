@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2020 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,43 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.jbpm.test.services;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import org.kie.internal.identity.IdentityProvider;
 
-public class TestIdentityProvider implements IdentityProvider {
+import java.util.List;
 
-    private String name = "testUser";
-    private List<String> roles = new ArrayList<String>();
+public interface TestIdentityProvider extends IdentityProvider {
 
-    public String getName() {
-        return name;
-    }
+    void setRoles(List<String> roles);
 
-    public List<String> getRoles() {
-        return roles;
-    }
+    void setName(String name);
 
-    @Override
-    public boolean hasRole(String role) {
-        return roles.contains(role);
-    }
-
-    // just for testing
-    public void setRoles(List<String> roles) {
-        this.roles = roles;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-    
-    public void reset() {
-        name = "testUser";
-        roles = new ArrayList<String>();
-    }
+    void reset();
 }
