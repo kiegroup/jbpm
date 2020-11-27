@@ -88,7 +88,7 @@ public class AbstractAssignmentTest extends HumanTaskServicesBaseTest {
                                                 Map<String, Object> params,
                                                 String... expectedPotOwnerNames) {
         CountDownTaskEventListener countDownListener = new CountDownTaskEventListener(1, true, false);
-        addCountDownListener(countDownListener);
+        addCountDownListner(countDownListener);
 
         Map<String, Object> vars = new HashMap<String, Object>();
         vars.put("now", new Date());

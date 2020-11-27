@@ -16,22 +16,25 @@
 
 package org.jbpm.services.task.wih;
 
+import java.util.Properties;
+
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
 import org.drools.core.impl.EnvironmentFactory;
 import org.jbpm.services.task.HumanTaskServiceFactory;
 import org.jbpm.services.task.test.TestStatefulKnowledgeSession;
-import org.jbpm.test.persistence.util.PersistenceUtil;
+import org.kie.test.util.db.DataSourceFactory;
+import org.kie.test.util.db.PoolingDataSourceWrapper;
 import org.junit.After;
 import org.junit.Before;
 import org.kie.api.runtime.process.WorkItemHandler;
 import org.kie.internal.task.api.InternalTaskService;
-import org.kie.test.util.db.PoolingDataSourceWrapper;
 
 public class HTWorkItemHandlerTest extends HTWorkItemHandlerBaseTest {
 
     private EntityManagerFactory emf;
+    private WorkItemHandler htWorkItemHandler;
     private PoolingDataSourceWrapper pds;
     
     @Before
@@ -41,26 +44,35 @@ public class HTWorkItemHandlerTest extends HTWorkItemHandlerBaseTest {
         ksession = new TestStatefulKnowledgeSession();
         env = EnvironmentFactory.newEnvironment();
         ksession.setEnvironment(env);
-        this.taskService = HumanTaskServiceFactory.newTaskServiceConfigurator()
+        this.taskService = (InternalTaskService) HumanTaskServiceFactory.newTaskServiceConfigurator()
 				.entityManagerFactory(emf)
 				.getTaskService();
-        WorkItemHandler htWorkItemHandler = new NonManagedLocalHTWorkItemHandler(ksession, taskService);
+        htWorkItemHandler = new NonManagedLocalHTWorkItemHandler(ksession, taskService);
  
         setHandler(htWorkItemHandler);
     }
 
     @After
     public void tearDown() throws Exception {
-        ((InternalTaskService)taskService).removeAllTasks();
+        int removeAllTasks = ((InternalTaskService)taskService).removeAllTasks();
 		if (emf != null) {
 			emf.close();
 		}
 		if (pds != null) {
 			pds.close();
 		}
+
     }
 
     protected PoolingDataSourceWrapper setupPoolingDataSource() {
-        return PersistenceUtil.setupPoolingDataSource("jdbc/jbpm-ds");
+        Properties driverProperties = new Properties();
+        driverProperties.put("user", "sa");
+        driverProperties.put("password", "");
+        driverProperties.put("url", "jdbc:h2:mem:jbpm-db;MVCC=true");
+        driverProperties.put("driverClassName", "org.h2.Driver");
+        driverProperties.put("className", "org.h2.jdbcx.JdbcDataSource");
+
+        PoolingDataSourceWrapper pds = DataSourceFactory.setupPoolingDataSource("jdbc/jbpm-ds", driverProperties);
+        return pds;
     }
 }
