@@ -115,8 +115,8 @@ public interface QueryResultMapper<T> extends Serializable {
     public static final String COLUMN_LASTMODIFICATION_DATE = "LASTMODIFICATIONDATE";
 
     // task variables related
-    public static final String COLUMN_TASK_VAR_NAME = "TVNAME";
-    public static final String COLUMN_TASK_VAR_VALUE = "TVVALUE";
+    public static final String COLUMN_TASK_VAR_NAME = "name";
+    public static final String COLUMN_TASK_VAR_VALUE = "value";
     public static final String COLUMN_TASK_VAR_TYPE = "TVTYPE";
     
     //jobs related
