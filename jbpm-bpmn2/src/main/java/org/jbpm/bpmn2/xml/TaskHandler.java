@@ -17,20 +17,18 @@
 package org.jbpm.bpmn2.xml;
 
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
-import org.jbpm.process.core.Work;
-import org.jbpm.process.core.impl.WorkImpl;
 import org.drools.core.xml.ExtensibleXmlParser;
 import org.jbpm.bpmn2.core.ItemDefinition;
+import org.jbpm.bpmn2.xml.elements.DataAssociationFactory;
 import org.jbpm.compiler.xml.ProcessBuildData;
+import org.jbpm.process.core.Work;
 import org.jbpm.process.core.impl.DataTransformerRegistry;
+import org.jbpm.process.core.impl.WorkImpl;
 import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.core.NodeContainer;
 import org.jbpm.workflow.core.impl.NodeImpl;
-import org.jbpm.workflow.core.node.Assignment;
 import org.jbpm.workflow.core.node.DataAssociation;
 import org.jbpm.workflow.core.node.ForEachNode;
 import org.jbpm.workflow.core.node.MilestoneNode;
@@ -175,19 +173,8 @@ public class TaskHandler extends AbstractNodeHandler {
     			
     			subNode = subNode.getNextSibling();
     		}
-    		// assignments    	
-    		List<Assignment> assignments = new LinkedList<Assignment>();
-    		while(subNode != null){
-    			org.w3c.dom.Node ssubNode = subNode.getFirstChild();
-    			String from = ssubNode.getTextContent();
-    			String to = ssubNode.getNextSibling().getTextContent();
-    			assignments.add(new Assignment("XPath", from, to));
-        		subNode = subNode.getNextSibling();
-    		}
-    		    		
-    		workItemNode.addInAssociation(new DataAssociation(
-    				source,
-    				dataInputs.get(target), assignments, transformation));
+            workItemNode.addInAssociation(new DataAssociation(source, dataInputs.get(target), DataAssociationFactory
+                    .readAssignments(subNode), transformation));
 		} else {
 			// targetRef
 			String to = subNode.getTextContent();
@@ -241,16 +228,8 @@ public class TaskHandler extends AbstractNodeHandler {
 //			transformation.setCompiledExpression(transformer.compile(expression));
 			subNode = subNode.getNextSibling();
 		}
-		// assignments  
-		List<Assignment> assignments = new LinkedList<Assignment>();
-		while(subNode != null){
-			org.w3c.dom.Node ssubNode = subNode.getFirstChild();
-			String from = ssubNode.getTextContent();
-			String to = ssubNode.getNextSibling().getTextContent();
-			assignments.add(new Assignment("XPath", from, to));
-    		subNode = subNode.getNextSibling();
-		}
-		workItemNode.addOutAssociation(new DataAssociation(dataOutputs.get(source), target, assignments, transformation));
+        workItemNode.addOutAssociation(new DataAssociation(dataOutputs.get(source), target, DataAssociationFactory
+                .readAssignments(subNode), transformation));
     }
 
     @Override
