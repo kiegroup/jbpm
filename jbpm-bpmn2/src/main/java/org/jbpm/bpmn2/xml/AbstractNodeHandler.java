@@ -38,6 +38,8 @@ import org.jbpm.bpmn2.core.ItemDefinition;
 import org.jbpm.bpmn2.core.Lane;
 import org.jbpm.bpmn2.core.SequenceFlow;
 import org.jbpm.bpmn2.core.Signal;
+import org.jbpm.bpmn2.handler.SendMessageAction;
+import org.jbpm.bpmn2.handler.SendSignalAction;
 import org.jbpm.compiler.xml.ProcessBuildData;
 import org.jbpm.process.core.context.variable.Variable;
 import org.jbpm.process.core.datatype.DataType;
@@ -46,6 +48,7 @@ import org.jbpm.process.core.datatype.impl.type.FloatDataType;
 import org.jbpm.process.core.datatype.impl.type.IntegerDataType;
 import org.jbpm.process.core.datatype.impl.type.ObjectDataType;
 import org.jbpm.process.core.datatype.impl.type.StringDataType;
+import org.jbpm.process.instance.impl.JavaAction;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
 import org.jbpm.workflow.core.DroolsAction;
 import org.jbpm.workflow.core.Node;
@@ -573,5 +576,47 @@ public abstract class AbstractNodeHandler extends BaseAbstractHandler implements
         }
 
         return signalName;
+    }
+
+    protected void writeJavaAction(Node node, JavaAction action, StringBuilder xmlDump) {
+        if (action instanceof SendSignalAction) {
+            SendSignalAction signalAction = (SendSignalAction) action;
+            String variable = signalAction.getVariable();
+            if (variable != null) {
+                xmlDump.append(
+                        "      <dataInput id=\"" + XmlBPMNProcessDumper.getUniqueNodeId(node) + "_Input\" />" + EOL +
+                               "      <dataInputAssociation>" + EOL +
+                               "        <sourceRef>" + XmlDumper.replaceIllegalChars(variable) + "</sourceRef>" + EOL +
+                               "        <targetRef>" + XmlBPMNProcessDumper.getUniqueNodeId(node) +
+                               "_Input</targetRef>" +
+                               EOL +
+                               "      </dataInputAssociation>" + EOL +
+                               "      <inputSet>" + EOL +
+                               "        <dataInputRefs>" + XmlBPMNProcessDumper.getUniqueNodeId(node) +
+                               "_Input</dataInputRefs>" + EOL +
+                               "      </inputSet>" + EOL);
+            }
+            xmlDump.append("      <signalEventDefinition signalRef=\"" + XmlBPMNProcessDumper
+                    .replaceIllegalCharsAttribute(
+                            signalAction.getSignalName()) + "\"/>" + EOL);
+        } else if (action instanceof SendMessageAction) {
+            SendMessageAction signalAction = (SendMessageAction) action;
+            String variable = signalAction.getVariable();
+            if (variable != null) {
+                xmlDump.append(
+                        "      <dataInput id=\"" + XmlBPMNProcessDumper.getUniqueNodeId(node) + "_Input\" />" + EOL +
+                               "      <dataInputAssociation>" + EOL +
+                               "        <sourceRef>" + XmlDumper.replaceIllegalChars(variable) + "</sourceRef>" + EOL +
+                               "        <targetRef>" + XmlBPMNProcessDumper.getUniqueNodeId(node) +
+                               "_Input</targetRef>" + EOL +
+                               "      </dataInputAssociation>" + EOL +
+                               "      <inputSet>" + EOL +
+                               "        <dataInputRefs>" + XmlBPMNProcessDumper.getUniqueNodeId(node) +
+                               "_Input</dataInputRefs>" + EOL +
+                               "      </inputSet>" + EOL);
+            }
+            xmlDump.append("      <messageEventDefinition messageRef=\"" + XmlBPMNProcessDumper.getUniqueNodeId(
+                    node) + "_Message\"/>" + EOL);
+        }
     }
 }

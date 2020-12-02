@@ -203,7 +203,7 @@ public class ActionNodeHandler extends AbstractNodeHandler {
             writeNode("intermediateThrowEvent", actionNode, xmlDump, metaDataType);
             xmlDump.append(">" + EOL);
             writeExtensionElements(actionNode, xmlDump);
-            action.dumpXML(actionNode, xmlDump);
+            writeJavaAction(node, action, xmlDump);
             endNode("intermediateThrowEvent", xmlDump);
         }
         else {

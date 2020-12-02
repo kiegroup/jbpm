@@ -158,7 +158,7 @@ public class EndNodeHandler extends AbstractNodeHandler {
                     JavaAction action = ((JavaDroolsAction) droolsAction).getAction();
                     xmlDump.append(">" + EOL);
                     writeExtensionElements(endNode, xmlDump);
-                    action.dumpXML(endNode, xmlDump);
+                    writeJavaAction(endNode, action, xmlDump);
                     endNode("endEvent", xmlDump);
                 }
 

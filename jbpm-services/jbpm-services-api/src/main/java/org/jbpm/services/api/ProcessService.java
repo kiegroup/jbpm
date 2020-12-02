@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.kie.api.command.Command;
-import org.kie.api.event.process.ProcessEventListener;
 import org.kie.api.runtime.manager.Context;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.process.WorkItem;
@@ -499,17 +498,8 @@ public interface ProcessService {
      */
     public <T> T execute(String deploymentId, Context<?> context, Command<T> command);
 
-    /**
-     * Adds a process event listener
-     * @param deploymentId
-     * @param listener
-     */
-    void addProcessEventListener(String deploymentId, ProcessEventListener listener);
 
-    /**
-     * Remove process event listener
-     * @param deploymentId
-     * @param listener
-     */
-    void removeProcessEventListener(String deploymentId, ProcessEventListener listener);
+
+
+
 }

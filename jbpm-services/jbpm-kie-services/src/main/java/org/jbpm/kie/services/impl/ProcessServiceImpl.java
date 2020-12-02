@@ -48,7 +48,6 @@ import org.jbpm.workflow.instance.node.EventNodeInstance;
 import org.kie.api.command.Command;
 import org.kie.api.command.ExecutableCommand;
 import org.kie.api.definition.process.Node;
-import org.kie.api.event.process.ProcessEventListener;
 import org.kie.api.runtime.EnvironmentName;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.Context;
@@ -855,26 +854,5 @@ public class ProcessServiceImpl implements ProcessService, VariablesAware {
 		manager.disposeRuntimeEngine(engine);
 	}
 
-    @Override
-    public void addProcessEventListener(String deploymentId, ProcessEventListener listener) {
-        DeployedUnit deployedUnit = deploymentService.getDeployedUnit(deploymentId);
-        if (deployedUnit == null) {
-            throw new DeploymentNotFoundException("No deployments available for " + deploymentId);
-        }
-        if (!deployedUnit.isActive()) {
-            throw new DeploymentNotActiveException("Deployment " + deploymentId + " is not active");
-        }
-        deployedUnit.getRuntimeManager().getRuntimeEngine(ProcessInstanceIdContext.get()).getKieSession()
-                .addEventListener(listener);
-    }
-
-    @Override
-    public void removeProcessEventListener(String deploymentId, ProcessEventListener listener) {
-        DeployedUnit deployedUnit = deploymentService.getDeployedUnit(deploymentId);
-        if (deployedUnit != null) {
-            deployedUnit.getRuntimeManager().getRuntimeEngine(ProcessInstanceIdContext.get()).getKieSession()
-                    .removeEventListener(listener);
-        }
-    }
 
 }
