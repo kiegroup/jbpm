@@ -71,24 +71,6 @@
                   "methodName": "getMessagesDesc",
                   "elementKind": "method",
                   "justification": "https://issues.redhat.com/browse/JBPM-9436"
-                },
-                {
-                  "code": "java.method.addedToInterface",
-                  "new": "method void org.jbpm.services.api.ProcessService::addProcessEventListener(java.lang.String, org.kie.api.event.process.ProcessEventListener)",
-                  "package": "org.jbpm.services.api",
-                  "classSimpleName": "ProcessService",
-                  "methodName": "addProcessEventListener",
-                  "elementKind": "method",
-                  "justification": "https://issues.redhat.com/browse/JBPM-9474"
-                },
-                {
-                  "code": "java.method.addedToInterface",
-                  "new": "method void org.jbpm.services.api.ProcessService::removeProcessEventListener(java.lang.String, org.kie.api.event.process.ProcessEventListener)",
-                  "package": "org.jbpm.services.api",
-                  "classSimpleName": "ProcessService",
-                  "methodName": "removeProcessEventListener",
-                  "elementKind": "method",
-                  "justification": "https://issues.redhat.com/browse/JBPM-9474"
                 }
             ]
         }

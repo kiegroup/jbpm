@@ -16,15 +16,12 @@
 
 package org.jbpm.bpmn2.handler;
 
-import org.drools.compiler.compiler.xml.XmlDumper;
 import org.drools.core.common.InternalKnowledgeRuntime;
 import org.drools.core.process.instance.WorkItemManager;
 import org.drools.core.process.instance.impl.WorkItemImpl;
-import org.jbpm.bpmn2.xml.XmlBPMNProcessDumper;
 import org.jbpm.process.instance.InternalProcessRuntime;
 import org.jbpm.process.instance.impl.JavaAction;
 import org.jbpm.process.instance.impl.util.VariableUtil;
-import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.core.impl.NodeImpl;
 import org.kie.api.runtime.manager.RuntimeManager;
 import org.kie.api.runtime.process.ProcessContext;
@@ -47,18 +44,18 @@ public class SendSignalAction implements JavaAction {
     @Override
     public void execute(ProcessContext kcontext) throws Exception {
         Object tVariable = VariableResolver.getVariable(kcontext, varName);
+        ((InternalProcessRuntime) ((InternalKnowledgeRuntime) kcontext.getKieRuntime()).getProcessRuntime())
+                .getProcessEventSupport().fireOnSignal(kcontext.getProcessInstance(), kcontext.getNodeInstance(),
+                        kcontext.getKieRuntime(), signalName, tVariable);
+        String scope = (String) node.getMetaData("customScope");
         String signalType = VariableUtil.resolveVariable(isAsync ? "ASYNC-" + signalName : signalName, kcontext
                 .getNodeInstance());
-        String scope = (String) node.getMetaData("customScope");
         if ("processInstance".equalsIgnoreCase(scope)) {
             kcontext.getProcessInstance().signalEvent(signalType, tVariable);
         } else if ("runtimeManager".equalsIgnoreCase(scope) || "project".equalsIgnoreCase(scope)) {
             ((RuntimeManager) kcontext.getKieRuntime().getEnvironment().get("RuntimeManager")).signalEvent(signalType,
                     tVariable);
         } else if ("external".equalsIgnoreCase(scope)) {
-            ((InternalProcessRuntime) ((InternalKnowledgeRuntime) kcontext.getKieRuntime()).getProcessRuntime())
-                    .getProcessEventSupport().fireOnSignal(kcontext.getProcessInstance(), kcontext.getNodeInstance(),
-                            kcontext.getKieRuntime(), signalName, tVariable);
             WorkItemImpl workItem = new WorkItemImpl();
             workItem.setName("External Send Task");
             workItem.setNodeInstanceId(kcontext.getNodeInstance().getId());
@@ -78,23 +75,11 @@ public class SendSignalAction implements JavaAction {
         }
     }
 
-    @Override
-    public void dumpXML(Node dumpNode, StringBuilder xmlDump) {
-        final String EOL = System.getProperty("line.separator");
-        if (varName != null) {
-            xmlDump.append(
-                "      <dataInput id=\"" + XmlBPMNProcessDumper.getUniqueNodeId(dumpNode) + "_Input\" />" + EOL +
-                       "      <dataInputAssociation>" + EOL +
-                       "        <sourceRef>" + XmlDumper.replaceIllegalChars(varName) + "</sourceRef>" + EOL +
-                       "        <targetRef>" + XmlBPMNProcessDumper.getUniqueNodeId(dumpNode) + "_Input</targetRef>" +
-                       EOL +
-                       "      </dataInputAssociation>" + EOL +
-                       "      <inputSet>" + EOL +
-                       "        <dataInputRefs>" + XmlBPMNProcessDumper.getUniqueNodeId(dumpNode) +
-                       "_Input</dataInputRefs>" + EOL +
-                           "      </inputSet>" + EOL);
-        }
-        xmlDump.append("      <signalEventDefinition signalRef=\"" + XmlBPMNProcessDumper.replaceIllegalCharsAttribute(
-                        signalName) + "\"/>" + EOL);
+    public String getVariable() {
+        return varName;
+    }
+
+    public String getSignalName() {
+        return signalName;
     }
 }

@@ -17,9 +17,5 @@ package org.jbpm.process.instance.impl;
 
 import java.io.Serializable;
 
-import org.jbpm.workflow.core.Node;
-
 public interface JavaAction extends Serializable, Action {
-
-    void dumpXML(Node node, StringBuilder xmlDump);
 }
