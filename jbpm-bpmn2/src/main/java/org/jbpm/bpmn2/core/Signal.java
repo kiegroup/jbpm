@@ -17,6 +17,11 @@
 package org.jbpm.bpmn2.core;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+
+import org.kie.api.definition.process.Node;
 
 public class Signal implements Serializable {
 
@@ -25,6 +30,8 @@ public class Signal implements Serializable {
     private String id;
     private String name;
     private String structureRef;
+    private Collection<Node> incomingNodes = new ArrayList<>();
+    private Collection<Node> outgoingNodes = new ArrayList<>();
 
     public Signal(String id, String structureRef) {
         this.id = id;
@@ -48,4 +55,19 @@ public class Signal implements Serializable {
 		return name;
 	}
 
+    public void addIncomingNode(Node node) {
+        incomingNodes.add(node);
+    }
+
+    public void addOutgoingNode(Node node) {
+        outgoingNodes.add(node);
+    }
+
+    public Collection<Node> getIncomingNodes() {
+        return Collections.unmodifiableCollection(incomingNodes);
+    }
+
+    public Collection<Node> getOutgoingNodes() {
+        return Collections.unmodifiableCollection(outgoingNodes);
+    }
 }

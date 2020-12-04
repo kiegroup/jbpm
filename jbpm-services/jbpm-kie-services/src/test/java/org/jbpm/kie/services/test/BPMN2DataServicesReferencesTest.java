@@ -39,6 +39,7 @@ import org.jbpm.services.api.model.DeploymentUnit;
 import org.jbpm.services.api.model.MessageDesc;
 import org.jbpm.services.api.model.ProcessDefinition;
 import org.jbpm.services.api.model.SignalDesc;
+import org.jbpm.workflow.core.node.StartNode;
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
@@ -46,6 +47,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.kie.api.KieServices;
 import org.kie.api.builder.ReleaseId;
+import org.kie.api.definition.process.Node;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.audit.AuditService;
 import org.kie.api.runtime.manager.audit.VariableInstanceLog;
@@ -542,6 +544,8 @@ public class BPMN2DataServicesReferencesTest extends AbstractKieServicesBaseTest
         SignalDesc signal = signals.iterator().next();
         assertEquals("_3b677877-9be0-3fe7-bfc4-94a862fdc919", signal.getId());
         assertEquals("MySignal", signal.getName());
+        assertFalse(signal.getIncomingNodes().isEmpty());
+        assertTrue(signal.getOutgoingNodes().isEmpty());
         assertNull("Structure Ref is expected to be null", signal.getStructureRef());
     }
 
@@ -557,6 +561,10 @@ public class BPMN2DataServicesReferencesTest extends AbstractKieServicesBaseTest
         MessageDesc message = signals.iterator().next();
         assertEquals("HelloMessage", message.getId());
         assertEquals("HelloMessage", message.getName());
+        assertFalse(message.getIncomingNodes().isEmpty());
+        Node startNode = message.getIncomingNodes().iterator().next();
+        assertTrue(startNode instanceof StartNode);
+        assertTrue(message.getOutgoingNodes().isEmpty());
         assertEquals("String", message.getStructureRef());
     }
 }

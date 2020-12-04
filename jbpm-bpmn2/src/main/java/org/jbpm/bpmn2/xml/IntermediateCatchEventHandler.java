@@ -23,7 +23,6 @@ import java.util.Map;
 import org.drools.core.xml.ExtensibleXmlParser;
 import org.jbpm.bpmn2.core.IntermediateLink;
 import org.jbpm.bpmn2.core.Message;
-import org.jbpm.bpmn2.core.Signal;
 import org.jbpm.compiler.xml.ProcessBuildData;
 import org.jbpm.process.core.event.EventFilter;
 import org.jbpm.process.core.event.EventTransformerImpl;
@@ -186,7 +185,7 @@ public class IntermediateCatchEventHandler extends AbstractNodeHandler {
                 String type = ((Element) xmlNode).getAttribute("signalRef");
                 if (type != null && type.trim().length() > 0) {
 
-                    type = checkSignalAndConvertToRealSignalNam(parser, type);
+                    type = checkSignalAndConvertToRealSignalNam(parser, type, s -> s.addIncomingNode(node));
 
                     List<EventFilter> eventFilters = new ArrayList<EventFilter>();
                     EventTypeFilter eventFilter = new EventTypeFilter();
@@ -227,6 +226,7 @@ public class IntermediateCatchEventHandler extends AbstractNodeHandler {
                     throw new IllegalArgumentException(
                             "Could not find message " + messageRef);
                 }
+                message.addIncomingNode(node);
                 eventNode.setMetaData("MessageType", message.getType());
                 List<EventFilter> eventFilters = new ArrayList<EventFilter>();
                 EventTypeFilter eventFilter = new EventTypeFilter();

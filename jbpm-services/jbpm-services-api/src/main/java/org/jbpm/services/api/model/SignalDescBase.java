@@ -15,12 +15,18 @@
  */
 package org.jbpm.services.api.model;
 
-import java.io.Serializable;
+import java.util.Collection;
 
-public interface SignalDescBase extends Serializable {
+import org.kie.api.definition.process.Node;
+
+public interface SignalDescBase {
     String getId();
 
     String getName();
 
     String getStructureRef();
+
+    Collection<Node> getIncomingNodes();
+
+    Collection<Node> getOutgoingNodes();
 }

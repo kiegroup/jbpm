@@ -15,15 +15,15 @@
  */
 
 package org.jbpm.bpmn2.xml;
-import static org.jbpm.bpmn2.xml.ProcessHandler.*;
-
 import java.util.List;
 
 import org.drools.compiler.compiler.xml.XmlDumper;
 import org.jbpm.process.core.context.exception.CompensationScope;
+import org.jbpm.process.instance.impl.JavaAction;
 import org.jbpm.workflow.core.DroolsAction;
 import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.core.impl.DroolsConsequenceAction;
+import org.jbpm.workflow.core.impl.JavaDroolsAction;
 import org.jbpm.workflow.core.node.EndNode;
 import org.xml.sax.Attributes;
 
@@ -57,6 +57,8 @@ public class EndNodeHandler extends AbstractNodeHandler {
 		    List<DroolsAction> actions = endNode.getActions(EndNode.EVENT_NODE_ENTER);
 		    if (actions != null && !actions.isEmpty()) {
 		        if (actions.size() == 1) {
+                    DroolsAction droolsAction = actions.get(0);
+                    if (droolsAction instanceof DroolsConsequenceAction) {
 		            DroolsConsequenceAction action = (DroolsConsequenceAction) actions.get(0);
 		            String s = action.getConsequence();
 		            if (s.startsWith("org.drools.core.process.instance.impl.WorkItemImpl workItem = new org.drools.core.process.instance.impl.WorkItemImpl();")) {
@@ -152,6 +154,14 @@ public class EndNodeHandler extends AbstractNodeHandler {
 		            } else {
 		                throw new IllegalArgumentException("Unknown action " + s);
 		            }
+                } else if (droolsAction instanceof JavaDroolsAction) {
+                    JavaAction action = ((JavaDroolsAction) droolsAction).getAction();
+                    xmlDump.append(">" + EOL);
+                    writeExtensionElements(endNode, xmlDump);
+                    writeJavaAction(endNode, action, xmlDump);
+                    endNode("endEvent", xmlDump);
+                }
+
 		        }
 		    } else {
 		        endNode(xmlDump);

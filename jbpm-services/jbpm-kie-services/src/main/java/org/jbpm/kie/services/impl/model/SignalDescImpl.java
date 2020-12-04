@@ -15,20 +15,23 @@
  */
 package org.jbpm.kie.services.impl.model;
 
+import java.util.Collection;
+
 import org.jbpm.bpmn2.core.Signal;
 import org.jbpm.services.api.model.SignalDesc;
+import org.kie.api.definition.process.Node;
 
 public class SignalDescImpl  extends SignalDescBaseImpl implements SignalDesc {
 
     private static final long serialVersionUID = 1L;
 
     public static SignalDescImpl from(Signal signal) {
-        return new SignalDescImpl(signal.getId(), signal.getName(), signal.getStructureRef());
+        return new SignalDescImpl(signal.getId(), signal.getName(), signal.getStructureRef(), signal.getIncomingNodes(),
+                signal.getOutgoingNodes());
     }
 
-    private SignalDescImpl(String id, String name, String structureRef) {
-        super(id, name, structureRef);
+    private SignalDescImpl(String id, String name, String structureRef, Collection<Node> incomingNodes,
+                           Collection<Node> outgoingNodes) {
+        super(id, name, structureRef, incomingNodes, outgoingNodes);
     }
-
-   
 }
