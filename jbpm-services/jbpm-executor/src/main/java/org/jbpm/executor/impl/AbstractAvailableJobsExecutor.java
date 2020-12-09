@@ -312,8 +312,9 @@ public abstract class AbstractAvailableJobsExecutor {
                         requestInfo.setRequestData(null);
                     }
                 }
-                
+                eventSupport.fireBeforeJobScheduled(requestInfo, null);
                 executorStoreService.persistRequest(requestInfo, ((ExecutorImpl) executor).scheduleExecution(requestInfo, requestInfo.getTime()));
+                eventSupport.fireAfterJobScheduled(requestInfo, null);
             }
         }
     }
