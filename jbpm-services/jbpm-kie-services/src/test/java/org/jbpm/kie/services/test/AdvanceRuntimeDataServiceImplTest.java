@@ -111,6 +111,7 @@ public class AdvanceRuntimeDataServiceImplTest extends AbstractKieServicesBaseTe
         List<String> processes = new ArrayList<>();
         processes.add("repo/processes/general/SingleHumanTaskWithVarsA.bpmn2");
         processes.add("repo/processes/general/SingleHumanTaskWithVarsB.bpmn2");
+        processes.add("repo/processes/general/SingleHumanTaskWithVarsD.bpmn2");
 
         InternalKieModule kJar1 = createKieJar(ks, releaseId, processes);
         File pom = new File("target/kmodule", "pom.xml");
@@ -544,6 +545,22 @@ public class AdvanceRuntimeDataServiceImplTest extends AbstractKieServicesBaseTe
         } else {
             assertThat(data.size(), is(20));
         }
+    }
+
+    @Test
+    public void testParameterWithDash() {
+        Map<String, Object> inputs = new HashMap<>();
+        inputs.put("var-a", "a");
+        inputs.put("var-b", "b");
+        long processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "test.test_D", inputs);
+
+        List<QueryParam> processVariables = list(notEqualsTo("var-b", "c"), isNotNull("var-b"));
+        List<UserTaskInstanceWithPotOwnerDesc> data = advanceVariableDataService.queryUserTasksByVariables(emptyList(), emptyList(), processVariables, emptyList(), queryContext);
+        assertThat(data.size(), is(1));
+        assertEquals(data.get(0).getProcessVariables().get("var-b"), "b");
+        assertEquals(data.get(0).getProcessVariables().get("var-a"), "a");
+        processService.abortProcessInstance(processInstanceId);
+
     }
 
 }

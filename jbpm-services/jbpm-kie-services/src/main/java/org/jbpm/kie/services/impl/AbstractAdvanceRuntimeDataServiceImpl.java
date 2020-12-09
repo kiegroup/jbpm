@@ -313,11 +313,15 @@ public abstract class AbstractAdvanceRuntimeDataServiceImpl {
     }
 
     private String computeVarNameParameter(String prefix, String name) {
-        return prefix + "_NAME_" + name;
+        return prefix + "_NAME_" + sanitize(name);
     }
 
     private String computeVarValueParameter(QueryParam expr, String prefix, String name) {
-        return prefix + "_VALUE_" + expr.getOperator() + "_" + expr.getColumn();
+        return prefix + "_VALUE_" + expr.getOperator() + "_" + sanitize(expr.getColumn());
+    }
+
+    private String sanitize(String name) {
+        return name.replace("-", "_");
     }
 
     private String computeExpression(QueryParam expr, String leftOperand, String rightOperand) {
