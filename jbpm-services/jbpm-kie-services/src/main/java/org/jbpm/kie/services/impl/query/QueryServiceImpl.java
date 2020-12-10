@@ -16,10 +16,6 @@
 
 package org.jbpm.kie.services.impl.query;
 
-import static org.jbpm.services.api.query.QueryResultMapper.COLUMN_EXTERNALID;
-import static org.jbpm.services.api.query.QueryResultMapper.COLUMN_PROCESSINSTANCEID;
-import static org.jbpm.services.api.query.QueryResultMapper.COLUMN_POTOWNER;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -78,11 +74,18 @@ import org.kie.api.runtime.query.QueryContext;
 import org.kie.api.task.UserGroupCallback;
 import org.kie.internal.identity.IdentityProvider;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;;
+import org.slf4j.LoggerFactory;
+
+import static org.jbpm.services.api.query.QueryResultMapper.COLUMN_EXTERNALID;
+import static org.jbpm.services.api.query.QueryResultMapper.COLUMN_POTOWNER;
+import static org.jbpm.services.api.query.QueryResultMapper.COLUMN_PROCESSINSTANCEID;
+
+;
 
 public class QueryServiceImpl implements QueryService, DeploymentEventListener {
 
     private static final Logger logger = LoggerFactory.getLogger(QueryServiceImpl.class);
+    private static boolean validateDataSetQueries = Boolean.parseBoolean(System.getProperty("org.jbpm.dataset.validate", "true"));
 
     private DataSetDefRegistry dataSetDefRegistry;
     private DataSetManager dataSetManager;
@@ -197,6 +200,7 @@ public class QueryServiceImpl implements QueryService, DeploymentEventListener {
                     .name(sqlQueryDefinition.getName() + "::" + sqlQueryDefinition.getTarget().toString())
                     .dataSource(sqlQueryDefinition.getSource())
                     .dbSQL(sqlQueryDefinition.getExpression(), true)
+                    .validate(validateDataSetQueries)
                     .estimateSize(false);
 
             DataSetDef sqlDef = builder.buildDef();
