@@ -56,7 +56,9 @@ import org.kie.internal.runtime.manager.InternalRuntimeManager;
 public class SimpleRegisterableItemsFactory implements InternalRegisterableItemsFactory {
 
     private Map<String, Class<? extends WorkItemHandler>> workItemHandlersClasses = new ConcurrentHashMap<String, Class<? extends WorkItemHandler>>();
-    private List<Class<? extends ProcessEventListener>> processListeners = new CopyOnWriteArrayList<Class<? extends ProcessEventListener>>();
+    private List<Class<? extends ProcessEventListener>> processListenersClasses =
+            new CopyOnWriteArrayList<Class<? extends ProcessEventListener>>();
+    private List<ProcessEventListener> processListenersInstances = new CopyOnWriteArrayList<>();
     private List<Class<? extends AgendaEventListener>> agendListeners = new CopyOnWriteArrayList<Class<? extends AgendaEventListener>>();
     private List<Class<? extends RuleRuntimeEventListener>> workingMemoryListeners = new CopyOnWriteArrayList<Class<? extends RuleRuntimeEventListener>>();
     private List<Class<? extends TaskLifeCycleEventListener>> taskListeners = new CopyOnWriteArrayList<Class<? extends TaskLifeCycleEventListener>>();
@@ -89,12 +91,15 @@ public class SimpleRegisterableItemsFactory implements InternalRegisterableItems
 
     @Override
     public List<ProcessEventListener> getProcessEventListeners(RuntimeEngine runtime) {
-        List<ProcessEventListener> listeners = new ArrayList<ProcessEventListener>();
-        for (Class<? extends ProcessEventListener> clazz : processListeners) {
+        List<ProcessEventListener> listeners = new ArrayList<>();
+        for (Class<? extends ProcessEventListener> clazz : processListenersClasses) {
             ProcessEventListener pListener = createInstance(clazz, runtime);
             if (pListener != null) {
                 listeners.add(pListener);
             }
+        }
+        for (ProcessEventListener pListener : processListenersInstances) {
+            listeners.add(pListener);
         }
         return listeners;
     }
@@ -144,8 +149,14 @@ public class SimpleRegisterableItemsFactory implements InternalRegisterableItems
         this.workItemHandlersClasses.put(name, clazz);
     }
     
+    @Override
     public void addProcessListener(Class<? extends ProcessEventListener> clazz) {
-        this.processListeners.add(clazz);
+        this.processListenersClasses.add(clazz);
+    }
+
+    @Override
+    public void addProcessListener(ProcessEventListener listener) {
+        this.processListenersInstances.add(listener);
     }
 
     public void addAgendaListener(Class<? extends AgendaEventListener> clazz) {
