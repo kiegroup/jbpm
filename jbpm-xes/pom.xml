@@ -27,12 +27,12 @@
   <name>jBPM :: XES Exporter</name>
   <description>jBPM XES Exporter</description>
   <artifactId>jbpm-xes</artifactId>
-  
+
   <properties>
     <version.commons-cli>1.4</version.commons-cli>
     <version.com.h2database>1.4.193</version.com.h2database>
   </properties>
-   
+
 
   <dependencies>
 
@@ -44,6 +44,10 @@
         <exclusion>
           <groupId>javax.activation</groupId>
           <artifactId>javax.activation-api</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jboss.spec.javax.xml.bind</groupId>
+          <artifactId>jboss-jaxb-api_2.3_spec</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -133,7 +137,7 @@
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
     </dependency>
-    
+
     <!-- needed for jdk 11 -->
     <dependency>
       <groupId>org.jboss.spec.javax.xml.bind</groupId>
@@ -186,4 +190,26 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>jdk11</id>
+      <activation>
+        <jdk>11</jdk>
+      </activation>
+      <dependencies>
+        <!-- needed for jdk 11 -->
+        <dependency>
+          <groupId>org.jboss.spec.javax.xml.bind</groupId>
+          <artifactId>jboss-jaxb-api_2.3_spec</artifactId>
+        </dependency>
+
+        <dependency>
+          <groupId>javax.activation</groupId>
+          <artifactId>activation</artifactId>
+        </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
+
 </project>
