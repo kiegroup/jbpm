@@ -538,6 +538,8 @@
         foreign key (correlationKey_keyId) 
         references CorrelationKeyInfo (keyId);
 
+    alter table CorrelationKeyInfo add constraint IDX_CorrelationKeyInfo_name unique (name);
+
     alter table Deadline 
         add index IDX_Deadline_StartId (Deadlines_StartDeadLine_Id), 
         add constraint FK_68w742sge00vco2cq3jhbvmgx 

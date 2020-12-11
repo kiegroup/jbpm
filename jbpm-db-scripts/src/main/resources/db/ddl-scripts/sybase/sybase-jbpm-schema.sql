@@ -545,6 +545,9 @@
         references CorrelationKeyInfo
     go
 
+    alter table CorrelationKeyInfo add constraint IDX_CorrelationKeyInfo_name unique (name)
+    go
+
     alter table Deadline
         add constraint FK21DF3E78A9FE0EF4
         foreign key (Deadlines_StartDeadLine_Id)
