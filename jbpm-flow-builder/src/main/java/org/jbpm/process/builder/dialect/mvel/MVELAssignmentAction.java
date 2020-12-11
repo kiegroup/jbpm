@@ -42,10 +42,8 @@ public class MVELAssignmentAction implements AssignmentAction {
     public MVELAssignmentAction(Assignment assignment, String sourceExpr, String targetExpr,
                                 BiFunction<ProcessContext, NodeInstance, Object> source,
                                 BiFunction<ProcessContext, NodeInstance, Object> target, AssignmentProducer producer) {
-
         Matcher fromMatcher = PatternConstants.PARAMETER_MATCHER.matcher(assignment.getFrom());
         Matcher toMatcher = PatternConstants.PARAMETER_MATCHER.matcher(assignment.getTo());
-
         this.from = fromMatcher.find() ? fromMatcher.group(1) : assignment.getFrom();
         this.to = toMatcher.find() ? toMatcher.group(1) : assignment.getTo();
         this.src = source;
@@ -57,21 +55,26 @@ public class MVELAssignmentAction implements AssignmentAction {
 
     @Override
     public void execute(NodeInstance nodeInstance, ProcessContext context) {
-        Object targetObject = this.target.apply(context, nodeInstance);
-        Object srcObject = this.src.apply(context, nodeInstance);
+        Object targetObject = targetExpr != null ? target.apply(context, nodeInstance) : null;
+        Object srcObject = srcExpr != null ? src.apply(context, nodeInstance) : null;
         NodeInstanceResolverFactory resolver = new NodeInstanceResolverFactory(
                 (org.jbpm.workflow.instance.NodeInstance) nodeInstance);
-
-        // if just evaluating, not assignment
-        if (targetObject == null || notEvalTarget()) {
+        // just evaluating, not assignment
+        if (targetExpr != null && targetObject == null || notEvalTarget()) {
             targetObject = notEvalSrc() ? srcObject : MVELSafeHelper.getEvaluator().eval(from, srcObject, resolver);
         } else {
-            resolver.addExtraParameter(srcExpr, srcObject);
-            resolver.addExtraParameter(targetExpr, targetObject);
+            if (srcExpr != null) {
+                resolver.addExtraParameter(srcExpr, srcObject);
+            }
+            if (targetExpr != null) {
+                resolver.addExtraParameter(targetExpr, targetObject);
+            }
             MVELSafeHelper.getEvaluator().eval(ensureLocated(targetExpr, to).concat("=").concat(ensureLocated(srcExpr,
                     from)), resolver);
         }
-        producer.accept(context, nodeInstance, targetObject);
+        if (targetExpr != null) {
+            producer.accept(context, nodeInstance, targetObject);
+        }
     }
 
     private static boolean isThis(String assignmentExpr) {
@@ -81,14 +84,18 @@ public class MVELAssignmentAction implements AssignmentAction {
     private static boolean notEval(String assignmentExpr, String expr) {
         return isThis(assignmentExpr) || assignmentExpr.equals(expr);
     }
-    
+
     private static String ensureLocated(String prefix, String suffix) {
+        if (prefix == null) {
+            return suffix;
+        }
         if (isThis(suffix)) {
             return prefix;
         }
         if (suffix.startsWith(prefix)) {
             return suffix;
         }
+
         StringBuilder sb = new StringBuilder(prefix);
 
         if (suffix.startsWith(THIS)) {
