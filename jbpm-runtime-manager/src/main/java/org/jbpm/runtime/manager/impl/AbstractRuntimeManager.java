@@ -15,9 +15,11 @@
  */
 package org.jbpm.runtime.manager.impl;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
@@ -105,7 +107,7 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
     protected SecurityManager securityManager = null;
     protected ExecutionErrorManager executionErrorManager;
         
-    protected ConcurrentMap<Long, ReentrantLock> engineLocks = new ConcurrentHashMap<Long, ReentrantLock>(); 
+    protected ConcurrentMap<Long, LockCount> engineLocks = new ConcurrentHashMap<>(); 
     
     public AbstractRuntimeManager(RuntimeEnvironment environment, String identifier) {
         this.environment = environment;
@@ -429,6 +431,36 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
             createLockOnGetEngine(piId, runtime);
         }
     }
+
+    private class LockCount {
+        private Set<Long> threadIds;
+        private ReentrantLock lock;
+
+        
+        public LockCount() {
+            this.threadIds = new HashSet<>();
+            this.lock = new ReentrantLock();
+        }
+        public void set() {
+            this.threadIds.add(Thread.currentThread().getId());
+        }
+        public void unset() {
+            this.threadIds.remove(Thread.currentThread().getId());
+        }
+        public int count() {
+            return this.threadIds.size();
+        }
+
+        public void lock() {
+            lock.lock();
+        }
+        public void unlock() {
+            lock.unlock();
+        }
+        public boolean isHeldByCurrentThread() {
+            return lock.isHeldByCurrentThread();
+        }
+    }
     
     protected void createLockOnGetEngine(Long id, RuntimeEngine runtime) {
         if (!isUseLocking()) {
@@ -436,37 +468,57 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
             return;
         }
         
-        if (id != null) {
-            ReentrantLock newLock = new ReentrantLock();
-            ReentrantLock lock = engineLocks.putIfAbsent(id, newLock);
-            if (lock == null) {
-                lock = newLock;
-                logger.debug("New lock created as it did not exist before");
-            } else {
-                logger.debug("Lock exists with {} waiting threads", lock.getQueueLength());
-            }
-            logger.debug("Trying to get a lock {} for {} by {}", lock, id, runtime);
-            lock.lock();
-            logger.debug("Lock {} taken for {} by {} for waiting threads by {}", lock, id, runtime, lock.hasQueuedThreads());
-            
+        if (id == null) {
+            return;
         }
-        
+
+        LockCount lock = null;
+        synchronized (engineLocks) {
+            if(!engineLocks.containsKey(id)) {
+                engineLocks.put(id, new LockCount());
+            }
+            lock = engineLocks.get(id);
+            lock.set();
+        }
+
+        // the lock is per thread so independently we might now how many threads are in the queue
+        logger.debug("[LOCK] {} taken for {} by {} for waiting threads by {}", lock, id, runtime, lock.count());
+        lock.lock();
+
     }
     
     protected void createLockOnNewProcessInstance(Long id, RuntimeEngine runtime) {
-        if (!isUseLocking()) {
-            logger.debug("Locking on runtime manager disabled");
+        createLockOnGetEngine(id, runtime);
+    }
+
+    protected void releaseAndCleanLock(Long id, RuntimeEngine runtime) {
+
+        if (id == null) {
             return;
         }
-        ReentrantLock newLock = new ReentrantLock();
-        ReentrantLock lock = engineLocks.putIfAbsent(id, newLock);
-        if (lock == null) {
-            lock = newLock;
+        LockCount lock = null;
+        synchronized (engineLocks) {
+            lock = engineLocks.get(id);
+            if (lock == null) {
+                logger.warn("[LOCK] lock {} is already removed for {} unlocked by {}", id, lock, runtime);
+                return;
+            }
+            lock.unset();
+            if (lock.count() == 0) {
+                logger.debug("[LOCK] Removing lock for {} for lock  {} from list as non is waiting for it by {}", id, lock, runtime);
+                engineLocks.remove(id);
+            }
         }
-        lock.lock();
-        logger.debug("[on new process instance] Lock {} created and stored in list by {}", lock, runtime);
+
+
+        if (lock.isHeldByCurrentThread()) {
+            lock.unlock();
+            logger.debug("{} unlocked by {}", lock, runtime);
+        } else {
+            logger.warn("[LOCK] trying to unlock for {} for lock {} no lock held by {}", id, lock, runtime);
+        }
+
     }
-    
     
     protected void releaseAndCleanLock(RuntimeEngine runtime) {
         if (!isUseLocking()) {
@@ -482,23 +534,7 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
         }
     }
     
-    protected void releaseAndCleanLock(Long id, RuntimeEngine runtime) {
 
-        if (id != null) {
-            ReentrantLock lock = engineLocks.get(id);
-            if (lock != null) {
-                if (!lock.hasQueuedThreads()) {
-                    logger.debug("Removing lock {} from list as non is waiting for it by {}", lock, runtime);
-                    engineLocks.remove(id);
-                }
-                if (lock.isHeldByCurrentThread()) {
-                    lock.unlock();
-                    logger.debug("{} unlocked by {}", lock, runtime);
-                }
-            }
-        }
-        
-    }
     
     protected boolean isActive() {
         if (hasEnvironmentEntry("Active", false)) {
