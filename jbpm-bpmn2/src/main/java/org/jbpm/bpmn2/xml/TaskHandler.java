@@ -24,26 +24,19 @@ import org.jbpm.bpmn2.core.ItemDefinition;
 import org.jbpm.bpmn2.xml.elements.DataAssociationFactory;
 import org.jbpm.compiler.xml.ProcessBuildData;
 import org.jbpm.process.core.Work;
-import org.jbpm.process.core.impl.DataTransformerRegistry;
 import org.jbpm.process.core.impl.WorkImpl;
 import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.core.NodeContainer;
 import org.jbpm.workflow.core.impl.NodeImpl;
-import org.jbpm.workflow.core.node.DataAssociation;
 import org.jbpm.workflow.core.node.ForEachNode;
 import org.jbpm.workflow.core.node.MilestoneNode;
-import org.jbpm.workflow.core.node.Transformation;
 import org.jbpm.workflow.core.node.WorkItemNode;
-import org.kie.api.runtime.process.DataTransformer;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Text;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
 public class TaskHandler extends AbstractNodeHandler {
     
-	private DataTransformerRegistry transformerRegistry = DataTransformerRegistry.get();
 	private Map<String, ItemDefinition> itemDefinitions; 
 	
 	 Map<String, String> dataTypeInputs = new HashMap<String, String>();
@@ -150,86 +143,12 @@ public class TaskHandler extends AbstractNodeHandler {
     }
 
     protected void readDataInputAssociation(org.w3c.dom.Node xmlNode, WorkItemNode workItemNode, Map<String, String> dataInputs) {
-		// sourceRef
-		org.w3c.dom.Node subNode = xmlNode.getFirstChild();
-		if ("sourceRef".equals(subNode.getNodeName())) {
-    		String source = subNode.getTextContent();    		
-    		// targetRef
-    		subNode = subNode.getNextSibling();
-    		String target = subNode.getTextContent();
-    		// transformation
-    		Transformation transformation = null;
-    		subNode = subNode.getNextSibling();
-    		if (subNode != null && "transformation".equals(subNode.getNodeName())) {
-    			String lang = subNode.getAttributes().getNamedItem("language").getNodeValue();
-    			String expression = subNode.getTextContent();
-    			
-    			DataTransformer transformer = transformerRegistry.find(lang);
-    			if (transformer == null) {
-    				throw new IllegalArgumentException("No transformer registered for language " + lang);
-    			}    			
-    			transformation = new Transformation(lang, expression);
-//    			transformation.setCompiledExpression(transformer.compile(expression));
-    			
-    			subNode = subNode.getNextSibling();
-    		}
-            workItemNode.addInAssociation(new DataAssociation(source, dataInputs.get(target), DataAssociationFactory
-                    .readAssignments(subNode), transformation));
-		} else {
-			// targetRef
-			String to = subNode.getTextContent();
-			// assignment
-			subNode = subNode.getNextSibling();
-			if (subNode != null) {
-	    		org.w3c.dom.Node subSubNode = subNode.getFirstChild();
-	    		NodeList nl = subSubNode.getChildNodes();
-	    		if (nl.getLength() > 1) {
-	    		    // not supported ?
-	    		    workItemNode.getWork().setParameter(dataInputs.get(to), subSubNode.getTextContent());
-	    		    return;
-	    		} else if (nl.getLength() == 0) {
-	    		    return;
-	    		}
-	    		Object result = null;
-	    		Object from = nl.item(0);
-	    		if (from instanceof Text) {
-	    		    String text = ((Text) from).getTextContent();
-	    		    if (text.startsWith("\"") && text.endsWith("\"")) {
-	                    result = text.substring(1, text.length() -1);
-	    		    } else {
-	    		        result = text;
-	    		    }
-				} else {
-				    result = nl.item(0);
-				}
-	    		workItemNode.getWork().setParameter(dataInputs.get(to), result);
-			}
-		}
+        DataAssociationFactory.readDataInputAssociation(xmlNode, dataInputs, DataAssociationFactory::isLegacyAssignment,
+                workItemNode::addInAssociation, (name, value) -> workItemNode.getWork().setParameter(name, value));
     }
-    
+
     protected void readDataOutputAssociation(org.w3c.dom.Node xmlNode, WorkItemNode workItemNode, Map<String, String> dataOutputs) {
-		// sourceRef
-		org.w3c.dom.Node subNode = xmlNode.getFirstChild();
-		String source = subNode.getTextContent();
-		// targetRef
-		subNode = subNode.getNextSibling();
-		String target = subNode.getTextContent();
-		// transformation
-		Transformation transformation = null;
-		subNode = subNode.getNextSibling();
-		if (subNode != null && "transformation".equals(subNode.getNodeName())) {
-			String lang = subNode.getAttributes().getNamedItem("language").getNodeValue();
-			String expression = subNode.getTextContent();
-			DataTransformer transformer = transformerRegistry.find(lang);
-			if (transformer == null) {
-				throw new IllegalArgumentException("No transformer registered for language " + lang);
-			}    			
-			transformation = new Transformation(lang, expression, source);
-//			transformation.setCompiledExpression(transformer.compile(expression));
-			subNode = subNode.getNextSibling();
-		}
-        workItemNode.addOutAssociation(new DataAssociation(dataOutputs.get(source), target, DataAssociationFactory
-                .readAssignments(subNode), transformation));
+        workItemNode.addOutAssociation(DataAssociationFactory.readDataOutputAssociation(xmlNode, dataOutputs));
     }
 
     @Override
