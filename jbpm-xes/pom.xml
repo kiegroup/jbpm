@@ -138,17 +138,6 @@
       <artifactId>postgresql</artifactId>
     </dependency>
 
-    <!-- needed for jdk 11 -->
-    <dependency>
-      <groupId>org.jboss.spec.javax.xml.bind</groupId>
-      <artifactId>jboss-jaxb-api_2.3_spec</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>javax.activation</groupId>
-      <artifactId>activation</artifactId>
-    </dependency>
-
   </dependencies>
 
   <build>
