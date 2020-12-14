@@ -905,7 +905,7 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler imple
     protected void addCustomHeaders(String headers,
             BiConsumer<String, String> consumer) {
         for(String h : headers.split(";")) {
-             String[] headerParts = h.split("=");
+             String[] headerParts = h.split("=",2);
              if(headerParts.length == 2) {
                  consumer.accept(headerParts[0], headerParts[1]);
              } 
