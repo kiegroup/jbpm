@@ -196,17 +196,23 @@ public class PerCaseRuntimeManager extends AbstractRuntimeManager {
 
         // first signal with new context in case there are start event with signal
         RuntimeEngine runtimeEngine = getRuntimeEngine(ProcessInstanceIdContext.get());
-        runtimeEngine.getKieSession().signalEvent(type, event);
-        if (canDispose(runtimeEngine)) {
-            disposeRuntimeEngine(runtimeEngine);
+        try {
+            runtimeEngine.getKieSession().signalEvent(type, event);
+        } finally {
+            if (canDispose(runtimeEngine)) {
+                disposeRuntimeEngine(runtimeEngine);
+            }
         }
         // next find out all instances waiting for given event type
         List<String> processInstances = ((InternalMapper) mapper).findContextIdForEvent(type, getIdentifier());
         for (String piId : processInstances) {
             runtimeEngine = getRuntimeEngine(ProcessInstanceIdContext.get(Long.parseLong(piId)));
-            runtimeEngine.getKieSession().signalEvent(type, event);
-            if (canDispose(runtimeEngine)) {
-                disposeRuntimeEngine(runtimeEngine);
+            try {
+                runtimeEngine.getKieSession().signalEvent(type, event);
+            } finally {
+                if (canDispose(runtimeEngine)) {
+                    disposeRuntimeEngine(runtimeEngine);
+                }
             }
         }
 
