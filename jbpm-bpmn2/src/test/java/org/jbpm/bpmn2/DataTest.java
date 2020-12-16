@@ -330,6 +330,11 @@ public class DataTest extends JbpmBpmn2TestCase {
     }
 
     @Test
+    public void testDataInputAssociationsWithPojoWithoutSource() throws Exception {
+        internalTestDataInputAssociationWithPojo("BPMN2-DataInputAssociationsWithoutSource.bpmn2");
+    }
+
+    @Test
     public void testDataInputAssociationsWithPojoComplete() throws Exception {
         internalTestDataInputAssociationWithPojo("BPMN2-DataInputAssociations-Pojo-Complete.bpmn2");
     }
@@ -649,6 +654,71 @@ public class DataTest extends JbpmBpmn2TestCase {
                 });
         ksession.startProcess("process", Collections.singletonMap("instanceMetadata", new Person("Napoleon",
                         new Address("Paris", "France"))));
+    }
+
+    @Test
+    public void testDataInputAssociationsStunnerWithPojo() throws Exception {
+        KieBase kbase = createKnowledgeBaseWithoutDumper("BPMN2-DataInputAssociationStunner.bpmn2");
+        ksession = createKnowledgeSession(kbase);
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task",
+                new WorkItemHandler() {
+
+                    public void abortWorkItem(WorkItem manager,
+                                              WorkItemManager mgr) {}
+
+                    public void executeWorkItem(WorkItem workItem,
+                                                WorkItemManager mgr) {
+                        WorkflowProcessInstance processInstance = (WorkflowProcessInstance) ksession
+                                .getProcessInstance(
+                                        workItem.getProcessInstanceId());
+                        Person person = (Person) processInstance.getVariable("instanceMetadata");
+                        assertNotNull(person);
+                        assertEquals("Napoleon", person.getName());
+                        assertEquals("Paris", person.getAddress().getCity());
+                        assertEquals("France", person.getAddress().getCountry());
+                        mgr.completeWorkItem(workItem.getId(), Collections.emptyMap());
+                        Address address = (Address) workItem.getParameter("output");
+                        assertEquals("Paris", address.getCity());
+                        assertEquals("France", address.getCountry());
+                    }
+
+                });
+
+        ksession.startProcess("process", Collections.singletonMap("instanceMetadata", new Person("Napoleon",
+                new Address("Paris", "France"))));
+    }
+
+    @Test
+    public void testDataOutputAssociationsStunnerWithPojo() throws Exception {
+        KieBase kbase = createKnowledgeBaseWithoutDumper("BPMN2-DataOutputAssociationStunner.bpmn2");
+        ksession = createKnowledgeSession(kbase);
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task",
+                new WorkItemHandler() {
+
+                    public void abortWorkItem(WorkItem manager,
+                                              WorkItemManager mgr) {
+
+                    }
+
+                    public void executeWorkItem(WorkItem workItem,
+                                                WorkItemManager mgr) {
+                        WorkflowProcessInstance processInstance = (WorkflowProcessInstance) ksession.getProcessInstance(
+                                workItem.getProcessInstanceId());
+                        Person person = (Person) processInstance.getVariable("instanceMetadata");
+                        assertNotNull(person);
+                        assertEquals("Napoleon", person.getName());
+                        assertEquals("Paris", person.getAddress().getCity());
+                        assertEquals("France", person.getAddress().getCountry());
+                        mgr.completeWorkItem(workItem.getId(), Collections.singletonMap("output", new Address("Sevilla",
+                                "Spain")));
+                        assertEquals("Napoleon", person.getName());
+                        assertEquals("Sevilla", person.getAddress().getCity());
+                        assertEquals("Spain", person.getAddress().getCountry());
+                    }
+
+                });
+        ksession.startProcess("process", Collections.singletonMap("instanceMetadata", new Person("Napoleon",
+                new Address("Paris", "France"))));
     }
 
     @Test
