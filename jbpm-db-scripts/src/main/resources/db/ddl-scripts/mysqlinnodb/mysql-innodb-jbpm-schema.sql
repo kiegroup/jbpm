@@ -110,7 +110,7 @@
 
     create table CorrelationKeyInfo (
         keyId bigint not null auto_increment,
-        name varchar(255),
+        name varchar(255) not null,
         processInstanceId bigint not null,
         OPTLOCK integer,
         primary key (keyId)

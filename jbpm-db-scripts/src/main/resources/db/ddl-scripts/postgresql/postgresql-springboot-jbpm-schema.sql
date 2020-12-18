@@ -40,7 +40,7 @@ create table CaseIdInfo (id int8 not null, caseIdPrefix varchar(255), currentVal
 create table CaseRoleAssignmentLog (id int8 not null, caseId varchar(255), entityId varchar(255), processInstanceId int8 not null, roleName varchar(255), type int4 not null, primary key (id));
 create table Content (id int8 not null, content oid, primary key (id));
 create table ContextMappingInfo (mappingId int8 not null, CONTEXT_ID varchar(255) not null, KSESSION_ID int8 not null, OWNER_ID varchar(255), OPTLOCK int4, primary key (mappingId));
-create table CorrelationKeyInfo (keyId int8 not null, name varchar(255), processInstanceId int8 not null, OPTLOCK int4, primary key (keyId));
+create table CorrelationKeyInfo (keyId int8 not null, name varchar(255) not null, processInstanceId int8 not null, OPTLOCK int4, primary key (keyId));
 create table CorrelationPropertyInfo (propertyId int8 not null, name varchar(255), value varchar(255), OPTLOCK int4, correlationKey_keyId int8, primary key (propertyId));
 create table Deadline (id int8 not null, deadline_date timestamp, escalated int2, Deadlines_StartDeadLine_Id int8, Deadlines_EndDeadLine_Id int8, primary key (id));
 create table Delegation_delegates (task_id int8 not null, entity_id varchar(255) not null);
