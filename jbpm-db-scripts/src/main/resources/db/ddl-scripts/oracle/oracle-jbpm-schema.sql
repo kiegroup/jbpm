@@ -102,7 +102,7 @@
 
     create table CorrelationKeyInfo (
         keyId number(19,0) not null,
-        name varchar2(255 char),
+        name varchar2(255 char) not null,
         processInstanceId number(19,0) not null,
         OPTLOCK number(10,0),
         primary key (keyId)
