@@ -73,7 +73,6 @@ public class HumanTaskTest extends JbpmTestCase {
     private static final String HUMAN_TASK_LISTENER_ID = "org.jbpm.test.regression.task.HumanTask-Listener";
 
     @Test
-    @Ignore("958397")
     public void testBoundaryTimer() throws Exception {
         createRuntimeManager(BOUNDARY_TIMER);
         KieSession ksession = getRuntimeEngine().getKieSession();
@@ -101,7 +100,6 @@ public class HumanTaskTest extends JbpmTestCase {
     }
 
     @Test
-    @Ignore("1004681")
     public void testCompletionRollback() {
         createRuntimeManager(COMPLETION_ROLLBACK);
         TaskService taskService = getRuntimeEngine().getTaskService();
@@ -132,7 +130,6 @@ public class HumanTaskTest extends JbpmTestCase {
     }
 
     @Test
-    @Ignore("1120122")
     public void testOnEntryScriptException() {
         createRuntimeManager(ON_ENTRY_SCRIPT_EXCEPTION);
         KieSession ksession = getRuntimeEngine().getKieSession();
@@ -148,7 +145,6 @@ public class HumanTaskTest extends JbpmTestCase {
     }
 
     @Test
-    @Ignore("1120122")
     public void testOnExitScriptException() {
         createRuntimeManager(ON_EXIT_SCRIPT_EXCEPTION);
         KieSession ksession = getRuntimeEngine().getKieSession();
@@ -176,7 +172,6 @@ public class HumanTaskTest extends JbpmTestCase {
     }
 
     @Test
-    @Ignore("1145046")
     public void testAbortWorkItemTaskStatus() {
         for (int i = 0; i < 5; i++) {
             createRuntimeManager(Strategy.PROCESS_INSTANCE, "abortWorkItemTaskStatus" + i, ABORT_WORKITEM_TASK_STATUS);
@@ -197,7 +192,6 @@ public class HumanTaskTest extends JbpmTestCase {
     }
 
     @Test
-    @Ignore("1139496")
     public void testLocale() {
         KieSession ksession = createKSession(LOCALE);
 
@@ -218,7 +212,6 @@ public class HumanTaskTest extends JbpmTestCase {
     }
 
     @Test
-    @Ignore("1081508")
     public void testInputTransformation() {
         KieSession ksession = createKSession(INPUT_TRANSFORMATION);
 

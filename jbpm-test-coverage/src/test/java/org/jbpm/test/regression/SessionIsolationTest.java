@@ -21,7 +21,6 @@ import java.util.Map;
 
 import org.assertj.core.api.Assertions;
 import org.jbpm.test.JbpmTestCase;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.kie.api.io.ResourceType;
 import org.kie.api.runtime.KieSession;
@@ -29,7 +28,6 @@ import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 
-@Ignore("852738")
 public class SessionIsolationTest extends JbpmTestCase {
 
     private static final String SIGNAL = "org/jbpm/test/regression/SessionIsolation-signal.bpmn";

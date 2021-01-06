@@ -23,7 +23,6 @@ import org.jbpm.test.JbpmAsyncJobTestCase;
 import org.jbpm.test.listener.TrackingProcessEventListener;
 import org.jbpm.test.persistence.util.PersistenceUtil;
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.kie.api.executor.Command;
 import org.kie.api.executor.CommandContext;
@@ -56,7 +55,6 @@ public class AsyncWIHOnOracleTest extends JbpmAsyncJobTestCase {
     }
 
     @Test
-    @Ignore("1234592")
     public void testAsyncWIHExecutedMoreThanOnceOnOracle() throws Exception {
         KieSession ksession = createKSession(PROCESS);
 

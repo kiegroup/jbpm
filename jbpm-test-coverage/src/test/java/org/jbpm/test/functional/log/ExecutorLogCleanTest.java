@@ -26,7 +26,6 @@ import org.jbpm.executor.impl.jpa.ExecutorJPAAuditService;
 import org.jbpm.executor.impl.wih.AsyncWorkItemHandler;
 import org.jbpm.test.JbpmAsyncJobTestCase;
 import org.jbpm.test.listener.CountDownAsyncJobListener;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.kie.api.executor.ErrorInfo;
 import org.kie.api.executor.STATUS;
@@ -95,7 +94,6 @@ public class ExecutorLogCleanTest extends JbpmAsyncJobTestCase {
     }
 
     @Test
-    @Ignore("1188702")
     public void deleteErrorLogsByDate() throws Exception {
         CountDownAsyncJobListener countDownListener = new CountDownAsyncJobListener(2);
         ((ExecutorServiceImpl) getExecutorService()).addAsyncJobListener(countDownListener);

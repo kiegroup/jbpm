@@ -22,7 +22,6 @@ import org.jbpm.process.instance.impl.demo.SystemOutWorkItemHandler;
 import org.jbpm.test.JbpmTestCase;
 import org.jbpm.workflow.instance.WorkflowProcessInstance;
 import org.jbpm.workflow.instance.WorkflowRuntimeException;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessInstance;
@@ -40,7 +39,6 @@ public class EventSubprocessTest extends JbpmTestCase {
             "org.jbpm.test.regression.subprocess.EventSubprocess-errorCodeException";
 
     @Test
-    @Ignore("1082111")
     public void testErrorCodeException() {
         KieSession ksession = createKSession(ERROR_CODE_EXCEPTION);
 

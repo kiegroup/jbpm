@@ -22,7 +22,6 @@ import java.util.List;
 
 import org.assertj.core.api.Assertions;
 import org.jbpm.test.JbpmTestCase;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.task.model.Status;
@@ -43,7 +42,6 @@ public class HumanTaskAssignmentTest extends JbpmTestCase {
             "org.jbpm.test.regression.task.HumanTaskAssignment-getTasksOwnerUser";
 
     @Test
-    @Ignore("1103977")
     public void testGetTasksAssignedAsPotentialOwnerGroup() {
         createRuntimeManager(GET_TASKS_OWNER_GROUP);
         KieSession ksession = getRuntimeEngine().getKieSession();
@@ -78,7 +76,6 @@ public class HumanTaskAssignmentTest extends JbpmTestCase {
     }
 
     @Test
-    @Ignore("1178153")
     public void testGetTasksAssignedAsPotentialOwnerUser() {
         createRuntimeManager(GET_TASKS_OWNER_USER);
         KieSession ksession = getRuntimeEngine().getKieSession();

@@ -21,7 +21,6 @@ import java.util.List;
 import org.jbpm.services.task.admin.listener.TaskCleanUpProcessEventListener;
 import org.jbpm.test.JbpmJUnitBaseTestCase;
 import org.jbpm.test.JbpmTestCase;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.RuntimeEngine;
@@ -50,7 +49,6 @@ public class HumanTaskCleanUpEarlyFlushTest extends JbpmTestCase {
             "org/jbpm/test/regression/task/HumanTaskCleanUpEarlyFlush-signal-receiver.bpmn2";
 
     @Test
-    @Ignore("1128377, 1177736")
     public void testSubprocess() {
         createRuntimeManager(SUBPROCESS_PARENT, SUBPROCESS_CHILD1, SUBPROCESS_CHILD2);
 
@@ -86,19 +84,16 @@ public class HumanTaskCleanUpEarlyFlushTest extends JbpmTestCase {
     }
 
     @Test
-    @Ignore("1165466")
     public void testSignalSingleton() {
         testSignal(JbpmJUnitBaseTestCase.Strategy.SINGLETON);
     }
 
     @Test
-    @Ignore("1165466")
     public void testSignalPerRequest() {
         testSignal(JbpmJUnitBaseTestCase.Strategy.REQUEST);
     }
 
     @Test
-    @Ignore("1165466")
     public void testSignalPerProcessInstance() {
         testSignal(JbpmJUnitBaseTestCase.Strategy.PROCESS_INSTANCE);
     }

@@ -20,7 +20,6 @@ import java.util.List;
 
 import org.assertj.core.api.Assertions;
 import org.jbpm.test.JbpmTestCase;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.RuntimeEngine;
@@ -49,7 +48,6 @@ public class ReusableSubprocessTest extends JbpmTestCase {
             "org.jbpm.test.regression.subprocess.ReusableSubprocess-dependentSubprocessAbort-subprocess";
 
     @Test
-    @Ignore("1194180")
     public void testWaitForCompletionFalse() throws Exception {
         createRuntimeManager(Strategy.PROCESS_INSTANCE, "BZ1194180-ppi-manager", WAIT_FOR_COMPLETION_FALSE_PARENT,
                 WAIT_FOR_COMPLETION_FALSE_SUBPROCESS);
@@ -61,7 +59,6 @@ public class ReusableSubprocessTest extends JbpmTestCase {
     }
 
     @Test
-    @Ignore("1128597")
     public void testDependentSubprocessAbort() {
         RuntimeManager manager = createRuntimeManager(Strategy.PROCESS_INSTANCE, "myPpiManager",
                 DEPENDENT_SUBPROCESS_ABORT_PARENT, DEPENDENT_SUBPROCESS_ABORT_SUBPROCESS);

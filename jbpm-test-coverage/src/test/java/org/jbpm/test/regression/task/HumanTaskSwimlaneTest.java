@@ -24,7 +24,6 @@ import java.util.Map;
 import org.assertj.core.api.Assertions;
 import org.jbpm.test.JbpmTestCase;
 import org.jbpm.workflow.instance.node.HumanTaskNodeInstance;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.kie.api.event.process.DefaultProcessEventListener;
 import org.kie.api.event.process.ProcessNodeTriggeredEvent;
@@ -60,7 +59,6 @@ public class HumanTaskSwimlaneTest extends JbpmTestCase {
     private TaskService taskService;
 
     @Test
-    @Ignore("997139")
     public void testSameGroups() {
         createRuntimeManager(SWIMLANE_SAME_GROUPS);
         KieSession ksession = getRuntimeEngine().getKieSession();
@@ -80,7 +78,6 @@ public class HumanTaskSwimlaneTest extends JbpmTestCase {
     }
 
     @Test
-    @Ignore("997139")
     public void testDifferentGroups() {
         createRuntimeManager(SWIMLANE_DIFFERENT_GROUPS);
         KieSession ksession = getRuntimeEngine().getKieSession();

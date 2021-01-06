@@ -104,7 +104,7 @@ public class AdHocSubProcessTest extends JbpmTestCase {
         assertEquals("addedWorkItem", wi.getName());
     }
 
-    @Ignore("807187")
+    @Ignore("BZ-807187")
     @Test(timeout = 30000)
     public void testAdHocSubprocess() {
         KieSession kieSession = createKSession(ADHOC);
@@ -173,7 +173,7 @@ public class AdHocSubProcessTest extends JbpmTestCase {
         assertProcessCompleted(eventListener, ADHOC_AUTOCOMPLETE_ID);
     }
 
-    @Ignore("808070")
+    @Ignore("BZ-808070")
     @Test(timeout = 30000)
     public void testAdHocSubProcessAutoComplete2() {
         KieSession kieSession = createKSession(ADHOC_AUTOCOMPLETE2);

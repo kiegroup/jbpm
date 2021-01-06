@@ -25,7 +25,6 @@ import org.jbpm.executor.impl.wih.AsyncWorkItemHandler;
 import org.jbpm.test.JbpmAsyncJobTestCase;
 import org.jbpm.test.listener.CountDownAsyncJobListener;
 import org.jbpm.test.listener.process.NodeLeftCountDownProcessEventListener;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessInstance;
@@ -82,7 +81,6 @@ public class AsyncTaskTest extends JbpmAsyncJobTestCase {
     }
 
     @Test(timeout=10000)
-    @Ignore("1121027")
     public void testTaskComplete() throws Exception {
         NodeLeftCountDownProcessEventListener countDownListener = new NodeLeftCountDownProcessEventListener("Process async", 1);
         CountDownAsyncJobListener countDownJobListener = new CountDownAsyncJobListener(1);

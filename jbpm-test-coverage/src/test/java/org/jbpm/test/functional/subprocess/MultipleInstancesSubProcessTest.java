@@ -24,7 +24,6 @@ import java.util.Map;
 import org.jbpm.test.JbpmTestCase;
 import org.jbpm.test.listener.DebugProcessEventListener;
 import org.jbpm.test.listener.IterableProcessEventListener;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.kie.api.command.Command;
 import org.kie.api.runtime.KieSession;
@@ -48,7 +47,6 @@ public class MultipleInstancesSubProcessTest extends JbpmTestCase {
         super(false);
     }
 
-    @Ignore("802721")
     @Test(timeout = 30000)
     public void testMultipleInstances() {
         KieSession kieSession = createKSession(MULTIPLE_INSTANCES);

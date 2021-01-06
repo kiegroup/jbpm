@@ -26,7 +26,6 @@ import org.jbpm.test.JbpmTestCase;
 import org.jbpm.test.listener.TrackingAgendaEventListener;
 import org.jbpm.test.listener.TrackingProcessEventListener;
 import org.jbpm.test.listener.TrackingRuleRuntimeEventListener;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.kie.api.command.Command;
 import org.kie.api.io.ResourceType;
@@ -39,7 +38,6 @@ public class RuleTest extends JbpmTestCase {
     private static final String ON_ENTRY_EVENT_DRL = "org/jbpm/test/regression/Rule-onEntryEvent.drl";
 
     @Test
-    @Ignore("852095")
     public void testNoOnEntryEvent() {
         Map<String, ResourceType> res = new HashMap<String, ResourceType>();
         res.put(ON_ENTRY_EVENT, ResourceType.BPMN2);

@@ -22,7 +22,6 @@ import java.util.Collection;
 import org.jbpm.test.JbpmTestCase;
 import org.jbpm.workflow.instance.WorkflowRuntimeException;
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -34,7 +33,6 @@ import org.kie.api.runtime.process.WorkItemManager;
 
 import static org.junit.Assert.fail;
 
-@Ignore("1175689")
 @RunWith(Parameterized.class)
 public class BoundaryErrorEventTest extends JbpmTestCase {
 

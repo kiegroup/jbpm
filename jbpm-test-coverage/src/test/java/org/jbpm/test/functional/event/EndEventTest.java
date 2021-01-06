@@ -25,7 +25,6 @@ import org.drools.core.process.instance.WorkItemHandler;
 import org.jbpm.test.JbpmTestCase;
 import org.jbpm.test.listener.IterableProcessEventListener;
 import org.jbpm.test.listener.TrackingProcessEventListener;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.kie.api.command.Command;
 import org.kie.api.runtime.KieSession;
@@ -66,7 +65,6 @@ public class EndEventTest extends JbpmTestCase {
         super(false);
     }
 
-    @Ignore("1021631")
     @Test(timeout = 30000)
     public void testCompensateEndEvent() {
         KieSession ksession = createKSession(COMPENSATE);
@@ -125,7 +123,6 @@ public class EndEventTest extends JbpmTestCase {
         Assertions.assertThat(events.hasNext()).isFalse();
     }
 
-    @Ignore("1015221")
     @Test(timeout = 30000)
     public void testEscalationEndEvent() {
         KieSession ksession = createKSession(ESCALATION);

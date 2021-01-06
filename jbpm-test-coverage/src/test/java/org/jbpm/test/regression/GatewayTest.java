@@ -23,7 +23,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.jbpm.process.instance.impl.demo.SystemOutWorkItemHandler;
 import org.jbpm.test.JbpmTestCase;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessInstance;
@@ -40,7 +39,6 @@ public class GatewayTest extends JbpmTestCase {
     private static final String XPATH_EVALUATION_ID = "org.jbpm.test.regression.Gateway-xPathEvaluation";
 
     @Test
-    @Ignore("1146829")
     public void testInclusiveGatewayDefaultGate() {
         KieSession ksession = createKSession(INCLUSIVE_DEFAULT);
         Map<String, Object> params = new HashMap<String, Object>();
@@ -50,7 +48,6 @@ public class GatewayTest extends JbpmTestCase {
     }
 
     @Test
-    @Ignore("1071000")
     public void testExclusiveSplitXPathAdvanced() throws Exception {
         KieSession ksession = createKSession(XPATH_EVALUATION);
         ksession.getWorkItemManager().registerWorkItemHandler("Email", new SystemOutWorkItemHandler());

@@ -23,7 +23,6 @@ import java.util.Map;
 
 import org.jbpm.test.JbpmTestCase;
 import org.jbpm.test.listener.IterableProcessEventListener;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.kie.api.command.Command;
 import org.kie.api.io.ResourceType;
@@ -123,7 +122,6 @@ public class RuleTaskTest extends JbpmTestCase {
         }
     }
 
-    @Ignore("1044504")
     @Test(timeout = 30000)
     public void testRuleTask2() {
         Map<String, ResourceType> res = new HashMap<String, ResourceType>();
