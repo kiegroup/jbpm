@@ -22,6 +22,7 @@ import java.util.List;
 import org.assertj.core.api.Assertions;
 import org.jbpm.test.JbpmTestCase;
 import org.jbpm.test.iodata.SignalObjectReport;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.kie.api.event.process.DefaultProcessEventListener;
 import org.kie.api.event.process.ProcessStartedEvent;
@@ -29,7 +30,6 @@ import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.audit.VariableInstanceLog;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.process.WorkflowProcessInstance;
-import qa.tools.ikeeper.annotation.BZ;
 
 public class StartEventTest extends JbpmTestCase {
 
@@ -50,7 +50,7 @@ public class StartEventTest extends JbpmTestCase {
             "org/jbpm/test/regression/event/StartEvent-signalOutputType.bpmn2";
 
     @Test
-    @BZ("1186015")
+    @Ignore("1186015")
     public void testErrorStartEventDefaultExceptionHandler() {
         KieSession ksession = createKSession(ERROR_EXCEPTION_HANDLER);
         ProcessInstance pi = ksession.startProcess(ERROR_EXCEPTION_HANDLER_ID);
@@ -63,7 +63,7 @@ public class StartEventTest extends JbpmTestCase {
     }
 
     @Test
-    @BZ("1186016")
+    @Ignore("1186016")
     public void testErrorStartEventDataOutputMapping() {
         KieSession ksession = createKSession(ERROR_EXCEPTION_MAPPING);
         ProcessInstance pi = ksession.startProcess(ERROR_EXCEPTION_MAPPING_ID);
@@ -76,7 +76,7 @@ public class StartEventTest extends JbpmTestCase {
     }
 
     @Test
-    @BZ("1154557")
+    @Ignore("1154557")
     public void testSignalStartEventDataMapping() throws Exception {
         KieSession ksession = createKSession(SIGNAL_DATA_MAPPING);
         final List<Long> list = new ArrayList<Long>();
@@ -93,7 +93,7 @@ public class StartEventTest extends JbpmTestCase {
     }
 
     @Test
-    @BZ("1090375")
+    @Ignore("1090375")
     public void testSignalOutputType() throws Exception {
         KieSession ksession = createKSession(SIGNAL_OUTPUT_TYPE);
         SignalObjectReport report = new SignalObjectReport("Type of signal object report");

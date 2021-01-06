@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.assertj.core.api.Assertions;
 import org.jbpm.test.JbpmTestCase;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.RuntimeEngine;
@@ -30,7 +31,6 @@ import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.task.model.TaskSummary;
 import org.kie.internal.query.QueryFilter;
 import org.kie.internal.task.api.InternalTaskService;
-import qa.tools.ikeeper.annotation.BZ;
 
 public class HumanTaskQueryFilterTest extends JbpmTestCase {
 
@@ -124,7 +124,7 @@ public class HumanTaskQueryFilterTest extends JbpmTestCase {
     }
 
     @Test
-    @BZ("1132157")
+    @Ignore("1132157")
     public void testFilterParams() {
         startHumanTaskProcess(10, "john's task", "john");
         Map<String, Object> parameters = new HashMap<String, Object>();

@@ -17,7 +17,11 @@
 package org.jbpm.test.functional.jobexec;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.persistence.EntityManagerFactory;
 
@@ -28,12 +32,12 @@ import org.jbpm.runtime.manager.impl.jpa.EntityManagerFactoryManager;
 import org.jbpm.services.task.audit.service.TaskJPAAuditService;
 import org.jbpm.test.JbpmAsyncJobTestCase;
 import org.jbpm.test.listener.CountDownAsyncJobListener;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.task.TaskService;
 import org.kie.internal.executor.api.CommandContext;
-import qa.tools.ikeeper.annotation.BZ;
 
 /**
  * BZ-TODO: SingleRun - only accepts "true"/"false" but is boolean type, other boolean types accept true/false.
@@ -185,7 +189,7 @@ public class LogCleanupCommandTest extends JbpmAsyncJobTestCase {
     }
 
     @Test(timeout=10000)
-    @BZ("1190881")
+    @Ignore("1190881")
     public void deleteAllLogsOlderThanNow() throws Exception {
         CountDownAsyncJobListener countDownListener = new CountDownAsyncJobListener(1);
         ((ExecutorServiceImpl) getExecutorService()).addAsyncJobListener(countDownListener);
@@ -216,7 +220,7 @@ public class LogCleanupCommandTest extends JbpmAsyncJobTestCase {
     }
 
     @Test(timeout=10000)
-    @BZ("1190881")
+    @Ignore("1190881")
     public void deleteAllLogsOlderThanPeriod() throws Exception {
         CountDownAsyncJobListener countDownListener = new CountDownAsyncJobListener(1);
         ((ExecutorServiceImpl) getExecutorService()).addAsyncJobListener(countDownListener);

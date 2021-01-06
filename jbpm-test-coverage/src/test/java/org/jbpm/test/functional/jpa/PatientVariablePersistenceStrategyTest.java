@@ -16,7 +16,6 @@
 
 package org.jbpm.test.functional.jpa;
 
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -33,7 +32,6 @@ import javax.transaction.UserTransaction;
 import org.drools.core.marshalling.impl.ClassObjectMarshallingStrategyAcceptor;
 import org.drools.core.marshalling.impl.SerializablePlaceholderResolverStrategy;
 import org.drools.persistence.jpa.marshaller.JPAPlaceholderResolverStrategy;
-import org.jbpm.marshalling.impl.ProcessInstanceResolverStrategy;
 import org.jbpm.services.task.utils.ContentMarshallerHelper;
 import org.jbpm.test.JbpmTestCase;
 import org.jbpm.test.entity.MedicalRecord;
@@ -54,7 +52,9 @@ import org.kie.api.task.model.TaskSummary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class PatientVariablePersistenceStrategyTest extends JbpmTestCase {
 

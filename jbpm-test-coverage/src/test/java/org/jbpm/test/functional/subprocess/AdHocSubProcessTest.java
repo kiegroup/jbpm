@@ -26,6 +26,7 @@ import org.jbpm.test.JbpmTestCase;
 import org.jbpm.test.listener.TrackingProcessEventListener;
 import org.jbpm.workflow.instance.node.DynamicNodeInstance;
 import org.jbpm.workflow.instance.node.DynamicUtils;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.kie.api.command.Command;
 import org.kie.api.runtime.KieSession;
@@ -35,7 +36,6 @@ import org.kie.api.runtime.process.WorkItemHandler;
 import org.kie.api.runtime.process.WorkItemManager;
 import org.kie.api.runtime.process.WorkflowProcessInstance;
 import org.kie.internal.command.CommandFactory;
-import qa.tools.ikeeper.annotation.BZ;
 
 import static org.jbpm.test.tools.TrackingListenerAssert.assertLeft;
 import static org.jbpm.test.tools.TrackingListenerAssert.assertProcessCompleted;
@@ -104,7 +104,7 @@ public class AdHocSubProcessTest extends JbpmTestCase {
         assertEquals("addedWorkItem", wi.getName());
     }
 
-    @BZ("807187")
+    @Ignore("807187")
     @Test(timeout = 30000)
     public void testAdHocSubprocess() {
         KieSession kieSession = createKSession(ADHOC);
@@ -173,7 +173,7 @@ public class AdHocSubProcessTest extends JbpmTestCase {
         assertProcessCompleted(eventListener, ADHOC_AUTOCOMPLETE_ID);
     }
 
-    @BZ("808070")
+    @Ignore("808070")
     @Test(timeout = 30000)
     public void testAdHocSubProcessAutoComplete2() {
         KieSession kieSession = createKSession(ADHOC_AUTOCOMPLETE2);

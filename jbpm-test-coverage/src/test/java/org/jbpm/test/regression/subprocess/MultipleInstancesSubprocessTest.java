@@ -24,6 +24,7 @@ import java.util.Map;
 import org.assertj.core.api.Assertions;
 import org.jbpm.test.JbpmTestCase;
 import org.jbpm.test.listener.TrackingProcessEventListener;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.kie.api.command.Command;
 import org.kie.api.runtime.KieSession;
@@ -31,9 +32,7 @@ import org.kie.api.runtime.manager.audit.ProcessInstanceLog;
 import org.kie.api.runtime.manager.audit.VariableInstanceLog;
 import org.kie.api.runtime.process.ProcessInstance;
 
-import qa.tools.ikeeper.annotation.BZ;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 public class MultipleInstancesSubprocessTest extends JbpmTestCase {
 
@@ -56,7 +55,7 @@ public class MultipleInstancesSubprocessTest extends JbpmTestCase {
             "org.jbpm.test.regression.subprocess.MultipleInstancesSubprocess-entryAndExitScript-subprocess";
 
     @Test
-    @BZ("958390")
+    @Ignore("958390")
     public void testTimerEvent() throws Exception {
         KieSession ksession = createKSession(TIMER_EVENT_PARENT, TIMER_EVENT_SUBPROCESS1, TIMER_EVENT_SUBPROCESS2);
         TrackingProcessEventListener processEvents = new TrackingProcessEventListener();
@@ -84,7 +83,7 @@ public class MultipleInstancesSubprocessTest extends JbpmTestCase {
     }
 
     @Test
-    @BZ("1123789")
+    @Ignore("1123789")
     public void testEntryAndExitScript() {
         createRuntimeManager(ENTRY_AND_EXIT_SCRIPT_PARENT, ENTRY_AND_EXIT_SCRIPT_SUBPROCESS);
         KieSession ksession = getRuntimeEngine().getKieSession();

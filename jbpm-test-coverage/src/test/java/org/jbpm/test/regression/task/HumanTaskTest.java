@@ -27,6 +27,7 @@ import org.assertj.core.api.Assertions;
 import org.jbpm.services.task.events.DefaultTaskEventListener;
 import org.jbpm.test.JbpmTestCase;
 import org.jbpm.test.listener.TrackingProcessEventListener;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.RuntimeEngine;
@@ -38,7 +39,6 @@ import org.kie.api.task.model.Status;
 import org.kie.api.task.model.Task;
 import org.kie.api.task.model.TaskSummary;
 import org.kie.internal.task.api.EventService;
-import qa.tools.ikeeper.annotation.BZ;
 
 import static java.util.Collections.emptyMap;
 import static org.jbpm.test.tools.TrackingListenerAssert.assertTriggered;
@@ -73,7 +73,7 @@ public class HumanTaskTest extends JbpmTestCase {
     private static final String HUMAN_TASK_LISTENER_ID = "org.jbpm.test.regression.task.HumanTask-Listener";
 
     @Test
-    @BZ("958397")
+    @Ignore("958397")
     public void testBoundaryTimer() throws Exception {
         createRuntimeManager(BOUNDARY_TIMER);
         KieSession ksession = getRuntimeEngine().getKieSession();
@@ -101,7 +101,7 @@ public class HumanTaskTest extends JbpmTestCase {
     }
 
     @Test
-    @BZ("1004681")
+    @Ignore("1004681")
     public void testCompletionRollback() {
         createRuntimeManager(COMPLETION_ROLLBACK);
         TaskService taskService = getRuntimeEngine().getTaskService();
@@ -132,7 +132,7 @@ public class HumanTaskTest extends JbpmTestCase {
     }
 
     @Test
-    @BZ("1120122")
+    @Ignore("1120122")
     public void testOnEntryScriptException() {
         createRuntimeManager(ON_ENTRY_SCRIPT_EXCEPTION);
         KieSession ksession = getRuntimeEngine().getKieSession();
@@ -148,7 +148,7 @@ public class HumanTaskTest extends JbpmTestCase {
     }
 
     @Test
-    @BZ("1120122")
+    @Ignore("1120122")
     public void testOnExitScriptException() {
         createRuntimeManager(ON_EXIT_SCRIPT_EXCEPTION);
         KieSession ksession = getRuntimeEngine().getKieSession();
@@ -176,7 +176,7 @@ public class HumanTaskTest extends JbpmTestCase {
     }
 
     @Test
-    @BZ("1145046")
+    @Ignore("1145046")
     public void testAbortWorkItemTaskStatus() {
         for (int i = 0; i < 5; i++) {
             createRuntimeManager(Strategy.PROCESS_INSTANCE, "abortWorkItemTaskStatus" + i, ABORT_WORKITEM_TASK_STATUS);
@@ -197,7 +197,7 @@ public class HumanTaskTest extends JbpmTestCase {
     }
 
     @Test
-    @BZ("1139496")
+    @Ignore("1139496")
     public void testLocale() {
         KieSession ksession = createKSession(LOCALE);
 
@@ -218,7 +218,7 @@ public class HumanTaskTest extends JbpmTestCase {
     }
 
     @Test
-    @BZ("1081508")
+    @Ignore("1081508")
     public void testInputTransformation() {
         KieSession ksession = createKSession(INPUT_TRANSFORMATION);
 

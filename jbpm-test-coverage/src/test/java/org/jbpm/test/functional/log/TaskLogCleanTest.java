@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 import org.assertj.core.api.Assertions;
 import org.jbpm.services.task.audit.service.TaskJPAAuditService;
 import org.jbpm.test.JbpmTestCase;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessInstance;
@@ -37,7 +38,6 @@ import org.kie.api.task.model.Status;
 import org.kie.api.task.model.Task;
 import org.kie.internal.task.api.AuditTask;
 import org.kie.internal.task.api.TaskVariable;
-import qa.tools.ikeeper.annotation.BZ;
 
 /**
  * Tests for:
@@ -120,7 +120,7 @@ public class TaskLogCleanTest extends JbpmTestCase {
     }
 
     @Test
-    @BZ("1188702")
+    @Ignore("1188702")
     public void testDeleteLogsByDate() {
         kieSession = createKSession(HUMAN_TASK);
 
@@ -152,7 +152,7 @@ public class TaskLogCleanTest extends JbpmTestCase {
     }
 
     @Test
-    @BZ("1193017")
+    @Ignore("1193017")
     public void testDeleteLogsByDateRange() throws InterruptedException {
         processInstanceList = new ArrayList<ProcessInstance>();
         kieSession = createKSession(HUMAN_TASK, INPUT_ASSOCIATION);
@@ -319,7 +319,7 @@ public class TaskLogCleanTest extends JbpmTestCase {
     }
 
     @Test
-    @BZ("1192912")
+    @Ignore("1192912")
     public void testClearLogs() {
         kieSession = createKSession(HUMAN_TASK);
         processInstanceList = startProcess(kieSession, HUMAN_TASK_ID, 2);

@@ -49,7 +49,9 @@ import org.kie.internal.task.api.UserInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 
 public class AdminAPIsWithListenerTest extends JbpmTestCase {
 

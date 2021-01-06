@@ -16,9 +16,6 @@
 
 package org.jbpm.test.functional.jpa;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -34,7 +31,6 @@ import org.drools.persistence.jpa.marshaller.JPAPlaceholderResolverStrategy;
 import org.jbpm.services.task.impl.command.CommandBasedTaskService;
 import org.jbpm.services.task.utils.ContentMarshallerHelper;
 import org.jbpm.test.JbpmTestCase;
-import org.jbpm.test.JbpmJUnitBaseTestCase.Strategy;
 import org.jbpm.test.entity.Application;
 import org.jbpm.test.entity.Person;
 import org.junit.Test;
@@ -49,8 +45,9 @@ import org.kie.api.task.model.Content;
 import org.kie.api.task.model.Task;
 import org.kie.api.task.model.TaskSummary;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 
 public class ParentChildMarshallingJpaTest extends JbpmTestCase {

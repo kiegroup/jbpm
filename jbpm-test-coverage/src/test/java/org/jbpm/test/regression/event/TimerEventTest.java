@@ -25,6 +25,7 @@ import java.util.Set;
 
 import org.assertj.core.api.Assertions;
 import org.jbpm.test.JbpmTestCase;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.audit.AuditService;
@@ -34,7 +35,6 @@ import org.kie.api.runtime.process.WorkItemHandler;
 import org.kie.api.runtime.process.WorkItemManager;
 import org.kie.api.task.TaskService;
 import org.kie.api.task.model.Task;
-import qa.tools.ikeeper.annotation.BZ;
 
 public class TimerEventTest extends JbpmTestCase {
 
@@ -56,7 +56,7 @@ public class TimerEventTest extends JbpmTestCase {
             "org.jbpm.test.regression.event.TimerEvent-boundaryMultipleInstances";
 
     @Test
-    @BZ({"958390", "1167738"})
+    @Ignore("958390, 1167738")
     public void testRuntimeExceptionAfterTimer() throws InterruptedException {
         KieSession ksession = createKSession(EXCEPTION_AFTER_TIMER);
         ProcessInstance pi = ksession.startProcess(EXCEPTION_AFTER_TIMER_ID);
@@ -69,7 +69,7 @@ public class TimerEventTest extends JbpmTestCase {
     }
 
     @Test
-    @BZ("1104563")
+    @Ignore("1104563")
     public void testStartTimerCycle() throws InterruptedException {
         createKSession(START_TIMER_CYCLE); //this starts already the timer
         AuditService auditService = getLogService();
@@ -85,7 +85,7 @@ public class TimerEventTest extends JbpmTestCase {
     }
 
     @Test
-    @BZ("1148304")
+    @Ignore("1148304")
     public void testCancelledTimerNotScheduled() {
         for (int i = 0; i < 5; i++) {
             createRuntimeManager(Strategy.PROCESS_INSTANCE, (String) null, CANCELLED_TIMER);
@@ -114,7 +114,7 @@ public class TimerEventTest extends JbpmTestCase {
     }
 
     @Test
-    @BZ("1036761")
+    @Ignore("1036761")
     public void testTimerAndGateway() throws Exception {
         KieSession ksession = createKSession(TIMER_AND_GATEWAY);
         int sessionId = ksession.getId();
@@ -151,7 +151,7 @@ public class TimerEventTest extends JbpmTestCase {
     }
 
     @Test
-    @BZ("1213209")
+    @Ignore("1213209")
     public void testBoundaryTimerInMultipleInstancesSubprocess() throws InterruptedException {
         KieSession ksession = createKSession(BOUNDARY_MULTIPLE_INSTANCES);
         ksession.setGlobal("counter", 0);

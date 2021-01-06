@@ -57,7 +57,7 @@ import org.kie.internal.task.api.InternalTaskService;
 import org.kie.internal.task.api.TaskModelProvider;
 import org.kie.internal.task.api.UserGroupCallback;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class ConcurrentHumanTaskTest extends JbpmTestCase {
 

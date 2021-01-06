@@ -25,15 +25,15 @@ import org.jbpm.executor.impl.wih.AsyncWorkItemHandler;
 import org.jbpm.test.JbpmAsyncJobTestCase;
 import org.jbpm.test.listener.CountDownAsyncJobListener;
 import org.jbpm.test.listener.process.NodeLeftCountDownProcessEventListener;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.process.WorkItemManager;
 import org.kie.api.runtime.query.QueryContext;
 
-import qa.tools.ikeeper.annotation.BZ;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 //
 // TODO: Add asserts job results
@@ -82,7 +82,7 @@ public class AsyncTaskTest extends JbpmAsyncJobTestCase {
     }
 
     @Test(timeout=10000)
-    @BZ("1121027")
+    @Ignore("1121027")
     public void testTaskComplete() throws Exception {
         NodeLeftCountDownProcessEventListener countDownListener = new NodeLeftCountDownProcessEventListener("Process async", 1);
         CountDownAsyncJobListener countDownJobListener = new CountDownAsyncJobListener(1);

@@ -28,14 +28,14 @@ import org.jbpm.process.core.timer.BusinessCalendar;
 import org.jbpm.process.core.timer.BusinessCalendarImpl;
 import org.jbpm.test.JbpmTestCase;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.task.TaskService;
 import org.kie.api.task.model.OrganizationalEntity;
 import org.kie.api.task.model.Task;
-import qa.tools.ikeeper.annotation.BZ;
 
-@BZ("958384")
+@Ignore("958384")
 public class BusinessCalendarTest extends JbpmTestCase {
 
     private static final String TIMER = "org/jbpm/test/regression/BusinessCalendar-timer.bpmn2";

@@ -24,12 +24,18 @@ import java.util.Map;
 import org.jbpm.test.JbpmTestCase;
 import org.jbpm.test.listener.DebugProcessEventListener;
 import org.jbpm.test.listener.IterableProcessEventListener;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.kie.api.command.Command;
 import org.kie.api.runtime.KieSession;
-import qa.tools.ikeeper.annotation.BZ;
 
-import static org.jbpm.test.tools.IterableListenerAssert.*;
+import static org.jbpm.test.tools.IterableListenerAssert.assertChangedMultipleInstancesVariable;
+import static org.jbpm.test.tools.IterableListenerAssert.assertChangedVariable;
+import static org.jbpm.test.tools.IterableListenerAssert.assertLeft;
+import static org.jbpm.test.tools.IterableListenerAssert.assertNextNode;
+import static org.jbpm.test.tools.IterableListenerAssert.assertProcessCompleted;
+import static org.jbpm.test.tools.IterableListenerAssert.assertProcessStarted;
+import static org.jbpm.test.tools.IterableListenerAssert.assertTriggered;
 
 public class MultipleInstancesSubProcessTest extends JbpmTestCase {
 
@@ -42,7 +48,7 @@ public class MultipleInstancesSubProcessTest extends JbpmTestCase {
         super(false);
     }
 
-    @BZ("802721")
+    @Ignore("802721")
     @Test(timeout = 30000)
     public void testMultipleInstances() {
         KieSession kieSession = createKSession(MULTIPLE_INSTANCES);

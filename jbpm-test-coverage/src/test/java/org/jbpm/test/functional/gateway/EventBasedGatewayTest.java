@@ -19,7 +19,6 @@ package org.jbpm.test.functional.gateway;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.kie.api.time.SessionPseudoClock;
 import org.jbpm.test.JbpmTestCase;
 import org.jbpm.test.listener.TrackingProcessEventListener;
 import org.jbpm.test.tools.TrackingListenerAssert;
@@ -29,9 +28,10 @@ import org.junit.Test;
 import org.kie.api.command.Command;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessInstance;
+import org.kie.api.time.SessionPseudoClock;
 import org.kie.internal.command.CommandFactory;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Event-based gateway execution test. branches: condition event, signal event, message event, timer event
