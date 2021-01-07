@@ -16,6 +16,7 @@
 
 package org.jbpm.test.functional.task;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +25,9 @@ import java.util.stream.Collectors;
 import org.jbpm.persistence.api.integration.InstanceView;
 import org.jbpm.persistence.api.integration.model.ProcessInstanceView;
 import org.jbpm.persistence.api.integration.model.TaskInstanceView;
+import org.jbpm.services.task.assignment.AssignmentServiceProvider;
+import org.jbpm.services.task.assignment.AssignmentServiceRegistry;
+import org.jbpm.services.task.assignment.impl.AssignmentImpl;
 import org.jbpm.test.JbpmTestCase;
 import org.jbpm.test.persistence.processinstance.objects.TestEventEmitter;
 import org.junit.Test;
@@ -31,9 +35,13 @@ import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.runtime.manager.RuntimeManager;
 import org.kie.api.runtime.process.ProcessInstance;
+import org.kie.api.task.TaskContext;
 import org.kie.api.task.TaskService;
+import org.kie.api.task.model.Task;
 import org.kie.api.task.model.TaskSummary;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
+import org.kie.internal.task.api.assignment.Assignment;
+import org.kie.internal.task.api.assignment.AssignmentStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,6 +90,39 @@ public class ProcessHumanTaskTest extends JbpmTestCase {
 		assertNodeTriggered(processInstance.getId(), "End");
 		assertProcessInstanceNotActive(processInstance.getId(), ksession);
 	}
+	
+    @Test
+    public void testProcessWithHumanTaskAndCustomAssigmentStrategy() {
+        createRuntimeManager("org/jbpm/test/functional/task/HumanTaskWithCustomAssignmentStrategy.bpmn2");
+        RuntimeEngine runtimeEngine = getRuntimeEngine();
+        KieSession ksession = runtimeEngine.getKieSession();
+        TaskService taskService = runtimeEngine.getTaskService();
+        AssignmentServiceRegistry.get().addStrategy(new AssignmentStrategy() {
+
+            @Override
+            public String getIdentifier() {
+                return "CustomStrategy";
+            }
+
+            @Override
+            public Assignment apply(Task task, TaskContext context, String excludedUser) {
+                return new AssignmentImpl("doctor");
+            }
+            
+        });
+        AssignmentServiceProvider.get().setEnabled(true);
+        ProcessInstance processInstance = ksession.startProcess("humanTaskWithCustomStrategy", Collections.singletonMap("processHTInput", "CustomStrategy"));
+
+        List<Long> listIds = taskService.getTasksByProcessInstanceId(processInstance.getId());
+        List<Task> list = listIds.stream().map(taskService::getTaskById).collect(Collectors.toList());
+        Task task = list.get(0);
+        // john is potential owner but our custom strategy is overriding it.
+        logger.info("doctor is executing task {}", task.getName());
+        taskService.start(task.getId(), "doctor");
+        taskService.complete(task.getId(), "doctor", null);
+        assertProcessInstanceNotActive(processInstance.getId(), ksession);
+    }
+	
 	
     @Test
     public void testProcessWithCreatedBy() {
