@@ -15,21 +15,29 @@
  */
 package org.jbpm.test.functional.workitem;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.drools.core.command.impl.CommandBasedStatefulKnowledgeSession;
+import org.drools.core.common.InternalKnowledgeRuntime;
 import org.drools.core.process.instance.WorkItemManager;
+import org.drools.persistence.PersistableRunner;
+import org.jbpm.process.instance.InternalProcessRuntime;
 import org.jbpm.test.JbpmTestCase;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.runtime.process.NodeInstance;
 import org.kie.api.runtime.process.ProcessInstance;
+import org.kie.api.runtime.process.WorkItem;
+import org.kie.api.runtime.process.WorkItemHandler;
 import org.kie.api.task.TaskService;
 import org.kie.api.task.model.TaskSummary;
 import org.kie.internal.runtime.manager.context.EmptyContext;
+import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 
 import static org.junit.Assert.*;
 
@@ -67,6 +75,64 @@ public class RetrySyncWorkItemByJPATest extends JbpmTestCase {
         Collection<NodeInstance> nis = ((org.kie.api.runtime.process.WorkflowProcessInstance) processInstance).getNodeInstances();
         retryWorkItem( workItemManager, nis );
         assertProcessInstanceCompleted( processInstance.getId() );
+    }
+    
+    @Test
+    public void workItemSignal() {
+        manager = createRuntimeManager( "org/jbpm/test/functional/workitem/retry-workitem-jpa.bpmn2" );
+        RuntimeEngine runtimeEngine = getRuntimeEngine( EmptyContext.get() );
+        KieSession kieSession = runtimeEngine.getKieSession();
+        WorkItemManager workItemManager = (org.drools.core.process.instance.WorkItemManager) kieSession.getWorkItemManager();
+        WorkItemHandler workItemHandler = new WorkItemHandler() {
+
+            @Override
+            public void executeWorkItem(org.kie.api.runtime.process.WorkItem workItem, org.kie.api.runtime.process.WorkItemManager wihManager) {
+                // get the RuntimeEngine for the current process instance
+                List<Object> processes = Arrays.asList("1");
+                RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(workItem.getProcessInstanceId()));
+                try {
+                    KieSession ksession  = engine.getKieSession();
+                    if(ksession instanceof CommandBasedStatefulKnowledgeSession) {
+                        ksession = ((PersistableRunner) ((CommandBasedStatefulKnowledgeSession) ksession).getRunner()).getKieSession();
+                    }
+                    InternalProcessRuntime ipr = ((InternalProcessRuntime) ((InternalKnowledgeRuntime) ksession).getProcessRuntime());
+
+                    for (Object pr : processes) {
+                        //signal active wait check
+                        Long ppid = new Long(Long.valueOf((String) pr));
+                        ipr.getSignalManager().signalEvent(ppid, "MYSignal", null); // no async in this case will work
+                    }
+                } finally {
+                    manager.disposeRuntimeEngine(engine);
+                }
+            }
+
+            @Override
+            public void abortWorkItem(org.kie.api.runtime.process.WorkItem workItem, org.kie.api.runtime.process.WorkItemManager manager) {
+                // TODO Auto-generated method stub
+                
+            }
+            
+        };
+        
+        workItemManager.registerWorkItemHandler( "ExceptionWorkitem", workItemHandler );
+        ProcessInstance pi = kieSession.startProcess( RETRY_WORKITEM_JPA_PROCESS_ID );
+        TaskService taskService = runtimeEngine.getTaskService();
+
+        assertProcessInstanceActive( pi.getId() );
+        assertNodeTriggered( pi.getId(), "lockingNode" );
+        assertNodeActive( pi.getId(), kieSession, "lockingNode" );
+
+        List<TaskSummary> tasks = taskService.getTasksAssignedAsPotentialOwner( "john", "en-UK" );
+        assertEquals( 1, tasks.size() );
+        TaskSummary taskSummary = tasks.get( 0 );
+
+        taskService.start( taskSummary.getId(), "john" );
+        taskService.complete( taskSummary.getId(), "john", null );
+
+        ProcessInstance processInstance = (org.kie.api.runtime.process.WorkflowProcessInstance) kieSession.getProcessInstance( pi.getId() );
+        kieSession.abortProcessInstance(processInstance.getId());
+        assertProcessInstanceAborted( processInstance.getId() );
     }
 
     private void retryWorkItem( WorkItemManager workItemManager, Collection<NodeInstance> nis ) {
