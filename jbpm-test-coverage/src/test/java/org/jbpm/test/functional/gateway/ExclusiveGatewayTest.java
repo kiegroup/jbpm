@@ -18,6 +18,7 @@ package org.jbpm.test.functional.gateway;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -32,7 +33,10 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import static org.jbpm.test.tools.IterableListenerAssert.*;
+import static org.jbpm.test.tools.IterableListenerAssert.assertMultipleVariablesChanged;
+import static org.jbpm.test.tools.IterableListenerAssert.assertNextNode;
+import static org.jbpm.test.tools.IterableListenerAssert.assertProcessCompleted;
+import static org.jbpm.test.tools.IterableListenerAssert.assertProcessStarted;
 
 /**
  * Exclusive gateway test. priorities, default gate, conditions (XPath, Java, MVEL)

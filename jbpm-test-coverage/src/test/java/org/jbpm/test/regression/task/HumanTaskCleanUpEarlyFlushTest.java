@@ -27,9 +27,8 @@ import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.task.TaskService;
 import org.kie.api.task.model.TaskSummary;
-import qa.tools.ikeeper.annotation.BZ;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class HumanTaskCleanUpEarlyFlushTest extends JbpmTestCase {
 
@@ -50,7 +49,6 @@ public class HumanTaskCleanUpEarlyFlushTest extends JbpmTestCase {
             "org/jbpm/test/regression/task/HumanTaskCleanUpEarlyFlush-signal-receiver.bpmn2";
 
     @Test
-    @BZ({"1128377", "1177736"})
     public void testSubprocess() {
         createRuntimeManager(SUBPROCESS_PARENT, SUBPROCESS_CHILD1, SUBPROCESS_CHILD2);
 
@@ -86,19 +84,16 @@ public class HumanTaskCleanUpEarlyFlushTest extends JbpmTestCase {
     }
 
     @Test
-    @BZ("1165466")
     public void testSignalSingleton() {
         testSignal(JbpmJUnitBaseTestCase.Strategy.SINGLETON);
     }
 
     @Test
-    @BZ("1165466")
     public void testSignalPerRequest() {
         testSignal(JbpmJUnitBaseTestCase.Strategy.REQUEST);
     }
 
     @Test
-    @BZ("1165466")
     public void testSignalPerProcessInstance() {
         testSignal(JbpmJUnitBaseTestCase.Strategy.PROCESS_INSTANCE);
     }

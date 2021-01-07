@@ -19,6 +19,7 @@ package org.jbpm.test.functional;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.naming.InitialContext;
 import javax.transaction.Status;
 import javax.transaction.UserTransaction;
@@ -34,7 +35,7 @@ import org.kie.api.io.ResourceType;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessInstance;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 public class TransactionsTest extends JbpmTestCase {
 

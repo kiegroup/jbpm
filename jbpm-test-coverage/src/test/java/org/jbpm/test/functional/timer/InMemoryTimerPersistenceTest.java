@@ -16,9 +16,6 @@
 
 package org.jbpm.test.functional.timer;
 
-import static org.jbpm.test.JbpmJUnitBaseTestCase.processStateName;
-import static org.junit.Assert.*;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,6 +28,10 @@ import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * See JBPM-3170/JBPM-3391
