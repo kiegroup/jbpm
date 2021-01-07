@@ -37,6 +37,40 @@ public class BusinessCalendarImplTest extends AbstractBaseTest {
     }
     
     @Test
+    public void testCalculateHoursSimulatedSLASameDay() {
+        Properties config = new Properties();
+        config.setProperty(BusinessCalendarImpl.HOURS_PER_DAY, "5");
+        config.setProperty(BusinessCalendarImpl.START_HOUR, "17");
+        config.setProperty(BusinessCalendarImpl.END_HOUR, "22");
+        String currentDate = "2018-05-04 16:00:00";
+
+        String expectedDate = "2018-05-04 21:00:00";
+        SessionPseudoClock clock = new StaticPseudoClock(parseToDateWithTime(currentDate).getTime());
+        BusinessCalendarImpl businessCal = new BusinessCalendarImpl(config, clock);
+
+        Date result = businessCal.calculateBusinessTimeAsDate("4h");
+
+        assertEquals(expectedDate, formatDate("yyyy-MM-dd HH:mm:ss", result));
+    }
+
+    @Test
+    public void testCalculateHoursSimulatedSLADifferentDay() {
+        Properties config = new Properties();
+        config.setProperty(BusinessCalendarImpl.HOURS_PER_DAY, "5");
+        config.setProperty(BusinessCalendarImpl.START_HOUR, "17");
+        config.setProperty(BusinessCalendarImpl.END_HOUR, "22");
+        String currentDate = "2018-05-03 21:00:00";
+
+        String expectedDate = "2018-05-04 20:00:00"; // computing from start work
+        SessionPseudoClock clock = new StaticPseudoClock(parseToDateWithTime(currentDate).getTime());
+        BusinessCalendarImpl businessCal = new BusinessCalendarImpl(config, clock);
+
+        Date result = businessCal.calculateBusinessTimeAsDate("4h");
+
+        assertEquals(expectedDate, formatDate("yyyy-MM-dd HH:mm:ss", result));
+    }
+
+    @Test
     public void testCalculateHours() {
         Properties config = new Properties();
         String expectedDate = "2012-05-04 16:45";
@@ -52,6 +86,8 @@ public class BusinessCalendarImplTest extends AbstractBaseTest {
     @Test
     public void testCalculateHoursCustomWorkingHours() {
         Properties config = new Properties();
+        config.setProperty(BusinessCalendarImpl.START_HOUR, "13");
+        config.setProperty(BusinessCalendarImpl.END_HOUR, "19");
         config.setProperty(BusinessCalendarImpl.HOURS_PER_DAY, "6");
         String expectedDate = "2012-05-04 15:45";
         
@@ -199,7 +235,7 @@ public class BusinessCalendarImplTest extends AbstractBaseTest {
     public void testCalculateTimeDaysHoursMinutesHolidays() {
         Properties config = new Properties();
         config.setProperty(BusinessCalendarImpl.HOLIDAYS, "2012-05-10:2012-05-19");
-        String expectedDate = "2012-05-21 14:20";
+        String expectedDate = "2012-05-23 14:20";
         
         SessionPseudoClock clock = new StaticPseudoClock(parseToDate("2012-05-04").getTime()); 
         BusinessCalendarImpl businessCal = new BusinessCalendarImpl(config, clock);
