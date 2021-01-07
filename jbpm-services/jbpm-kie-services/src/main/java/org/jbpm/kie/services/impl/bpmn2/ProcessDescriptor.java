@@ -55,6 +55,7 @@ public class ProcessDescriptor implements Serializable {
     private Map<String, Map<String, String>> taskInputMappings = new HashMap<String, Map<String, String>>();
     private Map<String, Map<String, String>> taskOutputMappings = new HashMap<String, Map<String, String>>();
     private Map<String, String> inputs = new HashMap<String, String>();
+    private Map<String, Set<String>> inputsTags = new HashMap<>();
     private Map<String, Collection<String>> taskAssignments = new HashMap<String, Collection<String>>();
     private Map<String, String> itemDefinitions = new HashMap<String, String>();
     private Map<String, String> serviceTasks = new HashMap<String, String>();
@@ -133,6 +134,13 @@ public class ProcessDescriptor implements Serializable {
 
     public Map<String, String> getInputs() {
         return inputs;
+    }
+
+    public Set<String> getInputTags(String name) {
+        if(!inputsTags.containsKey(name)) {
+            inputsTags.put(name, new HashSet<>());
+        }
+        return inputsTags.get(name);
     }
 
     public Map<String, Collection<String>> getTaskAssignments() {
@@ -228,6 +236,7 @@ public class ProcessDescriptor implements Serializable {
         referencedRules.clear();
         nodes.clear();
         timers.clear();
+        inputsTags.clear();
     }
     
     public ProcessDescriptor clone() {
@@ -253,10 +262,12 @@ public class ProcessDescriptor implements Serializable {
         cloned.messagesDesc = new HashSet<>(this.messagesDesc);
         cloned.nodes = new HashSet<>(this.nodes);
         cloned.timers = new HashSet<>(this.timers);
-
+        cloned.inputsTags = new HashMap<>(this.inputsTags);
         cloned.unresolvedReusableSubProcessNames = new ArrayDeque<String>(this.unresolvedReusableSubProcessNames);
         
         return cloned;
     }
+
+
 
 }

@@ -166,7 +166,7 @@ public class ServicesProcessDataEventListener implements ProcessDataEventListene
     @Override
     public void onProcessAdded(Process process) {
         logger.debug("Added process with id {} and name {}", process.getId(), process.getName());
-        ProcessAssetDesc processDesc = new ProcessAssetDesc(process.getId(), process.getName(), process.getVersion()
+         ProcessAssetDesc processDesc = new ProcessAssetDesc(process.getId(), process.getName(), process.getVersion()
                 , process.getPackageName(), process.getType(), process.getKnowledgeType().name(), process.getNamespace(), "", ((WorkflowProcess)process).isDynamic());
 
         processDescriptor.setProcess(processDesc);
@@ -321,6 +321,7 @@ public class ServicesProcessDataEventListener implements ProcessDataEventListene
                 }
 
                 processDescriptor.getInputs().put(data.getName(), type);
+                processDescriptor.getInputTags(data.getName()).addAll(data.getTags());
             }
         }
 

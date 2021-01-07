@@ -137,4 +137,10 @@ public interface ProcessDefinition extends Serializable, DeployedAsset {
      * @return @{@link TimerDesc} timers
      */
     Set<TimerDesc> getTimers();
+
+    /**
+     * Return the list of tags for certain process variable
+     * @return tags names
+     */
+    Set<String> getTagsForVariable(String varName);
 }
