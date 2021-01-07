@@ -30,6 +30,8 @@ import org.jbpm.services.api.model.ProcessDefinition;
 import org.jbpm.services.api.model.SignalDesc;
 import org.jbpm.services.api.model.TimerDesc;
 
+import static java.util.Collections.emptySet;
+
 /**
  *
  */
@@ -39,6 +41,7 @@ public class ProcessAssetDesc implements ProcessDefinition {
 
     private String id;
     private String name;
+    private Map<String, Set<String>> tagsByVariable = new HashMap<>();
     private String version;
     private String packageName;
     private String type;
@@ -319,6 +322,17 @@ public class ProcessAssetDesc implements ProcessDefinition {
     @Override
     public Set<TimerDesc> getTimers() {
         return timers;
+    }
+
+    public void addTagsForVariable(String varName, Set<String> tags) {
+        if(!tagsByVariable.containsKey(varName)) {
+            tagsByVariable.put(varName, new HashSet<>());
+        }
+        tagsByVariable.get(varName).addAll(tags);
+    }
+    @Override
+    public Set<String> getTagsForVariable(String varName) {
+        return tagsByVariable.getOrDefault(varName, emptySet());
     }
 
     @Override
