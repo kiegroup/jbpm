@@ -37,7 +37,7 @@ import org.kie.internal.builder.KnowledgeBuilderFactory;
 import org.kie.internal.io.ResourceFactory;
 import org.kie.internal.task.api.UserGroupCallback;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class MultipleRuntimeManagerTest extends JbpmTestCase  {
 

@@ -19,6 +19,7 @@ package org.jbpm.test.regression;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.persistence.EntityManager;
 
 import org.assertj.core.api.Assertions;
@@ -38,7 +39,6 @@ import org.kie.api.runtime.manager.RuntimeEnvironmentBuilder;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.internal.io.ResourceFactory;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
-import qa.tools.ikeeper.annotation.BZ;
 
 public class ProcessInstanceTest extends JbpmTestCase {
 
@@ -51,7 +51,6 @@ public class ProcessInstanceTest extends JbpmTestCase {
             "org.jbpm.test.regression.ProcessInstance-variablePersistence";
 
     @Test
-    @BZ("949973")
     public void testProcessEquals() throws Exception {
         KieSession ksession = createKSession(EQUALS);
         ProcessInstance pi = ksession.startProcess(EQUALS_ID);
@@ -59,7 +58,6 @@ public class ProcessInstanceTest extends JbpmTestCase {
     }
 
     @Test
-    @BZ("1062346")
     public void testJPAStrategy() {
         RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get().newDefaultBuilder()
                 .entityManagerFactory(getEmf())

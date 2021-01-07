@@ -30,11 +30,9 @@ import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.process.WorkItem;
 import org.kie.api.runtime.process.WorkItemHandler;
 import org.kie.api.runtime.process.WorkItemManager;
-import qa.tools.ikeeper.annotation.BZ;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
-@BZ("1175689")
 @RunWith(Parameterized.class)
 public class BoundaryErrorEventTest extends JbpmTestCase {
 

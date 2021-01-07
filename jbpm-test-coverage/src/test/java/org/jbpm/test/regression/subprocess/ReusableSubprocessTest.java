@@ -28,7 +28,6 @@ import org.kie.api.runtime.manager.audit.AuditService;
 import org.kie.api.runtime.manager.audit.ProcessInstanceLog;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
-import qa.tools.ikeeper.annotation.BZ;
 
 public class ReusableSubprocessTest extends JbpmTestCase {
 
@@ -49,7 +48,6 @@ public class ReusableSubprocessTest extends JbpmTestCase {
             "org.jbpm.test.regression.subprocess.ReusableSubprocess-dependentSubprocessAbort-subprocess";
 
     @Test
-    @BZ("1194180")
     public void testWaitForCompletionFalse() throws Exception {
         createRuntimeManager(Strategy.PROCESS_INSTANCE, "BZ1194180-ppi-manager", WAIT_FOR_COMPLETION_FALSE_PARENT,
                 WAIT_FOR_COMPLETION_FALSE_SUBPROCESS);
@@ -61,7 +59,6 @@ public class ReusableSubprocessTest extends JbpmTestCase {
     }
 
     @Test
-    @BZ("1128597")
     public void testDependentSubprocessAbort() {
         RuntimeManager manager = createRuntimeManager(Strategy.PROCESS_INSTANCE, "myPpiManager",
                 DEPENDENT_SUBPROCESS_ABORT_PARENT, DEPENDENT_SUBPROCESS_ABORT_SUBPROCESS);

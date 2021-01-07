@@ -16,12 +16,6 @@
 
 package org.jbpm.test.functional.async;
 
-import static java.util.Collections.emptyMap;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.jbpm.test.tools.TrackingListenerAssert.assertProcessStarted;
-import static org.jbpm.test.tools.TrackingListenerAssert.assertTriggeredAndLeft;
-
 import java.util.concurrent.CountDownLatch;
 
 import org.jbpm.executor.ExecutorServiceFactory;
@@ -39,6 +33,12 @@ import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.process.WorkItem;
 import org.kie.api.runtime.process.WorkItemHandler;
 import org.kie.api.runtime.process.WorkItemManager;
+
+import static java.util.Collections.emptyMap;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.jbpm.test.tools.TrackingListenerAssert.assertProcessStarted;
+import static org.jbpm.test.tools.TrackingListenerAssert.assertTriggeredAndLeft;
 
 /**
  * process1: start -> catch signal -> first time exception -> end process2:

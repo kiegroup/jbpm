@@ -26,6 +26,7 @@ import java.util.concurrent.Executors;
 
 import javax.management.JMX;
 import javax.management.MBeanServer;
+
 import org.drools.compiler.kie.builder.impl.InternalKieModule;
 import org.drools.core.ClockType;
 import org.drools.core.management.DroolsManagementAgent;

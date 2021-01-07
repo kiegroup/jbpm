@@ -34,7 +34,6 @@ import org.kie.api.runtime.manager.audit.ProcessInstanceLog;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.internal.runtime.manager.audit.query.ProcessInstanceLogDeleteBuilder;
 import org.kie.internal.runtime.manager.audit.query.ProcessInstanceLogQueryBuilder;
-import qa.tools.ikeeper.annotation.BZ;
 
 /**
  * TODO:
@@ -223,7 +222,6 @@ public class ProcessInstanceLogCleanTest extends JbpmTestCase {
     }
 
     @Test
-    @BZ("1188702")
     public void deleteLogsByDate() throws InterruptedException {
         Date testStartDate = new Date();
 
@@ -271,7 +269,6 @@ public class ProcessInstanceLogCleanTest extends JbpmTestCase {
     }
 
     @Test
-    @BZ("1192498")
     public void deleteLogsByDateRange() throws InterruptedException {
         KieSession kieSession = createKSession(PARENT_PROCESS_CALLER, PARENT_PROCESS_INFO, HELLO_WORLD_PROCESS);
 
@@ -306,19 +303,16 @@ public class ProcessInstanceLogCleanTest extends JbpmTestCase {
     }
 
     @Test
-    @BZ("1192498")
     public void deleteLogsByDateRangeEndingYesterday() throws InterruptedException {
         deleteLogsByDateRange(getYesterday(), getYesterday(), false);
     }
 
     @Test
-    @BZ("1192498")
     public void deleteLogsByDateRangeIncludingToday() throws InterruptedException {
         deleteLogsByDateRange(getYesterday(), getTomorrow(), true);
     }
 
     @Test
-    @BZ("1192498")
     public void deleteLogsByDateRangeStartingTomorrow() throws InterruptedException {
         deleteLogsByDateRange(getTomorrow(), getTomorrow(), false);
     }
