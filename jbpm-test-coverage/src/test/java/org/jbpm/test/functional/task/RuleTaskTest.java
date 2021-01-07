@@ -30,7 +30,6 @@ import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.process.WorkflowProcessInstance;
 import org.kie.internal.command.CommandFactory;
-import qa.tools.ikeeper.annotation.BZ;
 
 import static org.jbpm.test.tools.IterableListenerAssert.assertNextNode;
 import static org.jbpm.test.tools.IterableListenerAssert.assertProcessCompleted;
@@ -123,7 +122,6 @@ public class RuleTaskTest extends JbpmTestCase {
         }
     }
 
-    @BZ("1044504")
     @Test(timeout = 30000)
     public void testRuleTask2() {
         Map<String, ResourceType> res = new HashMap<String, ResourceType>();

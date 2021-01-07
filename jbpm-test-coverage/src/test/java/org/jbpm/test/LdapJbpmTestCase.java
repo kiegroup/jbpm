@@ -17,6 +17,7 @@
 package org.jbpm.test;
 
 import java.util.Properties;
+
 import javax.naming.Context;
 
 import com.unboundid.ldap.listener.InMemoryDirectoryServer;

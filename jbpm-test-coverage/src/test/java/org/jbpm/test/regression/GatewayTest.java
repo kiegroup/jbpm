@@ -18,6 +18,7 @@ package org.jbpm.test.regression;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.jbpm.process.instance.impl.demo.SystemOutWorkItemHandler;
@@ -28,7 +29,6 @@ import org.kie.api.runtime.process.ProcessInstance;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import qa.tools.ikeeper.annotation.BZ;
 
 public class GatewayTest extends JbpmTestCase {
 
@@ -39,7 +39,6 @@ public class GatewayTest extends JbpmTestCase {
     private static final String XPATH_EVALUATION_ID = "org.jbpm.test.regression.Gateway-xPathEvaluation";
 
     @Test
-    @BZ("1146829")
     public void testInclusiveGatewayDefaultGate() {
         KieSession ksession = createKSession(INCLUSIVE_DEFAULT);
         Map<String, Object> params = new HashMap<String, Object>();
@@ -49,7 +48,6 @@ public class GatewayTest extends JbpmTestCase {
     }
 
     @Test
-    @BZ("1071000")
     public void testExclusiveSplitXPathAdvanced() throws Exception {
         KieSession ksession = createKSession(XPATH_EVALUATION);
         ksession.getWorkItemManager().registerWorkItemHandler("Email", new SystemOutWorkItemHandler());

@@ -31,7 +31,7 @@ import org.kie.api.task.TaskService;
 import org.kie.api.task.model.TaskSummary;
 import org.kie.internal.runtime.manager.context.EmptyContext;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class RetrySyncWorkItemByJPATest extends JbpmTestCase {
 

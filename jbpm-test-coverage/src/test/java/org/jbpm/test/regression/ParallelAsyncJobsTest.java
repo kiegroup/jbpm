@@ -28,17 +28,15 @@ import org.assertj.core.api.Assertions;
 import org.jbpm.executor.AsynchronousJobEvent;
 import org.jbpm.executor.impl.ExecutorServiceImpl;
 import org.jbpm.executor.impl.wih.AsyncWorkItemHandler;
+import org.jbpm.test.JbpmAsyncJobTestCase;
 import org.jbpm.test.listener.CountDownAsyncJobListener;
 import org.jbpm.test.persistence.util.PersistenceUtil;
-import org.jbpm.test.JbpmAsyncJobTestCase;
-import org.kie.test.util.db.PoolingDataSourceWrapper;
 import org.junit.Test;
 import org.kie.api.executor.ExecutorService;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.query.QueryContext;
-
-import qa.tools.ikeeper.annotation.BZ;
+import org.kie.test.util.db.PoolingDataSourceWrapper;
 
 public class ParallelAsyncJobsTest extends JbpmAsyncJobTestCase {
 
@@ -62,7 +60,6 @@ public class ParallelAsyncJobsTest extends JbpmAsyncJobTestCase {
      * the 4 seconds so pending task count should not be lower than 3 if parallelism does not work.
      */
     @Test(timeout=30000)
-    @BZ("1146829")
     public void testRunBasicAsync() throws Exception {
         ExecutorService executorService = getExecutorService();
         final Set<String> threadExeuctingJobs = new HashSet<>();
