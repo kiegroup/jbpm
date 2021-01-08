@@ -35,7 +35,8 @@ import org.kie.internal.runtime.manager.context.EmptyContext;
 
 public class WorkItemSendSignalTest extends JbpmTestCase {
 
-    private static final String PROCESS_ID_SENDER = "org.jbpm.test.functional.workitem.Signal-Sender";
+    private static final String PROCESS_ID_WIH_SENDER = "org.jbpm.test.functional.workitem.Signal-Sender";
+    private static final String PROCESS_ID_ACTION_SENDER = "org.jbpm.test.functional.workitem.Signal-Action";
     private static final String PROCESS_ID_RECEIVER = "org.jbpm.test.functional.workitem.Signal-Receiver";
     private ExecutorService executorService;
 
@@ -64,20 +65,54 @@ public class WorkItemSendSignalTest extends JbpmTestCase {
                                        );
         handler.setRuntimeManager(manager);
 
+        // this process will get till receive a signal
         RuntimeEngine runtimeEngineReceiver = getRuntimeEngine( EmptyContext.get() );
         KieSession kieSessionReceiver = runtimeEngineReceiver.getKieSession();
         ProcessInstance piReceiver = kieSessionReceiver.startProcess( PROCESS_ID_RECEIVER );
         manager.disposeRuntimeEngine(runtimeEngineReceiver);
 
+        // this process will send the signal through a WITH
         RuntimeEngine runtimeEngineSender = getRuntimeEngine( EmptyContext.get() );
         KieSession kieSessionSender = runtimeEngineSender.getKieSession();
-        kieSessionSender.startProcess( PROCESS_ID_SENDER, Collections.singletonMap("OtherProcessInstanceId", Long.toString(piReceiver.getId())));
+        kieSessionSender.startProcess( PROCESS_ID_WIH_SENDER, Collections.singletonMap("OtherProcessInstanceId", Long.toString(piReceiver.getId())));
         manager.disposeRuntimeEngine(runtimeEngineSender);
         activeEngines.clear();
 
         
         Thread.sleep(1000L);
 
+
+        // check all process are finished
+        EntityManager em = getEmf().createEntityManager();
+        List<ProcessInstanceLog> logs = em.createQuery("SELECT o FROM ProcessInstanceLog o", ProcessInstanceLog.class).getResultList();
+        Assert.assertTrue(logs.stream().allMatch(e -> e.getStatus() == ProcessInstance.STATE_COMPLETED));
+        em.close();
+
+    }
+
+    @Test
+    public void testSendAsyncSignalFromAction() throws Exception {
+
+        addEnvironmentEntry("ExecutorService", executorService);
+        manager = createRuntimeManager(Strategy.PROCESS_INSTANCE, null, 
+                                       "org/jbpm/test/functional/workitem/WorkItem-SignalIntermediateCatch.bpmn2",
+                                       "org/jbpm/test/functional/workitem/WorkItem-ActionSignal.bpmn2"
+                                       );
+
+        // this process will get till receive a signal
+        RuntimeEngine runtimeEngineReceiver = getRuntimeEngine( EmptyContext.get() );
+        KieSession kieSessionReceiver = runtimeEngineReceiver.getKieSession();
+        ProcessInstance piReceiver = kieSessionReceiver.startProcess( PROCESS_ID_RECEIVER );
+        manager.disposeRuntimeEngine(runtimeEngineReceiver);
+
+        // this process will send the signal through a WITH
+        RuntimeEngine runtimeEngineSender = getRuntimeEngine( EmptyContext.get() );
+        KieSession kieSessionSender = runtimeEngineSender.getKieSession();
+        kieSessionSender.startProcess( PROCESS_ID_ACTION_SENDER, Collections.singletonMap("OtherProcessInstanceId", Long.toString(piReceiver.getId())));
+        manager.disposeRuntimeEngine(runtimeEngineSender);
+        activeEngines.clear();
+
+        Thread.sleep(1000L);
 
         // check all process are finished
         EntityManager em = getEmf().createEntityManager();
