@@ -19,7 +19,6 @@ package org.jbpm.test.regression.subprocess;
 import org.assertj.core.api.Assertions;
 import org.jbpm.test.JbpmTestCase;
 import org.junit.Test;
-import qa.tools.ikeeper.annotation.BZ;
 
 public class AdHocSubprocessTest extends JbpmTestCase {
 
@@ -27,7 +26,6 @@ public class AdHocSubprocessTest extends JbpmTestCase {
             "org/jbpm/test/regression/subprocess/AdHocSubprocess-emptyCompletionCondition.bpmn2";
 
     @Test
-    @BZ("1170281")
     public void testEmptyCompletionCondition() {
         try {
             createKSession(EMPTY_COMPLETION_CONDITION);

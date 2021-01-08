@@ -19,9 +19,9 @@ package org.jbpm.test.regression.async;
 import org.assertj.core.api.Assertions;
 import org.jbpm.executor.impl.wih.AsyncWorkItemHandler;
 import org.jbpm.persistence.jpa.hibernate.DisabledFollowOnLockOracle10gDialect;
-import org.jbpm.test.persistence.util.PersistenceUtil;
 import org.jbpm.test.JbpmAsyncJobTestCase;
 import org.jbpm.test.listener.TrackingProcessEventListener;
+import org.jbpm.test.persistence.util.PersistenceUtil;
 import org.junit.After;
 import org.junit.Test;
 import org.kie.api.executor.Command;
@@ -29,7 +29,6 @@ import org.kie.api.executor.CommandContext;
 import org.kie.api.executor.ExecutionResults;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.WorkItemHandler;
-import qa.tools.ikeeper.annotation.BZ;
 
 public class AsyncWIHOnOracleTest extends JbpmAsyncJobTestCase {
 
@@ -56,7 +55,6 @@ public class AsyncWIHOnOracleTest extends JbpmAsyncJobTestCase {
     }
 
     @Test
-    @BZ("1234592")
     public void testAsyncWIHExecutedMoreThanOnceOnOracle() throws Exception {
         KieSession ksession = createKSession(PROCESS);
 

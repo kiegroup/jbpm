@@ -32,7 +32,10 @@ import org.kie.internal.process.CorrelationKeyFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 public abstract class AbstractStartProcessWithCorrelationKeyTest extends JbpmTestCase {
     

@@ -30,6 +30,7 @@ import javax.naming.InitialContext;
 import javax.persistence.EntityManager;
 import javax.transaction.TransactionManager;
 import javax.transaction.UserTransaction;
+
 import org.drools.core.common.InternalKnowledgeRuntime;
 import org.drools.core.marshalling.impl.MarshallingConfigurationImpl;
 import org.drools.serialization.protobuf.ProtobufMarshaller;

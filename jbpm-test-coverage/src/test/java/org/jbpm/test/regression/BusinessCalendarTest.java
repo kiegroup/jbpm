@@ -33,9 +33,7 @@ import org.kie.api.runtime.KieSession;
 import org.kie.api.task.TaskService;
 import org.kie.api.task.model.OrganizationalEntity;
 import org.kie.api.task.model.Task;
-import qa.tools.ikeeper.annotation.BZ;
 
-@BZ("958384")
 public class BusinessCalendarTest extends JbpmTestCase {
 
     private static final String TIMER = "org/jbpm/test/regression/BusinessCalendar-timer.bpmn2";

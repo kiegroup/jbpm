@@ -20,7 +20,6 @@ import org.jbpm.test.JbpmTestCase;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessInstance;
-import qa.tools.ikeeper.annotation.BZ;
 
 public class MessageEventTest extends JbpmTestCase {
 
@@ -35,7 +34,6 @@ public class MessageEventTest extends JbpmTestCase {
             "org.jbpm.test.regression.event.MessageEvent-multipleSubprocess";
 
     @Test
-    @BZ("1163864")
     public void testMultipleIntermediateMessageEventsSimpleProcess() {
         KieSession ksession = createKSession(MULTIPLE_SIMPLE);
         ProcessInstance pi = ksession.startProcess(MULTIPLE_SIMPLE_ID);
@@ -46,7 +44,6 @@ public class MessageEventTest extends JbpmTestCase {
     }
 
     @Test
-    @BZ("1163864")
     public void testMultipleIntermediateMessageEventsEmbeddedSubProcess() {
         KieSession ksession = createKSession(MULTIPLE_SUBPROCESS);
         ProcessInstance pi = ksession.startProcess(MULTIPLE_SUBPROCESS_ID);
