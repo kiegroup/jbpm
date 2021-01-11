@@ -33,7 +33,9 @@ import org.jbpm.runtime.manager.api.SchedulerProvider;
 import org.jbpm.runtime.manager.impl.error.DefaultExecutionErrorStorage;
 import org.jbpm.runtime.manager.impl.error.ExecutionErrorManagerImpl;
 import org.jbpm.runtime.manager.impl.lock.RuntimeManagerLockStrategyFactory;
+import org.jbpm.runtime.manager.impl.lock.RuntimeManagerLockWatcherSingletonService;
 import org.jbpm.runtime.manager.impl.tx.NoOpTransactionManager;
+import org.jbpm.runtime.manager.spi.RuntimeManagerLock;
 import org.jbpm.runtime.manager.spi.RuntimeManagerLockStrategy;
 import org.jbpm.services.task.impl.TaskContentRegistry;
 import org.jbpm.services.task.impl.command.CommandBasedTaskService;
@@ -107,7 +109,7 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
     protected SecurityManager securityManager = null;
     protected ExecutionErrorManager executionErrorManager;
     protected RuntimeManagerLockStrategy runtimeManagerLockStrategy;
-
+    protected RuntimeManagerLockWatcherSingletonService watcher;
     
     public AbstractRuntimeManager(RuntimeEnvironment environment, String identifier) {
         this.environment = environment;
@@ -115,6 +117,9 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
         if (registry.isRegistered(identifier)) {
             throw new IllegalStateException("RuntimeManager with id " + identifier + " is already active");
         }
+
+        // we start the reference and watcher
+        watcher = RuntimeManagerLockWatcherSingletonService.reference();
 
         ((SimpleRuntimeEnvironment)environment).getEnvironmentTemplate().set(EnvironmentName.DEPLOYMENT_ID, this.getIdentifier());
         internalSetDeploymentDescriptor();
@@ -239,6 +244,13 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
     	cacheManager.dispose();
         environment.close();
         registry.remove(identifier);
+
+
+        if(watcher != null) {
+            watcher.unreference();
+            watcher = null;
+        }
+
         TimerService timerService = TimerServiceRegistry.getInstance().get(getIdentifier() + TimerServiceRegistry.TIMER_SERVICE_SUFFIX);
         if (timerService != null) {
             try {
@@ -450,7 +462,10 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
             return;
         }
         try {
-            runtimeManagerLockStrategy.lock(id, runtime);
+            RuntimeManagerLock lock = runtimeManagerLockStrategy.lock(id, runtime);
+            if(watcher != null) {
+                watcher.watch(id, lock);
+            }
         } catch(InterruptedException e) {
             throw new RuntimeException("Runtime manager was not able to lock for {" + id +"}", e);
         }
@@ -476,7 +491,9 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
             logger.debug("Locking on runtime manager engine {} disabled for id {}", runtime, id);
             return;
         }
-
+        if(watcher != null) {
+            watcher.unwatch(id);
+        }
         runtimeManagerLockStrategy.unlock(id, runtime);
     }
 

@@ -14,28 +14,17 @@
  * limitations under the License.
  */
 
-package org.jbpm.runtime.manager.spi;
+package org.jbpm.runtime.manager.impl.lock;
 
-import java.util.concurrent.TimeUnit;
+import org.jbpm.runtime.manager.spi.RuntimeManagerLock;
+import org.jbpm.runtime.manager.spi.RuntimeManagerLockFactory;
 
-public interface RuntimeManagerLock {
 
-    void lock();
+public class SelfReleaseRuntimeManagerLockFactory implements RuntimeManagerLockFactory {
 
-    boolean tryLock(long units, TimeUnit milliseconds) throws InterruptedException;
-
-    void lockInterruptible() throws InterruptedException;
-
-    void unlock();
-
-    boolean hasQueuedThreads();
-
-    boolean isHeldByCurrentThread();
-
-    int getQueueLength();
-
-    default void forceUnlock() {
-        throw new UnsupportedOperationException("this lock does not support forcefully unlock");
+    @Override
+    public RuntimeManagerLock newRuntimeManagerLock() {
+        return new SelfReleaseRuntimeManagerLock();
     }
 
 }

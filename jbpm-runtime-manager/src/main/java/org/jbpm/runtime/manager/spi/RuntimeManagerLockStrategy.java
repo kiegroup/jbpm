@@ -22,7 +22,7 @@ public interface RuntimeManagerLockStrategy {
 
     void init(RuntimeManagerLockFactory factory);
 
-    void lock(Long id, RuntimeEngine runtime) throws InterruptedException;
+    RuntimeManagerLock lock(Long id, RuntimeEngine runtime) throws InterruptedException;
 
     void unlock(Long id, RuntimeEngine runtime);
 

@@ -27,9 +27,12 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@RunWith(MockitoJUnitRunner.class)
 public class CustomRuntimeManagerLockStrategyTest {
 
     protected static final Logger logger = LoggerFactory.getLogger(CustomRuntimeManagerLockStrategyTest.class);
@@ -89,4 +92,61 @@ public class CustomRuntimeManagerLockStrategyTest {
         Assert.assertTrue(executorService.isTerminated());
         logger.info("exiting test TimeoutRuntimeManagerLockStrategy");
     }
+
+
+    @Test(timeout = 10000)
+    public void testWatcher() throws Exception {
+        RuntimeManagerLockWatcherSingletonService watcher = RuntimeManagerLockWatcherSingletonService.reference(0L, 200L);
+
+        SelfReleaseRuntimeManagerLock lockFirst = new SelfReleaseRuntimeManagerLock();
+        lockFirst.lock();
+        watcher.watch(1, lockFirst);
+        Thread.sleep(100L);
+        SelfReleaseRuntimeManagerLock lockSecond = new SelfReleaseRuntimeManagerLock();
+        lockSecond.lock();
+        watcher.watch(2, lockSecond);
+
+        long wait = watcher.tryForcedUnlock();
+        Assert.assertTrue(wait > 0);
+
+        Thread.sleep(wait);
+        wait = watcher.tryForcedUnlock();
+        Assert.assertTrue(wait > 0);
+        Assert.assertFalse(watcher.isWatched(1));
+        Assert.assertFalse(lockFirst.isHeldByCurrentThread());
+        Assert.assertTrue(watcher.isWatched(2));
+        Assert.assertTrue(lockSecond.isHeldByCurrentThread());
+
+        Thread.sleep(wait);
+        wait = watcher.tryForcedUnlock();
+        Assert.assertEquals(0, wait);
+        Assert.assertFalse(watcher.isWatched(1));
+        Assert.assertFalse(lockFirst.isHeldByCurrentThread());
+        Assert.assertFalse(watcher.isWatched(2));
+        Assert.assertFalse(lockSecond.isHeldByCurrentThread());
+        watcher.unreference();
+    }
+
+    @Test(timeout = 10000)
+    public void testMaxSleepWatcher() throws Exception {
+        RuntimeManagerLockWatcherSingletonService watcher = RuntimeManagerLockWatcherSingletonService.reference(137L, 200L);
+        Assert.assertEquals(137L, watcher.tryForcedUnlock()); // no threas watching therfore maxWatchingPool
+        watcher.unreference();
+        Assert.assertFalse(RuntimeManagerLockWatcherSingletonService.isActive());
+    }
+    
+
+    @Test(timeout = 10000)
+    public void testWatcherMultipleReferenceExecutorService() throws Exception {
+        RuntimeManagerLockWatcherSingletonService watcher1 = RuntimeManagerLockWatcherSingletonService.reference(200L, 100L);
+        RuntimeManagerLockWatcherSingletonService watcher2 = RuntimeManagerLockWatcherSingletonService.reference();
+
+        watcher1.unreference();
+        watcher2.unreference();
+
+        Assert.assertFalse(RuntimeManagerLockWatcherSingletonService.isActive());
+    }
+
+    
+    
 }
