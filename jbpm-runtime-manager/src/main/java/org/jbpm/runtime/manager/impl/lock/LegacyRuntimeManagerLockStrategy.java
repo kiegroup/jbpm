@@ -47,30 +47,30 @@ public class LegacyRuntimeManagerLockStrategy implements RuntimeManagerLockStrat
     }
 
     @Override
-    public void lock(Long id, RuntimeEngine runtime) {
+    public RuntimeManagerLock lock(Long id, RuntimeEngine runtime) {
         RuntimeManagerLock newLock = runtimeManagerLockFactory.newRuntimeManagerLock();
         RuntimeManagerLock lock = engineLocks.putIfAbsent(id, newLock);
         if (lock == null) {
             lock = newLock;
             logger.debug("New lock created as it did not exist before");
         } else {
-            logger.debug("Lock exists with {} waiting threads", lock.internalLock().getQueueLength());
+            logger.debug("Lock exists with {} waiting threads", lock.getQueueLength());
         }
         logger.debug("Trying to get a lock {} for {} by {}", lock, id, runtime);
         lock.lock();
-        logger.debug("Lock {} taken for {} by {} for waiting threads by {}", lock, id, runtime, lock.internalLock().hasQueuedThreads());
-
+        logger.debug("Lock {} taken for {} by {} for waiting threads by {}", lock, id, runtime, lock.hasQueuedThreads());
+        return lock;
     }
 
     @Override
     public void unlock(Long id, RuntimeEngine runtime) {
         RuntimeManagerLock lock = engineLocks.get(id);
         if (lock != null) {
-            if (!lock.internalLock().hasQueuedThreads()) {
+            if (!lock.hasQueuedThreads()) {
                 logger.debug("Removing lock {} from list as non is waiting for it by {}", lock, runtime);
                 engineLocks.remove(id);
             }
-            if (lock.internalLock().isHeldByCurrentThread()) {
+            if (lock.isHeldByCurrentThread()) {
                 lock.unlock();
                 logger.debug("{} unlocked by {}", lock, runtime);
             }

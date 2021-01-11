@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+
 import org.jbpm.runtime.manager.spi.RuntimeManagerLock;
 import org.jbpm.runtime.manager.spi.RuntimeManagerLockFactory;
 import org.jbpm.runtime.manager.spi.RuntimeManagerLockStrategy;
@@ -49,7 +50,7 @@ abstract class AbstractRuntimeManagerLockStrategy implements RuntimeManagerLockS
     }
 
     @Override
-    public void lock(Long id, RuntimeEngine runtime) throws InterruptedException {
+    public RuntimeManagerLock lock(Long id, RuntimeEngine runtime) throws InterruptedException {
         RuntimeManagerLockThreadsInfo lockThreadsInfo = null;
         synchronized (engineLocks) {
             lockThreadsInfo = engineLocks.computeIfAbsent(id, (Long key) -> new RuntimeManagerLockThreadsInfo(runtimeManagerLockFactory.newRuntimeManagerLock()));
@@ -63,6 +64,7 @@ abstract class AbstractRuntimeManagerLockStrategy implements RuntimeManagerLockS
             throw e;
         }
         logger.debug("Lock {} taken for {} by {} for waiting threads by {}", lockThreadsInfo, id, runtime, lockThreadsInfo.count());
+        return lockThreadsInfo.getRuntimeManagerLock();
     }
 
     protected abstract void lock(RuntimeManagerLock lock) throws InterruptedException;
@@ -120,10 +122,10 @@ class RuntimeManagerLockThreadsInfo {
         runtimeManagerLock.unlock();
     }
     public boolean hasQueuedThreads() {
-        return runtimeManagerLock.internalLock().hasQueuedThreads();
+        return runtimeManagerLock.hasQueuedThreads();
     }
     public boolean isHeldByCurrentThread() {
-        return runtimeManagerLock.internalLock().isHeldByCurrentThread();
+        return runtimeManagerLock.isHeldByCurrentThread();
     }
     
     public RuntimeManagerLock getRuntimeManagerLock() {

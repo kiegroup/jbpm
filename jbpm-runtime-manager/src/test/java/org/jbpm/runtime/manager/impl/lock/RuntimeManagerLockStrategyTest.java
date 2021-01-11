@@ -100,4 +100,31 @@ public class RuntimeManagerLockStrategyTest {
         logger.info("exiting test {}", this.strategy);
     }
 
+    @Test
+    public void testSelfRuntimeLockStrategies() throws InterruptedException {
+        logger.info("entering test {}", this.strategy);
+        final CriticalSectionClash sectionDetection = new CriticalSectionClash();
+        String factory = SelfReleaseRuntimeManagerLockFactory.class.getName();
+        final RuntimeManagerLockStrategy lockStrategy = new RuntimeManagerLockStrategyFactory(strategy, factory).createLockStrategy(strategy);
+        AtomicInteger count = new AtomicInteger(0);
+        List<Future<Boolean>> futures = new ArrayList<>();
+        for (int i = 0; i < 100; i++) {
+            futures.add(executorService.submit(new Runner(count, sectionDetection, lockStrategy,false)));
+        }
+        futures.forEach(e -> {
+            try {
+                // assert every process didn't not have a critical section violation
+                Assert.assertTrue(e.get());
+            } catch (Exception e1) {
+                // do nothing
+            }
+        });
+        logger.info("finished jobs test {}", this.strategy);
+        executorService.shutdown();
+        executorService.awaitTermination(20, TimeUnit.SECONDS);
+
+        // assert hangs
+        Assert.assertTrue(executorService.isTerminated());
+        logger.info("exiting test {}", this.strategy);
+    }
 }

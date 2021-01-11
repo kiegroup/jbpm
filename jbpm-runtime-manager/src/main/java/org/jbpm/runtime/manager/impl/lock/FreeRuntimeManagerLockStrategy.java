@@ -16,6 +16,7 @@
 
 package org.jbpm.runtime.manager.impl.lock;
 
+import org.jbpm.runtime.manager.spi.RuntimeManagerLock;
 import org.jbpm.runtime.manager.spi.RuntimeManagerLockFactory;
 import org.jbpm.runtime.manager.spi.RuntimeManagerLockStrategy;
 import org.kie.api.runtime.manager.RuntimeEngine;
@@ -29,9 +30,8 @@ public class FreeRuntimeManagerLockStrategy implements RuntimeManagerLockStrateg
     }
 
     @Override
-    public void lock(Long id, RuntimeEngine runtime) {
-        // do nothing
-
+    public RuntimeManagerLock lock(Long id, RuntimeEngine runtime) {
+        return null;
     }
 
     @Override

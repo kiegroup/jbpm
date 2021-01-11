@@ -75,8 +75,18 @@ public class DebugRuntimeManagerLock implements RuntimeManagerLock {
     }
 
     @Override
-    public ReentrantLock internalLock() {
-        return lock;
+    public boolean isHeldByCurrentThread() {
+        return lock.isHeldByCurrentThread();
+    }
+    
+    @Override
+    public boolean hasQueuedThreads() {
+        return lock.hasQueuedThreads();
+    }
+
+    @Override
+    public int getQueueLength() {
+        return lock.getQueueLength();
     }
 
     @Override

@@ -46,13 +46,25 @@ public class DefaultRuntimeManagerLock implements RuntimeManagerLock {
     }
 
     @Override
-    public ReentrantLock internalLock() {
-        return lock;
+    public boolean hasQueuedThreads() {
+        return lock.hasQueuedThreads();
+    }
+
+    @Override
+    public boolean isHeldByCurrentThread() {
+        return lock.isHeldByCurrentThread();
+    }
+
+    @Override
+    public int getQueueLength() {
+        return lock.getQueueLength();
     }
 
     @Override
     public String toString() {
         return "DefaultRuntimeManagerLock [" + lock + "]";
     }
+
+
 
 }
