@@ -247,6 +247,74 @@ public class BusinessCalendarImplTest extends AbstractBaseTest {
     }
     
     @Test
+    public void testCalculateHoursSimulatedSLAHolidaysAndWeekend() {
+        Properties config = new Properties();
+        config.setProperty(BusinessCalendarImpl.HOLIDAYS, "2020-12-18");
+        config.setProperty(BusinessCalendarImpl.START_HOUR, "8");
+        config.setProperty(BusinessCalendarImpl.END_HOUR, "17");
+        config.setProperty(BusinessCalendarImpl.HOURS_PER_DAY, "9");
+        String expectedDate = "2020-12-22 09:39:57";
+        
+        SessionPseudoClock clock = new StaticPseudoClock(parseToDateWithTimeAndSeconds("2020-12-16 13:09:57").getTime()); 
+        BusinessCalendarImpl businessCal = new BusinessCalendarImpl(config, clock);
+
+        Date result = businessCal.calculateBusinessTimeAsDate("23h30m");
+        
+        assertEquals(expectedDate, formatDate("yyyy-MM-dd HH:mm:ss", result));
+    }
+    
+    @Test
+    public void testCalculateHoursSimulatedSLAHolidaysTodayAndWeekend() {
+        Properties config = new Properties();
+        config.setProperty(BusinessCalendarImpl.HOLIDAYS, "2020-12-16");
+        config.setProperty(BusinessCalendarImpl.START_HOUR, "8");
+        config.setProperty(BusinessCalendarImpl.END_HOUR, "17");
+        config.setProperty(BusinessCalendarImpl.HOURS_PER_DAY, "9");
+        String expectedDate = "2020-12-21 13:30";
+        
+        SessionPseudoClock clock = new StaticPseudoClock(parseToDateWithTimeAndSeconds("2020-12-16 15:13:50").getTime()); 
+        BusinessCalendarImpl businessCal = new BusinessCalendarImpl(config, clock);
+
+        Date result = businessCal.calculateBusinessTimeAsDate("23h30m");
+        
+        assertEquals(expectedDate, formatDate("yyyy-MM-dd HH:mm", result));
+    }
+    
+    @Test
+    public void testCalculateHoursSimulatedSLAHolidaysTodayAndWeekendTomorrow() {
+        Properties config = new Properties();
+        config.setProperty(BusinessCalendarImpl.HOLIDAYS, "2020-12-18");
+        config.setProperty(BusinessCalendarImpl.START_HOUR, "8");
+        config.setProperty(BusinessCalendarImpl.END_HOUR, "17");
+        config.setProperty(BusinessCalendarImpl.HOURS_PER_DAY, "9");
+        String expectedDate = "2020-12-23 13:30";
+        
+        SessionPseudoClock clock = new StaticPseudoClock(parseToDateWithTimeAndSeconds("2020-12-18 15:13:50").getTime()); 
+        BusinessCalendarImpl businessCal = new BusinessCalendarImpl(config, clock);
+
+        Date result = businessCal.calculateBusinessTimeAsDate("23h30m");
+        
+        assertEquals(expectedDate, formatDate("yyyy-MM-dd HH:mm", result));
+    }
+    
+    @Test
+    public void testCalculateHoursSimulatedSLAHolidaysNotConsecutive() {
+        Properties config = new Properties();
+        config.setProperty(BusinessCalendarImpl.HOLIDAYS, "2020-12-22");
+        config.setProperty(BusinessCalendarImpl.START_HOUR, "8");
+        config.setProperty(BusinessCalendarImpl.END_HOUR, "17");
+        config.setProperty(BusinessCalendarImpl.HOURS_PER_DAY, "9");
+        String expectedDate = "2020-12-24 13:30";
+        
+        SessionPseudoClock clock = new StaticPseudoClock(parseToDateWithTimeAndSeconds("2020-12-19 15:13:50").getTime()); 
+        BusinessCalendarImpl businessCal = new BusinessCalendarImpl(config, clock);
+
+        Date result = businessCal.calculateBusinessTimeAsDate("23h30m");
+        
+        assertEquals(expectedDate, formatDate("yyyy-MM-dd HH:mm", result));
+    }
+    
+    @Test
     public void testCalculateTimeDaysHoursMinutesSingleDayHolidays() {
         Properties config = new Properties();
         config.setProperty(BusinessCalendarImpl.HOLIDAYS, "2012-05-07");
@@ -438,6 +506,19 @@ public class BusinessCalendarImplTest extends AbstractBaseTest {
     
     private Date parseToDateWithTime(String dateString) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        
+        Date testTime;
+        try {
+            testTime = sdf.parse(dateString);
+            
+            return testTime;
+        } catch (ParseException e) {
+            return null;
+        }        
+    }
+    
+    private Date parseToDateWithTimeAndSeconds(String dateString) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         
         Date testTime;
         try {
