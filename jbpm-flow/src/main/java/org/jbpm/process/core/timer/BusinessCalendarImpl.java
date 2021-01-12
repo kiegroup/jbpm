@@ -16,6 +16,8 @@
 
 package org.jbpm.process.core.timer;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
@@ -103,32 +105,23 @@ public class BusinessCalendarImpl implements BusinessCalendar {
     public static final String TIMEZONE = "business.cal.timezone";
 
     private static final String DEFAULT_PROPERTIES_NAME = "/jbpm.business.calendar.properties";
-    
-    
-    
-    
-    public BusinessCalendarImpl() {
-        String propertiesLocation = System.getProperty("jbpm.business.calendar.properties");
-        
-        if (propertiesLocation == null) {
-            propertiesLocation = DEFAULT_PROPERTIES_NAME;
-        }
-        businessCalendarConfiguration = new Properties();
-        
-        InputStream in = this.getClass().getResourceAsStream(propertiesLocation);
-        if (in != null) {
-            
-            try {
-                businessCalendarConfiguration.load(in);
-            } catch (IOException e) {
-               logger.error("Error while loading properties for business calendar", e);
 
-            }
-        }
-        init();
-        
+    public BusinessCalendarImpl() {
+        this(System.getProperty("jbpm.business.calendar.properties", DEFAULT_PROPERTIES_NAME));
     }
-    
+
+    public BusinessCalendarImpl(String propertiesLocation) {
+        businessCalendarConfiguration = new Properties();
+
+        try (InputStream in = getInputStreamProperties(propertiesLocation)){
+            businessCalendarConfiguration.load(in);
+        } catch (IOException e) {
+           logger.error("Error while loading properties for business calendar {}", propertiesLocation, e);
+        }
+
+        init();
+    }
+
     public BusinessCalendarImpl(Properties configuration) {
         this.businessCalendarConfiguration = configuration;
         init();
@@ -139,7 +132,29 @@ public class BusinessCalendarImpl implements BusinessCalendar {
         this.clock = clock;
         init();
     }
-    
+
+    private InputStream getInputStreamProperties(String propertiesLocation) throws IOException {
+        // by default we look in the class path
+        InputStream in = this.getClass().getResourceAsStream(propertiesLocation);
+        if(in != null) {
+            return in;
+        }
+        
+        File file = new File(propertiesLocation);
+        if(file.exists()) {
+            return new FileInputStream(file); 
+        }
+
+        // otherwise we send back an empty input stream
+        logger.warn("BusinessCalendarImpl was not able to find properties in {}", propertiesLocation);
+        return new InputStream() {
+            @Override
+            public int read() {
+                return -1;  // end of stream
+            }
+        };
+    }
+
     protected void init() {
         if (this.businessCalendarConfiguration == null) {
             throw new IllegalArgumentException("BusinessCalendar configuration was not provided.");
