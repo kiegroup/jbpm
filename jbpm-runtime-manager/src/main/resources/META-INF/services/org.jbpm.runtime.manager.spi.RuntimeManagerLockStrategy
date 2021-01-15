@@ -1,0 +1,6 @@
+org.jbpm.runtime.manager.impl.lock.FreeRuntimeManagerLockStrategy
+org.jbpm.runtime.manager.impl.lock.SerializableRuntimeManagerLockStrategy
+org.jbpm.runtime.manager.impl.lock.TimeoutRuntimeManagerLockStrategy
+org.jbpm.runtime.manager.impl.lock.InterruptibleRuntimeManagerLockStrategy
+org.jbpm.runtime.manager.impl.lock.LegacyRuntimeManagerLockStrategy
+

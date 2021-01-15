@@ -212,6 +212,7 @@ public class PerRequestRuntimeManager extends AbstractRuntimeManager {
 
     @Override
     public void init() {
+        super.init();
     	TaskContentRegistry.get().addMarshallerContext(getIdentifier(), 
     			new ContentMarshallerContext(environment.getEnvironment(), environment.getClassLoader()));
         configureRuntimeOnTaskService(newTaskService(taskServiceFactory), null);

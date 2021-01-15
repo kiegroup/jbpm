@@ -15,12 +15,10 @@
  */
 package org.jbpm.runtime.manager.impl;
 
+
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.locks.ReentrantLock;
 
 import org.drools.core.time.TimerService;
 import org.drools.persistence.api.OrderedTransactionSynchronization;
@@ -34,7 +32,9 @@ import org.jbpm.process.core.timer.impl.GlobalTimerService;
 import org.jbpm.runtime.manager.api.SchedulerProvider;
 import org.jbpm.runtime.manager.impl.error.DefaultExecutionErrorStorage;
 import org.jbpm.runtime.manager.impl.error.ExecutionErrorManagerImpl;
+import org.jbpm.runtime.manager.impl.lock.RuntimeManagerLockStrategyFactory;
 import org.jbpm.runtime.manager.impl.tx.NoOpTransactionManager;
+import org.jbpm.runtime.manager.spi.RuntimeManagerLockStrategy;
 import org.jbpm.services.task.impl.TaskContentRegistry;
 import org.jbpm.services.task.impl.command.CommandBasedTaskService;
 import org.jbpm.services.task.wih.ExternalTaskEventListener;
@@ -90,6 +90,8 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
     private static final Logger logger = LoggerFactory.getLogger(AbstractRuntimeManager.class);
 
     protected RuntimeManagerRegistry registry = RuntimeManagerRegistry.get();
+    protected RuntimeManagerLockStrategyFactory lockStrategyFactory = new RuntimeManagerLockStrategyFactory();
+
     protected RuntimeEnvironment environment;
     protected DeploymentDescriptor deploymentDescriptor;
     protected KieContainer kieContainer;
@@ -104,8 +106,8 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
     
     protected SecurityManager securityManager = null;
     protected ExecutionErrorManager executionErrorManager;
-        
-    protected ConcurrentMap<Long, ReentrantLock> engineLocks = new ConcurrentHashMap<Long, ReentrantLock>(); 
+    protected RuntimeManagerLockStrategy runtimeManagerLockStrategy;
+
     
     public AbstractRuntimeManager(RuntimeEnvironment environment, String identifier) {
         this.environment = environment;
@@ -113,6 +115,7 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
         if (registry.isRegistered(identifier)) {
             throw new IllegalStateException("RuntimeManager with id " + identifier + " is already active");
         }
+
         ((SimpleRuntimeEnvironment)environment).getEnvironmentTemplate().set(EnvironmentName.DEPLOYMENT_ID, this.getIdentifier());
         internalSetDeploymentDescriptor();
         internalSetKieContainer();
@@ -129,7 +132,7 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
         ((SimpleRuntimeEnvironment)environment).getEnvironmentTemplate().set(EnvironmentName.EXEC_ERROR_MANAGER, executionErrorManager);
         logger.info("{} is created for {}", this.getClass().getSimpleName(), identifier);
     }
-    
+
     private void internalSetDeploymentDescriptor() {
     	this.deploymentDescriptor = (DeploymentDescriptor) ((SimpleRuntimeEnvironment)environment).getEnvironmentTemplate().get("KieDeploymentDescriptor");
     	if (this.deploymentDescriptor == null) {
@@ -141,7 +144,13 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
     	this.kieContainer = (KieContainer) ((SimpleRuntimeEnvironment)environment).getEnvironmentTemplate().get("KieContainer");
 	}
 
-	public abstract void init();
+	public void init() {
+        if (!isUseLocking()) {
+            runtimeManagerLockStrategy = lockStrategyFactory.createFreeLockStrategy();
+        } else {
+            runtimeManagerLockStrategy = lockStrategyFactory.createLockStrategy(identifier);
+        }
+	}
     
 	protected void registerItems(RuntimeEngine runtime) {
         RegisterableItemsFactory factory = environment.getRegisterableItemsFactory();
@@ -431,49 +440,28 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
     }
     
     protected void createLockOnGetEngine(Long id, RuntimeEngine runtime) {
-        if (!isUseLocking()) {
-            logger.debug("Locking on runtime manager disabled");
+        if (id == null) {
             return;
         }
-        
-        if (id != null) {
-            ReentrantLock newLock = new ReentrantLock();
-            ReentrantLock lock = engineLocks.putIfAbsent(id, newLock);
-            if (lock == null) {
-                lock = newLock;
-                logger.debug("New lock created as it did not exist before");
-            } else {
-                logger.debug("Lock exists with {} waiting threads", lock.getQueueLength());
-            }
-            logger.debug("Trying to get a lock {} for {} by {}", lock, id, runtime);
-            lock.lock();
-            logger.debug("Lock {} taken for {} by {} for waiting threads by {}", lock, id, runtime, lock.hasQueuedThreads());
-            
+        try {
+            runtimeManagerLockStrategy.lock(id, runtime);
+        } catch(InterruptedException e) {
+            throw new RuntimeException("Runtime manager was not able to lock for {" + id +"}", e);
         }
-        
+    }
+
+    protected void releaseAndCleanLock(Long id, RuntimeEngine runtime) {
+        if (id == null) {
+            return;
+        }
+        runtimeManagerLockStrategy.unlock(id, runtime);
     }
     
     protected void createLockOnNewProcessInstance(Long id, RuntimeEngine runtime) {
-        if (!isUseLocking()) {
-            logger.debug("Locking on runtime manager disabled");
-            return;
-        }
-        ReentrantLock newLock = new ReentrantLock();
-        ReentrantLock lock = engineLocks.putIfAbsent(id, newLock);
-        if (lock == null) {
-            lock = newLock;
-        }
-        lock.lock();
-        logger.debug("[on new process instance] Lock {} created and stored in list by {}", lock, runtime);
+        createLockOnGetEngine(id, runtime);
     }
     
-    
     protected void releaseAndCleanLock(RuntimeEngine runtime) {
-        if (!isUseLocking()) {
-            logger.debug("Locking on runtime manager disabled");
-            return;
-        }
-        
         if (((RuntimeEngineImpl)runtime).getContext() instanceof ProcessInstanceIdContext) {
             Long piId = ((ProcessInstanceIdContext) ((RuntimeEngineImpl)runtime).getContext()).getContextId();
             if (piId != null) {
@@ -482,23 +470,7 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
         }
     }
     
-    protected void releaseAndCleanLock(Long id, RuntimeEngine runtime) {
 
-        if (id != null) {
-            ReentrantLock lock = engineLocks.get(id);
-            if (lock != null) {
-                if (!lock.hasQueuedThreads()) {
-                    logger.debug("Removing lock {} from list as non is waiting for it by {}", lock, runtime);
-                    engineLocks.remove(id);
-                }
-                if (lock.isHeldByCurrentThread()) {
-                    lock.unlock();
-                    logger.debug("{} unlocked by {}", lock, runtime);
-                }
-            }
-        }
-        
-    }
     
     protected boolean isActive() {
         if (hasEnvironmentEntry("Active", false)) {
