@@ -25,6 +25,8 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.drools.core.common.InternalAgenda;
 import org.drools.core.common.InternalKnowledgeRuntime;
@@ -84,6 +86,9 @@ public class RuleSetNodeInstance extends StateBasedNodeInstance implements Event
 
     // NOTE: ContetxInstances are not persisted as current functionality (exception scope) does not require it
     private Map<String, List<ContextInstance>> subContextInstances = new HashMap<>();
+
+    private ObjectMapper objectMapper = new ObjectMapper()
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     protected RuleSetNode getRuleSetNode() {
         return (RuleSetNode) getNode();
@@ -311,7 +316,17 @@ public class RuleSetNodeInstance extends StateBasedNodeInstance implements Event
                         // exclude java.lang.Object as it is considered unknown type
                         if (!dataType.getStringType().endsWith("java.lang.Object") && value instanceof String) {
                             value = dataType.readValue((String) value);
+                        } else if (!dataType.getStringType().endsWith("java.lang.Object") && value instanceof Map) {
+                            try {
+                                Class<?> clazz = Class.forName(dataType.getStringType());
+                                if (!clazz.isInstance(Map.class)) {
+                                    value = objectMapper.convertValue(value, clazz);
+                                }
+                            } catch (Exception e) {
+                                throw new RuntimeException("Cannot convert value", e);
+                            }
                         }
+
                         variableScopeInstance.setVariable(association.getTarget(), value);
                     } else {
                         logger.warn("Could not find variable scope for variable {}", association.getTarget());
