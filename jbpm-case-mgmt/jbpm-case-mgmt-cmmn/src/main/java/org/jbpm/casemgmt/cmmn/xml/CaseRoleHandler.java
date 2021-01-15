@@ -16,15 +16,13 @@
 
 package org.jbpm.casemgmt.cmmn.xml;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 
 import org.drools.core.xml.BaseAbstractHandler;
 import org.drools.core.xml.ExtensibleXmlParser;
 import org.drools.core.xml.Handler;
 import org.jbpm.casemgmt.cmmn.core.Role;
-import org.jbpm.compiler.xml.ProcessBuildData;
+import org.jbpm.casemgmt.cmmn.xml.util.CaseParserData;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,11 +44,11 @@ public class CaseRoleHandler extends BaseAbstractHandler implements Handler {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public Object start(final String uri,
                         final String localName,
                         final Attributes attrs,
                         final ExtensibleXmlParser parser) throws SAXException {
+        CaseParserData data = CaseParserData.wrapParserMetadata(parser);
         parser.startElementBuilder(localName, attrs);
 
         String id = attrs.getValue("id");
@@ -68,14 +66,8 @@ public class CaseRoleHandler extends BaseAbstractHandler implements Handler {
         process.setMetaData("customCaseRoles", caseRoles);
 
         // save case roles so they can be easily referenced later for human task performer
-        ProcessBuildData buildData = (ProcessBuildData) parser.getData();
-        Map<String, Role> roles = (Map<String, Role>) buildData.getMetaData("Roles");
-        if (roles == null) {
-            roles = new HashMap<String, Role>();
-            buildData.setMetaData("Roles", roles);
-        }
         Role role = new Role(id, name);
-        roles.put(id, role);
+        data.roles.put(id, role);
         return role;
     }
 

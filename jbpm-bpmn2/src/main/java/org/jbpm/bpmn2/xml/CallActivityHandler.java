@@ -21,6 +21,7 @@ import java.util.Map;
 
 import org.drools.compiler.compiler.xml.XmlDumper;
 import org.drools.core.xml.ExtensibleXmlParser;
+import org.jbpm.bpmn2.xml.util.ProcessParserData;
 import org.jbpm.compiler.xml.ProcessBuildData;
 import org.jbpm.process.core.impl.DataTransformerRegistry;
 import org.jbpm.workflow.core.Node;
@@ -95,6 +96,8 @@ public class CallActivityHandler extends AbstractNodeHandler {
     @SuppressWarnings("unchecked")
     @Override
     public Object end(String uri, String localName, ExtensibleXmlParser parser) throws SAXException {
+        ProcessParserData processData = ProcessParserData.wrapParserMetadata(parser);
+
         final Element element = parser.endElementBuilder();
         Node node = (Node) parser.getCurrent();
         handleNode(node, element, uri, localName, parser);
@@ -137,7 +140,7 @@ public class CallActivityHandler extends AbstractNodeHandler {
         
         NodeContainer nodeContainer = (NodeContainer) parser.getParent();
         nodeContainer.addNode(node);
-        ((ProcessBuildData) parser.getData()).addNode(node);
+        processData.nodes.add(node);
         return node;
     }
 

@@ -16,9 +16,7 @@
 
 package org.jbpm.casemgmt.cmmn.xml;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 
 import org.drools.core.xml.BaseAbstractHandler;
 import org.drools.core.xml.ExtensibleXmlParser;
@@ -26,7 +24,7 @@ import org.drools.core.xml.Handler;
 import org.jbpm.casemgmt.cmmn.core.Decision;
 import org.jbpm.casemgmt.cmmn.core.Definitions;
 import org.jbpm.casemgmt.cmmn.core.FileItemDefinition;
-import org.jbpm.compiler.xml.ProcessBuildData;
+import org.jbpm.casemgmt.cmmn.xml.util.CaseParserData;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,11 +49,11 @@ public class DecisionElementHandler extends BaseAbstractHandler implements Handl
         }
     }
 
-    @SuppressWarnings("unchecked")
     public Object start(final String uri,
                         final String localName,
                         final Attributes attrs,
                         final ExtensibleXmlParser parser) throws SAXException {
+        CaseParserData data = CaseParserData.wrapParserMetadata(parser);
         parser.startElementBuilder(localName, attrs);
 
         String id = attrs.getValue("id");
@@ -71,16 +69,8 @@ public class DecisionElementHandler extends BaseAbstractHandler implements Handl
         }
 
         logger.debug("Found process reference with id {} and external ref {}", id, externalRef);
-
-        ProcessBuildData buildData = (ProcessBuildData) parser.getData();
-        Map<String, Decision> decisions = (Map<String, Decision>) buildData.getMetaData("DecisionElements");
-        if (decisions == null) {
-            decisions = new HashMap<String, Decision>();
-            buildData.setMetaData("DecisionElements", decisions);
-        }        
-        
         if (DMN_IMPLEMENTATION_TYPE.equals(implementation)) {
-            decisions.put(id, new Decision(namespace, externalRef, name));
+            data.decisions.put(id, new Decision(namespace, externalRef, name));
         }
         return null;
     }

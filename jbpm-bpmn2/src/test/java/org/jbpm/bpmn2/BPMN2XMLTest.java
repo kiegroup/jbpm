@@ -125,7 +125,7 @@ public class BPMN2XMLTest extends XMLTestCase {
 		assertNotNull(getErrorMessage());
 		assertThat(getErrorMessage()).contains("Process Info: id:error.process, pkg:org.jbpm, name:errorprocess, version:1.0 \n" +
                               "Node Info: id:_F8A89567-7416-4CCA-9CCD-BC1DDE870F1E name: \n" +
-                              "Parser message: (null: 45, 181): cvc-complex-type.2.4.a: Invalid content was found");
+                              "Parser message: (null: 45, 181): cvc-complex-type.2.4.a:");
 
 	}
 
@@ -146,7 +146,7 @@ public class BPMN2XMLTest extends XMLTestCase {
 		assertNotNull(getErrorMessage());
 		assertThat(getErrorMessage()).contains("Process Info: id:abc.abc, pkg:org.drools.bpmn2, name:abc, version:1.0 \n" +
                              "Node Info: id:_47489F3D-FEBD-4452-B62E-B04EF191C6C3 name: \n" +
-                             "Parser message: (null: 24, 185): cvc-complex-type.2.4.a: Invalid content was found");
+                             "Parser message: (null: 24, 185): cvc-complex-type.2.4.a:"); // remove different langs gets different outcomes
 	}
 
 	private void setErrorMessage(String errorMessage) {

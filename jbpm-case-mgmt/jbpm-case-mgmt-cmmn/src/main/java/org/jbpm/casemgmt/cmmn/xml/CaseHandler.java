@@ -29,7 +29,7 @@ import org.jbpm.casemgmt.cmmn.core.Definitions;
 import org.jbpm.casemgmt.cmmn.core.FileItemDefinition;
 import org.jbpm.casemgmt.cmmn.core.Role;
 import org.jbpm.casemgmt.cmmn.core.SequenceFlow;
-import org.jbpm.compiler.xml.ProcessBuildData;
+import org.jbpm.casemgmt.cmmn.xml.util.CaseParserData;
 import org.jbpm.process.core.ContextContainer;
 import org.jbpm.process.core.context.exception.ActionExceptionHandler;
 import org.jbpm.process.core.context.exception.CompensationScope;
@@ -99,6 +99,7 @@ public class CaseHandler extends BaseAbstractHandler implements Handler {
                         final String localName,
                         final Attributes attrs,
                         final ExtensibleXmlParser parser) throws SAXException {
+        CaseParserData data = CaseParserData.wrapParserMetadata(parser);
         parser.startElementBuilder(localName, attrs);
 
         String id = attrs.getValue("id");
@@ -125,23 +126,12 @@ public class CaseHandler extends BaseAbstractHandler implements Handler {
             process.setVersion(version);
         }
 
-        ((ProcessBuildData) parser.getData()).addProcess(process);
+
         // register the definitions object as metadata of process.
-        process.setMetaData("Definitions", parser.getParent());
-        // register cmmn imports as meta data of process
-        Object typedImports = ((ProcessBuildData) parser.getData()).getMetaData("CmmnImports");
-        if (typedImports != null) {
-            process.setMetaData("CmmnImports", typedImports);
-        }
-        // register item definitions as meta data of process
-        Object itemDefinitions = ((ProcessBuildData) parser.getData()).getMetaData("ItemDefinitions");
-        if (itemDefinitions != null) {
-            process.setMetaData("ItemDefinitions", itemDefinitions);
-        }
-
+        process.setMetaData("Definitions", data.<Definitions>current());
+        data.processes.add(process);
         // for unique id's of nodes, start with one to avoid returning wrong nodes for dynamic nodes
-        parser.getMetaData().put("idGen", new AtomicInteger(1));
-
+        data.idGen.set(new AtomicInteger(1));
         return process;
     }
 
@@ -149,18 +139,16 @@ public class CaseHandler extends BaseAbstractHandler implements Handler {
     public Object end(final String uri,
                       final String localName,
                       final ExtensibleXmlParser parser) throws SAXException {
+        CaseParserData data = CaseParserData.wrapParserMetadata(parser);
         parser.endElementBuilder();
 
-        ProcessBuildData buildData = (ProcessBuildData) parser.getData();
-        Map<String, Role> roles = (Map<String, Role>) buildData.getMetaData("Roles");
-
-        RuleFlowProcess process = (RuleFlowProcess) parser.getCurrent();
+        RuleFlowProcess process = data.current();
 
         List<SequenceFlow> connections = (List<SequenceFlow>) process.getMetaData(CONNECTIONS);
         linkConnections(process, connections);
         linkBoundaryEvents(process);
 
-        postProcessNodes(process, process, roles);
+        postProcessNodes(process, process, data.roles.get());
         return process;
     }
 

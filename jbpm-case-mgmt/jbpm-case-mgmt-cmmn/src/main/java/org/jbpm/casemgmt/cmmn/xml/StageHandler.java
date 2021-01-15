@@ -22,6 +22,7 @@ import java.util.Map;
 
 import org.drools.core.xml.ExtensibleXmlParser;
 import org.jbpm.casemgmt.cmmn.core.PlanItem;
+import org.jbpm.casemgmt.cmmn.xml.util.CaseParserData;
 import org.jbpm.compiler.xml.ProcessBuildData;
 import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.workflow.core.Node;
@@ -58,14 +59,15 @@ public class StageHandler extends AbstractCaseNodeHandler {
                               final String uri,
                               final String localName,
                               final ExtensibleXmlParser parser) throws SAXException {
+        CaseParserData data = CaseParserData.wrapParserMetadata(parser);
+
         super.handleNode(node, element, uri, localName, parser);
         DynamicNode stageNode = (DynamicNode) node;
         // by default it should not autocomplete as it's adhoc
         stageNode.setAutoComplete(false);
         stageNode.setLanguage("rule");
 
-        ProcessBuildData buildData = (ProcessBuildData) parser.getData();
-        Map<String, PlanItem> planItems = (Map<String, PlanItem>) buildData.getMetaData("PlanItems");
+        Map<String, PlanItem> planItems = data.planItems.get();
 
         PlanItem stagePlanItem = planItems.get(stageNode.getMetaData("UniqueId"));
         if (stagePlanItem != null && stagePlanItem.getEntryCriterion() != null) {

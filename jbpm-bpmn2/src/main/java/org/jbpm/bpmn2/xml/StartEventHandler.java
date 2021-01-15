@@ -25,7 +25,7 @@ import org.drools.core.xml.ExtensibleXmlParser;
 import org.jbpm.bpmn2.core.Error;
 import org.jbpm.bpmn2.core.Escalation;
 import org.jbpm.bpmn2.core.Message;
-import org.jbpm.compiler.xml.ProcessBuildData;
+import org.jbpm.bpmn2.xml.util.ProcessParserData;
 import org.jbpm.process.core.event.EventFilter;
 import org.jbpm.process.core.event.EventTransformerImpl;
 import org.jbpm.process.core.event.EventTypeFilter;
@@ -62,9 +62,9 @@ public class StartEventHandler extends AbstractNodeHandler {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     protected void handleNode(final Node node, final Element element, final String uri,
                               final String localName, final ExtensibleXmlParser parser) throws SAXException {
+        ProcessParserData processData = ProcessParserData.wrapParserMetadata(parser);
         super.handleNode(node, element, uri, localName, parser);
         StartNode startNode = (StartNode) node;
         // TODO: StartEventHandler.handleNode(): the parser doesn't discriminate between the schema default and the actual set value
@@ -113,8 +113,7 @@ public class StartEventHandler extends AbstractNodeHandler {
                 }
             } else if ("messageEventDefinition".equals(nodeName)) {
                 String messageRef = ((Element) xmlNode).getAttribute("messageRef");
-                Map<String, Message> messages = (Map<String, Message>)
-                        ((ProcessBuildData) parser.getData()).getMetaData("Messages");
+                Map<String, Message> messages = processData.messages.get();
                 if (messages == null) {
                     throw new IllegalArgumentException("No messages found");
                 }
@@ -140,7 +139,7 @@ public class StartEventHandler extends AbstractNodeHandler {
                 }
                 String errorRef = ((Element) xmlNode).getAttribute("errorRef");
                 if (errorRef != null && errorRef.trim().length() > 0) {
-                    List<Error> errors = (List<Error>) ((ProcessBuildData) parser.getData()).getMetaData("Errors");
+                    List<Error> errors = processData.errors.get();
                     if (errors == null) {
                         throw new IllegalArgumentException("No errors found");
                     }
@@ -159,8 +158,7 @@ public class StartEventHandler extends AbstractNodeHandler {
             } else if ("escalationEventDefinition".equals(nodeName)) {
                 String escalationRef = ((Element) xmlNode).getAttribute("escalationRef");
                 if (escalationRef != null && escalationRef.trim().length() > 0) {
-                    Map<String, Escalation> escalations = (Map<String, Escalation>)
-                            ((ProcessBuildData) parser.getData()).getMetaData(ProcessHandler.ESCALATIONS);
+                    Map<String, Escalation> escalations = processData.escalations.get();
                     if (escalations == null) {
                         throw new IllegalArgumentException("No escalations found");
                     }

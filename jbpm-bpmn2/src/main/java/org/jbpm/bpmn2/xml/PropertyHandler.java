@@ -25,7 +25,7 @@ import org.drools.core.xml.Handler;
 import org.jbpm.bpmn2.core.Association;
 import org.jbpm.bpmn2.core.Lane;
 import org.jbpm.bpmn2.core.SequenceFlow;
-import org.jbpm.compiler.xml.ProcessBuildData;
+import org.jbpm.bpmn2.xml.util.ProcessParserData;
 import org.jbpm.process.core.ContextContainer;
 import org.jbpm.process.core.context.variable.Variable;
 import org.jbpm.process.core.context.variable.VariableScope;
@@ -59,10 +59,11 @@ public class PropertyHandler extends BaseAbstractHandler implements Handler {
         this.validPeers.add(Association.class);
     }
     
-	@SuppressWarnings("unchecked")
+
 	public Object start(final String uri, final String localName,
 			            final Attributes attrs, final ExtensibleXmlParser parser)
 			throws SAXException {
+        ProcessParserData processData = ProcessParserData.wrapParserMetadata(parser);
 		parser.startElementBuilder(localName, attrs);
 
 		final String id = attrs.getValue("id");
@@ -74,7 +75,7 @@ public class PropertyHandler extends BaseAbstractHandler implements Handler {
 		    ContextContainer contextContainer = (ContextContainer) parent;
 		    VariableScope variableScope = (VariableScope) 
                 contextContainer.getDefaultContext(VariableScope.VARIABLE_SCOPE);
-			List variables = variableScope.getVariables();
+			List<Variable> variables = variableScope.getVariables();
 			Variable variable = new Variable();
 			// if name is given use it as variable name instead of id
 			if (name != null && name.length() > 0) {
@@ -86,8 +87,7 @@ public class PropertyHandler extends BaseAbstractHandler implements Handler {
 			variable.setMetaData("ItemSubjectRef", itemSubjectRef);
             variable.setMetaData(id, variable.getName());
 			variables.add(variable);
-			
-			((ProcessBuildData) parser.getData()).setMetaData("Variable", variable);
+			processData.variable.set(variable);
 			return variable;
 		}
 

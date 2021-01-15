@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-package org.jbpm.bpmn2.handler;
+package org.jbpm.process.instance.impl;
 
 import org.drools.core.common.InternalKnowledgeRuntime;
 import org.drools.core.process.instance.WorkItemManager;
 import org.drools.core.process.instance.impl.WorkItemImpl;
 import org.jbpm.process.instance.InternalProcessRuntime;
-import org.jbpm.process.instance.impl.JavaAction;
 import org.jbpm.process.instance.impl.util.VariableUtil;
 import org.jbpm.workflow.core.impl.NodeImpl;
 import org.kie.api.runtime.manager.RuntimeManager;
 import org.kie.api.runtime.process.ProcessContext;
 
-public class SendSignalAction implements JavaAction {
+public class ThrowEventSignalAction implements JavaAction {
 
     private static final long serialVersionUID = 1L;
     private String signalName;
@@ -34,7 +33,7 @@ public class SendSignalAction implements JavaAction {
     private boolean isAsync;
     private NodeImpl node;
 
-    public SendSignalAction(NodeImpl node, String variable, String signalName, boolean isAsync) {
+    public ThrowEventSignalAction(NodeImpl node, String variable, String signalName, boolean isAsync) {
         this.node = node;
         this.varName = variable;
         this.signalName = signalName;

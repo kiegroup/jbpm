@@ -24,11 +24,11 @@ import org.drools.core.xml.ExtensibleXmlParser;
 import org.jbpm.bpmn2.core.Escalation;
 import org.jbpm.bpmn2.core.IntermediateLink;
 import org.jbpm.bpmn2.core.Message;
-import org.jbpm.bpmn2.handler.SendMessageAction;
-import org.jbpm.bpmn2.handler.SendSignalAction;
-import org.jbpm.compiler.xml.ProcessBuildData;
+import org.jbpm.bpmn2.xml.util.ProcessParserData;
 import org.jbpm.process.core.context.variable.Variable;
 import org.jbpm.process.core.impl.DataTransformerRegistry;
+import org.jbpm.process.instance.impl.ThrowEventMessageAction;
+import org.jbpm.process.instance.impl.ThrowEventSignalAction;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
 import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.core.NodeContainer;
@@ -66,6 +66,7 @@ public class IntermediateThrowEventHandler extends AbstractNodeHandler {
 
 	public Object end(final String uri, final String localName,
 			final ExtensibleXmlParser parser) throws SAXException {
+        ProcessParserData processData = ProcessParserData.wrapParserMetadata(parser);
 		final Element element = parser.endElementBuilder();
 		ActionNode node = (ActionNode) parser.getCurrent();
 		// determine type of event definition, so the correct type of node
@@ -96,7 +97,7 @@ public class IntermediateThrowEventHandler extends AbstractNodeHandler {
 				NodeContainer nodeContainer = (NodeContainer) parser
 						.getParent();
 				nodeContainer.addNode(linkNode);
-				((ProcessBuildData) parser.getData()).addNode(node);
+				processData.nodes.add(node);
 				// we break the while and stop the execution of this method.
 				return linkNode;
 			}
@@ -203,17 +204,17 @@ public class IntermediateThrowEventHandler extends AbstractNodeHandler {
                 actionNode.setMetaData("EventType", "signal");
                 actionNode.setMetaData("Ref", signalName);
                 actionNode.setMetaData("Variable", variable);
-                actionNode.setAction(new JavaDroolsAction(new SendSignalAction(actionNode, variable, signalName,
+                actionNode.setAction(new JavaDroolsAction(new ThrowEventSignalAction(actionNode, variable, signalName,
                         dataInputs.containsValue("async"))));
 			}
 			xmlNode = xmlNode.getNextSibling();
 		}
 	}
 
-    @SuppressWarnings("unchecked")
 	public void handleMessageNode(final Node node, final Element element,
 			final String uri, final String localName,
 			final ExtensibleXmlParser parser) throws SAXException {
+        ProcessParserData processData = ProcessParserData.wrapParserMetadata(parser);
 		ActionNode actionNode = (ActionNode) node;
 		org.w3c.dom.Node xmlNode = element.getFirstChild();
 		while (xmlNode != null) {
@@ -227,8 +228,7 @@ public class IntermediateThrowEventHandler extends AbstractNodeHandler {
 			} else if ("messageEventDefinition".equals(nodeName)) {
 				String messageRef = ((Element) xmlNode)
 						.getAttribute("messageRef");
-				Map<String, Message> messages = (Map<String, Message>) ((ProcessBuildData) parser
-						.getData()).getMetaData("Messages");
+				Map<String, Message> messages = processData.messages.get();
 				if (messages == null) {
 					throw new IllegalArgumentException("No messages found");
 				}
@@ -239,19 +239,19 @@ public class IntermediateThrowEventHandler extends AbstractNodeHandler {
 				}
                 message.addOutgoingNode(node);
                 String mappingVariable = (String) actionNode.getMetaData("MappingVariable");
-                Variable v = (Variable) ((ProcessBuildData) parser.getData()).getMetaData("Variable");
+                Variable v = processData.variable.get();
                 String varName = v != null ? (String) v.getMetaData(mappingVariable) : mappingVariable;
                 actionNode.setMetaData("MessageType", message.getType());
-                actionNode.setAction(new JavaDroolsAction(new SendMessageAction(varName, message)));
+                actionNode.setAction(new JavaDroolsAction(new ThrowEventMessageAction(varName, message.getName(), message.getType())));
 			}
 			xmlNode = xmlNode.getNextSibling();
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	public void handleEscalationNode(final Node node, final Element element,
 			final String uri, final String localName,
 			final ExtensibleXmlParser parser) throws SAXException {
+        ProcessParserData processData = ProcessParserData.wrapParserMetadata(parser);
 		ActionNode actionNode = (ActionNode) node;
 		org.w3c.dom.Node xmlNode = element.getFirstChild();
 		while (xmlNode != null) {
@@ -262,8 +262,7 @@ public class IntermediateThrowEventHandler extends AbstractNodeHandler {
 				String escalationRef = ((Element) xmlNode)
 						.getAttribute("escalationRef");
 				if (escalationRef != null && escalationRef.trim().length() > 0) {
-					Map<String, Escalation> escalations = (Map<String, Escalation>) ((ProcessBuildData) parser
-							.getData()).getMetaData(ProcessHandler.ESCALATIONS);
+					Map<String, Escalation> escalations = processData.escalations.get();
 					if (escalations == null) {
 						throw new IllegalArgumentException(
 								"No escalations found");

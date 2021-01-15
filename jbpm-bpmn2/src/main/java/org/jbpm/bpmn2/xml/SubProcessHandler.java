@@ -23,7 +23,7 @@ import org.jbpm.bpmn2.core.Association;
 import org.jbpm.bpmn2.core.Definitions;
 import org.jbpm.bpmn2.core.IntermediateLink;
 import org.jbpm.bpmn2.core.SequenceFlow;
-import org.jbpm.compiler.xml.ProcessBuildData;
+import org.jbpm.bpmn2.xml.util.ProcessParserData;
 import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.core.NodeContainer;
@@ -68,8 +68,9 @@ public class SubProcessHandler extends AbstractNodeHandler {
 
     public Object end(final String uri, final String localName,
             final ExtensibleXmlParser parser) throws SAXException {
+        ProcessParserData processData = ProcessParserData.wrapParserMetadata(parser);
 		final Element element = parser.endElementBuilder();
-		Node node = (Node) parser.getCurrent();	
+		Node node = processData.current();
 
 
 		// determine type of event definition, so the correct type of node can be generated
@@ -108,9 +109,9 @@ public class SubProcessHandler extends AbstractNodeHandler {
 			handleCompositeContextNode(node, element, uri, localName, parser);
 		}
 		
-        NodeContainer nodeContainer = (NodeContainer) parser.getParent();
+        NodeContainer nodeContainer = processData.parent();
         nodeContainer.addNode(node);
-        ((ProcessBuildData) parser.getData()).addNode(node);
+        processData.nodes.add(node);
 
 		return node;
 	}

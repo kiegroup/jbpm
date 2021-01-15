@@ -25,7 +25,7 @@ import org.drools.core.xml.ExtensibleXmlParser;
 import org.drools.core.xml.Handler;
 import org.jbpm.casemgmt.cmmn.core.Decision;
 import org.jbpm.casemgmt.cmmn.core.Definitions;
-import org.jbpm.compiler.xml.ProcessBuildData;
+import org.jbpm.casemgmt.cmmn.xml.util.CaseParserData;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
 import org.jbpm.workflow.core.node.RuleSetNode;
 import org.jbpm.workflow.core.node.SubProcessNode;
@@ -38,12 +38,12 @@ import org.xml.sax.SAXException;
 
 public class DefinitionsHandler extends BaseAbstractHandler implements Handler {
 
-    @SuppressWarnings("unchecked")
+
     public DefinitionsHandler() {
         if ((this.validParents == null) && (this.validPeers == null)) {
-            this.validParents = new HashSet();
+            this.validParents = new HashSet<>();
             this.validParents.add(null);
-            this.validPeers = new HashSet();
+            this.validPeers = new HashSet<>();
             this.validPeers.add(null);
             this.allowNesting = false;
         }
@@ -60,21 +60,19 @@ public class DefinitionsHandler extends BaseAbstractHandler implements Handler {
     public Object end(final String uri,
                       final String localName,
                       final ExtensibleXmlParser parser) throws SAXException {
+        CaseParserData data = CaseParserData.wrapParserMetadata(parser);
+
         final Element element = parser.endElementBuilder();
-        Definitions definitions = (Definitions) parser.getCurrent();
+        Definitions definitions = data.<Definitions>current();
         String id = element.getAttribute("id");
         String namespace = element.getAttribute("targetNamespace");
-        ProcessBuildData buildData = (ProcessBuildData) parser.getData();
-        List<Process> processes = ((ProcessBuildData) parser.getData()).getProcesses();
 
-        String namespaceN1 = (String) parser.getNamespaceURI("ns2");
-        
-        
-        
+        List<Process> processes = data.processes.get();
+
         for (Process process : processes) {
             RuleFlowProcess ruleFlowProcess = (RuleFlowProcess) process;
             ruleFlowProcess.setMetaData("TargetNamespace", namespace);
-            postProcessNodes(ruleFlowProcess, ruleFlowProcess, buildData, parser);
+            postProcessNodes(ruleFlowProcess, ruleFlowProcess, data, parser);
         }
         definitions.setId(id);
         definitions.setTargetNamespace(namespace);
@@ -85,18 +83,17 @@ public class DefinitionsHandler extends BaseAbstractHandler implements Handler {
         return Definitions.class;
     }
     
-    private void postProcessNodes(RuleFlowProcess process, NodeContainer container, ProcessBuildData buildData, ExtensibleXmlParser parser) {
+    private void postProcessNodes(RuleFlowProcess process, NodeContainer container, CaseParserData data, ExtensibleXmlParser parser) {
         for (Node node : container.getNodes()) {
 
             if (node instanceof SubProcessNode) {
-                Map<String, String> processes = (Map<String, String>) buildData.getMetaData("ProcessElements");
-                if (processes != null) {
-
+                Map<String, String> processes = data.processElements.get(); 
+                if (!processes.isEmpty()) {
                     SubProcessNode subprocessNode = (SubProcessNode) node;
                     subprocessNode.setProcessId(processes.getOrDefault(subprocessNode.getProcessId(), subprocessNode.getProcessId()));    
                 }
             } else if (node instanceof RuleSetNode) {
-                Map<String, Decision> decisions = (Map<String, Decision>) buildData.getMetaData("DecisionElements");
+                Map<String, Decision> decisions = data.decisions.get();
                 RuleSetNode ruleSetNode = (RuleSetNode) node;
                 if (decisions != null && decisions.containsKey(ruleSetNode.getRuleFlowGroup())) {
                     Decision decision = decisions.get(ruleSetNode.getRuleFlowGroup());
@@ -109,7 +106,7 @@ public class DefinitionsHandler extends BaseAbstractHandler implements Handler {
             }
 
             if (node instanceof NodeContainer) {                
-                postProcessNodes(process, (NodeContainer) node, buildData, parser);
+                postProcessNodes(process, (NodeContainer) node, data, parser);
             }
         }
     }

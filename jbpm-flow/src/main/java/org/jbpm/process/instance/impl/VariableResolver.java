@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jbpm.bpmn2.handler;
+package org.jbpm.process.instance.impl;
 
 import org.jbpm.process.core.event.EventTransformerImpl;
 import org.jbpm.workflow.core.node.Transformation;

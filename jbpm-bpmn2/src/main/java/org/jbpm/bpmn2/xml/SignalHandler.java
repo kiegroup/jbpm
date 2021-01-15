@@ -25,6 +25,7 @@ import org.drools.core.xml.ExtensibleXmlParser;
 import org.drools.core.xml.Handler;
 import org.jbpm.bpmn2.core.*;
 import org.jbpm.bpmn2.core.Error;
+import org.jbpm.bpmn2.xml.util.ProcessParserData;
 import org.jbpm.compiler.xml.ProcessBuildData;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
 import org.xml.sax.Attributes;
@@ -44,13 +45,12 @@ import org.xml.sax.SAXException;
  */
 public class SignalHandler extends BaseAbstractHandler implements Handler {
 
-	@SuppressWarnings("unchecked")
 	public SignalHandler() {
 		if ((this.validParents == null) && (this.validPeers == null)) {
-			this.validParents = new HashSet();
+			this.validParents = new HashSet<>();
 			this.validParents.add(Definitions.class);
 
-			this.validPeers = new HashSet();
+			this.validPeers = new HashSet<>();
 			this.validPeers.add(null);
             this.validPeers.add(ItemDefinition.class);
             this.validPeers.add(Message.class);
@@ -65,10 +65,10 @@ public class SignalHandler extends BaseAbstractHandler implements Handler {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
     public Object start(final String uri, final String localName,
 			            final Attributes attrs, final ExtensibleXmlParser parser)
 			throws SAXException {
+        ProcessParserData processData = ProcessParserData.wrapParserMetadata(parser);
 		parser.startElementBuilder(localName, attrs);
 
 		// according to the (Semantic.)xsd, both the name and structureRef are optional
@@ -76,15 +76,8 @@ public class SignalHandler extends BaseAbstractHandler implements Handler {
 		String name = attrs.getValue("name"); // referred to by the signalEventDefinition.signalRef attr
 		String structureRef = attrs.getValue("structureRef");
 
-        ProcessBuildData buildData = (ProcessBuildData) parser.getData();
-        Map<String, Signal> signals = (Map<String, Signal>) buildData.getMetaData("Signals");
-        if (signals == null) {
-            signals = new HashMap<String, Signal>();
-            buildData.setMetaData("Signals", signals);
-        }
-
         Signal s = new Signal(id, name, structureRef);
-        signals.put(id, s);
+        processData.signals.put(id, s);
 
 		return s;
 	}

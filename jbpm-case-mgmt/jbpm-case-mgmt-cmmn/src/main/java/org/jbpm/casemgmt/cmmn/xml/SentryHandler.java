@@ -17,14 +17,13 @@
 package org.jbpm.casemgmt.cmmn.xml;
 
 import java.util.HashSet;
-import java.util.Map;
 
 import org.drools.core.xml.BaseAbstractHandler;
 import org.drools.core.xml.ExtensibleXmlParser;
 import org.drools.core.xml.Handler;
 import org.jbpm.casemgmt.cmmn.core.PlanItem;
 import org.jbpm.casemgmt.cmmn.core.Sentry;
-import org.jbpm.compiler.xml.ProcessBuildData;
+import org.jbpm.casemgmt.cmmn.xml.util.CaseParserData;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,23 +49,20 @@ public class SentryHandler extends BaseAbstractHandler implements Handler {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public Object start(final String uri,
                         final String localName,
                         final Attributes attrs,
                         final ExtensibleXmlParser parser) throws SAXException {
+        CaseParserData data = CaseParserData.wrapParserMetadata(parser);
         parser.startElementBuilder(localName, attrs);
 
         String id = attrs.getValue("id");
-        ProcessBuildData buildData = (ProcessBuildData) parser.getData();
-        Map<String, Sentry> sentries = (Map<String, Sentry>) buildData.getMetaData("Sentries");
 
-        Sentry sentryStub = sentries.get(id);
-        if (sentryStub == null) {
-            sentryStub = new Sentry(id, null, null);
-            sentries.put(id, sentryStub);
+        if (!data.sentries.get().containsKey(id)) {
+            Sentry sentryStub = new Sentry(id, null, null);
+            data.sentries.get().put(id, sentryStub);
         }
-        return sentryStub;
+        return  data.sentries.get().get(id);
     }
 
     @Override

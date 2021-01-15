@@ -14,25 +14,25 @@
  * limitations under the License.
  */
 
-package org.jbpm.bpmn2.handler;
+package org.jbpm.process.instance.impl;
 
 import org.drools.core.common.InternalKnowledgeRuntime;
 import org.drools.core.process.instance.WorkItemManager;
 import org.drools.core.process.instance.impl.WorkItemImpl;
-import org.jbpm.bpmn2.core.Message;
 import org.jbpm.process.instance.InternalProcessRuntime;
-import org.jbpm.process.instance.impl.JavaAction;
 import org.kie.api.runtime.process.ProcessContext;
 
-public class SendMessageAction implements JavaAction {
+public class ThrowEventMessageAction implements JavaAction {
 
     private static final long serialVersionUID = 1L;
     private String varName;
-    private Message message;
+    private String messageName;
+    private String messageType;
 
-    public SendMessageAction(String varName, Message message) {
+    public ThrowEventMessageAction(String varName, String messageName, String messageType) {
         this.varName = varName;
-        this.message = message;
+        this.messageName = messageName;
+        this.messageType = messageType;
     }
 
     @Override
@@ -40,11 +40,11 @@ public class SendMessageAction implements JavaAction {
         Object tVariable = VariableResolver.getVariable(kcontext, varName);
         ((InternalProcessRuntime) ((InternalKnowledgeRuntime) kcontext.getKieRuntime()).getProcessRuntime())
                 .getProcessEventSupport().fireOnMessage(kcontext.getProcessInstance(), kcontext
-                        .getNodeInstance(), kcontext.getKieRuntime(), message.getName(), tVariable);
+                        .getNodeInstance(), kcontext.getKieRuntime(), messageName, tVariable);
         WorkItemImpl workItem = new WorkItemImpl();
         workItem.setName("Send Task");
         workItem.setProcessInstanceId(kcontext.getProcessInstance().getId());
-        workItem.setParameter("MessageType", message.getType());
+        workItem.setParameter("MessageType", messageType);
         workItem.setNodeInstanceId(kcontext.getNodeInstance().getId());
         workItem.setNodeId(kcontext.getNodeInstance().getNodeId());
         workItem.setDeploymentId((String) kcontext.getKieRuntime().getEnvironment().get("deploymentId"));

@@ -22,7 +22,7 @@ import java.util.Map;
 import org.drools.core.xml.ExtensibleXmlParser;
 import org.jbpm.bpmn2.core.ItemDefinition;
 import org.jbpm.bpmn2.xml.elements.DataAssociationFactory;
-import org.jbpm.compiler.xml.ProcessBuildData;
+import org.jbpm.bpmn2.xml.util.ProcessParserData;
 import org.jbpm.process.core.Work;
 import org.jbpm.process.core.impl.WorkImpl;
 import org.jbpm.workflow.core.Node;
@@ -37,7 +37,7 @@ import org.xml.sax.SAXException;
 
 public class TaskHandler extends AbstractNodeHandler {
     
-	private Map<String, ItemDefinition> itemDefinitions; 
+
 	
 	 Map<String, String> dataTypeInputs = new HashMap<String, String>();
      Map<String, String> dataTypeOutputs = new HashMap<String, String>();
@@ -53,8 +53,7 @@ public class TaskHandler extends AbstractNodeHandler {
     protected void handleNode(final Node node, final Element element, final String uri, 
             final String localName, final ExtensibleXmlParser parser) throws SAXException {
     	super.handleNode(node, element, uri, localName, parser);
-    	
-    	itemDefinitions = (Map<String, ItemDefinition>)((ProcessBuildData) parser.getData()).getMetaData("ItemDefinitions");
+        ProcessParserData processData = ProcessParserData.wrapParserMetadata(parser);
     	dataTypeInputs.clear();
     	dataTypeOutputs.clear();
     	
@@ -67,7 +66,7 @@ public class TaskHandler extends AbstractNodeHandler {
         while (xmlNode != null) {
         	String nodeName = xmlNode.getNodeName();
         	if ("ioSpecification".equals(nodeName)) {
-        		readIoSpecification(xmlNode, dataInputs, dataOutputs);
+        		readIoSpecification(processData, xmlNode, dataInputs, dataOutputs);
         	} else if ("dataInputAssociation".equals(nodeName)) {
         		readDataInputAssociation(xmlNode, workItemNode, dataInputs);
         	} else if ("dataOutputAssociation".equals(nodeName)) {
@@ -93,8 +92,8 @@ public class TaskHandler extends AbstractNodeHandler {
         return element.getAttribute("taskName");
     }
     
-    protected void readIoSpecification(org.w3c.dom.Node xmlNode, Map<String, String> dataInputs, Map<String, String> dataOutputs) {
-        
+    protected void readIoSpecification(ProcessParserData processData, org.w3c.dom.Node xmlNode, Map<String, String> dataInputs, Map<String, String> dataOutputs) {
+        Map<String, ItemDefinition> itemDefinitions = processData.itemDefinitions.get();
         dataTypeInputs.clear();
         dataTypeOutputs.clear();
         
@@ -159,8 +158,9 @@ public class TaskHandler extends AbstractNodeHandler {
     
     public Object end(final String uri, final String localName,
             final ExtensibleXmlParser parser) throws SAXException {
+        ProcessParserData processData = ProcessParserData.wrapParserMetadata(parser);
 		final Element element = parser.endElementBuilder();
-		Node node = (Node) parser.getCurrent();
+		Node node = processData.<Node>current();
 		// determine type of event definition, so the correct type of node can be generated
     	handleNode(node, element, uri, localName, parser);
     	
@@ -214,8 +214,7 @@ public class TaskHandler extends AbstractNodeHandler {
 		
 		NodeContainer nodeContainer = (NodeContainer) parser.getParent();
 		nodeContainer.addNode(node);
-		((ProcessBuildData) parser.getData()).addNode(node);
-		       
+		processData.nodes.add(node);
 		return node;
 	}
     

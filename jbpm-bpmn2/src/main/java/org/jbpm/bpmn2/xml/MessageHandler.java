@@ -16,29 +16,33 @@
 
 package org.jbpm.bpmn2.xml;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
 import org.drools.core.xml.BaseAbstractHandler;
 import org.drools.core.xml.ExtensibleXmlParser;
 import org.drools.core.xml.Handler;
-import org.jbpm.bpmn2.core.*;
+import org.jbpm.bpmn2.core.DataStore;
+import org.jbpm.bpmn2.core.Definitions;
 import org.jbpm.bpmn2.core.Error;
-import org.jbpm.compiler.xml.ProcessBuildData;
+import org.jbpm.bpmn2.core.Escalation;
+import org.jbpm.bpmn2.core.Interface;
+import org.jbpm.bpmn2.core.ItemDefinition;
+import org.jbpm.bpmn2.core.Message;
+import org.jbpm.bpmn2.core.Signal;
+import org.jbpm.bpmn2.xml.util.ProcessParserData;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
 public class MessageHandler extends BaseAbstractHandler implements Handler {
 	
-	@SuppressWarnings("unchecked")
 	public MessageHandler() {
 		if ((this.validParents == null) && (this.validPeers == null)) {
-			this.validParents = new HashSet();
+			this.validParents = new HashSet<>();
 			this.validParents.add(Definitions.class);
 
-			this.validPeers = new HashSet();
+			this.validPeers = new HashSet<>();
 			this.validPeers.add(null);
             this.validPeers.add(ItemDefinition.class);
             this.validPeers.add(Message.class);
@@ -53,10 +57,10 @@ public class MessageHandler extends BaseAbstractHandler implements Handler {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
     public Object start(final String uri, final String localName,
 			            final Attributes attrs, final ExtensibleXmlParser parser)
 			throws SAXException {
+        ProcessParserData processData = ProcessParserData.wrapParserMetadata(parser);
 		parser.startElementBuilder(localName, attrs);
 
 		String id = attrs.getValue("id");
@@ -66,8 +70,7 @@ public class MessageHandler extends BaseAbstractHandler implements Handler {
 		    name = id;
 		}
 		
-		Map<String, ItemDefinition> itemDefinitions = (Map<String, ItemDefinition>)
-            ((ProcessBuildData) parser.getData()).getMetaData("ItemDefinitions");
+		Map<String, ItemDefinition> itemDefinitions = processData.itemDefinitions.get();
         if (itemDefinitions == null) {
             throw new IllegalArgumentException("No item definitions found");
         }
@@ -75,18 +78,11 @@ public class MessageHandler extends BaseAbstractHandler implements Handler {
         if (itemDefinition == null) {
             throw new IllegalArgumentException("Could not find itemDefinition " + itemRef);
         }
-        
-        ProcessBuildData buildData = (ProcessBuildData) parser.getData();
-		Map<String, Message> messages = (Map<String, Message>)
-            ((ProcessBuildData) parser.getData()).getMetaData("Messages");
-        if (messages == null) {
-            messages = new HashMap<String, Message>();
-            buildData.setMetaData("Messages", messages);
-        }
+
         Message message = new Message(id); 
         message.setType(itemDefinition.getStructureRef());
         message.setName(name);
-        messages.put(id, message);
+        processData.messages.put(id, message);
 		return message;
 	}
 

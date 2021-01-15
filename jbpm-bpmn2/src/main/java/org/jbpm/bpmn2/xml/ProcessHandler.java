@@ -31,6 +31,7 @@ import org.drools.core.xml.BaseAbstractHandler;
 import org.drools.core.xml.ExtensibleXmlParser;
 import org.drools.core.xml.Handler;
 import org.jbpm.bpmn2.core.Association;
+import org.jbpm.bpmn2.core.Bpmn2Import;
 import org.jbpm.bpmn2.core.DataStore;
 import org.jbpm.bpmn2.core.Definitions;
 import org.jbpm.bpmn2.core.Error;
@@ -42,7 +43,7 @@ import org.jbpm.bpmn2.core.Lane;
 import org.jbpm.bpmn2.core.Message;
 import org.jbpm.bpmn2.core.SequenceFlow;
 import org.jbpm.bpmn2.core.Signal;
-import org.jbpm.compiler.xml.ProcessBuildData;
+import org.jbpm.bpmn2.xml.util.ProcessParserData;
 import org.jbpm.process.core.ContextContainer;
 import org.jbpm.process.core.context.exception.ActionExceptionHandler;
 import org.jbpm.process.core.context.exception.CompensationHandler;
@@ -107,13 +108,12 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
     static final String RUNTIME_SIGNAL_EVENT = "kcontext.getKnowledgeRuntime().signalEvent(\"";
     static final String RUNTIME_MANAGER_SIGNAL_EVENT = "((org.kie.api.runtime.manager.RuntimeManager)kcontext.getKnowledgeRuntime().getEnvironment().get(\"RuntimeManager\")).signalEvent(\"";
     		
-	@SuppressWarnings("unchecked")
 	public ProcessHandler() {
 		if ((this.validParents == null) && (this.validPeers == null)) {
-			this.validParents = new HashSet();
+			this.validParents = new HashSet<>();
 			this.validParents.add(Definitions.class);
 
-			this.validPeers = new HashSet();
+			this.validPeers = new HashSet<>();
 			this.validPeers.add(null);
             this.validPeers.add(ItemDefinition.class);
             this.validPeers.add(Message.class);
@@ -131,6 +131,7 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
 	public Object start(final String uri, final String localName,
 			            final Attributes attrs, final ExtensibleXmlParser parser)
 			throws SAXException {
+        ProcessParserData processData = ProcessParserData.wrapParserMetadata(parser);
 		parser.startElementBuilder(localName, attrs);
 
 		String id = attrs.getValue("id");
@@ -159,23 +160,12 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
 			process.setVersion(version);
 		}
 
-		((ProcessBuildData) parser.getData()).addProcess(process);
+		processData.processes.add(process);
 		// register the definitions object as metadata of process.
-		process.setMetaData("Definitions", parser.getParent());
-		// register bpmn2 imports as meta data of process
-		Object typedImports = ((ProcessBuildData) parser.getData()).getMetaData("Bpmn2Imports");
-		if (typedImports != null) {
-		    process.setMetaData("Bpmn2Imports", typedImports);
-		}
-		// register item definitions as meta data of process
-		Object itemDefinitions = ((ProcessBuildData) parser.getData()).getMetaData("ItemDefinitions");
-		if (itemDefinitions != null) {
-		    process.setMetaData("ItemDefinitions", itemDefinitions);
-		}
-		
+		process.setMetaData("Definitions", processData.<Definitions>parent());
+		process.setMetaData("ItemDefinitions", processData.itemDefinitions.get());
 		// for unique id's of nodes, start with one to avoid returning wrong nodes for dynamic nodes
-		parser.getMetaData().put("idGen", new AtomicInteger(1));
-		
+		processData.idGen.set(new AtomicInteger(1));
 		return process;
 	}
 

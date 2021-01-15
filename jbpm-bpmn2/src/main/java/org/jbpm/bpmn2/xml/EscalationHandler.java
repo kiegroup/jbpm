@@ -16,29 +16,32 @@
 
 package org.jbpm.bpmn2.xml;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 
 import org.drools.core.xml.BaseAbstractHandler;
 import org.drools.core.xml.ExtensibleXmlParser;
 import org.drools.core.xml.Handler;
-import org.jbpm.bpmn2.core.*;
+import org.jbpm.bpmn2.core.DataStore;
+import org.jbpm.bpmn2.core.Definitions;
 import org.jbpm.bpmn2.core.Error;
-import org.jbpm.compiler.xml.ProcessBuildData;
+import org.jbpm.bpmn2.core.Escalation;
+import org.jbpm.bpmn2.core.Interface;
+import org.jbpm.bpmn2.core.ItemDefinition;
+import org.jbpm.bpmn2.core.Message;
+import org.jbpm.bpmn2.core.Signal;
+import org.jbpm.bpmn2.xml.util.ProcessParserData;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
 public class EscalationHandler extends BaseAbstractHandler implements Handler {
 	
-	@SuppressWarnings("unchecked")
 	public EscalationHandler() {
 		if ((this.validParents == null) && (this.validPeers == null)) {
-			this.validParents = new HashSet();
+			this.validParents = new HashSet<>();
 			this.validParents.add(Definitions.class);
 
-			this.validPeers = new HashSet();
+			this.validPeers = new HashSet<>();
 			this.validPeers.add(null);
             this.validPeers.add(ItemDefinition.class);
             this.validPeers.add(Message.class);
@@ -53,24 +56,18 @@ public class EscalationHandler extends BaseAbstractHandler implements Handler {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
     public Object start(final String uri, final String localName,
 			            final Attributes attrs, final ExtensibleXmlParser parser)
 			throws SAXException {
+        ProcessParserData processData = ProcessParserData.wrapParserMetadata(parser);
 		parser.startElementBuilder(localName, attrs);
 
 		String id = attrs.getValue("id");
 		String escalationCode = attrs.getValue("escalationCode");
 		String structureRef = attrs.getValue("structureRef");
 
-		ProcessBuildData buildData = (ProcessBuildData) parser.getData();
-		Map<String, Escalation> escalations = (Map<String, Escalation>) buildData.getMetaData(ProcessHandler.ESCALATIONS);
-        if (escalations == null) {
-        	escalations = new HashMap<String, Escalation>();
-            buildData.setMetaData(ProcessHandler.ESCALATIONS, escalations);
-        }
         Escalation e = new Escalation(id, structureRef, escalationCode); 
-        escalations.put(id, e);
+        processData.escalations.put(id, e);
 		return e;
 	}
 

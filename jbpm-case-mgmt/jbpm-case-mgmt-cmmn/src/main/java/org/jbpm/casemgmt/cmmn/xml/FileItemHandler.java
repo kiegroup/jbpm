@@ -16,7 +16,6 @@
 
 package org.jbpm.casemgmt.cmmn.xml;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +25,7 @@ import org.drools.core.xml.ExtensibleXmlParser;
 import org.drools.core.xml.Handler;
 import org.jbpm.casemgmt.cmmn.core.FileItemDefinition;
 import org.jbpm.casemgmt.cmmn.core.Role;
-import org.jbpm.compiler.xml.ProcessBuildData;
+import org.jbpm.casemgmt.cmmn.xml.util.CaseParserData;
 import org.jbpm.process.core.ContextContainer;
 import org.jbpm.process.core.context.variable.Variable;
 import org.jbpm.process.core.context.variable.VariableScope;
@@ -55,20 +54,20 @@ public class FileItemHandler extends BaseAbstractHandler implements Handler {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public Object start(final String uri,
                         final String localName,
                         final Attributes attrs,
                         final ExtensibleXmlParser parser) throws SAXException {
+        CaseParserData data = CaseParserData.wrapParserMetadata(parser);
         parser.startElementBuilder(localName, attrs);
 
         String id = attrs.getValue("id");
         String name = attrs.getValue("name");
         String definitionRef = attrs.getValue("definitionRef");
 
-        ProcessBuildData buildData = (ProcessBuildData) parser.getData();
+   
 
-        Map<String, FileItemDefinition> itemDefinitions = (Map<String, FileItemDefinition>) buildData.getMetaData("FileItemDefinitions");
+        Map<String, FileItemDefinition> itemDefinitions = data.fileItemDefinitions.get();
 
         FileItemDefinition definition = itemDefinitions.get(definitionRef);
         if (name == null) {
@@ -76,12 +75,7 @@ public class FileItemHandler extends BaseAbstractHandler implements Handler {
         }
         String structureRef = definition.getStructureRef();
 
-        Map<String, String> fileItems = (Map<String, String>) buildData.getMetaData("FileItems");
-        if (fileItems == null) {
-            fileItems = new HashMap<String, String>();
-            buildData.setMetaData("FileItems", fileItems);
-        }
-        fileItems.put(id, name);
+        data.fileItems.put(id, name);
 
         Variable variable = new Variable();
         variable.setName(VariableScope.CASE_FILE_PREFIX + name);
@@ -126,7 +120,7 @@ public class FileItemHandler extends BaseAbstractHandler implements Handler {
                 variable.setType(dataType);
             }
 
-            ((ProcessBuildData) parser.getData()).setMetaData("Variable", variable);
+            data.variable.set(variable);
             return variable;
         }
 

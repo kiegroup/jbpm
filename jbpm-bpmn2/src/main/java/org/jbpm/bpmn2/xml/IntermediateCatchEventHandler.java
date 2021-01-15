@@ -23,7 +23,7 @@ import java.util.Map;
 import org.drools.core.xml.ExtensibleXmlParser;
 import org.jbpm.bpmn2.core.IntermediateLink;
 import org.jbpm.bpmn2.core.Message;
-import org.jbpm.compiler.xml.ProcessBuildData;
+import org.jbpm.bpmn2.xml.util.ProcessParserData;
 import org.jbpm.process.core.event.EventFilter;
 import org.jbpm.process.core.event.EventTransformerImpl;
 import org.jbpm.process.core.event.EventTypeFilter;
@@ -61,6 +61,7 @@ public class IntermediateCatchEventHandler extends AbstractNodeHandler {
 
     public Object end(final String uri, final String localName,
             final ExtensibleXmlParser parser) throws SAXException {
+        ProcessParserData processData = ProcessParserData.wrapParserMetadata(parser);
         final Element element = parser.endElementBuilder();
         Node node = (Node) parser.getCurrent();
         // determine type of event definition, so the correct type of node
@@ -107,7 +108,7 @@ public class IntermediateCatchEventHandler extends AbstractNodeHandler {
         }
         NodeContainer nodeContainer = (NodeContainer) parser.getParent();
         nodeContainer.addNode(node);
-        ((ProcessBuildData) parser.getData()).addNode(node);
+        processData.nodes.add(node);
         return node;
     }
 
@@ -166,7 +167,7 @@ public class IntermediateCatchEventHandler extends AbstractNodeHandler {
         }
     }
 
-    @SuppressWarnings("unchecked")
+
 	protected void handleSignalNode(final Node node, final Element element,
             final String uri, final String localName,
             final ExtensibleXmlParser parser) throws SAXException {
@@ -198,10 +199,10 @@ public class IntermediateCatchEventHandler extends AbstractNodeHandler {
         }
     }
 
-    @SuppressWarnings("unchecked")
     protected void handleMessageNode(final Node node, final Element element,
             final String uri, final String localName,
             final ExtensibleXmlParser parser) throws SAXException {
+        ProcessParserData processData = ProcessParserData.wrapParserMetadata(parser);
         super.handleNode(node, element, uri, localName, parser);
         EventNode eventNode = (EventNode) node;
         org.w3c.dom.Node xmlNode = element.getFirstChild();
@@ -216,8 +217,7 @@ public class IntermediateCatchEventHandler extends AbstractNodeHandler {
             } else if ("messageEventDefinition".equals(nodeName)) {
                 String messageRef = ((Element) xmlNode)
                         .getAttribute("messageRef");
-                Map<String, Message> messages = (Map<String, Message>) ((ProcessBuildData) parser
-                        .getData()).getMetaData("Messages");
+                Map<String, Message> messages = processData.messages.get();
                 if (messages == null) {
                     throw new IllegalArgumentException("No messages found");
                 }

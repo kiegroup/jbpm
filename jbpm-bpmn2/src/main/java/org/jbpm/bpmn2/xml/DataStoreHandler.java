@@ -27,6 +27,7 @@ import org.drools.core.xml.ExtensibleXmlParser;
 import org.drools.core.xml.Handler;
 import org.jbpm.bpmn2.core.*;
 import org.jbpm.bpmn2.core.Error;
+import org.jbpm.bpmn2.xml.util.ProcessParserData;
 import org.jbpm.compiler.xml.ProcessBuildData;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
 import org.xml.sax.Attributes;
@@ -58,14 +59,15 @@ public class DataStoreHandler extends BaseAbstractHandler implements Handler {
 	public Object start(final String uri, final String localName, 
 			final Attributes attrs, final ExtensibleXmlParser parser) 
 			throws SAXException {
+        ProcessParserData processData = ProcessParserData.wrapParserMetadata(parser);
+
 		parser.startElementBuilder(localName, attrs);
 		DataStore store = new DataStore();
 		store.setId(attrs.getValue("id"));
 		store.setName(attrs.getValue("name"));
 		final String itemSubjectRef = attrs.getValue("itemSubjectRef");
 		store.setItemSubjectRef(itemSubjectRef);
-		Map<String, ItemDefinition> itemDefinitions = (Map<String, ItemDefinition>)
-			((ProcessBuildData) parser.getData()).getMetaData("ItemDefinitions");
+		Map<String, ItemDefinition> itemDefinitions = processData.itemDefinitions.get();
 		// retrieve type from item definition
 		//FIXME we bypass namespace resolving here. That's not a good idea when we start having several documents, with imports.
 		String localItemSubjectRef = itemSubjectRef.substring(

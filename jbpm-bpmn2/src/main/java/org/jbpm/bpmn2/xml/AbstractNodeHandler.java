@@ -38,8 +38,7 @@ import org.jbpm.bpmn2.core.ItemDefinition;
 import org.jbpm.bpmn2.core.Lane;
 import org.jbpm.bpmn2.core.SequenceFlow;
 import org.jbpm.bpmn2.core.Signal;
-import org.jbpm.bpmn2.handler.SendMessageAction;
-import org.jbpm.bpmn2.handler.SendSignalAction;
+import org.jbpm.bpmn2.xml.util.ProcessParserData;
 import org.jbpm.compiler.xml.ProcessBuildData;
 import org.jbpm.process.core.context.variable.Variable;
 import org.jbpm.process.core.datatype.DataType;
@@ -49,6 +48,8 @@ import org.jbpm.process.core.datatype.impl.type.IntegerDataType;
 import org.jbpm.process.core.datatype.impl.type.ObjectDataType;
 import org.jbpm.process.core.datatype.impl.type.StringDataType;
 import org.jbpm.process.instance.impl.JavaAction;
+import org.jbpm.process.instance.impl.ThrowEventMessageAction;
+import org.jbpm.process.instance.impl.ThrowEventSignalAction;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
 import org.jbpm.workflow.core.DroolsAction;
 import org.jbpm.workflow.core.Node;
@@ -106,6 +107,7 @@ public abstract class AbstractNodeHandler extends BaseAbstractHandler implements
 
     public Object start(final String uri, final String localName, final Attributes attrs,
                         final ExtensibleXmlParser parser) throws SAXException {
+        ProcessParserData data = ProcessParserData.wrapParserMetadata(parser);
         parser.startElementBuilder( localName, attrs );
         final Node node = createNode(attrs);
         String id = attrs.getValue("id");
@@ -131,8 +133,7 @@ public abstract class AbstractNodeHandler extends BaseAbstractHandler implements
                 ((org.jbpm.workflow.core.Node) node).setId(++newId);
             }
         } else {
-            AtomicInteger idGen = (AtomicInteger) parser.getMetaData().get("idGen");
-            node.setId(idGen.getAndIncrement());
+             node.setId(data.idGen.get().getAndIncrement());
         }
         return node;
     }
@@ -141,12 +142,16 @@ public abstract class AbstractNodeHandler extends BaseAbstractHandler implements
 
     public Object end(final String uri, final String localName,
                       final ExtensibleXmlParser parser) throws SAXException {
+        ProcessParserData metadata = ProcessParserData.wrapParserMetadata(parser);
+
         final Element element = parser.endElementBuilder();
         Node node = (Node) parser.getCurrent();
         handleNode(node, element, uri, localName, parser);
         NodeContainer nodeContainer = (NodeContainer) parser.getParent();
         nodeContainer.addNode(node);
-        ((ProcessBuildData) parser.getData()).addNode(node);
+        
+
+        metadata.nodes.add(node);
         return node;
     }
 
@@ -376,8 +381,8 @@ public abstract class AbstractNodeHandler extends BaseAbstractHandler implements
         }
     }
 
-    @SuppressWarnings("unchecked")
     protected void readMultiInstanceLoopCharacteristics(org.w3c.dom.Node xmlNode, ForEachNode forEachNode, ExtensibleXmlParser parser) {
+        ProcessParserData processData = ProcessParserData.wrapParserMetadata(parser);
 
         // sourceRef
         org.w3c.dom.Node subNode = xmlNode.getFirstChild();
@@ -387,8 +392,7 @@ public abstract class AbstractNodeHandler extends BaseAbstractHandler implements
                 String variableName = ((Element) subNode).getAttribute("id");
                 String itemSubjectRef = ((Element) subNode).getAttribute("itemSubjectRef");
                 DataType dataType = null;
-                Map<String, ItemDefinition> itemDefinitions = (Map<String, ItemDefinition>)
-                    ((ProcessBuildData) parser.getData()).getMetaData("ItemDefinitions");
+                Map<String, ItemDefinition> itemDefinitions = processData.itemDefinitions.get();
                 dataType = getDataType(itemSubjectRef, itemDefinitions, parser.getClassLoader());
 
                 if (variableName != null && variableName.trim().length() > 0) {
@@ -398,8 +402,7 @@ public abstract class AbstractNodeHandler extends BaseAbstractHandler implements
                 String variableName = ((Element) subNode).getAttribute("id");
                 String itemSubjectRef = ((Element) subNode).getAttribute("itemSubjectRef");
                 DataType dataType = null;
-                Map<String, ItemDefinition> itemDefinitions = (Map<String, ItemDefinition>)
-                    ((ProcessBuildData) parser.getData()).getMetaData("ItemDefinitions");
+                Map<String, ItemDefinition> itemDefinitions = processData.itemDefinitions.get();
                 dataType = getDataType(itemSubjectRef, itemDefinitions, parser.getClassLoader());
 
                 if (variableName != null && variableName.trim().length() > 0) {
@@ -549,21 +552,15 @@ public abstract class AbstractNodeHandler extends BaseAbstractHandler implements
 		}
 	}
 
-    private static final String SIGNAL_NAMES = "signalNames";
 
     protected String checkSignalAndConvertToRealSignalNam(ExtensibleXmlParser parser,
                                                           String signalName,
                                                           Consumer<Signal> consumer) {
-        ProcessBuildData buildData = ((ProcessBuildData) parser.getData());
+        
+        ProcessParserData processData = ProcessParserData.wrapParserMetadata(parser);
 
-        Set<String> signalNames = (Set<String>) buildData.getMetaData(SIGNAL_NAMES);
-        if( signalNames == null ) {
-           signalNames = new HashSet<>();
-           buildData.setMetaData(SIGNAL_NAMES, signalNames);
-        }
-        signalNames.add(signalName);
 
-        Map<String, Signal> signals = (Map<String, Signal>) buildData.getMetaData("Signals");
+        Map<String, Signal> signals = processData.signals.get();
         if (signals != null ) {
             if( signals.containsKey(signalName)) {
                 Signal signal = signals.get(signalName);
@@ -579,8 +576,8 @@ public abstract class AbstractNodeHandler extends BaseAbstractHandler implements
     }
 
     protected void writeJavaAction(Node node, JavaAction action, StringBuilder xmlDump) {
-        if (action instanceof SendSignalAction) {
-            SendSignalAction signalAction = (SendSignalAction) action;
+        if (action instanceof ThrowEventSignalAction) {
+            ThrowEventSignalAction signalAction = (ThrowEventSignalAction) action;
             String variable = signalAction.getVariable();
             if (variable != null) {
                 xmlDump.append(
@@ -599,8 +596,8 @@ public abstract class AbstractNodeHandler extends BaseAbstractHandler implements
             xmlDump.append("      <signalEventDefinition signalRef=\"" + XmlBPMNProcessDumper
                     .replaceIllegalCharsAttribute(
                             signalAction.getSignalName()) + "\"/>" + EOL);
-        } else if (action instanceof SendMessageAction) {
-            SendMessageAction signalAction = (SendMessageAction) action;
+        } else if (action instanceof ThrowEventMessageAction) {
+            ThrowEventMessageAction signalAction = (ThrowEventMessageAction) action;
             String variable = signalAction.getVariable();
             if (variable != null) {
                 xmlDump.append(

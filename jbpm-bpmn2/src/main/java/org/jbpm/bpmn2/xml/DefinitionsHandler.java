@@ -20,6 +20,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import org.drools.core.xml.BaseAbstractHandler;
+import org.drools.core.xml.ExtensibleXmlParser;
+import org.drools.core.xml.Handler;
+import org.jbpm.bpmn2.core.Definitions;
+import org.jbpm.bpmn2.core.Interface;
+import org.jbpm.bpmn2.core.Interface.Operation;
+import org.jbpm.bpmn2.core.ItemDefinition;
+import org.jbpm.bpmn2.xml.util.ProcessParserData;
+import org.jbpm.process.core.ContextContainer;
+import org.jbpm.process.core.context.variable.Variable;
+import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.core.datatype.DataType;
 import org.jbpm.process.core.datatype.impl.type.BooleanDataType;
 import org.jbpm.process.core.datatype.impl.type.FloatDataType;
@@ -27,17 +38,6 @@ import org.jbpm.process.core.datatype.impl.type.IntegerDataType;
 import org.jbpm.process.core.datatype.impl.type.ObjectDataType;
 import org.jbpm.process.core.datatype.impl.type.StringDataType;
 import org.jbpm.process.core.datatype.impl.type.UndefinedDataType;
-import org.drools.core.xml.BaseAbstractHandler;
-import org.drools.core.xml.ExtensibleXmlParser;
-import org.drools.core.xml.Handler;
-import org.jbpm.bpmn2.core.Definitions;
-import org.jbpm.bpmn2.core.Interface;
-import org.jbpm.bpmn2.core.ItemDefinition;
-import org.jbpm.bpmn2.core.Interface.Operation;
-import org.jbpm.compiler.xml.ProcessBuildData;
-import org.jbpm.process.core.ContextContainer;
-import org.jbpm.process.core.context.variable.Variable;
-import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
 import org.jbpm.workflow.core.NodeContainer;
 import org.jbpm.workflow.core.node.ForEachNode;
@@ -50,13 +50,13 @@ import org.xml.sax.SAXException;
 
 public class DefinitionsHandler extends BaseAbstractHandler implements Handler {
 
-	@SuppressWarnings("unchecked")
+
 	public DefinitionsHandler() {
 		if ((this.validParents == null) && (this.validPeers == null)) {
-			this.validParents = new HashSet();
+			this.validParents = new HashSet<>();
 			this.validParents.add(null);
 
-			this.validPeers = new HashSet();
+			this.validPeers = new HashSet<>();
 			this.validPeers.add(null);
 
 			this.allowNesting = false;
@@ -72,15 +72,15 @@ public class DefinitionsHandler extends BaseAbstractHandler implements Handler {
 
 	public Object end(final String uri, final String localName,
 			          final ExtensibleXmlParser parser) throws SAXException {
+        ProcessParserData processData = ProcessParserData.wrapParserMetadata(parser);
+
 		final Element element = parser.endElementBuilder();
-		Definitions definitions = (Definitions) parser.getCurrent();
+		Definitions definitions = processData.<Definitions>current();
         String namespace = element.getAttribute("targetNamespace");
-        List<Process> processes = ((ProcessBuildData) parser.getData()).getProcesses();
-		Map<String, ItemDefinition> itemDefinitions = (Map<String, ItemDefinition>)
-            ((ProcessBuildData) parser.getData()).getMetaData("ItemDefinitions");
-		
-		List<Interface> interfaces = (List<Interface>) ((ProcessBuildData) parser.getData()).getMetaData("Interfaces");
-		
+        List<Process> processes = processData.processes.get();
+        Map<String, ItemDefinition> itemDefinitions = processData.itemDefinitions.get();
+        List<Interface> interfaces = processData.interfaces.get();
+
         for (Process process : processes) {
             RuleFlowProcess ruleFlowProcess = (RuleFlowProcess)process;
             ruleFlowProcess.setMetaData("TargetNamespace", namespace);

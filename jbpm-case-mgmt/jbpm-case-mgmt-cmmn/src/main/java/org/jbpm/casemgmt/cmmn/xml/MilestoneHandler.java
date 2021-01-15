@@ -20,7 +20,7 @@ import java.util.Map;
 
 import org.drools.core.xml.ExtensibleXmlParser;
 import org.jbpm.casemgmt.cmmn.core.PlanItem;
-import org.jbpm.compiler.xml.ProcessBuildData;
+import org.jbpm.casemgmt.cmmn.xml.util.CaseParserData;
 import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.core.node.MilestoneNode;
 import org.slf4j.Logger;
@@ -42,11 +42,12 @@ public class MilestoneHandler extends AbstractCaseNodeHandler {
                               final String uri,
                               final String localName,
                               final ExtensibleXmlParser parser) throws SAXException {
+        CaseParserData data = CaseParserData.wrapParserMetadata(parser);
+
         super.handleNode(node, element, uri, localName, parser);
         MilestoneNode milestoneNode = (MilestoneNode) node;
-        ProcessBuildData buildData = (ProcessBuildData) parser.getData();
-        Map<String, PlanItem> planItems = (Map<String, PlanItem>) buildData.getMetaData("PlanItems");
 
+        Map<String, PlanItem> planItems = data.planItems.get();
         PlanItem milestonePlanItem = planItems.get(milestoneNode.getMetaData("UniqueId"));
         if (milestonePlanItem != null && milestonePlanItem.getExitCriterion() != null) {
 

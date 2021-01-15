@@ -25,6 +25,7 @@ import org.drools.core.xml.ExtensibleXmlParser;
 import org.drools.core.xml.Handler;
 import org.jbpm.bpmn2.core.ItemDefinition;
 import org.jbpm.bpmn2.core.SequenceFlow;
+import org.jbpm.bpmn2.xml.util.ProcessParserData;
 import org.jbpm.compiler.xml.ProcessBuildData;
 import org.jbpm.process.core.ContextContainer;
 import org.jbpm.process.core.context.variable.Variable;
@@ -64,6 +65,8 @@ public class DataObjectHandler extends BaseAbstractHandler implements Handler {
 	public Object start(final String uri, final String localName,
 			            final Attributes attrs, final ExtensibleXmlParser parser)
 			throws SAXException {
+        ProcessParserData processData = ProcessParserData.wrapParserMetadata(parser);
+
 		parser.startElementBuilder(localName, attrs);
 
 		final String id = attrs.getValue("id");
@@ -81,8 +84,7 @@ public class DataObjectHandler extends BaseAbstractHandler implements Handler {
             variable.setMetaData(id, variable.getName());
 			// retrieve type from item definition
 			DataType dataType = new ObjectDataType();
-			Map<String, ItemDefinition> itemDefinitions = (Map<String, ItemDefinition>)
-	            ((ProcessBuildData) parser.getData()).getMetaData("ItemDefinitions");
+			Map<String, ItemDefinition> itemDefinitions = processData.itemDefinitions.get();
 	        if (itemDefinitions != null) {
 	        	ItemDefinition itemDefinition = itemDefinitions.get(itemSubjectRef);
 	        	if (itemDefinition != null) {

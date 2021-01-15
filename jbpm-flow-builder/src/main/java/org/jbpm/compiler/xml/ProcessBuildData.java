@@ -79,8 +79,9 @@ public class ProcessBuildData {
         return this.nodes.get( id );
     }
 
-    public Object getMetaData(String name) {
-        return metaData.get(name);
+    @SuppressWarnings("unchecked")
+    public <T> T getMetaData(String name) {
+        return (T) metaData.get(name);
     }
 
     public void setMetaData(String name, Object data) {

@@ -25,7 +25,7 @@ import org.drools.core.xml.ExtensibleXmlParser;
 import org.drools.core.xml.Handler;
 import org.jbpm.casemgmt.cmmn.core.PlanItem;
 import org.jbpm.casemgmt.cmmn.core.Sentry;
-import org.jbpm.compiler.xml.ProcessBuildData;
+import org.jbpm.casemgmt.cmmn.xml.util.CaseParserData;
 import org.jbpm.process.core.ContextContainer;
 import org.jbpm.process.core.context.variable.Variable;
 import org.jbpm.process.core.context.variable.VariableScope;
@@ -76,6 +76,7 @@ public abstract class AbstractCaseNodeHandler extends BaseAbstractHandler implem
                         final String localName,
                         final Attributes attrs,
                         final ExtensibleXmlParser parser) throws SAXException {
+        CaseParserData data = CaseParserData.wrapParserMetadata(parser);
         parser.startElementBuilder(localName, attrs);
         final Node node = createNode(attrs);
         String id = attrs.getValue("id");
@@ -83,7 +84,7 @@ public abstract class AbstractCaseNodeHandler extends BaseAbstractHandler implem
         final String name = attrs.getValue("name");
         node.setName(name);
 
-        AtomicInteger idGen = (AtomicInteger) parser.getMetaData().get("idGen");
+        AtomicInteger idGen = data.idGen.get();
         node.setId(idGen.getAndIncrement());
 
         return node;
@@ -94,11 +95,12 @@ public abstract class AbstractCaseNodeHandler extends BaseAbstractHandler implem
     public Object end(final String uri,
                       final String localName,
                       final ExtensibleXmlParser parser) throws SAXException {
-        final Element element = parser.endElementBuilder();
-        Node node = (Node) parser.getCurrent();
+        CaseParserData caseData = CaseParserData.wrapParserMetadata(parser);
 
-        ProcessBuildData buildData = (ProcessBuildData) parser.getData();
-        Map<String, PlanItem> planItems = (Map<String, PlanItem>) buildData.getMetaData("PlanItems");
+        final Element element = parser.endElementBuilder();
+        Node node = caseData.current();
+
+        Map<String, PlanItem> planItems = caseData.planItems.get();
 
         PlanItem planItem = planItems.get(node.getMetaData().get("UniqueId"));
         if (planItem != null && planItem.getEntryCriterion() != null) {
@@ -113,7 +115,7 @@ public abstract class AbstractCaseNodeHandler extends BaseAbstractHandler implem
         handleNode(node, element, uri, localName, parser);
         NodeContainer nodeContainer = (NodeContainer) parser.getParent();
         nodeContainer.addNode(node);
-        ((ProcessBuildData) parser.getData()).addNode(node);
+        caseData.nodes.add(node);
         return node;
     }
 
@@ -131,8 +133,9 @@ public abstract class AbstractCaseNodeHandler extends BaseAbstractHandler implem
                                             Map<String, String> inputTypes,
                                             Map<String, String> outputTypes,
                                             final ExtensibleXmlParser parser) {
-        ProcessBuildData buildData = (ProcessBuildData) parser.getData();
-        Map<String, String> fileItems = (Map<String, String>) buildData.getMetaData("FileItems");
+        CaseParserData caseData = CaseParserData.wrapParserMetadata(parser);
+
+        Map<String, String> fileItems = caseData.fileItems.get();
 
         if (fileItems == null) {
             // no file items then return directly

@@ -21,6 +21,7 @@ import java.util.List;
 import org.drools.core.xml.ExtensibleXmlParser;
 import org.jbpm.bpmn2.core.Interface;
 import org.jbpm.bpmn2.core.Interface.Operation;
+import org.jbpm.bpmn2.xml.util.ProcessParserData;
 import org.jbpm.compiler.xml.ProcessBuildData;
 import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.core.node.WorkItemNode;
@@ -39,20 +40,20 @@ public class ServiceTaskHandler extends TaskHandler {
         return Node.class;
     }
     
-    @SuppressWarnings("unchecked")
+
     protected void handleNode(final Node node, final Element element, final String uri, 
             final String localName, final ExtensibleXmlParser parser) throws SAXException {
+        ProcessParserData processData = ProcessParserData.wrapParserMetadata(parser);
         super.handleNode(node, element, uri, localName, parser);
         WorkItemNode workItemNode = (WorkItemNode) node;
         String operationRef = element.getAttribute("operationRef");
         String implementation = element.getAttribute("implementation");
-        List<Interface> interfaces = (List<Interface>) ((ProcessBuildData) parser.getData()).getMetaData("Interfaces");
+        List<Interface> interfaces = processData.interfaces.get();
         
         workItemNode.setMetaData("OperationRef", operationRef);
         workItemNode.setMetaData("Implementation", implementation);
         workItemNode.setMetaData("Type", "Service Task");
-        if (interfaces != null) {
-//            throw new IllegalArgumentException("No interfaces found");
+        if (!interfaces.isEmpty()) {
         
 	        Operation operation = null;
 	        for (Interface i: interfaces) {

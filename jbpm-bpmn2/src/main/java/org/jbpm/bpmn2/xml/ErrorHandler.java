@@ -16,31 +16,32 @@
 
 package org.jbpm.bpmn2.xml;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 
 import org.drools.core.xml.BaseAbstractHandler;
 import org.drools.core.xml.ExtensibleXmlParser;
 import org.drools.core.xml.Handler;
-import org.jbpm.bpmn2.core.*;
+import org.jbpm.bpmn2.core.DataStore;
+import org.jbpm.bpmn2.core.Definitions;
 import org.jbpm.bpmn2.core.Error;
-import org.jbpm.compiler.xml.ProcessBuildData;
+import org.jbpm.bpmn2.core.Escalation;
+import org.jbpm.bpmn2.core.Interface;
+import org.jbpm.bpmn2.core.ItemDefinition;
+import org.jbpm.bpmn2.core.Message;
+import org.jbpm.bpmn2.core.Signal;
+import org.jbpm.bpmn2.xml.util.ProcessParserData;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
-import org.kie.api.definition.process.Process;
 public class ErrorHandler extends BaseAbstractHandler implements Handler {
 	
-	@SuppressWarnings("unchecked")
+
 	public ErrorHandler() {
 		if ((this.validParents == null) && (this.validPeers == null)) {
-			this.validParents = new HashSet();
+			this.validParents = new HashSet<>();
 			this.validParents.add(Definitions.class);
 
-			this.validPeers = new HashSet();
+			this.validPeers = new HashSet<>();
 			this.validPeers.add(null);
             this.validPeers.add(ItemDefinition.class);
             this.validPeers.add(Message.class);
@@ -55,26 +56,23 @@ public class ErrorHandler extends BaseAbstractHandler implements Handler {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
+
     public Object start(final String uri, final String localName,
 			            final Attributes attrs, final ExtensibleXmlParser parser)
 			throws SAXException {
+	    ProcessParserData processData = ProcessParserData.wrapParserMetadata(parser);
+	    Definitions definitions = processData.<Definitions>parent();
+	    if(definitions.getErrors() == null) {
+	        definitions.setErrors(processData.errors.get());
+	    }
 		parser.startElementBuilder(localName, attrs);
 
 		String id = attrs.getValue("id");
 		String errorCode = attrs.getValue("errorCode");
 		String structureRef = attrs.getValue("structureRef");
-
-		Definitions definitions = (Definitions) parser.getParent();
-
-		List<Error> errors = definitions.getErrors();
-        if (errors == null) {
-        	errors = new ArrayList<Error>();
-            definitions.setErrors(errors);
-            ((ProcessBuildData) parser.getData()).setMetaData("Errors", errors);
-        }
-        Error e = new Error(id, errorCode, structureRef); 
-        errors.add(e);
+        Error e = new Error(id, errorCode, structureRef);
+        processData.errors.add(e);
+        
         
 		return e;
 	}

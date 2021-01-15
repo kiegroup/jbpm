@@ -16,16 +16,14 @@
 
 package org.jbpm.casemgmt.cmmn.xml;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 
 import org.drools.core.xml.BaseAbstractHandler;
 import org.drools.core.xml.ExtensibleXmlParser;
 import org.drools.core.xml.Handler;
 import org.jbpm.casemgmt.cmmn.core.Definitions;
 import org.jbpm.casemgmt.cmmn.core.FileItemDefinition;
-import org.jbpm.compiler.xml.ProcessBuildData;
+import org.jbpm.casemgmt.cmmn.xml.util.CaseParserData;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -44,11 +42,12 @@ public class FileItemDefinitionHandler extends BaseAbstractHandler implements Ha
         }
     }
 
-    @SuppressWarnings("unchecked")
     public Object start(final String uri,
                         final String localName,
                         final Attributes attrs,
                         final ExtensibleXmlParser parser) throws SAXException {
+        CaseParserData data = CaseParserData.wrapParserMetadata(parser);
+        
         parser.startElementBuilder(localName, attrs);
 
         String id = attrs.getValue("id");
@@ -58,16 +57,10 @@ public class FileItemDefinitionHandler extends BaseAbstractHandler implements Ha
             type = "java.lang.Object";
         }
 
-        ProcessBuildData buildData = (ProcessBuildData) parser.getData();
-        Map<String, FileItemDefinition> itemDefinitions = (Map<String, FileItemDefinition>) buildData.getMetaData("FileItemDefinitions");
-        if (itemDefinitions == null) {
-            itemDefinitions = new HashMap<String, FileItemDefinition>();
-            buildData.setMetaData("FileItemDefinitions", itemDefinitions);
-        }
         FileItemDefinition itemDefinition = new FileItemDefinition(id);
         itemDefinition.setName(name);
         itemDefinition.setStructureRef(type);
-        itemDefinitions.put(id, itemDefinition);
+        data.fileItemDefinitions.put(id, itemDefinition);
         return itemDefinition;
     }
 

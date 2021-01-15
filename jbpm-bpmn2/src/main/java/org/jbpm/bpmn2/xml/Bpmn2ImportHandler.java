@@ -24,6 +24,7 @@ import org.drools.core.xml.ExtensibleXmlParser;
 import org.drools.core.xml.Handler;
 import org.jbpm.bpmn2.core.*;
 import org.jbpm.bpmn2.core.Error;
+import org.jbpm.bpmn2.xml.util.ProcessParserData;
 import org.jbpm.compiler.xml.ProcessBuildData;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
 import org.xml.sax.Attributes;
@@ -54,20 +55,16 @@ public class Bpmn2ImportHandler extends BaseAbstractHandler implements Handler {
     public Object start(final String uri, final String localName,
             final Attributes attrs, final ExtensibleXmlParser parser)
             throws SAXException {
+        ProcessParserData processData = ProcessParserData.wrapParserMetadata(parser);
         parser.startElementBuilder(localName, attrs);
 
         final String type = attrs.getValue("importType");
         final String location = attrs.getValue("location");
         final String namespace = attrs.getValue("namespace");
-        ProcessBuildData buildData = (ProcessBuildData) parser.getData();
+
 
         if (type != null && location != null && namespace != null) {
-            List<Bpmn2Import> typedImports = (List<Bpmn2Import>) buildData.getMetaData("Bpmn2Imports");
-            if (typedImports == null) {
-                typedImports = new ArrayList< Bpmn2Import>();
-                buildData.setMetaData("Bpmn2Imports", typedImports);
-            }
-            typedImports.add(new Bpmn2Import(type, location, namespace));
+            processData.bpmnImports.add(new Bpmn2Import(type, location, namespace));
         }
         return null;
     }

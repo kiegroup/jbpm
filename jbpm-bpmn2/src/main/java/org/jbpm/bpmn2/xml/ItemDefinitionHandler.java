@@ -25,6 +25,7 @@ import org.drools.core.xml.ExtensibleXmlParser;
 import org.drools.core.xml.Handler;
 import org.jbpm.bpmn2.core.*;
 import org.jbpm.bpmn2.core.Error;
+import org.jbpm.bpmn2.xml.util.ProcessParserData;
 import org.jbpm.compiler.xml.ProcessBuildData;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
 import org.xml.sax.Attributes;
@@ -32,13 +33,13 @@ import org.xml.sax.SAXException;
 
 public class ItemDefinitionHandler extends BaseAbstractHandler implements Handler {
 	
-	@SuppressWarnings("unchecked")
+
 	public ItemDefinitionHandler() {
 		if ((this.validParents == null) && (this.validPeers == null)) {
-			this.validParents = new HashSet();
+			this.validParents = new HashSet<>();
 			this.validParents.add(Definitions.class);
 
-			this.validPeers = new HashSet();
+			this.validPeers = new HashSet<>();
 			this.validPeers.add(null);
             this.validPeers.add(ItemDefinition.class);
             this.validPeers.add(Message.class);
@@ -53,10 +54,10 @@ public class ItemDefinitionHandler extends BaseAbstractHandler implements Handle
 		}
 	}
 
-	@SuppressWarnings("unchecked")
     public Object start(final String uri, final String localName,
 			            final Attributes attrs, final ExtensibleXmlParser parser)
 			throws SAXException {
+        ProcessParserData processData = ProcessParserData.wrapParserMetadata(parser);
 		parser.startElementBuilder(localName, attrs);
 
 		String id = attrs.getValue("id");
@@ -65,16 +66,9 @@ public class ItemDefinitionHandler extends BaseAbstractHandler implements Handle
 			type = "java.lang.Object";
 		}
 
-		ProcessBuildData buildData = (ProcessBuildData) parser.getData();
-		Map<String, ItemDefinition> itemDefinitions = (Map<String, ItemDefinition>)
-            buildData.getMetaData("ItemDefinitions");
-        if (itemDefinitions == null) {
-            itemDefinitions = new HashMap<String, ItemDefinition>();
-            buildData.setMetaData("ItemDefinitions", itemDefinitions);
-        }
         ItemDefinition itemDefinition = new ItemDefinition(id); 
         itemDefinition.setStructureRef(type);
-        itemDefinitions.put(id, itemDefinition);
+        processData.itemDefinitions.get().put(id, itemDefinition);
 		return itemDefinition;
 	}
 

@@ -26,6 +26,7 @@ import org.drools.core.xml.Handler;
 import org.jbpm.bpmn2.core.Definitions;
 import org.jbpm.bpmn2.xml.di.BPMNEdgeHandler.ConnectionInfo;
 import org.jbpm.bpmn2.xml.di.BPMNShapeHandler.NodeInfo;
+import org.jbpm.bpmn2.xml.util.ProcessParserData;
 import org.jbpm.compiler.xml.ProcessBuildData;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
 import org.jbpm.workflow.core.impl.ConnectionImpl;
@@ -68,8 +69,9 @@ public class BPMNPlaneHandler extends BaseAbstractHandler implements Handler {
     public Object end(final String uri, final String localName,
                       final ExtensibleXmlParser parser) throws SAXException {
         parser.endElementBuilder();
-        ProcessInfo processInfo = (ProcessInfo) parser.getCurrent();
-        List<Process> processes = ((ProcessBuildData) parser.getData()).getProcesses();
+        ProcessParserData processData = ProcessParserData.wrapParserMetadata(parser);
+        ProcessInfo processInfo = processData.current();
+        List<Process> processes = processData.processes.get();
         RuleFlowProcess process = null;
         for (Process p : processes) {
             if (p.getId() != null && p.getId().equals(processInfo.getProcessRef())) {
