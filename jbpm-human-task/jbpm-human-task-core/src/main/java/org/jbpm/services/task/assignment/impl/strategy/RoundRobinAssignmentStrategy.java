@@ -81,7 +81,7 @@ public class RoundRobinAssignmentStrategy implements AssignmentStrategy {
                     Iterator<OrganizationalEntity> groupUsers = userInfo.getMembersForGroup((Group) oe);
                     if (groupUsers != null) {
                         groupUsers.forEachRemaining(user -> {
-                            if (user != null && !excluded.contains(user) && !potentialOwners.contains(user)) {
+                            if (user != null && user.getId() != null && !user.getId().isEmpty() && !excluded.contains(user) && !potentialOwners.contains(user)) {
                                 potentialOwners.add(user);
                             }
                         });
@@ -91,6 +91,10 @@ public class RoundRobinAssignmentStrategy implements AssignmentStrategy {
         if (excludedUser != null) {
             logger.debug("Removing excluded user {} from the list of eligible users", excludedUser);
             potentialOwners.removeIf(entity -> entity.getId().equals(excludedUser));
+        }
+        
+        if (potentialOwners.isEmpty()) {
+            return null;
         }
 
         String queueName = getQueueName(task);
