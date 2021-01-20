@@ -389,9 +389,6 @@ public class MigrationManager {
         if (process == null) {
             report.addEntry(Type.ERROR, "Could not find process " + processId);
         }
-        if (processInstance == null) {
-            return;
-        }
         if (processInstance.getProcessId().equals(processId)) {
             report.addEntry(Type.WARN, "Source and target process id is exactly the same (" + processId + ") it's recommended to use unique process ids");
         }
