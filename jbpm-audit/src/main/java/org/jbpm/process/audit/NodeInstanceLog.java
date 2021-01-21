@@ -35,7 +35,8 @@ import org.jbpm.process.audit.event.AuditEvent;
 @Entity
 @Table(name = "NodeInstanceLog", indexes = {@Index(name = "IDX_NInstLog_pInstId", columnList = "processInstanceId"),
                                         @Index(name = "IDX_NInstLog_nodeType", columnList = "nodeType"),
-                                        @Index(name = "IDX_NInstLog_pId", columnList = "processId")})
+                                        @Index(name = "IDX_NInstLog_pId", columnList = "processId"),
+                                        @Index(name = "IDX_NInstLog_workItemId", columnList = "workItemId")})
 @SequenceGenerator(name="nodeInstanceLogIdSeq", sequenceName="NODE_INST_LOG_ID_SEQ", allocationSize=1)
 public class NodeInstanceLog implements Serializable, AuditEvent, org.kie.api.runtime.manager.audit.NodeInstanceLog {
    
