@@ -31,6 +31,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -42,7 +43,7 @@ import org.kie.internal.task.api.model.TaskEvent;
  *
  */
 @Entity
-@Table(name = "TaskEvent")
+@Table(name = "TaskEvent", indexes = {@Index(name = "IDX_TaskEvent_taskId", columnList = "taskId")})
 @SequenceGenerator(name = "taskEventIdSeq", sequenceName = "TASK_EVENT_ID_SEQ")
 public class TaskEventImpl implements TaskEvent, Serializable {
 

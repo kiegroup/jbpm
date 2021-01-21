@@ -828,7 +828,9 @@
     create index IDX_Task_status on Task(status);
     create index IDX_Task_archived on Task(archived);
     create index IDX_Task_workItemId on Task(workItemId);
-    
+
+    create index IDX_TaskEvent_taskId on TaskEvent (taskId);
+
     create index IDX_EventTypes_element ON EventTypes(element);
 
     create index IDX_CMI_Context ON ContextMappingInfo(CONTEXT_ID);    
@@ -871,6 +873,7 @@
     create index IDX_NInstLog_pInstId on NodeInstanceLog(processInstanceId);
     create index IDX_NInstLog_nodeType on NodeInstanceLog(nodeType);
     create index IDX_NInstLog_pId on NodeInstanceLog(processId);
+    create index IDX_NInstLog_workItemId on NodeInstanceLog (workItemId);
 
     create index IDX_ErrorInfo_pInstId on ExecutionErrorInfo(PROCESS_INST_ID);
     create index IDX_ErrorInfo_errorAck on ExecutionErrorInfo(ERROR_ACK);
