@@ -906,6 +906,9 @@
     create index IDX_Task_workItemId on Task(workItemId)
     go
 
+    create index IDX_TaskEvent_taskId on TaskEvent (taskId)
+    go
+
     create index IDX_EventTypes_element ON EventTypes(element)
     go
 
@@ -983,6 +986,8 @@
     create index IDX_NInstLog_nodeType on NodeInstanceLog(nodeType)
     go
     create index IDX_NInstLog_pId on NodeInstanceLog(processId)
+    go
+    create index IDX_NInstLog_workItemId on NodeInstanceLog (workItemId)
     go
 
     create index IDX_ErrorInfo_pInstId on ExecutionErrorInfo(PROCESS_INST_ID)
