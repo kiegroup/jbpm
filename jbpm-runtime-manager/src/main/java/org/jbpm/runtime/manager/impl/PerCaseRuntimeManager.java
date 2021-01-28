@@ -185,6 +185,7 @@ public class PerCaseRuntimeManager extends AbstractRuntimeManager {
             processInstanceId = (Long) contextId;
         }
         Long ksessionId = mapper.findMapping(context, this.identifier);
+        ((RuntimeEngineImpl) runtime).setLockedKieSessionId(ksessionId);
         createLockOnGetEngine(ksessionId, runtime);
         saveLocalRuntime(caseId, processInstanceId, runtime);        
 
@@ -254,7 +255,7 @@ public class PerCaseRuntimeManager extends AbstractRuntimeManager {
                 removeLocalRuntime(runtime);                
                 
                 Long ksessionId = ((RuntimeEngineImpl)runtime).getKieSessionId();
-                releaseAndCleanLock(ksessionId, runtime);
+                releaseAndCleanLock(((RuntimeEngineImpl) runtime).getLockedKieSessionId(), runtime);
                 if (runtime instanceof Disposable) {
                     // special handling for in memory to not allow to dispose if there is any context in the mapper
                     if (mapper instanceof InMemoryMapper && ((InMemoryMapper) mapper).hasContext(ksessionId)) {
@@ -272,7 +273,7 @@ public class PerCaseRuntimeManager extends AbstractRuntimeManager {
                 }
             }
         } catch (Exception e) {
-            releaseAndCleanLock(runtime);
+            releaseAndCleanLock(((RuntimeEngineImpl) runtime).getLockedKieSessionId(), runtime);
             removeLocalRuntime(runtime);           
             throw new RuntimeException(e);
         }            
