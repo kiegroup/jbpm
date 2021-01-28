@@ -41,6 +41,7 @@ public class RuntimeEngineImpl implements InternalRuntimeEngine, Disposable {
 	private Context<?> context;
 
     private KieSession ksession;
+    private Long lockedKieSessionId = null;
     private Long kieSessionId = null;
     private TaskService taskService;
     private AuditService auditService;
@@ -59,6 +60,12 @@ public class RuntimeEngineImpl implements InternalRuntimeEngine, Disposable {
     }
     
     public RuntimeEngineImpl(Context<?> context, RuntimeEngineInitlializer initializer) {
+        this.context = context;
+        this.initializer = initializer;
+    }
+
+    public RuntimeEngineImpl(Long lockedKieSessionId, Context<?> context, RuntimeEngineInitlializer initializer) {
+        this.lockedKieSessionId = lockedKieSessionId;
     	this.context = context;
         this.initializer = initializer;
     }
@@ -183,5 +190,18 @@ public class RuntimeEngineImpl implements InternalRuntimeEngine, Disposable {
     
     public Long getKieSessionId() {
         return kieSessionId;
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() + " (KieSessionId=" + kieSessionId + ", lockedKieSessionId=" + lockedKieSessionId + " context=" + (this.context != null ? context.getContextId() : "N/A" ) + ")";
+    }
+
+    public Long getLockedKieSessionId() {
+        return lockedKieSessionId;
+    }
+
+    public void setLockedKieSessionId(Long lockedKieSessionId) {
+        this.lockedKieSessionId = lockedKieSessionId;
     }
 }

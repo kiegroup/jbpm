@@ -190,10 +190,12 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
     protected boolean canDispose(RuntimeEngine runtime) {
         // avoid duplicated dispose
         if (((RuntimeEngineImpl)runtime).isDisposed()) {
+            logger.debug("Runtime engine {} is disposed", runtime);
             return false;
         }
         // if this method was called as part of afterCompletion allow to dispose
         if (((RuntimeEngineImpl)runtime).isAfterCompletion()) {
+            logger.debug("Runtime engine {} is after completion. can be disposed", runtime);
             return true;
         }
         try {
@@ -202,12 +204,13 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
             if (tm.getStatus() != TransactionManager.STATUS_NO_TRANSACTION
                     && tm.getStatus() != TransactionManager.STATUS_ROLLEDBACK
                     && tm.getStatus() != TransactionManager.STATUS_COMMITTED) {
+                logger.info("Runtime engine {} is not in a transaction", runtime);
                 return false;
             }
         } catch (SessionNotFoundException e) {
             // ignore it as it might be thrown for per process instance
         }
-        
+        logger.debug("Runtime engine {} can be disposed", runtime);
         return true;
     }
     
@@ -435,20 +438,22 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
             logger.debug("Locking on runtime manager disabled");
             return;
         }
-        
+
+        logger.debug("About to lock {} for runtime {}", id, runtime);
         if (id != null) {
             ReentrantLock newLock = new ReentrantLock();
             ReentrantLock lock = engineLocks.putIfAbsent(id, newLock);
             if (lock == null) {
                 lock = newLock;
-                logger.debug("New lock created as it did not exist before");
+                logger.debug("New lock created {} for runtime {}", id, runtime);
             } else {
-                logger.debug("Lock exists with {} waiting threads", lock.getQueueLength());
+                logger.debug("Found lock created {} for runtime {}", id, runtime);
             }
-            logger.debug("Trying to get a lock {} for {} by {}", lock, id, runtime);
+            logger.debug("Trying to get {} a lock {} for runtime {}", lock, id, runtime);
             lock.lock();
-            logger.debug("Lock {} taken for {} by {} for waiting threads by {}", lock, id, runtime, lock.hasQueuedThreads());
-            
+            logger.debug("Locked {} by {} for runtime {}", lock, id, runtime);
+        } else {
+            logger.debug("Invalid lock {} for runtime {}", id, runtime);
         }
         
     }
@@ -464,38 +469,44 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
             lock = newLock;
         }
         lock.lock();
-        logger.debug("[on new process instance] Lock {} created and stored in list by {}", lock, runtime);
+        logger.debug("Locked on new ProcessInstance {} for {} for runtime {}", lock, id, runtime);
     }
-    
-    
+
     protected void releaseAndCleanLock(RuntimeEngine runtime) {
         if (!isUseLocking()) {
             logger.debug("Locking on runtime manager disabled");
             return;
         }
-        
+        logger.debug("[ENGINE] Attempt to unlock engine lock for runtime {} ", runtime);
         if (((RuntimeEngineImpl)runtime).getContext() instanceof ProcessInstanceIdContext) {
             Long piId = ((ProcessInstanceIdContext) ((RuntimeEngineImpl)runtime).getContext()).getContextId();
             if (piId != null) {
+                logger.debug("[ENGINE] Attempt to unlock {} for runtime {}", piId, runtime);
                 releaseAndCleanLock(piId, runtime);
             }
         }
     }
     
     protected void releaseAndCleanLock(Long id, RuntimeEngine runtime) {
-
         if (id != null) {
             ReentrantLock lock = engineLocks.get(id);
+            logger.debug("Attempt {} to unlock {} for runtime {}", lock, id, runtime);
             if (lock != null) {
                 if (!lock.hasQueuedThreads()) {
-                    logger.debug("Removing lock {} from list as non is waiting for it by {}", lock, runtime);
+                    logger.debug("Removing  {} lock {} for runtime {}", lock, id, runtime);
                     engineLocks.remove(id);
+                } else {
+                    logger.debug("Failed {} lock {} for runtime {}", lock, id, runtime);
                 }
                 if (lock.isHeldByCurrentThread()) {
                     lock.unlock();
-                    logger.debug("{} unlocked by {}", lock, runtime);
+                    logger.debug("Unlocked {} for lock {} for runtime {}", lock, id, runtime);
+                } else {
+                    logger.debug("Failed {} to unlock {} for runtime {} (not held by this thread)", lock, id, runtime);
                 }
             }
+        } else {
+            logger.debug("No id provided for unlocking {} for runtime {}", id, runtime);
         }
         
     }

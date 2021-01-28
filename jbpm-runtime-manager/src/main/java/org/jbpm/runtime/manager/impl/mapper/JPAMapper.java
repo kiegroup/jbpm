@@ -25,6 +25,7 @@ import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.Query;
 
+import org.jbpm.runtime.manager.impl.PerCaseRuntimeManager;
 import org.jbpm.runtime.manager.impl.jpa.ContextMappingInfo;
 import org.kie.api.runtime.Environment;
 import org.kie.api.runtime.EnvironmentName;
@@ -33,6 +34,8 @@ import org.kie.internal.process.CorrelationKey;
 import org.kie.internal.process.CorrelationProperty;
 import org.kie.internal.runtime.manager.context.CorrelationKeyContext;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Database based mapper implementation backed by JPA to store
@@ -44,7 +47,9 @@ import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
  */
 @SuppressWarnings("rawtypes")
 public class JPAMapper extends InternalMapper {
-    
+
+    private static final Logger logger = LoggerFactory.getLogger(JPAMapper.class);
+
 	private EntityManagerFactory emf;
     
     public JPAMapper(EntityManagerFactory emf) {
@@ -54,10 +59,13 @@ public class JPAMapper extends InternalMapper {
     
     @Override
     public void saveMapping(Context context, Long ksessionId, String ownerId) {
+
 		EntityManagerInfo info = getEntityManager(context);
 		EntityManager em = info.getEntityManager();
-		em.persist(new ContextMappingInfo(resolveContext(context, em).getContextId().toString(),
-				ksessionId, ownerId));
+        Object contextId = resolveContext(context, em).getContextId();
+        logger.debug("Persisting mapping with context id {} KieSessionId {} and owner id {}", context.getContextId(), ksessionId, ownerId );
+
+		em.persist(new ContextMappingInfo(contextId.toString(), ksessionId, ownerId));
 
 		if (!info.isShared()) {
 			em.close();
@@ -69,10 +77,14 @@ public class JPAMapper extends InternalMapper {
     	EntityManagerInfo info = getEntityManager(context);
     	EntityManager em = info.getEntityManager();
         try {
-            ContextMappingInfo contextMapping = findContextByContextId(resolveContext(context, em), ownerId, em);
+            Context resolvedContext = resolveContext(context, em);
+            logger.debug("Find mapping with context id {} and owner id {}", resolvedContext.getContextId(), ownerId );
+            ContextMappingInfo contextMapping = findContextByContextId(resolvedContext, ownerId, em);
      
 		    if (contextMapping != null) {
 		        return contextMapping.getKsessionId();
+		    } else {
+		        logger.debug("Not Found mapping with context id {} and owner id {}", resolvedContext.getContextId(), ownerId );
 		    }
 		    return null;
         } finally {
@@ -87,9 +99,10 @@ public class JPAMapper extends InternalMapper {
     public void removeMapping(Context context, String ownerId) {
     	EntityManagerInfo info = getEntityManager(context);
     	EntityManager em = info.getEntityManager();
-        
-        ContextMappingInfo contextMapping = findContextByContextId(resolveContext(context, em), ownerId, em);
+        Context resolvedContext = resolveContext(context, em);
+        ContextMappingInfo contextMapping = findContextByContextId(resolvedContext, ownerId, em);
         if (contextMapping != null) {
+            logger.debug("Removing from persistence mapping with context id {} KieSessionId {} and owner id {}", contextMapping.getContextId(), contextMapping.getKsessionId(), contextMapping.getOwnerId() );
             em.remove(contextMapping);
         }
         if (!info.isShared()) {

@@ -28,8 +28,11 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import javax.persistence.EntityManager;
+
 import org.assertj.core.api.Assertions;
 import org.drools.core.definitions.rule.impl.RuleImpl;
+import org.drools.core.process.instance.WorkItemManager;
 import org.drools.core.rule.GroupElement;
 import org.drools.core.spi.Activation;
 import org.jbpm.bpmn2.objects.Person;
@@ -60,7 +63,10 @@ import org.jbpm.casemgmt.impl.util.CountDownListenerFactory;
 import org.jbpm.document.Document;
 import org.jbpm.document.service.impl.DocumentImpl;
 import org.jbpm.process.core.context.variable.VariableViolationException;
+import org.jbpm.runtime.manager.impl.jpa.ContextMappingInfo;
+import org.jbpm.services.api.ProcessInstanceNotFoundException;
 import org.jbpm.services.api.TaskNotFoundException;
+import org.jbpm.services.api.WorkItemNotFoundException;
 import org.jbpm.services.api.model.NodeInstanceDesc;
 import org.jbpm.services.api.model.ProcessInstanceDesc;
 import org.jbpm.services.api.model.VariableDesc;
@@ -77,7 +83,10 @@ import org.kie.api.command.ExecutableCommand;
 import org.kie.api.event.rule.MatchCreatedEvent;
 import org.kie.api.runtime.Context;
 import org.kie.api.runtime.KieSession;
+import org.kie.api.runtime.manager.RuntimeEngine;
+import org.kie.api.runtime.manager.RuntimeManager;
 import org.kie.api.runtime.process.CaseAssignment;
+import org.kie.api.runtime.process.WorkItem;
 import org.kie.api.runtime.process.WorkflowProcessInstance;
 import org.kie.api.runtime.query.QueryContext;
 import org.kie.api.task.model.OrganizationalEntity;
@@ -88,6 +97,8 @@ import org.kie.internal.command.RegistryContext;
 import org.kie.internal.process.CorrelationKey;
 import org.kie.internal.query.QueryFilter;
 import org.kie.internal.runtime.conf.ObjectModel;
+import org.kie.internal.runtime.manager.RuntimeManagerRegistry;
+import org.kie.internal.runtime.manager.SessionNotFoundException;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
@@ -162,6 +173,8 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
             CaseInstance cInstance = caseService.getCaseInstance(caseId);
             assertNotNull(cInstance);
             assertEquals(deploymentUnit.getIdentifier(), cInstance.getDeploymentId());
+
+
 
             caseService.cancelCase(caseId);
             CaseInstance instance = caseService.getCaseInstance(caseId);
@@ -750,7 +763,7 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
     }
     
     @Test
-    public void testTriggerTaskAndMilestoneInCaseFakeMatchCreated() {
+    public void testTriggerTaskAndMilestoneInCaseFakeMatchCreated() throws InterruptedException {
         Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
         roleAssignments.put("owner", new UserImpl("john"));
 
@@ -770,162 +783,38 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
         String caseId = caseService.startCase(deploymentUnit.getIdentifier(), USER_TASK_CASE_P_ID, caseFile);
         assertNotNull(caseId);
         assertEquals(HR_CASE_ID, caseId);
-        try {
-            CaseInstance cInstance = caseService.getCaseInstance(caseId);
-            assertNotNull(cInstance);
-            assertEquals(HR_CASE_ID, cInstance.getCaseId());
-            assertEquals(deploymentUnit.getIdentifier(), cInstance.getDeploymentId());
 
-            List<TaskSummary> tasks = runtimeDataService.getTasksAssignedAsPotentialOwner("john", new QueryFilter());
-            assertNotNull(tasks);
-            assertEquals(1, tasks.size());
 
-            TaskSummary task = tasks.get(0);
-            assertNotNull(task);
-            assertEquals("Hello1", task.getName());
-            assertEquals("john", task.getActualOwnerId());
-            assertEquals(Status.Reserved, task.getStatus());
 
-            // now let's trigger one (human task) fragment
-            Map<String, Object> taskData = new HashMap<>();
-            taskData.put("test", "value");
-            taskData.put("fromVar", "#{s}");
-            caseService.triggerAdHocFragment(HR_CASE_ID, "Hello2", taskData);
+        logger.info("----------------------------------------------------------------");
+        Runnable run = new Runnable() {
+            public void run() {
+                for(int i = 0; i <= 5; i++) {
+                    Collection<ProcessInstanceDesc> desc = runtimeDataService.getProcessInstancesByDeploymentId(deploymentUnit.getIdentifier(), Arrays.asList(0,1,2,3,4), new QueryContext());
+                    List<Long> ids = desc.stream().map(e -> e.getId()).collect(Collectors.toList());
+                    Long pid = ids.get(0);
+                    RuntimeManager manager = RuntimeManagerRegistry.get().getManager(deploymentUnit.getIdentifier());
+                    RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(pid));
+                    try {
+                        KieSession ksession = engine.getKieSession();
+                        ((WorkItemManager)ksession.getWorkItemManager()).getWorkItem(1000000);
+                    } catch(SessionNotFoundException e) {
+                        throw new ProcessInstanceNotFoundException("Process instance with id " + pid + " was not found", e);
+                    } finally {
+                        manager.disposeRuntimeEngine(engine);
+                    }
+                }
+            };
+        };
 
-            tasks = runtimeDataService.getTasksAssignedAsPotentialOwner("john", new QueryFilter());
-            assertNotNull(tasks);
-            assertEquals(2, tasks.size());
+        Thread executor = new Thread(run);
+        executor.start();
 
-            task = tasks.get(0);
-            assertNotNull(task);
-            assertEquals("Hello2", task.getName());
-            assertEquals("john", task.getActualOwnerId());
-            assertEquals(Status.Reserved, task.getStatus());
 
-            Map<String, Object> taskInputs = userTaskService.getTaskInputContentByTaskId(task.getId());
-            assertNotNull(taskInputs);
-            assertTrue(taskInputs.containsKey("test"));
-            assertTrue(taskInputs.containsKey("fromVar"));
-            assertEquals("value", taskInputs.get("test"));
-            assertEquals("description", taskInputs.get("fromVar"));
-
-            task = tasks.get(1);
-            assertNotNull(task);
-            assertEquals("Hello1", task.getName());
-            assertEquals("john", task.getActualOwnerId());
-            assertEquals(Status.Reserved, task.getStatus());
-
-            Collection<CaseMilestoneInstance> milestones = caseRuntimeDataService.getCaseInstanceMilestones(HR_CASE_ID, true, new QueryContext());
-            assertNotNull(milestones);
-            assertEquals(0, milestones.size());
-
-            milestones = caseRuntimeDataService.getCaseInstanceMilestones(HR_CASE_ID, false, new QueryContext());
-            assertNotNull(milestones);
-            assertEquals(2, milestones.size());
-
-            List<String> expectedMilestones = Arrays.asList("Milestone1", "Milestone2");
-            for (CaseMilestoneInstance mi : milestones) {
-                assertTrue("Expected milestone not found", expectedMilestones.contains(mi.getName()));
-                assertEquals("Wrong milestone status", MilestoneStatus.Available, mi.getStatus());
-                assertFalse("Should not be achieved", mi.isAchieved());
-                assertNull("Achieved date should be null", mi.getAchievedAt());
-            }
-
-            // trigger milestone node
-            caseService.triggerAdHocFragment(HR_CASE_ID, "Milestone1", null);
-
-            milestones = caseRuntimeDataService.getCaseInstanceMilestones(HR_CASE_ID, true, new QueryContext());
-            assertNotNull(milestones);
-            assertEquals(1, milestones.size());
-            CaseMilestoneInstance msInstance = milestones.iterator().next();
-            assertNotNull(msInstance);
-            assertEquals("Milestone1", msInstance.getName());
-            assertTrue(msInstance.isAchieved());
-            assertNotNull(msInstance.getAchievedAt());
-
-            // trigger another milestone node that has condition so it should not be achieved
-            caseService.triggerAdHocFragment(HR_CASE_ID, "Milestone2", null);
-
-            milestones = caseRuntimeDataService.getCaseInstanceMilestones(HR_CASE_ID, true, new QueryContext());
-            assertNotNull(milestones);
-            assertEquals(1, milestones.size());
-
-            milestones = caseRuntimeDataService.getCaseInstanceMilestones(HR_CASE_ID, false, new QueryContext());
-            assertNotNull(milestones);
-            assertEquals(2, milestones.size());
-
-            // now let's fact match created to see if active vs inactive activations achieve milestone
-            String eventName = "RuleFlow-Milestone-" + caseDef.getId() + caseDef.getCaseMilestones().stream().filter(cm -> cm.getName().equals("Milestone2")).findFirst().get().getId().replaceFirst("_", "-");
-            
-            MatchCreatedEvent event = Mockito.mock(MatchCreatedEvent.class);
-            Activation<?> activation = Mockito.mock(Activation.class);
-            RuleImpl rule = Mockito.mock(RuleImpl.class);
-            GroupElement groupElement = Mockito.mock(GroupElement.class);
-                        
-            Mockito.when(rule.getName()).thenReturn(eventName);
-            Mockito.when(rule.getRuleFlowGroup()).thenReturn("DROOLS_SYSTEM");
-            
-            Mockito.when(groupElement.getOuterDeclarations()).thenReturn(Collections.emptyMap());
-            
-            Mockito.when(activation.getRule()).thenReturn(rule);
-            Mockito.when(activation.isActive()).thenReturn(false);
-            Mockito.when(activation.getSubRule()).thenReturn(groupElement);
-            
-            Mockito.when(event.getMatch()).thenReturn(activation);
-            
-            final long processInstanceId = ((CaseInstanceImpl)cInstance).getProcessInstanceId();
-            
-            processService.execute(caseDef.getDeploymentId(), ProcessInstanceIdContext.get(processInstanceId), new ExecutableCommand<Void>() {
-
-                private static final long serialVersionUID = -8605689943374937006L;
-
-                @Override
-                public Void execute(Context context) {
-                    KieSession ksession = ((RegistryContext) context).lookup( KieSession.class );
-                    
-                    MilestoneNodeInstance milestone = (MilestoneNodeInstance) ((WorkflowProcessInstance) ksession.getProcessInstance(processInstanceId)).getNodeInstances()
-                                                                                                                                                        .stream()
-                                                                                                                                                        .filter(ni -> ni.getNodeName().equals("Milestone2"))
-                                                                                                                                                        .findFirst().get();
-                    milestone.signalEvent(milestone.getActivationEventType(), event);
-                    return null;
-                }          
-            });
-            
-            milestones = caseRuntimeDataService.getCaseInstanceMilestones(HR_CASE_ID, true, new QueryContext());
-            assertNotNull(milestones);
-            assertEquals(1, milestones.size());
-            
-            // now let's make it an active activation which in turn should trigger milestone to be completed
-            Mockito.when(activation.isActive()).thenReturn(true);
-            processService.execute(caseDef.getDeploymentId(), ProcessInstanceIdContext.get(processInstanceId), new ExecutableCommand<Void>() {
-
-                private static final long serialVersionUID = -8605689943374937006L;
-
-                @Override
-                public Void execute(Context context) {
-                    KieSession ksession = ((RegistryContext) context).lookup( KieSession.class );
-                    
-                    MilestoneNodeInstance milestone = (MilestoneNodeInstance) ((WorkflowProcessInstance) ksession.getProcessInstance(processInstanceId)).getNodeInstances()
-                                                                                                                                                        .stream()
-                                                                                                                                                        .filter(ni -> ni.getNodeName().equals("Milestone2"))
-                                                                                                                                                        .findFirst().get();
-                    milestone.signalEvent(milestone.getActivationEventType(), event);
-                    return null;
-                }          
-            });
-
-            milestones = caseRuntimeDataService.getCaseInstanceMilestones(HR_CASE_ID, true, new QueryContext());
-            assertNotNull(milestones);
-            assertEquals(2, milestones.size());
-        } catch (Exception e) {
-            logger.error("Unexpected error {}", e.getMessage(), e);
-            fail("Unexpected exception " + e.getMessage());
-        } finally {
-            if (caseId != null) {
-                caseService.cancelCase(caseId);
-            }
-        }
+        logger.info("----------------------------------------------------------------");
+        caseService.cancelCase(caseId);
+        logger.info("cancelled");
+        executor.join();
     }
 
     @Test
