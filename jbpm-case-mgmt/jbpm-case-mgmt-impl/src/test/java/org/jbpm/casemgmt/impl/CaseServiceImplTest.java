@@ -28,10 +28,14 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import javax.persistence.EntityManager;
+
+import junit.framework.Assert;
 import org.assertj.core.api.Assertions;
 import org.drools.core.definitions.rule.impl.RuleImpl;
 import org.drools.core.rule.GroupElement;
 import org.drools.core.spi.Activation;
+import org.drools.persistence.info.SessionInfo;
 import org.jbpm.bpmn2.objects.Person;
 import org.jbpm.casemgmt.api.AdHocFragmentNotFoundException;
 import org.jbpm.casemgmt.api.CaseActiveException;
@@ -60,6 +64,8 @@ import org.jbpm.casemgmt.impl.util.CountDownListenerFactory;
 import org.jbpm.document.Document;
 import org.jbpm.document.service.impl.DocumentImpl;
 import org.jbpm.process.core.context.variable.VariableViolationException;
+import org.jbpm.runtime.manager.impl.jpa.ContextMappingInfo;
+import org.jbpm.services.api.ProcessInstanceNotFoundException;
 import org.jbpm.services.api.TaskNotFoundException;
 import org.jbpm.services.api.model.NodeInstanceDesc;
 import org.jbpm.services.api.model.ProcessInstanceDesc;
@@ -77,6 +83,8 @@ import org.kie.api.command.ExecutableCommand;
 import org.kie.api.event.rule.MatchCreatedEvent;
 import org.kie.api.runtime.Context;
 import org.kie.api.runtime.KieSession;
+import org.kie.api.runtime.manager.RuntimeEngine;
+import org.kie.api.runtime.manager.RuntimeManager;
 import org.kie.api.runtime.process.CaseAssignment;
 import org.kie.api.runtime.process.WorkflowProcessInstance;
 import org.kie.api.runtime.query.QueryContext;
@@ -88,6 +96,8 @@ import org.kie.internal.command.RegistryContext;
 import org.kie.internal.process.CorrelationKey;
 import org.kie.internal.query.QueryFilter;
 import org.kie.internal.runtime.conf.ObjectModel;
+import org.kie.internal.runtime.manager.RuntimeManagerRegistry;
+import org.kie.internal.runtime.manager.SessionNotFoundException;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
@@ -629,6 +639,63 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
     }
 
     @Test
+    public void testPerCaseCleanup() throws InterruptedException {
+        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new UserImpl("john"));
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("s", "description");
+        CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), USER_TASK_CASE_P_ID, data, roleAssignments);
+        CaseDefinition caseDef = caseRuntimeDataService.getCase(deploymentUnit.getIdentifier(), USER_TASK_CASE_P_ID);
+        assertNotNull(caseDef);
+        assertEquals(deploymentUnit.getIdentifier(), caseDef.getDeploymentId());
+        assertEquals(3, caseDef.getAdHocFragments().size());
+        Map<String, AdHocFragment> mappedFragments = mapAdHocFragments(caseDef.getAdHocFragments());
+        assertTrue(mappedFragments.containsKey("Hello2"));
+        assertTrue(mappedFragments.containsKey("Milestone1"));
+        assertTrue(mappedFragments.containsKey("Milestone2"));
+        String caseId = caseService.startCase(deploymentUnit.getIdentifier(), USER_TASK_CASE_P_ID, caseFile);
+        assertNotNull(caseId);
+        assertEquals(HR_CASE_ID, caseId);
+        Collection<ProcessInstanceDesc> desc = runtimeDataService.getProcessInstancesByDeploymentId(deploymentUnit.getIdentifier(), Arrays.asList(0,1,2,3,4), new QueryContext());
+        List<Long> ids = desc.stream().map(e -> e.getId()).collect(Collectors.toList());
+        Long pid = ids.get(0);
+
+        Runnable run = new Runnable() {
+            public void run() {
+                for(int i = 0; i <= 5; i++) {
+
+                    RuntimeManager manager = RuntimeManagerRegistry.get().getManager(deploymentUnit.getIdentifier());
+                    RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(pid));
+                    try {
+                        KieSession ksession = engine.getKieSession();
+                        ((org.drools.core.process.instance.WorkItemManager) ksession.getWorkItemManager()).getWorkItem(1000000);
+                    } catch(SessionNotFoundException e) {
+                        throw new ProcessInstanceNotFoundException("Process instance with id " + pid + " was not found", e);
+                    } finally {
+                        manager.disposeRuntimeEngine(engine);
+                    }
+                }
+            };
+        };
+
+        Thread executor = new Thread(run);
+        executor.start();
+
+        processService.abortProcessInstance(pid);
+        logger.info("cancelled");
+        executor.join();
+        EntityManager em = this.emf.createEntityManager();
+        List<ContextMappingInfo> contextMappingInfo = em.createQuery("SELECT o FROM ContextMappingInfo o", ContextMappingInfo.class).getResultList();
+        Assert.assertEquals(1, contextMappingInfo.size());
+        logger.info("ContextMappingInfo found {}", contextMappingInfo.stream().map(ContextMappingInfo::toString).collect(Collectors.toList()));
+
+        List<SessionInfo> sessionsInfo = em.createQuery("SELECT o FROM SessionInfo o", SessionInfo.class).getResultList();
+        Assert.assertEquals(1, sessionsInfo.size());
+        logger.info("Sessions found {}", sessionsInfo.stream().map(SessionInfo::getId).collect(Collectors.toList()));
+        em.close();
+    }
+    @Test
     public void testTriggerTaskAndMilestoneInCase() {
         Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
         roleAssignments.put("owner", new UserImpl("john"));
@@ -889,7 +956,8 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
                                                                                                                                                         .findFirst().get();
                     milestone.signalEvent(milestone.getActivationEventType(), event);
                     return null;
-                }          
+                }
+
             });
             
             milestones = caseRuntimeDataService.getCaseInstanceMilestones(HR_CASE_ID, true, new QueryContext());

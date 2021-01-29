@@ -18,10 +18,20 @@ package org.jbpm.runtime.manager.impl.mapper;
 
 import java.util.List;
 
+import org.kie.api.runtime.manager.Context;
 import org.kie.internal.runtime.manager.Mapper;
 
 
 public abstract class InternalMapper implements Mapper {
 
     public abstract List<String> findContextIdForEvent(String eventType, String ownerId);
+
+    /**
+     * Finds ksession for given context
+     * @param context instance of the context
+     * @return ksession identifier when found otherwise null
+     */
+    public Long findLogMapping(Context<?> context, String ownerId) {
+        return null;
+    }
 }
