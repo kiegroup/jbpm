@@ -427,6 +427,8 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
         if (context instanceof ProcessInstanceIdContext) {
             Long piId = ((ProcessInstanceIdContext) context).getContextId();
             createLockOnGetEngine(piId, runtime);
+        } else {
+            logger.debug("Trying to release lock with a non proper context on runtime engine {}", runtime);
         }
     }
     
@@ -479,6 +481,8 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
             if (piId != null) {
                 releaseAndCleanLock(piId, runtime);
             }
+        } else {
+            logger.debug("Trying to release lock with a non proper context onn runtime manager engine {}", runtime);
         }
     }
     

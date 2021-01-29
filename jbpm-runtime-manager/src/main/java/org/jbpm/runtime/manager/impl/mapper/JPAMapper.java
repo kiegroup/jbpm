@@ -15,7 +15,6 @@
  */
 package org.jbpm.runtime.manager.impl.mapper;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,9 +29,10 @@ import org.kie.api.runtime.Environment;
 import org.kie.api.runtime.EnvironmentName;
 import org.kie.api.runtime.manager.Context;
 import org.kie.internal.process.CorrelationKey;
-import org.kie.internal.process.CorrelationProperty;
 import org.kie.internal.runtime.manager.context.CorrelationKeyContext;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Database based mapper implementation backed by JPA to store
@@ -44,7 +44,9 @@ import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
  */
 @SuppressWarnings("rawtypes")
 public class JPAMapper extends InternalMapper {
-    
+
+    private static final Logger logger = LoggerFactory.getLogger(JPAMapper.class);
+
 	private EntityManagerFactory emf;
     
     public JPAMapper(EntityManagerFactory emf) {
@@ -56,8 +58,10 @@ public class JPAMapper extends InternalMapper {
     public void saveMapping(Context context, Long ksessionId, String ownerId) {
 		EntityManagerInfo info = getEntityManager(context);
 		EntityManager em = info.getEntityManager();
-		em.persist(new ContextMappingInfo(resolveContext(context, em).getContextId().toString(),
-				ksessionId, ownerId));
+		Context<Object> resolvedContext =  resolveContext(context, em);
+		ContextMappingInfo contextMappingInfo =new ContextMappingInfo(resolvedContext.getContextId().toString(), ksessionId, ownerId);
+		logger.debug("Persisting {}", contextMappingInfo);
+		em.persist(contextMappingInfo);
 
 		if (!info.isShared()) {
 			em.close();
@@ -69,10 +73,9 @@ public class JPAMapper extends InternalMapper {
     	EntityManagerInfo info = getEntityManager(context);
     	EntityManager em = info.getEntityManager();
         try {
-            ContextMappingInfo contextMapping = findContextByContextId(resolveContext(context, em), ownerId, em);
-     
-		    if (contextMapping != null) {
-		        return contextMapping.getKsessionId();
+            ContextMappingInfo contextMappingInfo = findContextByContextId(resolveContext(context, em), ownerId, em);
+		    if (contextMappingInfo != null) {
+		        return contextMappingInfo.getKsessionId();
 		    }
 		    return null;
         } finally {
@@ -81,23 +84,51 @@ public class JPAMapper extends InternalMapper {
         	}
         }
     }
-    
+
+    @Override
+    public Long findLogMapping(Context<?> context, String ownerId) {
+        EntityManagerInfo info = getEntityManager(context);
+        EntityManager em = info.getEntityManager();
+        try {
+            if (context.getContextId() == null) {
+                return null;
+            }
+
+            Query findQuery = em.createNamedQuery("FindContextMapingByAuditContextId", ContextMappingInfo.class)
+                                .setParameter("contextId", context.getContextId().toString())
+                                .setParameter("ownerId", ownerId);
+
+            ContextMappingInfo contextMappingInfo = (ContextMappingInfo) findQuery.getSingleResult();
+            if (contextMappingInfo != null) {
+                return contextMappingInfo.getKsessionId();
+            }
+            return null;
+        } catch (NoResultException | NonUniqueResultException e) {
+            return null;
+        } finally {
+            if (!info.isShared()) {
+                em.close();
+            }
+        }
+    }
 
     @Override
     public void removeMapping(Context context, String ownerId) {
     	EntityManagerInfo info = getEntityManager(context);
     	EntityManager em = info.getEntityManager();
         
-        ContextMappingInfo contextMapping = findContextByContextId(resolveContext(context, em), ownerId, em);
-        if (contextMapping != null) {
-            em.remove(contextMapping);
+        ContextMappingInfo contextMappingInfo = findContextByContextId(resolveContext(context, em), ownerId, em);
+        logger.debug("Removing {}", contextMappingInfo);
+        if (contextMappingInfo != null) {
+            em.remove(contextMappingInfo);
         }
         if (!info.isShared()) {
     		em.close();
     	}
     }
-    
-    protected Context resolveContext(Context orig, EntityManager em) {
+
+    @SuppressWarnings("unchecked")
+    protected <T> Context<T> resolveContext(Context orig, EntityManager em) {
         if (orig instanceof CorrelationKeyContext) {
             return getProcessInstanceByCorrelationKey((CorrelationKey)orig.getContextId(), em);
         }
