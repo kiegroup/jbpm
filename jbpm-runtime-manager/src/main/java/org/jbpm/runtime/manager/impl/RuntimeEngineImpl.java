@@ -51,6 +51,12 @@ public class RuntimeEngineImpl implements InternalRuntimeEngine, Disposable {
     private boolean afterCompletion = false;
     
     private List<DisposeListener> listeners = new CopyOnWriteArrayList<DisposeListener>();
+
+
+    public RuntimeEngineImpl(Context<?> context, TaskService taskService) {
+        this.context = context;
+        this.taskService = taskService;
+    }
     
     public RuntimeEngineImpl(KieSession ksession, TaskService taskService) {
         this.ksession = ksession;
@@ -183,5 +189,10 @@ public class RuntimeEngineImpl implements InternalRuntimeEngine, Disposable {
     
     public Long getKieSessionId() {
         return kieSessionId;
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() + "(KieSessionId=" + kieSessionId + ")";
     }
 }
