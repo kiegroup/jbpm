@@ -426,21 +426,27 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
     protected boolean isUseLocking() {
         return false;
     }
-	
+
+    protected void createLockOnNewProcessInstance(Long id, RuntimeEngine runtime) {
+        createLockOnGetEngine(id, runtime);
+    }
+
     protected void createLockOnGetEngine(Context<?> context, RuntimeEngine runtime) {
-        if (!isUseLocking()) {
-            logger.debug("Locking on runtime manager disabled");
-            return;
-        }
-        
         if (context instanceof ProcessInstanceIdContext) {
             Long piId = ((ProcessInstanceIdContext) context).getContextId();
             createLockOnGetEngine(piId, runtime);
+        } else {
+            logger.debug("Trying to release lock with a non proper context on runtime engine {}", runtime);
         }
     }
     
     protected void createLockOnGetEngine(Long id, RuntimeEngine runtime) {
+        logger.debug("Attempt to lock {} on runtime {}", id, runtime);
         if (id == null) {
+            return;
+        }
+        if (!isUseLocking()) {
+            logger.debug("Locking on runtime manager engine {} disabled for id {}", runtime, id);
             return;
         }
         try {
@@ -450,28 +456,30 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
         }
     }
 
-    protected void releaseAndCleanLock(Long id, RuntimeEngine runtime) {
-        if (id == null) {
-            return;
-        }
-        runtimeManagerLockStrategy.unlock(id, runtime);
-    }
-    
-    protected void createLockOnNewProcessInstance(Long id, RuntimeEngine runtime) {
-        createLockOnGetEngine(id, runtime);
-    }
-    
     protected void releaseAndCleanLock(RuntimeEngine runtime) {
         if (((RuntimeEngineImpl)runtime).getContext() instanceof ProcessInstanceIdContext) {
             Long piId = ((ProcessInstanceIdContext) ((RuntimeEngineImpl)runtime).getContext()).getContextId();
             if (piId != null) {
                 releaseAndCleanLock(piId, runtime);
             }
+        } else {
+            logger.debug("Trying to release lock with a non proper context onn runtime manager engine {}", runtime);
         }
     }
-    
 
-    
+    protected void releaseAndCleanLock(Long id, RuntimeEngine runtime) {
+        logger.debug("Attempt to unlock {} on runtime {}", id, runtime);
+        if (id == null) {
+            return;
+        }
+        if (!isUseLocking()) {
+            logger.debug("Locking on runtime manager engine {} disabled for id {}", runtime, id);
+            return;
+        }
+
+        runtimeManagerLockStrategy.unlock(id, runtime);
+    }
+
     protected boolean isActive() {
         if (hasEnvironmentEntry("Active", false)) {
             return false;
