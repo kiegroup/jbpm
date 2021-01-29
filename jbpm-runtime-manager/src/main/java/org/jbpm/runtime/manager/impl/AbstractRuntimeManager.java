@@ -417,20 +417,18 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
     protected boolean isUseLocking() {
         return false;
     }
-	
+
     protected void createLockOnGetEngine(Context<?> context, RuntimeEngine runtime) {
-        if (!isUseLocking()) {
-            logger.debug("Locking on runtime manager disabled");
-            return;
-        }
-        
         if (context instanceof ProcessInstanceIdContext) {
             Long piId = ((ProcessInstanceIdContext) context).getContextId();
             createLockOnGetEngine(piId, runtime);
+        } else {
+            logger.debug("Trying to release lock with a non proper context on runtime engine {}", runtime);
         }
     }
     
     protected void createLockOnGetEngine(Long id, RuntimeEngine runtime) {
+
         if (!isUseLocking()) {
             logger.debug("Locking on runtime manager disabled");
             return;
@@ -452,6 +450,7 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
         }
         
     }
+
     
     protected void createLockOnNewProcessInstance(Long id, RuntimeEngine runtime) {
         if (!isUseLocking()) {
@@ -468,6 +467,7 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
     }
     
     
+
     protected void releaseAndCleanLock(RuntimeEngine runtime) {
         if (!isUseLocking()) {
             logger.debug("Locking on runtime manager disabled");
@@ -479,8 +479,11 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
             if (piId != null) {
                 releaseAndCleanLock(piId, runtime);
             }
+        } else {
+            logger.debug("Trying to release lock with a non proper context onn runtime manager engine {}", runtime);
         }
     }
+
     
     protected void releaseAndCleanLock(Long id, RuntimeEngine runtime) {
 
@@ -500,6 +503,7 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
         
     }
     
+
     protected boolean isActive() {
         if (hasEnvironmentEntry("Active", false)) {
             return false;
