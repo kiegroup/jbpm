@@ -27,7 +27,7 @@ import static org.kie.internal.query.QueryParameterIdentifiers.CASE_FILE_DATA_LO
 
 public class CaseFileDataLogDeleteBuilderImpl extends AbstractAuditDeleteBuilderImpl<CaseFileDataLogDeleteBuilder> implements CaseFileDataLogDeleteBuilder {
 
-    private static final String CASE_FILE_DATA_LOG_DELETE = "DELETE FROM CaseFileDataLog l";
+    private static final String CASE_FILE_DATA_LOG_DELETE = "CaseFileDataLog";
     private String caseDefId;
 
     public CaseFileDataLogDeleteBuilderImpl(JPAAuditLogService jpaService) {
@@ -81,7 +81,7 @@ public class CaseFileDataLogDeleteBuilderImpl extends AbstractAuditDeleteBuilder
     }
 
     @Override
-    protected String getQueryBase() {
+    protected String getQueryTable() {
         return CASE_FILE_DATA_LOG_DELETE;
     }
 

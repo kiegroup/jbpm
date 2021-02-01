@@ -28,8 +28,7 @@ import static org.kie.internal.query.QueryParameterIdentifiers.TASK_VARIABLE_DAT
 
 public class TaskVariableDeleteBuilderImpl extends AbstractAuditDeleteBuilderImpl<TaskVariableDeleteBuilder> implements TaskVariableDeleteBuilder {
 
-    private static String TASK_VARIABLE_IMPL_DELETE =
-            "DELETE\n" + "FROM TaskVariableImpl l\n";
+    private static final String TASK_VARIABLE_IMPL_DELETE = "TaskVariableImpl";
 
     public TaskVariableDeleteBuilderImpl(CommandExecutor cmdExecutor) {
         super(cmdExecutor);
@@ -74,7 +73,7 @@ public class TaskVariableDeleteBuilderImpl extends AbstractAuditDeleteBuilderImp
     }
 
     @Override
-    protected String getQueryBase() {
+    protected String getQueryTable() {
         return TASK_VARIABLE_IMPL_DELETE;
     }
 
