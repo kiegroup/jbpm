@@ -217,6 +217,28 @@ public class LogCleanupCommandTest extends JbpmAsyncJobTestCase {
         Assertions.assertThat(getNodeInstanceLogSize(HELLO_WORLD_ID)).isPositive();
     }
 
+    @Test(timeout = 10000)
+    public void deleteAllLogsPage() {
+        CountDownAsyncJobListener countDownListener = new CountDownAsyncJobListener(1);
+        ((ExecutorServiceImpl) getExecutorService()).addAsyncJobListener(countDownListener);
+        // Generate data
+        KieSession kieSession = createKSession(HELLO_WORLD);
+        startProcess(kieSession, HELLO_WORLD_ID, 3);
+
+        // Verify presence of data
+        Assertions.assertThat(getProcessLogSize(HELLO_WORLD_ID)).isEqualTo(3);
+        Assertions.assertThat(getNodeInstanceLogSize(HELLO_WORLD_ID)).isPositive();
+
+        // Schedule cleanup job
+        scheduleLogCleanup(false, false, false, null, null, HELLO_WORLD_ID, 1);
+        countDownListener.waitTillCompleted();
+
+        // Verify absence of data
+        Assertions.assertThat(getProcessLogSize(HELLO_WORLD_ID)).isZero();
+        Assertions.assertThat(getNodeInstanceLogSize(HELLO_WORLD_ID)).isZero();
+
+    }
+
     @Test(timeout=10000)
     public void deleteAllLogsOlderThanPeriod() throws Exception {
         CountDownAsyncJobListener countDownListener = new CountDownAsyncJobListener(1);
@@ -275,8 +297,20 @@ public class LogCleanupCommandTest extends JbpmAsyncJobTestCase {
                 .size();
     }
 
+    private void scheduleLogCleanup(boolean skipProcessLog,
+                                    boolean skipTaskLog,
+                                    boolean skipExecutorLog,
+                                    Date olderThan,
+                                    String olderThanDuration,
+                                    String forProcess) {
+        scheduleLogCleanup(skipProcessLog, skipTaskLog, skipExecutorLog, olderThan, olderThanDuration, forProcess, 0);
+    }
+
     private void scheduleLogCleanup(boolean skipProcessLog, boolean skipTaskLog, boolean skipExecutorLog,
-            Date olderThan, String olderThanDuration, String forProcess) {
+                                    Date olderThan,
+                                    String olderThanDuration,
+                                    String forProcess,
+                                    int recordsPerTransaction) {
         CommandContext commandContext = new CommandContext();
         commandContext.setData("EmfName", "org.jbpm.persistence.complete");
         commandContext.setData("SkipProcessLog", String.valueOf(skipProcessLog));
@@ -284,6 +318,7 @@ public class LogCleanupCommandTest extends JbpmAsyncJobTestCase {
         commandContext.setData("SkipExecutorLog", String.valueOf(skipExecutorLog));
         commandContext.setData("SingleRun", "true");
         commandContext.setData("DateFormat", dateFormat);
+        commandContext.setData("RecordsPerTransaction", recordsPerTransaction);
         if (olderThan != null) {
             commandContext.setData("OlderThan", new SimpleDateFormat(dateFormat).format(olderThan));
         }

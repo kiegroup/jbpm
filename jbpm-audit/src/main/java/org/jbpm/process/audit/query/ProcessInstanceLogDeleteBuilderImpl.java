@@ -16,6 +16,13 @@
 
 package org.jbpm.process.audit.query;
 
+import java.util.Date;
+
+import org.jbpm.process.audit.JPAAuditLogService;
+import org.jbpm.process.audit.ProcessInstanceLog;
+import org.kie.api.runtime.CommandExecutor;
+import org.kie.internal.runtime.manager.audit.query.ProcessInstanceLogDeleteBuilder;
+
 import static org.kie.internal.query.QueryParameterIdentifiers.END_DATE_LIST;
 import static org.kie.internal.query.QueryParameterIdentifiers.EXTERNAL_ID_LIST;
 import static org.kie.internal.query.QueryParameterIdentifiers.IDENTITY_LIST;
@@ -25,19 +32,10 @@ import static org.kie.internal.query.QueryParameterIdentifiers.PROCESS_NAME_LIST
 import static org.kie.internal.query.QueryParameterIdentifiers.PROCESS_VERSION_LIST;
 import static org.kie.internal.query.QueryParameterIdentifiers.START_DATE_LIST;
 
-import java.util.Date;
-
-import org.jbpm.process.audit.JPAAuditLogService;
-import org.jbpm.process.audit.ProcessInstanceLog;
-import org.kie.api.runtime.CommandExecutor;
-import org.kie.internal.runtime.manager.audit.query.ProcessInstanceLogDeleteBuilder;
-
 public class ProcessInstanceLogDeleteBuilderImpl extends
 		AbstractAuditDeleteBuilderImpl<ProcessInstanceLogDeleteBuilder> implements ProcessInstanceLogDeleteBuilder {
 
-    private static String PROCESS_INSTANCE_LOG_DELETE = 
-            "DELETE\n"
-            + "FROM ProcessInstanceLog l\n";
+    private static final String PROCESS_INSTANCE_LOG_DELETE = "ProcessInstanceLog";
     
 	public ProcessInstanceLogDeleteBuilderImpl(JPAAuditLogService jpaService) {
 		super(jpaService);
@@ -163,7 +161,7 @@ public class ProcessInstanceLogDeleteBuilderImpl extends
     }
 
     @Override
-    protected String getQueryBase() {
+    protected String getQueryTable() {
         return PROCESS_INSTANCE_LOG_DELETE;
     }
 

@@ -16,11 +16,14 @@
 
 package org.jbpm.process.audit;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.function.Consumer;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -400,37 +403,52 @@ public class JPAAuditLogService extends JPAService implements AuditLogService {
     protected static void addCriteria(String listId, String fieldName, Class<?> type) {
         QueryHelper.addCriteria(listId, fieldName, type);
     }
-    
-    public int doDelete(String queryBase, QueryWhere queryData, String subQuery, Map<String, Object> queryParams) {
-        // create query
 
-        String queryString = QueryHelper.createQueryWithSubQuery(queryBase, queryData, queryParams, subQuery).toSQL();
-        
-        // logging
+    public int doDelete(String queryTable, QueryWhere queryData, String subQuery, Map<String, Object> queryParams) {
+        return executeQuery(QueryHelper.createQueryWithSubQuery(String.format("DELETE FROM %s l", queryTable),
+                queryData, queryParams, subQuery).toSQL(), queryParams);
+    }
+
+    @SuppressWarnings("unchecked")
+    public int doPartialDelete(String queryTable,
+                               QueryWhere queryData,
+                               String subQuery,
+                               Map<String, Object> queryParams,
+                               int chunkSize) {
+        EntityManager em = getEntityManager();
+        Object newTx = joinTransaction(em);
+        try {
+            Query query = em.createQuery(QueryHelper.createQueryWithSubQuery(
+                    String.format("SELECT l.id FROM %s l", queryTable), queryData, queryParams, subQuery).toSQL());
+            applyMetaQueryParameters(queryParams, query);
+            IdConsumer consumer = new IdConsumer(queryTable, chunkSize);
+            query.getResultStream().forEach(consumer);
+            return consumer.getResult();
+        } finally {
+            closeEntityManager(em, newTx);
+        }
+    }
+
+    private int executeQuery(String queryString, Map<String, Object> queryParams) {
+
         logger.debug("DELETE statement:\n {}", queryString);
-        if( logger.isDebugEnabled() ) {
+        if (logger.isDebugEnabled()) {
             StringBuilder paramsStr = new StringBuilder("PARAMS:");
             Map<String, Object> orderedParams = new TreeMap<>(queryParams);
-            for( Entry<String, Object> entry : orderedParams.entrySet() ) { 
+            for (Entry<String, Object> entry : orderedParams.entrySet()) {
                 paramsStr.append("\n " + entry.getKey() + " : '" + entry.getValue() + "'");
             }
             logger.debug(paramsStr.toString());
         }
-        
-    
         // execute query
         EntityManager em = getEntityManager();
         Object newTx = joinTransaction(em);
         Query query = em.createQuery(queryString);
-    
         int result = executeWithParameters(queryParams, query);
-        logger.debug("Deleted rows " + result);
+        logger.debug("Deleted rows {}", result);
         closeEntityManager(em, newTx);
-        
         return result;
     }
-    
-
     
     private void applyMetaQueryParameters(Map<String, Object> params, Query query) {
         if (params != null && !params.isEmpty()) {
@@ -470,4 +488,32 @@ public class JPAAuditLogService extends JPAService implements AuditLogService {
         return query.executeUpdate();
     }
 
+    private class IdConsumer implements Consumer<Object> {
+
+        private List<Object> ids = new ArrayList<>();
+        private String query;
+        private int chunkSize;
+        private int result;
+
+        public IdConsumer(String queryTable, int chunkSize) {
+            this.query = String.format("DELETE FROM %s p WHERE p.id IN (:ids)", queryTable);
+            this.chunkSize = chunkSize;
+        }
+
+        @Override
+        public void accept(Object id) {
+            ids.add(id);
+            if (ids.size() >= chunkSize) {
+                result += executeQuery(query, Collections.singletonMap("ids", ids));
+                ids.clear();
+            }
+        }
+
+        public int getResult() {
+            if (!ids.isEmpty()) {
+                result += executeQuery(query, Collections.singletonMap("ids", ids));
+            }
+            return result;
+        }
+    }
 }

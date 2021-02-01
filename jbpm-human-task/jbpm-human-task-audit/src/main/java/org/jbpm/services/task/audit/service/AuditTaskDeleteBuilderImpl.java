@@ -29,9 +29,7 @@ import static org.kie.internal.query.QueryParameterIdentifiers.DEPLOYMENT_ID_LIS
 
 public class AuditTaskDeleteBuilderImpl extends AbstractAuditDeleteBuilderImpl<AuditTaskDeleteBuilder> implements AuditTaskDeleteBuilder {
 
-    private static String AUDIT_TASK_IMPL_DELETE = 
-            "DELETE\n"
-            + "FROM AuditTaskImpl l\n";
+    private static final String AUDIT_TASK_IMPL_DELETE = "AuditTaskImpl";
     
     public AuditTaskDeleteBuilderImpl(CommandExecutor cmdExecutor ) {
         super(cmdExecutor);
@@ -85,7 +83,7 @@ public class AuditTaskDeleteBuilderImpl extends AbstractAuditDeleteBuilderImpl<A
     }
 
     @Override
-    protected String getQueryBase() {
+    protected String getQueryTable() {
         return AUDIT_TASK_IMPL_DELETE;
     }
 

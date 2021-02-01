@@ -16,8 +16,6 @@
 
 package org.jbpm.executor.impl.jpa;
 
-import static org.kie.internal.query.QueryParameterIdentifiers.EXECUTOR_TIME_LIST;
-
 import java.util.Date;
 
 import org.jbpm.executor.entities.ErrorInfo;
@@ -26,11 +24,11 @@ import org.jbpm.process.audit.query.AbstractAuditDeleteBuilderImpl;
 import org.kie.api.runtime.CommandExecutor;
 import org.kie.internal.runtime.manager.audit.query.ErrorInfoDeleteBuilder;
 
+import static org.kie.internal.query.QueryParameterIdentifiers.EXECUTOR_TIME_LIST;
+
 public class ErrorInfoDeleteBuilderImpl extends AbstractAuditDeleteBuilderImpl<ErrorInfoDeleteBuilder> implements ErrorInfoDeleteBuilder {
     
-	private static String ERROR_INFO_LOG_DELETE = 
-            "DELETE\n"
-            + "FROM ErrorInfo l\n";
+    private static final String ERROR_INFO_LOG_DELETE = "ErrorInfo";
 	
     public ErrorInfoDeleteBuilderImpl(CommandExecutor cmdExecutor ) {
         super(cmdExecutor);
@@ -76,7 +74,7 @@ public class ErrorInfoDeleteBuilderImpl extends AbstractAuditDeleteBuilderImpl<E
     }
 
     @Override
-    protected String getQueryBase() {
+    protected String getQueryTable() {
         return ERROR_INFO_LOG_DELETE;
     }
 

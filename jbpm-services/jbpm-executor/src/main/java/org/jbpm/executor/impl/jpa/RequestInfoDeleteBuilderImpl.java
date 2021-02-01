@@ -16,10 +16,6 @@
 
 package org.jbpm.executor.impl.jpa;
 
-import static org.kie.internal.query.QueryParameterIdentifiers.DEPLOYMENT_ID_LIST;
-import static org.kie.internal.query.QueryParameterIdentifiers.EXECUTOR_STATUS_LIST;
-import static org.kie.internal.query.QueryParameterIdentifiers.EXECUTOR_TIME_LIST;
-
 import java.util.Date;
 
 import org.jbpm.executor.entities.RequestInfo;
@@ -29,11 +25,13 @@ import org.kie.api.executor.STATUS;
 import org.kie.api.runtime.CommandExecutor;
 import org.kie.internal.runtime.manager.audit.query.RequestInfoLogDeleteBuilder;
 
+import static org.kie.internal.query.QueryParameterIdentifiers.DEPLOYMENT_ID_LIST;
+import static org.kie.internal.query.QueryParameterIdentifiers.EXECUTOR_STATUS_LIST;
+import static org.kie.internal.query.QueryParameterIdentifiers.EXECUTOR_TIME_LIST;
+
 public class RequestInfoDeleteBuilderImpl extends AbstractAuditDeleteBuilderImpl<RequestInfoLogDeleteBuilder> implements RequestInfoLogDeleteBuilder {
     
-	private static String REQUES_INFO_LOG_DELETE = 
-            "DELETE\n"
-            + "FROM RequestInfo l\n";
+    private static final String REQUES_INFO_LOG_DELETE = "RequestInfo";
 	
     public RequestInfoDeleteBuilderImpl(CommandExecutor cmdExecutor ) {
         super(cmdExecutor);
@@ -97,7 +95,7 @@ public class RequestInfoDeleteBuilderImpl extends AbstractAuditDeleteBuilderImpl
     }
 
     @Override
-    protected String getQueryBase() {
+    protected String getQueryTable() {
         return REQUES_INFO_LOG_DELETE;
     }
 
