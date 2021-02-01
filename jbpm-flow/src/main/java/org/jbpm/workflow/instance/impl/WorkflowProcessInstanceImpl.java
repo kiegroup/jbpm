@@ -668,7 +668,7 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
                                 }
                             }
                         }
-                    }
+                    } 
                 }
                 if (((org.jbpm.workflow.core.WorkflowProcess) getWorkflowProcess()).isDynamic()) {
                     for (Node node : getWorkflowProcess().getNodes()) {
