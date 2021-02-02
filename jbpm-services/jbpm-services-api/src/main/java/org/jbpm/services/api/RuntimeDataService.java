@@ -206,8 +206,14 @@ public interface RuntimeDataService {
      * @return A list of {@link ProcessInstanceDesc} instances representing the available process instances.
      */
     Collection<ProcessInstanceDesc> getProcessInstancesByParent(Long parentProcessInstanceId, List<Integer> states, QueryContext queryContext);
-    
-    
+
+    /**
+     * Returns list of process instance descriptions
+     * @param processInstanceId id of the parent process instance
+     * @return A list of {@link ProcessInstanceDesc} instances representing the full hierarchy of this process
+     */
+    Collection<ProcessInstanceDesc> getProcessInstancesWithSubprocessByProcessInstanceId(Long processInstanceId, List<Integer> states, QueryContext queryContext);
+
     // Node and Variable instance information
 
     /**
@@ -587,5 +593,7 @@ public interface RuntimeDataService {
      * @return a {@link List} of {@link TaskSummary} instances.
      */
     List<TaskSummary> getTasksByVariableAndValue(String userId, String variableName, String variableValue, List<Status> statuses, QueryContext context);
+
+
 
 }

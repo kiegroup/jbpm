@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
@@ -634,6 +635,31 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
 
         List<ProcessInstanceDesc> processInstances = commandService.execute(new QueryNameCommand<List<ProcessInstanceDesc>>("getProcessInstancesByParent", params));
         return processInstances;
+    }
+
+    @Override
+    public Collection<ProcessInstanceDesc> getProcessInstancesWithSubprocessByProcessInstanceId(Long parentProcessInstanceId, List<Integer> states, QueryContext queryContext) {
+        Map<String, Object> params = new HashMap<>();
+
+        if (states == null || states.isEmpty()) {
+            states = new ArrayList<>();
+            states.add(ProcessInstance.STATE_ACTIVE);
+        }
+        params.put("states", states);
+
+        applyQueryContext(params, queryContext);
+        applyDeploymentFilter(params);
+        List<ProcessInstanceDesc> all = new ArrayList<>();
+        List<Long> parentProcessInstancesId = Collections.singletonList(parentProcessInstanceId);
+
+        // this is done till there are no more parents to process
+        while(!parentProcessInstancesId.isEmpty()) {
+            params.put("parentsId", parentProcessInstancesId);
+            List<ProcessInstanceDesc> processInstances = commandService.execute(new QueryNameCommand<>("getProcessInstancesByParents", params));
+            all.addAll(processInstances); 
+            parentProcessInstancesId = processInstances.stream().map(ProcessInstanceDesc::getId).collect(Collectors.toList()); 
+        }
+        return all;
     }
 
     /*

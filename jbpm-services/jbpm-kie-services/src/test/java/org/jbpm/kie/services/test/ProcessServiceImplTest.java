@@ -1052,7 +1052,11 @@ public class ProcessServiceImplTest extends AbstractKieServicesBaseTest {
         Collection<ProcessInstanceDesc> children = runtimeDataService.getProcessInstancesByParent(processInstanceId, null, new QueryContext());
         assertNotNull(children);
         assertEquals(1, children.size());
-        
+
+        Collection<ProcessInstanceDesc> childrenRecursive = runtimeDataService.getProcessInstancesWithSubprocessByProcessInstanceId(processInstanceId, null, new QueryContext());
+        assertNotNull(childrenRecursive);
+        assertEquals(1, childrenRecursive.size());
+
         ProcessInstanceDesc childInstance = children.iterator().next();
         assertNotNull(childInstance);
         assertEquals("org.jbpm.signal", childInstance.getProcessId());
