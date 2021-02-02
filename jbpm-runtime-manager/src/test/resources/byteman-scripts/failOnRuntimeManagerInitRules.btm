@@ -29,11 +29,11 @@ IF myCounter >= 2 && myCounter < 5
 ENDRULE
 
 RULE throwExOnInitializerPC
-CLASS org.jbpm.runtime.manager.impl.PerCaseRuntimeManager$PerCaseInitializer
-METHOD initKieSession
+CLASS org.jbpm.runtime.manager.impl.PerCaseRuntimeManager
+METHOD initPerCaseKSession
 BIND myCounter = incrementCounter("myCounter");
 AT ENTRY
-IF myCounter >= 2 && myCounter < 5
+IF myCounter >= 2 && myCounter < 4
   DO traceln("### Throwing Exception on : " + Thread.currentThread().getName());
    throw new RuntimeException("ERROR!");
 ENDRULE

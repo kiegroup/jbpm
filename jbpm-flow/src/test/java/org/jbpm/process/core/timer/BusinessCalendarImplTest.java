@@ -16,6 +16,8 @@
 
 package org.jbpm.process.core.timer;
 
+import java.io.File;
+import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -451,7 +453,7 @@ public class BusinessCalendarImplTest extends AbstractBaseTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testMissingConfigurationSingleArgConstructor() {
-        BusinessCalendarImpl businessCal = new BusinessCalendarImpl(null);
+        BusinessCalendarImpl businessCal = new BusinessCalendarImpl((Properties) null);
     }
     
     @Test
@@ -489,6 +491,26 @@ public class BusinessCalendarImplTest extends AbstractBaseTest {
         Date result = businessCal.calculateBusinessTimeAsDate(duration);
 
         assertEquals(expectedDate, formatDate("yyyy-MM-dd HH:mm:ss", result));
+    }
+
+    @Test
+    public void testLoadGoodInputStream() throws Exception {
+        URL url = this.getClass().getResource("/business-custom-calendar.properties");
+        File file = new File(url.toURI());
+
+        BusinessCalendarImpl businessCal = new BusinessCalendarImpl(file.getAbsolutePath());
+        int myCustomProperty = businessCal.getPropertyAsInt("MyCustomProperty", "3");
+
+        assertEquals(7, myCustomProperty);
+    }
+
+    @Test
+    public void testLoadBadInputStream() {
+
+        BusinessCalendarImpl businessCal = new BusinessCalendarImpl("/bad-uri.properties");
+        int myCustomProperty = businessCal.getPropertyAsInt("MyCustomProperty", "3");
+
+        assertEquals(3, myCustomProperty);
     }
 
     private Date parseToDate(String dateString) {
