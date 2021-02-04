@@ -71,6 +71,7 @@ import org.jbpm.services.api.TaskNotFoundException;
 import org.jbpm.services.api.model.NodeInstanceDesc;
 import org.jbpm.services.api.model.ProcessInstanceDesc;
 import org.jbpm.services.api.model.VariableDesc;
+import org.jbpm.services.task.events.DefaultTaskEventListener;
 import org.jbpm.services.task.impl.model.GroupImpl;
 import org.jbpm.services.task.impl.model.UserImpl;
 import org.jbpm.test.listener.process.NodeLeftCountDownProcessEventListener;
@@ -89,6 +90,7 @@ import org.kie.api.runtime.manager.RuntimeManager;
 import org.kie.api.runtime.process.CaseAssignment;
 import org.kie.api.runtime.process.WorkflowProcessInstance;
 import org.kie.api.runtime.query.QueryContext;
+import org.kie.api.task.TaskEvent;
 import org.kie.api.task.model.OrganizationalEntity;
 import org.kie.api.task.model.Status;
 import org.kie.api.task.model.TaskSummary;
@@ -3903,6 +3905,7 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
         registerListenerMvelDefinition("org.jbpm.casemgmt.impl.util.CountDownListenerFactory.get(\"" +
                                        getClass().getSimpleName() + "2\", " +
                                        "\"Stage 1\", 1)");
+
         super.setUp();
     }
 
@@ -3911,8 +3914,25 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
         CountDownListenerFactory.reset();
     }
 
+    public static class TaskListener extends DefaultTaskEventListener {
+        
+        public TaskListener() {
+            System.out.println("CREATED!");
+        }
+        @Override
+        public void afterTaskAddedEvent(TaskEvent event) {
+            System.out.println("HOLA!");
+        }
+        
+        @Override
+        public void afterTaskActivatedEvent(TaskEvent event) {
+            System.out.println("HOLA!");
+        }
+    }
+    
     @Test
     public void testCaseWithStageAndBoundaryTimerFired() throws InterruptedException {
+
         String caseId = caseService.startCase(deploymentUnit.getIdentifier(), "CaseWithStageAndBoundaryTimer");
         assertNotNull(caseId);
         assertEquals(FIRST_CASE_ID, caseId);

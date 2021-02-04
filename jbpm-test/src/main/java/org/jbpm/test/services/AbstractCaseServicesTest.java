@@ -199,6 +199,7 @@ public abstract class AbstractCaseServicesTest extends AbstractServicesTest {
 
         getWorkItemHandlers().forEach(listener -> ddBuilder.addWorkItemHandler(listener));
 
+        ddBuilder.addTaskEventListener(new ObjectModel("mvel", "new org.jbpm.casemgmt.impl.CaseServiceImplTest$TaskListener()"));
         return customDescriptor;
     }
 

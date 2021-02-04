@@ -98,7 +98,7 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
     
 	protected CacheManager cacheManager = new CacheManagerImpl();
     
-    protected boolean engineInitEager = Boolean.parseBoolean(System.getProperty("org.jbpm.rm.engine.eager", "false"));
+    protected boolean engineInitEager = Boolean.parseBoolean(System.getProperty("org.jbpm.rm.engine.eager", "true"));
 
 	protected String identifier;
     
