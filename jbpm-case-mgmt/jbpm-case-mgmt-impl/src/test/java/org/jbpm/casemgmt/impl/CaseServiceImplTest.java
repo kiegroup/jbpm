@@ -26,11 +26,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 
-import junit.framework.Assert;
 import org.assertj.core.api.Assertions;
 import org.drools.core.definitions.rule.impl.RuleImpl;
 import org.drools.core.rule.GroupElement;
@@ -687,14 +688,63 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
         executor.join();
         EntityManager em = this.emf.createEntityManager();
         List<ContextMappingInfo> contextMappingInfo = em.createQuery("SELECT o FROM ContextMappingInfo o", ContextMappingInfo.class).getResultList();
-        Assert.assertEquals(1, contextMappingInfo.size());
+        assertEquals(1, contextMappingInfo.size());
         logger.info("ContextMappingInfo found {}", contextMappingInfo.stream().map(ContextMappingInfo::toString).collect(Collectors.toList()));
 
         List<SessionInfo> sessionsInfo = em.createQuery("SELECT o FROM SessionInfo o", SessionInfo.class).getResultList();
-        Assert.assertEquals(1, sessionsInfo.size());
+        assertEquals(1, sessionsInfo.size());
         logger.info("Sessions found {}", sessionsInfo.stream().map(SessionInfo::getId).collect(Collectors.toList()));
         em.close();
     }
+
+    @Test
+    public void testPerCaseEnsureCleanupInDisposeEngine() throws InterruptedException {
+        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new UserImpl("john"));
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("s", "description");
+        CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), USER_TASK_CASE_P_ID, data, roleAssignments);
+        CaseDefinition caseDef = caseRuntimeDataService.getCase(deploymentUnit.getIdentifier(), USER_TASK_CASE_P_ID);
+        assertNotNull(caseDef);
+        assertEquals(deploymentUnit.getIdentifier(), caseDef.getDeploymentId());
+        assertEquals(3, caseDef.getAdHocFragments().size());
+        String caseId = caseService.startCase(deploymentUnit.getIdentifier(), USER_TASK_CASE_P_ID, caseFile);
+        
+        Collection<ProcessInstanceDesc> desc = runtimeDataService.getProcessInstancesByDeploymentId(deploymentUnit.getIdentifier(), Arrays.asList(0,1,2,3,4), new QueryContext());
+        List<Long> ids = desc.stream().map(ProcessInstanceDesc::getId).collect(Collectors.toList());
+        Long pid = ids.get(0);
+
+        RuntimeManager manager = RuntimeManagerRegistry.get().getManager(deploymentUnit.getIdentifier());
+        RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(pid));
+        // no op so the runtime is not being init when lazy loading is used
+        CountDownLatch latch = new CountDownLatch(1);
+        manager.disposeRuntimeEngine(engine);
+        try {
+            Thread executor = new Thread(() -> {
+                RuntimeEngine localEngine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(pid));
+                manager.disposeRuntimeEngine(localEngine);
+                latch.countDown();
+            });
+            executor.start();
+            latch.await(1000, TimeUnit.MILLISECONDS);
+            assertEquals(0, latch.getCount());
+        } finally {
+            caseService.cancelCase(caseId);
+        }
+        
+        logger.info("cancelled");
+        EntityManager em = this.emf.createEntityManager();
+        List<ContextMappingInfo> contextMappingInfo = em.createQuery("SELECT o FROM ContextMappingInfo o", ContextMappingInfo.class).getResultList();
+        assertEquals(1, contextMappingInfo.size());
+        logger.info("ContextMappingInfo found {}", contextMappingInfo.stream().map(ContextMappingInfo::toString).collect(Collectors.toList()));
+
+        List<SessionInfo> sessionsInfo = em.createQuery("SELECT o FROM SessionInfo o", SessionInfo.class).getResultList();
+        assertEquals(1, sessionsInfo.size());
+        logger.info("Sessions found {}", sessionsInfo.stream().map(SessionInfo::getId).collect(Collectors.toList()));
+        em.close();
+    }
+
     @Test
     public void testTriggerTaskAndMilestoneInCase() {
         Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();

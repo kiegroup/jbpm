@@ -186,13 +186,18 @@ public class RuntimeEngineImpl implements InternalRuntimeEngine, Disposable {
     public void setContext(Context<?> context) {
         this.context = context;
     }
+
     
+    public Long getLazyKieSessionId() {
+        return (initializer != null && initializer.getKieSessionId() != null) ? initializer.getKieSessionId() : this.kieSessionId;
+    }
+
     public Long getKieSessionId() {
         return kieSessionId;
     }
 
     @Override
     public String toString() {
-        return super.toString() + "(KieSessionId=" + kieSessionId + ")";
+        return super.toString() + "(KieSessionId=" + getLazyKieSessionId() + ")";
     }
 }

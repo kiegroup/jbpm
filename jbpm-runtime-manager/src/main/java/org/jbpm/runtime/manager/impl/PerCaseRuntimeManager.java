@@ -133,6 +133,7 @@ public class PerCaseRuntimeManager extends AbstractRuntimeManager {
             InternalTaskService internalTaskService = newTaskService(taskServiceFactory);
             runtime = new RuntimeEngineImpl(context, internalTaskService);
             ((RuntimeEngineImpl) runtime).setManager(this);
+            configureRuntimeOnTaskService(internalTaskService, runtime);
             KieSession ksession = initPerCaseKSession(ksessionId, context, this, runtime);
             ksessionId = ksession.getIdentifier();
         } else {
@@ -161,6 +162,11 @@ public class PerCaseRuntimeManager extends AbstractRuntimeManager {
 
         public PerCaseInitializer(Long kieSessionId) {
             this.kieSessionId = kieSessionId;
+        }
+
+        @Override
+        public Long getKieSessionId() {
+            return kieSessionId;
         }
 
         @Override
@@ -298,26 +304,35 @@ public class PerCaseRuntimeManager extends AbstractRuntimeManager {
             logger.warn("Runtime manager {} is already closed", identifier);
             return;
         }
-        Long ksessionId = ((RuntimeEngineImpl)runtime).getKieSessionId();
+        // the init might not be init so we rely on the lazy kie session id
+        Long ksessionId = ((RuntimeEngineImpl) runtime).getLazyKieSessionId();
+        logger.debug("Trying to dispose for KieSessionId {} (Kie session id cannot be null at this point)", ksessionId);
         try {
             if (canDispose(runtime)) {
                 removeLocalRuntime(runtime);
+                logger.debug("About to release and clean runtime engine {}", runtime);
                 releaseAndCleanLock(ksessionId, runtime);
                 if (runtime instanceof Disposable) {
                     // special handling for in memory to not allow to dispose if there is any context in the mapper
                     if (mapper instanceof InMemoryMapper && ((InMemoryMapper) mapper).hasContext(ksessionId)) {
                         return;
                     }
+                    logger.debug("Calling dispose engine {}", runtime);
                     ((Disposable) runtime).dispose();
                 }
                 if (ksessionId != null) {
                     TimerService timerService = TimerServiceRegistry.getInstance().get(getIdentifier() + TimerServiceRegistry.TIMER_SERVICE_SUFFIX);
                     if (timerService != null) {
                         if (timerService instanceof GlobalTimerService) {
+                            logger.debug("About to clear timer job instances for engine {}", runtime);
                             ((GlobalTimerService) timerService).clearTimerJobInstances(ksessionId);
                         }
+                    } else {
+                        logger.debug("Not timer service found for engine {}. Cannot clean up timer jobs", runtime);
                     }
-                }
+                } 
+            } else {
+                logger.debug("Cannot dispose the engine {}", runtime);
             }
         } catch (Exception e) {
             releaseAndCleanLock(ksessionId, runtime);
