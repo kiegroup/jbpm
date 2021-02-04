@@ -293,8 +293,11 @@ public class PerCaseRuntimeManager extends AbstractRuntimeManager {
         }
         Long ksessionId = ((RuntimeEngineImpl)runtime).getKieSessionId();
         try {
+        	logger.debug("disposeRuntimeEngine " + ksessionId);
             if (canDispose(runtime)) {
+            	logger.debug("removeLocalRuntime " + runtime);
                 removeLocalRuntime(runtime);
+                logger.debug("releaseAndCleanLock");
                 releaseAndCleanLock(ksessionId, runtime);
                 if (runtime instanceof Disposable) {
                     // special handling for in memory to not allow to dispose if there is any context in the mapper
@@ -313,7 +316,10 @@ public class PerCaseRuntimeManager extends AbstractRuntimeManager {
                 }
             }
         } catch (Exception e) {
+        	logger.debug(e.getMessage(), e);
+        	logger.debug("releaseAndCleanLock " + ksessionId + " " + runtime);
             releaseAndCleanLock(ksessionId, runtime);
+            logger.debug("removeLocalRuntime");
             removeLocalRuntime(runtime);           
             throw new RuntimeException(e);
         }            

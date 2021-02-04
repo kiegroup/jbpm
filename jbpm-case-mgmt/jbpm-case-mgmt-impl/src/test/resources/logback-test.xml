@@ -19,7 +19,7 @@
   <logger name="org.hibernate.ejb.Ejb3Configuration" level="off" />
   <logger name="org.hibernate.service.jta.platform.internal.JtaPlatformInitiator" level="off" />
 
-  <logger name="org.jbpm.kie.services.impl.store" level="info"/>
+  <logger name="org.jbpm" level="debug"/>
   <logger name="org.dashbuilder.dataprovider.sql.SQLDataSetProvider" level="info"/>
 
   <logger name="org.hibernate.tool.schema.internal.ExceptionHandlerLoggedImpl" level="error" />

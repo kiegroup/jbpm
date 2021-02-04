@@ -188,17 +188,21 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
     }
     
     protected boolean canDispose(RuntimeEngine runtime) {
+    	logger.debug("calling canDispose");
         // avoid duplicated dispose
         if (((RuntimeEngineImpl)runtime).isDisposed()) {
+        	logger.debug("engine disposed");
             return false;
         }
         // if this method was called as part of afterCompletion allow to dispose
         if (((RuntimeEngineImpl)runtime).isAfterCompletion()) {
+        	logger.debug("isAfterCompletion");
             return true;
         }
         try {
             // check tx status to disallow dispose when within active transaction       
             TransactionManager tm = getTransactionManager(((InternalRuntimeEngine) runtime).internalGetKieSession().getEnvironment());
+            logger.debug(tm.getStatus() + "");
             if (tm.getStatus() != TransactionManager.STATUS_NO_TRANSACTION
                     && tm.getStatus() != TransactionManager.STATUS_ROLLEDBACK
                     && tm.getStatus() != TransactionManager.STATUS_COMMITTED) {
@@ -487,9 +491,10 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
     }
     
     protected void releaseAndCleanLock(Long id, RuntimeEngine runtime) {
-
+    	logger.debug("releaseAndCleanLock " + id + " " + runtime);
         if (id != null) {
             ReentrantLock lock = engineLocks.get(id);
+        	logger.debug("releaseAndCleanLock " + lock);
             if (lock != null) {
                 if (!lock.hasQueuedThreads()) {
                     logger.debug("Removing lock {} from list as non is waiting for it by {}", lock, runtime);
