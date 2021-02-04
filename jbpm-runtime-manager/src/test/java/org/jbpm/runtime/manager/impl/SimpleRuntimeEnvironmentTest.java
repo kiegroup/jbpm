@@ -16,10 +16,6 @@
 
 package org.jbpm.runtime.manager.impl;
 
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.*;
-
 import org.drools.core.builder.conf.impl.DecisionTableConfigurationImpl;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,7 +29,14 @@ import org.kie.internal.io.ResourceFactory;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
 
 public class SimpleRuntimeEnvironmentTest {
 
@@ -51,19 +54,19 @@ public class SimpleRuntimeEnvironmentTest {
 
     @Test
     public void addAssetCsvXlsTest() {
-        doNothing().when(this.kbuilder).add(any(Resource.class), any(ResourceType.class), any(ResourceConfiguration.class));
+        doNothing().when(this.kbuilder).add(Mockito.<Resource>any(), Mockito.<ResourceType>any(), Mockito.<ResourceConfiguration>any());
         // This is to verify that 2-argument method is never called
-        doThrow(new IllegalStateException("CSV resource not handled correctly!")).when(this.kbuilder).add(any(Resource.class), any(ResourceType.class));
+        doThrow(new IllegalStateException("CSV resource not handled correctly!")).when(this.kbuilder).add(Mockito.<Resource>any(), Mockito.<ResourceType>any());
         Resource resource = ResourceFactory.newClassPathResource("/data/resource.csv", getClass());
         environment.addAsset(resource, ResourceType.DTABLE);
 
-        doThrow(new IllegalStateException("XLS resource not handled correctly!")).when(this.kbuilder).add(any(Resource.class), any(ResourceType.class));
+        doThrow(new IllegalStateException("XLS resource not handled correctly!")).when(this.kbuilder).add(Mockito.<Resource>any(), Mockito.<ResourceType>any());
         resource = ResourceFactory.newClassPathResource("/data/resource.xls", getClass());
         environment.addAsset(resource, ResourceType.DTABLE);
 
         // control test
-        doThrow(new IllegalStateException("BPMN2 resource not handled correctly!")).when(this.kbuilder).add(any(Resource.class), any(ResourceType.class), any(ResourceConfiguration.class));
-        doNothing().when(this.kbuilder).add(any(Resource.class), any(ResourceType.class));
+        doThrow(new IllegalStateException("BPMN2 resource not handled correctly!")).when(this.kbuilder).add(Mockito.<Resource>any(), Mockito.<ResourceType>any(), Mockito.<ResourceConfiguration>any());
+        doNothing().when(this.kbuilder).add(Mockito.<Resource>any(), Mockito.<ResourceType>any());
 
         resource = ResourceFactory.newClassPathResource("/data/resource.bpmn2", getClass());
         environment.addAsset(resource, ResourceType.BPMN2);
@@ -73,7 +76,7 @@ public class SimpleRuntimeEnvironmentTest {
     public void addAssetCsvXlsReplaceConfigTest() {
         // config preserved
         ArgumentCaptor<ResourceConfiguration> resourceConfigCaptor = ArgumentCaptor.forClass(ResourceConfiguration.class);
-        doThrow(new IllegalStateException("XLS resource not handled correctly!")).when(this.kbuilder).add(any(Resource.class), any(ResourceType.class));
+        doThrow(new IllegalStateException("XLS resource not handled correctly!")).when(this.kbuilder).add(Mockito.<Resource>any(), Mockito.<ResourceType>any());
         Resource resource = ResourceFactory.newClassPathResource("/data/resource.xls", getClass());
         DecisionTableConfigurationImpl config = new DecisionTableConfigurationImpl();
         config.setInputType(DecisionTableInputType.CSV);
@@ -84,7 +87,7 @@ public class SimpleRuntimeEnvironmentTest {
         // do method
         environment.addAsset(resource, ResourceType.DTABLE);
 
-        verify(this.kbuilder).add(any(Resource.class), any(ResourceType.class), resourceConfigCaptor.capture());
+        verify(this.kbuilder).add(Mockito.<Resource>any(), Mockito.<ResourceType>any(), resourceConfigCaptor.capture());
         ResourceConfiguration replacedConfig = resourceConfigCaptor.getValue();
         assertTrue("Not a DecisionTableConfiguration, but a " + replacedConfig.getClass().getSimpleName(),
                 replacedConfig instanceof DecisionTableConfiguration);
@@ -102,6 +105,6 @@ public class SimpleRuntimeEnvironmentTest {
         resource.setConfiguration(config);
 
         environment.addAsset(resource, ResourceType.DTABLE);
-        verify(this.kbuilder).add(any(Resource.class), any(ResourceType.class));
+        verify(this.kbuilder).add(Mockito.<Resource>any(), Mockito.<ResourceType>any());
     }
 }

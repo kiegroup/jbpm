@@ -82,8 +82,6 @@ public class BusinessAdminTasksPreprocessorTest {
         String role2 = "role2";
         String userId = "admin";
 
-        when(userGroupCallback.getGroupsForUser(userId)).thenReturn(Arrays.asList(role1,
-                                                                                  role2));
         when(identityProvider.getName()).thenReturn(userId);
 
         preprocessor.preprocess(dataSetLookup);
