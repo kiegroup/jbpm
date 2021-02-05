@@ -661,6 +661,7 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
         Collection<ProcessInstanceDesc> desc = runtimeDataService.getProcessInstancesByDeploymentId(deploymentUnit.getIdentifier(), Arrays.asList(0,1,2,3,4), new QueryContext());
         List<Long> ids = desc.stream().map(e -> e.getId()).collect(Collectors.toList());
         Long pid = ids.get(0);
+        CountDownLatch latch = new CountDownLatch(1);
 
         Runnable run = new Runnable() {
             public void run() {
@@ -676,6 +677,14 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
                     } finally {
                         manager.disposeRuntimeEngine(engine);
                     }
+                    if (i == 3) {
+                        try {
+                            latch.await();
+                        } catch (InterruptedException e) {
+                            //ignore
+                        }
+                    }
+
                 }
             };
         };
@@ -685,15 +694,18 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
 
         processService.abortProcessInstance(pid);
         logger.info("cancelled");
+
+        latch.countDown();
+
         executor.join();
         EntityManager em = this.emf.createEntityManager();
         List<ContextMappingInfo> contextMappingInfo = em.createQuery("SELECT o FROM ContextMappingInfo o", ContextMappingInfo.class).getResultList();
-        assertEquals(1, contextMappingInfo.size());
         logger.info("ContextMappingInfo found {}", contextMappingInfo.stream().map(ContextMappingInfo::toString).collect(Collectors.toList()));
+        assertEquals(1, contextMappingInfo.size());
 
         List<SessionInfo> sessionsInfo = em.createQuery("SELECT o FROM SessionInfo o", SessionInfo.class).getResultList();
-        assertEquals(1, sessionsInfo.size());
         logger.info("Sessions found {}", sessionsInfo.stream().map(SessionInfo::getId).collect(Collectors.toList()));
+        assertEquals(1, sessionsInfo.size());
         em.close();
     }
 
@@ -710,7 +722,7 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
         assertEquals(deploymentUnit.getIdentifier(), caseDef.getDeploymentId());
         assertEquals(3, caseDef.getAdHocFragments().size());
         String caseId = caseService.startCase(deploymentUnit.getIdentifier(), USER_TASK_CASE_P_ID, caseFile);
-        
+
         Collection<ProcessInstanceDesc> desc = runtimeDataService.getProcessInstancesByDeploymentId(deploymentUnit.getIdentifier(), Arrays.asList(0,1,2,3,4), new QueryContext());
         List<Long> ids = desc.stream().map(ProcessInstanceDesc::getId).collect(Collectors.toList());
         Long pid = ids.get(0);
@@ -732,16 +744,16 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
         } finally {
             caseService.cancelCase(caseId);
         }
-        
+
         logger.info("cancelled");
         EntityManager em = this.emf.createEntityManager();
         List<ContextMappingInfo> contextMappingInfo = em.createQuery("SELECT o FROM ContextMappingInfo o", ContextMappingInfo.class).getResultList();
-        assertEquals(1, contextMappingInfo.size());
         logger.info("ContextMappingInfo found {}", contextMappingInfo.stream().map(ContextMappingInfo::toString).collect(Collectors.toList()));
+        assertEquals(1, contextMappingInfo.size());
 
         List<SessionInfo> sessionsInfo = em.createQuery("SELECT o FROM SessionInfo o", SessionInfo.class).getResultList();
-        assertEquals(1, sessionsInfo.size());
         logger.info("Sessions found {}", sessionsInfo.stream().map(SessionInfo::getId).collect(Collectors.toList()));
+        assertEquals(1, sessionsInfo.size());
         em.close();
     }
 
