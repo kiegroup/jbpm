@@ -16,19 +16,25 @@
 
 package org.jbpm.bpmn2.xml;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
 import org.drools.compiler.compiler.xml.XmlDumper;
+import org.jbpm.bpmn2.xml.elements.CatchEventWriter;
 import org.jbpm.workflow.core.Node;
+import org.jbpm.workflow.core.node.CatchNode;
 import org.jbpm.workflow.core.node.StateNode;
 import org.xml.sax.Attributes;
 
 public class StateNodeHandler extends AbstractNodeHandler {
-    
+
+    private CatchEventWriter catchEventWriter = new CatchEventWriter();
+
     protected Node createNode(Attributes attrs) {
         throw new IllegalArgumentException("Reading in should be handled by intermediate catch event handler");
     }
     
-    @SuppressWarnings("unchecked")
-	public Class generateNodeFor() {
+	public Class<StateNode> generateNodeFor() {
         return StateNode.class;
     }
 
@@ -41,6 +47,20 @@ public class StateNodeHandler extends AbstractNodeHandler {
 		xmlDump.append("      <conditionalEventDefinition>" + EOL);
         xmlDump.append("        <condition xsi:type=\"tFormalExpression\" language=\"" + XmlBPMNProcessDumper.RULE_LANGUAGE + "\">" + XmlDumper.replaceIllegalChars(condition) + "</condition>" + EOL);
         xmlDump.append("      </conditionalEventDefinition>" + EOL);
+        try(ByteArrayOutputStream stream = new ByteArrayOutputStream()) {
+            catchEventWriter.write(stream, ((CatchNode) node).getOutDataAssociation());
+            xmlDump.append(stream.toString());
+        } catch(IOException e) {
+            logger.info("Could not write catch event data");
+        }
+
+        try(ByteArrayOutputStream stream = new ByteArrayOutputStream()) {
+            catchEventWriter.write(stream, ((CatchNode) node).getOutDataAssociation());
+            xmlDump.append(stream.toString());
+        } catch(IOException e) {
+            logger.info("Could not write catch event data");
+        }
+
 		endNode("intermediateCatchEvent", xmlDump);
 	}
 

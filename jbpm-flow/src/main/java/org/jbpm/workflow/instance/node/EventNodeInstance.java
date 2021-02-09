@@ -17,13 +17,13 @@
 package org.jbpm.workflow.instance.node;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 
 import org.jbpm.process.core.context.variable.VariableScope;
-import org.jbpm.process.core.event.EventTransformer;
 import org.jbpm.process.instance.InternalProcessRuntime;
 import org.jbpm.process.instance.ProcessInstance;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
@@ -54,24 +54,9 @@ public class EventNodeInstance extends ExtendedNodeInstanceImpl implements Event
                 handleSLAViolation();        
             }
         } else if (("slaViolation:" + getId()).equals(type)) {
-                           
-            handleSLAViolation();        
-           
+            handleSLAViolation();
         } else {
-            String variableName = getEventNode().getVariableName();
-        	if (variableName != null) {
-        		VariableScopeInstance variableScopeInstance = (VariableScopeInstance)
-        			resolveContextInstance(VariableScope.VARIABLE_SCOPE, variableName);
-        		if (variableScopeInstance == null) {
-        			throw new IllegalArgumentException(
-    					"Could not find variable for event node: " + variableName);
-        		}
-        		EventTransformer transformer = getEventNode().getEventTransformer();
-        		if (transformer != null) {
-        			event = transformer.transformEvent(event);
-        		}
-        		variableScopeInstance.setVariable(variableName, event);
-        	}
+            mapOutputSetVariables(this, ((EventNode) getNode()).getOutDataAssociation(), Collections.singletonMap("event", event));
         	triggerCompleted(type, event);
         }
     }

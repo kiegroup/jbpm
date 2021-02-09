@@ -23,6 +23,8 @@ import java.util.Map;
 import org.drools.core.xml.ExtensibleXmlParser;
 import org.jbpm.bpmn2.core.IntermediateLink;
 import org.jbpm.bpmn2.core.Message;
+import org.jbpm.bpmn2.xml.elements.CatchEventReader;
+import org.jbpm.bpmn2.xml.elements.CatchEventWriter;
 import org.jbpm.compiler.xml.ProcessBuildData;
 import org.jbpm.process.core.event.EventFilter;
 import org.jbpm.process.core.event.EventTransformerImpl;
@@ -33,6 +35,7 @@ import org.jbpm.ruleflow.core.RuleFlowProcess;
 import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.core.NodeContainer;
 import org.jbpm.workflow.core.node.CatchLinkNode;
+import org.jbpm.workflow.core.node.CatchNode;
 import org.jbpm.workflow.core.node.CompositeNode;
 import org.jbpm.workflow.core.node.EventNode;
 import org.jbpm.workflow.core.node.StateNode;
@@ -46,16 +49,17 @@ import org.xml.sax.SAXException;
 
 public class IntermediateCatchEventHandler extends AbstractNodeHandler {
 
-	private DataTransformerRegistry transformerRegistry = DataTransformerRegistry.get();
-
     public static final String LINK_NAME = "LinkName";
 
-    protected Node createNode(Attributes attrs) {
+    private CatchEventReader catchEventReader = new CatchEventReader();
+
+    private CatchEventWriter catchEventWriter = new CatchEventWriter();
+
+    protected EventNode createNode(Attributes attrs) {
         return new EventNode();
     }
 
-    @SuppressWarnings("unchecked")
-    public Class generateNodeFor() {
+    public Class<EventNode> generateNodeFor() {
         return EventNode.class;
     }
 
@@ -63,8 +67,8 @@ public class IntermediateCatchEventHandler extends AbstractNodeHandler {
             final ExtensibleXmlParser parser) throws SAXException {
         final Element element = parser.endElementBuilder();
         Node node = (Node) parser.getCurrent();
+
         // determine type of event definition, so the correct type of node
-        // can be generated
         org.w3c.dom.Node xmlNode = element.getFirstChild();
         while (xmlNode != null) {
             String nodeName = xmlNode.getNodeName();
@@ -81,8 +85,7 @@ public class IntermediateCatchEventHandler extends AbstractNodeHandler {
                 TimerNode timerNode = new TimerNode();
                 timerNode.setId(node.getId());
                 timerNode.setName(node.getName());
-                timerNode.setMetaData("UniqueId",
-                        node.getMetaData().get("UniqueId"));
+                timerNode.setMetaData("UniqueId", node.getMetaData().get("UniqueId"));
                 node = timerNode;
                 handleTimerNode(node, element, uri, localName, parser);
                 break;
@@ -91,8 +94,7 @@ public class IntermediateCatchEventHandler extends AbstractNodeHandler {
                 StateNode stateNode = new StateNode();
                 stateNode.setId(node.getId());
                 stateNode.setName(node.getName());
-                stateNode.setMetaData("UniqueId",
-                        node.getMetaData().get("UniqueId"));
+                stateNode.setMetaData("UniqueId", node.getMetaData().get("UniqueId"));
                 node = stateNode;
                 handleStateNode(node, element, uri, localName, parser);
                 break;
@@ -105,6 +107,12 @@ public class IntermediateCatchEventHandler extends AbstractNodeHandler {
             }
             xmlNode = xmlNode.getNextSibling();
         }
+
+        // read mappings first
+        CatchNode catchNode = (CatchNode) node;
+        catchEventReader.read(element).forEach(outDataAssocation -> catchNode.addOutDataAssociation(outDataAssocation));
+
+
         NodeContainer nodeContainer = (NodeContainer) parser.getParent();
         nodeContainer.addNode(node);
         ((ProcessBuildData) parser.getData()).addNode(node);
@@ -147,8 +155,7 @@ public class IntermediateCatchEventHandler extends AbstractNodeHandler {
 
         if (nodeContainer instanceof RuleFlowProcess) {
             RuleFlowProcess process = (RuleFlowProcess) nodeContainer;
-            List<IntermediateLink> links = (List<IntermediateLink>) process
-                    .getMetaData().get(ProcessHandler.LINKS);
+            List<IntermediateLink> links = (List<IntermediateLink>) process.getMetaData().get(ProcessHandler.LINKS);
             if (null == links) {
                 links = new ArrayList<IntermediateLink>();
             }
@@ -156,8 +163,7 @@ public class IntermediateCatchEventHandler extends AbstractNodeHandler {
             process.setMetaData(ProcessHandler.LINKS, links);
         } else if (nodeContainer instanceof CompositeNode) {
             CompositeNode subprocess = (CompositeNode) nodeContainer;
-            List<IntermediateLink> links = (List<IntermediateLink>) subprocess
-                    .getMetaData().get(ProcessHandler.LINKS);
+            List<IntermediateLink> links = (List<IntermediateLink>) subprocess.getMetaData().get(ProcessHandler.LINKS);
             if (null == links) {
                 links = new ArrayList<IntermediateLink>();
             }
@@ -166,22 +172,16 @@ public class IntermediateCatchEventHandler extends AbstractNodeHandler {
         }
     }
 
-    @SuppressWarnings("unchecked")
 	protected void handleSignalNode(final Node node, final Element element,
             final String uri, final String localName,
             final ExtensibleXmlParser parser) throws SAXException {
         super.handleNode(node, element, uri, localName, parser);
         EventNode eventNode = (EventNode) node;
+
         org.w3c.dom.Node xmlNode = element.getFirstChild();
         while (xmlNode != null) {
             String nodeName = xmlNode.getNodeName();
-            if ("dataOutput".equals(nodeName)) {
-                String id = ((Element) xmlNode).getAttribute("id");
-                String outputName = ((Element) xmlNode).getAttribute("name");
-                dataOutputs.put(id, outputName);
-            }  else if ("dataOutputAssociation".equals(nodeName)) {
-                readDataOutputAssociation(xmlNode, eventNode);
-            } else if ("signalEventDefinition".equals(nodeName)) {
+            if ("signalEventDefinition".equals(nodeName)) {
                 String type = ((Element) xmlNode).getAttribute("signalRef");
                 if (type != null && type.trim().length() > 0) {
 
@@ -204,16 +204,11 @@ public class IntermediateCatchEventHandler extends AbstractNodeHandler {
             final ExtensibleXmlParser parser) throws SAXException {
         super.handleNode(node, element, uri, localName, parser);
         EventNode eventNode = (EventNode) node;
+
         org.w3c.dom.Node xmlNode = element.getFirstChild();
         while (xmlNode != null) {
             String nodeName = xmlNode.getNodeName();
-            if ("dataOutput".equals(nodeName)) {
-                String id = ((Element) xmlNode).getAttribute("id");
-                String outputName = ((Element) xmlNode).getAttribute("name");
-                dataOutputs.put(id, outputName);
-            } else if ("dataOutputAssociation".equals(nodeName)) {
-                readDataOutputAssociation(xmlNode, eventNode);
-            } else if ("messageEventDefinition".equals(nodeName)) {
+            if ("messageEventDefinition".equals(nodeName)) {
                 String messageRef = ((Element) xmlNode)
                         .getAttribute("messageRef");
                 Map<String, Message> messages = (Map<String, Message>) ((ProcessBuildData) parser
@@ -305,31 +300,7 @@ public class IntermediateCatchEventHandler extends AbstractNodeHandler {
         }
     }
 
-    protected void readDataOutputAssociation(org.w3c.dom.Node xmlNode,
-            EventNode eventNode) {
-        // sourceRef
-        org.w3c.dom.Node subNode = xmlNode.getFirstChild();
-        String from = subNode.getTextContent();
-        // targetRef
-        subNode = subNode.getNextSibling();
-        String to = subNode.getTextContent();
-        eventNode.setVariableName(to);
-        // transformation
-  		Transformation transformation = null;
-  		subNode = subNode.getNextSibling();
-  		if (subNode != null && "transformation".equals(subNode.getNodeName())) {
-  			String lang = subNode.getAttributes().getNamedItem("language").getNodeValue();
-  			String expression = subNode.getTextContent();
-  			DataTransformer transformer = transformerRegistry.find(lang);
-  			if (transformer == null) {
-  				throw new IllegalArgumentException("No transformer registered for language " + lang);
-  			}
-  			transformation = new Transformation(lang, expression, dataOutputs.get(from));
-  			eventNode.setMetaData("Transformation", transformation);
 
-  			eventNode.setEventTransformer(new EventTransformerImpl(transformation));
-  		}
-    }
 
     public void writeNode(Node node, StringBuilder xmlDump, int metaDataType) {
         throw new IllegalArgumentException(

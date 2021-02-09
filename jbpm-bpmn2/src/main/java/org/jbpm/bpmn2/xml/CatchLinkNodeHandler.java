@@ -16,15 +16,21 @@
 
 package org.jbpm.bpmn2.xml;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
 import org.drools.core.xml.Handler;
+import org.jbpm.bpmn2.xml.elements.CatchEventWriter;
 import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.core.node.CatchLinkNode;
+import org.jbpm.workflow.core.node.CatchNode;
 import org.xml.sax.Attributes;
 
-public class CatchLinkNodeHandler extends AbstractNodeHandler implements
-		Handler {
+public class CatchLinkNodeHandler extends AbstractNodeHandler implements Handler {
+    
+    private CatchEventWriter catchEventWriter = new CatchEventWriter();
 
-	public Class<?> generateNodeFor() {
+	public Class<CatchLinkNode> generateNodeFor() {
 		return CatchLinkNode.class;
 	}
 
@@ -51,6 +57,14 @@ public class CatchLinkNodeHandler extends AbstractNodeHandler implements
 			xmlDump.append(String.format("<target>%s</target>", target) + EOL);
 		}
 		xmlDump.append("</linkEventDefinition>" + EOL);
+
+        try(ByteArrayOutputStream stream = new ByteArrayOutputStream()) {
+            catchEventWriter.write(stream, ((CatchNode) node).getOutDataAssociation());
+            xmlDump.append(stream.toString());
+        } catch(IOException e) {
+            logger.info("Could not write catch event data");
+        }
+
 		endNode("intermediateCatchEvent", xmlDump);
 
 	}

@@ -30,8 +30,7 @@ public class CatchLinkNodeInstance extends NodeInstanceImpl {
 	}
 
 	public void triggerCompleted() {
-		this.triggerCompleted(
-				org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE, true);
+		this.triggerCompleted(org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE, true);
 	}
 
 }

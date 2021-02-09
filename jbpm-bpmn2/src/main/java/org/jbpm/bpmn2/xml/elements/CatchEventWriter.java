@@ -18,6 +18,10 @@ public class CatchEventWriter implements ElementWriter<List<DataAssociation>>{
     
     @Override
     public void write(OutputStream os, List<DataAssociation> dataAssociations) throws IOException {
+        if(dataAssociations == null || dataAssociations.isEmpty()) {
+            return;
+        }
+
         Set<String> processed = new TreeSet<>();
         for(DataAssociation dataAssociation : dataAssociations) {
             for(String source : dataAssociation.getSources()) {

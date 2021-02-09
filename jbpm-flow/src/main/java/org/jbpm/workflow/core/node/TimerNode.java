@@ -16,19 +16,24 @@
 
 package org.jbpm.workflow.core.node;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.jbpm.process.core.timer.Timer;
 import org.jbpm.workflow.core.impl.ExtendedNodeImpl;
 import org.kie.api.definition.process.Connection;
 import org.kie.api.definition.process.NodeType;
 
-public class TimerNode extends ExtendedNodeImpl {
+public class TimerNode extends ExtendedNodeImpl implements CatchNode {
 
     private static final long serialVersionUID = 510l;
     
     private Timer timer;
-    
+    private List<DataAssociation> dataAssociations;
+
     public TimerNode() {
         super(NodeType.TIMER);
+        dataAssociations = new ArrayList<>();
     }
 
     public void setTimer(Timer timer) {
@@ -66,5 +71,14 @@ public class TimerNode extends ExtendedNodeImpl {
                     + "] cannot have more than one outgoing connection!");
         }
     }
-    
+
+    @Override
+    public List<DataAssociation> getOutDataAssociation() {
+        return dataAssociations;
+    }
+
+    @Override
+    public void addOutDataAssociation(DataAssociation dataAssociation) {
+        this.dataAssociations.add(dataAssociation);
+    }
 }

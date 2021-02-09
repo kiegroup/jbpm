@@ -16,16 +16,30 @@
 
 package org.jbpm.workflow.core.node;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.jbpm.workflow.core.impl.ExtendedNodeImpl;
 import org.kie.api.definition.process.NodeType;
 
-public class CatchLinkNode extends ExtendedNodeImpl {
+public class CatchLinkNode extends ExtendedNodeImpl implements CatchNode {
 
 
 	private static final long serialVersionUID = 201105121554L;
+    private List<DataAssociation> dataAssociations;
 
     public CatchLinkNode() {
         super(NodeType.CATCH_LINK);
+        dataAssociations = new ArrayList<>();
     }
 
+    @Override
+    public List<DataAssociation> getOutDataAssociation() {
+        return dataAssociations;
+    }
+
+    @Override
+    public void addOutDataAssociation(DataAssociation dataAssociation) {
+        this.dataAssociations.add(dataAssociation);
+    }
 }

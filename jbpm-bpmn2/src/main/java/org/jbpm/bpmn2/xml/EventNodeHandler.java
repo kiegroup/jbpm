@@ -16,26 +16,26 @@
 
 package org.jbpm.bpmn2.xml;
 
-import java.util.List;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 import org.drools.compiler.compiler.xml.XmlDumper;
-import org.jbpm.bpmn2.core.Definitions;
-import org.jbpm.bpmn2.core.Error;
+import org.jbpm.bpmn2.xml.elements.CatchEventWriter;
 import org.jbpm.process.core.event.EventTypeFilter;
-import org.jbpm.ruleflow.core.RuleFlowProcess;
 import org.jbpm.workflow.core.Node;
+import org.jbpm.workflow.core.node.CatchNode;
 import org.jbpm.workflow.core.node.EventNode;
-import org.kie.api.definition.process.NodeContainer;
 import org.xml.sax.Attributes;
 
 public class EventNodeHandler extends AbstractNodeHandler {
-    
+
+    private CatchEventWriter catchEventWriter = new CatchEventWriter();
+
     protected Node createNode(Attributes attrs) {
         throw new IllegalArgumentException("Reading in should be handled by intermediate catch event handler");
     }
-    
-    @SuppressWarnings("unchecked")
-	public Class generateNodeFor() {
+
+	public Class<EventNode> generateNodeFor() {
         return EventNode.class;
     }
 
@@ -56,6 +56,12 @@ public class EventNodeHandler extends AbstractNodeHandler {
                     xmlDump.append("      <signalEventDefinition signalRef=\"" + XmlBPMNProcessDumper.replaceIllegalCharsAttribute(type) + "\"/>" + EOL);
                 }
     		}
+            try(ByteArrayOutputStream stream = new ByteArrayOutputStream()) {
+                catchEventWriter.write(stream, ((CatchNode) node).getOutDataAssociation());
+                xmlDump.append(stream.toString());
+            } catch(IOException e) {
+                logger.info("Could not write catch event data");
+            }
     		endNode("intermediateCatchEvent", xmlDump);
 		} else {
 		    String type = ((EventTypeFilter) eventNode.getEventFilters().get(0)).getType();

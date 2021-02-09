@@ -16,7 +16,9 @@
 
 package org.jbpm.workflow.core.node;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.jbpm.workflow.core.Constraint;
@@ -24,11 +26,13 @@ import org.jbpm.workflow.core.impl.ConnectionRef;
 import org.kie.api.definition.process.Connection;
 import org.kie.api.definition.process.NodeType;
 
-public class StateNode extends CompositeContextNode implements Constrainable {
+public class StateNode extends CompositeContextNode implements Constrainable, CatchNode {
 
 	private static final long serialVersionUID = 510l;
 	
     private Map<ConnectionRef, Constraint> constraints = new HashMap<ConnectionRef, Constraint>();
+
+    private List<DataAssociation> dataAssociations;
    
     public void setConstraints(Map<ConnectionRef, Constraint> constraints) {
         this.constraints = constraints;
@@ -36,6 +40,17 @@ public class StateNode extends CompositeContextNode implements Constrainable {
 
     public StateNode() {
         super(NodeType.CONDITIONAL);
+        dataAssociations = new ArrayList<>();
+    }
+
+    @Override
+    public List<DataAssociation> getOutDataAssociation() {
+        return dataAssociations;
+    }
+
+    @Override
+    public void addOutDataAssociation(DataAssociation dataAssociation) {
+        this.dataAssociations.add(dataAssociation);
     }
 
     public void setConstraint(final Connection connection, final Constraint constraint) {

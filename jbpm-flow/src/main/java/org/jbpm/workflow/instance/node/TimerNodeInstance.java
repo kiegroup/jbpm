@@ -16,6 +16,8 @@
 
 package org.jbpm.workflow.instance.node;
 
+import java.util.Collections;
+
 import org.drools.core.common.InternalKnowledgeRuntime;
 import org.jbpm.process.core.timer.BusinessCalendar;
 import org.jbpm.process.core.timer.Timer;
@@ -93,6 +95,7 @@ public class TimerNodeInstance extends StateBasedNodeInstance implements EventLi
     	if ("timerTriggered".equals(type)) {
     		TimerInstance timer = (TimerInstance) event;
             if (timer.getId() == timerId) {
+                mapOutputSetVariables(this, getTimerNode().getOutDataAssociation(), Collections.singletonMap("event", event));
                 triggerCompleted(timer.getPeriod() == 0);
             }
     	}
@@ -103,6 +106,7 @@ public class TimerNodeInstance extends StateBasedNodeInstance implements EventLi
     }
     
     public void triggerCompleted(boolean remove) {
+
         triggerCompleted(org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE, remove);
     }
     

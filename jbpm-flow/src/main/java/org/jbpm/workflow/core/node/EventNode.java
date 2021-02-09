@@ -26,7 +26,7 @@ import org.jbpm.workflow.core.impl.ExtendedNodeImpl;
 import org.kie.api.definition.process.Connection;
 import org.kie.api.definition.process.NodeType;
 
-public class EventNode extends ExtendedNodeImpl implements EventNodeInterface {
+public class EventNode extends ExtendedNodeImpl implements EventNodeInterface, CatchNode {
 
 	private static final long serialVersionUID = 510l;
 	
@@ -35,12 +35,25 @@ public class EventNode extends ExtendedNodeImpl implements EventNodeInterface {
 	private String variableName;
     private String scope;
 
+    private List<DataAssociation> dataAssociations;
+
     public EventNode() {
-        super(NodeType.CATCH_EVENT);
+        this(NodeType.CATCH_EVENT);
     }
 
     protected EventNode(NodeType nodeType) {
         super(nodeType);
+        dataAssociations = new ArrayList<>();
+    }
+
+    @Override
+    public List<DataAssociation> getOutDataAssociation() {
+        return dataAssociations;
+    }
+
+    @Override
+    public void addOutDataAssociation(DataAssociation dataAssociation) {
+        this.dataAssociations.add(dataAssociation);
     }
 
 	public String getVariableName() {
