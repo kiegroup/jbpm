@@ -18,20 +18,26 @@ package org.jbpm.workflow.instance.impl;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.BiConsumer;
 
 import org.drools.core.common.InternalKnowledgeRuntime;
 import org.drools.core.spi.ProcessContext;
+import org.drools.mvel.MVELSafeHelper;
 import org.jbpm.process.core.Context;
 import org.jbpm.process.core.ContextContainer;
 import org.jbpm.process.core.context.exception.ExceptionScope;
 import org.jbpm.process.core.context.exclusive.ExclusiveGroup;
+import org.jbpm.process.core.context.variable.Variable;
 import org.jbpm.process.core.context.variable.VariableScope;
+import org.jbpm.process.core.datatype.DataType;
+import org.jbpm.process.core.impl.DataTransformerRegistry;
 import org.jbpm.process.instance.ContextInstance;
 import org.jbpm.process.instance.ContextInstanceContainer;
 import org.jbpm.process.instance.InternalProcessRuntime;
@@ -40,9 +46,13 @@ import org.jbpm.process.instance.context.exception.ExceptionScopeInstance;
 import org.jbpm.process.instance.context.exclusive.ExclusiveGroupInstance;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
 import org.jbpm.process.instance.impl.Action;
+import org.jbpm.process.instance.impl.AssignmentAction;
 import org.jbpm.process.instance.impl.ConstraintEvaluator;
 import org.jbpm.process.instance.impl.NoOpExecutionErrorHandler;
 import org.jbpm.workflow.core.impl.NodeImpl;
+import org.jbpm.workflow.core.node.Assignment;
+import org.jbpm.workflow.core.node.DataAssociation;
+import org.jbpm.workflow.core.node.Transformation;
 import org.jbpm.workflow.instance.WorkflowProcessInstance;
 import org.jbpm.workflow.instance.WorkflowRuntimeException;
 import org.jbpm.workflow.instance.node.ActionNodeInstance;
@@ -50,6 +60,7 @@ import org.jbpm.workflow.instance.node.CompositeNodeInstance;
 import org.kie.api.definition.process.Connection;
 import org.kie.api.definition.process.Node;
 import org.kie.api.runtime.EnvironmentName;
+import org.kie.api.runtime.process.DataTransformer;
 import org.kie.api.runtime.process.NodeInstance;
 import org.kie.api.runtime.process.NodeInstanceContainer;
 import org.kie.internal.runtime.error.ExecutionErrorHandler;
@@ -179,8 +190,12 @@ public abstract class NodeInstanceImpl implements org.jbpm.workflow.instance.Nod
                     .getProcessEventSupport().fireAfterNodeLeft(this, kruntime);
         }
     }
-    
     public final void trigger(NodeInstance from, String type) {
+        trigger(from, type, Collections.emptyMap());
+    }
+
+
+    public final void trigger(NodeInstance from, String type, Map<String, Object> data) {
     	boolean hidden = false;
     	if (getNode().getMetaData().get("hidden") != null) {
     		hidden = true;
@@ -203,7 +218,7 @@ public abstract class NodeInstanceImpl implements org.jbpm.workflow.instance.Nod
     	}
         try {
             getExecutionErrorHandler().processing(this);
-            internalTrigger(from, type);
+            internalTrigger(from, type, data);
         }
         catch (WorkflowRuntimeException e) {
             throw e;
@@ -216,9 +231,14 @@ public abstract class NodeInstanceImpl implements org.jbpm.workflow.instance.Nod
         		.getProcessEventSupport().fireAfterNodeTriggered(this, kruntime);
         }
     }
-    
-    public abstract void internalTrigger(NodeInstance from, String type);
-   
+
+    public void internalTrigger(NodeInstance from, String type) {
+        
+    }
+
+    public void internalTrigger(NodeInstance from, String type, Map<String, Object> data) {
+        internalTrigger(from, type);
+    }
     /**
      * This method is used in both instances of the {@link ExtendedNodeInstanceImpl}
      * and {@link ActionNodeInstance} instances in order to handle 
@@ -610,5 +630,81 @@ public abstract class NodeInstanceImpl implements org.jbpm.workflow.instance.Nod
     public void setAborted(boolean aborted) {
         this.aborted = aborted;
         this.cancelType = aborted ? ABORTED : null;
+    }
+
+    protected void mapOutputSetVariables(NodeInstance nodeInstance, List<DataAssociation> dataOututAssoctiation, Map<String, Object> ouputData) {
+        this.mapOutputSetVariables(nodeInstance, dataOututAssoctiation, ouputData, (target, value) -> {});
+    }
+    protected void mapOutputSetVariables(NodeInstance nodeInstance, List<DataAssociation> dataOututAssoctiation, Map<String, Object> ouputData, BiConsumer<String, Object> parameterSet) {
+        for (Iterator<DataAssociation> iterator = dataOututAssoctiation.iterator(); iterator.hasNext();) {
+            DataAssociation association = iterator.next();
+            if (association.getTransformation() != null) {
+                Transformation transformation = association.getTransformation();
+                DataTransformer transformer = DataTransformerRegistry.get().find(transformation.getLanguage());
+                if (transformer != null) {
+                    Object parameterValue = transformer.transform(transformation.getCompiledExpression(), ouputData);
+                    VariableScopeInstance variableScopeInstance = (VariableScopeInstance) resolveContextInstance(VariableScope.VARIABLE_SCOPE, association.getTarget());
+                    if (variableScopeInstance != null && parameterValue != null) {
+
+                        variableScopeInstance.getVariableScope().validateVariable(getProcessInstance().getProcessName(), association.getTarget(), parameterValue);
+
+                        variableScopeInstance.setVariable(association.getTarget(), parameterValue);
+                    } else {
+                        logger.warn("Could not find variable scope for variable {}", association.getTarget());
+                        logger.warn("when trying to complete NodeInstance {}", nodeInstance.getNodeName());
+                        logger.warn("Continuing without setting variable.");
+                    }
+                    if (parameterValue != null) {
+                        parameterSet.accept(association.getTarget(), parameterValue);
+                    }
+                }
+            } else if (association.getAssignments() == null || association.getAssignments().isEmpty()) {
+                VariableScopeInstance variableScopeInstance = (VariableScopeInstance) resolveContextInstance(VariableScope.VARIABLE_SCOPE, association.getTarget());
+                if (variableScopeInstance != null) {
+                    Object value = ouputData.get(association.getSources().get(0));
+                    if (value == null) {
+                        try {
+                            value = MVELSafeHelper.getEvaluator().eval(association.getSources().get(0), new MapResolverFactory(ouputData));
+                        } catch (Throwable t) {
+                            // do nothing
+                        }
+                    }
+                    Variable varDef = variableScopeInstance.getVariableScope().findVariable(association.getTarget());
+                    DataType dataType = varDef.getType();
+                    // exclude java.lang.Object as it is considered unknown type
+                    if (!dataType.getStringType().endsWith("java.lang.Object") &&
+                        !dataType.getStringType().endsWith("Object") && value instanceof String) {
+                        value = dataType.readValue((String) value);
+                    } else {
+                        variableScopeInstance.getVariableScope().validateVariable(getProcessInstance().getProcessName(), association.getTarget(), value);
+                    }
+                    variableScopeInstance.setVariable(association.getTarget(), value);
+                } else {
+                    logger.warn("Could not find variable scope for variable {}", association.getTarget());
+                    logger.warn("when trying to complete Work Item {}",nodeInstance.getNodeName());
+                    logger.warn("Continuing without setting variable.");
+                }
+
+            } else {
+                try {
+                    for (Iterator<Assignment> it = association.getAssignments().iterator(); it.hasNext();) {
+                        handleAssignment(it.next());
+                    }
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+    }
+    
+    protected void handleAssignment(Assignment assignment) {
+        AssignmentAction action = (AssignmentAction) assignment.getMetaData("Action");
+        try {
+            ProcessContext context = new ProcessContext(getProcessInstance().getKnowledgeRuntime());
+            context.setNodeInstance(this);
+            action.execute(this, context);
+        } catch (Exception e) {
+            throw new RuntimeException("unable to execute Assignment", e);
+        }
     }
 }

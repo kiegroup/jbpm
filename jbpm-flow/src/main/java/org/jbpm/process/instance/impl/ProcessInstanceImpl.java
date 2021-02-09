@@ -18,6 +18,7 @@ package org.jbpm.process.instance.impl;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -240,17 +241,22 @@ public abstract class ProcessInstanceImpl implements ProcessInstance, Serializab
     }
     
     public void start(String trigger) {
-    	synchronized (this) {
+        start(trigger, Collections.emptyMap());
+    }
+
+    @Override
+    public void start(String trigger, Map<String, Object> event) {
+        synchronized (this) {
             if ( getState() != ProcessInstanceImpl.STATE_PENDING ) {
                 throw new IllegalArgumentException( "A process instance can only be started once" );
             }
             setState( ProcessInstanceImpl.STATE_ACTIVE );
-            internalStart(trigger);
-		}
+            internalStart(trigger, event);
+        }
     }
-    
-    protected abstract void internalStart(String trigger);
-    
+
+    protected abstract void internalStart(String trigger, Map<String, Object> data);
+
     public void disconnect() {
         ((InternalProcessRuntime) kruntime.getProcessRuntime()).getProcessInstanceManager().internalRemoveProcessInstance(this);
         process = null;

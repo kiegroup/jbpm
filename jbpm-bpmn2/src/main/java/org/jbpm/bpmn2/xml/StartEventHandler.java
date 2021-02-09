@@ -16,6 +16,8 @@
 
 package org.jbpm.bpmn2.xml;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -25,12 +27,12 @@ import org.drools.core.xml.ExtensibleXmlParser;
 import org.jbpm.bpmn2.core.Error;
 import org.jbpm.bpmn2.core.Escalation;
 import org.jbpm.bpmn2.core.Message;
+import org.jbpm.bpmn2.xml.elements.CatchEventReader;
+import org.jbpm.bpmn2.xml.elements.CatchEventWriter;
 import org.jbpm.compiler.xml.ProcessBuildData;
 import org.jbpm.process.core.event.EventFilter;
-import org.jbpm.process.core.event.EventTransformerImpl;
 import org.jbpm.process.core.event.EventTypeFilter;
 import org.jbpm.process.core.event.NonAcceptingEventTypeFilter;
-import org.jbpm.process.core.impl.DataTransformerRegistry;
 import org.jbpm.process.core.timer.Timer;
 import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.core.impl.DroolsConsequenceAction;
@@ -38,9 +40,7 @@ import org.jbpm.workflow.core.node.ConstraintTrigger;
 import org.jbpm.workflow.core.node.EventSubProcessNode;
 import org.jbpm.workflow.core.node.EventTrigger;
 import org.jbpm.workflow.core.node.StartNode;
-import org.jbpm.workflow.core.node.Transformation;
 import org.jbpm.workflow.core.node.Trigger;
-import org.kie.api.runtime.process.DataTransformer;
 import org.w3c.dom.Element;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -48,16 +48,17 @@ import org.xml.sax.SAXParseException;
 
 public class StartEventHandler extends AbstractNodeHandler {
 
-    private DataTransformerRegistry transformerRegistry = DataTransformerRegistry.get();
+    private CatchEventReader catchEventReader = new CatchEventReader();
+
+    private CatchEventWriter catchEventWriter = new CatchEventWriter();
 
     @Override
-    protected Node createNode(Attributes attrs) {
+    protected StartNode createNode(Attributes attrs) {
         return new StartNode();
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public Class generateNodeFor() {
+    public Class<StartNode> generateNodeFor() {
         return StartNode.class;
     }
 
@@ -72,19 +73,17 @@ public class StartEventHandler extends AbstractNodeHandler {
         // The spec says that Escalation start events should default to not interrupting..
         startNode.setInterrupting(Boolean.parseBoolean(element.getAttribute("isInterrupting")));
 
+        // read mappings first
+        catchEventReader.read(element).forEach(outDataAssocation -> startNode.addOutAssociation(outDataAssocation));
+
         org.w3c.dom.Node xmlNode = element.getFirstChild();
         while (xmlNode != null) {
             String nodeName = xmlNode.getNodeName();
-            if ("dataOutput".equals(nodeName)) {
-                readDataOutput(xmlNode);
-            } else if ("dataOutputAssociation".equals(nodeName)) {
-                readDataOutputAssociation(xmlNode, startNode);
-            } else if ("outputSet".equals(nodeName)) {
+            if ("outputSet".equals(nodeName)) {
                 // p. 225, BPMN2 spec (2011-01-03)
                 // InputSet and OutputSet elements imply that process execution should wait for them to be filled
                 // and are therefore not applicable to catch events
-                String message = "Ignoring <" + nodeName + "> element: "
-                        + "<" + nodeName + "> elements should not be used on start or other catch events.";
+                String message = "Ignoring <" + nodeName + "> element: <" + nodeName + "> elements should not be used on start or other catch events.";
                 SAXParseException saxpe = new SAXParseException(message, parser.getLocator());
                 parser.warning(saxpe);
                 // no exception thrown for backwards compatibility (we used to ignore these elements)
@@ -183,12 +182,7 @@ public class StartEventHandler extends AbstractNodeHandler {
         EventTypeFilter eventFilter = new EventTypeFilter();
         eventFilter.setType(triggerEventType);
         trigger.addEventFilter(eventFilter);
-
-        String mapping = (String) startNode.getMetaData("TriggerMapping");
-        if (mapping != null) {
-            trigger.addInMapping(mapping, startNode.getOutMapping(mapping));
-        }
-
+        startNode.getOutAssociations().forEach(dataAssociation -> trigger.addInAssociation(dataAssociation));
         startNode.addTrigger(trigger);
     }
 
@@ -197,48 +191,6 @@ public class StartEventHandler extends AbstractNodeHandler {
         StartNode startNode = (StartNode) super.end(uri, localName, parser);
 
         return startNode;
-    }
-
-    protected void readDataOutputAssociation(org.w3c.dom.Node xmlNode, StartNode startNode) {
-        // sourceRef
-        org.w3c.dom.Node subNode = xmlNode.getFirstChild();
-        if (!"sourceRef".equals(subNode.getNodeName())) {
-            throw new IllegalArgumentException("No sourceRef found in dataOutputAssociation in startEvent");
-        }
-        String source = subNode.getTextContent();
-        if (dataOutputs.get(source) == null) {
-            throw new IllegalArgumentException("No dataOutput could be found for the dataOutputAssociation.");
-        }
-
-        // targetRef
-        subNode = subNode.getNextSibling();
-        if (!"targetRef".equals(subNode.getNodeName())) {
-            throw new IllegalArgumentException("No targetRef found in dataOutputAssociation in startEvent");
-        }
-        String target = subNode.getTextContent();
-        startNode.setMetaData("TriggerMapping", target);
-        // transformation
-        Transformation transformation = null;
-        subNode = subNode.getNextSibling();
-        if (subNode != null && "transformation".equals(subNode.getNodeName())) {
-            String lang = subNode.getAttributes().getNamedItem("language").getNodeValue();
-            String expression = subNode.getTextContent();
-            DataTransformer transformer = transformerRegistry.find(lang);
-            if (transformer == null) {
-                throw new IllegalArgumentException("No transformer registered for language " + lang);
-            }
-            transformation = new Transformation(lang, expression, dataOutputs.get(source));
-            startNode.setMetaData("Transformation", transformation);
-
-            startNode.setEventTransformer(new EventTransformerImpl(transformation));
-            subNode = subNode.getNextSibling();
-        }
-
-        if (subNode != null) {
-            // no support for assignments
-            throw new UnsupportedOperationException(subNode.getNodeName() + " elements in dataOutputAssociations are not yet supported.");
-        }
-        startNode.addOutMapping(target, dataOutputs.get(source));
     }
 
     // The results of this method are only used to check syntax
@@ -261,6 +213,13 @@ public class StartEventHandler extends AbstractNodeHandler {
         xmlDump.append("\">" + EOL);
         writeExtensionElements(startNode, xmlDump);
 
+        try(ByteArrayOutputStream stream = new ByteArrayOutputStream()) {
+            catchEventWriter.write(stream, startNode.getOutAssociations());
+            xmlDump.append(new String(stream.toByteArray()));
+        } catch(IOException e) {
+            logger.warn("Could not write catch event data for this node");
+        }
+
         List<Trigger> triggers = startNode.getTriggers();
         if (triggers != null) {
             if (triggers.size() > 1) {
@@ -277,24 +236,6 @@ public class StartEventHandler extends AbstractNodeHandler {
                 }
             } else if (trigger instanceof EventTrigger) {
                 EventTrigger eventTrigger = (EventTrigger) trigger;
-                String mapping = null;
-                String nameMapping = "event";
-                if (!trigger.getInMappings().isEmpty()) {
-                    mapping = eventTrigger.getInMappings().keySet().iterator().next();
-                    nameMapping = eventTrigger.getInMappings().values().iterator().next();
-                } else {
-                    mapping = (String) startNode.getMetaData("TriggerMapping");
-                }
-
-                if (mapping != null) {
-                    xmlDump.append(
-                            "      <dataOutput id=\"_" + startNode.getId() + "_Output\" name=\"" + nameMapping + "\" />" + EOL +
-                                    "      <dataOutputAssociation>" + EOL +
-                                    "        <sourceRef>_" + startNode.getId() + "_Output</sourceRef>" + EOL +
-                                    "        <targetRef>" + mapping + "</targetRef>" + EOL +
-                                    "      </dataOutputAssociation>" + EOL);
-                }
-
                 String type = ((EventTypeFilter) eventTrigger.getEventFilters().get(0)).getType();
                 if (type.startsWith("Message-")) {
                     type = type.substring(8);

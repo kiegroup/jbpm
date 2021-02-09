@@ -16,10 +16,11 @@
 
 package org.jbpm.bpmn2.xml.elements;
 
+import java.io.IOException;
 import java.io.OutputStream;
 
 public interface ElementWriter<T> {
 
-    void write(OutputStream os, T element);
+    void write(OutputStream os, T element) throws IOException ;
 
 }

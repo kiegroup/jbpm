@@ -50,6 +50,8 @@ public interface ProcessInstance extends org.kie.api.runtime.process.ProcessInst
     void start();
     
     void start(String tigger);
+
+    void start(String trigger, Map<String, Object> event);
     
     String getOutcome();
     

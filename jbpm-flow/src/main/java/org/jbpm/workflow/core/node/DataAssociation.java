@@ -19,11 +19,12 @@ package org.jbpm.workflow.core.node;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class DataAssociation implements Serializable {
 
 	private static final long serialVersionUID = 5L;
-	
+	private UUID uuid;
 	private List<String> sources;
 	private String target;
 	private List<Assignment> assignments;
@@ -73,5 +74,13 @@ public class DataAssociation implements Serializable {
 		}
 //		this.transformation = transformation;
 	}
-	
+
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    public void setUUID(UUID uuid) {
+        this.uuid = uuid;
+    }
+
 }

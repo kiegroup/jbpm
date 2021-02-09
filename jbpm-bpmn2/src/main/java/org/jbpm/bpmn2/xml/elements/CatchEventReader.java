@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.jbpm.workflow.core.node.DataAssociation;
 import org.w3c.dom.Element;
@@ -19,7 +20,8 @@ public class CatchEventReader implements ElementReader<List<DataAssociation>> {
 
     @Override
     public List<DataAssociation> read(Node element) {
-        Map<String, String> dataOutputs = new HashMap<String, String>();
+        UUID uuid = UUID.randomUUID();
+        Map<String, String> dataOutputs = new HashMap<>();
         org.w3c.dom.Node xmlNode = element.getFirstChild();
 
         // first round with data outputs
@@ -41,7 +43,9 @@ public class CatchEventReader implements ElementReader<List<DataAssociation>> {
             String nodeName = xmlNode.getNodeName();
             if(ElementConstants.DATA_OUTPUT_ASSOCIATION.equals(nodeName)) {
                 xmlNode.setUserData(ElementConstants.METADATA_DATA_MAPPING, dataOutputs, null);
-                dataAssociations.add(dataAssociationReader.read(xmlNode));
+                DataAssociation dataAssociation = dataAssociationReader.read(xmlNode);
+                dataAssociation.setUUID(uuid);
+                dataAssociations.add(dataAssociation);
                 xmlNode.setUserData(ElementConstants.METADATA_DATA_MAPPING, null, null);
             }
             xmlNode = xmlNode.getNextSibling();

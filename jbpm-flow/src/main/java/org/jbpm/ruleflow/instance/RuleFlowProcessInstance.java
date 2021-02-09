@@ -17,11 +17,12 @@
 package org.jbpm.ruleflow.instance;
 
 import java.util.List;
+import java.util.Map;
 
 import org.jbpm.ruleflow.core.RuleFlowProcess;
 import org.jbpm.workflow.core.node.StartNode;
-import org.jbpm.workflow.instance.NodeInstance;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
+import org.jbpm.workflow.instance.node.StartNodeInstance;
 import org.kie.api.definition.process.Node;
 
 import static java.util.Arrays.stream;
@@ -34,18 +35,17 @@ public class RuleFlowProcessInstance extends WorkflowProcessInstanceImpl {
         return (RuleFlowProcess) getProcess();
     }
 
-    public void internalStart(String trigger) {
+    public void internalStart(String trigger, Map<String, Object> data) {
     	StartNode startNode = getRuleFlowProcess().getStart(trigger);
         if (startNode != null) {
-            ((NodeInstance) getNodeInstance(startNode)).trigger(null, null);
+            ((StartNodeInstance) getNodeInstance(startNode)).trigger(null, null, data);
         } else if (!getRuleFlowProcess().isDynamic()) {
             throw new IllegalArgumentException("There is no start node that matches the trigger " + (trigger == null ? "none" : trigger));
         }
     	
     	// activate ad hoc fragments if they are marked as such
     	List<Node> autoStartNodes = getRuleFlowProcess().getAutoStartNodes();
-    	autoStartNodes
-    	    .forEach(austoStartNode -> signalEvent(austoStartNode.getName(), null));
+    	autoStartNodes.forEach(austoStartNode -> signalEvent(austoStartNode.getName(), null));
     }
 
 
@@ -75,4 +75,5 @@ public class RuleFlowProcessInstance extends WorkflowProcessInstanceImpl {
             this.getNodeInstance(node).trigger(null, org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE);
         }
     }
+
 }

@@ -498,26 +498,28 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 
     @Override
 	public void start(String trigger) {
-		synchronized (this) {
-			this.startDate = new Date();
-			registerExternalEventNodeListeners();
-			// activate timer event sub processes
-	        Node[] nodes = getNodeContainer().getNodes();
-	        for (Node node : nodes) {
-	            if (node instanceof EventSubProcessNode) {
-	                Map<Timer, DroolsAction> timers = ((EventSubProcessNode) node).getTimers();
-	                if (timers != null && !timers.isEmpty()) {
-	                    EventSubProcessNodeInstance eventSubprocess = (EventSubProcessNodeInstance) getNodeInstance(node);
-	                    eventSubprocess.trigger(null, org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE);
-	                }
-	            }
-	        }
-			super.start(trigger);
-						
-		}
+        start(trigger, Collections.emptyMap());
 	}
 
-
+    @Override
+    public void start(String trigger, Map<String, Object> event) {
+        synchronized (this) {
+            this.startDate = new Date();
+            registerExternalEventNodeListeners();
+            // activate timer event sub processes
+            Node[] nodes = getNodeContainer().getNodes();
+            for (Node node : nodes) {
+                if (node instanceof EventSubProcessNode) {
+                    Map<Timer, DroolsAction> timers = ((EventSubProcessNode) node).getTimers();
+                    if (timers != null && !timers.isEmpty()) {
+                        EventSubProcessNodeInstance eventSubprocess = (EventSubProcessNodeInstance) getNodeInstance(node);
+                        eventSubprocess.trigger(null, org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE);
+                    }
+                }
+            }
+            super.start(trigger, event);
+        }
+    }
 
 	public void configureSLA() {
 	    String slaDueDateExpression = (String) getProcess().getMetaData().get("customSLADueDate");

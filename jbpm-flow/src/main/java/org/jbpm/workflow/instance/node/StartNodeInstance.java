@@ -16,9 +16,9 @@
 
 package org.jbpm.workflow.instance.node;
 
-import org.jbpm.process.core.context.variable.VariableScope;
-import org.jbpm.process.core.event.EventTransformer;
-import org.jbpm.process.instance.context.variable.VariableScopeInstance;
+import java.util.Collections;
+import java.util.Map;
+
 import org.jbpm.workflow.core.node.StartNode;
 import org.jbpm.workflow.instance.impl.NodeInstanceImpl;
 import org.kie.api.runtime.process.NodeInstance;
@@ -31,7 +31,7 @@ public class StartNodeInstance extends NodeInstanceImpl {
 
     private static final long serialVersionUID = 510l;
 
-    public void internalTrigger(final NodeInstance from, String type) {
+    public void internalTrigger(final NodeInstance from, String type, Map<String, Object> data) {
         if (type != null) {
             throw new IllegalArgumentException(
                 "A StartNode does not accept incoming connections!");
@@ -40,26 +40,12 @@ public class StartNodeInstance extends NodeInstanceImpl {
             throw new IllegalArgumentException(
                 "A StartNode can only be triggered by the process itself!");
         }
+        mapOutputSetVariables(this, this.getStartNode().getOutAssociations(), data);
         triggerCompleted();
     }
-    
+
     public void signalEvent(String type, Object event) {
-        String variableName = (String) getStartNode().getMetaData("TriggerMapping");
-        if (variableName != null) {
-            VariableScopeInstance variableScopeInstance = (VariableScopeInstance)
-                resolveContextInstance(VariableScope.VARIABLE_SCOPE, variableName);
-            if (variableScopeInstance == null) {
-                throw new IllegalArgumentException(
-                    "Could not find variable for start node: " + variableName);
-            }
-            
-            EventTransformer transformer = getStartNode().getEventTransformer();
-    		if (transformer != null) {
-    			event = transformer.transformEvent(event);
-    		}
-            
-            variableScopeInstance.setVariable(variableName, event);
-        }
+        mapOutputSetVariables(this, this.getStartNode().getOutAssociations(), Collections.singletonMap("event", event));
         triggerCompleted();
     }
     
@@ -71,4 +57,5 @@ public class StartNodeInstance extends NodeInstanceImpl {
         ((org.jbpm.workflow.instance.NodeInstanceContainer)getNodeInstanceContainer()).setCurrentLevel(getLevel());
         triggerCompleted(org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE, true);
     }
+
 }

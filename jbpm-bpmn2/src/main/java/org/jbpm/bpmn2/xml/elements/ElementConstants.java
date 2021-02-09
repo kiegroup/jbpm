@@ -22,6 +22,7 @@ public final class ElementConstants {
     private ElementConstants() {
         // do nothign
     }
+    protected static final String EOL = System.getProperty("line.separator");
 
     // properties
     public static final String USE_DEFINITION_LANGUAGE_PROPERTY = "org.kie.jbpm.bpmn2.useDefinitionLanguage";
