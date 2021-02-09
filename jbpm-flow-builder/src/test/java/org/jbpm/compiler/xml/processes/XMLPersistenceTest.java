@@ -319,7 +319,6 @@ public class XMLPersistenceTest extends XMLTestCase {
         eventNode.setMetaData("y", 2);
         eventNode.setMetaData("width", 3);
         eventNode.setMetaData("height", 4);
-        eventNode.setVariableName("eventVariable");
         EventTypeFilter eventFilter = new EventTypeFilter();
         eventFilter.setType("eventType");
         eventNode.addEventFilter(eventFilter);
