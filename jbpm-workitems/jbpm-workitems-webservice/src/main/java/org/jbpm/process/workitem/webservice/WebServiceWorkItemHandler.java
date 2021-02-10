@@ -16,21 +16,18 @@
 
 package org.jbpm.process.workitem.webservice;
 
-import java.io.File;
 import java.lang.reflect.Array;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 
 import javax.xml.namespace.QName;
 
@@ -548,7 +545,7 @@ public class WebServiceWorkItemHandler extends AbstractLogOrThrowWorkItemHandler
     @SuppressWarnings("squid:S1872")
     private ClassLoader getInternalClassLoader() {
         ClassLoader cl = this.classLoader != null ? classLoader : Thread.currentThread().getContextClassLoader(), parent = cl;
-        Collection<File> uris = new HashSet<>();
+        Collection<URL> uris = new HashSet<>();
         do {
             if (parent.getClass().getSimpleName().equals("ModuleClassLoader")) {
                 try {
@@ -569,68 +566,41 @@ public class WebServiceWorkItemHandler extends AbstractLogOrThrowWorkItemHandler
 
         private URL[] jarUrls;
 
-        public CXFJavaCompileClassLoader(Collection<File> files, ClassLoader parent) {
+        public CXFJavaCompileClassLoader(Collection<URL> files, ClassLoader parent) {
             super(new URL[0], parent);
-            this.jarUrls = files.stream().map(CXFJavaCompileClassLoader::toUrl).toArray(URL[]::new);
+            this.jarUrls = files.toArray(new URL[0]);
         }
 
         @Override
         public URL[] getURLs() {
             return jarUrls;
         }
-
-        private static URL toUrl(File file) {
-            try {
-                return file.toURI().toURL();
-            } catch (MalformedURLException e) {
-                throw new WorkItemHandlerRuntimeException(e, "Problem converting file to URL: " + file);
-            }
-        }
     }
 
-    /* This method makes assumptions over the internal structure of ModuleClassLoader. If this class is changed, this method
-     * will need to change accordingly
+    /* This method uses public methods of ModuleClassLoader through introspection in order to avoid a compile time
+     * dependency with jboss module classes. In the unlikely event these public method signatures are changed, 
+     * this method will need to be changed accordingly
      */
-    @SuppressWarnings({"squid:S3740", "squid:S3011"})
-    private void getJarsFromModuleClassLoader(ClassLoader cl, Collection<File> collector) throws ReflectiveOperationException {
-        AtomicReference<?> paths = (AtomicReference<?>) getFieldValue(cl, "paths");
-        Object sourceList = getFieldValue(paths.get(), "sourceList");
-        int size = Array.getLength(sourceList);
-        Method getVFSResource = null;
-        Method getPhysicalFile = null;
-        Field rootField = null;
-        Field rootNameField = null;
-        for (int i = 0; i < size; i++) {
-            Object resource = Array.get(sourceList, i);
-            if (getVFSResource == null) {
-                getVFSResource = resource.getClass().getDeclaredMethod("getResourceLoader");
-                getVFSResource.setAccessible(true);
-            }
-            resource = getVFSResource.invoke(resource);
-            if (rootField == null) {
-                Class<?> resourceClass = resource.getClass();
-                rootField = resourceClass.getDeclaredField("root");
-                rootNameField = resourceClass.getDeclaredField("rootName");
-                rootField.setAccessible(true);
-                rootNameField.setAccessible(true);
-            }
-            String rootName = (String) rootNameField.get(resource);
-            if (rootName.endsWith("jar")) {
-                Object root = rootField.get(resource);
-                if (getPhysicalFile == null) {
-                    getPhysicalFile = root.getClass().getDeclaredMethod("getPhysicalFile");
-                    getPhysicalFile.setAccessible(true);
-                }
-                collector.add(new File(((File) getPhysicalFile.invoke(root)).getParentFile(), rootName));
+    private void getJarsFromModuleClassLoader(ClassLoader cl,
+                                              Collection<URL> collector) throws ReflectiveOperationException {
+        Iterator<?> iterator = (Iterator<?>) cl.getClass().getMethod("iterateResources", String.class, boolean.class)
+                .invoke(cl, "", true);
+        while (iterator.hasNext()) {
+            Object resource = iterator.next();
+            Class<?> resourceClass = resource.getClass();
+            String name = (String) getMethod(resourceClass, "getName").invoke(resource);
+            if (name.endsWith("jar")) {
+                collector.add((URL) getMethod(resourceClass, "getURL").invoke(resource));
             }
         }
     }
 
+    /* setAccesible call is needed because despite the method being public, the class implementing Resource might not be public*/
     @SuppressWarnings("squid:S3011")
-    private Object getFieldValue(Object container, String fieldName) throws NoSuchFieldException, IllegalAccessException {
-        Field field = container.getClass().getDeclaredField(fieldName);
-        field.setAccessible(true);
-        return field.get(container);
+    private Method getMethod(Class<?> clazz, String methodName) throws NoSuchMethodException {
+        Method m = clazz.getMethod(methodName);
+        m.setAccessible(true);
+        return m;
     }
 
     public ClassLoader getClassLoader() {
