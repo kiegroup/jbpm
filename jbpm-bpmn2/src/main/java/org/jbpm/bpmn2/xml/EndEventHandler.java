@@ -26,19 +26,22 @@ import org.jbpm.bpmn2.core.Escalation;
 import org.jbpm.bpmn2.core.Message;
 import org.jbpm.bpmn2.handler.SendMessageAction;
 import org.jbpm.bpmn2.handler.SendSignalAction;
+import org.jbpm.bpmn2.xml.elements.ThrowEventReader;
 import org.jbpm.compiler.xml.ProcessBuildData;
 import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.core.NodeContainer;
 import org.jbpm.workflow.core.impl.JavaDroolsAction;
+import org.jbpm.workflow.core.node.DataAssociation;
 import org.jbpm.workflow.core.node.EndNode;
 import org.jbpm.workflow.core.node.FaultNode;
+import org.jbpm.workflow.core.node.ThrowNode;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Text;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
 public class EndEventHandler extends AbstractNodeHandler {
+
+    private ThrowEventReader throwEventReader = new ThrowEventReader();
 
     protected Node createNode(Attributes attrs) {
         EndNode node = new EndNode();
@@ -46,8 +49,7 @@ public class EndEventHandler extends AbstractNodeHandler {
         return node;
     }
 
-    @SuppressWarnings("unchecked")
-	public Class generateNodeFor() {
+    public Class<EndNode> generateNodeFor() {
         return EndNode.class;
     }
 
@@ -57,17 +59,32 @@ public class EndEventHandler extends AbstractNodeHandler {
         Node node = (Node) parser.getCurrent();
         // determine type of event definition, so the correct type of node
         // can be generated
+        List<DataAssociation> dataAssocations = throwEventReader.read(element);
+        String varName = null;
+        if(!dataAssocations.isEmpty()) {
+            varName = dataAssocations.get(0).getTarget();
+        }
+
         super.handleNode(node, element, uri, localName, parser);
         org.w3c.dom.Node xmlNode = element.getFirstChild();
         while (xmlNode != null) {
             String nodeName = xmlNode.getNodeName();
             if ("terminateEventDefinition".equals(nodeName)) {
                 // reuse already created EndNode
+                ThrowNode throwNode = (ThrowNode) node;
+                dataAssocations.forEach(dataAssociation -> throwNode.addInDataAssociation(dataAssociation));
+                node.setMetaData("MappingVariable", varName);
                 handleTerminateNode(node, element, uri, localName, parser);
                 break;
             } else if ("signalEventDefinition".equals(nodeName)) {
+                ThrowNode throwNode = (ThrowNode) node;
+                dataAssocations.forEach(dataAssociation -> throwNode.addInDataAssociation(dataAssociation));
+                node.setMetaData("MappingVariable", varName);
                 handleSignalNode(node, element, uri, localName, parser);
             } else if ("messageEventDefinition".equals(nodeName)) {
+                ThrowNode throwNode = (ThrowNode) node;
+                dataAssocations.forEach(dataAssociation -> throwNode.addInDataAssociation(dataAssociation));
+                node.setMetaData("MappingVariable", varName);
                 handleMessageNode(node, element, uri, localName, parser);
             } else if ("errorEventDefinition".equals(nodeName)) {
                 // create new faultNode
@@ -77,6 +94,11 @@ public class EndEventHandler extends AbstractNodeHandler {
                 faultNode.setTerminateParent(true);
                 faultNode.setMetaData("UniqueId", node.getMetaData().get("UniqueId"));
                 node = faultNode;
+                
+                ThrowNode throwNode = (ThrowNode) node;
+                dataAssocations.forEach(dataAssociation -> throwNode.addInDataAssociation(dataAssociation));
+                node.setMetaData("MappingVariable", varName);
+
                 super.handleNode(node, element, uri, localName, parser);
                 handleErrorNode(node, element, uri, localName, parser);
                 break;
@@ -87,6 +109,11 @@ public class EndEventHandler extends AbstractNodeHandler {
                 faultNode.setName(node.getName());
                 faultNode.setMetaData("UniqueId", node.getMetaData().get("UniqueId"));
                 node = faultNode;
+
+                ThrowNode throwNode = (ThrowNode) node;
+                dataAssocations.forEach(dataAssociation -> throwNode.addInDataAssociation(dataAssociation));
+                node.setMetaData("MappingVariable", varName);
+
                 super.handleNode(node, element, uri, localName, parser);
                 handleEscalationNode(node, element, uri, localName, parser);
                 break;
@@ -97,6 +124,7 @@ public class EndEventHandler extends AbstractNodeHandler {
             }
             xmlNode = xmlNode.getNextSibling();
         }
+
         NodeContainer nodeContainer = (NodeContainer) parser.getParent();
         nodeContainer.addNode(node);
         ((ProcessBuildData) parser.getData()).addNode(node);
@@ -130,13 +158,7 @@ public class EndEventHandler extends AbstractNodeHandler {
         org.w3c.dom.Node xmlNode = element.getFirstChild();
         while (xmlNode != null) {
             String nodeName = xmlNode.getNodeName();
-            if ("dataInput".equals(nodeName)) {
-                String id = ((Element) xmlNode).getAttribute("id");
-                String inputName = ((Element) xmlNode).getAttribute("name");
-                dataInputs.put(id, inputName);
-            } else if ("dataInputAssociation".equals(nodeName)) {
-                readEndDataInputAssociation(xmlNode, endNode);
-            } else if ("signalEventDefinition".equals(nodeName)) {
+            if ("signalEventDefinition".equals(nodeName)) {
                 String signalName = ((Element) xmlNode).getAttribute("signalRef");
                 String variable = (String) endNode.getMetaData("MappingVariable");
                 signalName = checkSignalAndConvertToRealSignalNam(parser, signalName, s -> s.addOutgoingNode(node));
@@ -157,9 +179,7 @@ public class EndEventHandler extends AbstractNodeHandler {
         org.w3c.dom.Node xmlNode = element.getFirstChild();
         while (xmlNode != null) {
             String nodeName = xmlNode.getNodeName();
-            if ("dataInputAssociation".equals(nodeName)) {
-                readEndDataInputAssociation(xmlNode, endNode);
-            } else if ("messageEventDefinition".equals(nodeName)) {
+            if ("messageEventDefinition".equals(nodeName)) {
                 String messageRef = ((Element) xmlNode).getAttribute("messageRef");
                 Map<String, Message> messages = (Map<String, Message>)
                     ((ProcessBuildData) parser.getData()).getMetaData("Messages");
@@ -171,56 +191,16 @@ public class EndEventHandler extends AbstractNodeHandler {
                     throw new IllegalArgumentException("Could not find message " + messageRef);
                 }
                 message.addOutgoingNode(node);
-                String varName = (String) endNode.getMetaData("MappingVariable");
+                String varName = (String) node.getMetaData().get("MappingVariable");
+
                 endNode.setMetaData("MessageType", message.getType());
-                endNode.setActions(EndNode.EVENT_NODE_ENTER, Collections.singletonList(new JavaDroolsAction(
-                        new SendMessageAction(varName, message))));
+                endNode.setActions(EndNode.EVENT_NODE_ENTER, Collections.singletonList(new JavaDroolsAction(new SendMessageAction(varName, message))));
             }
             xmlNode = xmlNode.getNextSibling();
         }
     }
 
-    protected void readEndDataInputAssociation(org.w3c.dom.Node xmlNode, EndNode endNode) {
-        // sourceRef
-        org.w3c.dom.Node subNode = xmlNode.getFirstChild();
-        if ("sourceRef".equals(subNode.getNodeName())) {
-            String eventVariable = subNode.getTextContent();
-            if (eventVariable != null && eventVariable.trim().length() > 0) {
-                if (dataInputs.containsKey(eventVariable)) {
-                    eventVariable = dataInputs.get(eventVariable);
-                }
-                
-                endNode.setMetaData("MappingVariable", eventVariable);
-            }
-        } else {
-            // targetRef
-            // assignment
-            subNode = subNode.getNextSibling();
-            if (subNode != null) {
-                org.w3c.dom.Node subSubNode = subNode.getFirstChild();
-                NodeList nl = subSubNode.getChildNodes();
-                if (nl.getLength() > 1) {
-                    endNode.setMetaData("MappingVariable", subSubNode.getTextContent());
-                    return;
-                } else if (nl.getLength() == 0) {
-                    return;
-                }
-                Object result = null;
-                Object from = nl.item(0);
-                if (from instanceof Text) {
-                    String text = ((Text) from).getTextContent();
-                    if (text.startsWith("\"") && text.endsWith("\"")) {
-                        result = text.substring(1, text.length() -1);
-                    } else {
-                        result = text;
-                    }
-                } else {
-                    result = nl.item(0);
-                }
-                endNode.setMetaData("MappingVariable", "\"" + result + "\"");
-            }
-        }
-    }
+
 
     @SuppressWarnings("unchecked")
 	public void handleErrorNode(final Node node, final Element element, final String uri,
@@ -229,9 +209,7 @@ public class EndEventHandler extends AbstractNodeHandler {
         org.w3c.dom.Node xmlNode = element.getFirstChild();
         while (xmlNode != null) {
             String nodeName = xmlNode.getNodeName();
-            if ("dataInputAssociation".equals(nodeName)) {
-                readFaultDataInputAssociation(xmlNode, faultNode);
-            } else if ("errorEventDefinition".equals(nodeName)) {
+            if ("errorEventDefinition".equals(nodeName)) {
                 String errorRef = ((Element) xmlNode).getAttribute("errorRef");
                 if (errorRef != null && errorRef.trim().length() > 0) {
                     List<Error> errors = (List<Error>) ((ProcessBuildData) parser.getData()).getMetaData("Errors");
@@ -263,9 +241,7 @@ public class EndEventHandler extends AbstractNodeHandler {
         org.w3c.dom.Node xmlNode = element.getFirstChild();
         while (xmlNode != null) {
             String nodeName = xmlNode.getNodeName();
-            if ("dataInputAssociation".equals(nodeName)) {
-                readFaultDataInputAssociation(xmlNode, faultNode);
-            } else if ("escalationEventDefinition".equals(nodeName)) {
+            if ("escalationEventDefinition".equals(nodeName)) {
                 String escalationRef = ((Element) xmlNode).getAttribute("escalationRef");
                 if (escalationRef != null && escalationRef.trim().length() > 0) {
                     Map<String, Escalation> escalations = (Map<String, Escalation>)

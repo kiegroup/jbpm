@@ -16,6 +16,9 @@
 
 package org.jbpm.bpmn2.handler;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.drools.core.common.InternalKnowledgeRuntime;
 import org.drools.core.process.instance.WorkItemManager;
 import org.drools.core.process.instance.impl.WorkItemImpl;
@@ -23,7 +26,9 @@ import org.jbpm.process.instance.InternalProcessRuntime;
 import org.jbpm.process.instance.impl.JavaAction;
 import org.jbpm.process.instance.impl.util.VariableUtil;
 import org.jbpm.workflow.core.impl.NodeImpl;
+import org.jbpm.workflow.instance.impl.NodeInstanceImpl;
 import org.kie.api.runtime.manager.RuntimeManager;
+import org.kie.api.runtime.process.NodeInstance;
 import org.kie.api.runtime.process.ProcessContext;
 
 public class SendSignalAction implements JavaAction {
@@ -43,18 +48,21 @@ public class SendSignalAction implements JavaAction {
 
     @Override
     public void execute(ProcessContext kcontext) throws Exception {
-        Object tVariable = VariableResolver.getVariable(kcontext, varName);
+        Map<String, Object> parameters = new HashMap<>();
+        NodeInstance nodeInstance = kcontext.getNodeInstance();
+        ((NodeInstanceImpl) nodeInstance).mapInputSetVariables((target,value) -> parameters.put(target, value));
+        Object tVariable = parameters.get(varName);
+
         ((InternalProcessRuntime) ((InternalKnowledgeRuntime) kcontext.getKieRuntime()).getProcessRuntime())
                 .getProcessEventSupport().fireOnSignal(kcontext.getProcessInstance(), kcontext.getNodeInstance(),
                         kcontext.getKieRuntime(), signalName, tVariable);
+
         String scope = (String) node.getMetaData("customScope");
-        String signalType = VariableUtil.resolveVariable(isAsync ? "ASYNC-" + signalName : signalName, kcontext
-                .getNodeInstance());
+        String signalType = VariableUtil.resolveVariable(isAsync ? "ASYNC-" + signalName : signalName, kcontext.getNodeInstance());
         if ("processInstance".equalsIgnoreCase(scope)) {
             kcontext.getProcessInstance().signalEvent(signalType, tVariable);
         } else if ("runtimeManager".equalsIgnoreCase(scope) || "project".equalsIgnoreCase(scope)) {
-            ((RuntimeManager) kcontext.getKieRuntime().getEnvironment().get("RuntimeManager")).signalEvent(signalType,
-                    tVariable);
+            ((RuntimeManager) kcontext.getKieRuntime().getEnvironment().get("RuntimeManager")).signalEvent(signalType, tVariable);
         } else if ("external".equalsIgnoreCase(scope)) {
             WorkItemImpl workItem = new WorkItemImpl();
             workItem.setName("External Send Task");
@@ -62,6 +70,12 @@ public class SendSignalAction implements JavaAction {
             workItem.setProcessInstanceId(kcontext.getProcessInstance().getId());
             workItem.setNodeId(kcontext.getNodeInstance().getNodeId());
             workItem.setDeploymentId((String) kcontext.getKieRuntime().getEnvironment().get("deploymentId"));
+
+            // dump data to the parameters
+            for(Map.Entry<String,Object> entry : parameters.entrySet()) {
+                workItem.setParameter(entry.getKey(), entry.getValue());
+            }
+
             workItem.setParameter("Signal", signalType);
             workItem.setParameter("SignalProcessInstanceId", kcontext.getVariable("SignalProcessInstanceId"));
             workItem.setParameter("SignalWorkItemId", kcontext.getVariable("SignalWorkItemId"));

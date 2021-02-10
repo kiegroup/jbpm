@@ -32,6 +32,8 @@ public final class ElementConstants {
 
     // elements
     public static final String DATA_OUTPUT_ASSOCIATION = "dataOutputAssociation";
+    public static final String DATA_INPUT_ASSOCIATION = "dataInputAssociation";
+
     public static final String DATAOUTPUT= "dataOutput";
     public static final String DATAINPUT = "dataInput";
     public static final String ASSIGNMENT = "assignment";

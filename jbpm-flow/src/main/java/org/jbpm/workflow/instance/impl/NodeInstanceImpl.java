@@ -28,6 +28,7 @@ import java.util.Map.Entry;
 import java.util.function.BiConsumer;
 
 import org.drools.core.common.InternalKnowledgeRuntime;
+import org.drools.core.process.instance.WorkItem;
 import org.drools.core.spi.ProcessContext;
 import org.drools.mvel.MVELSafeHelper;
 import org.jbpm.process.core.Context;
@@ -52,7 +53,9 @@ import org.jbpm.process.instance.impl.NoOpExecutionErrorHandler;
 import org.jbpm.workflow.core.impl.NodeImpl;
 import org.jbpm.workflow.core.node.Assignment;
 import org.jbpm.workflow.core.node.DataAssociation;
+import org.jbpm.workflow.core.node.ThrowNode;
 import org.jbpm.workflow.core.node.Transformation;
+import org.jbpm.workflow.core.node.WorkItemNode;
 import org.jbpm.workflow.instance.WorkflowProcessInstance;
 import org.jbpm.workflow.instance.WorkflowRuntimeException;
 import org.jbpm.workflow.instance.node.ActionNodeInstance;
@@ -695,6 +698,76 @@ public abstract class NodeInstanceImpl implements org.jbpm.workflow.instance.Nod
                 }
             }
         }
+    }
+
+    public void mapInputSetVariables(BiConsumer<String, Object> parameterSet) {
+        if(getNode() instanceof ThrowNode) {
+            ThrowNode throwNode = (ThrowNode) getNode();
+            mapInputSetVariables(this, throwNode.getInDataAssociations(), getSourceParameters(throwNode.getInDataAssociations()), parameterSet);
+        }
+    }
+
+    protected void mapInputSetVariables(NodeInstance nodeInstance, List<DataAssociation> dataInputAssociations, Map<String, Object> inputData, BiConsumer<String, Object> parameterSet) {
+
+        for (Iterator<DataAssociation> iterator = dataInputAssociations.iterator(); iterator.hasNext();) {
+            DataAssociation association = iterator.next();
+            if (association.getTransformation() != null) {
+                Transformation transformation = association.getTransformation();
+                DataTransformer transformer = DataTransformerRegistry.get().find(transformation.getLanguage());
+                if (transformer != null) {
+                    Object parameterValue = transformer.transform(transformation.getCompiledExpression(), inputData);
+                    if (parameterValue != null) {
+                        parameterSet.accept(association.getTarget(), parameterValue);
+                    }
+                }
+            } else if (association.getAssignments() == null || association.getAssignments().isEmpty()) {
+                Object parameterValue = null;
+                VariableScopeInstance variableScopeInstance = (VariableScopeInstance) resolveContextInstance(VariableScope.VARIABLE_SCOPE, association.getSources().get(0));
+                if (variableScopeInstance != null) {
+                    parameterValue = variableScopeInstance.getVariable(association.getSources().get(0));
+                } else {
+                    try {
+                        parameterValue = MVELSafeHelper.getEvaluator().eval(association.getSources().get(0), new NodeInstanceResolverFactory(this));
+                    } catch (Throwable t) {
+                        logger.error("Could not find variable scope for variable {}", association.getSources().get(0));
+                        logger.error("when trying to execute Work Item {}", nodeInstance.getNodeName());
+                        logger.error("Continuing without setting parameter.");
+                    }
+                }
+                if (parameterValue != null) {
+                    parameterSet.accept(association.getTarget(), parameterValue);
+                }
+            } else {
+                for (Iterator<Assignment> it = association.getAssignments().iterator(); it.hasNext();) {
+                    handleAssignment(it.next());
+                }
+            }
+        }
+
+    }
+
+    public Map<String, Object> getSourceParameters(List<DataAssociation> associations) {
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        for(DataAssociation association : associations) {
+            for (String sourceParam : association.getSources()) {
+                Object parameterValue = null;
+                VariableScopeInstance variableScopeInstance = (VariableScopeInstance) resolveContextInstance(VariableScope.VARIABLE_SCOPE, sourceParam);
+                if (variableScopeInstance != null) {
+                    parameterValue = variableScopeInstance.getVariable(sourceParam);
+                } else {
+                    try {
+                        parameterValue = MVELSafeHelper.getEvaluator().eval(sourceParam, new NodeInstanceResolverFactory(this));
+                    } catch (Throwable t) {
+                        logger.warn("Could not find variable scope for variable {}", sourceParam);
+                    }
+                }
+                if (parameterValue != null) {
+                    parameters.put(association.getTarget(), parameterValue);
+                }
+            }
+        }
+
+        return parameters;
     }
     
     protected void handleAssignment(Assignment assignment) {

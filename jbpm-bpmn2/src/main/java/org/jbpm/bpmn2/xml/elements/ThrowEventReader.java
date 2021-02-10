@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.jbpm.workflow.core.node.DataAssociation;
 import org.w3c.dom.Element;
@@ -11,23 +12,25 @@ import org.w3c.dom.Node;
 
 public class ThrowEventReader implements ElementReader<List<DataAssociation>>{
 
-    private DataAssociationReader dataAssociationReader;
+    private DataInputAssociationReader dataAssociationReader;
+
     public ThrowEventReader() {
-        dataAssociationReader = new DataAssociationReader();
+        dataAssociationReader = new DataInputAssociationReader();
     }
 
     @Override
     public List<DataAssociation> read(Node element) {
-        Map<String, String> dataOutputs = new HashMap<String, String>();
+        UUID uuid = UUID.randomUUID();
+        Map<String, String> dataInputs = new HashMap<String, String>();
         org.w3c.dom.Node xmlNode = element.getFirstChild();
 
         // first round with data outputs
         while (xmlNode != null) {
             String nodeName = xmlNode.getNodeName();
-            if (ElementConstants.DATAOUTPUT.equals(nodeName)) {
+            if (ElementConstants.DATAINPUT.equals(nodeName)) {
                 String id = ((Element) xmlNode).getAttribute("id");
                 String outputName = ((Element) xmlNode).getAttribute("name");
-                dataOutputs.put(id, outputName);
+                dataInputs.put(id, outputName);
             }
             xmlNode = xmlNode.getNextSibling();
         }
@@ -38,9 +41,11 @@ public class ThrowEventReader implements ElementReader<List<DataAssociation>>{
         // first round with data outputs
         while (xmlNode != null) {
             String nodeName = xmlNode.getNodeName();
-            if(ElementConstants.DATA_OUTPUT_ASSOCIATION.equals(nodeName)) {
-                xmlNode.setUserData(ElementConstants.METADATA_DATA_MAPPING, dataOutputs, null);
-                dataAssociations.add(dataAssociationReader.read(xmlNode));
+            if(ElementConstants.DATA_INPUT_ASSOCIATION.equals(nodeName)) {
+                xmlNode.setUserData(ElementConstants.METADATA_DATA_MAPPING, dataInputs, null);
+                DataAssociation dataAssociation = dataAssociationReader.read(xmlNode);
+                dataAssociation.setUUID(uuid);
+                dataAssociations.add(dataAssociation);
                 xmlNode.setUserData(ElementConstants.METADATA_DATA_MAPPING, null, null);
             }
             xmlNode = xmlNode.getNextSibling();

@@ -16,6 +16,9 @@
 
 package org.jbpm.workflow.core.node;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.jbpm.workflow.core.impl.ExtendedNodeImpl;
 import org.kie.api.definition.process.Connection;
 import org.kie.api.definition.process.NodeType;
@@ -24,7 +27,7 @@ import org.kie.api.definition.process.NodeType;
  * Default implementation of an end node.
  * 
  */
-public class EndNode extends ExtendedNodeImpl {
+public class EndNode extends ExtendedNodeImpl implements ThrowNode {
     
     public static final int CONTAINER_SCOPE = 0;
     public static final int PROCESS_SCOPE = 1;
@@ -37,8 +40,22 @@ public class EndNode extends ExtendedNodeImpl {
     private boolean terminate = true;
     private int scope = CONTAINER_SCOPE;
 
+    private List<DataAssociation> inDataAssociations;
+
     public EndNode() {
         super(NodeType.END);
+        inDataAssociations = new ArrayList<>();
+    }
+
+
+    @Override
+    public List<DataAssociation> getInDataAssociations() {
+        return inDataAssociations;
+    }
+
+    @Override
+    public void addInDataAssociation(DataAssociation dataAssociation) {
+        inDataAssociations.add(dataAssociation);
     }
 
     public boolean isTerminate() {
@@ -84,4 +101,7 @@ public class EndNode extends ExtendedNodeImpl {
     public int getScope() {
         return scope;
     }
+
+
+
 }

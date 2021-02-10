@@ -12,14 +12,14 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-public class DataAssociationReader implements ElementReader<DataAssociation>{
+public class DataInputAssociationReader implements ElementReader<DataAssociation>{
 
-    private static final Logger logger = LoggerFactory.getLogger(DataAssociationReader.class);
+    private static final Logger logger = LoggerFactory.getLogger(DataInputAssociationReader.class);
 
     private AssignmentReader assignmentReader;
     
     
-    public DataAssociationReader() {
+    public DataInputAssociationReader() {
         assignmentReader = new AssignmentReader();
     }
     
@@ -36,16 +36,9 @@ public class DataAssociationReader implements ElementReader<DataAssociation>{
             switch (subNode.getNodeName()) {
                 case ElementConstants.SOURCE_REF:
                     source = subNode.getTextContent();
-                    String mapped = dataMapping.get(source);
-                    if (mapped == null) {
-                        logger.warn("Data outputs in this node {} does not contain source {}", xmlNode.getAttributes().getNamedItem("id"), source);
-                    }
-                    else {
-                        source = mapped;
-                    }
                     break;
                 case ElementConstants.TARGET_REF:
-                    target = subNode.getTextContent();
+                    target = dataMapping.get(subNode.getTextContent());
                     break;
                 case ElementConstants.TRANSFORMATION:
                     String lang = subNode.getAttributes().getNamedItem(ElementConstants.LANG_EXPRESSION_ATTR).getNodeValue();

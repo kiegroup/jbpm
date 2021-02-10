@@ -12,10 +12,10 @@ import org.w3c.dom.Node;
 
 public class CatchEventReader implements ElementReader<List<DataAssociation>> {
 
-    private DataAssociationReader dataAssociationReader;
+    private DataOutputAssociationReader dataAssociationReader;
 
     public CatchEventReader() {
-        dataAssociationReader = new DataAssociationReader();
+        dataAssociationReader = new DataOutputAssociationReader();
     }
 
     @Override

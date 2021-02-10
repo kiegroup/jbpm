@@ -5,7 +5,8 @@ import java.io.OutputStream;
 
 import org.jbpm.workflow.core.node.DataAssociation;
 
-public class DataAssociationWriter implements ElementWriter<DataAssociation> {
+public class DataOutputAssociationWriter implements ElementWriter<DataAssociation> {
+
 
     @Override
     public void write(OutputStream os, DataAssociation element) throws IOException {

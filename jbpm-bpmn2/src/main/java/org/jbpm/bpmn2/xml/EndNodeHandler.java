@@ -15,9 +15,11 @@
  */
 
 package org.jbpm.bpmn2.xml;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.List;
 
-import org.drools.compiler.compiler.xml.XmlDumper;
+import org.jbpm.bpmn2.xml.elements.ThrowEventWriter;
 import org.jbpm.process.core.context.exception.CompensationScope;
 import org.jbpm.process.instance.impl.JavaAction;
 import org.jbpm.workflow.core.DroolsAction;
@@ -29,12 +31,13 @@ import org.xml.sax.Attributes;
 
 public class EndNodeHandler extends AbstractNodeHandler {
     
+    private ThrowEventWriter throwEventWriter = new ThrowEventWriter();
+
     protected Node createNode(Attributes attrs) {
         throw new IllegalArgumentException("Reading in should be handled by end event handler");
     }
-    
-    @SuppressWarnings("unchecked")
-	public Class generateNodeFor() {
+
+	public Class<EndNode> generateNodeFor() {
         return EndNode.class;
     }
 
@@ -43,14 +46,13 @@ public class EndNodeHandler extends AbstractNodeHandler {
 		
 		String eventType = (String) endNode.getMetaData("EventType");
         String ref = (String) endNode.getMetaData("Ref");
-        String variableRef = (String) endNode.getMetaData("Variable");
-        
-		
+
 		writeNode("endEvent", endNode, xmlDump, metaDataType);
 		if (endNode.isTerminate()) {
     		xmlDump.append(">" + EOL);
     		writeExtensionElements(endNode, xmlDump);
             xmlDump.append("        <terminateEventDefinition " + (endNode.getScope() == EndNode.PROCESS_SCOPE ? "tns:scope=\"process\"" : "") + "/>" + EOL);
+            writeInput(xmlDump, endNode);
     		endNode("endEvent", xmlDump);
 		} else {
 		    String scope = (String) endNode.getMetaData("customScope");
@@ -64,79 +66,30 @@ public class EndNodeHandler extends AbstractNodeHandler {
 		            if (s.startsWith("org.drools.core.process.instance.impl.WorkItemImpl workItem = new org.drools.core.process.instance.impl.WorkItemImpl();")) {
 		                xmlDump.append(">" + EOL);
 		                writeExtensionElements(endNode, xmlDump);
-                        String variable = (String) endNode.getMetaData("MappingVariable");
-                        if (variable != null) {
-                            xmlDump.append(
-                                "      <dataInput id=\"" + XmlBPMNProcessDumper.getUniqueNodeId(endNode) + "_Input\" />" + EOL + 
-                                "      <dataInputAssociation>" + EOL + 
-                                "        <sourceRef>" + XmlDumper.replaceIllegalChars(variable) + "</sourceRef>" + EOL + 
-                                "        <targetRef>" + XmlBPMNProcessDumper.getUniqueNodeId(endNode) + "_Input</targetRef>" + EOL + 
-                                "      </dataInputAssociation>" + EOL + 
-                                "      <inputSet>" + EOL + 
-                                "        <dataInputRefs>" + XmlBPMNProcessDumper.getUniqueNodeId(endNode) + "_Input</dataInputRefs>" + EOL + 
-                                "      </inputSet>" + EOL);
-                        }
                         xmlDump.append("      <messageEventDefinition messageRef=\"" + XmlBPMNProcessDumper.getUniqueNodeId(endNode) + "_Message\"/>" + EOL);
+                        writeInput(xmlDump, endNode);
                         endNode("endEvent", xmlDump);
 		            } else if ("signal".equals(eventType)) {
 		                xmlDump.append(">" + EOL);
 		                writeExtensionElements(endNode, xmlDump);
-		   
-		                if (!s.startsWith("null")) {
-		                    
-		                    xmlDump.append(
-		                        "      <dataInput id=\"" + XmlBPMNProcessDumper.getUniqueNodeId(endNode) + "_Input\" />" + EOL + 
-		                        "      <dataInputAssociation>" + EOL + 
-		                        "        <sourceRef>" + XmlDumper.replaceIllegalChars(variableRef) + "</sourceRef>" + EOL + 
-		                        "        <targetRef>" + XmlBPMNProcessDumper.getUniqueNodeId(endNode) + "_Input</targetRef>" + EOL + 
-		                        "      </dataInputAssociation>" + EOL + 
-		                        "      <inputSet>" + EOL + 
-		                        "        <dataInputRefs>" + XmlBPMNProcessDumper.getUniqueNodeId(endNode) + "_Input</dataInputRefs>" + EOL + 
-		                        "      </inputSet>" + EOL);
-		                }
 		                xmlDump.append("      <signalEventDefinition signalRef=\"" + XmlBPMNProcessDumper.replaceIllegalCharsAttribute(ref) + "\"/>" + EOL);
+		                writeInput(xmlDump, endNode);
 		                endNode("endEvent", xmlDump);
 		            } else if (s.startsWith(RUNTIME_SIGNAL_EVENT)) {
                         xmlDump.append(">" + EOL);
                         writeExtensionElements(endNode, xmlDump);
 		                s = s.substring(44);
 		                String type = s.substring(0, s.indexOf("\""));
-		                s = s.substring(s.indexOf(",") + 2);
-		                String variable = null;
-		                if (!s.startsWith("null")) {
-		                    variable = s.substring(0, s.indexOf(")"));
-	                        xmlDump.append(
-                                "      <dataInput id=\"" + XmlBPMNProcessDumper.getUniqueNodeId(endNode) + "_Input\" />" + EOL + 
-                                "      <dataInputAssociation>" + EOL + 
-                                "        <sourceRef>" + XmlDumper.replaceIllegalChars(variable) + "</sourceRef>" + EOL + 
-                                "        <targetRef>" + XmlBPMNProcessDumper.getUniqueNodeId(endNode) + "_Input</targetRef>" + EOL + 
-                                "      </dataInputAssociation>" + EOL + 
-                                "      <inputSet>" + EOL + 
-                                "        <dataInputRefs>" + XmlBPMNProcessDumper.getUniqueNodeId(endNode) + "_Input</dataInputRefs>" + EOL + 
-                                "      </inputSet>" + EOL);
-	                    }
 		                xmlDump.append("      <signalEventDefinition signalRef=\"" + XmlBPMNProcessDumper.replaceIllegalCharsAttribute(type) + "\"/>" + EOL);
+		                writeInput(xmlDump, endNode);
 		                endNode("endEvent", xmlDump);
 		            } else if (s.startsWith(PROCESS_INSTANCE_SIGNAL_EVENT) && "processInstance".equals(scope)) {
                         xmlDump.append(">" + EOL);
                         writeExtensionElements(endNode, xmlDump);
                         s = s.substring(43);
                         String type = s.substring(0, s.indexOf("\""));
-                        s = s.substring(s.indexOf(",") + 2);
-                        String variable = null;
-                        if (!s.startsWith("null")) {
-                            variable = s.substring(0, s.indexOf(")"));
-                            xmlDump.append(
-                                "      <dataInput id=\"" + XmlBPMNProcessDumper.getUniqueNodeId(endNode) + "_Input\" />" + EOL + 
-                                "      <dataInputAssociation>" + EOL + 
-                                "        <sourceRef>" + XmlDumper.replaceIllegalChars(variable) + "</sourceRef>" + EOL + 
-                                "        <targetRef>" + XmlBPMNProcessDumper.getUniqueNodeId(endNode) + "_Input</targetRef>" + EOL + 
-                                "      </dataInputAssociation>" + EOL + 
-                                "      <inputSet>" + EOL + 
-                                "        <dataInputRefs>" + XmlBPMNProcessDumper.getUniqueNodeId(endNode) + "_Input</dataInputRefs>" + EOL + 
-                                "      </inputSet>" + EOL);
-                        }
                         xmlDump.append("      <signalEventDefinition signalRef=\"" + XmlBPMNProcessDumper.replaceIllegalCharsAttribute(type) + "\"/>" + EOL);
+                        writeInput(xmlDump, endNode);
                         endNode("endEvent", xmlDump);
                     } else if (s.startsWith(PROCESS_INSTANCE_SIGNAL_EVENT)) {
 		            	xmlDump.append(">" + EOL);
@@ -150,6 +103,7 @@ public class EndNodeHandler extends AbstractNodeHandler {
 		            	    activityRef = "activityRef=\"" + XmlBPMNProcessDumper.replaceIllegalCharsAttribute(activityRef) + "\" ";
 		            	} // else general: activityRef = "" (above) 
 		            	xmlDump.append("      <compensateEventDefinition " + activityRef + "/>" + EOL);
+		            	writeInput(xmlDump, endNode);
 		                endNode("endEvent", xmlDump);
 		            } else {
 		                throw new IllegalArgumentException("Unknown action " + s);
@@ -159,6 +113,7 @@ public class EndNodeHandler extends AbstractNodeHandler {
                     xmlDump.append(">" + EOL);
                     writeExtensionElements(endNode, xmlDump);
                     writeJavaAction(endNode, action, xmlDump);
+                    writeInput(xmlDump, endNode);
                     endNode("endEvent", xmlDump);
                 }
 
@@ -169,4 +124,12 @@ public class EndNodeHandler extends AbstractNodeHandler {
 		}
 	}
 
+    private void writeInput(StringBuilder builder, EndNode node) {
+        try(ByteArrayOutputStream stream = new ByteArrayOutputStream()) {
+            throwEventWriter.write(stream, node.getInDataAssociations());
+            builder.append(stream.toString());
+        } catch(IOException e) {
+            logger.info("Could not write catch event data");
+        }
+    }
 }

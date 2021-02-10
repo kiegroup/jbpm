@@ -32,8 +32,7 @@ public class ActionNodeHandler extends AbstractNodeHandler {
         throw new IllegalArgumentException("Reading in should be handled by specific handlers");
     }
 
-    @SuppressWarnings("unchecked")
-    public Class generateNodeFor() {
+    public Class<ActionNode> generateNodeFor() {
         return ActionNode.class;
     }
 

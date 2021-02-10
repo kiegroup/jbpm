@@ -26,9 +26,9 @@ import org.jbpm.bpmn2.core.IntermediateLink;
 import org.jbpm.bpmn2.core.Message;
 import org.jbpm.bpmn2.handler.SendMessageAction;
 import org.jbpm.bpmn2.handler.SendSignalAction;
+import org.jbpm.bpmn2.xml.elements.ThrowEventReader;
 import org.jbpm.compiler.xml.ProcessBuildData;
 import org.jbpm.process.core.context.variable.Variable;
-import org.jbpm.process.core.impl.DataTransformerRegistry;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
 import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.core.NodeContainer;
@@ -36,31 +36,28 @@ import org.jbpm.workflow.core.impl.DroolsConsequenceAction;
 import org.jbpm.workflow.core.impl.JavaDroolsAction;
 import org.jbpm.workflow.core.node.ActionNode;
 import org.jbpm.workflow.core.node.CompositeNode;
+import org.jbpm.workflow.core.node.DataAssociation;
 import org.jbpm.workflow.core.node.ThrowLinkNode;
-import org.jbpm.workflow.core.node.Transformation;
 import org.kie.api.definition.process.NodeType;
-import org.kie.api.runtime.process.DataTransformer;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Text;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
 public class IntermediateThrowEventHandler extends AbstractNodeHandler {
 
-	private DataTransformerRegistry transformerRegistry = DataTransformerRegistry.get();
-
+    
 	public static final String LINK_NAME = "linkName";
 	public static final String LINK_SOURCE = "source";
 	public static final String LINK_TARGET = "target";
+
+    private ThrowEventReader throwEventReader = new ThrowEventReader();
 
 	protected Node createNode(Attributes attrs) {
         return new ActionNode(NodeType.THROW_EVENT);
 	}
 
-	@SuppressWarnings("unchecked")
-	public Class generateNodeFor() {
+	public Class<Node> generateNodeFor() {
 		return Node.class;
 	}
 
@@ -68,8 +65,17 @@ public class IntermediateThrowEventHandler extends AbstractNodeHandler {
 			final ExtensibleXmlParser parser) throws SAXException {
 		final Element element = parser.endElementBuilder();
 		ActionNode node = (ActionNode) parser.getCurrent();
+
 		// determine type of event definition, so the correct type of node
-		// can be generated
+		// can be generated 
+        List<DataAssociation> dataAssociations = throwEventReader.read(element);
+        String varName = null;
+        if(!dataAssociations.isEmpty()) {
+            varName = dataAssociations.get(0).getTarget();
+        }
+        dataAssociations.forEach(dataAssociation -> node.addInDataAssociation(dataAssociation));
+        node.setMetaData("MappingVariable", varName);
+
 		org.w3c.dom.Node xmlNode = element.getFirstChild();
 		while (xmlNode != null) {
 			String nodeName = xmlNode.getNodeName();
@@ -93,8 +99,7 @@ public class IntermediateThrowEventHandler extends AbstractNodeHandler {
 				ThrowLinkNode linkNode = new ThrowLinkNode();
 				linkNode.setId(node.getId());
 				handleLinkNode(element, linkNode, xmlNode, parser);
-				NodeContainer nodeContainer = (NodeContainer) parser
-						.getParent();
+				NodeContainer nodeContainer = (NodeContainer) parser.getParent();
 				nodeContainer.addNode(linkNode);
 				((ProcessBuildData) parser.getData()).addNode(node);
 				// we break the while and stop the execution of this method.
@@ -190,21 +195,13 @@ public class IntermediateThrowEventHandler extends AbstractNodeHandler {
 		org.w3c.dom.Node xmlNode = element.getFirstChild();
 		while (xmlNode != null) {
 			String nodeName = xmlNode.getNodeName();
-			if ("dataInput".equals(nodeName)) {
-                String id = ((Element) xmlNode).getAttribute("id");
-                String inputName = ((Element) xmlNode).getAttribute("name");
-                dataInputs.put(id, inputName);
-            } else if ("dataInputAssociation".equals(nodeName)) {
-				readDataInputAssociation(xmlNode, actionNode);
-			} else if ("signalEventDefinition".equals(nodeName)) {
-                String signalName = checkSignalAndConvertToRealSignalNam(parser, ((Element) xmlNode).getAttribute(
-                        "signalRef"), s -> s.addOutgoingNode(node));
+			if ("signalEventDefinition".equals(nodeName)) {
+                String signalName = checkSignalAndConvertToRealSignalNam(parser, ((Element) xmlNode).getAttribute("signalRef"), s -> s.addOutgoingNode(node));
                 String variable = (String) actionNode.getMetaData("MappingVariable");
                 actionNode.setMetaData("EventType", "signal");
                 actionNode.setMetaData("Ref", signalName);
                 actionNode.setMetaData("Variable", variable);
-                actionNode.setAction(new JavaDroolsAction(new SendSignalAction(actionNode, variable, signalName,
-                        dataInputs.containsValue("async"))));
+                actionNode.setAction(new JavaDroolsAction(new SendSignalAction(actionNode, variable, signalName, dataInputs.containsValue("async"))));
 			}
 			xmlNode = xmlNode.getNextSibling();
 		}
@@ -218,24 +215,15 @@ public class IntermediateThrowEventHandler extends AbstractNodeHandler {
 		org.w3c.dom.Node xmlNode = element.getFirstChild();
 		while (xmlNode != null) {
 			String nodeName = xmlNode.getNodeName();
-			if ("dataInput".equals(nodeName)) {
-                String id = ((Element) xmlNode).getAttribute("id");
-                String inputName = ((Element) xmlNode).getAttribute("name");
-                dataInputs.put(id, inputName);
-            } else if ("dataInputAssociation".equals(nodeName)) {
-				readDataInputAssociation(xmlNode, actionNode);
-			} else if ("messageEventDefinition".equals(nodeName)) {
-				String messageRef = ((Element) xmlNode)
-						.getAttribute("messageRef");
-				Map<String, Message> messages = (Map<String, Message>) ((ProcessBuildData) parser
-						.getData()).getMetaData("Messages");
+			if ("messageEventDefinition".equals(nodeName)) {
+				String messageRef = ((Element) xmlNode).getAttribute("messageRef");
+				Map<String, Message> messages = (Map<String, Message>) ((ProcessBuildData) parser.getData()).getMetaData("Messages");
 				if (messages == null) {
 					throw new IllegalArgumentException("No messages found");
 				}
 				Message message = messages.get(messageRef);
 				if (message == null) {
-					throw new IllegalArgumentException(
-							"Could not find message " + messageRef);
+					throw new IllegalArgumentException("Could not find message " + messageRef);
 				}
                 message.addOutgoingNode(node);
                 String mappingVariable = (String) actionNode.getMetaData("MappingVariable");
@@ -256,9 +244,7 @@ public class IntermediateThrowEventHandler extends AbstractNodeHandler {
 		org.w3c.dom.Node xmlNode = element.getFirstChild();
 		while (xmlNode != null) {
 			String nodeName = xmlNode.getNodeName();
-			if ("dataInputAssociation".equals(nodeName)) {
-				readDataInputAssociation(xmlNode, actionNode);
-			} else if ("escalationEventDefinition".equals(nodeName)) {
+			if ("escalationEventDefinition".equals(nodeName)) {
 				String escalationRef = ((Element) xmlNode)
 						.getAttribute("escalationRef");
 				if (escalationRef != null && escalationRef.trim().length() > 0) {
@@ -306,68 +292,7 @@ public class IntermediateThrowEventHandler extends AbstractNodeHandler {
 		}
 	}
 
-	protected void readDataInputAssociation(org.w3c.dom.Node xmlNode,
-			ActionNode actionNode) {
-		
-		
-		org.w3c.dom.Node subNode = xmlNode.getFirstChild();
-        if ("sourceRef".equals(subNode.getNodeName())) {            
-            // sourceRef
-            String eventVariable = subNode.getTextContent();
-            // targetRef
-            subNode = subNode.getNextSibling();
-            String target = subNode.getTextContent();
-            // transformation
-            Transformation transformation = null;
-            subNode = subNode.getNextSibling();
-            if (subNode != null && "transformation".equals(subNode.getNodeName())) {
-                String lang = subNode.getAttributes().getNamedItem("language").getNodeValue();
-                String expression = subNode.getTextContent();
-    
-                DataTransformer transformer = transformerRegistry.find(lang);
-                if (transformer == null) {
-                    throw new IllegalArgumentException("No transformer registered for language " + lang);
-                }
-                transformation = new Transformation(lang, expression, dataInputs.get(target));
-                actionNode.setMetaData("Transformation", transformation);
-            }
-    
-            if (eventVariable != null && eventVariable.trim().length() > 0) {            
-                if (dataInputs.containsKey(eventVariable)) {
-                    eventVariable = dataInputs.get(eventVariable);
-                }
-                
-                actionNode.setMetaData("MappingVariable", eventVariable);
-            }
-        } else {
-            // targetRef
-            // assignment
-            subNode = subNode.getNextSibling();
-            if (subNode != null) {
-                org.w3c.dom.Node subSubNode = subNode.getFirstChild();
-                NodeList nl = subSubNode.getChildNodes();
-                if (nl.getLength() > 1) {
-                    actionNode.setMetaData("MappingVariable", subSubNode.getTextContent());
-                    return;
-                } else if (nl.getLength() == 0) {
-                    return;
-                }
-                Object result = null;
-                Object from = nl.item(0);
-                if (from instanceof Text) {
-                    String text = ((Text) from).getTextContent();
-                    if (text.startsWith("\"") && text.endsWith("\"")) {
-                        result = text.substring(1, text.length() -1);
-                    } else {
-                        result = text;
-                    }
-                } else {
-                    result = nl.item(0);
-                }
-                actionNode.setMetaData("MappingVariable", "\"" + result + "\"");
-            }
-        }
-	}
+
 
 	public void writeNode(Node node, StringBuilder xmlDump, int metaDataType) {
 		throw new IllegalArgumentException(

@@ -16,6 +16,9 @@
 
 package org.jbpm.workflow.core.node;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.jbpm.workflow.core.DroolsAction;
 import org.jbpm.workflow.core.impl.ExtendedNodeImpl;
 import org.kie.api.definition.process.Connection;
@@ -26,18 +29,21 @@ import org.kie.api.definition.process.NodeType;
  * Default implementation of an action node.
  * 
  */
-public class ActionNode extends ExtendedNodeImpl {
+public class ActionNode extends ExtendedNodeImpl implements ThrowNode {
 
 	private static final long serialVersionUID = 510l;
 	
 	private DroolsAction action;
 
+	private List<DataAssociation> inDataAssociations;
+
     public ActionNode() {
-        super(NodeType.SCRIPT_TASK);
+        this(NodeType.SCRIPT_TASK);
     }
 
     public ActionNode(NodeType nodeType) {
         super(nodeType);
+        inDataAssociations = new ArrayList<>();
     }
 
 	public DroolsAction getAction() {
@@ -47,6 +53,16 @@ public class ActionNode extends ExtendedNodeImpl {
 	public void setAction(DroolsAction action) {
 		this.action = action;
 	}
+
+    @Override
+    public List<DataAssociation> getInDataAssociations() {
+        return inDataAssociations;
+    }
+
+    @Override
+    public void addInDataAssociation(DataAssociation dataAssociation) {
+        inDataAssociations.add(dataAssociation);
+    }
 
     public void validateAddIncomingConnection(final String type, final Connection connection) {
         super.validateAddIncomingConnection(type, connection);
@@ -75,5 +91,7 @@ public class ActionNode extends ExtendedNodeImpl {
                 + "] cannot have more than one outgoing connection!");
         }
     }
+
+
     
 }

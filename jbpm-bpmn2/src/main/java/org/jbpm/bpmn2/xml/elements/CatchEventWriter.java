@@ -10,10 +10,10 @@ import org.jbpm.workflow.core.node.DataAssociation;
 
 public class CatchEventWriter implements ElementWriter<List<DataAssociation>>{
 
-    private DataAssociationWriter dataAssociationWriter;
+    private DataOutputAssociationWriter dataAssociationWriter;
 
     public CatchEventWriter() {
-        dataAssociationWriter = new DataAssociationWriter();
+        dataAssociationWriter = new DataOutputAssociationWriter();
     }
     
     @Override

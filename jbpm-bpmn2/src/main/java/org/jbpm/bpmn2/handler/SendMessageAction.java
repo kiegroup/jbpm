@@ -16,15 +16,27 @@
 
 package org.jbpm.bpmn2.handler;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.drools.core.WorkItemHandlerNotFoundException;
 import org.drools.core.common.InternalKnowledgeRuntime;
 import org.drools.core.process.instance.WorkItemManager;
 import org.drools.core.process.instance.impl.WorkItemImpl;
 import org.jbpm.bpmn2.core.Message;
 import org.jbpm.process.instance.InternalProcessRuntime;
 import org.jbpm.process.instance.impl.JavaAction;
+import org.jbpm.workflow.core.node.ThrowNode;
+import org.jbpm.workflow.instance.impl.NodeInstanceImpl;
+import org.jbpm.workflow.instance.node.EndNodeInstance;
+import org.kie.api.runtime.process.NodeInstance;
 import org.kie.api.runtime.process.ProcessContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SendMessageAction implements JavaAction {
+
+    protected static final Logger logger = LoggerFactory.getLogger(SendMessageAction.class);
 
     private static final long serialVersionUID = 1L;
     private String varName;
@@ -37,10 +49,15 @@ public class SendMessageAction implements JavaAction {
 
     @Override
     public void execute(ProcessContext kcontext) throws Exception {
-        Object tVariable = VariableResolver.getVariable(kcontext, varName);
+        Map<String, Object> parameters = new HashMap<>();
+        NodeInstance nodeInstance = kcontext.getNodeInstance();
+        ((NodeInstanceImpl) nodeInstance).mapInputSetVariables((target,value) -> parameters.put(target, value));
+
+        Object tVariable = parameters.get(varName);
         ((InternalProcessRuntime) ((InternalKnowledgeRuntime) kcontext.getKieRuntime()).getProcessRuntime())
                 .getProcessEventSupport().fireOnMessage(kcontext.getProcessInstance(), kcontext
                         .getNodeInstance(), kcontext.getKieRuntime(), message.getName(), tVariable);
+
         WorkItemImpl workItem = new WorkItemImpl();
         workItem.setName("Send Task");
         workItem.setProcessInstanceId(kcontext.getProcessInstance().getId());
@@ -48,12 +65,20 @@ public class SendMessageAction implements JavaAction {
         workItem.setNodeInstanceId(kcontext.getNodeInstance().getId());
         workItem.setNodeId(kcontext.getNodeInstance().getNodeId());
         workItem.setDeploymentId((String) kcontext.getKieRuntime().getEnvironment().get("deploymentId"));
+
+        for(Map.Entry<String,Object> entry : parameters.entrySet()) {
+            workItem.setParameter(entry.getKey(), entry.getValue());
+        }
+
         if (tVariable != null) {
             workItem.setParameter("Message", tVariable);
         }
-        ((WorkItemManager) kcontext.getKieRuntime().getWorkItemManager()).internalExecuteWorkItem(workItem);
+        try {
+            ((WorkItemManager) kcontext.getKieRuntime().getWorkItemManager()).internalExecuteWorkItem(workItem);
+        } catch (WorkItemHandlerNotFoundException e) {
+            logger.warn("No Workitem found \"Send Task\" when trying to throw a message {}", tVariable);
+        }
     }
-
 
     public String getVariable() {
         return varName;

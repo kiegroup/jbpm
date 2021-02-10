@@ -28,22 +28,18 @@ import org.drools.core.WorkItemHandlerNotFoundException;
 import org.drools.core.process.instance.WorkItem;
 import org.drools.core.process.instance.WorkItemManager;
 import org.drools.core.process.instance.impl.WorkItemImpl;
-import org.drools.core.spi.ProcessContext;
 import org.drools.mvel.MVELSafeHelper;
 import org.jbpm.process.core.Context;
 import org.jbpm.process.core.ContextContainer;
 import org.jbpm.process.core.Work;
 import org.jbpm.process.core.context.exception.ExceptionScope;
-import org.jbpm.process.core.context.variable.Variable;
 import org.jbpm.process.core.context.variable.VariableScope;
-import org.jbpm.process.core.datatype.DataType;
 import org.jbpm.process.core.impl.DataTransformerRegistry;
 import org.jbpm.process.instance.ContextInstance;
 import org.jbpm.process.instance.ContextInstanceContainer;
 import org.jbpm.process.instance.ProcessInstance;
 import org.jbpm.process.instance.context.exception.ExceptionScopeInstance;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
-import org.jbpm.process.instance.impl.AssignmentAction;
 import org.jbpm.process.instance.impl.ContextInstanceFactory;
 import org.jbpm.process.instance.impl.ContextInstanceFactoryRegistry;
 import org.jbpm.process.instance.impl.ProcessInstanceImpl;
@@ -55,7 +51,6 @@ import org.jbpm.workflow.core.node.WorkItemNode;
 import org.jbpm.workflow.instance.WorkflowProcessInstance;
 import org.jbpm.workflow.instance.WorkflowRuntimeException;
 import org.jbpm.workflow.instance.impl.NodeInstanceResolverFactory;
-import org.jbpm.workflow.instance.impl.MapResolverFactory;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 import org.kie.api.definition.process.Node;
 import org.kie.api.runtime.EnvironmentName;
@@ -202,43 +197,9 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
     }
 
     protected void setWorkItemParametersFromDataAssociations(WorkItemNode workItemNode) {
-        for (Iterator<DataAssociation> iterator = workItemNode.getInAssociations().iterator(); iterator.hasNext();) {
-            DataAssociation association = iterator.next();
-            if (association.getTransformation() != null) {
-                Transformation transformation = association.getTransformation();
-                DataTransformer transformer = DataTransformerRegistry.get().find(transformation.getLanguage());
-                if (transformer != null) {
-                    Object parameterValue = transformer.transform(transformation.getCompiledExpression(), getSourceParameters(association));
-                    if (parameterValue != null) {
-                        workItem.setParameter(association.getTarget(), parameterValue);
-                    }
-                }
-            } else if (association.getAssignments() == null || association.getAssignments().isEmpty()) {
-                Object parameterValue = null;
-                VariableScopeInstance variableScopeInstance = (VariableScopeInstance) resolveContextInstance(VariableScope.VARIABLE_SCOPE, association.getSources().get(0));
-                if (variableScopeInstance != null) {
-                    parameterValue = variableScopeInstance.getVariable(association.getSources().get(0));
-                } else {
-                    try {
-                        parameterValue = MVELSafeHelper.getEvaluator().eval(association.getSources().get(0), new NodeInstanceResolverFactory(this));
-                    } catch (Throwable t) {
-                        logger.error("Could not find variable scope for variable {}", association.getSources().get(0));
-                        logger.error("when trying to execute Work Item {}", workItemNode.getWork().getName());
-                        logger.error("Continuing without setting parameter.");
-                    }
-                }
-                if (parameterValue != null) {
-                    workItem.setParameter(association.getTarget(), parameterValue);
-                }
-            } else {
-                for (Iterator<Assignment> it = association.getAssignments().iterator(); it.hasNext();) {
-                    handleAssignment(it.next());
-                }
-            }
-        }
-
+        mapInputSetVariables(this, workItemNode.getInAssociations(), getSourceParameters(workItemNode.getInAssociations()), (target, value) -> workItem.setParameter(target, value));
     }
-	
+
     protected void setWorkItemParametersFromStringReplacement(WorkItemNode workItemNode) {
         for (Map.Entry<String, Object> entry : workItem.getParameters().entrySet()) {
             if (entry.getValue() instanceof String) {
@@ -453,28 +414,6 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
     @Override
     public ContextContainer getContextContainer() {
         return getWorkItemNode();
-    }
-
-    protected Map<String, Object> getSourceParameters(DataAssociation association) {
-        Map<String, Object> parameters = new HashMap<String, Object>();
-        for (String sourceParam : association.getSources()) {
-            Object parameterValue = null;
-            VariableScopeInstance variableScopeInstance = (VariableScopeInstance) resolveContextInstance(VariableScope.VARIABLE_SCOPE, sourceParam);
-            if (variableScopeInstance != null) {
-                parameterValue = variableScopeInstance.getVariable(sourceParam);
-            } else {
-                try {
-                    parameterValue = MVELSafeHelper.getEvaluator().eval(sourceParam, new NodeInstanceResolverFactory(this));
-                } catch (Throwable t) {
-                    logger.warn("Could not find variable scope for variable {}", sourceParam);
-                }
-            }
-            if (parameterValue != null) {
-                parameters.put(association.getTarget(), parameterValue);
-            }
-        }
-
-        return parameters;
     }
 
     public void validateWorkItemResultVariable(String processName, List<DataAssociation> outputs, WorkItem workItem) {

@@ -16,6 +16,9 @@
 
 package org.jbpm.workflow.core.node;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.jbpm.workflow.core.impl.ExtendedNodeImpl;
 import org.kie.api.definition.process.Connection;
 import org.kie.api.definition.process.NodeType;
@@ -24,7 +27,7 @@ import org.kie.api.definition.process.NodeType;
  * Default implementation of a fault node.
  * 
  */
-public class FaultNode extends ExtendedNodeImpl {
+public class FaultNode extends ExtendedNodeImpl implements ThrowNode {
 
 	private static final String[] EVENT_TYPES =
 		new String[] { EVENT_NODE_ENTER };
@@ -35,8 +38,21 @@ public class FaultNode extends ExtendedNodeImpl {
 	private String faultVariable;
 	private boolean terminateParent = false;
 
+    private List<DataAssociation> inDataAssociations;
+
     public FaultNode() {
         super(NodeType.FAULT);
+        inDataAssociations = new ArrayList<>();
+    }
+
+    @Override
+    public List<DataAssociation> getInDataAssociations() {
+        return inDataAssociations;
+    }
+
+    @Override
+    public void addInDataAssociation(DataAssociation dataAssociation) {
+        inDataAssociations.add(dataAssociation);
     }
 
     public String getFaultVariable() {
