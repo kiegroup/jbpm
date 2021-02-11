@@ -94,7 +94,6 @@ public class DynamicProcessTest extends JbpmBpmn2TestCase {
         actions.add(new DroolsConsequenceAction("java", "System.out.println(\"on Entry to the node!!\");"));
         node.setActions("onEntry", actions);
 
-        //insertNodeInBetween(process, 6, 3, node);
         insertNodeBefore(process, "Script 1", node);
 
         ((CommandBasedStatefulKnowledgeSession) ksession).getRunner().execute(new ExecutableCommand<Void>() {
@@ -230,7 +229,7 @@ public class DynamicProcessTest extends JbpmBpmn2TestCase {
 		if (process == null) {
 			throw new IllegalArgumentException("Process may not be null");
 		}
-        NodeImpl endNode = null;
+		NodeImpl endNode = null;
 		for (Node n : process.getNodes()) {
 			if (nodeName.equals(n.getName())) {
 				endNode = (NodeImpl)n;
@@ -240,6 +239,6 @@ public class DynamicProcessTest extends JbpmBpmn2TestCase {
 			throw new IllegalArgumentException("Node " + nodeName + " not found in process " + process.getId());
 		}
 		NodeImpl startNode = (NodeImpl)endNode.getDefaultIncomingConnections().get(0).getFrom();
-        insertNodeInBetween(process, startNode.getId(), endNode.getId(), node);
+		insertNodeInBetween(process, startNode.getId(), endNode.getId(), node);
 	}
 }
