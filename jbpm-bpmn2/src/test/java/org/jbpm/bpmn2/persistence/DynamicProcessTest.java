@@ -24,12 +24,14 @@ import org.jbpm.bpmn2.JbpmBpmn2TestCase;
 import org.jbpm.bpmn2.xml.XmlBPMNProcessDumper;
 import org.jbpm.compiler.xml.XmlRuleFlowProcessDumper;
 import org.jbpm.persistence.session.objects.TestWorkItemHandler;
+import org.jbpm.process.instance.impl.JavaAction;
 import org.jbpm.process.instance.impl.ProcessInstanceImpl;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
 import org.jbpm.ruleflow.core.RuleFlowProcessFactory;
 import org.jbpm.workflow.core.DroolsAction;
 import org.jbpm.workflow.core.impl.ConnectionImpl;
 import org.jbpm.workflow.core.impl.DroolsConsequenceAction;
+import org.jbpm.workflow.core.impl.JavaDroolsAction;
 import org.jbpm.workflow.core.impl.NodeImpl;
 import org.jbpm.workflow.core.node.HumanTaskNode;
 import org.jbpm.workflow.core.node.Split;
@@ -48,6 +50,7 @@ import org.kie.api.fluent.Dialect;
 import org.kie.api.io.Resource;
 import org.kie.api.runtime.Context;
 import org.kie.api.runtime.KieSession;
+import org.kie.api.runtime.process.ProcessContext;
 import org.kie.internal.command.RegistryContext;
 import org.kie.internal.io.ResourceFactory;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
@@ -66,6 +69,49 @@ public class DynamicProcessTest extends JbpmBpmn2TestCase {
         if (PERSISTENCE) {
             setUpDataSource();
         }
+    }
+
+    @Test
+    public void testDynamicProcessUpdate() throws Exception {
+        Resource resource = ResourceFactory.newClassPathResource("BPMN2-Dynamic-HT-Process.bpmn2");
+        resource.setSourcePath("BPMN2-Dynamic-HT-Process.bpmn2"); // source path or target path must be set to be added into kbase
+        KieBase kbase = createKnowledgeBaseFromResources(resource);
+        RuleFlowProcess process = (RuleFlowProcess) kbase.getProcess("ht-script-process");
+        StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
+        TestWorkItemHandler testHandler = new TestWorkItemHandler();
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task", testHandler);
+
+        final ProcessInstanceImpl processInstance = (ProcessInstanceImpl) ksession.startProcess("ht-script-process");
+
+        HumanTaskNode node = new HumanTaskNode();
+        node.setName("Task Appended");
+        node.setId(10);
+        List<DroolsAction> actions = new ArrayList<DroolsAction>();
+        actions.add(new DroolsConsequenceAction("java", "System.out.println(\"on Entry to the node!!\");"));
+        node.setActions("onEntry", actions);
+
+        insertNodeInBetween(process, 6, 3, node);
+
+        ((CommandBasedStatefulKnowledgeSession) ksession).getRunner().execute(new ExecutableCommand<Void>() {
+            public Void execute(Context context) {
+                StatefulKnowledgeSession ks = (StatefulKnowledgeSession) ((RegistryContext) context).lookup( KieSession.class );
+                ProcessInstanceImpl impl = ((ProcessInstanceImpl) ks.getProcessInstance(processInstance.getId()));
+                impl.updateProcess(process);
+                return null;
+            }
+        });
+
+
+        assertProcessInstanceActive(processInstance);
+        ksession.getWorkItemManager().completeWorkItem(testHandler.getWorkItem().getId(), null);
+        assertProcessInstanceActive(processInstance);
+        ksession.getWorkItemManager().completeWorkItem(testHandler.getWorkItem().getId(), null);
+        assertProcessInstanceActive(processInstance);
+        ksession.getWorkItemManager().completeWorkItem(testHandler.getWorkItem().getId(), null);
+        assertProcessInstanceFinished(processInstance, ksession);
+        
+        ksession.dispose();
+
     }
 
     @Test
