@@ -16,63 +16,8 @@
     },
     "ignores": {
         "revapi": {
-            "_comment": "Changes between 7.44.0.Final and the current branch. These changes are desired and thus ignored.",
-            "ignore": [
-                {
-                  "code": "java.method.addedToInterface",
-                  "new": "method void org.jbpm.services.api.ProcessService::signalProcessInstanceByCorrelationKey(org.kie.internal.process.CorrelationKey, java.lang.String, java.lang.Object)",
-                  "package": "org.jbpm.services.api",
-                   "classSimpleName": "ProcessService",
-                  "methodName": "signalProcessInstanceByCorrelationKey",
-                  "elementKind": "method",
-                  "justification": "JBPM-9405 Provide API method to signal process instance with correlationKey"
-                },
-                {
-                  "code": "java.method.addedToInterface",
-                  "new": "method void org.jbpm.services.api.ProcessService::signalProcessInstanceByCorrelationKey(java.lang.String, org.kie.internal.process.CorrelationKey, java.lang.String, java.lang.Object)",
-                  "package": "org.jbpm.services.api",
-                  "classSimpleName": "ProcessService",
-                  "methodName": "signalProcessInstanceByCorrelationKey",
-                  "elementKind": "method",
-                  "justification": "JBPM-9405 Provide API method to signal process instance with correlationKey"
-                },
-                {
-                  "code": "java.method.addedToInterface",
-                  "new": "method void org.jbpm.services.api.ProcessService::signalProcessInstancesByCorrelationKeys(java.lang.String, java.util.List<org.kie.internal.process.CorrelationKey>, java.lang.String, java.lang.Object)",
-                  "package": "org.jbpm.services.api",
-                  "classSimpleName": "ProcessService",
-                  "methodName": "signalProcessInstancesByCorrelationKeys",
-                  "elementKind": "method",
-                  "justification": "JBPM-9405 Provide API method to signal process instance with correlationKey"
-                },
-                {
-                  "code": "java.method.addedToInterface",
-                  "new": "method void org.jbpm.services.api.ProcessService::signalProcessInstancesByCorrelationKeys(java.util.List<org.kie.internal.process.CorrelationKey>, java.lang.String, java.lang.Object)",
-                  "package": "org.jbpm.services.api",
-                  "classSimpleName": "ProcessService",
-                  "methodName": "signalProcessInstancesByCorrelationKeys",
-                  "elementKind": "method",
-                  "justification": "JBPM-9405 Provide API method to signal process instance with correlationKey"
-                },
-                {
-                  "code": "java.method.addedToInterface",
-                  "new": "method java.util.Collection<org.jbpm.services.api.model.SignalDesc> org.jbpm.services.api.model.ProcessDefinition::getSignalsDesc()",
-                  "package": "org.jbpm.services.api.model",
-                  "classSimpleName": "ProcessDefinition",
-                  "methodName": "getSignalsDesc",
-                  "elementKind": "method",
-                  "justification": "https://issues.redhat.com/browse/JBPM-9436"
-                },
-                {
-                  "code": "java.method.addedToInterface",
-                  "new": "method java.util.Collection<org.jbpm.services.api.model.MessageDesc> org.jbpm.services.api.model.ProcessDefinition::getMessagesDesc()",
-                  "package": "org.jbpm.services.api.model",
-                  "classSimpleName": "ProcessDefinition",
-                  "methodName": "getMessagesDesc",
-                  "elementKind": "method",
-                  "justification": "https://issues.redhat.com/browse/JBPM-9436"
-                }
-            ]
+            "_comment": "Changes between 7.48.0.Final and the current branch. These changes are desired and thus ignored.",
+            "ignore": []
         }
     }
 }
