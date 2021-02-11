@@ -17,6 +17,7 @@
 package org.jbpm.bpmn2.persistence;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.drools.core.command.impl.CommandBasedStatefulKnowledgeSession;
@@ -27,6 +28,7 @@ import org.jbpm.persistence.session.objects.TestWorkItemHandler;
 import org.jbpm.process.instance.impl.ProcessInstanceImpl;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
 import org.jbpm.ruleflow.core.RuleFlowProcessFactory;
+import org.jbpm.workflow.core.Constraint;
 import org.jbpm.workflow.core.DroolsAction;
 import org.jbpm.workflow.core.impl.ConnectionImpl;
 import org.jbpm.workflow.core.impl.DroolsConsequenceAction;
@@ -38,6 +40,7 @@ import org.junit.Test;
 import org.kie.api.KieBase;
 import org.kie.api.command.ExecutableCommand;
 import org.kie.api.definition.process.Connection;
+import org.kie.api.definition.process.Node;
 import org.kie.api.event.process.ProcessCompletedEvent;
 import org.kie.api.event.process.ProcessEventListener;
 import org.kie.api.event.process.ProcessNodeLeftEvent;
@@ -66,6 +69,53 @@ public class DynamicProcessTest extends JbpmBpmn2TestCase {
         if (PERSISTENCE) {
             setUpDataSource();
         }
+    }
+
+    @Test
+    public void testDynamicProcessUpdate() throws Exception {
+        Resource resource = ResourceFactory.newClassPathResource("BPMN2-Dynamic-HT-Process.bpmn2");
+        resource.setSourcePath("BPMN2-Dynamic-HT-Process.bpmn2"); // source path or target path must be set to be added into kbase
+        KieBase kbase = createKnowledgeBaseFromResources(resource);
+        RuleFlowProcess process = (RuleFlowProcess) kbase.getProcess("ht-script-process");
+        StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
+        TestWorkItemHandler testHandler = new TestWorkItemHandler();
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task", testHandler);
+
+        final ProcessInstanceImpl processInstance = (ProcessInstanceImpl) ksession.startProcess("ht-script-process", Collections.singletonMap("isCond", true));
+
+
+        assertProcessInstanceActive(processInstance);
+        ksession.getWorkItemManager().completeWorkItem(testHandler.getWorkItem().getId(), null);
+
+        HumanTaskNode node = new HumanTaskNode();
+        node.setName("Task Appended");
+        node.setId(10);
+        List<DroolsAction> actions = new ArrayList<DroolsAction>();
+        actions.add(new DroolsConsequenceAction("java", "System.out.println(\"on Entry to the node the dynamic node added!!\");"));
+        node.setActions("onEntry", actions);
+
+        insertNodeBefore(process, "Script 1", node);
+
+        ((CommandBasedStatefulKnowledgeSession) ksession).getRunner().execute(new ExecutableCommand<Void>() {
+            public Void execute(Context context) {
+                StatefulKnowledgeSession ks = (StatefulKnowledgeSession) ((RegistryContext) context).lookup( KieSession.class );
+                ProcessInstanceImpl impl = ((ProcessInstanceImpl) ks.getProcessInstance(processInstance.getId()));
+                impl.updateProcess(process);
+                return null;
+            }
+        });
+
+
+        assertProcessInstanceActive(processInstance);
+        ksession.getWorkItemManager().completeWorkItem(testHandler.getWorkItem().getId(), null);
+
+        assertProcessInstanceActive(processInstance);
+        ksession.getWorkItemManager().completeWorkItem(testHandler.getWorkItem().getId(), null);
+
+        assertProcessInstanceFinished(processInstance, ksession);
+        
+        ksession.dispose();
+
     }
 
     @Test
@@ -149,32 +199,65 @@ public class DynamicProcessTest extends JbpmBpmn2TestCase {
 
         assertProcessInstanceActive(processInstance);
 		ksession.getWorkItemManager().completeWorkItem(testHandler.getWorkItem().getId(), null);
+		
 		assertProcessInstanceActive(processInstance);
 		ksession.getWorkItemManager().completeWorkItem(testHandler.getWorkItem().getId(), null);
+
 		assertProcessInstanceFinished(processInstance, ksession);
-		
+	    ksession.getWorkItemManager().completeWorkItem(testHandler.getWorkItem().getId(), null);
+
+
+
+	    assertProcessInstanceFinished(processInstance, ksession);
 		ksession.dispose();
 	}
 
-	private static void insertNodeInBetween(RuleFlowProcess process, long startNodeId, long endNodeId, NodeImpl node) {
-		if (process == null) {
-			throw new IllegalArgumentException("Process may not be null");
-		}
-		NodeImpl selectedNode = (NodeImpl) process.getNode(startNodeId);
-		if (selectedNode == null) {
-			throw new IllegalArgumentException("Node " + startNodeId + " not found in process " + process.getId());
-		}
-		for (Connection connection: selectedNode.getDefaultOutgoingConnections()) {
-			if (connection.getTo().getId() == endNodeId) {
-				process.addNode(node);
-				NodeImpl endNode = (NodeImpl) connection.getTo();
-				((ConnectionImpl) connection).terminate();
-				new ConnectionImpl(selectedNode, NodeImpl.CONNECTION_DEFAULT_TYPE, node, NodeImpl.CONNECTION_DEFAULT_TYPE);
-				new ConnectionImpl(node, NodeImpl.CONNECTION_DEFAULT_TYPE, endNode, NodeImpl.CONNECTION_DEFAULT_TYPE);
-				return;
-			}
-		}
-		throw new IllegalArgumentException("Connection to node " + endNodeId + " not found in process " + process.getId());
-	}
+    private static void insertNodeInBetween(RuleFlowProcess process, long startNodeId, long endNodeId, NodeImpl node) {
+        if (process == null) {
+            throw new IllegalArgumentException("Process may not be null");
+        }
+        NodeImpl selectedNode = (NodeImpl) process.getNode(startNodeId);
+        if (selectedNode == null) {
+            throw new IllegalArgumentException("Node " + startNodeId + " not found in process " + process.getId());
+        }
+        for (Connection connection : selectedNode.getDefaultOutgoingConnections()) {
+            if (connection.getTo().getId() != endNodeId) {
+                continue;
+            }
+            Constraint constraint = null;
+            if(selectedNode instanceof Split) {
+                Split split = (Split) selectedNode;
+                constraint = split.getConstraint(connection);
+            }
+
+            process.addNode(node);
+            NodeImpl endNode = (NodeImpl) connection.getTo();
+            ((ConnectionImpl) connection).terminate();
+            Connection conn = new ConnectionImpl(selectedNode, NodeImpl.CONNECTION_DEFAULT_TYPE, node, NodeImpl.CONNECTION_DEFAULT_TYPE);
+            new ConnectionImpl(node, NodeImpl.CONNECTION_DEFAULT_TYPE, endNode, NodeImpl.CONNECTION_DEFAULT_TYPE);
+            if(selectedNode instanceof Split) {
+                ((Split) selectedNode).setConstraint(conn, constraint);
+            }
+            return;
+        }
+        throw new IllegalArgumentException("Connection to node " + endNodeId + " not found in process " + process.getId());
+    }   
+
+    private static void insertNodeBefore(RuleFlowProcess process, String nodeName, NodeImpl node) {
+        if (process == null) {
+            throw new IllegalArgumentException("Process may not be null");
+        }
+        NodeImpl endNode = null;
+        for (Node n : process.getNodes()) {
+            if (nodeName.equals(n.getName())) {
+                endNode = (NodeImpl)n;
+            }
+        }
+        if (endNode == null) {
+            throw new IllegalArgumentException("Node " + nodeName + " not found in process " + process.getId());
+        }
+        NodeImpl startNode = (NodeImpl)endNode.getDefaultIncomingConnections().get(0).getFrom();
+        insertNodeInBetween(process, startNode.getId(), endNode.getId(), node);
+    }
 	
 }
