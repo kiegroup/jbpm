@@ -40,6 +40,7 @@ import org.junit.Test;
 import org.kie.api.KieBase;
 import org.kie.api.command.ExecutableCommand;
 import org.kie.api.definition.process.Connection;
+import org.kie.api.definition.process.Node;
 import org.kie.api.event.process.ProcessCompletedEvent;
 import org.kie.api.event.process.ProcessEventListener;
 import org.kie.api.event.process.ProcessNodeLeftEvent;
@@ -83,6 +84,9 @@ public class DynamicProcessTest extends JbpmBpmn2TestCase {
 
         final ProcessInstanceImpl processInstance = (ProcessInstanceImpl) ksession.startProcess("ht-script-process");
 
+        assertProcessInstanceActive(processInstance);
+        ksession.getWorkItemManager().completeWorkItem(testHandler.getWorkItem().getId(), null);
+
         HumanTaskNode node = new HumanTaskNode();
         node.setName("Task Appended");
         node.setId(10);
@@ -90,7 +94,8 @@ public class DynamicProcessTest extends JbpmBpmn2TestCase {
         actions.add(new DroolsConsequenceAction("java", "System.out.println(\"on Entry to the node!!\");"));
         node.setActions("onEntry", actions);
 
-        insertNodeInBetween(process, 6, 3, node);
+        //insertNodeInBetween(process, 6, 3, node);
+        insertNodeBefore(process, "Script 1", node);
 
         ((CommandBasedStatefulKnowledgeSession) ksession).getRunner().execute(new ExecutableCommand<Void>() {
             public Void execute(Context context) {
@@ -102,8 +107,6 @@ public class DynamicProcessTest extends JbpmBpmn2TestCase {
         });
 
 
-        assertProcessInstanceActive(processInstance);
-        ksession.getWorkItemManager().completeWorkItem(testHandler.getWorkItem().getId(), null);
         assertProcessInstanceActive(processInstance);
         ksession.getWorkItemManager().completeWorkItem(testHandler.getWorkItem().getId(), null);
         assertProcessInstanceActive(processInstance);
@@ -222,5 +225,21 @@ public class DynamicProcessTest extends JbpmBpmn2TestCase {
 		}
 		throw new IllegalArgumentException("Connection to node " + endNodeId + " not found in process " + process.getId());
 	}
-	
+
+	private static void insertNodeBefore(RuleFlowProcess process, String nodeName, NodeImpl node) {
+		if (process == null) {
+			throw new IllegalArgumentException("Process may not be null");
+		}
+        NodeImpl endNode = null;
+		for (Node n : process.getNodes()) {
+			if (nodeName.equals(n.getName())) {
+				endNode = (NodeImpl)n;
+			}
+		}
+		if (endNode == null) {
+			throw new IllegalArgumentException("Node " + nodeName + " not found in process " + process.getId());
+		}
+		NodeImpl startNode = (NodeImpl)endNode.getDefaultIncomingConnections().get(0).getFrom();
+        insertNodeInBetween(process, startNode.getId(), endNode.getId(), node);
+	}
 }
