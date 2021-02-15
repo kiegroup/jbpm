@@ -28,6 +28,7 @@ import org.jbpm.persistence.api.integration.model.TaskInstanceView;
 import org.jbpm.services.task.assignment.AssignmentServiceProvider;
 import org.jbpm.services.task.assignment.AssignmentServiceRegistry;
 import org.jbpm.services.task.assignment.impl.AssignmentImpl;
+import org.jbpm.services.task.assignment.impl.AssignmentServiceImpl;
 import org.jbpm.test.JbpmTestCase;
 import org.jbpm.test.persistence.processinstance.objects.TestEventEmitter;
 import org.junit.Test;
@@ -111,16 +112,22 @@ public class ProcessHumanTaskTest extends JbpmTestCase {
             
         });
         AssignmentServiceProvider.get().setEnabled(true);
-        ProcessInstance processInstance = ksession.startProcess("humanTaskWithCustomStrategy", Collections.singletonMap("processHTInput", "CustomStrategy"));
+        try {
+            ProcessInstance processInstance = ksession.startProcess("humanTaskWithCustomStrategy", Collections.singletonMap("processHTInput", "CustomStrategy"));
+    
+            List<Long> listIds = taskService.getTasksByProcessInstanceId(processInstance.getId());
+            List<Task> list = listIds.stream().map(taskService::getTaskById).collect(Collectors.toList());
+            Task task = list.get(0);
+            // john is potential owner but our custom strategy is overriding it.
+            logger.info("doctor is executing task {}", task.getName());
+            taskService.start(task.getId(), "doctor");
+            taskService.complete(task.getId(), "doctor", null);
+            assertProcessInstanceNotActive(processInstance.getId(), ksession);
 
-        List<Long> listIds = taskService.getTasksByProcessInstanceId(processInstance.getId());
-        List<Task> list = listIds.stream().map(taskService::getTaskById).collect(Collectors.toList());
-        Task task = list.get(0);
-        // john is potential owner but our custom strategy is overriding it.
-        logger.info("doctor is executing task {}", task.getName());
-        taskService.start(task.getId(), "doctor");
-        taskService.complete(task.getId(), "doctor", null);
-        assertProcessInstanceNotActive(processInstance.getId(), ksession);
+        } finally {
+            AssignmentServiceRegistry.get().reset();
+            ((AssignmentServiceImpl) AssignmentServiceProvider.get()).reset();
+        }
     }
 	
 	

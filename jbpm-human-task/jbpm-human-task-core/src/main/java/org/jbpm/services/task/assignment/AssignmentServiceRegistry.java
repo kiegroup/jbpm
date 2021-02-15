@@ -29,15 +29,17 @@ public class AssignmentServiceRegistry {
     private Map<String, AssignmentStrategy> assignmentStrategies = new HashMap<>();    
 
     private AssignmentServiceRegistry() {
-
-        foundStrategies
-            .forEach(strategy -> assignmentStrategies.put(strategy.getIdentifier(), strategy));
+        reset();
     }
     
     public static AssignmentServiceRegistry get() {
         return Holder.INSTANCE;
     }
-    
+
+    public void reset() {
+        foundStrategies.forEach(strategy -> assignmentStrategies.put(strategy.getIdentifier(), strategy));
+    }
+
     public AssignmentStrategy getStrategy(String id) {
         AssignmentStrategy strategy = assignmentStrategies.get(id);
         if (strategy == null) {
