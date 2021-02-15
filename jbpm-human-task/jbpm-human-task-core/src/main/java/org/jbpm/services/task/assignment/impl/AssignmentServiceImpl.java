@@ -39,19 +39,26 @@ public class AssignmentServiceImpl implements AssignmentService {
     private static final String ENABLED_PROPERTY = "org.jbpm.task.assignment.enabled";
     private static final String TASK_IMPLICIT_INPUT_VAR_ASSIGNMENT = "AssignmentStrategy";
     
-    private boolean enabled = Boolean.parseBoolean(System.getProperty(ENABLED_PROPERTY, "false"));
+    private boolean enabled;
 
     private AssignmentStrategy strategy;
     private AssignmentServiceRegistry registry = AssignmentServiceRegistry.get();
     private TaskModelFactory taskModelFactory = TaskModelProvider.getFactory();
     
     public AssignmentServiceImpl() {
-        this.strategy = registry.getStrategy(System.getProperty("org.jbpm.task.assignment.strategy", PotentialOwnerBusynessAssignmentStrategy.IDENTIFIER));        
+        this.reset();
     }
     
-    public AssignmentServiceImpl(AssignmentStrategy strategy) {        
+    public AssignmentServiceImpl(AssignmentStrategy strategy) {
+        this.reset();
         this.strategy = strategy;
     }
+
+    public void reset() {
+        this.strategy = registry.getStrategy(System.getProperty("org.jbpm.task.assignment.strategy", PotentialOwnerBusynessAssignmentStrategy.IDENTIFIER));
+        this.enabled = Boolean.parseBoolean(System.getProperty(ENABLED_PROPERTY, "false"));
+    }
+
     
     @Override
     public void assignTask(Task task, TaskContext context) {
@@ -114,8 +121,10 @@ public class AssignmentServiceImpl implements AssignmentService {
         return enabled;
     }
 
+    @Override
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
+
 
 }

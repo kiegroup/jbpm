@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.assertj.core.api.Assertions;
 import org.jbpm.test.JbpmTestCase;
 import org.jbpm.workflow.instance.node.HumanTaskNodeInstance;
@@ -115,14 +116,15 @@ public class HumanTaskSwimlaneTest extends JbpmTestCase {
         RuntimeEngine runtime = getRuntimeEngine();
         KieSession kSession = runtime.getKieSession();
         TaskService taskservice = runtime.getTaskService();
-        
+        MutableObject<Object> actor = new MutableObject<Object>();
         kSession.addEventListener(new DefaultProcessEventListener(){
 
             @Override
             public void afterNodeTriggered(ProcessNodeTriggeredEvent event) {
                 if (event.getNodeInstance().getNodeName().equals("TASK")) {
                     Object swimlaneActorId = ((HumanTaskNodeInstance) event.getNodeInstance()).getWorkItem().getParameter("SwimlaneActorId");
-                    assertNull(swimlaneActorId);
+                    actor.setValue(swimlaneActorId);
+
                 }
             }
             
@@ -131,7 +133,9 @@ public class HumanTaskSwimlaneTest extends JbpmTestCase {
         Map<String, Object> map = new HashMap<String, Object>();
         
         ProcessInstance instance = kSession.startProcess(SWIMLANE_MULTIPLE_ACTORS_ID, map);
-        
+
+        assertNull(actor.getValue());
+
         List<Status> statuses = new ArrayList<Status>();
         statuses.add(Status.Ready);
         statuses.add(Status.Reserved);
