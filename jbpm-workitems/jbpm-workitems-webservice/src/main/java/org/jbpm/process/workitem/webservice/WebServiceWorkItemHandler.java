@@ -34,8 +34,11 @@ import javax.xml.namespace.QName;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.ClientCallback;
+import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.dynamic.DynamicClientFactory;
 import org.apache.cxf.jaxws.endpoint.dynamic.JaxWsDynamicClientFactory;
+import org.apache.cxf.jaxws.interceptors.HolderInInterceptor;
+import org.apache.cxf.jaxws.interceptors.WrapperClassInInterceptor;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
@@ -78,7 +81,8 @@ import org.slf4j.LoggerFactory;
                 @WidParameter(name = "Operation"),
                 @WidParameter(name = "Endpoint"),
                 @WidParameter(name = "Parameter"),
-                @WidParameter(name = "Mode")
+                @WidParameter(name = "Mode"),
+                @WidParameter(name = "Wrapped")
         },
         results = {
                 @WidResult(name = "Result", runtimeType = "java.lang.Object")
@@ -198,7 +202,7 @@ public class WebServiceWorkItemHandler extends AbstractLogOrThrowWorkItemHandler
         this.username = username;
         this.password = password;
     }
-    
+
     /**
      * Used when no authentication is required
      * @param handlingProcessId - process id to handle exception
@@ -336,6 +340,7 @@ public class WebServiceWorkItemHandler extends AbstractLogOrThrowWorkItemHandler
 
         String modeParam = (String) workItem.getParameter("Mode");
         WSMode mode = WSMode.valueOf(modeParam == null ? "SYNC" : modeParam.toUpperCase());
+        Boolean wrapped = Boolean.parseBoolean((String) workItem.getParameter("Wrapped"));
 
         try {
             Client client = getWSClient(workItem,
@@ -353,10 +358,14 @@ public class WebServiceWorkItemHandler extends AbstractLogOrThrowWorkItemHandler
             // apply authorization if needed
             applyAuthorization(username, password, client);
 
+            //Remove interceptors if using wrapped mode
+            if (wrapped) {
+                removeWrappingInterceptors(client);
+            }
+
             switch (mode) {
                 case SYNC:
-                    Object[] result = client.invoke(operationRef,
-                                                    parameters);
+                    Object[] result = wrapped ? client.invokeWrapped(operationRef, parameters) : client.invoke(operationRef, parameters);
 
                     Map<String, Object> output = new HashMap<String, Object>();
 
@@ -379,9 +388,11 @@ public class WebServiceWorkItemHandler extends AbstractLogOrThrowWorkItemHandler
                     final String deploymentId = nonNull(((WorkItemImpl) workItem).getDeploymentId());
                     final long processInstanceId = workItem.getProcessInstanceId();
 
-                    client.invoke(callback,
-                                  operationRef,
-                                  parameters);
+                    if (wrapped) {
+                        client.invokeWrapped(callback, operationRef, parameters);
+                    } else {
+                        client.invoke(callback, operationRef, parameters);
+                    }
                     new Thread(new Runnable() {
 
                         public void run() {
@@ -429,9 +440,11 @@ public class WebServiceWorkItemHandler extends AbstractLogOrThrowWorkItemHandler
                 case ONEWAY:
                     ClientCallback callbackFF = new ClientCallback();
 
-                    client.invoke(callbackFF,
-                                  operationRef,
-                                  parameters);
+                    if (wrapped) {
+                        client.invokeWrapped(callbackFF, operationRef, parameters);
+                    } else {
+                        client.invoke(callbackFF, operationRef, parameters);
+                    }
                     logger.debug("One way operation, not going to wait for response, completing work item {}",
                                  workItem.getId());
                     manager.completeWorkItem(workItem.getId(),
@@ -447,9 +460,18 @@ public class WebServiceWorkItemHandler extends AbstractLogOrThrowWorkItemHandler
         }
     }
 
+    private void removeWrappingInterceptors(Client client){
+        Endpoint endpoint = client.getEndpoint();
+        endpoint.getInInterceptors().stream().filter(i -> i instanceof WrapperClassInInterceptor).findFirst().ifPresent(i -> {
+            endpoint.getInInterceptors().remove(i);
+        });
+        endpoint.getInInterceptors().stream().filter(i -> i instanceof HolderInInterceptor).findFirst().ifPresent(i -> {
+            endpoint.getInInterceptors().remove(i);
+        });
+    }
+
     @SuppressWarnings("unchecked")
-    protected Client getWSClient(WorkItem workItem,
-                                              String interfaceRef) {
+    protected Client getWSClient(WorkItem workItem, String interfaceRef) {
         if (clients.containsKey(interfaceRef)) {
             return clients.get(interfaceRef);
         }

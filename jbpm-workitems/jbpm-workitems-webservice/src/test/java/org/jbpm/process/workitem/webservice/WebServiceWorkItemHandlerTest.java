@@ -16,9 +16,17 @@
 
 package org.jbpm.process.workitem.webservice;
 
+import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.endpoint.Client;
+import org.apache.cxf.endpoint.ClientCallback;
+import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.interceptor.Interceptor;
+import org.apache.cxf.jaxws.interceptors.HolderInInterceptor;
+import org.apache.cxf.jaxws.interceptors.WrapperClassInInterceptor;
+import org.apache.cxf.message.Message;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.drools.core.process.instance.impl.WorkItemImpl;
 import org.jbpm.process.workitem.core.TestWorkItemManager;
@@ -27,12 +35,18 @@ import org.junit.runner.RunWith;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessWorkItemHandlerException;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.Mockito;
-import org.apache.cxf.configuration.security.AuthorizationPolicy;
+import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class WebServiceWorkItemHandlerTest {
@@ -49,8 +63,8 @@ public class WebServiceWorkItemHandlerTest {
     @Test
     public void testExecuteSyncOperation() throws Exception {
 
-        when(clients.containsKey(anyObject())).thenReturn(true);
-        when(clients.get(anyObject())).thenReturn(client);
+        when(clients.containsKey(any())).thenReturn(true);
+        when(clients.get(any())).thenReturn(client);
 
         TestWorkItemManager manager = new TestWorkItemManager();
         WorkItemImpl workItem = new WorkItemImpl();
@@ -75,13 +89,121 @@ public class WebServiceWorkItemHandlerTest {
     }
 
     @Test
+    public void testExecuteWrappedModeSync() throws Exception {
+
+        when(clients.containsKey(any())).thenReturn(true);
+        when(clients.get(any())).thenReturn(client);
+        Endpoint endpoint = mock(Endpoint.class);
+        when(client.getEndpoint()).thenReturn(endpoint);
+        ArrayList<Interceptor<? extends Message>> interceptors = new ArrayList<>();
+        interceptors.add(mock(WrapperClassInInterceptor.class));
+        interceptors.add(mock(HolderInInterceptor.class));
+        when(endpoint.getInInterceptors()).thenReturn(interceptors);
+
+        TestWorkItemManager manager = new TestWorkItemManager();
+        WorkItemImpl workItem = new WorkItemImpl();
+        workItem.setParameter("Interface",
+                              "someInterface");
+        workItem.setParameter("Operation",
+                              "someOperation");
+        workItem.setParameter("Parameter",
+                              "myParam");
+        workItem.setParameter("Mode",
+                              "SYNC");
+        workItem.setParameter("Wrapped",
+                              "true");
+
+        WebServiceWorkItemHandler handler = new WebServiceWorkItemHandler(kieSession);
+        handler.setClients(clients);
+
+        handler.executeWorkItem(workItem, manager);
+
+        verify(client).invokeWrapped(any(String.class), any());
+        verify(client, never()).invoke(any(String.class), any());
+        assertEquals(0, interceptors.size());
+        assertNotNull(manager.getResults());
+        assertEquals(1, manager.getResults().size());
+        assertTrue(manager.getResults().containsKey(workItem.getId()));
+    }
+
+    @Test
+    public void testExecuteWrappedModeOneWay() throws Exception {
+
+        when(clients.containsKey(any())).thenReturn(true);
+        when(clients.get(any())).thenReturn(client);
+        Endpoint endpoint = mock(Endpoint.class);
+        when(client.getEndpoint()).thenReturn(endpoint);
+        ArrayList<Interceptor<? extends Message>> interceptors = new ArrayList<>();
+        interceptors.add(mock(WrapperClassInInterceptor.class));
+        interceptors.add(mock(HolderInInterceptor.class));
+        when(endpoint.getInInterceptors()).thenReturn(interceptors);
+
+        TestWorkItemManager manager = new TestWorkItemManager();
+        WorkItemImpl workItem = new WorkItemImpl();
+        workItem.setParameter("Interface",
+                              "someInterface");
+        workItem.setParameter("Operation",
+                              "someOperation");
+        workItem.setParameter("Parameter",
+                              "myParam");
+        workItem.setParameter("Mode",
+                              "ONEWAY");
+        workItem.setParameter("Wrapped",
+                              "true");
+
+        WebServiceWorkItemHandler handler = new WebServiceWorkItemHandler(kieSession);
+        handler.setClients(clients);
+
+        handler.executeWorkItem(workItem, manager);
+
+        verify(client).invokeWrapped(any(ClientCallback.class), any(String.class), any());
+        verify(client, never()).invoke(any(ClientCallback.class), any(String.class), any());
+        assertEquals(0, interceptors.size());
+    }
+
+    @Test
+    public void testExecuteWrappedModeAsync() throws Exception {
+
+        when(clients.containsKey(any())).thenReturn(true);
+        when(clients.get(any())).thenReturn(client);
+        Endpoint endpoint = mock(Endpoint.class);
+        when(client.getEndpoint()).thenReturn(endpoint);
+        ArrayList<Interceptor<? extends Message>> interceptors = new ArrayList<>();
+        interceptors.add(mock(WrapperClassInInterceptor.class));
+        interceptors.add(mock(HolderInInterceptor.class));
+        when(endpoint.getInInterceptors()).thenReturn(interceptors);
+
+        TestWorkItemManager manager = new TestWorkItemManager();
+        WorkItemImpl workItem = new WorkItemImpl();
+        workItem.setParameter("Interface",
+                              "someInterface");
+        workItem.setParameter("Operation",
+                              "someOperation");
+        workItem.setParameter("Parameter",
+                              "myParam");
+        workItem.setParameter("Mode",
+                              "ASYNC");
+        workItem.setParameter("Wrapped",
+                              "true");
+
+        WebServiceWorkItemHandler handler = new WebServiceWorkItemHandler(kieSession);
+        handler.setClients(clients);
+
+        handler.executeWorkItem(workItem, manager);
+
+        verify(client).invokeWrapped(any(ClientCallback.class), any(String.class), any());
+        verify(client, never()).invoke(any(ClientCallback.class), any(String.class), any());
+        assertEquals(0, interceptors.size());
+    }
+
+    @Test
     public void testExecuteSyncOperationWithBasicAuth() throws Exception {
 
         HTTPConduit http = Mockito.mock(HTTPConduit.class,
                                         Mockito.CALLS_REAL_METHODS);
 
-        when(clients.containsKey(anyObject())).thenReturn(true);
-        when(clients.get(anyObject())).thenReturn(client);
+        when(clients.containsKey(any())).thenReturn(true);
+        when(clients.get(any())).thenReturn(client);
         when(client.getConduit()).thenReturn(http);
 
         TestWorkItemManager manager = new TestWorkItemManager();
@@ -120,8 +242,8 @@ public class WebServiceWorkItemHandlerTest {
     @Test
     public void testExecuteSyncOperationHandlingException() throws Exception {
 
-        when(clients.containsKey(anyObject())).thenReturn(true);
-        when(clients.get(anyObject())).thenReturn(null);
+        when(clients.containsKey(any())).thenReturn(true);
+        when(clients.get(any())).thenReturn(null);
 
         TestWorkItemManager manager = new TestWorkItemManager();
         WorkItemImpl workItem = new WorkItemImpl();
