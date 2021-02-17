@@ -16,14 +16,16 @@
 
 package org.jbpm.process.workitem.webservice;
 
+import java.io.File;
 import java.lang.reflect.Array;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -572,7 +574,7 @@ public class WebServiceWorkItemHandler extends AbstractLogOrThrowWorkItemHandler
             if (parent.getClass().getSimpleName().equals("ModuleClassLoader")) {
                 try {
                     getJarsFromModuleClassLoader(parent, uris);
-                } catch (ReflectiveOperationException e) {
+                } catch (ReflectiveOperationException | MalformedURLException e) {
                     throw new WorkItemHandlerRuntimeException(e, "Problem calculating list of URLs from ModuleClassLoader");
                 }
             }
@@ -590,6 +592,7 @@ public class WebServiceWorkItemHandler extends AbstractLogOrThrowWorkItemHandler
 
         public CXFJavaCompileClassLoader(Collection<URL> files, ClassLoader parent) {
             super(new URL[0], parent);
+            logger.trace("Loaded urls are {}", files);
             this.jarUrls = files.toArray(new URL[0]);
         }
 
@@ -600,29 +603,47 @@ public class WebServiceWorkItemHandler extends AbstractLogOrThrowWorkItemHandler
     }
 
     /* This method uses public methods of ModuleClassLoader through introspection in order to avoid a compile time
-     * dependency with jboss module classes. In the unlikely event these public method signatures are changed, 
-     * this method will need to be changed accordingly
+     * dependency with jboss module classes.
      */
     private void getJarsFromModuleClassLoader(ClassLoader cl,
-                                              Collection<URL> collector) throws ReflectiveOperationException {
-        Iterator<?> iterator = (Iterator<?>) cl.getClass().getMethod("iterateResources", String.class, boolean.class)
-                .invoke(cl, "", true);
-        while (iterator.hasNext()) {
-            Object resource = iterator.next();
-            Class<?> resourceClass = resource.getClass();
-            String name = (String) getMethod(resourceClass, "getName").invoke(resource);
-            if (name.endsWith("jar")) {
-                collector.add((URL) getMethod(resourceClass, "getURL").invoke(resource));
+                                              Collection<URL> collector) throws ReflectiveOperationException, MalformedURLException {
+        Object resourceLoaders = methodInvoke(cl, "getResourceLoaders", Object.class);
+        for (int i = 0; i < Array.getLength(resourceLoaders); i++) {
+            Object resourceLoader = Array.get(resourceLoaders, i);
+            switch (resourceLoader.getClass().getSimpleName()) {
+                case "JarFileResourceLoader":
+                    collector.add(fieldGet(resourceLoader, "rootUrl", URL.class));
+                    break;
+                case "VFSResourceLoader":
+                    String rootName = fieldGet(resourceLoader, "rootName", String.class);
+                    if (rootName.endsWith("jar")) {
+                        collector.add(new File(methodInvoke(fieldGet(resourceLoader, "root", Object.class),
+                                "getPhysicalFile", File.class).getParentFile(), rootName).toURI().toURL());
+                    }
+                    break;
+                default:
+                    // ignore other resources
+
             }
         }
     }
 
-    /* setAccesible call is needed because despite the method being public, the class implementing Resource might not be public*/
     @SuppressWarnings("squid:S3011")
-    private Method getMethod(Class<?> clazz, String methodName) throws NoSuchMethodException {
-        Method m = clazz.getMethod(methodName);
+    private <T> T methodInvoke(Object obj,
+                               String methodName,
+                               Class<T> resultClass) throws ReflectiveOperationException {
+        Method m = obj.getClass().getDeclaredMethod(methodName);
         m.setAccessible(true);
-        return m;
+        return resultClass.cast(m.invoke(obj));
+    }
+
+    @SuppressWarnings("squid:S3011")
+    private <T> T fieldGet(Object obj,
+                           String fieldName,
+                           Class<T> resultClass) throws ReflectiveOperationException {
+        Field f = obj.getClass().getDeclaredField(fieldName);
+        f.setAccessible(true);
+        return resultClass.cast(f.get(obj));
     }
 
     public ClassLoader getClassLoader() {
