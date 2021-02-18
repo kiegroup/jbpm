@@ -165,17 +165,19 @@ public class JPAProcessInstanceManager
     	        }
     	        processInstance.setProcess( process );
             }
-            if ( processInstance.getKnowledgeRuntime() == null ) {
-                Long parentProcessInstanceId = (Long) ((ProcessInstanceImpl) processInstance).getMetaData().get("ParentProcessInstanceId");
-                if (parentProcessInstanceId != null) {
-                    kruntime.getProcessInstance(parentProcessInstanceId);
-                }
-                processInstance.setKnowledgeRuntime( kruntime );
-                
+
+            Long parentProcessInstanceId = (Long) ((ProcessInstanceImpl) processInstance).getMetaData().get("ParentProcessInstanceId");
+            if (parentProcessInstanceId != null) {
+                kruntime.getProcessInstance(parentProcessInstanceId);
+            }
+
+            if (processInstance.getKnowledgeRuntime() == null && !readOnly) {
+                processInstance.setKnowledgeRuntime(kruntime);
                 ((ProcessInstanceImpl) processInstance).reconnect();
-                if (readOnly) {
-                    internalRemoveProcessInstance(processInstance);
-                }
+            } 
+
+            if (readOnly) {
+                internalRemoveProcessInstance(processInstance);
             }
             return processInstance;
         } finally {
