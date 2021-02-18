@@ -16,7 +16,7 @@
 
 package org.jbpm.kie.services.impl.query.preprocessor;
 
-import static org.jbpm.services.api.query.QueryResultMapper.COLUMN_TASKID;
+import java.util.Collection;
 
 import org.dashbuilder.dataset.DataSetLookup;
 import org.dashbuilder.dataset.DataSetMetadata;
@@ -27,14 +27,20 @@ import org.dashbuilder.dataset.group.GroupFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.jbpm.services.api.query.QueryResultMapper.COLUMN_TASKID;
+
 public abstract class UserTasksPreprocessor implements DataSetPreprocessor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserTasksPreprocessor.class);
     
     private DataSetMetadata metadata;
 
-    public UserTasksPreprocessor(DataSetMetadata metadata) {        
+    protected UserTasksPreprocessor(DataSetMetadata metadata) {
         this.metadata = metadata;
+    }
+
+    protected Collection<String> getGroupColumns(Collection<String> columns) {
+        return columns;
     }
 
     @Override
@@ -43,8 +49,10 @@ public abstract class UserTasksPreprocessor implements DataSetPreprocessor {
         if (lookup.getLastGroupOp() == null) {
             LOGGER.debug("There is no group operation, adding one to eliminate duplicated tasks");
             DataSetGroup gOp = new DataSetGroup();
-            gOp.setColumnGroup(new ColumnGroup(COLUMN_TASKID, COLUMN_TASKID));
-            for (String columnId : metadata.getColumnIds()) {                
+            ColumnGroup cg = new ColumnGroup(COLUMN_TASKID, COLUMN_TASKID);
+            cg.setPostEnabled(false);
+            gOp.setColumnGroup(cg);
+            for (String columnId : getGroupColumns(metadata.getColumnIds())) {
                 gOp.addGroupFunction(new GroupFunction(columnId, columnId, null));
             }
             LOGGER.debug("Group operation {} added to dataset lookup {}", gOp, lookup);

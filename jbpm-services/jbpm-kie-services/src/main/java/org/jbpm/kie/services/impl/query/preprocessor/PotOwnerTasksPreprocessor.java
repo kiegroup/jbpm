@@ -16,16 +16,8 @@
 
 package org.jbpm.kie.services.impl.query.preprocessor;
 
-import static org.dashbuilder.dataset.filter.FilterFactory.AND;
-import static org.dashbuilder.dataset.filter.FilterFactory.OR;
-import static org.dashbuilder.dataset.filter.FilterFactory.equalsTo;
-import static org.dashbuilder.dataset.filter.FilterFactory.isNull;
-import static org.dashbuilder.dataset.filter.FilterFactory.notEqualsTo;
-import static org.jbpm.services.api.query.QueryResultMapper.COLUMN_ACTUALOWNER;
-import static org.jbpm.services.api.query.QueryResultMapper.COLUMN_EXCLUDED_OWNER;
-import static org.jbpm.services.api.query.QueryResultMapper.COLUMN_ORGANIZATIONAL_ENTITY;
-
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,6 +29,15 @@ import org.kie.api.task.UserGroupCallback;
 import org.kie.internal.identity.IdentityProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.dashbuilder.dataset.filter.FilterFactory.AND;
+import static org.dashbuilder.dataset.filter.FilterFactory.OR;
+import static org.dashbuilder.dataset.filter.FilterFactory.equalsTo;
+import static org.dashbuilder.dataset.filter.FilterFactory.isNull;
+import static org.dashbuilder.dataset.filter.FilterFactory.notEqualsTo;
+import static org.jbpm.services.api.query.QueryResultMapper.COLUMN_ACTUALOWNER;
+import static org.jbpm.services.api.query.QueryResultMapper.COLUMN_EXCLUDED_OWNER;
+import static org.jbpm.services.api.query.QueryResultMapper.COLUMN_ORGANIZATIONAL_ENTITY;
 
 public class PotOwnerTasksPreprocessor extends UserTasksPreprocessor {
 
@@ -84,6 +85,12 @@ public class PotOwnerTasksPreprocessor extends UserTasksPreprocessor {
         }
 
         super.preprocess(lookup);
+    }
+
+    @Override
+    protected Collection<String> getGroupColumns(Collection<String> columns) {
+        columns.remove(COLUMN_ORGANIZATIONAL_ENTITY);
+        return columns;
     }
 
 }
