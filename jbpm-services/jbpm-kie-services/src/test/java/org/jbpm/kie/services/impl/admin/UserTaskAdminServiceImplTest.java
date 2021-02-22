@@ -26,6 +26,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.EntityManager;
+
 import org.assertj.core.api.Assertions;
 import org.drools.compiler.kie.builder.impl.InternalKieModule;
 import org.jbpm.kie.services.impl.KModuleDeploymentUnit;
@@ -46,8 +48,10 @@ import org.jbpm.services.api.model.UserTaskInstanceDesc;
 import org.jbpm.services.api.query.model.QueryDefinition;
 import org.jbpm.services.api.query.model.QueryDefinition.Target;
 import org.jbpm.services.api.query.model.QueryParam;
+import org.jbpm.services.task.audit.impl.model.TaskEventImpl;
 import org.jbpm.shared.services.impl.TransactionalCommandService;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.kie.api.KieServices;
@@ -63,6 +67,7 @@ import org.kie.internal.task.api.TaskModelFactory;
 import org.kie.internal.task.api.TaskModelProvider;
 import org.kie.internal.task.api.model.EmailNotification;
 import org.kie.internal.task.api.model.TaskEvent;
+import org.kie.internal.task.api.model.TaskEvent.TaskEventType;
 import org.kie.scanner.KieMavenRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -218,6 +223,38 @@ public class UserTaskAdminServiceImplTest extends AbstractKieServicesBaseTest {
         identityProvider.setRoles(Collections.singletonList("Accounting"));
         userTaskAdminService.addPotentialOwners(task.getId(), false, factory.newGroup("Accounting"));
         tasks = runtimeDataService.getTasksAssignedAsPotentialOwner("mary", new QueryFilter());
+        Assertions.assertThat(tasks).hasSize(1);
+    }
+
+    @Test
+    public void testAddRemovePotentialOwnersByUser() {
+        processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument");
+        Assertions.assertThat(processInstanceId).isNotNull();
+
+        List<TaskSummary> tasks = runtimeDataService.getTasksAssignedAsPotentialOwner("salaboy", new QueryFilter());
+        Assertions.assertThat(tasks).hasSize(1);
+        TaskSummary task = tasks.get(0);
+        userTaskService.release(task.getId(), "salaboy");
+
+        // Forward the task to HR group (Add HR as potential owners)
+        identityProvider.setRoles(Collections.singletonList("HR"));
+        userTaskAdminService.addPotentialOwners("wbadmin",deploymentUnit.getIdentifier(), task.getId(), true, factory.newGroup("HR"));
+        tasks = runtimeDataService.getTasksAssignedAsPotentialOwner("katy", new QueryFilter());
+        Assertions.assertThat(tasks).hasSize(1);
+
+        // HR has no resources to handle so lets forward it to accounting
+        userTaskAdminService.removePotentialOwners("wbadmin", deploymentUnit.getIdentifier(), task.getId(), factory.newGroup("HR"));
+        tasks = runtimeDataService.getTasksAssignedAsPotentialOwner("katy", new QueryFilter());
+        Assertions.assertThat(tasks).isEmpty();
+
+        identityProvider.setRoles(Collections.singletonList("Accounting"));
+        userTaskAdminService.addPotentialOwners("wbadmin", deploymentUnit.getIdentifier(), task.getId(), false, factory.newGroup("Accounting"));
+        tasks = runtimeDataService.getTasksAssignedAsPotentialOwner("mary", new QueryFilter());
+        EntityManager em = this.emf.createEntityManager();
+        List<TaskEventImpl> impl = em.createQuery("SELECT o FROM TaskEventImpl o", TaskEventImpl.class).getResultList();
+        em.close();
+
+        Assert.assertFalse(impl.stream().filter(e -> e.getType().equals(TaskEventType.UPDATED)).anyMatch(e -> !e.getUserId().equals("wbadmin")));
         Assertions.assertThat(tasks).hasSize(1);
     }
 
