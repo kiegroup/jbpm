@@ -109,6 +109,11 @@ public class UserTaskAdminServiceImpl implements UserTaskAdminService {
     }
 
     @Override
+    public void addPotentialOwners(String userId, String deploymentId, long taskId, boolean removeExisting, OrganizationalEntity... orgEntities) throws TaskNotFoundException {
+        addPeopleAssignment(userId, deploymentId, taskId, removeExisting, POT_OWNER, orgEntities);
+    }
+
+    @Override
     public void addExcludedOwners(long taskId, boolean removeExisting, OrganizationalEntity... orgEntities) throws TaskNotFoundException {
         addExcludedOwners(null, taskId, removeExisting, orgEntities);
     }
@@ -116,6 +121,11 @@ public class UserTaskAdminServiceImpl implements UserTaskAdminService {
     @Override
     public void addExcludedOwners(String deploymentId, long taskId, boolean removeExisting, OrganizationalEntity... orgEntities) throws TaskNotFoundException {
         addPeopleAssignment(deploymentId, taskId, removeExisting, EXCL_OWNER, orgEntities);
+    }
+
+    @Override
+    public void addExcludedOwners(String userId, String deploymentId, long taskId, boolean removeExisting, OrganizationalEntity... orgEntities) throws TaskNotFoundException {
+        addPeopleAssignment(userId, deploymentId, taskId, removeExisting, EXCL_OWNER, orgEntities);
     }
     
     @Override
@@ -129,8 +139,18 @@ public class UserTaskAdminServiceImpl implements UserTaskAdminService {
     }
     
     @Override
+    public void addBusinessAdmins(String userId, String deploymentId, long taskId, boolean removeExisting, OrganizationalEntity... orgEntities) throws TaskNotFoundException {
+        addPeopleAssignment(userId, deploymentId, taskId, removeExisting, ADMIN, orgEntities);
+    }
+
+    @Override
     public void removePotentialOwners(long taskId, OrganizationalEntity... orgEntities) throws TaskNotFoundException {
         removePotentialOwners(null, taskId, orgEntities);
+    }
+
+    @Override
+    public void removePotentialOwners(String userId, String deploymentId, long taskId, OrganizationalEntity... orgEntities) throws TaskNotFoundException {
+        removePeopleAssignment(userId, deploymentId, taskId, POT_OWNER, orgEntities);
     }
 
     @Override
@@ -141,6 +161,11 @@ public class UserTaskAdminServiceImpl implements UserTaskAdminService {
     @Override
     public void removeExcludedOwners(long taskId, OrganizationalEntity... orgEntities) throws TaskNotFoundException {
         removeExcludedOwners(null, taskId, orgEntities);
+    }
+
+    @Override
+    public void removeExcludedOwners(String userId, String deploymentId, long taskId, OrganizationalEntity... orgEntities) throws TaskNotFoundException {
+        removePeopleAssignment(userId, deploymentId, taskId, EXCL_OWNER, orgEntities);
     }
 
     @Override
@@ -156,6 +181,11 @@ public class UserTaskAdminServiceImpl implements UserTaskAdminService {
     @Override
     public void removeBusinessAdmins(String deploymentId, long taskId, OrganizationalEntity... orgEntities) throws TaskNotFoundException, IllegalStateException {
         removePeopleAssignment(deploymentId, taskId, ADMIN, orgEntities);
+    }
+
+    @Override
+    public void removeBusinessAdmins(String userId, String deploymentId, long taskId, OrganizationalEntity... orgEntities) throws TaskNotFoundException, IllegalStateException {
+        removePeopleAssignment(userId, deploymentId, taskId, ADMIN, orgEntities);
     }
     
     @Override
@@ -451,7 +481,13 @@ public class UserTaskAdminServiceImpl implements UserTaskAdminService {
     /*
      * Internal methods
      */
-    
+    protected void addPeopleAssignment(String userId, String deploymentId, long taskId, boolean removeExisting, int type, OrganizationalEntity... orgEntities) throws TaskNotFoundException {
+        UserTaskInstanceDesc task = runtimeDataService.getTaskById(taskId);
+        validateTask(deploymentId, taskId, task);
+
+        userTaskService.execute(task.getDeploymentId(), ProcessInstanceIdContext.get(task.getProcessInstanceId()), 
+                new AddPeopleAssignmentsCommand(userId, taskId, type, orgEntities, removeExisting));
+    }
     
     protected void addPeopleAssignment(String deploymentId, long taskId, boolean removeExisting, int type, OrganizationalEntity... orgEntities) throws TaskNotFoundException {
         UserTaskInstanceDesc task = runtimeDataService.getTaskById(taskId);
@@ -460,7 +496,15 @@ public class UserTaskAdminServiceImpl implements UserTaskAdminService {
         userTaskService.execute(task.getDeploymentId(), ProcessInstanceIdContext.get(task.getProcessInstanceId()), 
                 new AddPeopleAssignmentsCommand(identityProvider.getName(), taskId, type, orgEntities, removeExisting));
     }
-    
+
+    protected void removePeopleAssignment(String userId, String deploymentId, long taskId, int type, OrganizationalEntity... orgEntities) throws TaskNotFoundException {
+        UserTaskInstanceDesc task = runtimeDataService.getTaskById(taskId);
+        validateTask(deploymentId, taskId, task);
+
+        userTaskService.execute(task.getDeploymentId(), ProcessInstanceIdContext.get(task.getProcessInstanceId()), 
+                new RemovePeopleAssignmentsCommand(userId, taskId, type, orgEntities));
+    }
+
     protected void removePeopleAssignment(String deploymentId, long taskId, int type, OrganizationalEntity... orgEntities) throws TaskNotFoundException {
         UserTaskInstanceDesc task = runtimeDataService.getTaskById(taskId);
         validateTask(deploymentId, taskId, task);
@@ -468,6 +512,7 @@ public class UserTaskAdminServiceImpl implements UserTaskAdminService {
         userTaskService.execute(task.getDeploymentId(), ProcessInstanceIdContext.get(task.getProcessInstanceId()), 
                 new RemovePeopleAssignmentsCommand(identityProvider.getName(), taskId, type, orgEntities));
     }
+
     
     protected Long reassign(String deploymentId, long taskId, String timeExpression, DeadlineType type, OrganizationalEntity... orgEntities) throws TaskNotFoundException {
         UserTaskInstanceDesc task = runtimeDataService.getTaskById(taskId);

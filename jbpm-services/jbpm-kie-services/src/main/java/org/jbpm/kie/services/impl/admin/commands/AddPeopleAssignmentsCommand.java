@@ -40,6 +40,7 @@ public class AddPeopleAssignmentsCommand extends UserGroupCallbackTaskCommand<Vo
     private OrganizationalEntity[] entities;
     private boolean removeExisting;
 
+
     public AddPeopleAssignmentsCommand(String userId, long taskId, int type, OrganizationalEntity[] entities, boolean removeExisting) {
         super();
         setUserId(userId);
