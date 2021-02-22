@@ -35,6 +35,24 @@
                   "methodName": "getProcessInstancesWithSubprocessByProcessInstanceId",
                   "elementKind": "method",
                   "justification": "https://issues.redhat.com/browse/JBPM-9583"
+                },
+                {
+                    "code": "java.method.addedToInterface",
+                    "new": "method java.util.Set<java.lang.String> org.jbpm.services.api.model.ProcessDefinition::getTagsForVariable(java.lang.String)",
+                    "package": "org.jbpm.services.api.model",
+                    "classSimpleName": "ProcessDefinition",
+                    "methodName": "getTagsForVariable",
+                    "elementKind": "method",
+                    "justification": "[JBPM-9548] Need access to process variables tags at FormRendererBase (kie-server-services-jbpm-ui)"
+                },
+                {
+                    "code": "java.method.addedToInterface",
+                    "new": "method java.util.Map<java.lang.String, java.lang.Object> org.jbpm.services.api.ProcessService::startSynchronousProcess(java.lang.String, java.lang.String, java.util.Map<java.lang.String, java.lang.Object>)",
+                    "package": "org.jbpm.services.api",
+                    "classSimpleName": "ProcessService",
+                    "methodName": "startSynchronousProcess",
+                    "elementKind": "method",
+                    "justification": "[JBPM-9624] Return the process variables for synchronous execution use cases"
                 }
             ]
         }
