@@ -48,6 +48,8 @@ import org.jbpm.workflow.instance.node.EventNodeInstance;
 import org.kie.api.command.Command;
 import org.kie.api.command.ExecutableCommand;
 import org.kie.api.definition.process.Node;
+import org.kie.api.event.process.DefaultProcessEventListener;
+import org.kie.api.event.process.ProcessVariableChangedEvent;
 import org.kie.api.runtime.EnvironmentName;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.Context;
@@ -128,6 +130,39 @@ public class ProcessServiceImpl implements ProcessService, VariablesAware {
         } finally {
             disposeRuntimeEngine(manager, engine);
         }
+    }
+
+
+    @Override
+    public Map<String, Object> startSynchronousProcess(String deploymentId, String processId, Map<String, Object> params) {
+        DeployedUnit deployedUnit = deploymentService.getDeployedUnit(deploymentId);
+        if (deployedUnit == null) {
+            throw new DeploymentNotFoundException("No deployments available for " + deploymentId);
+        }
+        if (!deployedUnit.isActive()) {
+            throw new DeploymentNotActiveException("Deployment " + deploymentId + " is not active");
+        }
+
+        RuntimeManager manager = deployedUnit.getRuntimeManager();
+
+        params = process(params, ((InternalRuntimeManager) manager).getEnvironment().getClassLoader());
+        RuntimeEngine engine = manager.getRuntimeEngine(getContext(params));
+        KieSession ksession = engine.getKieSession();
+
+        Map<String, Object> vars = params != null ? new HashMap<>(params) : new HashMap<>(); // copy variables
+        ksession.addEventListener(new DefaultProcessEventListener() {
+            @Override
+            public void afterVariableChanged(ProcessVariableChangedEvent event) {
+                vars.put(event.getVariableId(), event.getNewValue());
+            }
+        });
+
+        try {
+            ksession.startProcess(processId, params);
+        } finally {
+            disposeRuntimeEngine(manager, engine);
+        }
+        return vars;
     }
 
 

@@ -53,6 +53,17 @@ public interface ProcessService {
 	 */
     Long startProcess(String deploymentId, String processId, Map<String, Object> params);
     
+
+    /**
+     * Synchronous process are those which start and finish in the same transaction. This functionality allows
+     * to retrieve the last outcome of process variables
+     * @param deploymentId deployment information for the process's kjar
+     * @param processId the process identifier
+     * @param params process variables
+     * @return last modification of process variables.
+     */
+    Map<String, Object> startSynchronousProcess(String deploymentId, String processId, Map<String, Object> params);
+    
 	/**
 	 * Starts a process with no variables
 	 * 
@@ -497,6 +508,8 @@ public interface ProcessService {
      * @throws DeploymentNotActiveException in case deployment with given deployment id is not active for restricted commands (e.g. start process)
      */
     public <T> T execute(String deploymentId, Context<?> context, Command<T> command);
+
+
 
 
 
