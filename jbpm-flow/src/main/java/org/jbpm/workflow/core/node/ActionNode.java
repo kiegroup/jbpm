@@ -32,12 +32,26 @@ public class ActionNode extends ExtendedNodeImpl {
 	
 	private DroolsAction action;
 
+    private boolean executeActionAfterComplete = false;
+
+    
+
+
     public ActionNode() {
         super(NodeType.SCRIPT_TASK);
     }
 
     public ActionNode(NodeType nodeType) {
         super(nodeType);
+    }
+
+    
+    public void setExecuteActionAfterComplete(boolean executeActionAfterComplete) {
+        this.executeActionAfterComplete = executeActionAfterComplete;
+    }
+
+    public boolean isExecuteActionAfterComplete() {
+        return executeActionAfterComplete;
     }
 
 	public DroolsAction getAction() {
