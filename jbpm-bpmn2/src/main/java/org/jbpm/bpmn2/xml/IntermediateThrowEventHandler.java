@@ -187,6 +187,9 @@ public class IntermediateThrowEventHandler extends AbstractNodeHandler {
 			final String uri, final String localName,
 			final ExtensibleXmlParser parser) throws SAXException {
 		ActionNode actionNode = (ActionNode) node;
+		String executeActionAfterCompleteMetadata = (String) node.getMetaData().get("executeActionAfterComplete");
+		Boolean executeActionAfterComplete = executeActionAfterCompleteMetadata != null && Boolean.parseBoolean(executeActionAfterCompleteMetadata);
+		actionNode.setExecuteActionAfterComplete(executeActionAfterComplete);
 		org.w3c.dom.Node xmlNode = element.getFirstChild();
 		while (xmlNode != null) {
 			String nodeName = xmlNode.getNodeName();
