@@ -92,7 +92,8 @@ public class EventSubProcessNodeInstance extends CompositeContextNodeInstance {
                     }
                     getProcessInstance().getMetaData().remove("SUB_PROCESS_INTERRUPTION");
                     if (getNodeInstanceContainer() instanceof ProcessInstance) {
-                        ((ProcessInstance) getProcessInstance()).setState(ProcessInstance.STATE_ABORTED, faultName);
+                        Object faultData = getProcessInstance().getVariable("event");
+                        getProcessInstance().setState(ProcessInstance.STATE_ABORTED, faultName, faultData);
                     } else {
                         ((NodeInstanceContainer) getNodeInstanceContainer()).setState(ProcessInstance.STATE_ABORTED);
                     }
