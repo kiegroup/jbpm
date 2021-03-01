@@ -199,6 +199,8 @@ public abstract class AbstractCaseServicesTest extends AbstractServicesTest {
 
         getWorkItemHandlers().forEach(listener -> ddBuilder.addWorkItemHandler(listener));
 
+	getTaskListeners().forEach(listener -> ddBuilder.addTaskEventListener(listener)); 
+
         return customDescriptor;
     }
 
