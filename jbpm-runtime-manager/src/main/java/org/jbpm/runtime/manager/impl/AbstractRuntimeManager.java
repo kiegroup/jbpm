@@ -290,18 +290,7 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
         	for (TaskLifeCycleEventListener taskListener : factory.getTaskListeners()) {
         		((EventService<TaskLifeCycleEventListener>)internalTaskService).registerTaskEventListener(taskListener);
         	}
-            
-            if (engine != null && engine instanceof Disposable) {
-                ((Disposable)engine).addDisposeListener(new DisposeListener() {
-                    
-                    @Override
-                    public void onDispose(RuntimeEngine runtime) {
-                        if (runtime.getTaskService() instanceof EventService) {
-                            ((EventService)runtime.getTaskService()).clearTaskEventListeners();;
-                        }
-                    }
-                });
-            }
+
         }
     }
     
