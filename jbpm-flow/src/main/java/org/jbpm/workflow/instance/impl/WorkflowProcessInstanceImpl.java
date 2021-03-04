@@ -370,8 +370,7 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
         if (variableScopeInstance == null) {
             throw new IllegalArgumentException("No variable scope found.");
         }
-        variableScope.validateVariable(getProcessName(), name, value);
-        variableScopeInstance.setVariable(name, value);
+        variableScopeInstance.setVariable(name, variableScope.validateVariable(getProcessName(), name, value));
     }
 
     @Override

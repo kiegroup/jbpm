@@ -76,7 +76,7 @@ public class ObjectDataType implements DataType {
     }
 
     public boolean verifyDataType(final Object value) {
-        if (value == null) {
+        if (value == null || className == null) {
             return true;
         }
         try {
@@ -85,8 +85,7 @@ public class ObjectDataType implements DataType {
                 return true;
             }
         } catch (ClassNotFoundException e) {
-            throw new IllegalArgumentException(
-                "Could not find data type " + className);
+            return false;
         }
         return false;
     }

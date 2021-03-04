@@ -37,4 +37,14 @@ public interface DataType extends Externalizable {
      */
     String getStringType();
 
+    /**
+     * Tries to convert string parameter to an object of this type
+     * @param value to be converted. 
+     * For the sake of performance, it is assumed to not be null and not of <code>this</code> data type. 
+     * @return object converted to this type, if not possible to convert, the same object passed as parameter
+     */
+    default Object valueOf(String value) {
+        return value;
+    }
+
 }

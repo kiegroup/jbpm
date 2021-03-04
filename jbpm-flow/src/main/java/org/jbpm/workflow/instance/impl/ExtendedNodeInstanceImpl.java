@@ -85,10 +85,9 @@ public abstract class ExtendedNodeInstanceImpl extends NodeInstanceImpl {
                     Object parameterValue = transformer.transform(transformation.getCompiledExpression(), ouputData);
                     VariableScopeInstance variableScopeInstance = (VariableScopeInstance) resolveContextInstance(VariableScope.VARIABLE_SCOPE, association.getTarget());
                     if (variableScopeInstance != null && parameterValue != null) {
-
-                        variableScopeInstance.getVariableScope().validateVariable(getProcessInstance().getProcessName(), association.getTarget(), parameterValue);
-
-                        variableScopeInstance.setVariable(association.getTarget(), parameterValue);
+                        variableScopeInstance.setVariable(association.getTarget(),
+                                variableScopeInstance.getVariableScope().validateVariable(getProcessInstance()
+                                        .getProcessName(), association.getTarget(), parameterValue));
                     } else {
                         logger.warn("Could not find variable scope for variable {}", association.getTarget());
                         logger.warn("when trying to complete Work Item {}", nodeInstance.getNodeName());
