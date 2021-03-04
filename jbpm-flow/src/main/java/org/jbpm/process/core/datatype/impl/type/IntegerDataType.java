@@ -31,12 +31,15 @@ public class IntegerDataType
 
     private static final long serialVersionUID = 510l;
 
+    @Override
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
     }
 
+    @Override
     public void writeExternal(ObjectOutput out) throws IOException {
     }
 
+    @Override
     public boolean verifyDataType(final Object value) {
         if ( value instanceof Integer ) {
             return true;
@@ -47,17 +50,29 @@ public class IntegerDataType
         }
     }
 
+    @Override
     public Object readValue(String value) {
         return new Integer(value);
     }
 
+    @Override
     public String writeValue(Object value) {
         Integer i = (Integer) value;
         return i == null ? "" : i.toString();
     }
 
+    @Override
     public String getStringType() {
         return "Integer";
+    }
+
+    @Override
+    public Object valueOf(String value) {
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException ex) {
+            return value;
+        }
     }
 
 }

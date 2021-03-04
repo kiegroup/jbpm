@@ -31,12 +31,15 @@ public final class FloatDataType
 
     private static final long serialVersionUID = 510l;
 
+    @Override
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
     }
 
+    @Override
     public void writeExternal(ObjectOutput out) throws IOException {
     }
 
+    @Override
     public boolean verifyDataType(final Object value) {
         if ( value instanceof Float ) {
             return true;
@@ -47,16 +50,28 @@ public final class FloatDataType
         }
     }
 
+    @Override
     public Object readValue(String value) {
         return new Float(value);
     }
 
+    @Override
     public String writeValue(Object value) {
         Float f = (Float) value;
         return f == null ? "" : f.toString();
     }
 
+    @Override
     public String getStringType() {
         return "Float";
+    }
+
+    @Override
+    public Object valueOf(String value) {
+        try {
+            return Float.parseFloat(value);
+        } catch (NumberFormatException ex) {
+            return value;
+        }
     }
 }
