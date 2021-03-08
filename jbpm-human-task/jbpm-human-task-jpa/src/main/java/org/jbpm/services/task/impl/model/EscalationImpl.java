@@ -157,4 +157,12 @@ public class EscalationImpl implements org.kie.internal.task.api.model.Escalatio
 
     }
 
+    @Override
+    public String toString() {
+        return "EscalationImpl [id=" + id + ", name=" + name + ", constraints=" + constraints + ", notifications=" +
+               notifications + ", reassignments=" + reassignments + "]";
+    }
+    
+    
+
 }

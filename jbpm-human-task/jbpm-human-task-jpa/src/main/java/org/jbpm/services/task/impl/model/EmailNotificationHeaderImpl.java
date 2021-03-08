@@ -202,5 +202,11 @@ public class EmailNotificationHeaderImpl implements org.kie.internal.task.api.mo
         } else if ( !replyTo.equals( other.replyTo ) ) return false;
         return true;
     }
-          
+
+
+    @Override
+    public String toString() {
+        return "EmailNotificationHeaderImpl [id=" + id + ", language=" + language + ", replyTo=" + replyTo + ", from=" +
+               from + ", subject=" + subject + ", body=" + body + "]";
+    }
 }

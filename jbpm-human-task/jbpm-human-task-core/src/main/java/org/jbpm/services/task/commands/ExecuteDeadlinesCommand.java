@@ -175,7 +175,7 @@ public class ExecuteDeadlinesCommand extends TaskCommand<Void> {
 
 			persistenceContext.updateDeadline(deadline);
 			persistenceContext.updateTask(task);
-			DeadlineSchedulerHelper.rescheduleDeadlinesForTask((InternalTask) task, ctx, true, type);
+			DeadlineSchedulerHelper.rescheduleDeadlinesForTask((InternalTask) task, ctx, true, deadline, type);
 		} catch (Exception e) {
 
         	logger.error("Error when executing deadlines", e);
