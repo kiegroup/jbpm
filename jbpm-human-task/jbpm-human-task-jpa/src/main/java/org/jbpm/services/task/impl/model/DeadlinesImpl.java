@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -85,6 +84,11 @@ public class DeadlinesImpl implements org.kie.internal.task.api.model.Deadlines 
         DeadlinesImpl other = (DeadlinesImpl) obj;       
         
         return CollectionUtils.equals( endDeadlines, other.endDeadlines ) && CollectionUtils.equals( startDeadlines, other.startDeadlines );
+    }
+
+    @Override
+    public String toString() {
+        return "DeadlinesImpl [startDeadlines=" + startDeadlines + ", endDeadlines=" + endDeadlines + "]";
     }
                    
     

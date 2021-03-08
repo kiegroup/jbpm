@@ -99,8 +99,15 @@ public class EmailNotificationImpl extends NotificationImpl implements org.kie.i
             if ( other.emailHeaders != null ) return false;
         } else if ( !emailHeaders.equals( other.emailHeaders ) ) return false;
         return true;
-    }    
+    }
+
+    @Override
+    public String toString() {
+        return "EmailNotificationImpl [emailHeaders=" + emailHeaders + "]";
+    }
     
     
-    
+
+
+
 }
