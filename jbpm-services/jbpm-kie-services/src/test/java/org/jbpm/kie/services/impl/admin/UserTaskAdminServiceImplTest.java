@@ -49,6 +49,7 @@ import org.jbpm.services.api.query.model.QueryDefinition;
 import org.jbpm.services.api.query.model.QueryDefinition.Target;
 import org.jbpm.services.api.query.model.QueryParam;
 import org.jbpm.services.task.audit.impl.model.TaskEventImpl;
+import org.jbpm.services.task.exception.PermissionDeniedException;
 import org.jbpm.shared.services.impl.TransactionalCommandService;
 import org.junit.After;
 import org.junit.Assert;
@@ -256,6 +257,10 @@ public class UserTaskAdminServiceImplTest extends AbstractKieServicesBaseTest {
 
         Assert.assertFalse(impl.stream().filter(e -> e.getType().equals(TaskEventType.UPDATED)).anyMatch(e -> !e.getUserId().equals("wbadmin")));
         Assertions.assertThat(tasks).hasSize(1);
+
+        // Even when using `bypass` methods, a valid user has to be provided
+        Assertions.assertThatExceptionOfType(PermissionDeniedException.class).isThrownBy(
+                () -> userTaskAdminService.addPotentialOwners("invalidUser", deploymentUnit.getIdentifier(), task.getId(), false, factory.newGroup("Accounting")));
     }
 
     @Test
