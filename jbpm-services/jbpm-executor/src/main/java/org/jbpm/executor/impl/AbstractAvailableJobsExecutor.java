@@ -178,24 +178,21 @@ public abstract class AbstractAvailableJobsExecutor {
                     // callback handling after job execution
                     callbacks = classCacheManager.buildCommandCallback(ctx, cl);                
                     updateProcessInfoInContext(request, ctx);
-                    
                     for (CommandCallback handler : callbacks) {
                         
                         handler.onCommandDone(ctx, results);
                     }
-                    
+                    ((ExecutorImpl) executor).clearExecution(request.getId());
                 } catch (InterruptedException e) {
+                    ((ExecutorImpl) executor).cancelRequest(request.getId());
                     Thread.currentThread().interrupt();
                 } catch (Throwable e) {
                     exception = e;
                     if (callbacks == null) {
                         callbacks = classCacheManager.buildCommandCallback(ctx, cl);
                     }
-                    
-                	processReoccurring = handleException(request, e, ctx, callbacks);
-                	
+                    processReoccurring = handleException(request, e, ctx, callbacks);
                 } finally {
-                    ((ExecutorImpl) executor).clearExecution(request.getId());
                     AsyncExecutionMarker.reset();
                 	handleCompletion(processReoccurring, cmd, ctx);
                 	eventSupport.fireAfterJobExecuted(request, exception);
@@ -255,10 +252,8 @@ public abstract class AbstractAvailableJobsExecutor {
             }
             
             logger.debug("Retrying ({}) still available!", request.getRetries());
-            
             executorStoreService.updateRequest(request, ((ExecutorImpl) executor).scheduleExecution(request, request.getTime()));
-            
-            
+            ((ExecutorImpl) executor).markAsPendingRetryRequest(request.getId());
             return false;
         } else {
             logger.debug("Error no retries left!");
@@ -273,6 +268,8 @@ public abstract class AbstractAvailableJobsExecutor {
                     handler.onCommandError(ctx, wrappedException);                        
                 }
             }
+            // only when there are no retries left we clean up
+            ((ExecutorImpl) executor).clearExecution(request.getId());
             return true;
         }
     }

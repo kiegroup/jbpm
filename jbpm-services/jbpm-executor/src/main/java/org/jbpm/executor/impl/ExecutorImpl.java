@@ -441,6 +441,10 @@ public class ExecutorImpl implements Executor {
         logger.debug("After - Cancelling Request with Id: {}", requestId);
     }
 
+    public void markAsPendingRetryRequest(Long requestId) {
+        ((PrioritisedScheduledThreadPoolExecutor) scheduler).markAsPendingRetry(requestId);
+    }
+
     @Override
     public void updateRequestData(Long requestId, Map<String, Object> data) {
         logger.debug("About to update request {} data with following {}", requestId, data);
@@ -585,5 +589,7 @@ public class ExecutorImpl implements Executor {
         
         return deploymentId;
     }
+
+
 
 }
