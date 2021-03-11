@@ -42,7 +42,7 @@ import org.drools.core.audit.event.RuleFlowNodeLogEvent;
 import org.drools.core.impl.EnvironmentFactory;
 import org.drools.core.impl.KnowledgeBaseFactory;
 import org.drools.core.util.DroolsStreamUtils;
-import org.drools.core.util.MVELSafeHelper;
+import org.drools.mvel.MVELSafeHelper;
 import org.h2.tools.DeleteDbFiles;
 import org.jbpm.bpmn2.test.RequireLocking;
 import org.jbpm.bpmn2.test.RequirePersistence;

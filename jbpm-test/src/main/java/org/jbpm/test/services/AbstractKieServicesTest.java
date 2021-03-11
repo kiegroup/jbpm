@@ -57,7 +57,8 @@ public abstract class AbstractKieServicesTest extends AbstractServicesTest {
 
     protected KieServiceConfigurator serviceConfigurator;
     
-    protected DeploymentUnit deploymentUnit;  
+    protected DeploymentUnit deploymentUnit;
+    protected String puName = "org.jbpm.domain";
 
     public AbstractKieServicesTest() {
         loadServiceConfigurator();
@@ -105,7 +106,7 @@ public abstract class AbstractKieServicesTest extends AbstractServicesTest {
         identityProvider = new TestIdentityProvider();
         userGroupCallback = new TestUserGroupCallbackImpl();
 
-        serviceConfigurator.configureServices("org.jbpm.domain", identityProvider, userGroupCallback);
+        serviceConfigurator.configureServices(puName, identityProvider, userGroupCallback);
 
         // build definition service
         bpmn2Service = serviceConfigurator.getBpmn2Service();
@@ -138,7 +139,7 @@ public abstract class AbstractKieServicesTest extends AbstractServicesTest {
     @Override
     protected DeploymentDescriptor createDeploymentDescriptor() {
         if (createDescriptor()) {
-            DeploymentDescriptor customDescriptor = new DeploymentDescriptorImpl("org.jbpm.domain");
+            DeploymentDescriptor customDescriptor = new DeploymentDescriptorImpl(puName);
             DeploymentDescriptorBuilder ddBuilder = customDescriptor.getBuilder();
 
             for (ObjectModel listener : getProcessListeners()) {
@@ -149,6 +150,9 @@ public abstract class AbstractKieServicesTest extends AbstractServicesTest {
             }
             for (NamedObjectModel listener : getWorkItemHandlers()) {
                 ddBuilder.addWorkItemHandler(listener);
+            }
+            for (NamedObjectModel environmentEntry : getEnvironmentEntries()) {
+                ddBuilder.addEnvironmentEntry(environmentEntry);
             }
             return customDescriptor;
         }
@@ -193,4 +197,9 @@ public abstract class AbstractKieServicesTest extends AbstractServicesTest {
     
     protected abstract List<String> getProcessDefinitionFiles();
 
+    protected void setPuName(String puName) {
+        if (puName != null && !puName.equals("")) {
+            this.puName = puName;
+        }
+    }
 }

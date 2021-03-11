@@ -43,7 +43,7 @@ import javax.ejb.Timer;
 import javax.ejb.TimerConfig;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
-import javax.transaction.Status;
+import javax.transaction.RollbackException;
 import javax.transaction.UserTransaction;
 
 import org.drools.core.time.JobHandle;
@@ -83,7 +83,6 @@ public class EJBTimerScheduler {
 
     @Resource
     protected UserTransaction utx;
-
 
 	@PostConstruct
 	public void setup() {
@@ -127,15 +126,25 @@ public class EJBTimerScheduler {
         try {
             ((Callable<?>) timerJobInstance).call();
         } catch (Exception e) {
-            logger.warn("Execution of time failed due to {}", e.getMessage(), e);
             throw e;
         }
     }
 
     private void recoverTimerJobInstance(EjbTimerJob ejbTimerJob, Exception e) {
-        // if we have next date fired means that it would have been reescheduled already by DefaultTimerJobInstance
         if (ejbTimerJob.getTimerJobInstance().getTrigger().hasNextFireTime() != null) {
-            logger.warn("Execution of time failed Interval Trigger failed {}", ejbTimerJob.getTimerJobInstance());
+            // this is an interval trigger. Problem here is that the timer scheduled by DefaultTimerJobInstance is lost
+            // because of the transaction, so we need to do this here.
+            try {            
+               
+                logger.warn("Execution of time failed Interval Trigger failed. Skipping {}", ejbTimerJob.getTimerJobInstance());
+                Transaction<TimerJobInstance> tx = timerJobInstance -> {
+                    this.removeJob(timerJobInstance.getJobHandle());
+                    this.internalSchedule(timerJobInstance);
+                };
+                transaction(tx, ejbTimerJob.getTimerJobInstance());
+            } catch (Exception e1) {
+                logger.warn("Could not schedule the interval trigger {}", ejbTimerJob.getTimerJobInstance(), e1);
+            }
             return;
         }
 
@@ -181,14 +190,15 @@ public class EJBTimerScheduler {
             utx.begin();
             operation.doWork(item);
             utx.commit();
-        } catch(Exception e) {
+        } catch(RollbackException e) {
+            logger.warn("Transaction was rolled back for {}", item);
+        } catch (Exception e) {
             try {
-                if (utx.getStatus() != Status.STATUS_NO_TRANSACTION) {
-                    utx.rollback();
-                }
+                utx.rollback();
             } catch (Exception re) {
                 logger.error("transaction could not be rolled back", re);
             }
+
             throw e;
         }
     }

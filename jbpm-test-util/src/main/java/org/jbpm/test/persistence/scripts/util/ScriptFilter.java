@@ -28,6 +28,7 @@ import java.util.TreeSet;
 import java.util.function.Predicate;
 
 import org.jbpm.test.persistence.scripts.DatabaseType;
+import org.jbpm.test.persistence.scripts.DistributionType;
 
 
 public class ScriptFilter {
@@ -88,6 +89,11 @@ public class ScriptFilter {
     public ScriptFilter setSupportedDatabase(DatabaseType... types) {
         this.dbTypes.clear();
         Collections.addAll(this.dbTypes, types);
+        return this;
+    }
+
+    public ScriptFilter setDistribution(DistributionType type) {
+        this.predicates.add(type.predicate);
         return this;
     }
 

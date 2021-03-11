@@ -25,7 +25,7 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 
 import org.drools.core.common.InternalKnowledgeRuntime;
-import org.drools.core.util.MVELSafeHelper;
+import org.drools.mvel.MVELSafeHelper;
 import org.jbpm.process.core.Context;
 import org.jbpm.process.core.ContextContainer;
 import org.jbpm.process.core.context.exception.ExceptionScope;
@@ -78,7 +78,6 @@ public class SubProcessNodeInstance extends StateBasedNodeInstance implements Ev
     private static final Logger logger = LoggerFactory.getLogger(SubProcessNodeInstance.class);
     
     // NOTE: ContetxInstances are not persisted as current functionality (exception scope) does not require it
-    private Map<String, ContextInstance> contextInstances = new HashMap<String, ContextInstance>();
     private Map<String, List<ContextInstance>> subContextInstances = new HashMap<String, List<ContextInstance>>();
 
     private long processInstanceId;
@@ -230,7 +229,7 @@ public class SubProcessNodeInstance extends StateBasedNodeInstance implements Ev
                 kruntime.startProcessInstance(processInstance.getId());
             } catch (Exception e) {
                 String faultName = e.getClass().getName();
-                if (handleError(faultName, processInstance)) {
+                if (handleError(e, faultName)) {
                     return;
                 } else {
                     throw e;
@@ -321,7 +320,7 @@ public class SubProcessNodeInstance extends StateBasedNodeInstance implements Ev
         handleOutMappings(processInstance);
         if (processInstance.getState() == ProcessInstance.STATE_ABORTED) {
             String faultName = processInstance.getOutcome()==null?"":processInstance.getOutcome();
-            if (handleError(faultName, processInstance)) {
+            if (handleError(processInstance.getFaultData(), faultName)) {
                 return;
             }
         }
@@ -334,12 +333,12 @@ public class SubProcessNodeInstance extends StateBasedNodeInstance implements Ev
 
     }
 
-    private boolean handleError(String faultName, ProcessInstance processInstance) {
+    private boolean handleError(Object faultData, String faultName) {
         // handle exception as sub process failed with error code
         ExceptionScopeInstance exceptionScopeInstance = (ExceptionScopeInstance) resolveContextInstance(ExceptionScope.EXCEPTION_SCOPE, faultName);
         if (exceptionScopeInstance != null) {
 
-            exceptionScopeInstance.handleException(faultName, processInstance.getFaultData());
+            exceptionScopeInstance.handleException(faultName, faultData);
             if (getSubProcessNode() != null && !getSubProcessNode().isIndependent() && getSubProcessNode().isAbortParent()) {
                 cancel();
             }

@@ -19,9 +19,10 @@ package org.jbpm.workflow.core.node;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.kie.api.definition.process.Connection;
 import org.jbpm.workflow.core.Constraint;
 import org.jbpm.workflow.core.impl.ConnectionRef;
+import org.kie.api.definition.process.Connection;
+import org.kie.api.definition.process.NodeType;
 
 public class StateNode extends CompositeContextNode implements Constrainable {
 
@@ -31,6 +32,10 @@ public class StateNode extends CompositeContextNode implements Constrainable {
    
     public void setConstraints(Map<ConnectionRef, Constraint> constraints) {
         this.constraints = constraints;
+    }
+
+    public StateNode() {
+        super(NodeType.CONDITIONAL);
     }
 
     public void setConstraint(final Connection connection, final Constraint constraint) {

@@ -34,8 +34,6 @@ import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.process.WorkItemManager;
 import org.kie.api.runtime.query.QueryContext;
 
-import qa.tools.ikeeper.annotation.BZ;
-
 public class ExecutorLogCleanTest extends JbpmAsyncJobTestCase {
 
     private static final String ASYNC_DATA_EXEC = "org/jbpm/test/functional/common/AsyncDataExecutor.bpmn2";
@@ -96,7 +94,6 @@ public class ExecutorLogCleanTest extends JbpmAsyncJobTestCase {
     }
 
     @Test
-    @BZ("1188702")
     public void deleteErrorLogsByDate() throws Exception {
         CountDownAsyncJobListener countDownListener = new CountDownAsyncJobListener(2);
         ((ExecutorServiceImpl) getExecutorService()).addAsyncJobListener(countDownListener);

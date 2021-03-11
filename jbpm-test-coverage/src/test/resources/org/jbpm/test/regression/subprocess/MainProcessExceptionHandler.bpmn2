@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.omg.org/bpmn20" xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:bpsim="http://www.bpsim.org/schemas/1.0" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:drools="http://www.jboss.org/drools" id="_wea6IHLbEeuBgNghkbSJNQ" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd http://www.jboss.org/drools drools.xsd http://www.bpsim.org/schemas/1.0 bpsim.xsd http://www.omg.org/spec/DD/20100524/DC DC.xsd http://www.omg.org/spec/DD/20100524/DI DI.xsd " exporter="jBPM Process Modeler" exporterVersion="2.0" targetNamespace="http://www.omg.org/bpmn20">
+  <bpmn2:itemDefinition id="_exceptionItem" structureRef="java.lang.Exception"/>
+  <bpmn2:itemDefinition id="_launchOnParentItem" structureRef="Boolean"/>
+  <bpmn2:itemDefinition id="_StartEvent_2_eventOutputXItem" structureRef=""/>
+  <bpmn2:error id="java.lang.Exception" errorCode="java.lang.Exception"/>
+  <bpmn2:process id="com.DealWithException" drools:packageName="com" drools:version="1.0" drools:adHoc="false" name="DealWithException" isExecutable="true" processType="Private">
+    <bpmn2:extensionElements>
+      <drools:import name="java.lang.Exception"/>
+    </bpmn2:extensionElements>
+    <bpmn2:property id="exception" itemSubjectRef="_exceptionItem" name="exception"/>
+    <bpmn2:property id="launchOnParent" itemSubjectRef="_launchOnParentItem" name="launchOnParent"/>
+    <bpmn2:sequenceFlow id="_CBEB9EC9-0F8E-40DB-B41E-E7DACDEE14C6" sourceRef="_3BE74220-2384-4346-AE3F-D7357B880899" targetRef="_D9462135-78BD-4990-A222-68AD23EDABA7">
+      <bpmn2:conditionExpression xsi:type="bpmn2:tFormalExpression" id="_wea6IXLbEeuBgNghkbSJNQ" language="http://www.java.com/java"><![CDATA[return KieFunctions.isTrue(launchOnParent);]]></bpmn2:conditionExpression>
+    </bpmn2:sequenceFlow>
+    <bpmn2:sequenceFlow id="SequenceFlow_1" drools:priority="1" sourceRef="StartEvent_1" targetRef="_3BE74220-2384-4346-AE3F-D7357B880899"/>
+    <bpmn2:sequenceFlow id="_003F4BA9-8240-4892-9F7D-735DE6A9DAA7" sourceRef="_D9462135-78BD-4990-A222-68AD23EDABA7" targetRef="_E30C7EA7-3C1A-4B34-99C8-7C6C588A1F37">
+      <bpmn2:extensionElements>
+        <drools:metaData name="isAutoConnection.source">
+          <drools:metaValue><![CDATA[true]]></drools:metaValue>
+        </drools:metaData>
+        <drools:metaData name="isAutoConnection.target">
+          <drools:metaValue><![CDATA[true]]></drools:metaValue>
+        </drools:metaData>
+      </bpmn2:extensionElements>
+    </bpmn2:sequenceFlow>
+    <bpmn2:sequenceFlow id="SequenceFlow_6" drools:priority="1" sourceRef="CallActivity_1" targetRef="EndEvent_3"/>
+    <bpmn2:sequenceFlow id="_F252B0C4-2265-402F-82F2-44C4E7A70264" sourceRef="_3BE74220-2384-4346-AE3F-D7357B880899" targetRef="CallActivity_1">
+      <bpmn2:conditionExpression xsi:type="bpmn2:tFormalExpression" id="_wea6InLbEeuBgNghkbSJNQ" language="http://www.java.com/java"><![CDATA[return KieFunctions.isFalse(launchOnParent);]]></bpmn2:conditionExpression>
+    </bpmn2:sequenceFlow>
+    <bpmn2:exclusiveGateway id="_3BE74220-2384-4346-AE3F-D7357B880899" name="launch on parent" gatewayDirection="Diverging">
+      <bpmn2:extensionElements>
+        <drools:metaData name="elementname">
+          <drools:metaValue><![CDATA[launch on parent
+]]></drools:metaValue>
+        </drools:metaData>
+      </bpmn2:extensionElements>
+      <bpmn2:incoming>SequenceFlow_1</bpmn2:incoming>
+      <bpmn2:outgoing>_F252B0C4-2265-402F-82F2-44C4E7A70264</bpmn2:outgoing>
+      <bpmn2:outgoing>_CBEB9EC9-0F8E-40DB-B41E-E7DACDEE14C6</bpmn2:outgoing>
+    </bpmn2:exclusiveGateway>
+    <bpmn2:scriptTask id="_D9462135-78BD-4990-A222-68AD23EDABA7" name="Throw on parent" scriptFormat="http://www.java.com/java">
+      <bpmn2:extensionElements>
+        <drools:metaData name="elementname">
+          <drools:metaValue><![CDATA[Throw on parent]]></drools:metaValue>
+        </drools:metaData>
+      </bpmn2:extensionElements>
+      <bpmn2:incoming>_CBEB9EC9-0F8E-40DB-B41E-E7DACDEE14C6</bpmn2:incoming>
+      <bpmn2:outgoing>_003F4BA9-8240-4892-9F7D-735DE6A9DAA7</bpmn2:outgoing>
+      <bpmn2:script><![CDATA[System.out.println("launch exception on parent");
+throw new Exception("Parent error");]]></bpmn2:script>
+    </bpmn2:scriptTask>
+    <bpmn2:startEvent id="StartEvent_1" name="StartProcess">
+      <bpmn2:extensionElements>
+        <drools:metaData name="elementname">
+          <drools:metaValue><![CDATA[StartProcess]]></drools:metaValue>
+        </drools:metaData>
+      </bpmn2:extensionElements>
+      <bpmn2:outgoing>SequenceFlow_1</bpmn2:outgoing>
+    </bpmn2:startEvent>
+    <bpmn2:endEvent id="EndEvent_3" name="End Event">
+      <bpmn2:extensionElements>
+        <drools:metaData name="elementname">
+          <drools:metaValue><![CDATA[End Event]]></drools:metaValue>
+        </drools:metaData>
+      </bpmn2:extensionElements>
+      <bpmn2:incoming>SequenceFlow_6</bpmn2:incoming>
+    </bpmn2:endEvent>
+    <bpmn2:endEvent id="_E30C7EA7-3C1A-4B34-99C8-7C6C588A1F37">
+      <bpmn2:incoming>_003F4BA9-8240-4892-9F7D-735DE6A9DAA7</bpmn2:incoming>
+    </bpmn2:endEvent>
+    <bpmn2:callActivity id="CallActivity_1" drools:independent="true" drools:waitForCompletion="true" name="Exception Sub-Process" calledElement="DealWithExceptionSubProcess">
+      <bpmn2:extensionElements>
+        <drools:metaData name="elementname">
+          <drools:metaValue><![CDATA[Exception Sub-Process]]></drools:metaValue>
+        </drools:metaData>
+      </bpmn2:extensionElements>
+      <bpmn2:incoming>_F252B0C4-2265-402F-82F2-44C4E7A70264</bpmn2:incoming>
+      <bpmn2:outgoing>SequenceFlow_6</bpmn2:outgoing>
+    </bpmn2:callActivity>
+    <bpmn2:subProcess id="SubProcess_1" name="Sub Process 1" triggeredByEvent="true">
+      <bpmn2:extensionElements>
+        <drools:metaData name="elementname">
+          <drools:metaValue><![CDATA[Sub Process 1]]></drools:metaValue>
+        </drools:metaData>
+      </bpmn2:extensionElements>
+      <bpmn2:sequenceFlow id="SequenceFlow_3" drools:priority="1" sourceRef="StartEvent_2" targetRef="ScriptTask_2"/>
+      <bpmn2:sequenceFlow id="SequenceFlow_4" drools:priority="1" sourceRef="ScriptTask_2" targetRef="EndEvent_2"/>
+      <bpmn2:scriptTask id="ScriptTask_2" name="Exception detected as Null here" scriptFormat="http://www.java.com/java">
+        <bpmn2:extensionElements>
+          <drools:metaData name="elementname">
+            <drools:metaValue><![CDATA[Exception detected as Null here]]></drools:metaValue>
+          </drools:metaData>
+        </bpmn2:extensionElements>
+        <bpmn2:incoming>SequenceFlow_3</bpmn2:incoming>
+        <bpmn2:outgoing>SequenceFlow_4</bpmn2:outgoing>
+        <bpmn2:script><![CDATA[System.out.println("Exception caught main process " +exception) ;]]></bpmn2:script>
+      </bpmn2:scriptTask>
+      <bpmn2:startEvent id="StartEvent_2" name="Start Event">
+        <bpmn2:extensionElements>
+          <drools:metaData name="elementname">
+            <drools:metaValue><![CDATA[Start Event]]></drools:metaValue>
+          </drools:metaData>
+        </bpmn2:extensionElements>
+        <bpmn2:outgoing>SequenceFlow_3</bpmn2:outgoing>
+        <bpmn2:dataOutput id="StartEvent_2_eventOutputX" drools:dtype="" itemSubjectRef="_StartEvent_2_eventOutputXItem" name="event"/>
+        <bpmn2:dataOutputAssociation id="_wea6JHLbEeuBgNghkbSJNQ">
+          <bpmn2:sourceRef>StartEvent_2_eventOutputX</bpmn2:sourceRef>
+          <bpmn2:targetRef>exception</bpmn2:targetRef>
+        </bpmn2:dataOutputAssociation>
+        <bpmn2:outputSet id="_wea6I3LbEeuBgNghkbSJNQ">
+          <bpmn2:dataOutputRefs>StartEvent_2_eventOutputX</bpmn2:dataOutputRefs>
+        </bpmn2:outputSet>
+        <bpmn2:errorEventDefinition id="_wea6JXLbEeuBgNghkbSJNQ" drools:erefname="java.lang.Exception" errorRef="java.lang.Exception"/>
+      </bpmn2:startEvent>
+      <bpmn2:endEvent id="EndEvent_2" name="End Event">
+        <bpmn2:extensionElements>
+          <drools:metaData name="elementname">
+            <drools:metaValue><![CDATA[End Event SubprocessHandler]]></drools:metaValue>
+          </drools:metaData>
+        </bpmn2:extensionElements>
+        <bpmn2:incoming>SequenceFlow_4</bpmn2:incoming>
+      </bpmn2:endEvent>
+    </bpmn2:subProcess>
+  </bpmn2:process>
+  <bpmndi:BPMNDiagram id="_wea6JnLbEeuBgNghkbSJNQ">
+    <bpmndi:BPMNPlane id="_wea6J3LbEeuBgNghkbSJNQ" bpmnElement="com.DealWithException">
+      <bpmndi:BPMNShape id="shape_SubProcess_1" bpmnElement="SubProcess_1" isExpanded="true">
+        <dc:Bounds height="187.0" width="521.0" x="107.0" y="293.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_EndEvent_2" bpmnElement="EndEvent_2">
+        <dc:Bounds height="56.0" width="56.0" x="567.0" y="372.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_StartEvent_2" bpmnElement="StartEvent_2">
+        <dc:Bounds height="56.0" width="56.0" x="127.0" y="373.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_ScriptTask_2" bpmnElement="ScriptTask_2">
+        <dc:Bounds height="61.0" width="161.0" x="267.5" y="368.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="edge_shape_ScriptTask_2_to_shape_EndEvent_2" bpmnElement="SequenceFlow_4">
+        <di:waypoint xsi:type="dc:Point" x="428.5" y="398.0"/>
+        <di:waypoint xsi:type="dc:Point" x="567.0" y="400.0"/>
+        <di:waypoint xsi:type="dc:Point" x="567.0" y="390.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_shape_StartEvent_2_to_shape_ScriptTask_2" bpmnElement="SequenceFlow_3">
+        <di:waypoint xsi:type="dc:Point" x="163.0" y="391.0"/>
+        <di:waypoint xsi:type="dc:Point" x="267.0" y="398.5"/>
+        <di:waypoint xsi:type="dc:Point" x="267.0" y="398.5"/>
+        <di:waypoint xsi:type="dc:Point" x="267.5" y="398.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="shape_CallActivity_1" bpmnElement="CallActivity_1">
+        <dc:Bounds height="88.651276" width="162.07181" x="334.0" y="50.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape__E30C7EA7-3C1A-4B34-99C8-7C6C588A1F37" bpmnElement="_E30C7EA7-3C1A-4B34-99C8-7C6C588A1F37">
+        <dc:Bounds height="56.0" width="56.0" x="572.0" y="177.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_EndEvent_3" bpmnElement="EndEvent_3">
+        <dc:Bounds height="56.0" width="56.0" x="572.0" y="66.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_StartEvent_1" bpmnElement="StartEvent_1">
+        <dc:Bounds height="56.0" width="56.0" x="55.0" y="110.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape__D9462135-78BD-4990-A222-68AD23EDABA7" bpmnElement="_D9462135-78BD-4990-A222-68AD23EDABA7">
+        <dc:Bounds height="102.0" width="154.0" x="338.0" y="154.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape__3BE74220-2384-4346-AE3F-D7357B880899" bpmnElement="_3BE74220-2384-4346-AE3F-D7357B880899">
+        <dc:Bounds height="56.0" width="56.0" x="162.0" y="119.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="edge_shape__3BE74220-2384-4346-AE3F-D7357B880899_to_shape_CallActivity_1" bpmnElement="_F252B0C4-2265-402F-82F2-44C4E7A70264">
+        <di:waypoint xsi:type="dc:Point" x="190.0" y="119.0"/>
+        <di:waypoint xsi:type="dc:Point" x="192.0" y="94.32564"/>
+        <di:waypoint xsi:type="dc:Point" x="192.0" y="94.32564"/>
+        <di:waypoint xsi:type="dc:Point" x="334.0" y="94.32564"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_shape_CallActivity_1_to_shape_EndEvent_3" bpmnElement="SequenceFlow_6">
+        <di:waypoint xsi:type="dc:Point" x="496.0718" y="94.32564"/>
+        <di:waypoint xsi:type="dc:Point" x="572.0" y="94.0"/>
+        <di:waypoint xsi:type="dc:Point" x="572.0" y="84.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_shape__D9462135-78BD-4990-A222-68AD23EDABA7_to_shape__E30C7EA7-3C1A-4B34-99C8-7C6C588A1F37" bpmnElement="_003F4BA9-8240-4892-9F7D-735DE6A9DAA7">
+        <di:waypoint xsi:type="dc:Point" x="492.0" y="205.0"/>
+        <di:waypoint xsi:type="dc:Point" x="572.0" y="205.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_shape_StartEvent_1_to_shape__3BE74220-2384-4346-AE3F-D7357B880899" bpmnElement="SequenceFlow_1">
+        <di:waypoint xsi:type="dc:Point" x="91.0" y="128.0"/>
+        <di:waypoint xsi:type="dc:Point" x="162.0" y="147.0"/>
+        <di:waypoint xsi:type="dc:Point" x="162.0" y="147.0"/>
+        <di:waypoint xsi:type="dc:Point" x="162.0" y="147.0"/>
+        <di:waypoint xsi:type="dc:Point" x="162.0" y="147.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_shape__3BE74220-2384-4346-AE3F-D7357B880899_to_shape__D9462135-78BD-4990-A222-68AD23EDABA7" bpmnElement="_CBEB9EC9-0F8E-40DB-B41E-E7DACDEE14C6">
+        <di:waypoint xsi:type="dc:Point" x="190.0" y="175.0"/>
+        <di:waypoint xsi:type="dc:Point" x="192.0" y="205.0"/>
+        <di:waypoint xsi:type="dc:Point" x="338.0" y="205.0"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+  <bpmn2:relationship id="_wea6KHLbEeuBgNghkbSJNQ" type="BPSimData">
+    <bpmn2:extensionElements>
+      <bpsim:BPSimData>
+        <bpsim:Scenario xsi:type="bpsim:Scenario" id="default" name="Simulationscenario">
+          <bpsim:ScenarioParameters xsi:type="bpsim:ScenarioParameters"/>
+          <bpsim:ElementParameters xsi:type="bpsim:ElementParameters" elementRef="CallActivity_1" id="_wea6KXLbEeuBgNghkbSJNQ">
+            <bpsim:TimeParameters xsi:type="bpsim:TimeParameters">
+              <bpsim:ProcessingTime xsi:type="bpsim:Parameter">
+                <bpsim:NormalDistribution mean="0.0" standardDeviation="0.0"/>
+              </bpsim:ProcessingTime>
+            </bpsim:TimeParameters>
+            <bpsim:ResourceParameters xsi:type="bpsim:ResourceParameters">
+              <bpsim:Availability xsi:type="bpsim:Parameter">
+                <bpsim:FloatingParameter value="0.0"/>
+              </bpsim:Availability>
+              <bpsim:Quantity xsi:type="bpsim:Parameter">
+                <bpsim:FloatingParameter value="0.0"/>
+              </bpsim:Quantity>
+            </bpsim:ResourceParameters>
+            <bpsim:CostParameters xsi:type="bpsim:CostParameters">
+              <bpsim:UnitCost xsi:type="bpsim:Parameter">
+                <bpsim:FloatingParameter value="0.0"/>
+              </bpsim:UnitCost>
+            </bpsim:CostParameters>
+          </bpsim:ElementParameters>
+          <bpsim:ElementParameters xsi:type="bpsim:ElementParameters" elementRef="StartEvent_1" id="_wea6KnLbEeuBgNghkbSJNQ">
+            <bpsim:TimeParameters xsi:type="bpsim:TimeParameters">
+              <bpsim:ProcessingTime xsi:type="bpsim:Parameter">
+                <bpsim:NormalDistribution mean="0.0" standardDeviation="0.0"/>
+              </bpsim:ProcessingTime>
+            </bpsim:TimeParameters>
+          </bpsim:ElementParameters>
+          <bpsim:ElementParameters xsi:type="bpsim:ElementParameters" elementRef="_D9462135-78BD-4990-A222-68AD23EDABA7" id="_wea6K3LbEeuBgNghkbSJNQ">
+            <bpsim:TimeParameters xsi:type="bpsim:TimeParameters">
+              <bpsim:ProcessingTime xsi:type="bpsim:Parameter">
+                <bpsim:NormalDistribution mean="0.0" standardDeviation="0.0"/>
+              </bpsim:ProcessingTime>
+            </bpsim:TimeParameters>
+            <bpsim:ResourceParameters xsi:type="bpsim:ResourceParameters">
+              <bpsim:Availability xsi:type="bpsim:Parameter">
+                <bpsim:FloatingParameter value="0.0"/>
+              </bpsim:Availability>
+              <bpsim:Quantity xsi:type="bpsim:Parameter">
+                <bpsim:FloatingParameter value="0.0"/>
+              </bpsim:Quantity>
+            </bpsim:ResourceParameters>
+            <bpsim:CostParameters xsi:type="bpsim:CostParameters">
+              <bpsim:UnitCost xsi:type="bpsim:Parameter">
+                <bpsim:FloatingParameter value="0.0"/>
+              </bpsim:UnitCost>
+            </bpsim:CostParameters>
+          </bpsim:ElementParameters>
+        </bpsim:Scenario>
+      </bpsim:BPSimData>
+    </bpmn2:extensionElements>
+    <bpmn2:source>_wea6IHLbEeuBgNghkbSJNQ</bpmn2:source>
+    <bpmn2:target>_wea6IHLbEeuBgNghkbSJNQ</bpmn2:target>
+  </bpmn2:relationship>
+</bpmn2:definitions>

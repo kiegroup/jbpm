@@ -19,6 +19,7 @@ package org.jbpm.services.task.impl.model;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -34,11 +35,11 @@ import org.kie.internal.task.api.model.Deadline;
 public class DeadlinesImpl implements org.kie.internal.task.api.model.Deadlines {    
     @OneToMany(cascade = CascadeType.ALL, targetEntity=DeadlineImpl.class)
     @JoinColumn(name = "Deadlines_StartDeadLine_Id", nullable = true)    
-    private List<Deadline> startDeadlines = Collections.emptyList();
+    private List<Deadline> startDeadlines = new ArrayList<>();
     
     @OneToMany(cascade = CascadeType.ALL, targetEntity=DeadlineImpl.class)
     @JoinColumn(name = "Deadlines_EndDeadLine_Id", nullable = true)    
-    private List<Deadline> endDeadlines  = Collections.emptyList();
+    private List<Deadline> endDeadlines  = new ArrayList<>();
     
     public void writeExternal(ObjectOutput out) throws IOException {
         CollectionUtils.writeDeadlineList( startDeadlines, out );

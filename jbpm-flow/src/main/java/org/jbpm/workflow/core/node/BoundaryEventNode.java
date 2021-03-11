@@ -15,8 +15,13 @@
  */
 package org.jbpm.workflow.core.node;
 
-import org.jbpm.process.core.event.EventFilter;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.function.Function;
+
+import org.jbpm.process.core.event.EventFilter;
+import org.kie.api.definition.process.NodeType;
 
 public class BoundaryEventNode extends EventNode {
 
@@ -24,12 +29,27 @@ public class BoundaryEventNode extends EventNode {
     
     private String attachedToNodeId;
 
+    private List<DataAssociation> outMapping = new LinkedList<DataAssociation>();
+
+    public BoundaryEventNode() {
+        super(NodeType.BOUNDARY_EVENT);
+    }
+
     public String getAttachedToNodeId() {
         return attachedToNodeId;
     }
 
     public void setAttachedToNodeId(String attachedToNodeId) {
         this.attachedToNodeId = attachedToNodeId;
+    }  
+   
+    
+    public void addOutAssociation(DataAssociation dataAssociation) {
+        outMapping.add(dataAssociation);
+    }
+
+    public List<DataAssociation> getOutAssociations() {
+        return Collections.unmodifiableList(outMapping);
     }
 
     @Override

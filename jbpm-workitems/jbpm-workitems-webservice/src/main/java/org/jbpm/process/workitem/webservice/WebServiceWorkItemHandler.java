@@ -16,24 +16,37 @@
 
 package org.jbpm.process.workitem.webservice;
 
+import java.io.File;
 import java.lang.reflect.Array;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.ClientCallback;
+import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.dynamic.DynamicClientFactory;
 import org.apache.cxf.jaxws.endpoint.dynamic.JaxWsDynamicClientFactory;
+import org.apache.cxf.jaxws.interceptors.HolderInInterceptor;
+import org.apache.cxf.jaxws.interceptors.WrapperClassInInterceptor;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.drools.core.process.instance.impl.WorkItemImpl;
 import org.jbpm.bpmn2.core.Bpmn2Import;
+import org.jbpm.bpmn2.handler.WorkItemHandlerRuntimeException;
 import org.jbpm.process.workitem.core.AbstractLogOrThrowWorkItemHandler;
 import org.jbpm.process.workitem.core.util.Wid;
 import org.jbpm.process.workitem.core.util.WidMavenDepends;
@@ -56,9 +69,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Web Service Work Item Handler that performs a WebService call.
- * It is not supported out of the box on JDK11+ when running inside WildFly/EAP container
- * with JDK11+ due to Apache CXF not properly resolving classpath.
- * @see https://issues.apache.org/jira/browse/CXF-7925
  */
 @Wid(widfile = "WebServiceDefinitions.wid", name = "WebService",
         displayName = "WebService",
@@ -73,7 +83,8 @@ import org.slf4j.LoggerFactory;
                 @WidParameter(name = "Operation"),
                 @WidParameter(name = "Endpoint"),
                 @WidParameter(name = "Parameter"),
-                @WidParameter(name = "Mode")
+                @WidParameter(name = "Mode"),
+                @WidParameter(name = "Wrapped")
         },
         results = {
                 @WidResult(name = "Result", runtimeType = "java.lang.Object")
@@ -193,7 +204,7 @@ public class WebServiceWorkItemHandler extends AbstractLogOrThrowWorkItemHandler
         this.username = username;
         this.password = password;
     }
-    
+
     /**
      * Used when no authentication is required
      * @param handlingProcessId - process id to handle exception
@@ -331,6 +342,7 @@ public class WebServiceWorkItemHandler extends AbstractLogOrThrowWorkItemHandler
 
         String modeParam = (String) workItem.getParameter("Mode");
         WSMode mode = WSMode.valueOf(modeParam == null ? "SYNC" : modeParam.toUpperCase());
+        Boolean wrapped = Boolean.parseBoolean((String) workItem.getParameter("Wrapped"));
 
         try {
             Client client = getWSClient(workItem,
@@ -348,10 +360,14 @@ public class WebServiceWorkItemHandler extends AbstractLogOrThrowWorkItemHandler
             // apply authorization if needed
             applyAuthorization(username, password, client);
 
+            //Remove interceptors if using wrapped mode
+            if (wrapped) {
+                removeWrappingInterceptors(client);
+            }
+
             switch (mode) {
                 case SYNC:
-                    Object[] result = client.invoke(operationRef,
-                                                    parameters);
+                    Object[] result = wrapped ? client.invokeWrapped(operationRef, parameters) : client.invoke(operationRef, parameters);
 
                     Map<String, Object> output = new HashMap<String, Object>();
 
@@ -374,9 +390,11 @@ public class WebServiceWorkItemHandler extends AbstractLogOrThrowWorkItemHandler
                     final String deploymentId = nonNull(((WorkItemImpl) workItem).getDeploymentId());
                     final long processInstanceId = workItem.getProcessInstanceId();
 
-                    client.invoke(callback,
-                                  operationRef,
-                                  parameters);
+                    if (wrapped) {
+                        client.invokeWrapped(callback, operationRef, parameters);
+                    } else {
+                        client.invoke(callback, operationRef, parameters);
+                    }
                     new Thread(new Runnable() {
 
                         public void run() {
@@ -424,9 +442,11 @@ public class WebServiceWorkItemHandler extends AbstractLogOrThrowWorkItemHandler
                 case ONEWAY:
                     ClientCallback callbackFF = new ClientCallback();
 
-                    client.invoke(callbackFF,
-                                  operationRef,
-                                  parameters);
+                    if (wrapped) {
+                        client.invokeWrapped(callbackFF, operationRef, parameters);
+                    } else {
+                        client.invoke(callbackFF, operationRef, parameters);
+                    }
                     logger.debug("One way operation, not going to wait for response, completing work item {}",
                                  workItem.getId());
                     manager.completeWorkItem(workItem.getId(),
@@ -442,9 +462,18 @@ public class WebServiceWorkItemHandler extends AbstractLogOrThrowWorkItemHandler
         }
     }
 
+    private void removeWrappingInterceptors(Client client){
+        Endpoint endpoint = client.getEndpoint();
+        endpoint.getInInterceptors().stream().filter(i -> i instanceof WrapperClassInInterceptor).findFirst().ifPresent(i -> {
+            endpoint.getInInterceptors().remove(i);
+        });
+        endpoint.getInInterceptors().stream().filter(i -> i instanceof HolderInInterceptor).findFirst().ifPresent(i -> {
+            endpoint.getInInterceptors().remove(i);
+        });
+    }
+
     @SuppressWarnings("unchecked")
-    protected Client getWSClient(WorkItem workItem,
-                                              String interfaceRef) {
+    protected Client getWSClient(WorkItem workItem, String interfaceRef) {
         if (clients.containsKey(interfaceRef)) {
             return clients.get(interfaceRef);
         }
@@ -532,12 +561,89 @@ public class WebServiceWorkItemHandler extends AbstractLogOrThrowWorkItemHandler
         // Do nothing, cannot be aborted
     }
 
+    /* CXF builds compiler classpath assuming that the hierarchy of ClassLoader is composed of URLClassLoader instances.
+     * Since ModuleClassLoader does not implement URLClassLoader, we need to provide an alternative way of retrieving these URLS
+     * so CXF can build a proper classpath, avoiding the issue mentioned below. 
+     * @see https://issues.apache.org/jira/browse/CXF-7925
+     */
+    @SuppressWarnings("squid:S1872")
     private ClassLoader getInternalClassLoader() {
-        if (this.classLoader != null) {
-            return this.classLoader;
+        ClassLoader cl = this.classLoader != null ? classLoader : Thread.currentThread().getContextClassLoader(), parent = cl;
+        Collection<URL> uris = new HashSet<>();
+        do {
+            if (parent.getClass().getSimpleName().equals("ModuleClassLoader")) {
+                try {
+                    getJarsFromModuleClassLoader(parent, uris);
+                } catch (ReflectiveOperationException | MalformedURLException e) {
+                    throw new WorkItemHandlerRuntimeException(e, "Problem calculating list of URLs from ModuleClassLoader");
+                }
+            }
+            parent = parent.getParent();
+        } while (parent != null);
+        if (!uris.isEmpty()) {
+            cl = new CXFJavaCompileClassLoader(uris, cl);
+        }
+        return cl;
+    }
+
+    private static class CXFJavaCompileClassLoader extends URLClassLoader {
+
+        private URL[] jarUrls;
+
+        public CXFJavaCompileClassLoader(Collection<URL> files, ClassLoader parent) {
+            super(new URL[0], parent);
+            logger.trace("Loaded urls are {}", files);
+            this.jarUrls = files.toArray(new URL[0]);
         }
 
-        return Thread.currentThread().getContextClassLoader();
+        @Override
+        public URL[] getURLs() {
+            return jarUrls;
+        }
+    }
+
+    /* This method uses public methods of ModuleClassLoader through introspection in order to avoid a compile time
+     * dependency with jboss module classes.
+     */
+    private void getJarsFromModuleClassLoader(ClassLoader cl,
+                                              Collection<URL> collector) throws ReflectiveOperationException, MalformedURLException {
+        Object resourceLoaders = methodInvoke(cl, "getResourceLoaders", Object.class);
+        for (int i = 0; i < Array.getLength(resourceLoaders); i++) {
+            Object resourceLoader = Array.get(resourceLoaders, i);
+            switch (resourceLoader.getClass().getSimpleName()) {
+                case "JarFileResourceLoader":
+                    collector.add(fieldGet(resourceLoader, "rootUrl", URL.class));
+                    break;
+                case "VFSResourceLoader":
+                    String rootName = fieldGet(resourceLoader, "rootName", String.class);
+                    if (rootName.endsWith("jar")) {
+                        collector.add(new File(methodInvoke(fieldGet(resourceLoader, "root", Object.class),
+                                "getPhysicalFile", File.class).getParentFile(), rootName).toURI().toURL());
+                    }
+                    break;
+                default:
+                    // ignore other resources
+
+            }
+        }
+    }
+
+    @SuppressWarnings("squid:S3011")
+    private <T> T methodInvoke(Object obj,
+                               String methodName,
+                               Class<T> resultClass) throws ReflectiveOperationException {
+        Method m = obj.getClass().getDeclaredMethod(methodName);
+        m.setAccessible(true);
+        return resultClass.cast(m.invoke(obj));
+    }
+
+    @SuppressWarnings("squid:S3011")
+    private <T> T fieldGet(Object obj,
+                           String fieldName,
+                           Class<T> resultClass) throws ReflectiveOperationException {
+        Field f = obj.getClass().getDeclaredField(fieldName);
+        f.setAccessible(true);
+        return resultClass.cast(f.get(obj));
     }
 
     public ClassLoader getClassLoader() {

@@ -16,14 +16,24 @@
 
 package org.jbpm.marshalling.impl;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.google.protobuf.ExtensionRegistry;
 import org.drools.core.common.DefaultFactHandle;
 import org.drools.core.common.InternalWorkingMemory;
 import org.drools.core.impl.InternalKnowledgeBase;
 import org.drools.core.marshalling.impl.MarshallerReaderContext;
 import org.drools.core.marshalling.impl.MarshallerWriteContext;
-import org.drools.core.marshalling.impl.PersisterHelper;
-import org.drools.core.marshalling.impl.ProtobufMessages.Header;
+import org.drools.serialization.protobuf.PersisterHelper;
+import org.drools.serialization.protobuf.ProtobufMessages.Header;
 import org.jbpm.marshalling.impl.JBPMMessages.ProcessInstance.NodeInstanceContent;
 import org.jbpm.marshalling.impl.JBPMMessages.ProcessInstance.NodeInstanceContent.RuleSetNode.TextMapEntry;
 import org.jbpm.marshalling.impl.JBPMMessages.ProcessInstance.NodeInstanceType;
@@ -57,16 +67,6 @@ import org.kie.api.runtime.process.NodeInstanceContainer;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.process.WorkflowProcessInstance;
 import org.kie.api.runtime.rule.FactHandle;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Default implementation of a process instance marshaller.
@@ -486,10 +486,10 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
 
     // Input methods
     public ProcessInstance readProcessInstance(MarshallerReaderContext context) throws IOException {
-        InternalKnowledgeBase ruleBase = context.kBase;
-        InternalWorkingMemory wm = context.wm;
+        InternalKnowledgeBase ruleBase = context.getKnowledgeBase();
+        InternalWorkingMemory wm = context.getWorkingMemory();
         
-        JBPMMessages.ProcessInstance _instance = (org.jbpm.marshalling.impl.JBPMMessages.ProcessInstance) context.parameterObject;
+        JBPMMessages.ProcessInstance _instance = (org.jbpm.marshalling.impl.JBPMMessages.ProcessInstance) context.getParameterObject();
         if( _instance == null ) {
             // try to parse from the stream
             ExtensionRegistry registry = PersisterHelper.buildRegistry( context, null ); 
@@ -550,7 +550,7 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
         }
 
         for ( JBPMMessages.ProcessInstance.NodeInstance _node : _instance.getNodeInstanceList() ) {
-            context.parameterObject = _node;
+            context.setParameterObject( _node );
             readNodeInstance( context, 
                               processInstance, 
                               processInstance );
@@ -599,7 +599,7 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
     public NodeInstance readNodeInstance(MarshallerReaderContext context,
                                          NodeInstanceContainer nodeInstanceContainer,
                                          WorkflowProcessInstance processInstance) throws IOException {
-        JBPMMessages.ProcessInstance.NodeInstance _node = (JBPMMessages.ProcessInstance.NodeInstance) context.parameterObject;
+        JBPMMessages.ProcessInstance.NodeInstance _node = (JBPMMessages.ProcessInstance.NodeInstance) context.getParameterObject();
         
         NodeInstanceImpl nodeInstance = readNodeInstanceContent( _node,
                                                                  context, 
@@ -640,7 +640,7 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
                     }
                 }
                 for ( JBPMMessages.ProcessInstance.NodeInstance _instance : _node.getContent().getComposite().getNodeInstanceList() ) {
-                    context.parameterObject = _instance;
+                    context.setParameterObject( _instance );
                     readNodeInstance( context,
                                       (CompositeContextNodeInstance) nodeInstance,
                                       processInstance );
@@ -660,7 +660,7 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
                 break;
             case FOR_EACH_NODE :
                 for ( JBPMMessages.ProcessInstance.NodeInstance _instance : _node.getContent().getForEach().getNodeInstanceList() ) {
-                    context.parameterObject = _instance;
+                    context.setParameterObject( _instance );
                     readNodeInstance( context,
                                       (ForEachNodeInstance) nodeInstance,
                                       processInstance );
@@ -683,7 +683,7 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
                 break;
             case EVENT_SUBPROCESS_NODE :
                 for ( JBPMMessages.ProcessInstance.NodeInstance _instance : _node.getContent().getComposite().getNodeInstanceList() ) {
-                    context.parameterObject = _instance;
+                    context.setParameterObject( _instance );
                     readNodeInstance( context,
                                       (EventSubProcessNodeInstance) nodeInstance,
                                       processInstance );

@@ -38,7 +38,7 @@ public class CountDownAsyncJobListener implements AsynchronousJobListener {
         try {
             latch.await();
         } catch (InterruptedException e) {
-            logger.debug("Interrputed thread while waiting for all async jobs");
+            logger.debug("Interrupted thread while waiting for all async jobs");
         }
     }
     
@@ -46,7 +46,7 @@ public class CountDownAsyncJobListener implements AsynchronousJobListener {
         try {
             latch.await(timeOut, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
-            logger.debug("Interrputed thread while waiting for all async jobs");
+            logger.debug("Interrupted thread while waiting for all async jobs");
         }
     }
     

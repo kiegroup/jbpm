@@ -16,14 +16,6 @@
 
 package org.jbpm.test.functional.task;
 
-import static org.jbpm.test.tools.IterableListenerAssert.assertChangedVariable;
-import static org.jbpm.test.tools.IterableListenerAssert.assertLeft;
-import static org.jbpm.test.tools.IterableListenerAssert.assertMultipleVariablesChanged;
-import static org.jbpm.test.tools.IterableListenerAssert.assertNextNode;
-import static org.jbpm.test.tools.IterableListenerAssert.assertProcessCompleted;
-import static org.jbpm.test.tools.IterableListenerAssert.assertProcessStarted;
-import static org.jbpm.test.tools.IterableListenerAssert.assertTriggered;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +27,14 @@ import org.jbpm.test.listener.IterableProcessEventListener;
 import org.junit.Test;
 import org.kie.api.command.Command;
 import org.kie.api.runtime.KieSession;
+
+import static org.jbpm.test.tools.IterableListenerAssert.assertChangedVariable;
+import static org.jbpm.test.tools.IterableListenerAssert.assertLeft;
+import static org.jbpm.test.tools.IterableListenerAssert.assertMultipleVariablesChanged;
+import static org.jbpm.test.tools.IterableListenerAssert.assertNextNode;
+import static org.jbpm.test.tools.IterableListenerAssert.assertProcessCompleted;
+import static org.jbpm.test.tools.IterableListenerAssert.assertProcessStarted;
+import static org.jbpm.test.tools.IterableListenerAssert.assertTriggered;
 
 /**
  * Testing script task - both Java and MVEL language.

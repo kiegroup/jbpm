@@ -162,19 +162,26 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
     public void signalEvent(String type, Object event) {
         
         // first signal with new context in case there are start event with signal
-        RuntimeEngine runtimeEngine = getRuntimeEngine(ProcessInstanceIdContext.get());        
-        runtimeEngine.getKieSession().signalEvent(type, event);  
-        
-        disposeRuntimeEngine(runtimeEngine);
+        RuntimeEngine runtimeEngine = getRuntimeEngine(ProcessInstanceIdContext.get());
+        try {
+            // signal execution can rise errors
+            runtimeEngine.getKieSession().signalEvent(type, event);
+        } finally {
+            // ensure we clean up
+            disposeRuntimeEngine(runtimeEngine);
+        }
     
         // next find out all instances waiting for given event type
         List<String> processInstances = ((InternalMapper) mapper).findContextIdForEvent(type, getIdentifier());
         for (String piId : processInstances) {
-            runtimeEngine = getRuntimeEngine(ProcessInstanceIdContext.get(Long.parseLong(piId)));        
-            runtimeEngine.getKieSession().signalEvent(type, event);        
-            
-            disposeRuntimeEngine(runtimeEngine);
-            
+            runtimeEngine = getRuntimeEngine(ProcessInstanceIdContext.get(Long.parseLong(piId)));
+            try {
+                // signal execution can rise errors
+                runtimeEngine.getKieSession().signalEvent(type, event);
+            } finally {
+                // ensure we clean up
+                disposeRuntimeEngine(runtimeEngine);
+            }
         }
         
         // process currently active runtime engines
@@ -396,7 +403,7 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
     
     @Override
     public void init() {
-
+        super.init();
         TaskContentRegistry.get().addMarshallerContext(getIdentifier(), new ContentMarshallerContext(environment.getEnvironment(), environment.getClassLoader()));
         boolean owner = false;
         TransactionManager tm = null;

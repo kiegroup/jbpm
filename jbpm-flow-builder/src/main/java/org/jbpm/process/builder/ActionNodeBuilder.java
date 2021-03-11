@@ -19,9 +19,6 @@ package org.jbpm.process.builder;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.kie.api.definition.process.Node;
-import org.kie.api.definition.process.Process;
-import org.kie.api.runtime.process.DataTransformer;
 import org.drools.compiler.lang.descr.ActionDescr;
 import org.drools.compiler.lang.descr.ProcessDescr;
 import org.jbpm.process.builder.dialect.ProcessDialect;
@@ -32,6 +29,9 @@ import org.jbpm.workflow.core.impl.DroolsConsequenceAction;
 import org.jbpm.workflow.core.impl.NodeImpl;
 import org.jbpm.workflow.core.node.ActionNode;
 import org.jbpm.workflow.core.node.Transformation;
+import org.kie.api.definition.process.Node;
+import org.kie.api.definition.process.Process;
+import org.kie.api.runtime.process.DataTransformer;
 
 public class ActionNodeBuilder extends ExtendedNodeBuilder {
 
@@ -41,13 +41,15 @@ public class ActionNodeBuilder extends ExtendedNodeBuilder {
                       Node node) {
     	super.build(process, processDescr, context, node);
         ActionNode actionNode = ( ActionNode ) node;
-        DroolsConsequenceAction action = (DroolsConsequenceAction) actionNode.getAction();
-        ActionDescr actionDescr = new ActionDescr();
-        actionDescr.setText( action.getConsequence() );
-        actionDescr.setResource(processDescr.getResource());
+        if (actionNode.getAction() instanceof DroolsConsequenceAction) {
+            DroolsConsequenceAction action = (DroolsConsequenceAction) actionNode.getAction();
+            ActionDescr actionDescr = new ActionDescr();
+            actionDescr.setText(action.getConsequence());
+            actionDescr.setResource(processDescr.getResource());
 
-        ProcessDialect dialect = ProcessDialectRegistry.getDialect( action.getDialect() );
-        dialect.getActionBuilder().build( context, action, actionDescr, (NodeImpl) node );
+            ProcessDialect dialect = ProcessDialectRegistry.getDialect(action.getDialect());
+            dialect.getActionBuilder().build(context, action, actionDescr, (NodeImpl) node);
+        }
 
         Transformation transformation = (Transformation) node.getMetaData().get("Transformation");
 		if (transformation != null) {

@@ -20,7 +20,8 @@ import org.kie.api.task.TaskContext;
 import org.kie.api.task.model.Task;
 
 public interface AssignmentService {
-    
+    void setEnabled(boolean enabled);
+
     boolean isEnabled();
 
     void assignTask(Task task, TaskContext context);
@@ -28,5 +29,7 @@ public interface AssignmentService {
     void assignTask(Task task, TaskContext context, String excludedUser);
     
     void onTaskDone(Task task, TaskContext context);
+
+
 
 }

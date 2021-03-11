@@ -32,10 +32,14 @@ import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.process.WorkItem;
 import org.kie.api.runtime.process.WorkItemManager;
 import org.kie.internal.command.CommandFactory;
-import qa.tools.ikeeper.annotation.BZ;
 
-import static org.jbpm.test.tools.IterableListenerAssert.*;
-import static org.junit.Assert.*;
+import static org.jbpm.test.tools.IterableListenerAssert.assertChangedVariable;
+import static org.jbpm.test.tools.IterableListenerAssert.assertLeft;
+import static org.jbpm.test.tools.IterableListenerAssert.assertNextNode;
+import static org.jbpm.test.tools.IterableListenerAssert.assertProcessCompleted;
+import static org.jbpm.test.tools.IterableListenerAssert.assertProcessStarted;
+import static org.jbpm.test.tools.IterableListenerAssert.assertTriggered;
+import static org.junit.Assert.assertFalse;
 
 public class EndEventTest extends JbpmTestCase {
 
@@ -61,7 +65,6 @@ public class EndEventTest extends JbpmTestCase {
         super(false);
     }
 
-    @BZ("1021631")
     @Test(timeout = 30000)
     public void testCompensateEndEvent() {
         KieSession ksession = createKSession(COMPENSATE);
@@ -120,7 +123,6 @@ public class EndEventTest extends JbpmTestCase {
         Assertions.assertThat(events.hasNext()).isFalse();
     }
 
-    @BZ("1015221")
     @Test(timeout = 30000)
     public void testEscalationEndEvent() {
         KieSession ksession = createKSession(ESCALATION);

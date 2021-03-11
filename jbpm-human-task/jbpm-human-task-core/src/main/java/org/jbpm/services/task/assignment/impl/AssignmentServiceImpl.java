@@ -37,20 +37,28 @@ public class AssignmentServiceImpl implements AssignmentService {
     private static final Logger logger = LoggerFactory.getLogger(AssignmentServiceImpl.class);
     
     private static final String ENABLED_PROPERTY = "org.jbpm.task.assignment.enabled";
+    private static final String TASK_IMPLICIT_INPUT_VAR_ASSIGNMENT = "AssignmentStrategy";
     
-    private boolean enabled = Boolean.parseBoolean(System.getProperty(ENABLED_PROPERTY, "false"));
+    private boolean enabled;
 
     private AssignmentStrategy strategy;
     private AssignmentServiceRegistry registry = AssignmentServiceRegistry.get();
     private TaskModelFactory taskModelFactory = TaskModelProvider.getFactory();
     
     public AssignmentServiceImpl() {
-        this.strategy = registry.getStrategy(System.getProperty("org.jbpm.task.assignment.strategy", PotentialOwnerBusynessAssignmentStrategy.IDENTIFIER));        
+        this.reset();
     }
     
-    public AssignmentServiceImpl(AssignmentStrategy strategy) {        
+    public AssignmentServiceImpl(AssignmentStrategy strategy) {
+        this.reset();
         this.strategy = strategy;
     }
+
+    public void reset() {
+        this.strategy = registry.getStrategy(System.getProperty("org.jbpm.task.assignment.strategy", PotentialOwnerBusynessAssignmentStrategy.IDENTIFIER));
+        this.enabled = Boolean.parseBoolean(System.getProperty(ENABLED_PROPERTY, "false"));
+    }
+
     
     @Override
     public void assignTask(Task task, TaskContext context) {
@@ -64,13 +72,13 @@ public class AssignmentServiceImpl implements AssignmentService {
             logger.debug("AssignmentService is not enabled - to enable it set system property '" + ENABLED_PROPERTY + "' to true");
             return;
         }
- 
-        Assignment assignTo = this.strategy.apply(task, context, excludedUser);
+        AssignmentStrategy computedStrategy = computeAssignmentStrategyForTask(task);
+        Assignment assignTo = computedStrategy.apply(task, context, excludedUser);
         if (assignTo == null || assignTo.getUser() == null) {
-            logger.warn("Strategy {} did not return any assignment for task {}", strategy, task);
+            logger.warn("Strategy {} did not return any assignment for task {}", computedStrategy.getIdentifier(), task);
             return;
         }
-        logger.debug("Actual owner returned by strategy {} is {} for task {}", strategy, assignTo, task);
+        logger.debug("Actual owner returned by strategy {} is {} for task {}", computedStrategy.getIdentifier(), assignTo, task);
         User actualOwner = taskModelFactory.newUser(assignTo.getUser());
         
         ((InternalTaskData) task.getTaskData()).setActualOwner(actualOwner);
@@ -84,15 +92,36 @@ public class AssignmentServiceImpl implements AssignmentService {
             return;
         }
         
-        this.strategy.taskDone(task, context);
+        computeAssignmentStrategyForTask(task).taskDone(task, context);
         logger.debug("Assignment strategy notified about task {} being done", task);
     }
 
+    private AssignmentStrategy computeAssignmentStrategyForTask(Task task) {
+        if(task.getTaskData().getTaskInputVariables() != null && task.getTaskData().getTaskInputVariables().containsKey(TASK_IMPLICIT_INPUT_VAR_ASSIGNMENT)) {
+            String userTaskStrategy = (String) task.getTaskData().getTaskInputVariables().get(TASK_IMPLICIT_INPUT_VAR_ASSIGNMENT);
+            return userTaskStrategy != null ? registry.getStrategy(userTaskStrategy) : new AssignmentStrategy() {
+
+                @Override
+                public String getIdentifier() {
+                    return "NoAssignmentStrategy";
+                }
+
+                @Override
+                public Assignment apply(Task task, TaskContext context, String excludedUser) {
+                    return null;
+                }};
+
+        }
+        return this.strategy;
+    }
+
+    
     @Override
     public boolean isEnabled() {
         return enabled;
     }
 
+    @Override
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }

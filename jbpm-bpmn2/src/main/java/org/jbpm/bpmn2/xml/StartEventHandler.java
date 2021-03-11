@@ -25,7 +25,6 @@ import org.drools.core.xml.ExtensibleXmlParser;
 import org.jbpm.bpmn2.core.Error;
 import org.jbpm.bpmn2.core.Escalation;
 import org.jbpm.bpmn2.core.Message;
-import org.jbpm.bpmn2.core.Signal;
 import org.jbpm.compiler.xml.ProcessBuildData;
 import org.jbpm.process.core.event.EventFilter;
 import org.jbpm.process.core.event.EventTransformerImpl;
@@ -107,7 +106,7 @@ public class StartEventHandler extends AbstractNodeHandler {
             } else if ("signalEventDefinition".equals(nodeName)) {
                 String type = ((Element) xmlNode).getAttribute("signalRef");
 
-                type = checkSignalAndConvertToRealSignalNam(parser, type);
+                type = checkSignalAndConvertToRealSignalNam(parser, type, s -> s.addIncomingNode(node));
 
                 if (type != null && type.trim().length() > 0) {
                     addTriggerWithInMappings(startNode, type);
@@ -123,6 +122,7 @@ public class StartEventHandler extends AbstractNodeHandler {
                 if (message == null) {
                     throw new IllegalArgumentException("Could not find message " + messageRef);
                 }
+                message.addIncomingNode(node);
                 startNode.setMetaData("MessageType", message.getType());
 
 

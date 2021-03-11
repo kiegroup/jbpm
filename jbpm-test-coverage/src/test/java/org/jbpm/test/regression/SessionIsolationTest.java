@@ -27,9 +27,7 @@ import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
-import qa.tools.ikeeper.annotation.BZ;
 
-@BZ("852738")
 public class SessionIsolationTest extends JbpmTestCase {
 
     private static final String SIGNAL = "org/jbpm/test/regression/SessionIsolation-signal.bpmn";

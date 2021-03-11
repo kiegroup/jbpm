@@ -28,9 +28,7 @@ import static org.kie.internal.query.QueryParameterIdentifiers.TASK_EVENT_DATE_I
 
 public class TaskEventDeleteBuilderImpl extends AbstractAuditDeleteBuilderImpl<TaskEventDeleteBuilder> implements TaskEventDeleteBuilder {
 
-    private static String TASK_EVENT_IMPL_DELETE = 
-            "DELETE\n"
-            + "FROM TaskEventImpl l\n";
+    private static final String TASK_EVENT_IMPL_DELETE = "TaskEventImpl";
     
     public TaskEventDeleteBuilderImpl(CommandExecutor cmdExecutor ) {
         super(cmdExecutor);
@@ -75,7 +73,7 @@ public class TaskEventDeleteBuilderImpl extends AbstractAuditDeleteBuilderImpl<T
     }
 
     @Override
-    protected String getQueryBase() {
+    protected String getQueryTable() {
         return TASK_EVENT_IMPL_DELETE;
     }
 

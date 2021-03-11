@@ -16,8 +16,9 @@
 
 package org.jbpm.workflow.core.node;
 
-import org.kie.api.definition.process.Connection;
 import org.jbpm.workflow.core.impl.ExtendedNodeImpl;
+import org.kie.api.definition.process.Connection;
+import org.kie.api.definition.process.NodeType;
 
 /**
  * Default implementation of an end node.
@@ -35,6 +36,10 @@ public class EndNode extends ExtendedNodeImpl {
     
     private boolean terminate = true;
     private int scope = CONTAINER_SCOPE;
+
+    public EndNode() {
+        super(NodeType.END);
+    }
 
     public boolean isTerminate() {
 		return terminate;

@@ -21,7 +21,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.drools.core.util.MVELSafeHelper;
+import org.drools.mvel.MVELSafeHelper;
 import org.jbpm.services.task.internals.lifecycle.Allowed;
 import org.jbpm.services.task.internals.lifecycle.OperationCommand;
 import org.kie.api.command.Command;

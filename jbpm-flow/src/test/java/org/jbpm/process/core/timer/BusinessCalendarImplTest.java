@@ -16,6 +16,8 @@
 
 package org.jbpm.process.core.timer;
 
+import java.io.File;
+import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -37,6 +39,40 @@ public class BusinessCalendarImplTest extends AbstractBaseTest {
     }
     
     @Test
+    public void testCalculateHoursSimulatedSLASameDay() {
+        Properties config = new Properties();
+        config.setProperty(BusinessCalendarImpl.HOURS_PER_DAY, "5");
+        config.setProperty(BusinessCalendarImpl.START_HOUR, "17");
+        config.setProperty(BusinessCalendarImpl.END_HOUR, "22");
+        String currentDate = "2018-05-04 16:00:00";
+
+        String expectedDate = "2018-05-04 21:00:00";
+        SessionPseudoClock clock = new StaticPseudoClock(parseToDateWithTime(currentDate).getTime());
+        BusinessCalendarImpl businessCal = new BusinessCalendarImpl(config, clock);
+
+        Date result = businessCal.calculateBusinessTimeAsDate("4h");
+
+        assertEquals(expectedDate, formatDate("yyyy-MM-dd HH:mm:ss", result));
+    }
+
+    @Test
+    public void testCalculateHoursSimulatedSLADifferentDay() {
+        Properties config = new Properties();
+        config.setProperty(BusinessCalendarImpl.HOURS_PER_DAY, "5");
+        config.setProperty(BusinessCalendarImpl.START_HOUR, "17");
+        config.setProperty(BusinessCalendarImpl.END_HOUR, "22");
+        String currentDate = "2018-05-03 21:00:00";
+
+        String expectedDate = "2018-05-04 20:00:00"; // computing from start work
+        SessionPseudoClock clock = new StaticPseudoClock(parseToDateWithTime(currentDate).getTime());
+        BusinessCalendarImpl businessCal = new BusinessCalendarImpl(config, clock);
+
+        Date result = businessCal.calculateBusinessTimeAsDate("4h");
+
+        assertEquals(expectedDate, formatDate("yyyy-MM-dd HH:mm:ss", result));
+    }
+
+    @Test
     public void testCalculateHours() {
         Properties config = new Properties();
         String expectedDate = "2012-05-04 16:45";
@@ -52,6 +88,8 @@ public class BusinessCalendarImplTest extends AbstractBaseTest {
     @Test
     public void testCalculateHoursCustomWorkingHours() {
         Properties config = new Properties();
+        config.setProperty(BusinessCalendarImpl.START_HOUR, "13");
+        config.setProperty(BusinessCalendarImpl.END_HOUR, "19");
         config.setProperty(BusinessCalendarImpl.HOURS_PER_DAY, "6");
         String expectedDate = "2012-05-04 15:45";
         
@@ -199,13 +237,81 @@ public class BusinessCalendarImplTest extends AbstractBaseTest {
     public void testCalculateTimeDaysHoursMinutesHolidays() {
         Properties config = new Properties();
         config.setProperty(BusinessCalendarImpl.HOLIDAYS, "2012-05-10:2012-05-19");
-        String expectedDate = "2012-05-21 14:20";
+        String expectedDate = "2012-05-23 14:20";
         
         SessionPseudoClock clock = new StaticPseudoClock(parseToDate("2012-05-04").getTime()); 
         BusinessCalendarImpl businessCal = new BusinessCalendarImpl(config, clock);
 
         
         Date result = businessCal.calculateBusinessTimeAsDate("6d4h80m");
+        
+        assertEquals(expectedDate, formatDate("yyyy-MM-dd HH:mm", result));
+    }
+    
+    @Test
+    public void testCalculateHoursSimulatedSLAHolidaysAndWeekend() {
+        Properties config = new Properties();
+        config.setProperty(BusinessCalendarImpl.HOLIDAYS, "2020-12-18");
+        config.setProperty(BusinessCalendarImpl.START_HOUR, "8");
+        config.setProperty(BusinessCalendarImpl.END_HOUR, "17");
+        config.setProperty(BusinessCalendarImpl.HOURS_PER_DAY, "9");
+        String expectedDate = "2020-12-22 09:39:57";
+        
+        SessionPseudoClock clock = new StaticPseudoClock(parseToDateWithTimeAndSeconds("2020-12-16 13:09:57").getTime()); 
+        BusinessCalendarImpl businessCal = new BusinessCalendarImpl(config, clock);
+
+        Date result = businessCal.calculateBusinessTimeAsDate("23h30m");
+        
+        assertEquals(expectedDate, formatDate("yyyy-MM-dd HH:mm:ss", result));
+    }
+    
+    @Test
+    public void testCalculateHoursSimulatedSLAHolidaysTodayAndWeekend() {
+        Properties config = new Properties();
+        config.setProperty(BusinessCalendarImpl.HOLIDAYS, "2020-12-16");
+        config.setProperty(BusinessCalendarImpl.START_HOUR, "8");
+        config.setProperty(BusinessCalendarImpl.END_HOUR, "17");
+        config.setProperty(BusinessCalendarImpl.HOURS_PER_DAY, "9");
+        String expectedDate = "2020-12-21 13:30";
+        
+        SessionPseudoClock clock = new StaticPseudoClock(parseToDateWithTimeAndSeconds("2020-12-16 15:13:50").getTime()); 
+        BusinessCalendarImpl businessCal = new BusinessCalendarImpl(config, clock);
+
+        Date result = businessCal.calculateBusinessTimeAsDate("23h30m");
+        
+        assertEquals(expectedDate, formatDate("yyyy-MM-dd HH:mm", result));
+    }
+    
+    @Test
+    public void testCalculateHoursSimulatedSLAHolidaysTodayAndWeekendTomorrow() {
+        Properties config = new Properties();
+        config.setProperty(BusinessCalendarImpl.HOLIDAYS, "2020-12-18");
+        config.setProperty(BusinessCalendarImpl.START_HOUR, "8");
+        config.setProperty(BusinessCalendarImpl.END_HOUR, "17");
+        config.setProperty(BusinessCalendarImpl.HOURS_PER_DAY, "9");
+        String expectedDate = "2020-12-23 13:30";
+        
+        SessionPseudoClock clock = new StaticPseudoClock(parseToDateWithTimeAndSeconds("2020-12-18 15:13:50").getTime()); 
+        BusinessCalendarImpl businessCal = new BusinessCalendarImpl(config, clock);
+
+        Date result = businessCal.calculateBusinessTimeAsDate("23h30m");
+        
+        assertEquals(expectedDate, formatDate("yyyy-MM-dd HH:mm", result));
+    }
+    
+    @Test
+    public void testCalculateHoursSimulatedSLAHolidaysNotConsecutive() {
+        Properties config = new Properties();
+        config.setProperty(BusinessCalendarImpl.HOLIDAYS, "2020-12-22");
+        config.setProperty(BusinessCalendarImpl.START_HOUR, "8");
+        config.setProperty(BusinessCalendarImpl.END_HOUR, "17");
+        config.setProperty(BusinessCalendarImpl.HOURS_PER_DAY, "9");
+        String expectedDate = "2020-12-24 13:30";
+        
+        SessionPseudoClock clock = new StaticPseudoClock(parseToDateWithTimeAndSeconds("2020-12-19 15:13:50").getTime()); 
+        BusinessCalendarImpl businessCal = new BusinessCalendarImpl(config, clock);
+
+        Date result = businessCal.calculateBusinessTimeAsDate("23h30m");
         
         assertEquals(expectedDate, formatDate("yyyy-MM-dd HH:mm", result));
     }
@@ -347,7 +453,7 @@ public class BusinessCalendarImplTest extends AbstractBaseTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testMissingConfigurationSingleArgConstructor() {
-        BusinessCalendarImpl businessCal = new BusinessCalendarImpl(null);
+        BusinessCalendarImpl businessCal = new BusinessCalendarImpl((Properties) null);
     }
     
     @Test
@@ -387,6 +493,26 @@ public class BusinessCalendarImplTest extends AbstractBaseTest {
         assertEquals(expectedDate, formatDate("yyyy-MM-dd HH:mm:ss", result));
     }
 
+    @Test
+    public void testLoadGoodInputStream() throws Exception {
+        URL url = this.getClass().getResource("/business-custom-calendar.properties");
+        File file = new File(url.toURI());
+
+        BusinessCalendarImpl businessCal = new BusinessCalendarImpl(file.getAbsolutePath());
+        int myCustomProperty = businessCal.getPropertyAsInt("MyCustomProperty", "3");
+
+        assertEquals(7, myCustomProperty);
+    }
+
+    @Test
+    public void testLoadBadInputStream() {
+
+        BusinessCalendarImpl businessCal = new BusinessCalendarImpl("/bad-uri.properties");
+        int myCustomProperty = businessCal.getPropertyAsInt("MyCustomProperty", "3");
+
+        assertEquals(3, myCustomProperty);
+    }
+
     private Date parseToDate(String dateString) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         
@@ -402,6 +528,19 @@ public class BusinessCalendarImplTest extends AbstractBaseTest {
     
     private Date parseToDateWithTime(String dateString) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        
+        Date testTime;
+        try {
+            testTime = sdf.parse(dateString);
+            
+            return testTime;
+        } catch (ParseException e) {
+            return null;
+        }        
+    }
+    
+    private Date parseToDateWithTimeAndSeconds(String dateString) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         
         Date testTime;
         try {

@@ -110,7 +110,7 @@
 
     create table CorrelationKeyInfo (
         keyId numeric(19,0) identity not null,
-        name varchar(255) null,
+        name varchar(255) not null,
         processInstanceId numeric(19,0) not null,
         OPTLOCK int null,
         primary key (keyId)
@@ -545,6 +545,9 @@
         references CorrelationKeyInfo
     go
 
+    alter table CorrelationKeyInfo add constraint IDX_CorrelationKeyInfo_name unique (name)
+    go
+
     alter table Deadline
         add constraint FK21DF3E78A9FE0EF4
         foreign key (Deadlines_StartDeadLine_Id)
@@ -903,6 +906,9 @@
     create index IDX_Task_workItemId on Task(workItemId)
     go
 
+    create index IDX_TaskEvent_taskId on TaskEvent (taskId)
+    go
+
     create index IDX_EventTypes_element ON EventTypes(element)
     go
 
@@ -980,6 +986,8 @@
     create index IDX_NInstLog_nodeType on NodeInstanceLog(nodeType)
     go
     create index IDX_NInstLog_pId on NodeInstanceLog(processId)
+    go
+    create index IDX_NInstLog_workItemId on NodeInstanceLog (workItemId)
     go
 
     create index IDX_ErrorInfo_pInstId on ExecutionErrorInfo(PROCESS_INST_ID)

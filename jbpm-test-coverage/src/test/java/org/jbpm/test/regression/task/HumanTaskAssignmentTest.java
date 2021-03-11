@@ -28,7 +28,6 @@ import org.kie.api.task.model.Status;
 import org.kie.api.task.model.Task;
 import org.kie.api.task.model.TaskSummary;
 import org.kie.internal.task.api.InternalTaskService;
-import qa.tools.ikeeper.annotation.BZ;
 
 public class HumanTaskAssignmentTest extends JbpmTestCase {
 
@@ -43,7 +42,6 @@ public class HumanTaskAssignmentTest extends JbpmTestCase {
             "org.jbpm.test.regression.task.HumanTaskAssignment-getTasksOwnerUser";
 
     @Test
-    @BZ("1103977")
     public void testGetTasksAssignedAsPotentialOwnerGroup() {
         createRuntimeManager(GET_TASKS_OWNER_GROUP);
         KieSession ksession = getRuntimeEngine().getKieSession();
@@ -78,7 +76,6 @@ public class HumanTaskAssignmentTest extends JbpmTestCase {
     }
 
     @Test
-    @BZ("1178153")
     public void testGetTasksAssignedAsPotentialOwnerUser() {
         createRuntimeManager(GET_TASKS_OWNER_USER);
         KieSession ksession = getRuntimeEngine().getKieSession();

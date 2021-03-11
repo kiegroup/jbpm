@@ -31,12 +31,12 @@ import org.drools.core.event.ProcessEventSupport;
 import org.drools.core.impl.InternalKnowledgeBase;
 import org.drools.core.marshalling.impl.MarshallerReaderContext;
 import org.drools.core.marshalling.impl.MarshallerWriteContext;
-import org.drools.core.marshalling.impl.ProtobufMessages.ActionQueue.Action;
 import org.drools.core.phreak.PropagationEntry;
 import org.drools.core.time.TimeUtils;
 import org.drools.core.time.TimerService;
 import org.drools.core.time.impl.CommandServiceTimerJobFactoryManager;
 import org.drools.core.time.impl.ThreadSafeTrackableTimeJobFactoryManager;
+import org.drools.serialization.protobuf.ProtobufMessages.ActionQueue.Action;
 import org.jbpm.process.core.event.EventFilter;
 import org.jbpm.process.core.event.EventTransformer;
 import org.jbpm.process.core.event.EventTypeFilter;
@@ -53,6 +53,7 @@ import org.jbpm.workflow.core.node.EventTrigger;
 import org.jbpm.workflow.core.node.StartNode;
 import org.jbpm.workflow.core.node.Trigger;
 import org.kie.api.KieBase;
+import org.kie.api.cluster.ClusterAwareService;
 import org.kie.api.command.ExecutableCommand;
 import org.kie.api.definition.process.Node;
 import org.kie.api.definition.process.Process;
@@ -60,6 +61,7 @@ import org.kie.api.event.process.ProcessEventListener;
 import org.kie.api.event.rule.DefaultAgendaEventListener;
 import org.kie.api.event.rule.MatchCreatedEvent;
 import org.kie.api.event.rule.RuleFlowGroupDeactivatedEvent;
+import org.kie.api.internal.utils.ServiceRegistry;
 import org.kie.api.runtime.Context;
 import org.kie.api.runtime.EnvironmentName;
 import org.kie.api.runtime.KieSession;
@@ -68,6 +70,7 @@ import org.kie.api.runtime.manager.RuntimeManager;
 import org.kie.api.runtime.process.EventListener;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.process.WorkItemManager;
+import org.kie.api.runtime.rule.AgendaFilter;
 import org.kie.internal.command.RegistryContext;
 import org.kie.internal.process.CorrelationKey;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
@@ -107,7 +110,12 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
 	}
 	
 	public void initStartTimers() {
-	    KieBase kbase = kruntime.getKieBase();
+	    // if there is no service implementation registered or is cluster coordinator we should start timers
+        if(ServiceRegistry.ifSupported(ClusterAwareService.class, cluster -> !cluster.isCoordinator()).orElse(Boolean.FALSE)) {
+            return;
+        }
+
+        KieBase kbase = kruntime.getKieBase();
         Collection<Process> processes = kbase.getProcesses();
         for (Process process : processes) {
             RuleFlowProcess p = (RuleFlowProcess) process;
@@ -178,26 +186,40 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
 		result.addClassLoader(Thread.currentThread().getContextClassLoader());
 		return result;
 	}
-	
+
+	@Override
     public ProcessInstance startProcess(final String processId) {
-        return startProcess(processId, null);
+        return startProcess(processId, null, null, null);
     }
 
-    public ProcessInstance startProcess(String processId,
-                                        Map<String, Object> parameters) {
-    	return startProcess(processId, parameters, null);
+    @Override
+    public ProcessInstance startProcess(String processId, Map<String, Object> parameters) {
+    	return startProcess(processId, parameters, null, null);
     }
     
-    public ProcessInstance startProcess(String processId,
-            Map<String, Object> parameters, String trigger) {
+    public ProcessInstance startProcess(String processId, Map<String, Object> parameters, String trigger) {
+        return startProcess(processId, parameters, trigger, null);
+    }
+
+    @Override
+    public ProcessInstance startProcess(final String processId, AgendaFilter agendaFilter) {
+        return startProcess(processId, null, null, agendaFilter);
+    }
+
+    @Override
+    public ProcessInstance startProcess(String processId, Map<String, Object> parameters, AgendaFilter agendaFilter) {
+    	return startProcess(processId, parameters, null, agendaFilter);
+    }
+
+    private ProcessInstance startProcess(String processId, Map<String, Object> parameters, String trigger, AgendaFilter agendaFilter) {
     	ProcessInstance processInstance = createProcessInstance(processId, parameters);
         if ( processInstance != null ) {
             // start process instance
-        	return startProcessInstance(processInstance.getId(), trigger);
+        	return startProcessInstance(processInstance.getId(), trigger, agendaFilter);
         }
         return null;
     }
-    
+
     public ProcessInstance createProcessInstance(String processId,
                                                  Map<String, Object> parameters) {
         return createProcessInstance(processId, null, parameters);
@@ -226,14 +248,17 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
         }
     }
 
-    public ProcessInstance startProcessInstance(long processInstanceId, String trigger) {
+    public ProcessInstance startProcessInstance(long processInstanceId, String trigger, AgendaFilter agendaFilter) {
     	try {
             kruntime.startOperation();
 
             ProcessInstance processInstance = getProcessInstance(processInstanceId);
             ((org.jbpm.process.instance.ProcessInstance) processInstance).configureSLA();
             getProcessEventSupport().fireBeforeProcessStarted( processInstance, kruntime );
-	        ((org.jbpm.process.instance.ProcessInstance) processInstance).start(trigger);
+
+            org.jbpm.process.instance.ProcessInstance jbpmProcessInstance = (org.jbpm.process.instance.ProcessInstance) processInstance;
+            jbpmProcessInstance.setAgendaFilter( agendaFilter );
+            jbpmProcessInstance.start(trigger);
 	        getProcessEventSupport().fireAfterProcessStarted( processInstance, kruntime );
 	        return processInstance;
         } finally {
@@ -242,7 +267,7 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
     }
     
     public ProcessInstance startProcessInstance(long processInstanceId) {
-        return startProcessInstance(processInstanceId, null);
+        return startProcessInstance(processInstanceId, null, null);
     }
     
     @Override
@@ -618,13 +643,6 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
             initTimer(kruntime);
         }
 
-        @Override
-        public Action serialize(MarshallerWriteContext context)
-                throws IOException {
-            return null;
-        }
-        
-        
         private void initTimer(InternalKnowledgeRuntime kruntime) {
             
             for (StartNode startNode : startNodes) {

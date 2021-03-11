@@ -41,6 +41,7 @@ public abstract class AbstractAuditDeleteBuilderImpl<T> extends AbstractDeleteBu
 
     protected Integer[] statuses = new Integer[]{2, 3};
     protected String deploymentId;
+    protected int recordsPerTransaction;
 
 
     protected static class Subquery {
@@ -149,6 +150,13 @@ public abstract class AbstractAuditDeleteBuilderImpl<T> extends AbstractDeleteBu
 
     @Override
     @SuppressWarnings("unchecked")
+    public T recordsPerTransaction(int numRecords) {
+        this.recordsPerTransaction = numRecords;
+        return (T) this;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
     public T processInstanceId(long... processInstanceId) {
         if (checkIfNull(processInstanceId)) {
             return (T) this;
@@ -216,7 +224,7 @@ public abstract class AbstractAuditDeleteBuilderImpl<T> extends AbstractDeleteBu
  
     abstract protected Class<?> getQueryType();
     
-    abstract protected String getQueryBase();
+    protected abstract String getQueryTable();
     
     protected boolean isSubquerySupported() {
         return false;
@@ -243,8 +251,10 @@ public abstract class AbstractAuditDeleteBuilderImpl<T> extends AbstractDeleteBu
                     subquerySQL = subquery.build();
                     params.putAll(subquery.getQueryParams());
                 }
-                int result = getJpaAuditLogService().doDelete(getQueryBase(), queryWhere, subquerySQL, params);
-                return result;
+                return recordsPerTransaction <= 0 ? getJpaAuditLogService().doDelete(getQueryTable(), queryWhere,
+                        subquerySQL, params) : getJpaAuditLogService().doPartialDelete(getQueryTable(), queryWhere,
+                                subquerySQL, params, recordsPerTransaction);
+
             }
         };
     }

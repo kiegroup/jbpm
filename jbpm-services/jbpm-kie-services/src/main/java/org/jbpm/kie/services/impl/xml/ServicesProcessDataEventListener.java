@@ -25,13 +25,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.jbpm.bpmn2.core.ItemDefinition;
+import org.jbpm.bpmn2.core.Message;
+import org.jbpm.bpmn2.core.Signal;
 import org.jbpm.compiler.xml.ProcessDataEventListener;
 import org.jbpm.kie.services.impl.bpmn2.ProcessDescriptor;
 import org.jbpm.kie.services.impl.bpmn2.UserTaskDefinitionImpl;
+import org.jbpm.kie.services.impl.model.MessageDescImpl;
 import org.jbpm.kie.services.impl.model.NodeDesc;
 import org.jbpm.kie.services.impl.model.ProcessAssetDesc;
+import org.jbpm.kie.services.impl.model.SignalDescImpl;
 import org.jbpm.kie.services.impl.model.TimerDesc;
 import org.jbpm.process.core.context.variable.Variable;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
@@ -57,8 +62,12 @@ public class ServicesProcessDataEventListener implements ProcessDataEventListene
 
     private Map<String, ItemDefinition> itemDefinitions;
     private Set<String> signals;
+    private Collection<Signal> signalsInfo;
+    private Collection<Message> messages;
 
     private List<Variable> variables = new ArrayList<Variable>();
+
+
 
     @SuppressWarnings("unchecked")
     @Override
@@ -157,7 +166,7 @@ public class ServicesProcessDataEventListener implements ProcessDataEventListene
     @Override
     public void onProcessAdded(Process process) {
         logger.debug("Added process with id {} and name {}", process.getId(), process.getName());
-        ProcessAssetDesc processDesc = new ProcessAssetDesc(process.getId(), process.getName(), process.getVersion()
+         ProcessAssetDesc processDesc = new ProcessAssetDesc(process.getId(), process.getName(), process.getVersion()
                 , process.getPackageName(), process.getType(), process.getKnowledgeType().name(), process.getNamespace(), "", ((WorkflowProcess)process).isDynamic());
 
         processDescriptor.setProcess(processDesc);
@@ -176,7 +185,12 @@ public class ServicesProcessDataEventListener implements ProcessDataEventListene
             itemDefinitions = (Map<String, ItemDefinition>) data;
         } else if ("signalNames".equals(name)) {
             signals = (Set<String>) data;
+        } else if ("Signals".equals(name)) {
+            signalsInfo = ((Map<String, Signal>) data).values();
+        } else if ("Messages".equals(name)) {
+            messages = ((Map<String, Message>) data).values();
         }
+
     }
 
 
@@ -230,20 +244,6 @@ public class ServicesProcessDataEventListener implements ProcessDataEventListene
                 }
             }
         }
-    }
-
-    // helper methods
-    private Integer getInteger(String value) {
-        int priority = 0;
-        if (value != null) {
-            try {
-                priority = new Integer(value);
-            } catch (NumberFormatException e) {
-                // do nothing
-            }
-        }
-
-        return priority;
     }
 
     protected void resolveUnqualifiedClasses() {
@@ -321,12 +321,21 @@ public class ServicesProcessDataEventListener implements ProcessDataEventListene
                 }
 
                 processDescriptor.getInputs().put(data.getName(), type);
+                processDescriptor.getInputTags(data.getName()).addAll(data.getTags());
             }
         }
 
         // process signals
         if( signals != null ) {
             processDescriptor.setSignals(signals);
+        }
+        if (messages != null) {
+            processDescriptor.setMessages(messages.stream().map(MessageDescImpl::from).collect(Collectors
+                    .toSet()));
+        }
+        if (signalsInfo != null) {
+            processDescriptor.setSignalsDesc(signalsInfo.stream().map(SignalDescImpl::from).collect(Collectors
+                    .toSet()));
         }
     }
 

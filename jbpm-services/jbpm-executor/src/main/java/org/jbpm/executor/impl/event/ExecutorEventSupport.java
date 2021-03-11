@@ -18,7 +18,6 @@ package org.jbpm.executor.impl.event;
 
 import java.io.Externalizable;
 import java.util.List;
-import java.util.function.Consumer;
 
 import org.jbpm.executor.AsynchronousJobListener;
 import org.kie.api.executor.RequestInfo;
@@ -32,8 +31,6 @@ import org.kie.api.executor.RequestInfo;
  */
 public interface ExecutorEventSupport extends Externalizable {
 
-    void notifyAllListeners(Consumer<AsynchronousJobListener> consumer);
-
     void addEventListener(AsynchronousJobListener listener);
 
     void removeEventListener(Class cls);
@@ -41,12 +38,6 @@ public interface ExecutorEventSupport extends Externalizable {
     void removeEventListener(AsynchronousJobListener listener);
 
     List<AsynchronousJobListener> getEventListeners();
-
-    int size();
-
-    boolean isEmpty();
-
-    void clear();
 
     void fireBeforeJobScheduled(RequestInfo job, Throwable exception);
 

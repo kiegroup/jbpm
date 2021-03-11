@@ -25,7 +25,6 @@ import org.jbpm.services.task.identity.JBossUserGroupCallbackImpl;
 import org.jbpm.services.task.utils.ContentMarshallerHelper;
 import org.jbpm.services.task.wih.util.LocalHTWorkItemHandlerUtil;
 import org.jbpm.test.JbpmTestCase;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
@@ -36,7 +35,9 @@ import org.kie.api.task.model.Content;
 import org.kie.api.task.model.TaskSummary;
 import org.kie.internal.logger.KnowledgeRuntimeLoggerFactory;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class LocalTaskServiceTest extends JbpmTestCase {
 

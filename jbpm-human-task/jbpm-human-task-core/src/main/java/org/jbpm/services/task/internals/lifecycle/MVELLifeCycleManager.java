@@ -31,7 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.drools.core.util.MVELSafeHelper;
+import org.drools.mvel.MVELSafeHelper;
 import org.jbpm.persistence.api.integration.EventManagerProvider;
 import org.jbpm.process.instance.impl.NoOpExecutionErrorHandler;
 import org.jbpm.services.task.assignment.AssignmentService;

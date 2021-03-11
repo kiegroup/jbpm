@@ -37,7 +37,8 @@ import org.kie.api.task.TaskService;
 import org.kie.api.task.model.TaskSummary;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 @RunWith(Parameterized.class)
 public class CallActivityWithReadOnlyProcessInstanceTest extends JbpmTestCase {
@@ -74,7 +75,7 @@ public class CallActivityWithReadOnlyProcessInstanceTest extends JbpmTestCase {
 
         ut.begin();
 
-        ProcessInstance processInstance = ksession.startProcess("helloMain", null);
+        ProcessInstance processInstance = ksession.startProcess("helloMain");
         long parentProcessInstanceId = processInstance.getId();
 
         ut.commit();

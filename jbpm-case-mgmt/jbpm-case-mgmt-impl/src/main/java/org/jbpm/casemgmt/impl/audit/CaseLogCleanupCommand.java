@@ -87,11 +87,13 @@ public class CaseLogCleanupCommand extends LogCleanupCommand {
         // get hold of persistence and create instance of audit service
         EntityManagerFactory emf = EntityManagerFactoryManager.get().getOrCreate(emfName);
         ExecutorJPAAuditService auditLogService = new ExecutorJPAAuditService(emf);
+        int recordsPerTransaction = readInt(ctx.getData(), RECORDS_PER_TRANSACTION, 0);
 
         CaseFileDataLogDeleteBuilder deleteCaseFileDataLog = new CaseFileDataLogDeleteBuilderImpl(auditLogService);
         long caseFileDataLogsRemoved = deleteCaseFileDataLog.dateRangeEnd(olderThan == null ? null : formatToUse.parse(olderThan))
                                                             .logBelongsToProcessInDeployment(forDeployment)
                                                             .logBelongsToProcessInStatus(status)
+                                                            .recordsPerTransaction(recordsPerTransaction)
                                                             .inCaseDefId(forCaseDefId)
                                                             .build()
                                                             .execute();
@@ -103,6 +105,7 @@ public class CaseLogCleanupCommand extends LogCleanupCommand {
         CaseRoleAssignmentLogDeleteBuilder deleteCaseRoleAssignmentLog = new CaseRoleAssignmentLogDeleteBuilderImpl(auditLogService);
         long caseRoleAssignmentLogsRemoved = deleteCaseRoleAssignmentLog.logBelongsToProcessInDeployment(forDeployment)
                                                                         .logBelongsToProcessInStatus(status)
+                                                                        .recordsPerTransaction(recordsPerTransaction)
                                                                         .inCaseDefId(forCaseDefId)
                                                                         .build()
                                                                         .execute();

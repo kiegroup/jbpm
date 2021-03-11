@@ -26,7 +26,11 @@ import org.junit.Test;
 import org.kie.api.command.Command;
 import org.kie.api.runtime.KieSession;
 
-import static org.jbpm.test.tools.TrackingListenerAssert.*;
+import static org.jbpm.test.tools.TrackingListenerAssert.assertLeft;
+import static org.jbpm.test.tools.TrackingListenerAssert.assertProcessCompleted;
+import static org.jbpm.test.tools.TrackingListenerAssert.assertProcessStarted;
+import static org.jbpm.test.tools.TrackingListenerAssert.assertTriggered;
+import static org.jbpm.test.tools.TrackingListenerAssert.assertTriggeredAndLeft;
 
 /**
  * Simple testing of lanes - there is nothing special to test.

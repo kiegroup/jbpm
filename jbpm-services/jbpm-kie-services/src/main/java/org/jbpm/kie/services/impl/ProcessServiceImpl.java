@@ -48,6 +48,8 @@ import org.jbpm.workflow.instance.node.EventNodeInstance;
 import org.kie.api.command.Command;
 import org.kie.api.command.ExecutableCommand;
 import org.kie.api.definition.process.Node;
+import org.kie.api.event.process.DefaultProcessEventListener;
+import org.kie.api.event.process.ProcessVariableChangedEvent;
 import org.kie.api.runtime.EnvironmentName;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.Context;
@@ -128,6 +130,39 @@ public class ProcessServiceImpl implements ProcessService, VariablesAware {
         } finally {
             disposeRuntimeEngine(manager, engine);
         }
+    }
+
+
+    @Override
+    public Map<String, Object> startSynchronousProcess(String deploymentId, String processId, Map<String, Object> params) {
+        DeployedUnit deployedUnit = deploymentService.getDeployedUnit(deploymentId);
+        if (deployedUnit == null) {
+            throw new DeploymentNotFoundException("No deployments available for " + deploymentId);
+        }
+        if (!deployedUnit.isActive()) {
+            throw new DeploymentNotActiveException("Deployment " + deploymentId + " is not active");
+        }
+
+        RuntimeManager manager = deployedUnit.getRuntimeManager();
+
+        params = process(params, ((InternalRuntimeManager) manager).getEnvironment().getClassLoader());
+        RuntimeEngine engine = manager.getRuntimeEngine(getContext(params));
+        KieSession ksession = engine.getKieSession();
+
+        Map<String, Object> vars = params != null ? new HashMap<>(params) : new HashMap<>(); // copy variables
+        ksession.addEventListener(new DefaultProcessEventListener() {
+            @Override
+            public void afterVariableChanged(ProcessVariableChangedEvent event) {
+                vars.put(event.getVariableId(), event.getNewValue());
+            }
+        });
+
+        try {
+            ksession.startProcess(processId, params);
+        } finally {
+            disposeRuntimeEngine(manager, engine);
+        }
+        return vars;
     }
 
 
@@ -296,6 +331,48 @@ public class ProcessServiceImpl implements ProcessService, VariablesAware {
     }
 
     @Override
+    public void signalProcessInstanceByCorrelationKey(CorrelationKey correlationKey, String signalName, Object event) {
+        ProcessInstanceDesc pi = dataService.getProcessInstanceByCorrelationKey(correlationKey);
+        if(pi == null) {
+            throw new ProcessInstanceNotFoundException("Process with correlation key " + correlationKey + " not found");
+        }
+        signalProcessInstance(pi.getId(), signalName, event);
+        
+    }
+
+    @Override
+    public void signalProcessInstanceByCorrelationKey(String deploymentId,
+                                                      CorrelationKey correlationKey,
+                                                      String signalName,
+                                                      Object event) {
+        ProcessInstanceDesc pi = dataService.getProcessInstanceByCorrelationKey(correlationKey);
+        if(pi == null) {
+            throw new ProcessInstanceNotFoundException("Process with correlation key " + correlationKey + " not found");
+        }
+        signalProcessInstance(deploymentId, pi.getId(), signalName, event);
+    }
+
+    @Override
+    public void signalProcessInstancesByCorrelationKeys(List<CorrelationKey> correlationKeys, String signalName, Object event) {
+        if(correlationKeys == null) {
+            return;
+        }
+        correlationKeys.forEach(key -> signalProcessInstanceByCorrelationKey(key, signalName, event));
+    }
+
+    @Override
+    public void signalProcessInstancesByCorrelationKeys(String deploymentId,
+                                                        List<CorrelationKey> correlationKeys,
+                                                        String signalName,
+                                                        Object event) {
+        if(correlationKeys == null) {
+            return;
+        }
+        correlationKeys.forEach(key -> signalProcessInstanceByCorrelationKey(deploymentId, key, signalName, event));
+
+    }
+
+    @Override
     public void signalEvent(String deploymentId, String signalName, Object event) {
         DeployedUnit deployedUnit = deploymentService.getDeployedUnit(deploymentId);
         if (deployedUnit == null) {
@@ -458,7 +535,7 @@ public class ProcessServiceImpl implements ProcessService, VariablesAware {
                 @Override
                 public Object execute(org.kie.api.runtime.Context context) {
                     KieSession ksession = ((RegistryContext) context).lookup( KieSession.class );
-                    WorkflowProcessInstance pi = (WorkflowProcessInstance) ksession.getProcessInstance(processInstanceId, true);
+                    WorkflowProcessInstance pi = (WorkflowProcessInstance) ksession.getProcessInstance(processInstanceId);
                     if (pi == null) {
                         throw new ProcessInstanceNotFoundException("Process instance with id " + processInstanceId + " was not found");
                     }

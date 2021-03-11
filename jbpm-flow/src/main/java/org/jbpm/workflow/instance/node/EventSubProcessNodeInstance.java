@@ -79,21 +79,26 @@ public class EventSubProcessNodeInstance extends CompositeContextNodeInstance {
         if (nodeInstance instanceof EndNodeInstance) { 
             if (getCompositeNode().isKeepActive()) {
                 StartNode startNode = getCompositeNode().findStartNode();
-                triggerCompleted(true);
                 if (startNode.isInterrupting()) {
-                	String faultName = getProcessInstance().getOutcome()==null?"":getProcessInstance().getOutcome();
-                	
-                	if (startNode.getMetaData("FaultCode") != null) {
-                		faultName = (String) startNode.getMetaData("FaultCode");
-                	}
-                	if (getNodeInstanceContainer() instanceof ProcessInstance) {
-                		((ProcessInstance) getProcessInstance()).setState(ProcessInstance.STATE_ABORTED, faultName);
-                	} else {
-                		((NodeInstanceContainer) getNodeInstanceContainer()).setState( ProcessInstance.STATE_ABORTED);
-                	}
-                    
-                }                
-            }            
+                    getProcessInstance().getMetaData().put("SUB_PROCESS_INTERRUPTION", Boolean.TRUE);
+                }
+                triggerCompleted(true);
+                // we need to abort first otherwise the end node will complete the process normally (something that should not happen)
+                if (startNode.isInterrupting()) {
+                    String faultName = getProcessInstance().getOutcome() == null ? "" : getProcessInstance().getOutcome();
+
+                    if (startNode.getMetaData("FaultCode") != null) {
+                        faultName = (String) startNode.getMetaData("FaultCode");
+                    }
+                    getProcessInstance().getMetaData().remove("SUB_PROCESS_INTERRUPTION");
+                    if (getNodeInstanceContainer() instanceof ProcessInstance) {
+                        Object faultData = getProcessInstance().getVariable("event");
+                        getProcessInstance().setState(ProcessInstance.STATE_ABORTED, faultName, faultData);
+                    } else {
+                        ((NodeInstanceContainer) getNodeInstanceContainer()).setState(ProcessInstance.STATE_ABORTED);
+                    }
+                }
+            }
         } else {
             throw new IllegalArgumentException(
                 "Completing a node instance that has no outgoing connection not supported.");

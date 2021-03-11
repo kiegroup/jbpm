@@ -16,6 +16,7 @@
 
 package org.jbpm.services.api.query.model;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 
 import java.io.Serializable;
@@ -274,6 +275,11 @@ public class QueryParam implements Serializable {
     public static QueryParam history() {
         return new QueryParam("TABLE", "MODE", singletonList("HISTORY"));
     }
+
+    public static QueryParam exclude(String collection) {
+        return new QueryParam(collection, "EXCLUDE", emptyList());
+    }
+
     /**
      * Returns the column.
      * @return column

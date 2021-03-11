@@ -24,18 +24,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 import org.drools.compiler.compiler.xml.XmlDumper;
-import org.drools.compiler.rule.builder.dialect.java.JavaDialect;
-import org.jbpm.process.core.datatype.DataType;
-import org.jbpm.process.core.datatype.impl.type.BooleanDataType;
-import org.jbpm.process.core.datatype.impl.type.FloatDataType;
-import org.jbpm.process.core.datatype.impl.type.IntegerDataType;
-import org.jbpm.process.core.datatype.impl.type.ObjectDataType;
-import org.jbpm.process.core.datatype.impl.type.StringDataType;
 import org.drools.core.xml.BaseAbstractHandler;
 import org.drools.core.xml.ExtensibleXmlParser;
 import org.drools.core.xml.Handler;
+import org.drools.mvel.java.JavaDialect;
 import org.jbpm.bpmn2.core.Association;
 import org.jbpm.bpmn2.core.Definitions;
 import org.jbpm.bpmn2.core.Error;
@@ -43,15 +38,23 @@ import org.jbpm.bpmn2.core.ItemDefinition;
 import org.jbpm.bpmn2.core.Lane;
 import org.jbpm.bpmn2.core.SequenceFlow;
 import org.jbpm.bpmn2.core.Signal;
+import org.jbpm.bpmn2.handler.SendMessageAction;
+import org.jbpm.bpmn2.handler.SendSignalAction;
 import org.jbpm.compiler.xml.ProcessBuildData;
 import org.jbpm.process.core.context.variable.Variable;
+import org.jbpm.process.core.datatype.DataType;
+import org.jbpm.process.core.datatype.impl.type.BooleanDataType;
+import org.jbpm.process.core.datatype.impl.type.FloatDataType;
+import org.jbpm.process.core.datatype.impl.type.IntegerDataType;
+import org.jbpm.process.core.datatype.impl.type.ObjectDataType;
+import org.jbpm.process.core.datatype.impl.type.StringDataType;
+import org.jbpm.process.instance.impl.JavaAction;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
 import org.jbpm.workflow.core.DroolsAction;
 import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.core.NodeContainer;
 import org.jbpm.workflow.core.impl.DroolsConsequenceAction;
 import org.jbpm.workflow.core.impl.ExtendedNodeImpl;
-import org.jbpm.workflow.core.impl.NodeImpl;
 import org.jbpm.workflow.core.node.ActionNode;
 import org.jbpm.workflow.core.node.EndNode;
 import org.jbpm.workflow.core.node.EventNode;
@@ -70,9 +73,10 @@ public abstract class AbstractNodeHandler extends BaseAbstractHandler implements
 
     static final String PROCESS_INSTANCE_SIGNAL_EVENT = "kcontext.getProcessInstance().signalEvent(";
     static final String RUNTIME_SIGNAL_EVENT = "kcontext.getKnowledgeRuntime().signalEvent(";
-    static final String RUNTIME_MANAGER_SIGNAL_EVENT = "((org.kie.api.runtime.manager.RuntimeManager)kcontext.getKnowledgeRuntime().getEnvironment().get(\"RuntimeManager\")).signalEvent(";
+    static final String RUNTIME_MANAGER_SIGNAL_EVENT =
+            "((org.kie.api.runtime.manager.RuntimeManager)kcontext.getKnowledgeRuntime().getEnvironment().get(\"RuntimeManager\")).signalEvent(";
 
-    protected final static String EOL = System.getProperty( "line.separator" );
+    protected static final String EOL = System.getProperty("line.separator");
     protected Map<String, String> dataInputs = new HashMap<String, String>();
     protected Map<String, String> dataOutputs = new HashMap<String, String>();
     protected Map<String, String> inputAssociation = new HashMap<String, String>();
@@ -160,7 +164,7 @@ public abstract class AbstractNodeHandler extends BaseAbstractHandler implements
         final String y = element.getAttribute("y");
         if (y != null && y.length() != 0) {
             try {
-                node.setMetaData("y", new Integer(y));
+                node.setMetaData("y", Integer.parseInt(y));
             } catch (NumberFormatException exc) {
                 throw new SAXParseException("<" + localName + "> requires an Integer 'y' attribute", parser.getLocator());
             }
@@ -168,7 +172,7 @@ public abstract class AbstractNodeHandler extends BaseAbstractHandler implements
         final String width = element.getAttribute("width");
         if (width != null && width.length() != 0) {
             try {
-                node.setMetaData("width", new Integer(width));
+                node.setMetaData("width", Integer.parseInt(width));
             } catch (NumberFormatException exc) {
                 throw new SAXParseException("<" + localName + "> requires an Integer 'width' attribute", parser.getLocator());
             }
@@ -176,7 +180,7 @@ public abstract class AbstractNodeHandler extends BaseAbstractHandler implements
         final String height = element.getAttribute("height");
         if (height != null && height.length() != 0) {
             try {
-                node.setMetaData("height", new Integer(height));
+                node.setMetaData("height", Integer.parseInt(height));
             } catch (NumberFormatException exc) {
                 throw new SAXParseException("<" + localName + "> requires an Integer 'height' attribute", parser.getLocator());
             }
@@ -314,7 +318,7 @@ public abstract class AbstractNodeHandler extends BaseAbstractHandler implements
                 xmlDump.append(" name=\"" + name + "\"");
             }
             String dialect = consequenceAction.getDialect();
-            if (JavaDialect.ID.equals(dialect)) {
+            if ( JavaDialect.ID.equals(dialect)) {
                 xmlDump.append(" scriptFormat=\"" + XmlBPMNProcessDumper.JAVA_LANGUAGE + "\"");
             } else if ("JavaScript".equals(dialect)) {
                 xmlDump.append(" scriptFormat=\"" + XmlBPMNProcessDumper.JAVASCRIPT_LANGUAGE + "\"");
@@ -327,10 +331,7 @@ public abstract class AbstractNodeHandler extends BaseAbstractHandler implements
             } else {
             	xmlDump.append("/>" + EOL);
             }
-    	} else {
-    		throw new IllegalArgumentException(
-				"Unknown action " + action);
-    	}
+        }
     }
 
     protected void readIoSpecification(org.w3c.dom.Node xmlNode, Map<String, String> dataInputs, Map<String, String> dataOutputs) {
@@ -548,36 +549,11 @@ public abstract class AbstractNodeHandler extends BaseAbstractHandler implements
 		}
 	}
 
-    protected String getSignalExpression(NodeImpl node, String signalName, String variable) {
-        String signalExpression = RUNTIME_SIGNAL_EVENT;
-        String scope = (String) node.getMetaData("customScope");
-        if ("processInstance".equalsIgnoreCase(scope)) {
-            signalExpression = PROCESS_INSTANCE_SIGNAL_EVENT +  "org.jbpm.process.instance.impl.util.VariableUtil.resolveVariable(\""+ signalName + "\", kcontext.getNodeInstance()), " + (variable == null ? "null" : variable) + ");";
-        } else if ("runtimeManager".equalsIgnoreCase(scope) || "project".equalsIgnoreCase(scope)) {
-            signalExpression = RUNTIME_MANAGER_SIGNAL_EVENT + "org.jbpm.process.instance.impl.util.VariableUtil.resolveVariable(\""+ signalName + "\", kcontext.getNodeInstance()), " + (variable == null ? "null" : variable) + ");";
-        } else if ("external".equalsIgnoreCase(scope)) {
-            signalExpression = "org.drools.core.process.instance.impl.WorkItemImpl workItem = new org.drools.core.process.instance.impl.WorkItemImpl();" + EOL +
-            "workItem.setName(\"External Send Task\");" + EOL +
-            "workItem.setNodeInstanceId(kcontext.getNodeInstance().getId());" + EOL +
-            "workItem.setProcessInstanceId(kcontext.getProcessInstance().getId());" + EOL +
-            "workItem.setNodeId(kcontext.getNodeInstance().getNodeId());" + EOL +
-            "workItem.setDeploymentId((String) kcontext.getKnowledgeRuntime().getEnvironment().get(\"deploymentId\"));" + EOL +
-            "workItem.setParameter(\"Signal\", org.jbpm.process.instance.impl.util.VariableUtil.resolveVariable(\""+ signalName + "\", kcontext.getNodeInstance()));" + EOL +
-            "workItem.setParameter(\"SignalProcessInstanceId\", kcontext.getVariable(\"SignalProcessInstanceId\"));" + EOL +
-            "workItem.setParameter(\"SignalWorkItemId\", kcontext.getVariable(\"SignalWorkItemId\"));" + EOL +
-            "workItem.setParameter(\"SignalDeploymentId\", kcontext.getVariable(\"SignalDeploymentId\"));" + EOL +
-            (variable == null ? "" : "workItem.setParameter(\"Data\", " + variable + ");" + EOL) +
-            "((org.drools.core.process.instance.WorkItemManager) kcontext.getKnowledgeRuntime().getWorkItemManager()).internalExecuteWorkItem(workItem);";
-        } else {
-            signalExpression = signalExpression +  "org.jbpm.process.instance.impl.util.VariableUtil.resolveVariable(\""+ signalName + "\", kcontext.getNodeInstance()), " + (variable == null ? "null" : variable) + ");";
-        }
-
-        return signalExpression;
-    }
-
     private static final String SIGNAL_NAMES = "signalNames";
 
-    protected String checkSignalAndConvertToRealSignalNam(ExtensibleXmlParser parser, String signalName) {
+    protected String checkSignalAndConvertToRealSignalNam(ExtensibleXmlParser parser,
+                                                          String signalName,
+                                                          Consumer<Signal> consumer) {
         ProcessBuildData buildData = ((ProcessBuildData) parser.getData());
 
         Set<String> signalNames = (Set<String>) buildData.getMetaData(SIGNAL_NAMES);
@@ -595,9 +571,52 @@ public abstract class AbstractNodeHandler extends BaseAbstractHandler implements
                 if (signalName == null) {
                     throw new IllegalArgumentException("Signal definition must have a name attribute");
                 }
+                consumer.accept(signal);
             }
         }
 
         return signalName;
+    }
+
+    protected void writeJavaAction(Node node, JavaAction action, StringBuilder xmlDump) {
+        if (action instanceof SendSignalAction) {
+            SendSignalAction signalAction = (SendSignalAction) action;
+            String variable = signalAction.getVariable();
+            if (variable != null) {
+                xmlDump.append(
+                        "      <dataInput id=\"" + XmlBPMNProcessDumper.getUniqueNodeId(node) + "_Input\" />" + EOL +
+                               "      <dataInputAssociation>" + EOL +
+                               "        <sourceRef>" + XmlDumper.replaceIllegalChars(variable) + "</sourceRef>" + EOL +
+                               "        <targetRef>" + XmlBPMNProcessDumper.getUniqueNodeId(node) +
+                               "_Input</targetRef>" +
+                               EOL +
+                               "      </dataInputAssociation>" + EOL +
+                               "      <inputSet>" + EOL +
+                               "        <dataInputRefs>" + XmlBPMNProcessDumper.getUniqueNodeId(node) +
+                               "_Input</dataInputRefs>" + EOL +
+                               "      </inputSet>" + EOL);
+            }
+            xmlDump.append("      <signalEventDefinition signalRef=\"" + XmlBPMNProcessDumper
+                    .replaceIllegalCharsAttribute(
+                            signalAction.getSignalName()) + "\"/>" + EOL);
+        } else if (action instanceof SendMessageAction) {
+            SendMessageAction signalAction = (SendMessageAction) action;
+            String variable = signalAction.getVariable();
+            if (variable != null) {
+                xmlDump.append(
+                        "      <dataInput id=\"" + XmlBPMNProcessDumper.getUniqueNodeId(node) + "_Input\" />" + EOL +
+                               "      <dataInputAssociation>" + EOL +
+                               "        <sourceRef>" + XmlDumper.replaceIllegalChars(variable) + "</sourceRef>" + EOL +
+                               "        <targetRef>" + XmlBPMNProcessDumper.getUniqueNodeId(node) +
+                               "_Input</targetRef>" + EOL +
+                               "      </dataInputAssociation>" + EOL +
+                               "      <inputSet>" + EOL +
+                               "        <dataInputRefs>" + XmlBPMNProcessDumper.getUniqueNodeId(node) +
+                               "_Input</dataInputRefs>" + EOL +
+                               "      </inputSet>" + EOL);
+            }
+            xmlDump.append("      <messageEventDefinition messageRef=\"" + XmlBPMNProcessDumper.getUniqueNodeId(
+                    node) + "_Message\"/>" + EOL);
+        }
     }
 }

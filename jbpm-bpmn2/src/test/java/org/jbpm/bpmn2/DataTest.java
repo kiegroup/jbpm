@@ -17,8 +17,10 @@
 package org.jbpm.bpmn2;
 
 import java.io.ByteArrayInputStream;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,11 +29,11 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.jbpm.process.core.datatype.impl.type.ObjectDataType;
 import org.jbpm.bpmn2.core.Association;
 import org.jbpm.bpmn2.core.DataStore;
 import org.jbpm.bpmn2.core.Definitions;
 import org.jbpm.bpmn2.xml.ProcessHandler;
+import org.jbpm.process.core.datatype.impl.type.ObjectDataType;
 import org.jbpm.process.instance.impl.demo.SystemOutWorkItemHandler;
 import org.junit.After;
 import org.junit.BeforeClass;
@@ -45,27 +47,92 @@ import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.process.WorkItem;
 import org.kie.api.runtime.process.WorkItemHandler;
 import org.kie.api.runtime.process.WorkItemManager;
+import org.kie.api.runtime.process.WorkflowProcessInstance;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(Parameterized.class)
 public class DataTest extends JbpmBpmn2TestCase {
 
+    public static class Person implements Serializable {
+
+        private static final long serialVersionUID = 1L;
+        private String name;
+        private Address address;
+
+        public Person(String name, Address address) {
+            this.name = name;
+            this.address = address;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+
+        public void setAddress(Address address) {
+            this.address = address;
+        }
+
+        public Address getAddress() {
+            return address;
+        }
+    }
+
+    public static class Address implements Serializable {
+
+        private static final long serialVersionUID = 1L;
+        private String city;
+        private String country;
+
+        public Address(String city, String country) {
+            this.city = city;
+            this.country = country;
+        }
+
+
+        public String getCity() {
+            return city;
+        }
+
+        public void setCity(String city) {
+            this.city = city;
+        }
+
+        public String getCountry() {
+            return country;
+        }
+
+        public void setCountry(String country) {
+            this.country = country;
+        }
+    }
+
+
     @Parameters
     public static Collection<Object[]> persistence() {
-        Object[][] data = new Object[][] { { false }, { true } };
+        Object[][] data = new Object[][]{{false}, {true}};
         return Arrays.asList(data);
     };
+
+
 
     private static final Logger logger = LoggerFactory.getLogger(DataTest.class);
 
     private StatefulKnowledgeSession ksession;
-    
+
     public DataTest(boolean persistence) {
         super(persistence);
     }
@@ -89,7 +156,7 @@ public class DataTest extends JbpmBpmn2TestCase {
         ksession = createKnowledgeSession(kbase);
         ProcessInstance processInstance = ksession.startProcess("Import");
         assertProcessInstanceCompleted(processInstance);
-        
+
     }
 
     @Test
@@ -101,7 +168,7 @@ public class DataTest extends JbpmBpmn2TestCase {
         ProcessInstance processInstance = ksession.startProcess("Evaluation",
                 params);
         assertProcessInstanceCompleted(processInstance);
-        
+
     }
 
     @Test
@@ -118,7 +185,7 @@ public class DataTest extends JbpmBpmn2TestCase {
         assertEquals("employeeStore", dataStore.getName());
         assertEquals(String.class.getCanonicalName(),
                 ((ObjectDataType) dataStore.getType()).getClassName());
-        
+
     }
 
     @Test
@@ -126,14 +193,15 @@ public class DataTest extends JbpmBpmn2TestCase {
         KieBase kbase = createKnowledgeBase("BPMN2-Association.bpmn2");
         ksession = createKnowledgeSession(kbase);
         ProcessInstance processInstance = ksession.startProcess("Evaluation");
-        List<Association> associations = (List<Association>) processInstance.getProcess().getMetaData().get(ProcessHandler.ASSOCIATIONS);
+        List<Association> associations = (List<Association>) processInstance.getProcess().getMetaData().get(
+                ProcessHandler.ASSOCIATIONS);
         assertNotNull(associations);
         assertTrue(associations.size() == 1);
         Association assoc = associations.get(0);
         assertEquals("_1234", assoc.getId());
         assertEquals("_1", assoc.getSourceRef());
         assertEquals("_2", assoc.getTargetRef());
-        
+
     }
 
     @Test
@@ -149,7 +217,7 @@ public class DataTest extends JbpmBpmn2TestCase {
         ProcessInstance processInstance = ksession.startProcess("Evaluation",
                 params);
         assertProcessInstanceCompleted(processInstance);
-        
+
     }
 
     @Test
@@ -163,7 +231,7 @@ public class DataTest extends JbpmBpmn2TestCase {
         ProcessInstance processInstance = ksession.startProcess(
                 "com.sample.evaluation", params);
         assertProcessInstanceCompleted(processInstance);
-        
+
     }
 
     @Test
@@ -179,7 +247,7 @@ public class DataTest extends JbpmBpmn2TestCase {
         ProcessInstance processInstance = ksession.startProcess("Evaluation",
                 params);
         assertProcessInstanceCompleted(processInstance);
-        
+
     }
 
     @Test
@@ -197,7 +265,7 @@ public class DataTest extends JbpmBpmn2TestCase {
         ProcessInstance processInstance = ksession.startProcess("XPathProcess",
                 params);
         assertProcessInstanceCompleted(processInstance);
-        
+
     }
 
     @Test
@@ -206,13 +274,14 @@ public class DataTest extends JbpmBpmn2TestCase {
         ksession = createKnowledgeSession(kbase);
         ksession.getWorkItemManager().registerWorkItemHandler("Human Task",
                 new WorkItemHandler() {
+
                     public void abortWorkItem(WorkItem manager,
-                            WorkItemManager mgr) {
+                                              WorkItemManager mgr) {
 
                     }
 
                     public void executeWorkItem(WorkItem workItem,
-                            WorkItemManager mgr) {
+                                                WorkItemManager mgr) {
                         assertEquals("hello world",
                                 workItem.getParameter("coId"));
                     }
@@ -226,7 +295,7 @@ public class DataTest extends JbpmBpmn2TestCase {
         params.put("instanceMetadata", document.getFirstChild());
         ProcessInstance processInstance = ksession.startProcess("process",
                 params);
-        
+
     }
 
     @Test
@@ -237,12 +306,12 @@ public class DataTest extends JbpmBpmn2TestCase {
                 new WorkItemHandler() {
 
                     public void abortWorkItem(WorkItem manager,
-                            WorkItemManager mgr) {
+                                              WorkItemManager mgr) {
 
                     }
 
                     public void executeWorkItem(WorkItem workItem,
-                            WorkItemManager mgr) {
+                                                WorkItemManager mgr) {
                         assertEquals("hello", workItem.getParameter("coId"));
                     }
 
@@ -251,7 +320,65 @@ public class DataTest extends JbpmBpmn2TestCase {
         params.put("instanceMetadata", "hello");
         ProcessInstance processInstance = ksession.startProcess("process",
                 params);
-        
+
+    }
+
+
+    @Test
+    public void testDataInputAssociationsWithPojoPartial() throws Exception {
+        internalTestDataInputAssociationWithPojo("BPMN2-DataInputAssociations-Pojo.bpmn2");
+    }
+
+    @Test
+    public void testDataInputAssociationsWithPojoWithoutSource() throws Exception {
+        internalTestDataInputAssociationWithPojo("BPMN2-DataInputAssociationsWithoutSource.bpmn2");
+    }
+
+    @Test
+    public void testDataInputAssociationsWithPojoComplete() throws Exception {
+        internalTestDataInputAssociationWithPojo("BPMN2-DataInputAssociations-Pojo-Complete.bpmn2");
+    }
+
+    private void internalTestDataInputAssociationWithPojo(String bpmnFile) throws Exception {
+        KieBase kbase = createKnowledgeBaseWithoutDumper(bpmnFile);
+        ksession = createKnowledgeSession(kbase);
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task",
+                new WorkItemHandler() {
+
+                    public void abortWorkItem(WorkItem manager,
+                                              WorkItemManager mgr) {
+
+                    }
+
+                    public void executeWorkItem(WorkItem workItem,
+                                                WorkItemManager mgr) {
+                        assertEquals("Sevilla", workItem.getParameter("coId"));
+                    }
+
+                });
+        ksession.startProcess("process", Collections.singletonMap("instanceMetadata", new Person("Javierito",
+                new Address("Sevilla", "Spain"))));
+    }
+
+    @Test
+    public void testDataInputAssociationsWithPojoNull() throws Exception {
+        KieBase kbase = createKnowledgeBaseWithoutDumper("BPMN2-DataInputAssociations-Pojo-Complete.bpmn2");
+        ksession = createKnowledgeSession(kbase);
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task",
+                new WorkItemHandler() {
+
+                    public void abortWorkItem(WorkItem manager,
+                                              WorkItemManager mgr) {
+
+                    }
+
+                    public void executeWorkItem(WorkItem workItem,
+                                                WorkItemManager mgr) {
+                        assertNull(workItem.getParameter("coId"));
+                    }
+
+                });
+        ksession.startProcess("process", Collections.singletonMap("instanceMetadata", new Person("Javierito", null)));
     }
 
     /**
@@ -259,20 +386,19 @@ public class DataTest extends JbpmBpmn2TestCase {
      */
     @Test
     @Ignore
-    public void testDataInputAssociationsWithLazyLoading()
-            throws Exception {
+    public void testDataInputAssociationsWithLazyLoading() throws Exception {
         KieBase kbase = createKnowledgeBase("BPMN2-DataInputAssociations-lazy-creating.bpmn2");
         ksession = createKnowledgeSession(kbase);
         ksession.getWorkItemManager().registerWorkItemHandler("Human Task",
                 new WorkItemHandler() {
 
                     public void abortWorkItem(WorkItem manager,
-                            WorkItemManager mgr) {
+                                              WorkItemManager mgr) {
 
                     }
 
                     public void executeWorkItem(WorkItem workItem,
-                            WorkItemManager mgr) {
+                                                WorkItemManager mgr) {
                         Object coIdParamObj = workItem.getParameter("coId");
                         assertEquals("mydoc", ((Element) coIdParamObj).getNodeName());
                         assertEquals("mynode", ((Element) workItem.getParameter("coId")).getFirstChild().getNodeName());
@@ -297,7 +423,7 @@ public class DataTest extends JbpmBpmn2TestCase {
         params.put("instanceMetadata", document.getFirstChild());
         ProcessInstance processInstance = ksession.startProcess("process",
                 params);
-        
+
     }
 
     @Test
@@ -308,43 +434,42 @@ public class DataTest extends JbpmBpmn2TestCase {
                 new WorkItemHandler() {
 
                     public void abortWorkItem(WorkItem manager,
-                            WorkItemManager mgr) {
+                                              WorkItemManager mgr) {
 
                     }
 
                     public void executeWorkItem(WorkItem workItem,
-                            WorkItemManager mgr) {
+                                                WorkItemManager mgr) {
                         assertEquals("hello", workItem.getParameter("coId"));
                     }
 
                 });
         ProcessInstance processInstance = ksession
-                .startProcess("process", null);
-        
+                .startProcess("process");
+
     }
 
     @Test
-    public void testDataInputAssociationsWithStringWithoutQuotes()
-            throws Exception {
+    public void testDataInputAssociationsWithStringWithoutQuotes() throws Exception {
         KieBase kbase = createKnowledgeBase("BPMN2-DataInputAssociations-string-no-quotes.bpmn2");
         ksession = createKnowledgeSession(kbase);
         ksession.getWorkItemManager().registerWorkItemHandler("Human Task",
                 new WorkItemHandler() {
 
                     public void abortWorkItem(WorkItem manager,
-                            WorkItemManager mgr) {
+                                              WorkItemManager mgr) {
 
                     }
 
                     public void executeWorkItem(WorkItem workItem,
-                            WorkItemManager mgr) {
+                                                WorkItemManager mgr) {
                         assertEquals("hello", workItem.getParameter("coId"));
                     }
 
                 });
         ProcessInstance processInstance = ksession
-                .startProcess("process", null);
-        
+                .startProcess("process");
+
     }
 
     @Test
@@ -355,23 +480,23 @@ public class DataTest extends JbpmBpmn2TestCase {
                 new WorkItemHandler() {
 
                     public void abortWorkItem(WorkItem manager,
-                            WorkItemManager mgr) {
+                                              WorkItemManager mgr) {
 
                     }
 
                     public void executeWorkItem(WorkItem workItem,
-                            WorkItemManager mgr) {
+                                                WorkItemManager mgr) {
                         assertEquals("id", ((org.w3c.dom.Node) workItem
                                 .getParameter("coId")).getNodeName());
                         assertEquals("some text", ((org.w3c.dom.Node) workItem
                                 .getParameter("coId")).getFirstChild()
-                                .getTextContent());
+                                        .getTextContent());
                     }
 
                 });
         ProcessInstance processInstance = ksession
-                .startProcess("process", null);
-        
+                .startProcess("process");
+
     }
 
     /**
@@ -386,12 +511,12 @@ public class DataTest extends JbpmBpmn2TestCase {
                 new WorkItemHandler() {
 
                     public void abortWorkItem(WorkItem manager,
-                            WorkItemManager mgr) {
+                                              WorkItemManager mgr) {
 
                     }
 
                     public void executeWorkItem(WorkItem workItem,
-                            WorkItemManager mgr) {
+                                                WorkItemManager mgr) {
                         assertEquals("foo", ((Element) workItem
                                 .getParameter("Comment")).getNodeName());
                         // assertEquals("mynode", ((Element)
@@ -412,7 +537,7 @@ public class DataTest extends JbpmBpmn2TestCase {
         params.put("instanceMetadata", document.getFirstChild());
         ProcessInstance processInstance = ksession.startProcess("process",
                 params);
-        
+
     }
 
     @Test
@@ -423,12 +548,12 @@ public class DataTest extends JbpmBpmn2TestCase {
                 new WorkItemHandler() {
 
                     public void abortWorkItem(WorkItem manager,
-                            WorkItemManager mgr) {
+                                              WorkItemManager mgr) {
 
                     }
 
                     public void executeWorkItem(WorkItem workItem,
-                            WorkItemManager mgr) {
+                                                WorkItemManager mgr) {
                         DocumentBuilderFactory factory = DocumentBuilderFactory
                                 .newInstance();
                         DocumentBuilder builder;
@@ -459,7 +584,7 @@ public class DataTest extends JbpmBpmn2TestCase {
         Map<String, Object> params = new HashMap<String, Object>();
         ProcessInstance processInstance = ksession.startProcess("process",
                 params);
-        
+
     }
 
     @Test
@@ -470,12 +595,12 @@ public class DataTest extends JbpmBpmn2TestCase {
                 new WorkItemHandler() {
 
                     public void abortWorkItem(WorkItem manager,
-                            WorkItemManager mgr) {
+                                              WorkItemManager mgr) {
 
                     }
 
                     public void executeWorkItem(WorkItem workItem,
-                            WorkItemManager mgr) {
+                                                WorkItemManager mgr) {
                         try {
                             Document document = DocumentBuilderFactory
                                     .newInstance()
@@ -494,9 +619,215 @@ public class DataTest extends JbpmBpmn2TestCase {
 
                 });
         ProcessInstance processInstance = ksession
-                .startProcess("process", null);
-        
+                .startProcess("process");
+
     }
+
+    @Test
+    public void testDataOutputAssociationsWithPojo() throws Exception {
+        KieBase kbase = createKnowledgeBaseWithoutDumper("BPMN2-DataOutputAssociations-Pojo.bpmn2");
+        ksession = createKnowledgeSession(kbase);
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task",
+                new WorkItemHandler() {
+
+                    public void abortWorkItem(WorkItem manager,
+                                              WorkItemManager mgr) {
+
+                    }
+
+                    public void executeWorkItem(WorkItem workItem,
+                                                WorkItemManager mgr) {
+                        WorkflowProcessInstance processInstance = (WorkflowProcessInstance) ksession.getProcessInstance(
+                                workItem.getProcessInstanceId());
+                        Person person = (Person) processInstance.getVariable("instanceMetadata");
+                        assertNotNull(person);
+                        assertEquals("Napoleon", person.getName());
+                        assertEquals("Paris", person.getAddress().getCity());
+                        assertEquals("France", person.getAddress().getCountry());
+                        mgr.completeWorkItem(workItem.getId(), Collections.singletonMap("output", new Person(
+                                "Javierito", new Address("Sevilla", "Spain"))));
+                        assertEquals("Napoleon", person.getName());
+                        assertEquals("Sevilla", person.getAddress().getCity());
+                        assertEquals("Spain", person.getAddress().getCountry());
+                    }
+
+                });
+        ksession.startProcess("process", Collections.singletonMap("instanceMetadata", new Person("Napoleon",
+                        new Address("Paris", "France"))));
+    }
+
+    @Test
+    public void testDataInputAssociationsStunnerWithPojo() throws Exception {
+        KieBase kbase = createKnowledgeBaseWithoutDumper("BPMN2-DataInputAssociationStunner.bpmn2");
+        ksession = createKnowledgeSession(kbase);
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task",
+                new WorkItemHandler() {
+
+                    public void abortWorkItem(WorkItem manager,
+                                              WorkItemManager mgr) {}
+
+                    public void executeWorkItem(WorkItem workItem,
+                                                WorkItemManager mgr) {
+                        WorkflowProcessInstance processInstance = (WorkflowProcessInstance) ksession
+                                .getProcessInstance(
+                                        workItem.getProcessInstanceId());
+                        Person person = (Person) processInstance.getVariable("instanceMetadata");
+                        assertNotNull(person);
+                        assertEquals("Napoleon", person.getName());
+                        assertEquals("Paris", person.getAddress().getCity());
+                        assertEquals("France", person.getAddress().getCountry());
+                        mgr.completeWorkItem(workItem.getId(), Collections.emptyMap());
+                        Address address = (Address) workItem.getParameter("output");
+                        assertEquals("Paris", address.getCity());
+                        assertEquals("France", address.getCountry());
+                    }
+
+                });
+
+        ksession.startProcess("process", Collections.singletonMap("instanceMetadata", new Person("Napoleon",
+                new Address("Paris", "France"))));
+    }
+
+    @Test
+    public void testDataOutputAssociationsStunnerWithPojo() throws Exception {
+        KieBase kbase = createKnowledgeBaseWithoutDumper("BPMN2-DataOutputAssociationStunner.bpmn2");
+        ksession = createKnowledgeSession(kbase);
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task",
+                new WorkItemHandler() {
+
+                    public void abortWorkItem(WorkItem manager,
+                                              WorkItemManager mgr) {
+
+                    }
+
+                    public void executeWorkItem(WorkItem workItem,
+                                                WorkItemManager mgr) {
+                        WorkflowProcessInstance processInstance = (WorkflowProcessInstance) ksession.getProcessInstance(
+                                workItem.getProcessInstanceId());
+                        Person person = (Person) processInstance.getVariable("instanceMetadata");
+                        assertNotNull(person);
+                        assertEquals("Napoleon", person.getName());
+                        assertEquals("Paris", person.getAddress().getCity());
+                        assertEquals("France", person.getAddress().getCountry());
+                        mgr.completeWorkItem(workItem.getId(), Collections.singletonMap("output", new Address("Sevilla",
+                                "Spain")));
+                        assertEquals("Napoleon", person.getName());
+                        assertEquals("Sevilla", person.getAddress().getCity());
+                        assertEquals("Spain", person.getAddress().getCountry());
+                    }
+
+                });
+        ksession.startProcess("process", Collections.singletonMap("instanceMetadata", new Person("Napoleon",
+                new Address("Paris", "France"))));
+    }
+
+    @Test
+    public void testDataOutputAssociationsWithPojoEmptyFrom() throws Exception {
+        KieBase kbase = createKnowledgeBaseWithoutDumper("BPMN2-DataOutputAssociations-Pojo-EmptyFrom.bpmn2");
+        ksession = createKnowledgeSession(kbase);
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task",
+                new WorkItemHandler() {
+
+                    public void abortWorkItem(WorkItem manager,
+                                              WorkItemManager mgr) {
+
+                    }
+
+                    public void executeWorkItem(WorkItem workItem,
+                                                WorkItemManager mgr) {
+                        WorkflowProcessInstance processInstance = (WorkflowProcessInstance) ksession.getProcessInstance(
+                                workItem.getProcessInstanceId());
+                        Person person = (Person) processInstance.getVariable("instanceMetadata");
+                        assertNotNull(person);
+                        assertEquals("Napoleon", person.getName());
+                        assertEquals("Paris", person.getAddress().getCity());
+                        assertEquals("France", person.getAddress().getCountry());
+                        mgr.completeWorkItem(workItem.getId(), Collections.singletonMap("instanceAddress", new Address(
+                                "Sevilla", "Spain")));
+                        assertEquals("Napoleon", person.getName());
+                        assertEquals("Sevilla", person.getAddress().getCity());
+                        assertEquals("Spain", person.getAddress().getCountry());
+                    }
+
+                });
+        ksession.startProcess("process", Collections.singletonMap("instanceMetadata", new Person("Napoleon",
+                new Address("Paris", "France"))));
+    }
+
+    @Test
+    public void testDataOutputAssociationsWithPojoList() throws Exception {
+        KieBase kbase = createKnowledgeBaseWithoutDumper("BPMN2-DataOutputAssociations-PojoList.bpmn2");
+        ksession = createKnowledgeSession(kbase);
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task",
+                new WorkItemHandler() {
+
+                    public void abortWorkItem(WorkItem manager,
+                                              WorkItemManager mgr) {
+
+                    }
+
+                    public void executeWorkItem(WorkItem workItem,
+                                                WorkItemManager mgr) {
+                        WorkflowProcessInstance processInstance = (WorkflowProcessInstance) ksession.getProcessInstance(
+                                workItem.getProcessInstanceId());
+                        List<Person> persons = (List<Person>) processInstance.getVariable("instanceMetadata");
+                        assertNotNull(persons);
+                        Person person = persons.get(0);
+                        assertEquals("Javierito", person.getName());
+                        assertEquals("Paris", person.getAddress().getCity());
+                        assertEquals("France", person.getAddress().getCountry());
+                        mgr.completeWorkItem(workItem.getId(), Collections.singletonMap("output", Arrays.asList(
+                                new Person("Javierito", new Address("Paris", "France")), new Person("Napoleon",
+                                        new Address("Sevilla", "Spain")))));
+                        assertEquals("Javierito", person.getName());
+                        assertEquals("Sevilla", person.getAddress().getCity());
+                        assertEquals("Spain", person.getAddress().getCountry());
+                    }
+
+                });
+        ksession.startProcess("process", Collections.singletonMap("instanceMetadata", Arrays.asList(new Person(
+                "Javierito", new Address("Paris", "France")), new Person("Napoleon", new Address("Madrid",
+                        "Spain")))));
+    }
+
+    @Test
+    public void testDataOutputAssociationsWithPojoMap() throws Exception {
+        KieBase kbase = createKnowledgeBaseWithoutDumper("BPMN2-DataOutputAssociations-Map.bpmn2");
+        ksession = createKnowledgeSession(kbase);
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task",
+                new WorkItemHandler() {
+                    public void abortWorkItem(WorkItem manager,
+                                              WorkItemManager mgr) {
+                    }
+
+                    public void executeWorkItem(WorkItem workItem,
+                                                WorkItemManager mgr) {
+                        WorkflowProcessInstance processInstance = (WorkflowProcessInstance) ksession.getProcessInstance(
+                                workItem.getProcessInstanceId());
+                        @SuppressWarnings("unchecked")
+                        Map<String, Object> person = (Map<String, Object>) processInstance.getVariable(
+                                "instanceMetadata");
+                        assertNotNull(person);
+                        assertEquals("Javierito", person.get("name"));
+                        Address address = (Address) person.get("address");
+                        assertEquals("Paris", address.getCity());
+                        assertEquals("France", address.getCountry());
+                        mgr.completeWorkItem(workItem.getId(), Collections.singletonMap("output", Arrays.asList(
+                                new Person("Javierito", new Address("Paris", "France")), new Person("Napoleon",
+                                        new Address("Sevilla", "Spain")))));
+                        assertEquals("Javierito", person.get("name"));
+                        address = (Address) person.get("address");
+                        assertEquals("Sevilla", address.getCity());
+                        assertEquals("Spain", address.getCountry());
+                    }
+
+                });
+        Map<String, Object> person = new HashMap<>();
+        person.put("name", "Javierito");
+        person.put("address", new Address("Paris", "France"));
+        ksession.startProcess("process", Collections.singletonMap("instanceMetadata", person));
+    }
+
 
     @Test
     public void testDataOutputAssociationsXmlNode() throws Exception {
@@ -506,12 +837,12 @@ public class DataTest extends JbpmBpmn2TestCase {
                 new WorkItemHandler() {
 
                     public void abortWorkItem(WorkItem manager,
-                            WorkItemManager mgr) {
+                                              WorkItemManager mgr) {
 
                     }
 
                     public void executeWorkItem(WorkItem workItem,
-                            WorkItemManager mgr) {
+                                                WorkItemManager mgr) {
                         try {
                             Document document = DocumentBuilderFactory
                                     .newInstance()
@@ -530,8 +861,8 @@ public class DataTest extends JbpmBpmn2TestCase {
 
                 });
         ProcessInstance processInstance = ksession
-                .startProcess("process", null);
-        
+                .startProcess("process");
+
     }
 
 }

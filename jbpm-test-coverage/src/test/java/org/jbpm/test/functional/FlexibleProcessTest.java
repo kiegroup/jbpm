@@ -33,8 +33,12 @@ import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.process.WorkItem;
 
-import static org.jbpm.test.tools.TrackingListenerAssert.*;
-import static org.junit.Assert.*;
+import static org.jbpm.test.tools.TrackingListenerAssert.assertProcessCompleted;
+import static org.jbpm.test.tools.TrackingListenerAssert.assertProcessStarted;
+import static org.jbpm.test.tools.TrackingListenerAssert.assertTriggered;
+import static org.jbpm.test.tools.TrackingListenerAssert.assertTriggeredAndLeft;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 /**
  * Flexible process test. (process fragments without strict process flow

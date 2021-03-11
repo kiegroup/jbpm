@@ -16,7 +16,7 @@
 
 package org.jbpm.bpmn2.xml;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -24,12 +24,12 @@ import org.drools.core.xml.ExtensibleXmlParser;
 import org.jbpm.bpmn2.core.Error;
 import org.jbpm.bpmn2.core.Escalation;
 import org.jbpm.bpmn2.core.Message;
-import org.jbpm.bpmn2.core.Signal;
+import org.jbpm.bpmn2.handler.SendMessageAction;
+import org.jbpm.bpmn2.handler.SendSignalAction;
 import org.jbpm.compiler.xml.ProcessBuildData;
-import org.jbpm.workflow.core.DroolsAction;
 import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.core.NodeContainer;
-import org.jbpm.workflow.core.impl.DroolsConsequenceAction;
+import org.jbpm.workflow.core.impl.JavaDroolsAction;
 import org.jbpm.workflow.core.node.EndNode;
 import org.jbpm.workflow.core.node.FaultNode;
 import org.w3c.dom.Element;
@@ -139,23 +139,12 @@ public class EndEventHandler extends AbstractNodeHandler {
             } else if ("signalEventDefinition".equals(nodeName)) {
                 String signalName = ((Element) xmlNode).getAttribute("signalRef");
                 String variable = (String) endNode.getMetaData("MappingVariable");
-
-                signalName = checkSignalAndConvertToRealSignalNam(parser, signalName);
-
+                signalName = checkSignalAndConvertToRealSignalNam(parser, signalName, s -> s.addOutgoingNode(node));
                 endNode.setMetaData("EventType", "signal");
                 endNode.setMetaData("Ref", signalName);
                 endNode.setMetaData("Variable", variable);
-
-                // check if signal should be send async
-                if (dataInputs.containsValue("async")) {
-                    signalName = "ASYNC-" + signalName;
-                }
-
-                String signalExpression = getSignalExpression(endNode, signalName, variable);
-
-                List<DroolsAction> actions = new ArrayList<DroolsAction>();
-                actions.add(new DroolsConsequenceAction("mvel",signalExpression));
-                endNode.setActions(EndNode.EVENT_NODE_ENTER, actions);
+                endNode.setActions(EndNode.EVENT_NODE_ENTER, Collections.singletonList(new JavaDroolsAction(
+                        new SendSignalAction(endNode, variable, signalName, dataInputs.containsValue("async")))));
             }
             xmlNode = xmlNode.getNextSibling();
         }
@@ -181,21 +170,11 @@ public class EndEventHandler extends AbstractNodeHandler {
                 if (message == null) {
                     throw new IllegalArgumentException("Could not find message " + messageRef);
                 }
-                String variable = (String) endNode.getMetaData("MappingVariable");
+                message.addOutgoingNode(node);
+                String varName = (String) endNode.getMetaData("MappingVariable");
                 endNode.setMetaData("MessageType", message.getType());
-                List<DroolsAction> actions = new ArrayList<DroolsAction>();
-
-                actions.add(new DroolsConsequenceAction("java",
-                    "org.drools.core.process.instance.impl.WorkItemImpl workItem = new org.drools.core.process.instance.impl.WorkItemImpl();" + EOL +
-                    "workItem.setName(\"Send Task\");" + EOL +
-                    "workItem.setNodeInstanceId(kcontext.getNodeInstance().getId());" + EOL +
-                    "workItem.setProcessInstanceId(kcontext.getProcessInstance().getId());" + EOL +
-                    "workItem.setNodeId(kcontext.getNodeInstance().getNodeId());" + EOL +
-                    "workItem.setParameter(\"MessageType\", \"" + message.getType() + "\");" + EOL +
-                    (variable == null ? "" : "workItem.setParameter(\"Message\", " + variable + ");" + EOL) +
-					"workItem.setDeploymentId((String) kcontext.getKnowledgeRuntime().getEnvironment().get(\"deploymentId\"));" + EOL +
-                    "((org.drools.core.process.instance.WorkItemManager) kcontext.getKnowledgeRuntime().getWorkItemManager()).internalExecuteWorkItem(workItem);"));
-                endNode.setActions(EndNode.EVENT_NODE_ENTER, actions);
+                endNode.setActions(EndNode.EVENT_NODE_ENTER, Collections.singletonList(new JavaDroolsAction(
+                        new SendMessageAction(varName, message))));
             }
             xmlNode = xmlNode.getNextSibling();
         }

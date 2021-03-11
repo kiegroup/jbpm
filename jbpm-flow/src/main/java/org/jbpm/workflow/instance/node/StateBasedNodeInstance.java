@@ -34,7 +34,7 @@ import org.drools.core.time.TimeUtils;
 import org.drools.core.time.impl.CronExpression;
 import org.drools.core.time.impl.DefaultJobHandle;
 import org.drools.core.time.impl.TimerJobInstance;
-import org.drools.core.util.MVELSafeHelper;
+import org.drools.mvel.MVELSafeHelper;
 import org.jbpm.process.core.ContextContainer;
 import org.jbpm.process.core.context.variable.Variable;
 import org.jbpm.process.core.context.variable.VariableScope;
@@ -122,9 +122,8 @@ public abstract class StateBasedNodeInstance extends ExtendedNodeInstanceImpl im
     protected void configureSla() {
         String slaDueDateExpression = (String) getNode().getMetaData().get("customSLADueDate");
         if (slaDueDateExpression != null) {
-            TimerInstance timer = ((WorkflowProcessInstanceImpl) getProcessInstance()).configureSLATimer(slaDueDateExpression);
+            TimerInstance timer = ((WorkflowProcessInstanceImpl) getProcessInstance()).configureSLATimer(slaDueDateExpression, getNodeName());
             if (timer != null) {
-                timer.setName(getNodeName());
                 this.slaTimerId = timer.getId();
                 this.slaDueDate = new Date(System.currentTimeMillis() + timer.getDelay());
                 this.slaCompliance = org.kie.api.runtime.process.ProcessInstance.SLA_PENDING;
@@ -525,4 +524,5 @@ public abstract class StateBasedNodeInstance extends ExtendedNodeInstanceImpl im
             }
         }
     }
+
 }

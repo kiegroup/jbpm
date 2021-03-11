@@ -29,7 +29,7 @@ import org.drools.core.process.instance.WorkItem;
 import org.drools.core.process.instance.WorkItemManager;
 import org.drools.core.process.instance.impl.WorkItemImpl;
 import org.drools.core.spi.ProcessContext;
-import org.drools.core.util.MVELSafeHelper;
+import org.drools.mvel.MVELSafeHelper;
 import org.jbpm.process.core.Context;
 import org.jbpm.process.core.ContextContainer;
 import org.jbpm.process.core.Work;
@@ -55,7 +55,7 @@ import org.jbpm.workflow.core.node.WorkItemNode;
 import org.jbpm.workflow.instance.WorkflowProcessInstance;
 import org.jbpm.workflow.instance.WorkflowRuntimeException;
 import org.jbpm.workflow.instance.impl.NodeInstanceResolverFactory;
-import org.jbpm.workflow.instance.impl.WorkItemResolverFactory;
+import org.jbpm.workflow.instance.impl.MapResolverFactory;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 import org.kie.api.definition.process.Node;
 import org.kie.api.runtime.EnvironmentName;
@@ -84,7 +84,7 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
     private static List<String> defaultOutputVariables = Arrays.asList(new String[]{"ActorId"});
 
     // NOTE: ContetxInstances are not persisted as current functionality (exception scope) does not require it
-    private Map<String, ContextInstance> contextInstances = new HashMap<String, ContextInstance>();
+
     private Map<String, List<ContextInstance>> subContextInstances = new HashMap<String, List<ContextInstance>>();
 
     private long workItemId = -1;
@@ -276,16 +276,7 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
         }
     }
 
-    private void handleAssignment(Assignment assignment) {
-        AssignmentAction action = (AssignmentAction) assignment.getMetaData("Action");
-        try {
-            ProcessContext context = new ProcessContext(getProcessInstance().getKnowledgeRuntime());
-            context.setNodeInstance(this);
-            action.execute(getWorkItem(), context);
-        } catch (Exception e) {
-            throw new RuntimeException("unable to execute Assignment", e);
-        }
-    }
+
 
     public void triggerCompleted(WorkItem workItem) {
         this.workItem = workItem;
@@ -310,66 +301,9 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
 
     protected void updateVariablesFromResult(WorkItem workItem, WorkItemNode workItemNode) {
         validateWorkItemResultVariable(getProcessInstance().getProcessName(), workItemNode.getOutAssociations(), workItem);
-        for (Iterator<DataAssociation> iterator = getWorkItemNode().getOutAssociations().iterator(); iterator.hasNext();) {
-            DataAssociation association = iterator.next();
-            if (association.getTransformation() != null) {
-                Transformation transformation = association.getTransformation();
-                DataTransformer transformer = DataTransformerRegistry.get().find(transformation.getLanguage());
-                if (transformer != null) {
-                    Object parameterValue = transformer.transform(transformation.getCompiledExpression(), workItem.getResults());
-                    VariableScopeInstance variableScopeInstance = (VariableScopeInstance) resolveContextInstance(VariableScope.VARIABLE_SCOPE, association.getTarget());
-                    if (variableScopeInstance != null && parameterValue != null) {
-
-                        variableScopeInstance.getVariableScope().validateVariable(getProcessInstance().getProcessName(), association.getTarget(), parameterValue);
-
-                        variableScopeInstance.setVariable(association.getTarget(), parameterValue);
-                    } else {
-                        logger.warn("Could not find variable scope for variable {}", association.getTarget());
-                        logger.warn("when trying to complete Work Item {}", workItem.getName());
-                        logger.warn("Continuing without setting variable.");
-                    }
-                    if (parameterValue != null) {
-                        workItem.setParameter(association.getTarget(), parameterValue);
-                    }
-                }
-            } else if (association.getAssignments() == null || association.getAssignments().isEmpty()) {
-                VariableScopeInstance variableScopeInstance = (VariableScopeInstance) resolveContextInstance(VariableScope.VARIABLE_SCOPE, association.getTarget());
-                if (variableScopeInstance != null) {
-                    Object value = workItem.getResult(association.getSources().get(0));
-                    if (value == null) {
-                        try {
-                            value = MVELSafeHelper.getEvaluator().eval(association.getSources().get(0), new WorkItemResolverFactory(workItem));
-                        } catch (Throwable t) {
-                            // do nothing
-                        }
-                    }
-                    Variable varDef = variableScopeInstance.getVariableScope().findVariable(association.getTarget());
-                    DataType dataType = varDef.getType();
-                    // exclude java.lang.Object as it is considered unknown type
-                    if (!dataType.getStringType().endsWith("java.lang.Object") &&
-                        !dataType.getStringType().endsWith("Object") && value instanceof String) {
-                        value = dataType.readValue((String) value);
-                    } else {
-                        variableScopeInstance.getVariableScope().validateVariable(getProcessInstance().getProcessName(), association.getTarget(), value);
-                    }
-                    variableScopeInstance.setVariable(association.getTarget(), value);
-                } else {
-                    logger.warn("Could not find variable scope for variable {}", association.getTarget());
-                    logger.warn("when trying to complete Work Item {}", workItem.getName());
-                    logger.warn("Continuing without setting variable.");
-                }
-
-            } else {
-                try {
-                    for (Iterator<Assignment> it = association.getAssignments().iterator(); it.hasNext();) {
-                        handleAssignment(it.next());
-                    }
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
+        mapOutputSetVariables(this, getWorkItemNode().getOutAssociations(), workItem.getResults(), (target, value) -> workItem.setParameter(target, value));
     }
+    
 
     @Override
     public void cancel(CancelType cancelType) {

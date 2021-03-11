@@ -4,8 +4,8 @@
   <bpmn2:process id="src.simpleEndSignal" drools:packageName="com.myteam.testit" drools:version="1.0" name="simpleEndSignal" isExecutable="true">
     <bpmn2:startEvent id="processStartEvent" drools:selectable="true" color:background-color="#9acd32" color:border-color="#000000" color:color="#000000" name="">
       <bpmn2:extensionElements>
-        <drools:metaData name="elementname">
-          <drools:metaValue><![CDATA[]]></drools:metaValue>
+        <drools:metaData name="implementation">
+          <drools:metaValue>##kafka</drools:metaValue>
         </drools:metaData>
       </bpmn2:extensionElements>
       <bpmn2:outgoing>_34697723-2683-44B5-AAAC-CBC7CA94A766</bpmn2:outgoing>

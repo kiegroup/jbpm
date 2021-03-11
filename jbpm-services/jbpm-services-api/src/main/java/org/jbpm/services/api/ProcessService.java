@@ -53,6 +53,17 @@ public interface ProcessService {
 	 */
     Long startProcess(String deploymentId, String processId, Map<String, Object> params);
     
+
+    /**
+     * Synchronous process are those which start and finish in the same transaction. This functionality allows
+     * to retrieve the last outcome of process variables
+     * @param deploymentId deployment information for the process's kjar
+     * @param processId the process identifier
+     * @param params process variables
+     * @return last modification of process variables.
+     */
+    Map<String, Object> startSynchronousProcess(String deploymentId, String processId, Map<String, Object> params);
+    
 	/**
 	 * Starts a process with no variables
 	 * 
@@ -180,7 +191,7 @@ public interface ProcessService {
 	 * @throws ProcessInstanceNotFoundException in case process instance with given id was not found
 	 */
     void signalProcessInstances(List<Long> processInstanceIds, String signalName, Object event);
-    
+
     /**
      * Signal an event to given list of process instances
      * 
@@ -192,7 +203,53 @@ public interface ProcessService {
      * @throws ProcessInstanceNotFoundException in case process instance with given id was not found
      */
     void signalProcessInstances(String deploymentId, List<Long> processInstanceIds, String signalName, Object event);
-    
+
+    /**
+     * Signal an event to a single process instance by correlation key
+     * 
+     * @param correlationKey the process instances unique correlation key
+     * @param signalName the signals id in the process
+     * @param event the event object to be passed in with the event
+     * @throws DeploymentNotFoundException in case deployment unit was not found
+     * @throws ProcessInstanceNotFoundException in case process instance with given id was not found
+     */
+    void signalProcessInstanceByCorrelationKey(CorrelationKey correlationKey, String signalName, Object event);
+
+    /**
+     * Signal an event to a single process instance by correlation key
+     * 
+     * @param deploymentId deployment that process instance belongs to
+     * @param correlationKey the process instances unique correlation key
+     * @param signalName the signals id in the process
+     * @param event the event object to be passed in with the event
+     * @throws DeploymentNotFoundException in case deployment unit was not found
+     * @throws ProcessInstanceNotFoundException in case process instance with given id was not found
+     */
+    void signalProcessInstanceByCorrelationKey(String deploymentId, CorrelationKey correlationKey, String signalName, Object event);
+
+    /**
+     * Signal an event to given list of correlation keys
+     * 
+     * @param correlationKeys list of process instance unique correlation keys
+     * @param signalName the signal's id in the process
+     * @param event the event object to be passed in with the event
+     * @throws DeploymentNotFoundException in case deployment unit was not found
+     * @throws ProcessInstanceNotFoundException in case process instance with given id was not found
+     */
+    void signalProcessInstancesByCorrelationKeys(List<CorrelationKey> correlationKeys, String signalName, Object event);
+
+    /**
+     * Signal an event to given list of correlation keys
+     * 
+     * @param deploymentId deployment that process instance belongs to
+     * @param correlationKeys list of process instance unique correlation keys
+     * @param signalName the signal's id in the process
+     * @param event the event object to be passed in with the event
+     * @throws DeploymentNotFoundException in case deployment unit was not found
+     * @throws ProcessInstanceNotFoundException in case process instance with given id was not found
+     */
+    void signalProcessInstancesByCorrelationKeys(String deploymentId, List<CorrelationKey> correlationKeys, String signalName, Object event);
+
     /**
      * Signal an event to a any process instance that listens to give signal that belongs to given deployment
      * 
@@ -451,6 +508,8 @@ public interface ProcessService {
      * @throws DeploymentNotActiveException in case deployment with given deployment id is not active for restricted commands (e.g. start process)
      */
     public <T> T execute(String deploymentId, Context<?> context, Command<T> command);
+
+
 
 
 

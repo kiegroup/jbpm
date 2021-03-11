@@ -23,6 +23,7 @@ import org.jbpm.process.core.event.EventTypeFilter;
 import org.jbpm.process.core.timer.Timer;
 import org.jbpm.workflow.core.DroolsAction;
 import org.kie.api.definition.process.Node;
+import org.kie.api.definition.process.NodeType;
 
 public class EventSubProcessNode extends CompositeContextNode {
 
@@ -32,6 +33,10 @@ public class EventSubProcessNode extends CompositeContextNode {
     private List<EventTypeFilter> eventTypeFilters = new ArrayList<EventTypeFilter>();
     private boolean keepActive = true;
     
+    public EventSubProcessNode() {
+        super(NodeType.EVENT_SUBPROCESS);
+    }
+
     public void addEvent(EventTypeFilter filter) {
         String type = filter.getType();
         this.events.add(type);

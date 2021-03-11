@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import org.jbpm.test.persistence.scripts.DatabaseType;
+import org.jbpm.test.persistence.scripts.DistributionType;
 import org.jbpm.test.persistence.scripts.PersistenceUnit;
 import org.jbpm.test.persistence.scripts.ScriptsBase;
 import org.jbpm.test.persistence.scripts.util.ScriptFilter;
@@ -57,14 +58,14 @@ public class UpgradeScriptsTest extends ScriptsBase {
     private static final String DB_60_SCRIPTS_RESOURCE_PATH = "/ddl60";
 
     @Parameters(name = "{0}")
-    static public Collection<Object> products() {
-        return Arrays.asList("bpms", "jbpm");
+    static public Collection<Object> distributionTypes() {
+        return Arrays.asList(DistributionType.COMMUNITY, DistributionType.PRODUCT);
     }
 
-    private String product;
+    private DistributionType distributionType;
 
-    public UpgradeScriptsTest(String product) {
-        this.product = product;
+    public UpgradeScriptsTest(DistributionType distributionType) {
+        this.distributionType = distributionType;
     }
 
     @BeforeClass
@@ -94,10 +95,10 @@ public class UpgradeScriptsTest extends ScriptsBase {
      */
     @Test
     public void testExecutingScripts() throws IOException, SQLException {
-        logger.info("entering testExecutingScripts with type: {} ", product);
+        logger.info("entering testExecutingScripts with type: {} ", distributionType);
         try {
             createSchema60UsingDDLs();
-            executeScriptRunner(DB_UPGRADE_SCRIPTS_RESOURCE_PATH, ScriptFilter.init(false, true), product);
+            executeScriptRunner(DB_UPGRADE_SCRIPTS_RESOURCE_PATH, ScriptFilter.init(false, true).setDistribution(distributionType));
             startAndPersistSomeProcess();
         }finally {
             dropFinalSchemaAfterUpgradingUsingDDLs();
@@ -123,24 +124,24 @@ public class UpgradeScriptsTest extends ScriptsBase {
     @Test
 
     public void testPersistedProcess() throws IOException, ParseException, SQLException {
-        logger.debug("entering testPersistedProcess with type: {}", product);
+        logger.debug("entering testPersistedProcess with type: {}", distributionType);
         try {
             createSchema60UsingDDLs();
-            upgradeDbWithOldProcessAndTask(product);
+            upgradeDbWithOldProcessAndTask(distributionType);
             validateProcess();
         } finally {
             dropFinalSchemaAfterUpgradingUsingDDLs();
         }
     }
 
-    private void upgradeDbWithOldProcessAndTask(String type) throws IOException, SQLException {
+    private void upgradeDbWithOldProcessAndTask(DistributionType type) throws IOException, SQLException {
         final TestPersistenceContext scriptRunnerContext = createAndInitContext(PersistenceUnit.SCRIPT_RUNNER);
         try {
             scriptRunnerContext.persistOldProcessAndSession(TEST_SESSION_ID, TEST_PROCESS_ID, TEST_PROCESS_INSTANCE_ID);
             scriptRunnerContext.createSomeTask();
             // Execute upgrade scripts.
             scriptRunnerContext.executeScripts(new File(getClass().getResource(DB_UPGRADE_SCRIPTS_RESOURCE_PATH).getFile()), 
-                                               ScriptFilter.init(false, true), type);
+                                               ScriptFilter.init(false, true).setDistribution(type));
         } finally {
             scriptRunnerContext.clean();
         }

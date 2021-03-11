@@ -72,9 +72,15 @@ public class EventNodeInstance extends ExtendedNodeInstanceImpl implements Event
         		}
         		variableScopeInstance.setVariable(variableName, event);
         	}
-        	triggerCompleted();
+        	triggerCompleted(type, event);
         }
     }
+
+    
+    protected void triggerCompleted(String type, Object event) {
+        triggerCompleted();
+    }
+
 
     public void internalTrigger(final NodeInstance from, String type) {
     	if (!org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE.equals(type)) {
@@ -88,9 +94,8 @@ public class EventNodeInstance extends ExtendedNodeInstanceImpl implements Event
     protected void configureSla() {
         String slaDueDateExpression = (String) getNode().getMetaData().get("customSLADueDate");
         if (slaDueDateExpression != null) {
-            TimerInstance timer = ((WorkflowProcessInstanceImpl)getProcessInstance()).configureSLATimer(slaDueDateExpression);
+            TimerInstance timer = ((WorkflowProcessInstanceImpl)getProcessInstance()).configureSLATimer(slaDueDateExpression, getNodeName());
             if (timer != null) {
-                timer.setName(getNodeName());
                 this.slaTimerId = timer.getId();
                 this.slaDueDate = new Date(System.currentTimeMillis() + timer.getDelay());
                 this.slaCompliance = ProcessInstance.SLA_PENDING;

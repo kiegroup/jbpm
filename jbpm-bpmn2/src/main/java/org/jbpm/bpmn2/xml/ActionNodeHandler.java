@@ -17,13 +17,13 @@
 package org.jbpm.bpmn2.xml;
 
 import org.drools.compiler.compiler.xml.XmlDumper;
-import org.drools.compiler.rule.builder.dialect.java.JavaDialect;
-
+import org.drools.mvel.java.JavaDialect;
 import org.jbpm.process.core.context.exception.CompensationScope;
+import org.jbpm.process.instance.impl.JavaAction;
 import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.core.impl.DroolsConsequenceAction;
+import org.jbpm.workflow.core.impl.JavaDroolsAction;
 import org.jbpm.workflow.core.node.ActionNode;
-
 import org.xml.sax.Attributes;
 
 public class ActionNodeHandler extends AbstractNodeHandler {
@@ -41,18 +41,12 @@ public class ActionNodeHandler extends AbstractNodeHandler {
                           StringBuilder xmlDump,
                           int metaDataType) {
         ActionNode actionNode = (ActionNode) node;
-        DroolsConsequenceAction action = null;
-        if (actionNode.getAction() instanceof DroolsConsequenceAction) {
-            action = (DroolsConsequenceAction) actionNode.getAction();
-        } else {
-            logger.warn("Cannot serialize custom implementation of the Action interface to XML");
-        }
-
         String eventType = (String) actionNode.getMetaData("EventType");
         String ref = (String) actionNode.getMetaData("Ref");
         String variableRef = (String) actionNode.getMetaData("Variable");
-
-        if (action != null) {
+        
+        if (actionNode.getAction() instanceof DroolsConsequenceAction) {
+            DroolsConsequenceAction action = (DroolsConsequenceAction) actionNode.getAction();
             String s = action.getConsequence();
             if (s.startsWith("org.drools.core.process.instance.impl.WorkItemImpl workItem = new org.drools.core.process.instance.impl.WorkItemImpl();")) {
                 writeNode("intermediateThrowEvent",
@@ -185,7 +179,7 @@ public class ActionNodeHandler extends AbstractNodeHandler {
                           actionNode,
                           xmlDump,
                           metaDataType);
-                if (JavaDialect.ID.equals(action.getDialect())) {
+                if ( JavaDialect.ID.equals(action.getDialect())) {
                     xmlDump.append("scriptFormat=\"" + XmlBPMNProcessDumper.JAVA_LANGUAGE + "\" ");
                 } else if ("JavaScript".equals(action.getDialect())) {
                     xmlDump.append("scriptFormat=\"" + XmlBPMNProcessDumper.JAVASCRIPT_LANGUAGE + "\" ");
@@ -203,16 +197,23 @@ public class ActionNodeHandler extends AbstractNodeHandler {
                 endNode("scriptTask",
                         xmlDump);
             }
-        } else {
+
+        } else if (actionNode.getAction() instanceof JavaDroolsAction) {
+            JavaAction action = ((JavaDroolsAction) actionNode.getAction()).getAction();
+            writeNode("intermediateThrowEvent", actionNode, xmlDump, metaDataType);
+            xmlDump.append(">" + EOL);
+            writeExtensionElements(actionNode, xmlDump);
+            writeJavaAction(node, action, xmlDump);
+            endNode("intermediateThrowEvent", xmlDump);
+        }
+        else {
             writeNode("scriptTask",
                       actionNode,
                       xmlDump,
                       metaDataType);
             xmlDump.append(">" + EOL);
-            writeExtensionElements(actionNode,
-                                   xmlDump);
-            endNode("scriptTask",
-                    xmlDump);
+            writeExtensionElements(actionNode, xmlDump);
+            endNode("scriptTask", xmlDump);
         }
     }
 }

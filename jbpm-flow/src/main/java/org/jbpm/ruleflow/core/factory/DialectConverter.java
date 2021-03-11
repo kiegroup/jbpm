@@ -18,7 +18,7 @@ package org.jbpm.ruleflow.core.factory;
 import java.util.EnumMap;
 import java.util.Map;
 
-import org.drools.compiler.rule.builder.dialect.java.JavaDialect;
+import org.drools.mvel.java.JavaDialect;
 import org.kie.api.fluent.Dialect;
 
 public class DialectConverter {

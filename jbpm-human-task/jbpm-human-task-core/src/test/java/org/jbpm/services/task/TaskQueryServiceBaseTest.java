@@ -26,14 +26,19 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.naming.InitialContext;
 import javax.transaction.UserTransaction;
 
+import org.jbpm.services.task.commands.TaskCommand;
+import org.jbpm.services.task.commands.TaskContext;
 import org.jbpm.services.task.impl.factories.TaskFactory;
 import org.jbpm.services.task.impl.model.TaskDataImpl;
+import org.jbpm.services.task.utils.ClassUtil;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.kie.api.runtime.Context;
 import org.kie.api.task.model.I18NText;
 import org.kie.api.task.model.Status;
 import org.kie.api.task.model.Task;
@@ -270,6 +275,234 @@ public abstract class TaskQueryServiceBaseTest extends HumanTaskServicesBaseTest
     }
     
     
+    @Test
+    public void testGetTasksAssignedAsPotentialOwnerWithNoUserGroupsLangStatus() {
+        startBaseTest();
+        final List<String> groups = new ArrayList<>();
+        groups.add("Crusaders");
+        
+        final List<Status> status = Arrays.asList(Status.Created, Status.Ready, Status.Reserved, Status.InProgress, Status.Suspended);
+        
+        Map<String, Object> params = new HashMap<>();
+        params.put("userId", null);
+        params.put("status", status);
+        params.put("groupIds", groups);
+        endBaseTest("TasksAssignedAsPotentialOwnerByStatusByGroup", params);
+
+    }
+    
+    @Test
+    public void testGetTasksAssignedAsPotentialOwnerWithGroups() {
+        startBaseTest();
+        final List<String> groups = new ArrayList<String>();
+        groups.add("Crusaders");
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("userId", null);
+        params.put("groupIds", groups);
+        endBaseTest("TasksAssignedAsPotentialOwnerWithGroups", params);
+
+    }
+    
+    @Test
+    public void testGetTasksAssignedAsPotentialOwnerByStatusWithGroups() {
+        startBaseTest();
+        final List<String> groups = new ArrayList<String>();
+        groups.add("Crusaders");
+        
+        final List<Status> status = Arrays.asList(Status.Created, Status.Ready, Status.Reserved, Status.InProgress, Status.Suspended);
+        
+        Map<String, Object> params = new HashMap<>();
+        params.put("userId", null);
+        params.put("status", status);
+        params.put("groupIds", groups);
+        endBaseTest("TasksAssignedAsPotentialOwnerByStatusWithGroups", params);
+
+    }
+
+    @Test
+    public void testGetTasksAssignedAsPotentialOwnerStatusByExpirationDate() {
+        Task task = startBaseTest();
+        final List<String> groups = new ArrayList<String>();
+        groups.add("Crusaders");
+        
+        final List<Status> status = Arrays.asList(Status.Created, Status.Ready, Status.Reserved, Status.InProgress, Status.Suspended);
+        
+        Map<String, Object> params = new HashMap<>();
+        params.put("userId", null);
+        params.put("status", status);
+        params.put("groupIds", groups);
+        params.put("expirationDate", task.getTaskData().getExpirationTime());
+        endBaseTest("TasksAssignedAsPotentialOwnerStatusByExpirationDate", params);
+
+    }
+    
+    @Test
+    public void testGetTasksAssignedAsPotentialOwnerStatusByExpirationDateOptional() {
+        Task task = startBaseTest();
+        final List<String> groups = new ArrayList<String>();
+        groups.add("Crusaders");
+        
+        final List<Status> status = Arrays.asList(Status.Created, Status.Ready, Status.Reserved, Status.InProgress, Status.Suspended);
+        
+        Map<String, Object> params = new HashMap<>();
+        params.put("userId", null);
+        params.put("status", status);
+        params.put("groupIds", groups);
+        params.put("expirationDate", task.getTaskData().getExpirationTime());
+        endBaseTest("TasksAssignedAsPotentialOwnerStatusByExpirationDateOptional", params);
+
+    }
+    
+    
+    @Test
+    public void testGetSubTasksAssignedAsPotentialOwner() {
+        startBaseTest();
+        final List<String> groups = new ArrayList<String>();
+        groups.add("Crusaders");
+        
+        
+        Map<String, Object> params = new HashMap<>();
+        params.put("userId", null);
+        params.put("groupIds", groups);
+        params.put("parentId", 2L);
+        endBaseTest("SubTasksAssignedAsPotentialOwner", params);
+
+    }
+    
+    @Test
+    public void testGetQuickTasksAssignedAsPotentialOwnerWithGroupsByStatus() {
+        startBaseTest();
+        final List<String> groups = new ArrayList<String>();
+        groups.add("Crusaders");
+        
+        final List<Status> status = Arrays.asList(Status.Created, Status.Ready, Status.Reserved, Status.InProgress, Status.Suspended);
+        
+        Map<String, Object> params = new HashMap<>();
+        params.put("userId", null);
+        params.put("groupIds", groups);
+        params.put("status", status);
+        endBaseTest("QuickTasksAssignedAsPotentialOwnerWithGroupsByStatus", params);
+
+    }
+    
+    @Test
+    public void testGetQuickTasksAssignedAsPotentialOwnerStatusByExpirationDateOptional() {
+        Task task = startBaseTest();
+        final List<String> groups = new ArrayList<String>();
+        groups.add("Crusaders");
+        
+        final List<Status> status = Arrays.asList(Status.Created, Status.Ready, Status.Reserved, Status.InProgress, Status.Suspended);
+        
+        Map<String, Object> params = new HashMap<>();
+        params.put("userId", null);
+        params.put("groupIds", groups);
+        params.put("status", status);
+        params.put("expirationDate", task.getTaskData().getExpirationTime());
+        endBaseTest("QuickTasksAssignedAsPotentialOwnerStatusByExpirationDateOptional", params);
+
+    }
+    
+    @Test
+    public void testGetQuickTasksAssignedAsPotentialOwnerStatusByExpirationDate() {
+        Task task = startBaseTest();
+        final List<String> groups = new ArrayList<String>();
+        groups.add("Crusaders");
+        
+        final List<Status> status = Arrays.asList(Status.Created, Status.Ready, Status.Reserved, Status.InProgress, Status.Suspended);
+        
+        Map<String, Object> params = new HashMap<>();
+        params.put("userId", null);
+        params.put("groupIds", groups);
+        params.put("status", status);
+        params.put("expirationDate", task.getTaskData().getExpirationTime());
+        endBaseTest("QuickTasksAssignedAsPotentialOwnerStatusByExpirationDate", params);
+
+    }
+    
+    @Test
+    public void testGetNewTasksAssignedAsPotentialOwner() {
+        startBaseTest();
+        final List<String> groups = new ArrayList<String>();
+        groups.add("Crusaders");
+        
+        final List<Status> status = Arrays.asList(Status.Created, Status.Ready, Status.Reserved, Status.InProgress, Status.Suspended);
+        
+        Map<String, Object> params = new HashMap<>();
+        params.put("userId", null);
+        params.put("groupIds", groups);
+        params.put("status", status);
+        endBaseTest("NewTasksAssignedAsPotentialOwner", params);
+
+    }
+    
+    @Test
+    public void testGetNewTasksAssignedAsPotentialOwnerByExpirationDateOptional() {
+        Task task = startBaseTest();
+        final List<String> groups = new ArrayList<String>();
+        groups.add("Crusaders");
+        
+        final List<Status> status = Arrays.asList(Status.Created, Status.Ready, Status.Reserved, Status.InProgress, Status.Suspended);
+        
+        Map<String, Object> params = new HashMap<>();
+        params.put("userId", null);
+        params.put("groupIds", groups);
+        params.put("status", status);
+        params.put("expirationDate", task.getTaskData().getExpirationTime());
+        endBaseTest("NewTasksAssignedAsPotentialOwnerByExpirationDateOptional", params);
+
+    }
+    
+    @Test
+    public void testGetNewTasksAssignedAsPotentialOwnerByExpirationDate() {
+        Task task = startBaseTest();
+        final List<String> groups = new ArrayList<String>();
+        groups.add("Crusaders");
+        
+        final List<Status> status = Arrays.asList(Status.Created, Status.Ready, Status.Reserved, Status.InProgress, Status.Suspended);
+        
+        Map<String, Object> params = new HashMap<>();
+        params.put("userId", null);
+        params.put("groupIds", groups);
+        params.put("status", status);
+        params.put("expirationDate", task.getTaskData().getExpirationTime());
+        endBaseTest("NewTasksAssignedAsPotentialOwnerByExpirationDate", params);
+
+    }
+    
+    private Task startBaseTest() {
+        String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData() ) { expirationTime = Date.from(java.time.OffsetDateTime.now().withNano(0).toInstant()), parentId = 2} ), ";
+        str += "peopleAssignments = (with ( new PeopleAssignments() ) { " +
+                "   potentialOwners = [new Group('Crusaders'), ], " +
+                "   excludedOwners = [new Group('Administrators'), ], " +
+                "   businessAdministrators = [ new User('Administrator') ], }),";
+        str += "name =  'This is my task name' })";
+        Task task = TaskFactory.evalTask(new StringReader(str));
+        taskService.addTask(task, new HashMap<String, Object>());
+        return task;
+    }
+    private void endBaseTest(String query, Map<String, Object> params) {
+        
+        List<TaskSummary> tasks = taskService.execute(new TaskCommand<List<TaskSummary>> () {
+
+
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public List<TaskSummary> execute(Context cntxt) {
+                TaskContext context = (TaskContext) cntxt;
+                
+                return context.getPersistenceContext()
+                                                  .queryWithParametersInTransaction(query, 
+                                                                                    params,
+                                                                                    ClassUtil.<List<TaskSummary>>castClass(List.class));
+            }
+        });
+        assertEquals(1, tasks.size());
+        assertNull(tasks.get(0).getActualOwner());
+        assertNull(tasks.get(0).getActualOwnerId());
+        assertEquals(Status.Ready, tasks.get(0).getStatus());
+    }
     // getTasksAssignedAsPotentialOwner(String userId, List<String> groupIds, String language, int firstResult, int maxResults);
 
     @Test
@@ -532,7 +765,7 @@ public abstract class TaskQueryServiceBaseTest extends HumanTaskServicesBaseTest
     
     @Test
     public void testGetTasksAssignedByGroupsWithGroupsLangOneTask() {
-        // One potential owner, should go straight to state Reserved
+        // One potential owner, should go straight to s)tate Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [new Group('Crusaders')  ],businessAdministrators = [ new User('Administrator') ], }),";
         str += "name = 'This is my task name' })";
@@ -543,38 +776,7 @@ public abstract class TaskQueryServiceBaseTest extends HumanTaskServicesBaseTest
         List<TaskSummary> tasks = taskService.getTasksAssignedByGroups(groupIds);
         assertEquals(1, tasks.size());
     }
-    
-    
-    // getTasksAssignedByGroupsByExpirationDate(List<String> groupIds, String language, Date expirationDate);
-    
-//    @Test
-//    public void testGetTasksAssignedByGroupsByExpirationDateWithGroupsLangDateNoTask() {
-//        List<String> groupIds = new ArrayList<String>();
-//        groupIds.add("Crusaders");
-//        Date date = new Date();
-//        List<TaskSummary> tasks = taskService.getTasksAssignedByGroupsByExpirationDate(groupIds, "en-UK", date);
-//        assertEquals(0, tasks.size());
-//    }
-    
-//    @Test
-//    public void testGetTasksAssignedByGroupsByExpirationDateWithUserStatusDateOneTaskReserved() {
-//        // One potential owner, should go straight to state Reserved
-//        String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { expirationTime = new Date( 10000000 ), } ), ";
-//        str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [new Group('Crusaders')  ], }),";
-//        str += "names = [ new I18NText( 'en-UK', 'This is my task name')] })";
-//        Task task = TaskFactory.evalTask(new StringReader(str));
-//        taskService.addTask(task, new HashMap<String, Object>());
-//        List<String> groupIds = new ArrayList<String>();
-//        groupIds.add("Crusaders");
-//        Date date = new Date(10000000);
-//        List<TaskSummary> tasks = taskService.getTasksAssignedByGroupsByExpirationDate(groupIds, "en-UK", date);
-//        assertEquals(1, tasks.size());
-//        //assertEquals("Bobba Fet", tasks.get(0).getActualOwner().getId());
-//    }
-    
-    
-    // getTasksOwned(String userId);
-    
+        
     @Test
     public void testGetTasksOwnedWithUserNoTask() {
         List<TaskSummary> tasks = taskService.getTasksOwned("Bobba Fet", "en-UK");

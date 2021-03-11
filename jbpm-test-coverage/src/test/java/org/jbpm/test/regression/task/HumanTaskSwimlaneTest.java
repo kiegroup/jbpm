@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.assertj.core.api.Assertions;
 import org.jbpm.test.JbpmTestCase;
 import org.jbpm.workflow.instance.node.HumanTaskNodeInstance;
@@ -35,9 +36,9 @@ import org.kie.api.task.model.Status;
 import org.kie.api.task.model.Task;
 import org.kie.api.task.model.TaskSummary;
 
-import qa.tools.ikeeper.annotation.BZ;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 public class HumanTaskSwimlaneTest extends JbpmTestCase {
 
@@ -59,7 +60,6 @@ public class HumanTaskSwimlaneTest extends JbpmTestCase {
     private TaskService taskService;
 
     @Test
-    @BZ("997139")
     public void testSameGroups() {
         createRuntimeManager(SWIMLANE_SAME_GROUPS);
         KieSession ksession = getRuntimeEngine().getKieSession();
@@ -79,7 +79,6 @@ public class HumanTaskSwimlaneTest extends JbpmTestCase {
     }
 
     @Test
-    @BZ("997139")
     public void testDifferentGroups() {
         createRuntimeManager(SWIMLANE_DIFFERENT_GROUPS);
         KieSession ksession = getRuntimeEngine().getKieSession();
@@ -117,14 +116,15 @@ public class HumanTaskSwimlaneTest extends JbpmTestCase {
         RuntimeEngine runtime = getRuntimeEngine();
         KieSession kSession = runtime.getKieSession();
         TaskService taskservice = runtime.getTaskService();
-        
+        MutableObject<Object> actor = new MutableObject<Object>();
         kSession.addEventListener(new DefaultProcessEventListener(){
 
             @Override
             public void afterNodeTriggered(ProcessNodeTriggeredEvent event) {
                 if (event.getNodeInstance().getNodeName().equals("TASK")) {
                     Object swimlaneActorId = ((HumanTaskNodeInstance) event.getNodeInstance()).getWorkItem().getParameter("SwimlaneActorId");
-                    assertNull(swimlaneActorId);
+                    actor.setValue(swimlaneActorId);
+
                 }
             }
             
@@ -133,7 +133,9 @@ public class HumanTaskSwimlaneTest extends JbpmTestCase {
         Map<String, Object> map = new HashMap<String, Object>();
         
         ProcessInstance instance = kSession.startProcess(SWIMLANE_MULTIPLE_ACTORS_ID, map);
-        
+
+        assertNull(actor.getValue());
+
         List<Status> statuses = new ArrayList<Status>();
         statuses.add(Status.Ready);
         statuses.add(Status.Reserved);

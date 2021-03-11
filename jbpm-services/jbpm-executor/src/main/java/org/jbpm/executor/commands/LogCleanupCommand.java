@@ -19,6 +19,7 @@ package org.jbpm.executor.commands;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Map;
 
 import javax.persistence.EntityManagerFactory;
 
@@ -56,12 +57,14 @@ import org.slf4j.LoggerFactory;
  * 	<li>OlderThanPeriod - indicated what logs should be deleted older than given time expression (valid time expression e.g. 1d, 5h, etc)</li>
  * 	<li>ForProcess - indicates logs to be deleted only for given process definition</li>
  * 	<li>ForDeployment - indicates logs to be deleted that are from given deployment id</li>
+ *  <li>RecordsPerTransaction - indicates number of records to be included in each DB transaction (default is 0 which means do the delete in one single transaction)</li>
  * </ul>
  */
 public class LogCleanupCommand implements Command, Reoccurring {
 
     private static final Logger logger = LoggerFactory.getLogger(LogCleanupCommand.class);
     protected final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    public static final String RECORDS_PER_TRANSACTION = "RecordsPerTransaction";
 
     private long nextScheduleTimeAdd = 24 * 60 * 60 * 1000; // one day in milliseconds
 
@@ -79,11 +82,26 @@ public class LogCleanupCommand implements Command, Reoccurring {
         return nextSchedule;
     }
 
+    protected int readInt(Map<String, Object> params, String propName, int defaultValue) {
+        Object value = params.get(propName);
+        if (value instanceof Number) {
+            return ((Number) value).intValue();
+        } else if (value != null){
+            try {
+                return Integer.parseInt(value.toString());
+            } catch (NumberFormatException ex) {
+                // will return default
+            }
+        }
+        return defaultValue;
+    }
+
     @Override
     public ExecutionResults execute(CommandContext ctx) throws Exception {
         boolean skipProcessLog = ctx.getData().containsKey("SkipProcessLog") ? Boolean.parseBoolean((String) ctx.getData("SkipProcessLog")) : false;
         boolean skipTaskLog = ctx.getData().containsKey("SkipTaskLog") ? Boolean.parseBoolean((String) ctx.getData("SkipTaskLog")) : false;
         boolean skipExecutorLog = ctx.getData().containsKey("SkipExecutorLog") ? Boolean.parseBoolean((String) ctx.getData("SkipExecutorLog")) : false;
+        int recordsPerTransaction = readInt(ctx.getData(), RECORDS_PER_TRANSACTION, 0);
 
         SimpleDateFormat formatToUse = dateFormat;
 
@@ -135,6 +153,7 @@ public class LogCleanupCommand implements Command, Reoccurring {
             long errorInfoLogsRemoved = 0l;
             errorInfoLogsRemoved = auditLogService.errorInfoLogDeleteBuilder()
                                                   .dateRangeEnd(olderThan == null ? null : formatToUse.parse(olderThan))
+                                                  .recordsPerTransaction(recordsPerTransaction)
                                                   .logBelongsToProcessInStatus(status)
                                                   .build()
                                                   .execute();
@@ -144,6 +163,7 @@ public class LogCleanupCommand implements Command, Reoccurring {
             long requestInfoLogsRemoved = 0l;
             requestInfoLogsRemoved = auditLogService.requestInfoLogDeleteBuilder()
                                                     .dateRangeEnd(olderThan == null ? null : formatToUse.parse(olderThan))
+                                                    .recordsPerTransaction(recordsPerTransaction)
                                                     .logBelongsToProcessInStatus(status)
                                                     .status(STATUS.CANCELLED, STATUS.DONE, STATUS.ERROR)
                                                     .build()
@@ -158,6 +178,7 @@ public class LogCleanupCommand implements Command, Reoccurring {
             taLogsRemoved = auditLogService.auditTaskDelete()
                                            .processId(forProcess)
                                            .dateRangeEnd(olderThan == null ? null : formatToUse.parse(olderThan))
+                                           .recordsPerTransaction(recordsPerTransaction)
                                            .deploymentId(forDeployment)
                                            .logBelongsToProcessInStatus(status)
                                            .build()
@@ -168,6 +189,7 @@ public class LogCleanupCommand implements Command, Reoccurring {
             long teLogsRemoved = 0l;
             teLogsRemoved = auditLogService.taskEventInstanceLogDelete()
                                            .dateRangeEnd(olderThan == null ? null : formatToUse.parse(olderThan))
+                                           .recordsPerTransaction(recordsPerTransaction)
                                            .logBelongsToProcessInStatus(status)
                                            .build()
                                            .execute();
@@ -177,6 +199,7 @@ public class LogCleanupCommand implements Command, Reoccurring {
             long tvLogsRemoved = 0l;
             tvLogsRemoved = auditLogService.taskVariableInstanceLogDelete()
                                            .dateRangeEnd(olderThan == null ? null : formatToUse.parse(olderThan))
+                                           .recordsPerTransaction(recordsPerTransaction)
                                            .logBelongsToProcessInStatus(status)
                                            .build()
                                            .execute();
@@ -191,6 +214,7 @@ public class LogCleanupCommand implements Command, Reoccurring {
 
                                            .processId(forProcess)
                                            .dateRangeEnd(olderThan == null ? null : formatToUse.parse(olderThan))
+                                           .recordsPerTransaction(recordsPerTransaction)
                                            .externalId(forDeployment)
                                            .logBelongsToProcessInStatus(status)
                                            .build()
@@ -202,6 +226,7 @@ public class LogCleanupCommand implements Command, Reoccurring {
             viLogsRemoved = auditLogService.variableInstanceLogDelete()
                                            .processId(forProcess)
                                            .dateRangeEnd(olderThan == null ? null : formatToUse.parse(olderThan))
+                                           .recordsPerTransaction(recordsPerTransaction)
                                            .externalId(forDeployment)
                                            .logBelongsToProcessInStatus(status)
                                            .build()
@@ -214,6 +239,7 @@ public class LogCleanupCommand implements Command, Reoccurring {
                                            .processId(forProcess)
                                            .status(ProcessInstance.STATE_COMPLETED, ProcessInstance.STATE_ABORTED)
                                            .endDateRangeEnd(olderThan == null ? null : formatToUse.parse(olderThan))
+                                           .recordsPerTransaction(recordsPerTransaction)
                                            .externalId(forDeployment)
                                            .logBelongsToProcessInStatus(status)
                                            .build()

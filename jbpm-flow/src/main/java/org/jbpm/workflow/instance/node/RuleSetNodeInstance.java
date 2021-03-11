@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.drools.core.common.InternalAgenda;
 import org.drools.core.common.InternalKnowledgeRuntime;
-import org.drools.core.util.MVELSafeHelper;
+import org.drools.mvel.MVELSafeHelper;
 import org.jbpm.process.core.Context;
 import org.jbpm.process.core.ContextContainer;
 import org.jbpm.process.core.context.exception.ExceptionScope;
@@ -46,6 +46,7 @@ import org.jbpm.util.PatternConstants;
 import org.jbpm.workflow.core.node.DataAssociation;
 import org.jbpm.workflow.core.node.RuleSetNode;
 import org.jbpm.workflow.core.node.Transformation;
+import org.jbpm.workflow.instance.WorkflowProcessInstance;
 import org.jbpm.workflow.instance.WorkflowRuntimeException;
 import org.jbpm.workflow.instance.impl.NodeInstanceResolverFactory;
 import org.kie.api.runtime.KieRuntime;
@@ -173,7 +174,8 @@ public class RuleSetNodeInstance extends StateBasedNodeInstance implements Event
                     ((InternalAgenda) getProcessInstance().getKnowledgeRuntime().getAgenda())
                             .activateRuleFlowGroup(getRuleFlowGroup(), getProcessInstance().getId(), getUniqueId());
 
-                    int fired = ((KieSession) getProcessInstance().getKnowledgeRuntime()).fireAllRules(fireLimit);
+                    WorkflowProcessInstance processInstance = getProcessInstance();
+                    int fired = ((KieSession) processInstance.getKnowledgeRuntime()).fireAllRules(processInstance.getAgendaFilter(), fireLimit);
                     if (fired == fireLimit) {
                         throw new RuntimeException("Fire rule limit reached " + fireLimit + ", limit can be set via system property " + FIRE_RULE_LIMIT_PROPERTY
                                                            + " or via data input of business rule task named " + FIRE_RULE_LIMIT_PARAMETER);

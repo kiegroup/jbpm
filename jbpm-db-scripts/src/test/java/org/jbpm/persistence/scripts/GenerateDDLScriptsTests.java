@@ -38,9 +38,10 @@ import static java.util.Arrays.asList;
 @RunWith(Parameterized.class)
 @Ignore
 public class GenerateDDLScriptsTests {
-
+    static public final boolean USE_BYTEA = true;
+    
     static {
-        System.setProperty("org.kie.persistence.postgresql.useBytea", "false");
+        System.setProperty("org.kie.persistence.postgresql.useBytea", Boolean.toString(USE_BYTEA));
     }
 
     public static class ScriptFile {
@@ -109,8 +110,26 @@ public class GenerateDDLScriptsTests {
 
     @Parameterized.Parameters(name = "{0}")
     public static Collection<ScriptFile> dialect() {
-        return asList(new ScriptFile("org.hibernate.dialect.PostgreSQLDialect", "postgresql", "postgresql", "bytea", false),
-                      new ScriptFile("org.hibernate.dialect.PostgreSQLDialect", "postgresql", "postgresql", "springboot-bytea", true));
+        if(!USE_BYTEA) {
+            return asList(new ScriptFile("org.hibernate.dialect.DB2Dialect", "db2", "db2", "", false),
+                      new ScriptFile("org.hibernate.dialect.DerbyDialect", "derby", "derby", "", false),
+                      new ScriptFile("org.hibernate.dialect.H2Dialect", "h2", "h2", "", false),
+                      new ScriptFile("org.hibernate.dialect.HSQLDialect", "hsqldb", "hsqldb", "", false),
+                      new ScriptFile("org.hibernate.dialect.MySQL5Dialect", "mysql5", "mysql5", "", false),
+                      new ScriptFile("org.hibernate.dialect.MySQLInnoDBDialect", "mysqlinnodb", "mysql", "innodb", false),
+                      new ScriptFile("org.hibernate.dialect.Oracle10gDialect", "oracle", "oracle", "", false),
+                      new ScriptFile("org.hibernate.dialect.Oracle10gDialect", "oracle", "oracle", "springboot", true),
+                      new ScriptFile("org.hibernate.dialect.PostgreSQLDialect", "postgresql", "postgresql", "springboot", true),
+                      new ScriptFile("org.hibernate.dialect.PostgreSQLDialect", "postgresql", "postgresql", "", false),
+                      new ScriptFile("org.hibernate.dialect.SQLServerDialect", "sqlserver", "sqlserver", "", false),
+                      new ScriptFile("org.hibernate.dialect.SQLServer2008Dialect", "sqlserver2008", "sqlserver2008", "", false),
+                      new ScriptFile("org.hibernate.dialect.SybaseDialect", "sybase", "sybase", "", false));
+        } else {
+            return asList(
+                     new ScriptFile("org.hibernate.dialect.PostgreSQLDialect", "postgresql", "postgresql", "springboot-bytea", true),
+                     new ScriptFile("org.hibernate.dialect.PostgreSQLDialect", "postgresql", "postgresql", "bytea", false)
+            );
+        }
     }
 
     private ScriptFile scriptFile;

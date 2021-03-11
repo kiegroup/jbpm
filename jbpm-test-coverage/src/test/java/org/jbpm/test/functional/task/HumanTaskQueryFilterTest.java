@@ -30,7 +30,6 @@ import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.task.model.TaskSummary;
 import org.kie.internal.query.QueryFilter;
 import org.kie.internal.task.api.InternalTaskService;
-import qa.tools.ikeeper.annotation.BZ;
 
 public class HumanTaskQueryFilterTest extends JbpmTestCase {
 
@@ -124,7 +123,6 @@ public class HumanTaskQueryFilterTest extends JbpmTestCase {
     }
 
     @Test
-    @BZ("1132157")
     public void testFilterParams() {
         startHumanTaskProcess(10, "john's task", "john");
         Map<String, Object> parameters = new HashMap<String, Object>();

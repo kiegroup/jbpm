@@ -16,6 +16,8 @@
 
 package org.jbpm.process.core.timer;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
@@ -103,32 +105,23 @@ public class BusinessCalendarImpl implements BusinessCalendar {
     public static final String TIMEZONE = "business.cal.timezone";
 
     private static final String DEFAULT_PROPERTIES_NAME = "/jbpm.business.calendar.properties";
-    
-    
-    
-    
-    public BusinessCalendarImpl() {
-        String propertiesLocation = System.getProperty("jbpm.business.calendar.properties");
-        
-        if (propertiesLocation == null) {
-            propertiesLocation = DEFAULT_PROPERTIES_NAME;
-        }
-        businessCalendarConfiguration = new Properties();
-        
-        InputStream in = this.getClass().getResourceAsStream(propertiesLocation);
-        if (in != null) {
-            
-            try {
-                businessCalendarConfiguration.load(in);
-            } catch (IOException e) {
-               logger.error("Error while loading properties for business calendar", e);
 
-            }
-        }
-        init();
-        
+    public BusinessCalendarImpl() {
+        this(System.getProperty("jbpm.business.calendar.properties", DEFAULT_PROPERTIES_NAME));
     }
-    
+
+    public BusinessCalendarImpl(String propertiesLocation) {
+        businessCalendarConfiguration = new Properties();
+
+        try (InputStream in = getInputStreamProperties(propertiesLocation)){
+            businessCalendarConfiguration.load(in);
+        } catch (IOException e) {
+           logger.error("Error while loading properties for business calendar {}", propertiesLocation, e);
+        }
+
+        init();
+    }
+
     public BusinessCalendarImpl(Properties configuration) {
         this.businessCalendarConfiguration = configuration;
         init();
@@ -139,7 +132,29 @@ public class BusinessCalendarImpl implements BusinessCalendar {
         this.clock = clock;
         init();
     }
-    
+
+    private InputStream getInputStreamProperties(String propertiesLocation) throws IOException {
+        // by default we look in the class path
+        InputStream in = this.getClass().getResourceAsStream(propertiesLocation);
+        if(in != null) {
+            return in;
+        }
+        
+        File file = new File(propertiesLocation);
+        if(file.exists()) {
+            return new FileInputStream(file); 
+        }
+
+        // otherwise we send back an empty input stream
+        logger.warn("BusinessCalendarImpl was not able to find properties in {}", propertiesLocation);
+        return new InputStream() {
+            @Override
+            public int read() {
+                return -1;  // end of stream
+            }
+        };
+    }
+
     protected void init() {
         if (this.businessCalendarConfiguration == null) {
             throw new IllegalArgumentException("BusinessCalendar configuration was not provided.");
@@ -224,8 +239,10 @@ public class BusinessCalendarImpl implements BusinessCalendar {
                 sec = (mat.group( SIM_SEC ) != null) ? Integer.parseInt( mat.group( SIM_SEC ) ) : 0;
             }
         }
-        int time = 0;
-        
+
+        // compute total number of seconds and current date
+
+        int remainingSeconds = sec + (min*60) + (hours * 3600) + (days * hoursInDay * 3600) + (weeks * daysPerWeek * hoursInDay * 3600);
         Calendar c = new GregorianCalendar();
         if (timezone != null) {
             c.setTimeZone(TimeZone.getTimeZone(timezone));
@@ -233,85 +250,52 @@ public class BusinessCalendarImpl implements BusinessCalendar {
         if (this.clock != null) {
             c.setTimeInMillis(this.clock.getCurrentTime());
         }
-        
-        
-        // calculate number of weeks
-        int numberOfWeeks = days/daysPerWeek + weeks;
-        if (numberOfWeeks > 0) {
-            c.add(Calendar.WEEK_OF_YEAR, numberOfWeeks);
-        }
-        handleWeekend(c, hours > 0 || min > 0);
-        hours += (days - (numberOfWeeks * daysPerWeek)) * hoursInDay;
-        
-        // calculate number of days
-        int numberOfDays = hours/hoursInDay;
-        if (numberOfDays > 0) {
-            for (int i = 0; i < numberOfDays; i++) {
-                c.add(Calendar.DAY_OF_YEAR, 1);
-                handleWeekend(c, false);
-                handleHoliday(c, hours > 0 || min > 0);
+
+        // now we start computing the business date
+        while (remainingSeconds > 0 || (remainingSeconds == 0 && (!isWorkingDay(c) || isHoliday(c)))) {
+            // it is a non working day
+            if(!isWorkingDay(c) || isHoliday(c)) {
+                nextDay(c);
+                continue;
+            }
+            // first we normalize hours
+            int currentHour = c.get(Calendar.HOUR_OF_DAY);
+            if(currentHour >= endHour) {
+                nextDay(c);
+                continue;
+            }
+
+            // we set just in case the corret starting hour
+            if(currentHour < startHour) {
+                resetDay(c);
+            }
+
+            int remainingSecondsToday = ((endHour - c.get(Calendar.HOUR_OF_DAY))*3600) - (c.get(Calendar.MINUTE)*60 + c.get(Calendar.SECOND)); 
+
+            // we are good, no holiday, it is working day, no after hours
+            if(remainingSeconds >= remainingSecondsToday) {
+                remainingSeconds -= remainingSecondsToday;
+                nextDay(c);
+            } else {
+                c.add(Calendar.SECOND, remainingSeconds);
+                remainingSeconds = 0;
             }
         }
 
-        int currentCalHour = c.get(Calendar.HOUR_OF_DAY);
-        if (currentCalHour >= endHour) {
-            c.add(Calendar.DAY_OF_YEAR, 1);
-            c.add(Calendar.HOUR_OF_DAY, startHour-currentCalHour);
-            c.set(Calendar.MINUTE, 0);
-            c.set(Calendar.SECOND, 0);
-        } else if (currentCalHour < startHour) {
-            c.add(Calendar.HOUR_OF_DAY, startHour);
-        }
-
-        // calculate remaining hours
-        time = hours - (numberOfDays * hoursInDay);
-        c.add(Calendar.HOUR, time);
-        handleWeekend(c, true);
-        handleHoliday(c, hours > 0 || min > 0);
-        
-        currentCalHour = c.get(Calendar.HOUR_OF_DAY);
-        if (currentCalHour >= endHour) {
-            c.add(Calendar.DAY_OF_YEAR, 1);
-            // set hour to the starting one
-            c.set(Calendar.HOUR_OF_DAY, startHour);
-            c.add(Calendar.HOUR_OF_DAY, currentCalHour - endHour);
-        } else if (currentCalHour < startHour) {
-            c.add(Calendar.HOUR_OF_DAY, startHour);
-        }
-        
-        // calculate minutes
-        int numberOfHours = min/60;
-        if (numberOfHours > 0) {
-            c.add(Calendar.HOUR, numberOfHours);
-            min = min-(numberOfHours * 60);
-        }
-        c.add(Calendar.MINUTE, min);
-        
-        // calculate seconds
-        int numberOfMinutes = sec/60;
-        if (numberOfMinutes > 0) {
-            c.add(Calendar.MINUTE, numberOfMinutes);
-            sec = sec-(numberOfMinutes * 60);
-        }
-        c.add(Calendar.SECOND, sec);
-        
-        currentCalHour = c.get(Calendar.HOUR_OF_DAY);
-        if (currentCalHour >= endHour) {
-            c.add(Calendar.DAY_OF_YEAR, 1);
-            // set hour to the starting one
-            c.set(Calendar.HOUR_OF_DAY, startHour);
-            c.add(Calendar.HOUR_OF_DAY, currentCalHour - endHour);
-        } else if (currentCalHour < startHour) {
-            c.add(Calendar.HOUR_OF_DAY, startHour);
-        }
-        // take under consideration weekend
-        handleWeekend(c, false);
-        // take under consideration holidays
-        handleHoliday(c, false);
- 
         return c.getTime();
     }
-    
+
+    private void nextDay(Calendar c) {
+        c.add(Calendar.DAY_OF_YEAR, 1);
+        resetDay(c);
+    }
+
+    private void resetDay(Calendar c) {
+        c.set(Calendar.HOUR_OF_DAY, startHour);
+        c.set(Calendar.MINUTE, 0);
+        c.set(Calendar.SECOND, 0);
+        c.set(Calendar.MILLISECOND, 0);
+    }
     protected void handleHoliday(Calendar c, boolean resetTime) {
         if (!holidays.isEmpty()) {
             Date current = c.getTime();
@@ -340,6 +324,8 @@ public class BusinessCalendarImpl implements BusinessCalendar {
         }
         
     }
+
+
 
     protected int getPropertyAsInt(String propertyName, String defaultValue) {
         String value = businessCalendarConfiguration.getProperty(propertyName, defaultValue);
@@ -483,6 +469,22 @@ public class BusinessCalendarImpl implements BusinessCalendar {
         }
     }
     
+    protected boolean isHoliday(Calendar c) {
+        if (holidays.isEmpty()) {
+            return false;
+        }
+        Date current = c.getTime();
+        for (TimePeriod holiday : holidays) {
+            if (current.after(holiday.getFrom()) && current.before(holiday.getTo())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected boolean isWorkingDay (Calendar c) {
+        return isWorkingDay(c.get(Calendar.DAY_OF_WEEK));
+    }
     protected boolean isWorkingDay(int day) {
         if (weekendDays.contains(day)) {
             return false;
@@ -490,6 +492,7 @@ public class BusinessCalendarImpl implements BusinessCalendar {
         
         return true;
     }
+
     protected void handleWeekend(Calendar c, boolean resetTime) {
         int dayOfTheWeek = c.get(Calendar.DAY_OF_WEEK);
         while (!isWorkingDay(dayOfTheWeek)) {

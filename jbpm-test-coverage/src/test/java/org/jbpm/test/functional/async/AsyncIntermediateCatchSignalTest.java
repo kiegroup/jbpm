@@ -77,7 +77,7 @@ public class AsyncIntermediateCatchSignalTest extends JbpmTestCase {
         latch = new CountDownLatch(1);
         RuntimeManager runtimeManager = createRuntimeManager(BPMN_AICS);
         KieSession ksession = getRuntimeEngine().getKieSession();
-        ProcessInstance pi = ksession.startProcess(PROCESS_AICS, null);
+        ProcessInstance pi = ksession.startProcess(PROCESS_AICS);
         long pid = pi.getId();
 
         CommandContext ctx = new CommandContext();
@@ -99,7 +99,7 @@ public class AsyncIntermediateCatchSignalTest extends JbpmTestCase {
         KieSession ksession = getRuntimeEngine().getKieSession();
         long[] pid = new long[5];
         for (int i = 0; i < 5; i++) {
-            ProcessInstance pi = ksession.startProcess(PROCESS_AICS, null);
+            ProcessInstance pi = ksession.startProcess(PROCESS_AICS);
             pid[i] = pi.getId();
 
             CommandContext ctx = new CommandContext();
@@ -122,7 +122,7 @@ public class AsyncIntermediateCatchSignalTest extends JbpmTestCase {
     @Test(timeout = 10000, expected = org.jbpm.workflow.instance.WorkflowRuntimeException.class)
     public void testSyncGlobalSignal() {
         KieSession ksession = createKSession(BPMN_AICS);
-        ksession.startProcess(PROCESS_AICS, null);
+        ksession.startProcess(PROCESS_AICS);
         ksession.signalEvent("MySignal", null);
     }
 

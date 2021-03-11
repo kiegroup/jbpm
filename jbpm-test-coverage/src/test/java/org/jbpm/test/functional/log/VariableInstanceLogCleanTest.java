@@ -16,7 +16,11 @@
 
 package org.jbpm.test.functional.log;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.assertj.core.api.Assertions;
 import org.jbpm.process.audit.JPAAuditLogService;

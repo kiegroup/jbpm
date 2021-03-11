@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.jbpm</groupId>
     <artifactId>jbpm-services-ejb</artifactId>
-    <version>7.44.0-SNAPSHOT</version>
+    <version>7.52.0-SNAPSHOT</version>
   </parent>
   <artifactId>jbpm-executor-ejb</artifactId>
   <name>jBPM :: Executor Service EJB add-ons</name>
@@ -114,6 +114,13 @@
       <groupId>org.jboss.weld.se</groupId>
       <artifactId>weld-se-core</artifactId>
       <scope>test</scope>
+      <exclusions>
+         <!-- collides with javax.enterprise:cdi-api:jar:2.0.SP1:compile -->
+         <exclusion>
+           <groupId>jakarta.enterprise</groupId>
+           <artifactId>jakarta.enterprise.cdi-api</artifactId>
+         </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.jboss.arquillian.junit</groupId>

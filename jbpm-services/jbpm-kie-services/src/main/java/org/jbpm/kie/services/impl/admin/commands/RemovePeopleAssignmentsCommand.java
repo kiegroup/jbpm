@@ -36,9 +36,9 @@ public class RemovePeopleAssignmentsCommand extends UserGroupCallbackTaskCommand
 
     private static final long serialVersionUID = -1856489382099976731L;
 
-    
     private int type;
     private OrganizationalEntity[] entities;
+
 
     public RemovePeopleAssignmentsCommand(String userId, long taskId, int type, OrganizationalEntity[] entities) {
         super();

@@ -49,11 +49,6 @@ public class ExecutorEventSupportEJBImpl implements ExecutorEventSupport {
     }
 
     @Override
-    public void notifyAllListeners(Consumer<AsynchronousJobListener> consumer) {
-        executorEventSupport.notifyAllListeners(consumer);
-    }
-
-    @Override
     public void addEventListener(AsynchronousJobListener listener) {
         executorEventSupport.addEventListener(listener);
     }
@@ -71,21 +66,6 @@ public class ExecutorEventSupportEJBImpl implements ExecutorEventSupport {
     @Override
     public List<AsynchronousJobListener> getEventListeners() {
         return executorEventSupport.getEventListeners();
-    }
-
-    @Override
-    public int size() {
-        return executorEventSupport.size();
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return executorEventSupport.isEmpty();
-    }
-
-    @Override
-    public void clear() {
-        executorEventSupport.clear();
     }
 
     @Override

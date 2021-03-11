@@ -86,6 +86,7 @@ public class ProcessServiceImplTest extends AbstractKieServicesBaseTest {
         processes.add("repo/processes/parentProcess/parentWithIndependentSubProcess.bpmn");
         processes.add("repo/processes/parentProcess/parentWithNotIndepententSubProcess.bpmn");
         processes.add("repo/processes/parentProcess/subprocess.bpmn");
+        processes.add("repo/processes/general/SynchronousProcess.bpmn");
 
         InternalKieModule kJar1 = createKieJar(ks, releaseId, processes);
         File pom = new File("target/kmodule", "pom.xml");
@@ -167,6 +168,24 @@ public class ProcessServiceImplTest extends AbstractKieServicesBaseTest {
 
     	ProcessInstance pi = processService.getProcessInstance(processInstanceId);
     	assertNull(pi);
+    }
+
+    @Test
+    public void testStartSynchronousProcessWithParams() {
+        assertNotNull(deploymentService);
+
+        KModuleDeploymentUnit deploymentUnit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
+
+        deploymentService.deploy(deploymentUnit);
+        units.add(deploymentUnit);
+        assertNotNull(processService);
+
+        Map<String, Object> params = new HashMap<>();
+
+        Map<String,Object> outcome= processService.startSynchronousProcess(deploymentUnit.getIdentifier(), "SynchronousProcess", params);
+        assertNotNull(outcome);
+        assertEquals("bye", outcome.get("name"));
+
     }
 
     @Test
@@ -1052,7 +1071,11 @@ public class ProcessServiceImplTest extends AbstractKieServicesBaseTest {
         Collection<ProcessInstanceDesc> children = runtimeDataService.getProcessInstancesByParent(processInstanceId, null, new QueryContext());
         assertNotNull(children);
         assertEquals(1, children.size());
-        
+
+        Collection<ProcessInstanceDesc> childrenRecursive = runtimeDataService.getProcessInstancesWithSubprocessByProcessInstanceId(processInstanceId, null, new QueryContext());
+        assertNotNull(childrenRecursive);
+        assertEquals(1, childrenRecursive.size());
+
         ProcessInstanceDesc childInstance = children.iterator().next();
         assertNotNull(childInstance);
         assertEquals("org.jbpm.signal", childInstance.getProcessId());

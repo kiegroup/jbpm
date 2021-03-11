@@ -99,7 +99,7 @@ public class SingletonRuntimeManager extends AbstractRuntimeManager {
     }
     
     public void init() {
-        
+        super.init();
         // TODO should we proxy/wrap the ksession so we capture dispose.destroy method calls?
         String location = getLocation();
         Long knownSessionId = getPersistedSessionId(location, identifier);

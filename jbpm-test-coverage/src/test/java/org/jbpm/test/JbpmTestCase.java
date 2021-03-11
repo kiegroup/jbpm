@@ -16,9 +16,11 @@
 
 package org.jbpm.test;
 
+import java.util.Map;
+import java.util.Properties;
+
 import org.assertj.core.api.Assertions;
 import org.jbpm.test.persistence.util.PersistenceUtil;
-import org.kie.test.util.db.PoolingDataSourceWrapper;
 import org.junit.Rule;
 import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
@@ -29,12 +31,6 @@ import org.kie.api.io.ResourceType;
 import org.kie.api.runtime.KieSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import qa.tools.ikeeper.client.BugzillaClient;
-import qa.tools.ikeeper.client.JiraClient;
-import qa.tools.ikeeper.test.IKeeperJUnitConnector;
-
-import java.util.Map;
-import java.util.Properties;
 
 public abstract class JbpmTestCase extends JbpmJUnitBaseTestCase {
 
@@ -72,12 +68,6 @@ public abstract class JbpmTestCase extends JbpmJUnitBaseTestCase {
         }
 
     };
-
-    @Rule
-    public IKeeperJUnitConnector issueKeeper = new IKeeperJUnitConnector(
-            new BugzillaClient("https://bugzilla.redhat.com"),
-            new JiraClient("https://issues.jboss.org")
-    );
 
     @Override
     protected Properties getDataSourceProperties(){

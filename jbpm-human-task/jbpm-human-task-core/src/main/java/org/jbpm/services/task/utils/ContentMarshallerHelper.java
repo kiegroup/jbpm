@@ -21,13 +21,16 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.google.protobuf.ExtensionRegistry;
+import com.google.protobuf.Message;
 import org.drools.core.marshalling.impl.ClassObjectMarshallingStrategyAcceptor;
 import org.drools.core.marshalling.impl.MarshallerReaderContext;
 import org.drools.core.marshalling.impl.MarshallingConfigurationImpl;
-import org.drools.core.marshalling.impl.PersisterHelper;
-import org.drools.core.marshalling.impl.ProcessMarshallerWriteContext;
-import org.drools.core.marshalling.impl.ProtobufMessages.Header;
 import org.drools.core.marshalling.impl.SerializablePlaceholderResolverStrategy;
+import org.drools.serialization.protobuf.PersisterHelper;
+import org.drools.serialization.protobuf.ProtobufMarshallerReaderContext;
+import org.drools.serialization.protobuf.ProtobufMessages.Header;
+import org.drools.serialization.protobuf.ProtobufProcessMarshallerWriteContext;
 import org.jbpm.marshalling.impl.JBPMMessages;
 import org.jbpm.marshalling.impl.JBPMMessages.Variable;
 import org.jbpm.marshalling.impl.JBPMMessages.VariableContainer;
@@ -44,9 +47,6 @@ import org.kie.internal.task.api.model.ContentData;
 import org.kie.internal.task.api.model.FaultData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.protobuf.ExtensionRegistry;
-import com.google.protobuf.Message;
 
 public class ContentMarshallerHelper {
 
@@ -95,7 +95,7 @@ public class ContentMarshallerHelper {
     }   
 
     public static Object unmarshall(byte[] content, Environment env, ClassLoader classloader) {
-        MarshallerReaderContext context = null;
+        ProtobufMarshallerReaderContext context = null;
         try {
             ByteArrayInputStream stream = new ByteArrayInputStream(content);
             MarshallingConfigurationImpl marshallingConfigurationImpl = null;
@@ -105,11 +105,11 @@ public class ContentMarshallerHelper {
                 marshallingConfigurationImpl = new MarshallingConfigurationImpl(new ObjectMarshallingStrategy[]{new SerializablePlaceholderResolverStrategy(ClassObjectMarshallingStrategyAcceptor.DEFAULT)}, false, false);
             }
             ObjectMarshallingStrategyStore objectMarshallingStrategyStore = marshallingConfigurationImpl.getObjectMarshallingStrategyStore();
-            context = new MarshallerReaderContext(stream, null, null, objectMarshallingStrategyStore, null, env);
+            context = new ProtobufMarshallerReaderContext(stream, null, null, objectMarshallingStrategyStore, null, env);
             if (classloader != null) {
-                context.classLoader = classloader;
+                context.setClassLoader( classloader );
             } else {
-                context.classLoader = ContentMarshallerHelper.class.getClassLoader();
+                context.setClassLoader( ContentMarshallerHelper.class.getClassLoader() );
             }
             ExtensionRegistry registry = PersisterHelper.buildRegistry(context, null);
             Header _header = PersisterHelper.readFromStreamWithHeaderPreloaded(context, registry);
@@ -139,7 +139,7 @@ public class ContentMarshallerHelper {
     
     @SuppressWarnings("unchecked")
 	public static byte[] marshallContent(Task task, Object o, Environment env) {
-        ProcessMarshallerWriteContext context;
+        ProtobufProcessMarshallerWriteContext context;
         try {
             MarshallingConfigurationImpl marshallingConfigurationImpl = null;
             if (env != null) {
@@ -150,19 +150,19 @@ public class ContentMarshallerHelper {
             ObjectMarshallingStrategyStore objectMarshallingStrategyStore = marshallingConfigurationImpl.getObjectMarshallingStrategyStore();
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
 
-            context = new ProcessMarshallerWriteContext(stream, null, null, null, objectMarshallingStrategyStore, env);
+            context = new ProtobufProcessMarshallerWriteContext(stream, null, null, null, objectMarshallingStrategyStore, env);
             if (task != null) {
                 context.setTaskId(task.getId());
                 context.setProcessInstanceId(task.getTaskData().getProcessInstanceId());
                 context.setWorkItemId(task.getTaskData().getWorkItemId());
                 // determine state of the task
-                int taskState = ProcessMarshallerWriteContext.STATE_ACTIVE;
+                int taskState = ProtobufProcessMarshallerWriteContext.STATE_ACTIVE;
                 if (task.getTaskData().getStatus() == Status.Completed || 
                         task.getTaskData().getStatus() == Status.Error ||
                         task.getTaskData().getStatus() == Status.Exited ||
                         task.getTaskData().getStatus() == Status.Failed ||
                         task.getTaskData().getStatus() == Status.Obsolete) {
-                    taskState = ProcessMarshallerWriteContext.STATE_COMPLETED;
+                    taskState = ProtobufProcessMarshallerWriteContext.STATE_COMPLETED;
                 }
                 context.setState(taskState);
             }

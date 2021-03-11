@@ -1083,7 +1083,29 @@ public class RestWorkItemHandlerTest {
                                 manager);
         Map<String, Object> results = ((TestWorkItemManager) manager).getResults(workItem.getId());
         String result = (String) results.get(PARAM_RESULT);
-        assertEquals(result, headerValue);
+        assertEquals(headerValue, result);
+    }
+    
+    @Test
+    public void testHeadersValueWithEquals() {
+        RESTWorkItemHandler handler = new RESTWorkItemHandler();
+        String headerKey = "Authorization";
+        String headerValue = "Basic bcdabcdabcdabcdabcdabcdabcd==";
+        String headers = headerKey + "=" + headerValue;
+         
+        WorkItemImpl workItem = new WorkItemImpl();
+        workItem.setParameter("Url",
+                              serverURL + "/header/" + headerKey);
+        workItem.setParameter("Method",
+                              "GET");
+        workItem.setParameter(PARAM_HEADERS, headers);
+        
+        WorkItemManager manager = new TestWorkItemManager();
+        handler.executeWorkItem(workItem,
+                                manager);
+        Map<String, Object> results = ((TestWorkItemManager) manager).getResults(workItem.getId());
+        String result = (String) results.get(PARAM_RESULT);
+        assertEquals(headerValue, result);
     }
     
     @Test
@@ -1105,7 +1127,7 @@ public class RestWorkItemHandlerTest {
                                 manager);
         Map<String, Object> results = ((TestWorkItemManager) manager).getResults(workItem.getId());
         String result = (String) results.get(PARAM_RESULT);
-        assertEquals(result, headerValues);
+        assertEquals(headerValues, result);
     }    
     
     @Test
@@ -1130,7 +1152,7 @@ public class RestWorkItemHandlerTest {
         
         Map<String, Object> results = ((TestWorkItemManager) manager).getResults(workItem.getId());
         String result = (String) results.get(PARAM_RESULT);
-        assertEquals(result, headerValues1);
+        assertEquals(headerValues1, result);
         workItem.setParameter("Url",
                                 serverURL + "/header/" + headerKey2);
         workItem.setParameter("Method",
@@ -1140,7 +1162,7 @@ public class RestWorkItemHandlerTest {
                           manager);
         results = ((TestWorkItemManager) manager).getResults(workItem.getId());
         result = (String) results.get(PARAM_RESULT);
-        assertEquals(result, headerValues2);
+        assertEquals(headerValues2, result);
     }
 
     @Test

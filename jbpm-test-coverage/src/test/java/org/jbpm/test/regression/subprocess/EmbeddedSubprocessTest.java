@@ -25,12 +25,12 @@ import org.assertj.core.api.Assertions;
 import org.jbpm.process.instance.impl.demo.SystemOutWorkItemHandler;
 import org.jbpm.test.JbpmTestCase;
 import org.jbpm.test.listener.TrackingProcessEventListener;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.kie.api.command.Command;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.audit.VariableInstanceLog;
 import org.kie.api.runtime.process.ProcessInstance;
-import qa.tools.ikeeper.annotation.BZ;
 
 public class EmbeddedSubprocessTest extends JbpmTestCase {
 
@@ -51,7 +51,7 @@ public class EmbeddedSubprocessTest extends JbpmTestCase {
             "org.jbpm.test.regression.subprocess.EmbeddedSubprocess-taskCompensation";
 
     @Test
-    @BZ("1139591")
+    @Ignore("BZ-1139591")
     public void testInvalidSubprocess() {
         try {
             createKSession(INVALID_SUBPROCESS);
@@ -62,7 +62,6 @@ public class EmbeddedSubprocessTest extends JbpmTestCase {
     }
 
     @Test
-    @BZ("1150226")
     public void testInvalidSubprocess2() {
         try {
             createKSession(INVALID_SUBPROCESS2);
@@ -74,7 +73,6 @@ public class EmbeddedSubprocessTest extends JbpmTestCase {
     }
 
     @Test
-    @BZ("851286")
     public void testTerminatingEndEvent() {
         KieSession ksession = createKSession(TERMINATING_END_EVENT);
         TrackingProcessEventListener processEvents = new TrackingProcessEventListener();
@@ -87,7 +85,6 @@ public class EmbeddedSubprocessTest extends JbpmTestCase {
     }
 
     @Test
-    @BZ("1191768")
     public void testTaskCompensation() throws Exception {
         KieSession kieSession = createKSession(TASK_COMPENSATION);
         kieSession.getWorkItemManager().registerWorkItemHandler("Human Task", new SystemOutWorkItemHandler());

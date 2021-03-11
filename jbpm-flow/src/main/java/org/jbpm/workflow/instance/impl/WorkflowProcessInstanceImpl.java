@@ -31,7 +31,7 @@ import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 import org.drools.core.common.InternalKnowledgeRuntime;
-import org.drools.core.util.MVELSafeHelper;
+import org.drools.mvel.MVELSafeHelper;
 import org.jbpm.process.core.ContextContainer;
 import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.core.timer.BusinessCalendar;
@@ -73,6 +73,7 @@ import org.kie.api.runtime.manager.RuntimeManager;
 import org.kie.api.runtime.process.EventListener;
 import org.kie.api.runtime.process.NodeInstanceContainer;
 import org.kie.api.runtime.process.ProcessInstance;
+import org.kie.api.runtime.rule.AgendaFilter;
 import org.kie.internal.process.CorrelationKey;
 import org.kie.internal.runtime.manager.InternalRuntimeManager;
 import org.kie.internal.runtime.manager.SessionNotFoundException;
@@ -119,6 +120,8 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 	private int slaCompliance = SLA_NA;
 	private Date slaDueDate;
 	private long slaTimerId = -1;
+
+	private AgendaFilter agendaFilter;
 
     @Override
     public NodeContainer getNodeContainer() {
@@ -379,6 +382,11 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 
     @Override
     public void setState(final int state, String outcome) {
+        if(getMetaData().containsKey("SUB_PROCESS_INTERRUPTION") || getState() == ProcessInstance.STATE_COMPLETED || getState() == ProcessInstance.STATE_ABORTED) {
+            // avoid duplication calls
+            return;
+        }
+
         // TODO move most of this to ProcessInstanceImpl
         if (state == ProcessInstance.STATE_COMPLETED
                 || state == ProcessInstance.STATE_ABORTED) {
@@ -523,8 +531,11 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
             }
         }
     }
-
-    public TimerInstance configureSLATimer(String slaDueDateExpression) {
+	public TimerInstance configureSLATimer(String slaDueDateExpression) {
+	    return this.configureSLATimer(slaDueDateExpression, null);
+	}
+	
+    public TimerInstance configureSLATimer(String slaDueDateExpression, String timerName) {
         // setup SLA if provided
         slaDueDateExpression = resolveVariable(slaDueDateExpression);
         if (slaDueDateExpression == null || slaDueDateExpression.trim().isEmpty()) {
@@ -546,6 +557,7 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
         timerInstance.setId(-1);
         timerInstance.setDelay(duration);
         timerInstance.setPeriod(0);
+        timerInstance.setName(timerName);
         if (useTimerSLATracking()) {
             ((InternalProcessRuntime) kruntime.getProcessRuntime()).getTimerManager().registerTimer(timerInstance, this);
         }
@@ -990,4 +1002,13 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
         return matcher.find();
     }
 
+    @Override
+    public AgendaFilter getAgendaFilter() {
+        return agendaFilter;
+    }
+
+    @Override
+    public void setAgendaFilter( AgendaFilter agendaFilter ) {
+        this.agendaFilter = agendaFilter;
+    }
 }

@@ -102,6 +102,56 @@ public interface UserTaskAdminService {
     void addBusinessAdmins(String deploymentId, long taskId,  boolean removeExisting, OrganizationalEntity ...orgEntities) throws TaskNotFoundException;
     
     /**
+     * Adds new potential owners for a given task. Can be instructed to remove existing potential owners
+     * which means that the task will be released in case it was claimed already. 
+     * Task must be in active state.
+     * 
+     * @param userId user doing the update
+     * @param deploymentId
+     * @param taskId unique task id
+     * @param removeExisting specifies if existing potential owners should be removed 
+     * @param orgEntities one or more potential owner to be added to a task
+     * @throws TaskNotFoundException thrown when there is no task with given id or is not associated with given deployment id
+     */
+    void addPotentialOwners(String userId,
+                            String deploymentId,
+                            long taskId,
+                            boolean removeExisting,
+                            OrganizationalEntity... orgEntities) throws TaskNotFoundException;
+    /**
+     * Adds new excluded owners for a given task. Can be instructed to remove existing excluded owners. 
+     * Task must be in active state.
+     * 
+     * @param userId user doing the update
+     * @param deploymentId
+     * @param taskId unique task id
+     * @param removeExisting specifies if existing excluded owners should be removed 
+     * @param orgEntities one or more excluded owner to be added to a task
+     * @throws TaskNotFoundException thrown when there is no task with given id or is not associated with given deployment id
+     */
+    void addExcludedOwners(String userId,
+                           String deploymentId,
+                           long taskId,
+                           boolean removeExisting,
+                           OrganizationalEntity... orgEntities) throws TaskNotFoundException;
+
+    /**
+     * Adds new business admin for a given task. Can be instructed to remove existing business admins. 
+     * Task must be in active state.
+     * 
+     * @param userId user doing the update
+     * @param deploymentId
+     * @param taskId unique task id
+     * @param removeExisting specifies if existing business admins should be removed 
+     * @param orgEntities one or more business admin to be added to a task
+     * @throws TaskNotFoundException thrown when there is no task with given id or is not associated with given deployment id
+     */
+    void addBusinessAdmins(String userId,
+                           String deploymentId,
+                           long taskId,
+                           boolean removeExisting,
+                           OrganizationalEntity... orgEntities) throws TaskNotFoundException;
+    /**
      * Remove existing potential owners from given task. Task must be in active state.
      * @param taskId unique task id
      * @param orgEntities one or more potential owner to be removed from a task
@@ -157,6 +207,48 @@ public interface UserTaskAdminService {
      */
     void removeBusinessAdmins(String deploymentId, long taskId, OrganizationalEntity ...orgEntities) throws TaskNotFoundException, IllegalStateException;
     
+    /**
+     * Remove existing potential owners from given task. Task must be in active state.
+     * 
+     * @param userId user doing the update
+     * @param deploymentId
+     * @param taskId unique task id
+     * @param orgEntities one or more potential owner to be removed from a task
+     * @throws TaskNotFoundException thrown when there is no task with given id or is not associated with given deployment id
+     */
+    void removePotentialOwners(String userId,
+                               String deploymentId,
+                               long taskId,
+                               OrganizationalEntity... orgEntities) throws TaskNotFoundException;
+
+    /**
+     * Remove existing excluded owners from given task. Task must be in active state.
+     * @param userId user doing the update
+     * @param deploymentId
+     * @param taskId unique task id
+     * @param orgEntities one or more excluded owner to be removed from a task
+     * @throws TaskNotFoundException thrown when there is no task with given id or is not associated with given deployment id
+     */
+    void removeExcludedOwners(String userId,
+                              String deploymentId,
+                              long taskId,
+                              OrganizationalEntity... orgEntities) throws TaskNotFoundException;
+
+    /**
+     * Remove existing business admin from given task. Task must be in active state.
+     * 
+     * @param userId user doing the update
+     * @param deploymentId
+     * @param taskId unique task id
+     * @param orgEntities one or more business admin to be removed from a task
+     * @throws TaskNotFoundException thrown when there is no task with given id or is not associated with given deployment id
+     * @throws IllegalStateException in case there are no business admins left on a task - there must be at least one business admin
+     */
+    void removeBusinessAdmins(String userId,
+                              String deploymentId,
+                              long taskId,
+                              OrganizationalEntity... orgEntities) throws TaskNotFoundException, IllegalStateException;
+
     /**
      * Adds new item to task input variables.
      * @param taskId unique task id
@@ -463,4 +555,5 @@ public interface UserTaskAdminService {
      * @return list of found errors
      */
     List<ExecutionError> getErrors(boolean includeAcknowledged, QueryContext queryContext);
+
 }

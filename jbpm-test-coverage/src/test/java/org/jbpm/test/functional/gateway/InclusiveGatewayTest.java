@@ -26,7 +26,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
 
-import static org.jbpm.test.tools.IterableListenerAssert.*;
+import static org.jbpm.test.tools.IterableListenerAssert.assertChangedVariable;
+import static org.jbpm.test.tools.IterableListenerAssert.assertLeft;
+import static org.jbpm.test.tools.IterableListenerAssert.assertNextNode;
+import static org.jbpm.test.tools.IterableListenerAssert.assertProcessCompleted;
+import static org.jbpm.test.tools.IterableListenerAssert.assertProcessStarted;
 
 /**
  * Inclusive gateway tests. combination of diverging OR gateway with converging XOR gateway

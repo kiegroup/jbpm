@@ -24,6 +24,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
+import java.util.function.Predicate;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -124,10 +125,6 @@ public class TestPersistenceContextBase {
      * @throws IOException
      */
     public void executeScripts(final File scriptsRootFolder, ScriptFilter scriptFilter) throws IOException, SQLException {
-        executeScripts(scriptsRootFolder, scriptFilter, null);
-    }
-
-    public void executeScripts(final File scriptsRootFolder, ScriptFilter scriptFilter, String type) throws IOException, SQLException {
         testIsInitialized();
         final File[] sqlScripts = TestsUtil.getDDLScriptFilesByDatabaseType(scriptsRootFolder, databaseType, scriptFilter);
         if (sqlScripts.length == 0 && scriptFilter.hasOption(Option.DISALLOW_EMTPY_RESULTS)) {
@@ -138,14 +135,12 @@ public class TestPersistenceContextBase {
         try {
             connection.setAutoCommit(false);
             for (File script : sqlScripts) {
-                if (type == null || script.getName().startsWith(type)) {
-                    logger.info("Executing script {}", script.getName());
-                    final List<String> scriptCommands = SQLScriptUtil.getCommandsFromScript(script, databaseType);
-                    for (String command : scriptCommands) {
-                        logger.info("query {} ", command);
-                        final PreparedStatement statement = preparedStatement(connection, command);
-                        executeStatement(scriptFilter.hasOption(Option.THROW_ON_SCRIPT_ERROR), statement);
-                    }
+                logger.info("Executing script {}", script.getName());
+                final List<String> scriptCommands = SQLScriptUtil.getCommandsFromScript(script, databaseType);
+                for (String command : scriptCommands) {
+                    logger.info("query {} ", command);
+                    final PreparedStatement statement = preparedStatement(connection, command);
+                    executeStatement(scriptFilter.hasOption(Option.THROW_ON_SCRIPT_ERROR), statement);
                 }
             }
             connection.commit();

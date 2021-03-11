@@ -435,6 +435,34 @@
     <!-- hint name="org.hibernate.timeout" value="200"/ -->
   </named-query>   
   
+    
+  <named-query name="getProcessInstancesByParents">
+    <query>
+      select
+      new org.jbpm.kie.services.impl.model.ProcessInstanceDesc(
+      log.processInstanceId,
+      log.processId,
+      log.processName,
+      log.processVersion,
+      log.status,
+      log.externalId,
+      log.start,
+      log.identity,
+      log.processInstanceDescription,
+      log.correlationKey,
+      log.parentProcessInstanceId,
+      log.slaDueDate,
+      log.slaCompliance)
+
+      from
+        ProcessInstanceLog log
+      where
+        log.status in (:states)
+        and log.parentProcessInstanceId IN :parentsId
+    </query>
+    <!-- hint name="org.hibernate.timeout" value="200"/ -->
+  </named-query>   
+
   <!-- node instance queries -->
 
   <named-query name="getProcessInstanceFullHistory">

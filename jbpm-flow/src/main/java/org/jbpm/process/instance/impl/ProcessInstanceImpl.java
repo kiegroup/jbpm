@@ -23,8 +23,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 
+import org.drools.compiler.builder.impl.KnowledgeBuilderConfigurationImpl;
+import org.drools.compiler.builder.impl.KnowledgeBuilderFactoryServiceImpl;
+import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
 import org.drools.core.common.InternalKnowledgeRuntime;
-import org.drools.core.util.MVELSafeHelper;
+import org.drools.core.impl.KnowledgeBaseFactory;
+import org.drools.core.impl.KnowledgeBaseImpl;
+import org.drools.mvel.MVELSafeHelper;
 import org.jbpm.process.core.Context;
 import org.jbpm.process.core.ContextContainer;
 import org.jbpm.process.core.impl.XmlProcessDumper;
@@ -36,7 +41,9 @@ import org.jbpm.util.PatternConstants;
 import org.jbpm.workflow.instance.WorkflowProcessInstance;
 import org.jbpm.workflow.instance.impl.ProcessInstanceResolverFactory;
 import org.kie.api.definition.process.Process;
+import org.kie.api.io.ResourceType;
 import org.kie.api.runtime.rule.Agenda;
+import org.kie.internal.io.ResourceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,6 +81,14 @@ public abstract class ProcessInstanceImpl implements ProcessInstance, Serializab
         this.process = ( Process ) process;
     }
     
+    /**
+     * This will update the process definition of only this process instance.  The new process definition will be stored as part of the binary
+     * process instance state.  Upon reconnect, the process will be restored from binary state and rebuilt (recompiled).
+     * This has some limitations though:
+     *  - the process definition should roundtrip completely through the XmlProcessDumperFactory
+     *  - any modification to the process cannot involve any generated rules as only the process itself is updated
+     * @param process the new process definition
+     */
     public void updateProcess(final Process process) {
     	setProcess(process);
     	XmlProcessDumper dumper = XmlProcessDumperFactory.newXmlProcessDumperFactory();
@@ -244,6 +259,20 @@ public abstract class ProcessInstanceImpl implements ProcessInstance, Serializab
     
     public void reconnect() {
     	((InternalProcessRuntime) kruntime.getProcessRuntime()).getProcessInstanceManager().internalAddProcessInstance(this);
+    	if (this.processXml != null) {
+    		try {
+    			KnowledgeBuilderConfigurationImpl pconf = new KnowledgeBuilderConfigurationImpl(((KnowledgeBaseImpl) kruntime.getKieBase()).getKieContainer().getClassLoader());
+    			KnowledgeBuilderImpl kbuilder = (KnowledgeBuilderImpl) new KnowledgeBuilderFactoryServiceImpl().newKnowledgeBuilder(KnowledgeBaseFactory.newKnowledgeBase(), pconf);
+    			kbuilder.addKnowledgeResource(ResourceFactory.newByteArrayResource(processXml.getBytes()), ResourceType.BPMN2, null);
+    			if (kbuilder.hasErrors()) {
+    				throw new IllegalArgumentException("Could not build process XML: " + kbuilder.getErrors());
+    			}
+    			this.process = kbuilder.getKnowledgeBase().getProcess(processId);
+    		} catch (Throwable t) {
+    			logger.error("Unable to build process for process instance " + this.id, t);
+    			logger.debug(this.processXml);
+    		}
+    	}
     }
 
     public String[] getEventTypes() {

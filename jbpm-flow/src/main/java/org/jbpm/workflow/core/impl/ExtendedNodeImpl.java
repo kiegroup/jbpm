@@ -21,12 +21,17 @@ import java.util.List;
 import java.util.Map;
 
 import org.jbpm.workflow.core.DroolsAction;
+import org.kie.api.definition.process.NodeType;
 
-public class ExtendedNodeImpl extends NodeImpl {
+public abstract class ExtendedNodeImpl extends NodeImpl {
 	
 	public static final String EVENT_NODE_ENTER = "onEntry";
 	public static final String EVENT_NODE_EXIT = "onExit";
 	
+    protected ExtendedNodeImpl(NodeType nodeType) {
+        super(nodeType);
+    }
+
 	private static final String[] EVENT_TYPES =
 		new String[] { EVENT_NODE_ENTER, EVENT_NODE_EXIT };
 	

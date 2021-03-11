@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.drools.core.util.MVELSafeHelper;
+import org.drools.mvel.MVELSafeHelper;
 import org.jbpm.services.task.commands.TaskCommand;
 import org.jbpm.services.task.commands.TaskContext;
 import org.jbpm.services.task.events.TaskEventSupport;
@@ -499,7 +499,11 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
 
     @Override
     public void fireEvent(Operation operation, long taskId) {
-        Task task = context.getPersistenceContext().findTask(taskId);
+        fireEvent(operation, context.getPersistenceContext().findTask(taskId));
+    }
+
+    @Override
+    public void fireEvent(Operation operation, Task task) {
         switch (operation) {
             case Activate:
                 this.taskEventSupport.fireBeforeTaskActivated(task, context);

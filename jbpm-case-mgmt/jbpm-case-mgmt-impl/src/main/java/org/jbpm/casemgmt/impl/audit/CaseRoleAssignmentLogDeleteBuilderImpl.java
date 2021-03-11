@@ -23,7 +23,7 @@ import org.kie.internal.query.QueryParameterIdentifiers;
 
 public class CaseRoleAssignmentLogDeleteBuilderImpl extends AbstractAuditDeleteBuilderImpl<CaseRoleAssignmentLogDeleteBuilder> implements CaseRoleAssignmentLogDeleteBuilder {
 
-    private final static String CASE_ROLE_ASSIGMENT_LOG_DELETE = "DELETE FROM CaseRoleAssignmentLog l";
+    private final static String CASE_ROLE_ASSIGMENT_LOG_DELETE = "CaseRoleAssignmentLog";
 
     protected String caseDefId;
 
@@ -69,7 +69,7 @@ public class CaseRoleAssignmentLogDeleteBuilderImpl extends AbstractAuditDeleteB
     }
 
     @Override
-    protected String getQueryBase() {
+    protected String getQueryTable() {
         return CASE_ROLE_ASSIGMENT_LOG_DELETE;
     }
 

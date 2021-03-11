@@ -16,11 +16,6 @@
 
 package org.jbpm.test.functional.task;
 
-import static org.jbpm.test.tools.IterableListenerAssert.assertNextNode;
-import static org.jbpm.test.tools.IterableListenerAssert.assertProcessCompleted;
-import static org.jbpm.test.tools.IterableListenerAssert.assertProcessStarted;
-import static org.junit.Assert.*;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,7 +30,13 @@ import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.process.WorkflowProcessInstance;
 import org.kie.internal.command.CommandFactory;
-import qa.tools.ikeeper.annotation.BZ;
+
+import static org.jbpm.test.tools.IterableListenerAssert.assertNextNode;
+import static org.jbpm.test.tools.IterableListenerAssert.assertProcessCompleted;
+import static org.jbpm.test.tools.IterableListenerAssert.assertProcessStarted;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Business rules task test. testing execution of rules with specified rule-flow group.
@@ -121,7 +122,6 @@ public class RuleTaskTest extends JbpmTestCase {
         }
     }
 
-    @BZ("1044504")
     @Test(timeout = 30000)
     public void testRuleTask2() {
         Map<String, ResourceType> res = new HashMap<String, ResourceType>();
@@ -130,7 +130,7 @@ public class RuleTaskTest extends JbpmTestCase {
         KieSession ksession = createKSession(res);
         ksession.getEnvironment().set("org.jbpm.rule.task.waitstate", true);
 
-        ProcessInstance pi = ksession.startProcess(RULE_TASK_2_ID, null);
+        ProcessInstance pi = ksession.startProcess(RULE_TASK_2_ID);
         assertNotNull(pi);
         assertEquals(ProcessInstance.STATE_ACTIVE, pi.getState());
         ksession.fireAllRules();
@@ -144,7 +144,7 @@ public class RuleTaskTest extends JbpmTestCase {
         assertEquals(2, executeRuleList.size());
 
 
-        pi = ksession.startProcess(RULE_TASK_2_ID, null);
+        pi = ksession.startProcess(RULE_TASK_2_ID);
         assertNotNull(pi);
         assertEquals(ProcessInstance.STATE_ACTIVE, pi.getState());
         ksession.fireAllRules();

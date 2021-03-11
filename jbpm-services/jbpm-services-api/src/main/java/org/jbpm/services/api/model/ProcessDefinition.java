@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
+
 public interface ProcessDefinition extends Serializable, DeployedAsset {
 
     /**
@@ -90,10 +91,22 @@ public interface ProcessDefinition extends Serializable, DeployedAsset {
     Collection<String> getReusableSubProcesses();
 
     /**
-     * Returns process definition signals.
-     * @return signals
+     * Returns process definition signals names.
+     * @return id of the signals defined in the process
      */
     Collection<String> getSignals();
+
+    /**
+     * Returns process definition signals.
+     * @return information about the signals
+     */
+    Collection<SignalDesc> getSignalsDesc();
+
+    /**
+     * Returns process definition signals.
+     * @return information about the signals
+     */
+    Collection<MessageDesc> getMessagesDesc();
 
     /**
      * Returns process definition globals.
@@ -124,4 +137,10 @@ public interface ProcessDefinition extends Serializable, DeployedAsset {
      * @return @{@link TimerDesc} timers
      */
     Set<TimerDesc> getTimers();
+
+    /**
+     * Return the list of tags for certain process variable
+     * @return tags names
+     */
+    Set<String> getTagsForVariable(String varName);
 }

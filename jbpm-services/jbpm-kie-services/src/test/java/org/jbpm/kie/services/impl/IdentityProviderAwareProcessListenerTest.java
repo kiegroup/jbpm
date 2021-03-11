@@ -74,7 +74,6 @@ public class IdentityProviderAwareProcessListenerTest {
     public void testUserNotSet() {
         final WorkflowProcessInstance processInstance = mock(WorkflowProcessInstance.class);
         final HashMap<String, Object> metaData = new HashMap<>();
-        when(processInstance.getMetaData()).thenReturn(metaData);
         final ProcessStartedEvent event = new ProcessStartedEventImpl(processInstance, mock(KieRuntime.class));
 
         listener.beforeProcessStarted(event);

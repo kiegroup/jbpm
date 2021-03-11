@@ -7,7 +7,7 @@
   <parent>
     <groupId>org.jbpm</groupId>
     <artifactId>jbpm-persistence</artifactId>
-    <version>7.44.0-SNAPSHOT</version>
+    <version>7.52.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>jbpm-persistence-jpa</artifactId>
@@ -40,6 +40,10 @@
     <dependency>
       <groupId>org.drools</groupId>
       <artifactId>drools-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.drools</groupId>
+      <artifactId>drools-serialization-protobuf</artifactId>
     </dependency>
     <dependency>
       <groupId>org.drools</groupId>
@@ -133,7 +137,7 @@
 
     <dependency>
       <groupId>org.powermock</groupId>
-      <artifactId>powermock-api-mockito</artifactId>
+      <artifactId>powermock-api-mockito2</artifactId>
       <scope>test</scope>
     </dependency>
 
@@ -200,6 +204,7 @@
               org.drools.core.runtime.process,
               org.drools.core.time,
               org.drools.core.time.impl,
+              org.drools.serialization.protobuf,
               org.drools.persistence,
               org.drools.persistence.api,
               org.drools.persistence.jpa,

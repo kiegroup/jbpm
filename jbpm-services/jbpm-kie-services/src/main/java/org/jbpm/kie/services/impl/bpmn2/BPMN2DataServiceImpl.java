@@ -159,9 +159,14 @@ public class BPMN2DataServiceImpl implements DefinitionService, DeploymentEventL
 
         definition.setAssociatedEntities(helper.getTaskAssignments());
         definition.setProcessVariables(helper.getInputs());
+        for(String varName : helper.getInputs().keySet()) {
+            definition.addTagsForVariable(varName, helper.getInputTags(varName));
+        }
         definition.setServiceTasks(helper.getServiceTasks());
 
         definition.setSignals(helper.getSignals());
+        definition.setSignalsDesc(helper.getSignalsDesc());
+        definition.setMessagesDesc(helper.getMessages());
         definition.setGlobals(helper.getGlobals());
         definition.setReferencedRules(helper.getReferencedRules());
         definition.setTimers(helper.getTimers());

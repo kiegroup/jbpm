@@ -135,7 +135,16 @@ public abstract class AbstractAdvanceRuntimeDataServiceImpl {
     }
 
     private Optional<QueryParam> findQueryParamMode(List<QueryParam> params) {
-        return params.stream().filter(e -> e.getOperator().equals("MODE")).findFirst();
+        return findQueryParamByOperator(params, "MODE");
+    }
+
+    private Optional<QueryParam> findQueryParamByOperator(List<QueryParam> params, String specialOperator) {
+        return params.stream().filter(e -> e.getOperator().equals(specialOperator)).findFirst();
+    }
+
+    @FunctionalInterface
+    private interface DataCollector<T> {
+         List<T> apply(List<Number> idList, String varPrefix, List<QueryParam> params);
     }
 
     protected <R> List<R> queryProcessUserTasksByVariables(List<QueryParam> attributesArg,
@@ -146,10 +155,11 @@ public abstract class AbstractAdvanceRuntimeDataServiceImpl {
                                                            String varPrefix,
                                                            QueryContext queryContext,
                                                            BiFunction<StringBuilder, StringBuilder, String> mainSQLproducer,
-                                                           BiFunction<List<Number>, String, List<R>> dataCollector) {
+                                                           DataCollector<R> dataCollector) {
 
-        List<QueryParam> attributes = attributesArg != null ? attributesArg : emptyList();
+        List<QueryParam> attributes = new ArrayList<>(attributesArg != null ? attributesArg : emptyList());
         attributes.removeIf(param -> param.getOperator().equals("MODE"));
+        attributes.removeIf(param -> param.getOperator().equals("EXCLUDE"));
 
         List<QueryParam> processVariables = processVariablesArg != null ? processVariablesArg : emptyList();
         List<QueryParam> taskVariables = taskVariablesArg != null ? taskVariablesArg : emptyList();
@@ -245,13 +255,16 @@ public abstract class AbstractAdvanceRuntimeDataServiceImpl {
                 entityManager.close();
             }
         }
-        return dataCollector.apply(ids, varPrefix);
+        return dataCollector.apply(ids, varPrefix, attributesArg != null ? attributesArg : emptyList());
 
     }
 
-    private List<org.jbpm.services.api.model.ProcessInstanceWithVarsDesc> collectProcessData(List<Number> ids, String varPrefix) {
+    private List<org.jbpm.services.api.model.ProcessInstanceWithVarsDesc> collectProcessData(List<Number> ids, String varPrefix, List<QueryParam> params) {
+        Optional<QueryParam> exclude = findQueryParamByOperator(params, "EXCLUDE"); // PROCESS_VARIABLES EXCLUDE 
+        boolean excludeProcessVariables = exclude.isPresent() && exclude.get().getColumn().equals("ATTR_COLLECTION_VARIABLES");
+
         List<Object[]> procRows = commandService.execute(new QueryNameCommand<List<Object[]>>("GetProcessInstanceByIdList", singletonMap(ID_LIST, ids)));
-        List<Object[]> varRows = commandService.execute(new QueryNameCommand<List<Object[]>>("GetVariablesByProcessInstanceIdList", singletonMap(ID_LIST, ids)));
+        List<Object[]> varRows = (!excludeProcessVariables) ? commandService.execute(new QueryNameCommand<List<Object[]>>("GetVariablesByProcessInstanceIdList", singletonMap(ID_LIST, ids))) : emptyList();
 
         int currentVarIdx = 0;
         List<org.jbpm.services.api.model.ProcessInstanceWithVarsDesc> data = new ArrayList<>();
@@ -300,11 +313,15 @@ public abstract class AbstractAdvanceRuntimeDataServiceImpl {
     }
 
     private String computeVarNameParameter(String prefix, String name) {
-        return prefix + "_NAME_" + name;
+        return prefix + "_NAME_" + sanitize(name);
     }
 
     private String computeVarValueParameter(QueryParam expr, String prefix, String name) {
-        return prefix + "_VALUE_" + expr.getOperator() + "_" + expr.getColumn();
+        return prefix + "_VALUE_" + expr.getOperator() + "_" + sanitize(expr.getColumn());
+    }
+
+    private String sanitize(String name) {
+        return name.replace("-", "_");
     }
 
     private String computeExpression(QueryParam expr, String leftOperand, String rightOperand) {
@@ -350,20 +367,23 @@ public abstract class AbstractAdvanceRuntimeDataServiceImpl {
         }
     }
 
-    private List<org.jbpm.services.api.model.UserTaskInstanceWithPotOwnerDesc> collectRuntimeUserTaskData(List<Number> ids, String varPrefix) {
-        return collectUserTaskData("GetTasksByIdList", this::toUserTaskInstanceWithPotOwnerDesc, ids, varPrefix);
+    private List<org.jbpm.services.api.model.UserTaskInstanceWithPotOwnerDesc> collectRuntimeUserTaskData(List<Number> ids, String varPrefix, List<QueryParam> params) {
+        return collectUserTaskData("GetTasksByIdList", this::toUserTaskInstanceWithPotOwnerDesc, ids, varPrefix, params);
     }
     
-    private List<org.jbpm.services.api.model.UserTaskInstanceWithPotOwnerDesc> collectHistoryUserTaskData(List<Number> ids, String varPrefix) {
-        return collectUserTaskData("GetHistoryTasksByIdList", this::toHistoryUserTaskInstanceWithPotOwnerDesc, ids, varPrefix);
+    private List<org.jbpm.services.api.model.UserTaskInstanceWithPotOwnerDesc> collectHistoryUserTaskData(List<Number> ids, String varPrefix,  List<QueryParam> params) {
+        return collectUserTaskData("GetHistoryTasksByIdList", this::toHistoryUserTaskInstanceWithPotOwnerDesc, ids, varPrefix, params);
     }
 
-    private List<org.jbpm.services.api.model.UserTaskInstanceWithPotOwnerDesc> collectUserTaskData(String taskRetriever, Function<Object[], UserTaskInstanceWithPotOwnerDesc> mapper, List<Number> ids, String varPrefix) {
+    private List<org.jbpm.services.api.model.UserTaskInstanceWithPotOwnerDesc> collectUserTaskData(String taskRetriever, Function<Object[], UserTaskInstanceWithPotOwnerDesc> mapper, List<Number> ids, String varPrefix, List<QueryParam> params) {
+        Optional<QueryParam> exclude = findQueryParamByOperator(params, "EXCLUDE"); // PROCESS_VARIABLES EXCLUDE 
+        boolean excludeProcessVariables = exclude.isPresent() && exclude.get().getColumn().equals("ATTR_COLLECTION_VARIABLES");
+
         // query data
         List<Object[]> taskRows = commandService.execute(new QueryNameCommand<List<Object[]>>(taskRetriever, singletonMap(ID_LIST, ids)));
         List<Object[]> varRows = commandService.execute(new QueryNameCommand<List<Object[]>>("GetTaskVariablesByTaskIdList", singletonMap(ID_LIST, ids)));
         List<Object[]> potRows = commandService.execute(new QueryNameCommand<List<Object[]>>("GetPotentialOwnersByTaskIdList", singletonMap(ID_LIST, ids)));
-        List<Object[]> varProcSQLRows = commandService.execute(new QueryNameCommand<List<Object[]>>("GetProcessVariablesByTaskIdList", singletonMap(ID_LIST, ids)));
+        List<Object[]> varProcSQLRows = !excludeProcessVariables ? commandService.execute(new QueryNameCommand<List<Object[]>>("GetProcessVariablesByTaskIdList", singletonMap(ID_LIST, ids))) : emptyList();
 
         int currentVarIdx = 0;
         int currentPotIdx = 0;
@@ -461,6 +481,9 @@ public abstract class AbstractAdvanceRuntimeDataServiceImpl {
             if(entry.getColumn() != null && entry.getColumn().equals("TASK_OWNER") && findQueryParamMode(attributes).isPresent()) {
                 column = "task.actualOwner";
             }
+
+            // if column is null at this point then we leave the original
+            column = column == null ? entry.getColumn() : column;
 
             translated.add(new QueryParam(column, entry.getOperator(), entry.getValue()));
         }

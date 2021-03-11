@@ -66,6 +66,7 @@ public class BPMN2DataServicesTest extends AbstractKieServicesBaseTest {
         processes.add("repo/processes/itemrefissue/itemrefissue.bpmn");
         processes.add("repo/processes/general/ObjectVariableProcess.bpmn2");
         processes.add("repo/processes/general/timer-process.bpmn2");
+        processes.add("repo/processes/general/customtask-with-variable-tags.bpmn");
 
         InternalKieModule kJar1 = createKieJar(ks, releaseId, processes);
         File pom = new File("target/kmodule", "pom.xml");
@@ -93,6 +94,25 @@ public class BPMN2DataServicesTest extends AbstractKieServicesBaseTest {
             units.clear();
         }
         close();
+    }
+
+    @Test
+    public void testCustomTags ()  {
+        assertNotNull(deploymentService);
+
+        DeploymentUnit deploymentUnit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
+
+        deploymentService.deploy(deploymentUnit);
+        units.add(deploymentUnit);
+
+        String processId = "customtask-tags";
+
+        ProcessDefinition procDef = bpmn2Service.getProcessDefinition(deploymentUnit.getIdentifier(), processId);
+        
+        assertFalse(procDef.getProcessVariables().isEmpty());
+        assertTrue(procDef.getProcessVariables().containsKey("id"));
+        assertFalse(procDef.getTagsForVariable("id").isEmpty());
+        assertTrue(procDef.getTagsForVariable("id").contains("restricted"));
     }
 
     @Test

@@ -30,9 +30,7 @@ import static org.kie.internal.query.QueryParameterIdentifiers.WORK_ITEM_ID_LIST
 public class NodeInstanceLogDeleteBuilderImpl extends
 		AbstractAuditDeleteBuilderImpl<NodeInstanceLogDeleteBuilder> implements NodeInstanceLogDeleteBuilder {
 
-    private static String NODE_INSTANCE_LOG_DELETE = 
-            "DELETE\n"
-            + "FROM NodeInstanceLog l\n";
+    private static final String NODE_INSTANCE_LOG_DELETE = "NodeInstanceLog";
     
 
     
@@ -102,7 +100,7 @@ public class NodeInstanceLogDeleteBuilderImpl extends
     }
 
     @Override
-    protected String getQueryBase() {
+    protected String getQueryTable() {
         return NODE_INSTANCE_LOG_DELETE;
     }
 

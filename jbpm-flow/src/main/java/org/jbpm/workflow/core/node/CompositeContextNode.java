@@ -22,6 +22,7 @@ import org.jbpm.process.core.Context;
 import org.jbpm.process.core.ContextContainer;
 import org.jbpm.process.core.context.AbstractContext;
 import org.jbpm.process.core.impl.ContextContainerImpl;
+import org.kie.api.definition.process.NodeType;
 
 /**
  * 
@@ -30,6 +31,14 @@ public class CompositeContextNode extends CompositeNode implements ContextContai
 
     private static final long serialVersionUID = 510l;
     
+    protected CompositeContextNode(NodeType nodeType) {
+        super(nodeType);
+    }
+
+    public CompositeContextNode() {
+        super(NodeType.INTERNAL);
+    }
+
     private ContextContainer contextContainer = new ContextContainerImpl();
 
     public List<Context> getContexts(String contextType) {

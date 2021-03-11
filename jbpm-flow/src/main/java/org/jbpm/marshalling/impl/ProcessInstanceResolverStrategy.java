@@ -20,10 +20,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import org.drools.core.common.InternalKnowledgeRuntime;
-import org.drools.core.common.InternalWorkingMemory;
 import org.drools.core.marshalling.impl.MarshallerReaderContext;
 import org.drools.core.marshalling.impl.MarshallerWriteContext;
-import org.drools.core.marshalling.impl.PersisterHelper;
+import org.drools.serialization.protobuf.PersisterHelper;
 import org.jbpm.process.instance.ProcessInstanceManager;
 import org.jbpm.process.instance.ProcessRuntimeImpl;
 import org.jbpm.process.instance.impl.ProcessInstanceImpl;
@@ -96,11 +95,11 @@ public class ProcessInstanceResolverStrategy
         ProcessInstanceManager pim = null;
         if ( streamContext instanceof MarshallerWriteContext ) {
             MarshallerWriteContext context = (MarshallerWriteContext) streamContext;
-            pim = ((ProcessRuntimeImpl) ((InternalWorkingMemory) context.wm).getProcessRuntime()).getProcessInstanceManager();
+            pim = ((ProcessRuntimeImpl) context.getWorkingMemory().getProcessRuntime()).getProcessInstanceManager();
         }
         else if ( streamContext instanceof MarshallerReaderContext ) {
             MarshallerReaderContext context = (MarshallerReaderContext) streamContext;
-            pim = ((ProcessRuntimeImpl) ((InternalWorkingMemory) context.wm).getProcessRuntime()).getProcessInstanceManager();
+            pim = ((ProcessRuntimeImpl) context.getWorkingMemory().getProcessRuntime()).getProcessInstanceManager();
         }
         else {
             throw new UnsupportedOperationException( "Unable to retrieve " + ProcessInstanceManager.class.getSimpleName() + " from "
@@ -150,11 +149,11 @@ public class ProcessInstanceResolverStrategy
         InternalKnowledgeRuntime kruntime = null;
         if ( streamContext instanceof MarshallerWriteContext ) {
             MarshallerWriteContext context = (MarshallerWriteContext) streamContext;
-            kruntime = ((InternalWorkingMemory) context.wm).getKnowledgeRuntime();
+            kruntime = context.getWorkingMemory().getKnowledgeRuntime();
         }
         else if ( streamContext instanceof MarshallerReaderContext ) {
             MarshallerReaderContext context = (MarshallerReaderContext) streamContext;
-            kruntime = ((InternalWorkingMemory) context.wm).getKnowledgeRuntime();
+            kruntime = context.getWorkingMemory().getKnowledgeRuntime();
         }
         else {
             throw new UnsupportedOperationException( "Unable to retrieve " + ProcessInstanceManager.class.getSimpleName() + " from "

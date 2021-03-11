@@ -1,0 +1,3 @@
+org.jbpm.runtime.manager.impl.lock.DebugRuntimeManagerLockFactory
+org.jbpm.runtime.manager.impl.lock.DefaultRuntimeManagerLockFactory
+org.jbpm.runtime.manager.impl.lock.SelfReleaseRuntimeManagerLockFactory

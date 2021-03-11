@@ -21,5 +21,4 @@ import org.kie.api.runtime.process.ProcessContext;
 public interface Action {
     
     void execute(ProcessContext context) throws Exception;
-    
 }

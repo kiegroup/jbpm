@@ -56,15 +56,6 @@ public class ScriptsBase {
         executeScriptRunner(DB_DDL_SCRIPTS_RESOURCE_PATH, ScriptFilter.init(false, false));
     }
 
-    public static void executeScriptRunner(String resourcePath, ScriptFilter scriptFilter, String type) throws IOException, SQLException {
-        final TestPersistenceContextBase scriptRunnerContext = createAndInitContext(PersistenceUnit.SCRIPT_RUNNER);
-        try {
-            scriptRunnerContext.executeScripts(new File(ScriptsBase.class.getResource(resourcePath).getFile()), scriptFilter, type);
-        } finally {
-            scriptRunnerContext.clean();
-        }
-    }
-
     public static void executeScriptRunner(String resourcePath, ScriptFilter scriptFilter) throws IOException, SQLException {
         final TestPersistenceContextBase scriptRunnerContext = createAndInitContext(PersistenceUnit.SCRIPT_RUNNER);
         try {

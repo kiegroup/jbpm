@@ -18,8 +18,6 @@ package org.jbpm.test.functional.timer;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -52,7 +50,9 @@ import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * This test is dedicated to quartz scheduler service as it is controlled

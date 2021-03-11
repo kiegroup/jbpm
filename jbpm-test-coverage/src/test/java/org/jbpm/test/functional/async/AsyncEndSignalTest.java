@@ -75,10 +75,10 @@ public class AsyncEndSignalTest extends JbpmTestCase {
     @Test(timeout = 10000)
     public void testCorrectProcessStateAfterExceptionEndSignal() {
         KieSession ksession = createKSession(BPMN_AICS, BPMN_AES);
-        ProcessInstance pi1 = ksession.startProcess(PROCESS_AICS, null);
+        ProcessInstance pi1 = ksession.startProcess(PROCESS_AICS);
         long pid1 = pi1.getId();
 
-        ProcessInstance pi2 = ksession.startProcess(PROCESS_AES, null);
+        ProcessInstance pi2 = ksession.startProcess(PROCESS_AES);
         long pid2 = pi2.getId();
 
         synchronized (LOCK) {

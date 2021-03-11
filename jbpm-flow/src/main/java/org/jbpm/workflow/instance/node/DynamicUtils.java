@@ -27,7 +27,7 @@ import org.drools.core.event.ProcessEventSupport;
 import org.drools.core.impl.StatefulKnowledgeSessionImpl;
 import org.drools.core.process.instance.WorkItemManager;
 import org.drools.core.process.instance.impl.WorkItemImpl;
-import org.drools.core.util.MVELSafeHelper;
+import org.drools.mvel.MVELSafeHelper;
 import org.jbpm.process.instance.InternalProcessRuntime;
 import org.jbpm.process.instance.ProcessInstance;
 import org.jbpm.process.instance.impl.ProcessInstanceImpl;
