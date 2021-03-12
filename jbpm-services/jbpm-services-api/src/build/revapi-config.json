@@ -27,6 +27,15 @@
 		  "elementKind": "method",
 		  "justification": "[JBPM-9548] Need access to process variables tags at FormRendererBase"
 		},
+              {
+                "code": "java.method.addedToInterface",
+                "new": "method java.util.Map<java.lang.String, java.util.Set<java.lang.String>> org.jbpm.services.api.model.ProcessDefinition::getTagsInfo()",
+                "package": "org.jbpm.services.api.model",
+                "classSimpleName": "ProcessDefinition",
+                "methodName": "getTagsInfo",
+                "elementKind": "method",
+                "justification": "[AF-2811] Required Process Variable Tags shouldn't be accepted in forms when empty"
+              },
                 {
                   "code": "java.method.addedToInterface",
                   "new": "method java.util.Collection<org.jbpm.services.api.model.ProcessInstanceDesc> org.jbpm.services.api.RuntimeDataService::getProcessInstancesWithSubprocessByProcessInstanceId(java.lang.Long, java.util.List<java.lang.Integer>, org.kie.api.runtime.query.QueryContext)",
