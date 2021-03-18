@@ -602,7 +602,7 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
         KieRuntime kruntime = ((ProcessInstance) getProcessInstance()).getKnowledgeRuntime();
         RuntimeManager manager = (RuntimeManager) kruntime.getEnvironment().get(EnvironmentName.RUNTIME_MANAGER);
         if (manager != null) {
-            org.kie.api.runtime.manager.Context<?> context = ProcessInstanceIdContext.get();
+            org.kie.api.runtime.manager.Context<?> context = (exceptionHandlingProcessInstanceId > -1 ? ProcessInstanceIdContext.get(exceptionHandlingProcessInstanceId) : ProcessInstanceIdContext.get());
             
             String caseId = (String) kruntime.getEnvironment().get(EnvironmentName.CASE_ID);
             if (caseId != null) {
