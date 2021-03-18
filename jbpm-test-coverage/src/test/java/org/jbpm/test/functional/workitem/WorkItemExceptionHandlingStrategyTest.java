@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2021 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,10 @@
  */
 package org.jbpm.test.functional.workitem;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.drools.core.process.instance.WorkItemManager;
 import org.jbpm.test.JbpmTestCase;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.RuntimeEngine;
-import org.kie.api.runtime.process.NodeInstance;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.process.ProcessWorkItemHandlerException.HandlingStrategy;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
@@ -40,7 +34,10 @@ public class WorkItemExceptionHandlingStrategyTest extends JbpmTestCase {
 
     @Test
     public void exceptionHandlingAbortProcess() {
-        manager = createRuntimeManager(Strategy.PROCESS_INSTANCE, (String) null, "org/jbpm/test/functional/workitem/BPMN2-UserTaskWithBooleanOutputWaitSignal.bpmn2", "org/jbpm/test/functional/workitem/BPMN2-WaitSignal.bpmn2" );
+        manager = createRuntimeManager(Strategy.PROCESS_INSTANCE, (String) null, 
+                                       "org/jbpm/test/functional/workitem/BPMN2-UserTaskWithBooleanOutputWaitSignal.bpmn2", 
+                                       "org/jbpm/test/functional/workitem/BPMN2-WaitSignal.bpmn2" 
+        );
         RuntimeEngine runtimeEngine = getRuntimeEngine( ProcessInstanceIdContext.get() );
         KieSession kieSession = runtimeEngine.getKieSession();
 
@@ -49,7 +46,7 @@ public class WorkItemExceptionHandlingStrategyTest extends JbpmTestCase {
         assertProcessInstanceActive( pi.getId(), kieSession );
 
         kieSession.abortProcessInstance(pi.getId());
-        assertProcessInstanceAborted( pi.getId(), kieSession );
+        assertProcessInstanceAborted( pi.getId() );
 
     }
 
