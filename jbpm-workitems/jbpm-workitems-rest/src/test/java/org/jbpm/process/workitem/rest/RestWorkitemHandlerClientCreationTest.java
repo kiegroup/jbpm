@@ -86,6 +86,11 @@ public class RestWorkitemHandlerClientCreationTest {
                               serverURL);
         workItem.setParameter("Method",
                               "GET");
+        workItem.setParameter("Cookie",
+                              "name=value");
+        workItem.setParameter("CookiePath",
+                              "/");
+
 
         WorkItemManager manager = new TestWorkItemManager();
         handler.executeWorkItem(workItem,
@@ -96,7 +101,10 @@ public class RestWorkitemHandlerClientCreationTest {
 
         verify(handler,
                times(2)).getHttpClient(anyInt(),
-                                       anyInt());
+                                       anyInt(),
+                                       anyString(),
+                                       anyString(),
+                                       anyString());
 
         verify(handler,
                times(1)).getNewPooledHttpClient(anyInt(),
@@ -122,7 +130,11 @@ public class RestWorkitemHandlerClientCreationTest {
                               "4000");
         workItem.setParameter("ReadTimeout",
                               "3000");
-
+        workItem.setParameter("Cookie",
+                              "name=value");
+        workItem.setParameter("CookiePath",
+                              "/");
+        
         WorkItemManager manager = new TestWorkItemManager();
         handler.executeWorkItem(workItem,
                                 manager);
@@ -132,7 +144,10 @@ public class RestWorkitemHandlerClientCreationTest {
 
         verify(handler,
                times(2)).getHttpClient(anyInt(),
-                                       anyInt());
+                                       anyInt(),
+                                       anyString(),
+                                       anyString(),
+                                       anyString());
 
         // should use existing already since cached
         verify(handler,
@@ -157,6 +172,10 @@ public class RestWorkitemHandlerClientCreationTest {
                               "4000");
         workItem.setParameter("ReadTimeout",
                               "3000");
+        workItem.setParameter("Cookie",
+                              "name=value");
+        workItem.setParameter("CookiePath",
+                              "/");
 
         WorkItemManager manager = new TestWorkItemManager();
         handler.executeWorkItem(workItem,
@@ -172,7 +191,10 @@ public class RestWorkitemHandlerClientCreationTest {
 
         verify(handler,
                times(2)).getHttpClient(anyInt(),
-                                       anyInt());
+                                       anyInt(),
+                                       anyString(),
+                                       anyString(),
+                                       anyString());
         verify(handler,
                times(0)).getNewPooledHttpClient(anyInt(),
                                                 anyInt());

@@ -1253,4 +1253,168 @@ public class RestWorkItemHandlerTest {
             assertEquals("COMPLETE", ex.getStrategy().name());
         }
     }
+
+    @Test
+    public void testCookieSingleCookie() {
+        RESTWorkItemHandler handler = new RESTWorkItemHandler();
+        String cookieName1 = "cookieParam1";
+        String cookieValue1 = "cookieParam1_Value";
+        String cookie = cookieName1 + "=" + cookieValue1;
+        String cookieName2 = "cookieParam1";
+        String cookieValue2 = null;
+        String cookie2 = cookieName2 + "=" + cookieValue2;
+
+        WorkItemImpl workItem = new WorkItemImpl();
+        workItem.setParameter("Url",
+                              serverURL + "/testSingleCookie");
+        workItem.setParameter("Method",
+                              "GET");
+        workItem.setParameter("Cookie",
+                              cookie);
+
+        WorkItemManager manager = new TestWorkItemManager();
+        handler.executeWorkItem(workItem, manager);
+        Map<String, Object> results = ((TestWorkItemManager) manager).getResults(workItem.getId());
+        String result = (String) results.get(PARAM_RESULT);
+        assertEquals(cookie, result);
+
+        workItem = new WorkItemImpl();
+        workItem.setParameter("Url",
+                              serverURL + "/testSingleCookie");
+        workItem.setParameter("Method",
+                              "GET");
+        workItem.setParameter("Cookie",
+                              cookie2);
+
+        manager = new TestWorkItemManager();
+        handler.executeWorkItem(workItem, manager);
+        results = ((TestWorkItemManager) manager).getResults(workItem.getId());
+        result = (String) results.get(PARAM_RESULT);
+        assertEquals(cookie2, result);
+
+    }
+
+    @Test
+    public void testCookieSetCookiePath() {
+        RESTWorkItemHandler handler = new RESTWorkItemHandler();
+        String cookieName1 = "cookieParam1";
+        String cookieValue1 = "cookieParam1_Value";
+        String cookie = cookieName1 + "=" + cookieValue1;
+
+        WorkItemImpl workItem = new WorkItemImpl();
+        workItem.setParameter("Url",
+                              serverURL + "/testSingleCookie");
+        workItem.setParameter("Method",
+                              "GET");
+        workItem.setParameter("Cookie",
+                              cookie);
+        workItem.setParameter("CookiePath",
+                              "/test/testSingleCookie");
+
+        WorkItemManager manager = new TestWorkItemManager();
+        handler.executeWorkItem(workItem, manager);
+        Map<String, Object> results = ((TestWorkItemManager) manager).getResults(workItem.getId());
+        String result = (String) results.get(PARAM_RESULT);
+        assertEquals(cookie, result);
+    }
+
+    @Test
+    public void testCookieIncorrectSeparators() {
+        RESTWorkItemHandler handler = new RESTWorkItemHandler();
+        String cookieName1 = "cookieParam1";
+        String cookieValue1 = "cookieParam1_Value;=";
+        String cookie = cookieName1 + "=" + cookieValue1;
+        
+        String cookieName2 = "cookieParam1";
+        String cookieValue2 = "cookieParam1_Value=";
+        String cookie1 = cookieName2 + "=" + cookieValue2;
+
+        WorkItemImpl workItem = new WorkItemImpl();
+        workItem.setParameter("Url",
+                              serverURL + "/testSingleCookie");
+        workItem.setParameter("Method",
+                              "GET");
+        workItem.setParameter("Cookie",
+                              cookie);
+
+        WorkItemManager manager = new TestWorkItemManager();
+        handler.executeWorkItem(workItem, manager);
+        Map<String, Object> results = ((TestWorkItemManager) manager).getResults(workItem.getId());
+        String result = (String) results.get(PARAM_RESULT);
+        assertEquals("cookieParam1=cookieParam1_Value", result);
+
+        workItem = new WorkItemImpl();
+        workItem.setParameter("Url",
+                              serverURL + "/testSingleCookie");
+        workItem.setParameter("Method",
+                              "GET");
+        workItem.setParameter("Cookie",
+                              cookie1);
+
+        manager = new TestWorkItemManager();
+        handler.executeWorkItem(workItem, manager);
+        results = ((TestWorkItemManager) manager).getResults(workItem.getId());
+        result = (String) results.get(PARAM_RESULT);
+        assertEquals("cookieParam1=cookieParam1_Value=", result);
+    }
+
+    @Test
+    public void testCookieMultipleCookie() {
+        RESTWorkItemHandler handler = new RESTWorkItemHandler();
+        String cookieName1 = "cookieParam1";
+        String cookieValue1 = "cookieParam1_Value";
+        String cookieName2 = "cookieParam2";
+        String cookieValue2 = "cookieParam2_Value";
+        String cookie = cookieName1 + "=" + cookieValue1 + ";" + cookieName2 + "=" + cookieValue2;
+
+        WorkItemImpl workItem = new WorkItemImpl();
+        workItem.setParameter("Url",
+                              serverURL + "/testMultipleCookie");
+        workItem.setParameter("Method",
+                              "GET");
+        workItem.setParameter("Cookie",
+                              cookie);
+
+        WorkItemManager manager = new TestWorkItemManager();
+        handler.executeWorkItem(workItem, manager);
+        Map<String, Object> results = ((TestWorkItemManager) manager).getResults(workItem.getId());
+        String result = (String) results.get(PARAM_RESULT);
+        assertEquals(cookie, result);
+    }
+
+    @Test
+    public void testCookieIncorrectCookie() {
+        RESTWorkItemHandler handler = new RESTWorkItemHandler();
+        String cookieName1 = "cookieParam1";
+        String cookieValue1 = "cookieParam1_Value";
+        String cookie1 = cookieName1 + "=" + cookieValue1;
+        String cookie2 = cookieName1 + "=" + " ";
+
+        WorkItemImpl workItem = new WorkItemImpl();
+        workItem.setParameter("Url",
+                              serverURL + "/testSingleCookie");
+        workItem.setParameter("Method",
+                              "GET");
+        workItem.setParameter("Cookie",
+                              cookie1+";=");
+
+        WorkItemManager manager = new TestWorkItemManager();
+        handler.executeWorkItem(workItem, manager);
+        Map<String, Object> results = ((TestWorkItemManager) manager).getResults(workItem.getId());
+        String result = (String) results.get(PARAM_RESULT);
+        assertEquals(cookie1, result);
+
+        workItem.setParameter("Url",
+                              serverURL + "/testSingleCookie");
+        workItem.setParameter("Method",
+                              "GET");
+        workItem.setParameter("Cookie",
+                              cookie2);
+
+        handler.executeWorkItem(workItem, manager);
+        results = ((TestWorkItemManager) manager).getResults(workItem.getId());
+        result = (String) results.get(PARAM_RESULT);
+        assertTrue(result == null);
+    }
+
 }

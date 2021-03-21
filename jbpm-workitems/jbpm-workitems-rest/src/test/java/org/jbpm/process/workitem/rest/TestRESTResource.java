@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.CookieParam;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -31,6 +32,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -156,4 +158,22 @@ public class TestRESTResource {
     	return headers.getRequestHeaders().getOrDefault(headerKey, Collections.emptyList())
     			.stream().collect(Collectors.joining(","));
     }
+
+    @GET
+    @Path("/testSingleCookie")
+    @Produces("application/xml")
+    public String getSingleCookie(@CookieParam("cookieParam1") Cookie cookieParam1) {
+
+        return cookieParam1.getName() + "=" + cookieParam1.getValue();
+    }
+
+	@GET
+	@Path("/testMultipleCookie")
+	@Produces("application/xml")
+	public String getMultipleCookie(@CookieParam("cookieParam1") Cookie cookieParam1,
+        	                        @CookieParam("cookieParam2") Cookie cookieParam2) {
+		return cookieParam1.getName() + "=" + cookieParam1.getValue() + ";" + cookieParam2.getName() + "="
+				+ cookieParam2.getValue();
+	}
+
 }
