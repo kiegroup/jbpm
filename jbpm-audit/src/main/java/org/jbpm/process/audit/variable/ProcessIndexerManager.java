@@ -82,7 +82,7 @@ public class ProcessIndexerManager {
         return null;
     }
     
-    public static ProcessIndexerManager get() {
+    public static synchronized ProcessIndexerManager get() {
         if (INSTANCE == null) {
             INSTANCE = new ProcessIndexerManager();
         }
