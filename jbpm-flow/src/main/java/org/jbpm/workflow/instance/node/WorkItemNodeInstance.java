@@ -28,22 +28,18 @@ import org.drools.core.WorkItemHandlerNotFoundException;
 import org.drools.core.process.instance.WorkItem;
 import org.drools.core.process.instance.WorkItemManager;
 import org.drools.core.process.instance.impl.WorkItemImpl;
-import org.drools.core.spi.ProcessContext;
 import org.drools.mvel.MVELSafeHelper;
 import org.jbpm.process.core.Context;
 import org.jbpm.process.core.ContextContainer;
 import org.jbpm.process.core.Work;
 import org.jbpm.process.core.context.exception.ExceptionScope;
-import org.jbpm.process.core.context.variable.Variable;
 import org.jbpm.process.core.context.variable.VariableScope;
-import org.jbpm.process.core.datatype.DataType;
 import org.jbpm.process.core.impl.DataTransformerRegistry;
 import org.jbpm.process.instance.ContextInstance;
 import org.jbpm.process.instance.ContextInstanceContainer;
 import org.jbpm.process.instance.ProcessInstance;
 import org.jbpm.process.instance.context.exception.ExceptionScopeInstance;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
-import org.jbpm.process.instance.impl.AssignmentAction;
 import org.jbpm.process.instance.impl.ContextInstanceFactory;
 import org.jbpm.process.instance.impl.ContextInstanceFactoryRegistry;
 import org.jbpm.process.instance.impl.ProcessInstanceImpl;
@@ -55,7 +51,6 @@ import org.jbpm.workflow.core.node.WorkItemNode;
 import org.jbpm.workflow.instance.WorkflowProcessInstance;
 import org.jbpm.workflow.instance.WorkflowRuntimeException;
 import org.jbpm.workflow.instance.impl.NodeInstanceResolverFactory;
-import org.jbpm.workflow.instance.impl.MapResolverFactory;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 import org.kie.api.definition.process.Node;
 import org.kie.api.runtime.EnvironmentName;
@@ -322,10 +317,8 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
         
         if (exceptionHandlingProcessInstanceId > -1) {
             ProcessInstance processInstance = null;
-            KieRuntime kruntime = getKieRuntimeForSubprocess();
-        
+            KieRuntime kruntime = getKieRuntimeForExceptionSubprocess();
             processInstance = (ProcessInstance) kruntime.getProcessInstance(exceptionHandlingProcessInstanceId);
-            
 
             if (processInstance != null) {
                 processInstance.setState(ProcessInstance.STATE_ABORTED);
@@ -520,8 +513,8 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
         // add all parameters of the work item to the newly started process instance
         parameters.putAll(workItem.getParameters());
         
-        KieRuntime kruntime = getKieRuntimeForSubprocess();       
-                
+        KieRuntime kruntime = getKieRuntimeForSubprocess();
+
         ProcessInstance processInstance = ( ProcessInstance ) kruntime.createProcessInstance(handlerException.getProcessId(), parameters);
         
         this.exceptionHandlingProcessInstanceId = processInstance.getId(); 
@@ -597,22 +590,30 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
     public void internalSetProcessInstanceId(long processInstanceId) {
         this.exceptionHandlingProcessInstanceId = processInstanceId;
     }
+
     
+    protected KieRuntime getKieRuntimeForExceptionSubprocess() {
+        return getKieRuntimeForSubprocess(ProcessInstanceIdContext.get(getExceptionHandlingProcessInstanceId()));
+        
+    }
+
     protected KieRuntime getKieRuntimeForSubprocess() {
+        return getKieRuntimeForSubprocess(ProcessInstanceIdContext.get());
+    }
+    protected KieRuntime getKieRuntimeForSubprocess(org.kie.api.runtime.manager.Context<?> context) {
         KieRuntime kruntime = ((ProcessInstance) getProcessInstance()).getKnowledgeRuntime();
         RuntimeManager manager = (RuntimeManager) kruntime.getEnvironment().get(EnvironmentName.RUNTIME_MANAGER);
         if (manager != null) {
-            org.kie.api.runtime.manager.Context<?> context = ProcessInstanceIdContext.get();
-            
+            org.kie.api.runtime.manager.Context<?> newContext = context;
             String caseId = (String) kruntime.getEnvironment().get(EnvironmentName.CASE_ID);
             if (caseId != null) {
-                context = CaseContext.get(caseId);
+                newContext = CaseContext.get(caseId);
             }
-            
-            RuntimeEngine runtime = manager.getRuntimeEngine(context);
+
+            RuntimeEngine runtime = manager.getRuntimeEngine(newContext);
             kruntime = (KieRuntime) runtime.getKieSession();
-        }  
-        
+        }
+
         return kruntime;
     }
     
