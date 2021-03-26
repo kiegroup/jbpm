@@ -46,10 +46,22 @@ public interface AdvanceRuntimeDataService {
                                                                      List<String> potentialOwners,
                                                                      QueryContext queryContext);
 
+    List<ProcessInstanceWithVarsDesc> queryProcessByVariablesAndTask(List<QueryParam> attributes,
+                                                                     List<QueryParam> processVariables,
+                                                                     List<QueryParam> taskVariables,
+                                                                     QueryParam potentialOwners,
+                                                                     QueryContext queryContext);
+
     List<UserTaskInstanceWithPotOwnerDesc> queryUserTasksByVariables(List<QueryParam> attributes,
                                                                      List<QueryParam> taskVariables,
                                                                      List<QueryParam> processVariables,
                                                                      List<String> potentialOwners,
+                                                                     QueryContext queryContext);
+
+    List<UserTaskInstanceWithPotOwnerDesc> queryUserTasksByVariables(List<QueryParam> attributes,
+                                                                     List<QueryParam> taskVariables,
+                                                                     List<QueryParam> processVariables,
+                                                                     QueryParam potentialOwners,
                                                                      QueryContext queryContext);
 
 

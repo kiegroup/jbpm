@@ -17,6 +17,7 @@
 package org.jbpm.casemgmt.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +37,7 @@ import static org.jbpm.services.api.query.model.QueryParam.equalsTo;
 import static org.jbpm.services.api.query.model.QueryParam.list;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class AdvanceCaseRuntimeDataServiceImplTest extends AbstractCaseServicesBaseTest {
 
@@ -113,4 +115,83 @@ public class AdvanceCaseRuntimeDataServiceImplTest extends AbstractCaseServicesB
         caseService.cancelCase(caseId);
 
     }
+
+    @Test
+    public void testSearchCaseByPotOwnersDefaultALL() {
+        QueryParam potOwners = new QueryParam(null, "ALL", Arrays.asList("HR", "IT", USER));
+        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new UserImpl(USER));
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("name", "my first case");
+        CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), USER_TASK_CASE_P_ID, data, roleAssignments);
+
+        String caseId = caseService.startCase(deploymentUnit.getIdentifier(), USER_TASK_CASE_P_ID, caseFile);
+
+        List<ProcessInstanceWithVarsDesc> process = advanceCaseRuntimeDataService.queryCaseByVariablesAndTask(emptyList(), emptyList(), emptyList(), potOwners, new QueryContext());
+        assertTrue(process.isEmpty());
+
+        caseService.cancelCase(caseId);
+    }
+
+    @Test
+    public void testSearchCaseByPotOwnersANY() {
+        QueryParam potOwners = new QueryParam(null, "ANY", Arrays.asList("HR", "IT", USER));
+        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new UserImpl(USER));
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("name", "my first case");
+        CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), USER_TASK_CASE_P_ID, data, roleAssignments);
+
+        String caseId = caseService.startCase(deploymentUnit.getIdentifier(), USER_TASK_CASE_P_ID, caseFile);
+        List<ProcessInstanceWithVarsDesc> process = advanceCaseRuntimeDataService.queryCaseByVariablesAndTask(emptyList(), emptyList(), emptyList(), potOwners, new QueryContext());
+        assertEquals(1, process.size());
+        assertEquals("my first case", process.get(0).getExtraData().get("name"));
+
+        assertNotNull(caseId);
+        assertEquals(HR_CASE_ID, caseId);
+        caseService.cancelCase(caseId);
+
+    }
+
+    @Test
+    public void testSearchByPotOwnersDefaultALL() {
+        QueryParam potOwners = new QueryParam(null, "ALL", Arrays.asList("HR", "IT", USER));
+        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new UserImpl(USER));
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("name", "my first case");
+        CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), USER_TASK_CASE_P_ID, data, roleAssignments);
+
+        String caseId = caseService.startCase(deploymentUnit.getIdentifier(), USER_TASK_CASE_P_ID, caseFile);
+
+        List<UserTaskInstanceWithPotOwnerDesc> process = advanceCaseRuntimeDataService.queryUserTasksByVariables(emptyList(), emptyList(), emptyList(), potOwners, new QueryContext());
+        assertTrue(process.isEmpty());
+
+        caseService.cancelCase(caseId);
+    }
+
+    @Test
+    public void testSearchByPotOwnersANY() {
+        QueryParam potOwners = new QueryParam(null, "ANY", Arrays.asList("HR", "IT", USER));
+        Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
+        roleAssignments.put("owner", new UserImpl(USER));
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("name", "my first case");
+        CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), USER_TASK_CASE_P_ID, data, roleAssignments);
+
+        String caseId = caseService.startCase(deploymentUnit.getIdentifier(), USER_TASK_CASE_P_ID, caseFile);
+        List<UserTaskInstanceWithPotOwnerDesc> process = advanceCaseRuntimeDataService.queryUserTasksByVariables(emptyList(), emptyList(), emptyList(), potOwners, new QueryContext());
+        assertEquals(1, process.size());
+        assertEquals("my first case", process.get(0).getExtraData().get("name"));
+
+        assertNotNull(caseId);
+        assertEquals(HR_CASE_ID, caseId);
+        caseService.cancelCase(caseId);
+
+    }
+
 }

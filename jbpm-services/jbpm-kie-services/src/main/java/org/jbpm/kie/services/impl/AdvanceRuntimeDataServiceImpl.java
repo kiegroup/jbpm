@@ -59,10 +59,29 @@ public class AdvanceRuntimeDataServiceImpl extends AbstractAdvanceRuntimeDataSer
     }
 
     @Override
+    public List<ProcessInstanceWithVarsDesc> queryProcessByVariablesAndTask(List<QueryParam> attributes,
+                                                                            List<QueryParam> processVariables,
+                                                                            List<QueryParam> taskVariables,
+                                                                            QueryParam owners,
+                                                                            QueryContext queryContext) {
+        return queryProcessByVariablesAndTask(translate(translateTable, attributes), processVariables, taskVariables, owners, PROCESS_TYPE, "", queryContext);
+    }
+
+    @Override
     public List<org.jbpm.services.api.model.UserTaskInstanceWithPotOwnerDesc> queryUserTasksByVariables(List<QueryParam> attributes,
                                                                                                         List<QueryParam> taskVariables,
                                                                                                         List<QueryParam> processVariables,
                                                                                                         List<String> owners,
+                                                                                                        QueryContext queryContext) {
+
+        return queryUserTasksByVariables(translate(translateTable, attributes), processVariables, taskVariables, owners, PROCESS_TYPE, "", queryContext);
+    }
+
+    @Override
+    public List<org.jbpm.services.api.model.UserTaskInstanceWithPotOwnerDesc> queryUserTasksByVariables(List<QueryParam> attributes,
+                                                                                                        List<QueryParam> taskVariables,
+                                                                                                        List<QueryParam> processVariables,
+                                                                                                        QueryParam owners,
                                                                                                         QueryContext queryContext) {
 
         return queryUserTasksByVariables(translate(translateTable, attributes), processVariables, taskVariables, owners, PROCESS_TYPE, "", queryContext);

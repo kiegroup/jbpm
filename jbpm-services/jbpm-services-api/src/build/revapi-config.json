@@ -35,6 +35,24 @@
                     "methodName": "claim",
                     "elementKind": "method",
                     "justification": "https://issues.redhat.com/browse/JBPM-9786"
+                },
+                {
+                  "code": "java.method.addedToInterface",
+                  "new": "method java.util.List<org.jbpm.services.api.model.ProcessInstanceWithVarsDesc> org.jbpm.services.api.AdvanceRuntimeDataService::queryProcessByVariablesAndTask(java.util.List<org.jbpm.services.api.query.model.QueryParam>, java.util.List<org.jbpm.services.api.query.model.QueryParam>, java.util.List<org.jbpm.services.api.query.model.QueryParam>, org.jbpm.services.api.query.model.QueryParam, org.kie.api.runtime.query.QueryContext)",
+                  "package": "org.jbpm.services.api",
+                  "classSimpleName": "AdvanceRuntimeDataService",
+                  "methodName": "queryProcessByVariablesAndTask",
+                  "elementKind": "method",
+                  "justification": "[JBPM-9675] Allow query by potential owners with ALL or ANY operands"
+                },
+                {
+                  "code": "java.method.addedToInterface",
+                  "new": "method java.util.List<org.jbpm.services.api.model.UserTaskInstanceWithPotOwnerDesc> org.jbpm.services.api.AdvanceRuntimeDataService::queryUserTasksByVariables(java.util.List<org.jbpm.services.api.query.model.QueryParam>, java.util.List<org.jbpm.services.api.query.model.QueryParam>, java.util.List<org.jbpm.services.api.query.model.QueryParam>, org.jbpm.services.api.query.model.QueryParam, org.kie.api.runtime.query.QueryContext)",
+                  "package": "org.jbpm.services.api",
+                  "classSimpleName": "AdvanceRuntimeDataService",
+                  "methodName": "queryUserTasksByVariables",
+                  "elementKind": "method",
+                  "justification": "[JBPM-9675] Allow query by potential owners with ALL or ANY operands"
                 }
             ]
         }

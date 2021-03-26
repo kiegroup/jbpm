@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -68,15 +69,23 @@ public abstract class AbstractAdvanceRuntimeDataServiceImpl {
                                                                                                            derivedTables +
                                                                                                            " WHERE  pil.processType = :processType " + globalWhere;
         setDefaultSorting (queryContext, "pil.processInstanceId");
-        return queryProcessUserTasksByVariables(attributes, processVariables, emptyList(), emptyList(), processType, varPrefix, queryContext, mainSQLProducer, this::collectProcessData);
+        return queryProcessUserTasksByVariables(attributes, processVariables, emptyList(), null, processType, varPrefix, queryContext, mainSQLProducer, this::collectProcessData);
     }
 
-
+    protected List<org.jbpm.services.api.model.ProcessInstanceWithVarsDesc> queryProcessByVariablesAndTask(List<QueryParam> attributes,
+                                                                                                                      List<QueryParam> processVariables,
+                                                                                                                      List<QueryParam> taskVariables,
+                                                                                                                      List<String> owners,
+                                                                                                                      int processType,
+                                                                                                                      String varPrefix,
+                                                                                                                      QueryContext queryContext) {
+        return queryProcessByVariablesAndTask(attributes, processVariables, taskVariables, toOwnersQueryParam(owners), processType, varPrefix, queryContext);
+    }
 
     protected List<org.jbpm.services.api.model.ProcessInstanceWithVarsDesc> queryProcessByVariablesAndTask(List<QueryParam> attributes,
                                                                                                                   List<QueryParam> processVariables,
                                                                                                                   List<QueryParam> taskVariables,
-                                                                                                                  List<String> owners,
+                                                                                                                  QueryParam owners,
                                                                                                                   int processType,
                                                                                                                   String varPrefix,
                                                                                                                   QueryContext queryContext) {
@@ -107,6 +116,24 @@ public abstract class AbstractAdvanceRuntimeDataServiceImpl {
                                                                                                            int processType,
                                                                                                            String varPrefix,
                                                                                                            QueryContext queryContext) {
+
+        return queryUserTasksByVariables(attributes, processVariables, taskVariables, toOwnersQueryParam(owners), processType, varPrefix, queryContext);
+    }
+
+    private QueryParam toOwnersQueryParam(List<String> owners) {
+        if(owners == null || owners.isEmpty()) {
+            return null;
+        }
+        return new QueryParam(null, "ALL", owners);
+    }
+
+    protected List<org.jbpm.services.api.model.UserTaskInstanceWithPotOwnerDesc> queryUserTasksByVariables(List<QueryParam> attributes,
+                                                                                                           List<QueryParam> processVariables,
+                                                                                                           List<QueryParam> taskVariables,
+                                                                                                           QueryParam owners,
+                                                                                                           int processType,
+                                                                                                           String varPrefix,
+                                                                                                           QueryContext queryContext) {
         BiFunction<StringBuilder, StringBuilder, String> mainSQLProducer;
         Optional<QueryParam> param = findQueryParamMode(attributes);
         DataCollector<org.jbpm.services.api.model.UserTaskInstanceWithPotOwnerDesc> dataCollector;
@@ -118,7 +145,7 @@ public abstract class AbstractAdvanceRuntimeDataServiceImpl {
                                                               " WHERE  pil.processType = :processType " + globalWhere;
             dataCollector = this::collectHistoryUserTaskData;
             setDefaultSorting (queryContext, " task.taskId");
-           
+
         } else {
             mainSQLProducer = (derivedTables, globalWhere) -> "SELECT DISTINCT task.id " +
                                                               " FROM Task task " +
@@ -128,10 +155,10 @@ public abstract class AbstractAdvanceRuntimeDataServiceImpl {
             dataCollector = this::collectRuntimeUserTaskData;
             setDefaultSorting (queryContext, "task.id");
         }
-        
+
         return queryProcessUserTasksByVariables(attributes, processVariables, taskVariables, owners, processType, varPrefix, queryContext, mainSQLProducer, dataCollector);
     }
-    
+
     private void setDefaultSorting (QueryContext queryContext, String orderBy) {
         if (queryContext.getOrderBy() == null) {
             queryContext.setOrderBy(orderBy);
@@ -155,7 +182,7 @@ public abstract class AbstractAdvanceRuntimeDataServiceImpl {
     protected <R> List<R> queryProcessUserTasksByVariables(List<QueryParam> attributesArg,
                                                            List<QueryParam> processVariablesArg,
                                                            List<QueryParam> taskVariablesArg,
-                                                           List<String> ownersArg,
+                                                           QueryParam ownersArg,
                                                            int processType,
                                                            String varPrefix,
                                                            QueryContext queryContext,
@@ -163,12 +190,8 @@ public abstract class AbstractAdvanceRuntimeDataServiceImpl {
                                                            DataCollector<R> dataCollector) {
 
         List<QueryParam> attributes = new ArrayList<>(attributesArg != null ? attributesArg : emptyList());
-        attributes.removeIf(param -> param.getOperator().equals("MODE"));
-        attributes.removeIf(param -> param.getOperator().equals("EXCLUDE"));
-
         List<QueryParam> processVariables = processVariablesArg != null ? processVariablesArg : emptyList();
         List<QueryParam> taskVariables = taskVariablesArg != null ? taskVariablesArg : emptyList();
-        List<String> owners = ownersArg != null ? ownersArg : emptyList();
 
         StringBuilder globalWhere = new StringBuilder();
         StringBuilder derivedTables = new StringBuilder();
@@ -195,23 +218,35 @@ public abstract class AbstractAdvanceRuntimeDataServiceImpl {
                                  ") TABLE_PROC_VAR ON TABLE_PROC_VAR.processInstanceId = pil.processInstanceId \n");
         }
 
-        if (!owners.isEmpty()) {
-            derivedTables.append("INNER JOIN ( \n" +
-                             "           SELECT DISTINCT po.task_id \n" +
-                             "           FROM PeopleAssignments_PotOwners po \n" +
-                             "           WHERE po.entity_id IN (:owners) \n" +
-                             "           GROUP BY po.task_id \n" +
-                             "           HAVING COUNT(po.entity_id) = :num_owners \n" +
-                                 ") pot ON pot.task_id = task.id ");
+        Boolean exclusiveQuery = isExclusiveQuery(ownersArg);
+        if (ownersArg != null) {
+            if (exclusiveQuery) {
+                derivedTables.append("INNER JOIN ( \n" +
+                        "           SELECT DISTINCT po.task_id \n" +
+                        "           FROM PeopleAssignments_PotOwners po \n" +
+                        "           WHERE po.entity_id IN (:owners) \n" +
+                        "           GROUP BY po.task_id \n" +
+                        "           HAVING COUNT(po.entity_id) = :num_owners \n" +
+                        ") pot ON pot.task_id = task.id ");
+            } else {
+                derivedTables.append("INNER JOIN ( \n" +
+                        "           SELECT DISTINCT po.task_id \n" +
+                        "           FROM PeopleAssignments_PotOwners po \n" +
+                        "           WHERE po.entity_id IN (:owners) \n" +
+                        "           GROUP BY po.task_id \n" +
+                        ") pot ON pot.task_id = task.id ");
+            }
         }
 
+        attributes.removeIf(param -> param.getOperator().equals("MODE"));
+        attributes.removeIf(param -> param.getOperator().equals("EXCLUDE"));
         attributes.stream().forEach((expr) -> globalWhere.append(" AND " + computeExpression(expr, expr.getColumn(), ":ATTR_" + expr.getColumn())));
 
         String procSQLString = mainSQLproducer.apply(derivedTables, globalWhere);
-        
-       
+
+
         procSQLString += " ORDER BY " + queryContext.getOrderBy() + (queryContext.isAscending().booleanValue() ? " ASC" : " DESC");
-        
+
         List<Number> ids = emptyList();
         EntityManager entityManager = emf.createEntityManager();
         try {
@@ -244,10 +279,12 @@ public abstract class AbstractAdvanceRuntimeDataServiceImpl {
                 query.setParameter("NUMBER_OF_PROCVARS", processVariables.stream().map(QueryParam::getColumn).distinct().count());
             }
 
-            if (!owners.isEmpty()) {
-                List<String> distinctOwners = owners.stream().distinct().collect(toList());
-                query.setParameter("num_owners", distinctOwners.size());
+            if (ownersArg != null) {
+                List<String> distinctOwners = ((List<String>) ownersArg.getValue()).stream().distinct().collect(Collectors.toList());
                 query.setParameter("owners", distinctOwners);
+                if (exclusiveQuery) {
+                    query.setParameter("num_owners", distinctOwners.size());
+                }
             }
 
             attributes.stream().filter(e -> e.getObjectValue() != null).forEach(entry -> query.setParameter("ATTR_" + entry.getColumn(), entry.getObjectValue()));
@@ -354,6 +391,23 @@ public abstract class AbstractAdvanceRuntimeDataServiceImpl {
                 return leftOperand + " LIKE " + rightOperand + " ";
             default:
                 throw new UnsupportedOperationException("Queryparam: " + expr + " not supported");
+        }
+    }
+
+    private Boolean isExclusiveQuery(QueryParam ownersArg) {
+        if (ownersArg == null) {
+            return null;
+        }
+        if (ownersArg.getValue() == null || ownersArg.getValue().isEmpty()) {
+            throw new UnsupportedOperationException("QueryParam Values for pot-owners must not be empty");
+        }
+        switch (ownersArg.getOperator()) {
+            case "ALL":
+                return true;
+            case "ANY":
+                return false;
+            default:
+                throw new UnsupportedOperationException("QueryParam Operator for pot-owners: " + ownersArg.getOperator() + " not supported");
         }
     }
 

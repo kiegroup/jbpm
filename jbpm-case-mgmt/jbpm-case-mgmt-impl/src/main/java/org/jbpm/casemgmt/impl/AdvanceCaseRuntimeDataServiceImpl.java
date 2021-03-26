@@ -60,6 +60,15 @@ public class AdvanceCaseRuntimeDataServiceImpl extends AbstractAdvanceRuntimeDat
     }
 
     @Override
+    public List<org.jbpm.services.api.model.ProcessInstanceWithVarsDesc> queryCaseByVariablesAndTask(List<QueryParam> attributes,
+                                                                                                     List<QueryParam> taskVariables,
+                                                                                                     List<QueryParam> caseVariables,
+                                                                                                     QueryParam owners,
+                                                                                                     QueryContext queryContext) {
+        return queryProcessByVariablesAndTask(translate(translateTable, attributes), caseVariables, taskVariables, owners, CASE_TYPE, CASE_FILE_PREFIX, queryContext);
+    }
+
+    @Override
     public List<org.jbpm.services.api.model.UserTaskInstanceWithPotOwnerDesc> queryUserTasksByVariables(List<QueryParam> attributes,
                                                                                                         List<QueryParam> taskVariables,
                                                                                                         List<QueryParam> caseVariables,
@@ -69,5 +78,13 @@ public class AdvanceCaseRuntimeDataServiceImpl extends AbstractAdvanceRuntimeDat
         return queryUserTasksByVariables(translate(translateTable, attributes), caseVariables, taskVariables, owners, CASE_TYPE, CASE_FILE_PREFIX, queryContext);
     }
 
+    @Override
+    public List<org.jbpm.services.api.model.UserTaskInstanceWithPotOwnerDesc> queryUserTasksByVariables(List<QueryParam> attributes,
+                                                                                                        List<QueryParam> taskVariables,
+                                                                                                        List<QueryParam> caseVariables,
+                                                                                                        QueryParam owners,
+                                                                                                        QueryContext queryContext) {
 
+        return queryUserTasksByVariables(translate(translateTable, attributes), caseVariables, taskVariables, owners, CASE_TYPE, CASE_FILE_PREFIX, queryContext);
+    }
 }
