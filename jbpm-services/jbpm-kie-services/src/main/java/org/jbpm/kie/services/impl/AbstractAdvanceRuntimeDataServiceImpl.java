@@ -427,22 +427,23 @@ public abstract class AbstractAdvanceRuntimeDataServiceImpl {
         return new UserTaskInstanceWithPotOwnerDesc(
                                                     ((Number) row[0]).longValue(), // id
                                                     (String) row[1], // task name
-                                                    (String) row[2], // formName
-                                                    (String) row[3], // subject
-                                                    (String) row[4], // actualOwner_id
+                                                    (String) row[2], // task description
+                                                    (String) row[3], // formName
+                                                    (String) row[4], // subject
+                                                    (String) row[5], // actualOwner_id
                                                     (String) null, // potOwner
-                                                    (String) row[5], // correlationKey
-                                                    (Date) row[6], // createdOn
-                                                    (String) row[7], // createdBy
-                                                    (Date) row[8], // expiration time
+                                                    (String) row[6], // correlationKey
+                                                    (Date) row[7], // createdOn
+                                                    (String) row[8], // createdBy
+                                                    (Date) row[9], // expiration time
                                                     (Date) null, // lastModificationDate
                                                     (String) null, // lastModificationUser
-                                                    ((Number) row[9]).intValue(), //priority
-                                                    ((String) row[10]), // Status
-                                                    ((Number) row[11]).longValue(), // processInstanceId
-                                                    (String) row[12], // processId
-                                                    (String) row[13], // deployment Id
-                                                    (String) row[14] // instance description
+                                                    ((Number) row[10]).intValue(), //priority
+                                                    ((String) row[11]), // Status
+                                                    ((Number) row[12]).longValue(), // processInstanceId
+                                                    (String) row[13], // processId
+                                                    (String) row[14], // deployment Id
+                                                    (String) row[15] // instance description
         );
     }
 
@@ -450,22 +451,23 @@ public abstract class AbstractAdvanceRuntimeDataServiceImpl {
         return new UserTaskInstanceWithPotOwnerDesc(
                                                     ((Number) row[0]).longValue(), // id
                                                     (String) row[1], // task name
+                                                    (String) row[2], // task description
                                                     (String) null, // formName
                                                     (String) null, // subject
-                                                    (String) row[2], // actualOwner_id
+                                                    (String) row[3], // actualOwner_id
                                                     (String) null, // potOwner
-                                                    (String) row[3], // correlationKey
-                                                    (Date) row[4], // createdOn
-                                                    (String) row[5], // createdBy
+                                                    (String) row[4], // correlationKey
+                                                    (Date) row[5], // createdOn
+                                                    (String) row[6], // createdBy
                                                     (Date) null, // expiration time
                                                     (Date) null, // lastModificationDate
                                                     (String) null, // lastModificationUser
                                                     (Integer) null, //priority
-                                                    (String) row[6], // Status
-                                                    ((Number) row[7]).longValue(), // processInstanceId
-                                                    (String) row[8], // processId
-                                                    (String) row[9], // deployment Id
-                                                    (String) row[10] // instance description
+                                                    (String) row[7], // Status
+                                                    ((Number) row[8]).longValue(), // processInstanceId
+                                                    (String) row[9], // processId
+                                                    (String) row[10], // deployment Id
+                                                    (String) row[11] // instance description
         );
     }
 
