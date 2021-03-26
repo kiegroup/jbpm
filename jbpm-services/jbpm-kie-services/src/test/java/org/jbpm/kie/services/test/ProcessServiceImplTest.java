@@ -182,7 +182,7 @@ public class ProcessServiceImplTest extends AbstractKieServicesBaseTest {
 
         Map<String, Object> params = new HashMap<>();
 
-        Map<String,Object> outcome= processService.startSynchronousProcess(deploymentUnit.getIdentifier(), "SynchronousProcess", params);
+        Map<String,Object> outcome= processService.computeProcessOutcome(deploymentUnit.getIdentifier(), "SynchronousProcess", params);
         assertNotNull(outcome);
         assertEquals("bye", outcome.get("name"));
 
