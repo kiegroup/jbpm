@@ -55,14 +55,14 @@ public interface ProcessService {
     
 
     /**
-     * Synchronous process are those which start and finish in the same transaction. This functionality allows
-     * to retrieve the last outcome of process variables
+     * compute the process outcome for those process designed to start and finish in the same transaction. This functionality allows
+     * to retrieve the outcome of process variables
      * @param deploymentId deployment information for the process's kjar
      * @param processId the process identifier
      * @param params process variables
      * @return last modification of process variables.
      */
-    Map<String, Object> startSynchronousProcess(String deploymentId, String processId, Map<String, Object> params);
+    Map<String, Object> computeProcessOutcome(String deploymentId, String processId, Map<String, Object> params);
     
 	/**
 	 * Starts a process with no variables

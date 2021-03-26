@@ -134,7 +134,7 @@ public class ProcessServiceImpl implements ProcessService, VariablesAware {
 
 
     @Override
-    public Map<String, Object> startSynchronousProcess(String deploymentId, String processId, Map<String, Object> params) {
+    public Map<String, Object> computeProcessOutcome(String deploymentId, String processId, Map<String, Object> params) {
         DeployedUnit deployedUnit = deploymentService.getDeployedUnit(deploymentId);
         if (deployedUnit == null) {
             throw new DeploymentNotFoundException("No deployments available for " + deploymentId);

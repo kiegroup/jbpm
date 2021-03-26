@@ -47,10 +47,10 @@
                 },
                 {
                     "code": "java.method.addedToInterface",
-                    "new": "method java.util.Map<java.lang.String, java.lang.Object> org.jbpm.services.api.ProcessService::startSynchronousProcess(java.lang.String, java.lang.String, java.util.Map<java.lang.String, java.lang.Object>)",
+                    "new": "method java.util.Map<java.lang.String, java.lang.Object> org.jbpm.services.api.ProcessService::computeProcessOutcome(java.lang.String, java.lang.String, java.util.Map<java.lang.String, java.lang.Object>)",
                     "package": "org.jbpm.services.api",
                     "classSimpleName": "ProcessService",
-                    "methodName": "startSynchronousProcess",
+                    "methodName": "computeProcessOutcome",
                     "elementKind": "method",
                     "justification": "[JBPM-9624] Return the process variables for synchronous execution use cases"
                 },
