@@ -100,6 +100,7 @@ public class UserTaskInstanceWithModifVarsQueryMapper extends AbstractQueryMappe
         UserTaskInstanceWithPotOwnerDesc customUserTask = new org.jbpm.kie.services.impl.model.UserTaskInstanceWithPotOwnerDesc(
             getColumnLongValue(dataSetResult, COLUMN_TASKID, index),//taskId,
             getColumnStringValue(dataSetResult, COLUMN_NAME, index),//name,
+            getColumnStringValue(dataSetResult, COLUMN_DESCRIPTION, index),//description,
             getColumnStringValue(dataSetResult, COLUMN_FORM_NAME, index),//forname,
             getColumnStringValue(dataSetResult, COLUMN_SUBJECT, index),//subject,
             getColumnStringValue(dataSetResult, COLUMN_ACTUALOWNER, index),//actualOwner,
