@@ -615,6 +615,14 @@ public abstract class AbstractProcessInstanceMarshaller implements
                 break;
             case PersisterEnums.FOR_EACH_NODE_INSTANCE:
                 nodeInstance = new ForEachNodeInstance();
+                nbTimerInstances = context.readInt();
+                if (nbTimerInstances > 0) {
+                    List<Long> timerInstances = new ArrayList<Long>();
+                    for (int i = 0; i < nbTimerInstances; i++) {
+                        timerInstances.add(context.readLong());
+                    }
+                    ((CompositeContextNodeInstance) nodeInstance).internalSetTimerInstances(timerInstances);
+                }
                 break;
             case PersisterEnums.DYNAMIC_NODE_INSTANCE:
                 nodeInstance = new DynamicNodeInstance();
