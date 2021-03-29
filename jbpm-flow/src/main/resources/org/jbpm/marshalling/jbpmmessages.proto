@@ -139,6 +139,7 @@ message ProcessInstance {
             repeated Variable variable = 2;
             repeated IterationLevel iterationLevels = 3;
             optional int32 sequential_counter = 4;
+            repeated int64 timer_instance_id = 5;
         }
         message AsyncEventNode {
             optional string event_type = 1;
