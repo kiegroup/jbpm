@@ -602,7 +602,7 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
         List<String> names = getNotTriggeredNodes(processInstanceId, nodeNames);
         assertTrue(Arrays.equals(names.toArray(), nodeNames));
     }
-    
+
     public int getNumberOfNodeTriggered(long processInstanceId,
             String node) {
         int counter = 0;

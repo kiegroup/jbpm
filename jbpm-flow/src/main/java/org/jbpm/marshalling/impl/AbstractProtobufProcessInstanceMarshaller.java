@@ -343,6 +343,13 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
         } else if ( nodeInstance instanceof ForEachNodeInstance ) {
             JBPMMessages.ProcessInstance.NodeInstanceContent.ForEachNode.Builder _foreach = JBPMMessages.ProcessInstance.NodeInstanceContent.ForEachNode.newBuilder();
             ForEachNodeInstance forEachNodeInstance = (ForEachNodeInstance) nodeInstance;
+            List<Long> timerInstances = ((CompositeContextNodeInstance) nodeInstance).getTimerInstances();
+            if ( timerInstances != null ) {
+                for ( Long id : timerInstances ) {
+                    _foreach.addTimerInstanceId( id );
+                }
+            }
+ 
             List<NodeInstance> nodeInstances = new ArrayList<NodeInstance>( forEachNodeInstance.getNodeInstances() );
             Collections.sort( nodeInstances,
                               new Comparator<NodeInstance>() {
@@ -802,6 +809,13 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
             case FOR_EACH_NODE :
                 nodeInstance = new ForEachNodeInstance();
                 ((ForEachNodeInstance) nodeInstance).setInternalSequentialCounter(_content.getForEach().getSequentialCounter());
+                if ( _content.getForEach().getTimerInstanceIdCount() > 0 ) {
+                    List<Long> timerInstances = new ArrayList<Long>();
+                    for ( Long _timerId : _content.getForEach().getTimerInstanceIdList() ) {
+                        timerInstances.add( _timerId );
+                    }
+                    ((CompositeContextNodeInstance) nodeInstance).internalSetTimerInstances( timerInstances );
+                }   
                 break;
             case COMPOSITE_CONTEXT_NODE :
                 nodeInstance = new CompositeContextNodeInstance();

@@ -439,14 +439,14 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
         }
         
         if (cancelActivity) {
-            List<DroolsAction> actions = ((EventNode)node).getActions(EndNode.EVENT_NODE_EXIT);
+            List<DroolsAction> actions = ((EventNode)node).getActions(EndNode.EVENT_NODE_BOUNDARY);
             if (actions == null) {
                 actions = new ArrayList<DroolsAction>();
             }
             DroolsConsequenceAction cancelAction =  new DroolsConsequenceAction("java", null);
             cancelAction.setMetaData("Action", new CancelNodeInstanceAction(attachedTo));
             actions.add(cancelAction);
-            ((EventNode)node).setActions(EndNode.EVENT_NODE_EXIT, actions);
+            ((EventNode)node).setActions(EndNode.EVENT_NODE_BOUNDARY, actions);
         }   
     }
     
@@ -477,7 +477,7 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
         }
 
 
-        List<DroolsAction> actions = ((EventNode) node).getActions(EndNode.EVENT_NODE_EXIT);
+        List<DroolsAction> actions = ((EventNode) node).getActions(EndNode.EVENT_NODE_BOUNDARY);
         if (actions == null) {
             actions = new ArrayList<DroolsAction>();
         }
@@ -485,7 +485,7 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
         cancelAction.setMetaData("Action", new CancelNodeInstanceAction(attachedTo));
         actions.add(cancelAction);
         
-        ((EventNode)node).setActions(EndNode.EVENT_NODE_EXIT, actions);
+        ((EventNode)node).setActions(EndNode.EVENT_NODE_BOUNDARY, actions);
         
     }
     
@@ -534,14 +534,14 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
         }
         
         if (cancelActivity) {
-            List<DroolsAction> actions = ((EventNode)node).getActions(EndNode.EVENT_NODE_EXIT);
+            List<DroolsAction> actions = ((EventNode)node).getActions(EndNode.EVENT_NODE_BOUNDARY);
             if (actions == null) {
                 actions = new ArrayList<DroolsAction>();
             }
             DroolsConsequenceAction cancelAction =  new DroolsConsequenceAction("java", null);
             cancelAction.setMetaData("Action", new CancelNodeInstanceAction(attachedTo));
             actions.add(cancelAction);
-            ((EventNode)node).setActions(EndNode.EVENT_NODE_EXIT, actions);
+            ((EventNode)node).setActions(EndNode.EVENT_NODE_BOUNDARY, actions);
         }
     }
     
@@ -567,14 +567,14 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
     private static void linkBoundarySignalEvent(NodeContainer nodeContainer, Node node, String attachedTo, Node attachedNode) {
         boolean cancelActivity = (Boolean) node.getMetaData().get("CancelActivity");
         if (cancelActivity) {
-            List<DroolsAction> actions = ((EventNode)node).getActions(EndNode.EVENT_NODE_EXIT);
+            List<DroolsAction> actions = ((EventNode)node).getActions(EndNode.EVENT_NODE_BOUNDARY);
             if (actions == null) {
                 actions = new ArrayList<DroolsAction>();
             }
             DroolsConsequenceAction action =  new DroolsConsequenceAction("java", null);
             action.setMetaData("Action", new CancelNodeInstanceAction(attachedTo));
             actions.add(action);
-            ((EventNode)node).setActions(EndNode.EVENT_NODE_EXIT, actions);
+            ((EventNode)node).setActions(EndNode.EVENT_NODE_BOUNDARY, actions);
         }
     }
     
@@ -584,14 +584,14 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
         ((EventTypeFilter) ((EventNode) node).getEventFilters().get(0)).setType(eventType);
         boolean cancelActivity = (Boolean) node.getMetaData().get("CancelActivity");
         if (cancelActivity) {
-            List<DroolsAction> actions = ((EventNode)node).getActions(EndNode.EVENT_NODE_EXIT);
+            List<DroolsAction> actions = ((EventNode)node).getActions(EndNode.EVENT_NODE_BOUNDARY);
             if (actions == null) {
                 actions = new ArrayList<DroolsAction>();
             }
             DroolsConsequenceAction action =  new DroolsConsequenceAction("java", null);
             action.setMetaData("Action", new CancelNodeInstanceAction(attachedTo));
             actions.add(action);
-            ((EventNode)node).setActions(EndNode.EVENT_NODE_EXIT, actions);
+            ((EventNode)node).setActions(EndNode.EVENT_NODE_BOUNDARY, actions);
         }
     }
     

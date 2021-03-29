@@ -20,12 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.drools.core.time.TimerService;
-import org.drools.core.time.impl.DefaultTimerJobInstance;
-import org.drools.core.time.impl.TimerJobInstance;
-import org.jbpm.process.instance.InternalProcessRuntime;
-import org.jbpm.process.instance.timer.TimerInstance;
-import org.jbpm.process.instance.timer.TimerManager;
+import org.jbpm.workflow.core.impl.ExtendedNodeImpl;
 import org.jbpm.workflow.core.node.BoundaryEventNode;
 import org.jbpm.workflow.core.node.DataAssociation;
 import org.jbpm.workflow.instance.NodeInstanceContainer;
@@ -39,7 +34,7 @@ public class BoundaryEventNodeInstance extends EventNodeInstance {
     @Override
     public void signalEvent(String type, Object event) {
         BoundaryEventNode boundaryNode = getEventNode();
-        
+
         String attachedTo = boundaryNode.getAttachedToNodeId();
         Collection<NodeInstance> nodeInstances = ((NodeInstanceContainer) getNodeInstanceContainer()).getNodeInstances();
         if( type != null && type.startsWith("Compensation") ) { 
@@ -86,7 +81,7 @@ public class BoundaryEventNodeInstance extends EventNodeInstance {
 
             mapOutputSetVariables(this, getEventNode().getOutAssociations(), outputData);
         }
-
+        triggerEvent(ExtendedNodeImpl.EVENT_NODE_BOUNDARY);
         super.triggerCompleted();
     }
 
