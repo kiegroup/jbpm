@@ -2168,6 +2168,31 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
         assertProcessInstanceFinished(processInstance, ksession);
     }
 
+    @Test
+    public void testBoundaryTimerMultipleHumanTaskInstances() throws Exception {
+        NodeLeftCountDownProcessEventListener countDownListener = new NodeLeftCountDownProcessEventListener("end1", 1);
+        KieBase kbase = createKnowledgeBaseWithoutDumper("BPMN2-MultiInstanceLoopHumanTaskWithBoundaryTimer.bpmn2");
+
+        ksession = createKnowledgeSession(kbase);
+        ksession.addEventListener(countDownListener);
+        TestWorkItemHandler handler = new TestWorkItemHandler();
+
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task", handler);
+        ProcessInstance processInstance = ksession.startProcess("simple.parallel");
+        assertProcessInstanceActive(processInstance);
+
+        countDownListener.waitTillCompleted(5000L);
+
+        List<WorkItem> workItems = handler.getWorkItems();
+        assertThat(workItems).isNotNull();
+        assertThat(workItems.size()).isEqualTo(3);
+
+        assertThat(handler.getAbortedWorkItems().size()).isEqualTo(3);
+        assertNotNodeTriggered(processInstance.getId(), "end2");
+
+        assertProcessInstanceFinished(processInstance, ksession);
+    }
+
     @Test(timeout=10000)
     public void testIntermediateCatchEventTimerCycleCron() throws Exception {
         NodeLeftCountDownProcessEventListener countDownListener = new NodeLeftCountDownProcessEventListener("timer", 3);

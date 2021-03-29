@@ -26,6 +26,7 @@ import org.kie.api.definition.process.NodeType;
 public abstract class ExtendedNodeImpl extends NodeImpl {
 	
 	public static final String EVENT_NODE_ENTER = "onEntry";
+	public static final String EVENT_NODE_BOUNDARY = "onBoundary";
 	public static final String EVENT_NODE_EXIT = "onExit";
 	
     protected ExtendedNodeImpl(NodeType nodeType) {

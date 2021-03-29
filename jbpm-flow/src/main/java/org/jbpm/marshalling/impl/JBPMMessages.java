@@ -11490,6 +11490,19 @@ public final class JBPMMessages {
          * <code>optional int32 sequential_counter = 4;</code>
          */
         int getSequentialCounter();
+
+        /**
+         * <code>repeated int64 timer_instance_id = 5;</code>
+         */
+        java.util.List<java.lang.Long> getTimerInstanceIdList();
+        /**
+         * <code>repeated int64 timer_instance_id = 5;</code>
+         */
+        int getTimerInstanceIdCount();
+        /**
+         * <code>repeated int64 timer_instance_id = 5;</code>
+         */
+        long getTimerInstanceId(int index);
       }
       /**
        * Protobuf type {@code org.jbpm.marshalling.ProcessInstance.NodeInstanceContent.ForEachNode}
@@ -11572,6 +11585,27 @@ public final class JBPMMessages {
                   sequentialCounter_ = input.readInt32();
                   break;
                 }
+                case 40: {
+                  if (!((mutable_bitField0_ & 0x00000010) == 0x00000010)) {
+                    timerInstanceId_ = new java.util.ArrayList<java.lang.Long>();
+                    mutable_bitField0_ |= 0x00000010;
+                  }
+                  timerInstanceId_.add(input.readInt64());
+                  break;
+                }
+                case 42: {
+                  int length = input.readRawVarint32();
+                  int limit = input.pushLimit(length);
+                  if (!((mutable_bitField0_ & 0x00000010) == 0x00000010) && input.getBytesUntilLimit() > 0) {
+                    timerInstanceId_ = new java.util.ArrayList<java.lang.Long>();
+                    mutable_bitField0_ |= 0x00000010;
+                  }
+                  while (input.getBytesUntilLimit() > 0) {
+                    timerInstanceId_.add(input.readInt64());
+                  }
+                  input.popLimit(limit);
+                  break;
+                }
               }
             }
           } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -11588,6 +11622,9 @@ public final class JBPMMessages {
             }
             if (((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
               iterationLevels_ = java.util.Collections.unmodifiableList(iterationLevels_);
+            }
+            if (((mutable_bitField0_ & 0x00000010) == 0x00000010)) {
+              timerInstanceId_ = java.util.Collections.unmodifiableList(timerInstanceId_);
             }
             this.unknownFields = unknownFields.build();
             makeExtensionsImmutable();
@@ -11741,11 +11778,34 @@ public final class JBPMMessages {
           return sequentialCounter_;
         }
 
+        public static final int TIMER_INSTANCE_ID_FIELD_NUMBER = 5;
+        private java.util.List<java.lang.Long> timerInstanceId_;
+        /**
+         * <code>repeated int64 timer_instance_id = 5;</code>
+         */
+        public java.util.List<java.lang.Long>
+            getTimerInstanceIdList() {
+          return timerInstanceId_;
+        }
+        /**
+         * <code>repeated int64 timer_instance_id = 5;</code>
+         */
+        public int getTimerInstanceIdCount() {
+          return timerInstanceId_.size();
+        }
+        /**
+         * <code>repeated int64 timer_instance_id = 5;</code>
+         */
+        public long getTimerInstanceId(int index) {
+          return timerInstanceId_.get(index);
+        }
+
         private void initFields() {
           nodeInstance_ = java.util.Collections.emptyList();
           variable_ = java.util.Collections.emptyList();
           iterationLevels_ = java.util.Collections.emptyList();
           sequentialCounter_ = 0;
+          timerInstanceId_ = java.util.Collections.emptyList();
         }
         private byte memoizedIsInitialized = -1;
         public final boolean isInitialized() {
@@ -11772,6 +11832,9 @@ public final class JBPMMessages {
           if (((bitField0_ & 0x00000001) == 0x00000001)) {
             output.writeInt32(4, sequentialCounter_);
           }
+          for (int i = 0; i < timerInstanceId_.size(); i++) {
+            output.writeInt64(5, timerInstanceId_.get(i));
+          }
           getUnknownFields().writeTo(output);
         }
 
@@ -11796,6 +11859,15 @@ public final class JBPMMessages {
           if (((bitField0_ & 0x00000001) == 0x00000001)) {
             size += com.google.protobuf.CodedOutputStream
               .computeInt32Size(4, sequentialCounter_);
+          }
+          {
+            int dataSize = 0;
+            for (int i = 0; i < timerInstanceId_.size(); i++) {
+              dataSize += com.google.protobuf.CodedOutputStream
+                .computeInt64SizeNoTag(timerInstanceId_.get(i));
+            }
+            size += dataSize;
+            size += 1 * getTimerInstanceIdList().size();
           }
           size += getUnknownFields().getSerializedSize();
           memoizedSerializedSize = size;
@@ -11937,6 +12009,8 @@ public final class JBPMMessages {
             }
             sequentialCounter_ = 0;
             bitField0_ = (bitField0_ & ~0x00000008);
+            timerInstanceId_ = java.util.Collections.emptyList();
+            bitField0_ = (bitField0_ & ~0x00000010);
             return this;
           }
 
@@ -11996,6 +12070,11 @@ public final class JBPMMessages {
               to_bitField0_ |= 0x00000001;
             }
             result.sequentialCounter_ = sequentialCounter_;
+            if (((bitField0_ & 0x00000010) == 0x00000010)) {
+              timerInstanceId_ = java.util.Collections.unmodifiableList(timerInstanceId_);
+              bitField0_ = (bitField0_ & ~0x00000010);
+            }
+            result.timerInstanceId_ = timerInstanceId_;
             result.bitField0_ = to_bitField0_;
             onBuilt();
             return result;
@@ -12092,6 +12171,16 @@ public final class JBPMMessages {
             }
             if (other.hasSequentialCounter()) {
               setSequentialCounter(other.getSequentialCounter());
+            }
+            if (!other.timerInstanceId_.isEmpty()) {
+              if (timerInstanceId_.isEmpty()) {
+                timerInstanceId_ = other.timerInstanceId_;
+                bitField0_ = (bitField0_ & ~0x00000010);
+              } else {
+                ensureTimerInstanceIdIsMutable();
+                timerInstanceId_.addAll(other.timerInstanceId_);
+              }
+              onChanged();
             }
             this.mergeUnknownFields(other.getUnknownFields());
             return this;
@@ -12868,6 +12957,72 @@ public final class JBPMMessages {
           public Builder clearSequentialCounter() {
             bitField0_ = (bitField0_ & ~0x00000008);
             sequentialCounter_ = 0;
+            onChanged();
+            return this;
+          }
+
+          private java.util.List<java.lang.Long> timerInstanceId_ = java.util.Collections.emptyList();
+          private void ensureTimerInstanceIdIsMutable() {
+            if (!((bitField0_ & 0x00000010) == 0x00000010)) {
+              timerInstanceId_ = new java.util.ArrayList<java.lang.Long>(timerInstanceId_);
+              bitField0_ |= 0x00000010;
+             }
+          }
+          /**
+           * <code>repeated int64 timer_instance_id = 5;</code>
+           */
+          public java.util.List<java.lang.Long>
+              getTimerInstanceIdList() {
+            return java.util.Collections.unmodifiableList(timerInstanceId_);
+          }
+          /**
+           * <code>repeated int64 timer_instance_id = 5;</code>
+           */
+          public int getTimerInstanceIdCount() {
+            return timerInstanceId_.size();
+          }
+          /**
+           * <code>repeated int64 timer_instance_id = 5;</code>
+           */
+          public long getTimerInstanceId(int index) {
+            return timerInstanceId_.get(index);
+          }
+          /**
+           * <code>repeated int64 timer_instance_id = 5;</code>
+           */
+          public Builder setTimerInstanceId(
+              int index, long value) {
+            ensureTimerInstanceIdIsMutable();
+            timerInstanceId_.set(index, value);
+            onChanged();
+            return this;
+          }
+          /**
+           * <code>repeated int64 timer_instance_id = 5;</code>
+           */
+          public Builder addTimerInstanceId(long value) {
+            ensureTimerInstanceIdIsMutable();
+            timerInstanceId_.add(value);
+            onChanged();
+            return this;
+          }
+          /**
+           * <code>repeated int64 timer_instance_id = 5;</code>
+           */
+          public Builder addAllTimerInstanceId(
+              java.lang.Iterable<? extends java.lang.Long> values) {
+            ensureTimerInstanceIdIsMutable();
+            com.google.protobuf.AbstractMessageLite.Builder.addAll(
+                values, timerInstanceId_);
+            onChanged();
+            return this;
+          }
+          /**
+           * <code>repeated int64 timer_instance_id = 5;</code>
+           */
+          public Builder clearTimerInstanceId() {
+            timerInstanceId_ = java.util.Collections.emptyList();
+            bitField0_ = (bitField0_ & ~0x00000010);
             onChanged();
             return this;
           }
@@ -24366,7 +24521,7 @@ public final class JBPMMessages {
       "\n\'org/jbpm/marshalling/jbpmmessages.prot" +
       "o\022\024org.jbpm.marshalling\0326org/drools/seri" +
       "alization/protobuf/droolsmessages.proto\"" +
-      "\321\036\n\017ProcessInstance\022\024\n\014process_type\030\001 \001(" +
+      "\354\036\n\017ProcessInstance\022\024\n\014process_type\030\001 \001(" +
       "\t\022\n\n\002id\030\002 \001(\003\022\022\n\nprocess_id\030\003 \001(\t\022\r\n\005sta" +
       "te\030\004 \001(\005\022\035\n\025node_instance_counter\030\005 \001(\003\022" +
       "\023\n\013process_xml\030\013 \001(\t\022\"\n\032parent_process_i" +
@@ -24392,7 +24547,7 @@ public final class JBPMMessages {
       "\022\r\n\005level\030\005 \001(\005\022\024\n\014sla_timer_id\030\006 \001(\003\022\024\n" +
       "\014sla_due_date\030\007 \001(\003\022\026\n\016sla_compliance\030\010 " +
       "\001(\005\0328\n\026ExclusiveGroupInstance\022\036\n\026group_n" +
-      "ode_instance_id\030\001 \003(\003\032\200\024\n\023NodeInstanceCo",
+      "ode_instance_id\030\001 \003(\003\032\233\024\n\023NodeInstanceCo",
       "ntent\022D\n\004type\030\001 \001(\01626.org.jbpm.marshalli" +
       "ng.ProcessInstance.NodeInstanceType\022W\n\010r" +
       "ule_set\030\002 \001(\0132E.org.jbpm.marshalling.Pro" +
@@ -24449,54 +24604,55 @@ public final class JBPMMessages {
       "ance\022U\n\017exclusive_group\030\005 \003(\0132<.org.jbpm" +
       ".marshalling.ProcessInstance.ExclusiveGr" +
       "oupInstance\022=\n\017iterationLevels\030\006 \003(\0132$.o" +
-      "rg.jbpm.marshalling.IterationLevel\032\345\001\n\013F" +
+      "rg.jbpm.marshalling.IterationLevel\032\200\002\n\013F" +
       "orEachNode\022I\n\rnode_instance\030\001 \003(\01322.org." +
       "jbpm.marshalling.ProcessInstance.NodeIns" +
       "tance\0220\n\010variable\030\002 \003(\0132\036.org.jbpm.marsh",
       "alling.Variable\022=\n\017iterationLevels\030\003 \003(\013" +
       "2$.org.jbpm.marshalling.IterationLevel\022\032" +
-      "\n\022sequential_counter\030\004 \001(\005\032$\n\016AsyncEvent" +
-      "Node\022\022\n\nevent_type\030\001 \001(\t\"\250\002\n\020NodeInstanc" +
-      "eType\022\021\n\rRULE_SET_NODE\020\000\022\023\n\017HUMAN_TASK_N" +
-      "ODE\020\001\022\022\n\016WORK_ITEM_NODE\020\002\022\023\n\017SUBPROCESS_" +
-      "NODE\020\003\022\022\n\016MILESTONE_NODE\020\004\022\016\n\nEVENT_NODE" +
-      "\020\005\022\016\n\nTIMER_NODE\020\006\022\r\n\tJOIN_NODE\020\007\022\016\n\nSTA" +
-      "TE_NODE\020\010\022\032\n\026COMPOSITE_CONTEXT_NODE\020\t\022\021\n" +
-      "\rFOR_EACH_NODE\020\n\022\020\n\014DYNAMIC_NODE\020\013\022\031\n\025EV",
-      "ENT_SUBPROCESS_NODE\020\014\022\024\n\020ASYNC_EVENT_NOD" +
-      "E\020\r\"?\n\010Variable\022\014\n\004name\030\001 \001(\t\022\026\n\016strateg" +
-      "y_index\030\002 \001(\005\022\r\n\005value\030\003 \001(\014\"\305\001\n\010WorkIte" +
-      "m\022\n\n\002id\030\001 \001(\003\022\034\n\024process_instances_id\030\002 " +
-      "\001(\003\022\014\n\004name\030\003 \001(\t\022\r\n\005state\030\004 \001(\005\0220\n\010vari" +
-      "able\030\005 \003(\0132\036.org.jbpm.marshalling.Variab" +
-      "le\022\025\n\rdeployment_id\030\006 \001(\t\022\030\n\020node_instan" +
-      "ce_id\030\007 \001(\003\022\017\n\007node_id\030\010 \001(\003\"\374\002\n\014Process" +
-      "Timer\022?\n\005timer\030\001 \001(\01320.org.jbpm.marshall" +
-      "ing.ProcessTimer.TimerInstance\022;\n\007trigge",
-      "r\030\002 \001(\0132*.org.drools.serialization.proto" +
-      "buf.Trigger\032\355\001\n\rTimerInstance\022\n\n\002id\030\001 \001(" +
-      "\003\022\020\n\010timer_id\030\002 \001(\003\022\r\n\005delay\030\003 \001(\003\022\016\n\006pe" +
-      "riod\030\004 \001(\003\022\033\n\023process_instance_id\030\005 \001(\003\022" +
-      "\026\n\016activated_time\030\006 \001(\003\022\026\n\016last_triggere" +
-      "d\030\007 \001(\003\022\034\n\024DEPRECATED_sessionId\030\010 \001(\005\022\021\n" +
-      "\tsessionId\030\t \001(\003\022\023\n\013repeatLimit\030\n \001(\005\022\014\n" +
-      "\004name\030\013 \001(\t\"+\n\016IterationLevel\022\n\n\002id\030\001 \001(" +
-      "\t\022\r\n\005level\030\002 \001(\005\"E\n\021VariableContainer\0220\n" +
-      "\010variable\030\001 \003(\0132\036.org.jbpm.marshalling.V",
-      "ariable:o\n\020process_instance\022..org.drools" +
-      ".serialization.protobuf.ProcessData\030\n \003(" +
-      "\0132%.org.jbpm.marshalling.ProcessInstance" +
-      ":a\n\twork_item\022..org.drools.serialization" +
-      ".protobuf.ProcessData\030\013 \003(\0132\036.org.jbpm.m" +
-      "arshalling.WorkItem:@\n\010timer_id\022..org.dr" +
-      "ools.serialization.protobuf.ProcessData\030" +
-      "\r \001(\003:i\n\rprocess_timer\022..org.drools.seri" +
-      "alization.protobuf.ProcessData\030\014 \003(\0132\".o" +
-      "rg.jbpm.marshalling.ProcessTimer:g\n\nproc",
-      "_timer\022/.org.drools.serialization.protob" +
-      "uf.Timers.Timer\030d \001(\0132\".org.jbpm.marshal" +
-      "ling.ProcessTimerB)\n\031org.jbpm.marshallin" +
-      "g.implB\014JBPMMessages"
+      "\n\022sequential_counter\030\004 \001(\005\022\031\n\021timer_inst" +
+      "ance_id\030\005 \003(\003\032$\n\016AsyncEventNode\022\022\n\nevent" +
+      "_type\030\001 \001(\t\"\250\002\n\020NodeInstanceType\022\021\n\rRULE" +
+      "_SET_NODE\020\000\022\023\n\017HUMAN_TASK_NODE\020\001\022\022\n\016WORK" +
+      "_ITEM_NODE\020\002\022\023\n\017SUBPROCESS_NODE\020\003\022\022\n\016MIL" +
+      "ESTONE_NODE\020\004\022\016\n\nEVENT_NODE\020\005\022\016\n\nTIMER_N" +
+      "ODE\020\006\022\r\n\tJOIN_NODE\020\007\022\016\n\nSTATE_NODE\020\010\022\032\n\026" +
+      "COMPOSITE_CONTEXT_NODE\020\t\022\021\n\rFOR_EACH_NOD",
+      "E\020\n\022\020\n\014DYNAMIC_NODE\020\013\022\031\n\025EVENT_SUBPROCES" +
+      "S_NODE\020\014\022\024\n\020ASYNC_EVENT_NODE\020\r\"?\n\010Variab" +
+      "le\022\014\n\004name\030\001 \001(\t\022\026\n\016strategy_index\030\002 \001(\005" +
+      "\022\r\n\005value\030\003 \001(\014\"\305\001\n\010WorkItem\022\n\n\002id\030\001 \001(\003" +
+      "\022\034\n\024process_instances_id\030\002 \001(\003\022\014\n\004name\030\003" +
+      " \001(\t\022\r\n\005state\030\004 \001(\005\0220\n\010variable\030\005 \003(\0132\036." +
+      "org.jbpm.marshalling.Variable\022\025\n\rdeploym" +
+      "ent_id\030\006 \001(\t\022\030\n\020node_instance_id\030\007 \001(\003\022\017" +
+      "\n\007node_id\030\010 \001(\003\"\374\002\n\014ProcessTimer\022?\n\005time" +
+      "r\030\001 \001(\01320.org.jbpm.marshalling.ProcessTi",
+      "mer.TimerInstance\022;\n\007trigger\030\002 \001(\0132*.org" +
+      ".drools.serialization.protobuf.Trigger\032\355" +
+      "\001\n\rTimerInstance\022\n\n\002id\030\001 \001(\003\022\020\n\010timer_id" +
+      "\030\002 \001(\003\022\r\n\005delay\030\003 \001(\003\022\016\n\006period\030\004 \001(\003\022\033\n" +
+      "\023process_instance_id\030\005 \001(\003\022\026\n\016activated_" +
+      "time\030\006 \001(\003\022\026\n\016last_triggered\030\007 \001(\003\022\034\n\024DE" +
+      "PRECATED_sessionId\030\010 \001(\005\022\021\n\tsessionId\030\t " +
+      "\001(\003\022\023\n\013repeatLimit\030\n \001(\005\022\014\n\004name\030\013 \001(\t\"+" +
+      "\n\016IterationLevel\022\n\n\002id\030\001 \001(\t\022\r\n\005level\030\002 " +
+      "\001(\005\"E\n\021VariableContainer\0220\n\010variable\030\001 \003",
+      "(\0132\036.org.jbpm.marshalling.Variable:o\n\020pr" +
+      "ocess_instance\022..org.drools.serializatio" +
+      "n.protobuf.ProcessData\030\n \003(\0132%.org.jbpm." +
+      "marshalling.ProcessInstance:a\n\twork_item" +
+      "\022..org.drools.serialization.protobuf.Pro" +
+      "cessData\030\013 \003(\0132\036.org.jbpm.marshalling.Wo" +
+      "rkItem:@\n\010timer_id\022..org.drools.serializ" +
+      "ation.protobuf.ProcessData\030\r \001(\003:i\n\rproc" +
+      "ess_timer\022..org.drools.serialization.pro" +
+      "tobuf.ProcessData\030\014 \003(\0132\".org.jbpm.marsh",
+      "alling.ProcessTimer:g\n\nproc_timer\022/.org." +
+      "drools.serialization.protobuf.Timers.Tim" +
+      "er\030d \001(\0132\".org.jbpm.marshalling.ProcessT" +
+      "imerB)\n\031org.jbpm.marshalling.implB\014JBPMM" +
+      "essages"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -24618,7 +24774,7 @@ public final class JBPMMessages {
     internal_static_org_jbpm_marshalling_ProcessInstance_NodeInstanceContent_ForEachNode_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_org_jbpm_marshalling_ProcessInstance_NodeInstanceContent_ForEachNode_descriptor,
-        new java.lang.String[] { "NodeInstance", "Variable", "IterationLevels", "SequentialCounter", });
+        new java.lang.String[] { "NodeInstance", "Variable", "IterationLevels", "SequentialCounter", "TimerInstanceId", });
     internal_static_org_jbpm_marshalling_ProcessInstance_NodeInstanceContent_AsyncEventNode_descriptor =
       internal_static_org_jbpm_marshalling_ProcessInstance_NodeInstanceContent_descriptor.getNestedTypes().get(11);
     internal_static_org_jbpm_marshalling_ProcessInstance_NodeInstanceContent_AsyncEventNode_fieldAccessorTable = new
