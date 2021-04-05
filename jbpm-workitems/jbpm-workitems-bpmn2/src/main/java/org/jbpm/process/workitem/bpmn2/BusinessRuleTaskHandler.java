@@ -43,7 +43,7 @@ import org.jbpm.process.workitem.core.util.service.WidService;
         defaultHandler = "mvel: new org.jbpm.process.workitem.bpmn2.BusinessRuleTaskHandler()",
         documentation = "${artifactId}/index.html",
         category = "${artifactId}",
-        icon = "BusinessRuleTask.png",
+        icon = "defaultbusinessruletaskicon.png",
         parameters = {
                 @WidParameter(name = "KieSessionName", required = true),
                 @WidParameter(name = "KieSessionType")

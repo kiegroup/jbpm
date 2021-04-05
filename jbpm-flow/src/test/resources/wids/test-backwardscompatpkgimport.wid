@@ -16,7 +16,7 @@ import org.drools.core.process.core.datatype.impl.type.*;
     ],
     "Result" : new ObjectDataType(),
     "displayName" : "MyFirstWorkItem",
-    "icon" : "defaultemailicon.gif"
+    "icon" : "defaultemailicon.png"
   ],
 
   [
@@ -34,6 +34,6 @@ import org.drools.core.process.core.datatype.impl.type.*;
       ],
       "Result" : new ObjectDataType(),
       "displayName" : "MySecondWorkItem",
-      "icon" : "defaultemailicon.gif"
+      "icon" : "defaultemailicon.png"
     ],
 ]

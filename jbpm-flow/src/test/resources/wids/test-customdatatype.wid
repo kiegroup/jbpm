@@ -16,7 +16,7 @@ import org.jbpm.util.CustomDataType;
     ],
     "Result" : new CustomDataType(),
     "displayName" : "MyFirstWorkItem",
-    "icon" : "defaultemailicon.gif"
+    "icon" : "defaultemailicon.png"
   ],
 
   [
@@ -34,6 +34,6 @@ import org.jbpm.util.CustomDataType;
       ],
       "Result" : new ObjectDataType(),
       "displayName" : "MySecondWorkItem",
-      "icon" : "defaultemailicon.gif"
+      "icon" : "defaultemailicon.png"
     ],
 ]

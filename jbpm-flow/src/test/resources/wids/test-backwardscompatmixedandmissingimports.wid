@@ -21,7 +21,7 @@ import org.jbpm.process.core.datatype.impl.type.SomeDataTypeThatDoesNotExist;
     ],
     "Result" : new ObjectDataType(),
     "displayName" : "MyFirstWorkItem",
-    "icon" : "defaultemailicon.gif"
+    "icon" : "defaultemailicon.png"
   ],
 
   [
@@ -39,6 +39,6 @@ import org.jbpm.process.core.datatype.impl.type.SomeDataTypeThatDoesNotExist;
       ],
       "Result" : new ObjectDataType(),
       "displayName" : "MySecondWorkItem",
-      "icon" : "defaultemailicon.gif"
+      "icon" : "defaultemailicon.png"
     ],
 ]
