@@ -403,7 +403,7 @@ public abstract class AbstractAdvanceRuntimeDataServiceImpl {
             case "LOWER_THAN":
                 return leftOperand + " < " + rightOperand;
             case "LOWER_OR_EQUALS_TO":
-                return leftOperand + " <= " + leftOperand;
+                return leftOperand + " <= " + rightOperand;
             case "BETWEEN":
                  if(expr.getValue().size() != 2) {
                     throw new IllegalArgumentException("BETWEEN operator requires 2 values. Received: " + expr.getValue().size());

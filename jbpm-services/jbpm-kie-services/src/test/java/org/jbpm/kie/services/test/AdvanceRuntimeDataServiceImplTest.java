@@ -18,14 +18,20 @@ package org.jbpm.kie.services.test;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.drools.compiler.kie.builder.impl.InternalKieModule;
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.MatcherAssert;
 import org.jbpm.kie.services.impl.KModuleDeploymentUnit;
 import org.jbpm.kie.test.util.AbstractKieServicesBaseTest;
 import org.jbpm.services.api.AdvanceRuntimeDataService;
@@ -63,14 +69,19 @@ import static org.jbpm.services.api.AdvanceRuntimeDataService.TASK_ATTR_NAME;
 import static org.jbpm.services.api.AdvanceRuntimeDataService.TASK_ATTR_OWNER;
 import static org.jbpm.services.api.query.model.QueryParam.all;
 import static org.jbpm.services.api.query.model.QueryParam.any;
+import static org.jbpm.services.api.query.model.QueryParam.between;
 import static org.jbpm.services.api.query.model.QueryParam.equalsTo;
 import static org.jbpm.services.api.query.model.QueryParam.exclude;
+import static org.jbpm.services.api.query.model.QueryParam.greaterOrEqualTo;
+import static org.jbpm.services.api.query.model.QueryParam.greaterThan;
 import static org.jbpm.services.api.query.model.QueryParam.history;
 import static org.jbpm.services.api.query.model.QueryParam.in;
 import static org.jbpm.services.api.query.model.QueryParam.isNotNull;
 import static org.jbpm.services.api.query.model.QueryParam.isNull;
 import static org.jbpm.services.api.query.model.QueryParam.likeTo;
 import static org.jbpm.services.api.query.model.QueryParam.list;
+import static org.jbpm.services.api.query.model.QueryParam.lowerOrEqualTo;
+import static org.jbpm.services.api.query.model.QueryParam.lowerThan;
 import static org.jbpm.services.api.query.model.QueryParam.notEqualsTo;
 import static org.jbpm.services.api.query.model.QueryParam.notIn;
 import static org.jbpm.services.api.query.model.QueryParam.type;
@@ -377,6 +388,48 @@ public class AdvanceRuntimeDataServiceImplTest extends AbstractKieServicesBaseTe
         for (UserTaskInstanceWithPotOwnerDesc p : data) {
             Assert.assertNotEquals("test.test_A", p.getProcessId());
         }
+    }
+
+    @Test
+    public void testQueryTaskCreatedOnDateRanges() {
+        List<QueryParam> attributes = emptyList();
+
+        List<String> potOwners = emptyList();
+        List<UserTaskInstanceWithPotOwnerDesc> data = advanceVariableDataService.queryUserTasksByVariables(attributes, emptyList(), emptyList(), potOwners, queryContext);
+        if (queryContext.getCount() > 0) {
+            assertThat(data.size(), is(queryContext.getCount()));
+            return;
+        } else {
+            assertThat(data.size(), is(20));
+        }
+
+        List<UserTaskInstanceWithPotOwnerDesc> sortedTasks = data.stream().sorted(Comparator.comparing(UserTaskInstanceDesc::getCreatedOn)).collect(Collectors.toList());
+        String column = "createdOn";
+
+        // Between
+        attributes = list(between(column, sortedTasks.get(0).getCreatedOn(), sortedTasks.get(10).getCreatedOn()));
+        data = advanceVariableDataService.queryUserTasksByVariables(attributes, emptyList(), emptyList(), potOwners, queryContext);
+        assertThat(data.size(), is(11));
+
+        // Greater than
+        attributes = list(greaterThan(column, sortedTasks.get(1).getCreatedOn()));
+        data = advanceVariableDataService.queryUserTasksByVariables(attributes, emptyList(), emptyList(), potOwners, queryContext);
+        assertThat(data.size(), is(18));
+
+        // Greater or Equals to
+        attributes = list(greaterOrEqualTo(column, sortedTasks.get(1).getCreatedOn()));
+        data = advanceVariableDataService.queryUserTasksByVariables(attributes, emptyList(), emptyList(), potOwners, queryContext);
+        assertThat(data.size(), is(19));
+
+        // Lower than
+        attributes = list(lowerThan(column, sortedTasks.get(10).getCreatedOn()));
+        data = advanceVariableDataService.queryUserTasksByVariables(attributes, emptyList(), emptyList(), potOwners, queryContext);
+        assertThat(data.size(), is(10));
+
+        // Lower or Equals to
+        attributes = list(lowerOrEqualTo(column, sortedTasks.get(10).getCreatedOn()));
+        data = advanceVariableDataService.queryUserTasksByVariables(attributes, emptyList(), emptyList(), potOwners, queryContext);
+        assertThat(data.size(), is(11));
     }
 
     @Test
