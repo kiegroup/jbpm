@@ -49,6 +49,7 @@ import javax.transaction.UserTransaction;
 import org.drools.core.time.JobHandle;
 import org.drools.core.time.impl.TimerJobInstance;
 import org.jbpm.process.core.timer.TimerServiceRegistry;
+import org.kie.internal.runtime.manager.SessionNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -131,6 +132,22 @@ public class EJBTimerScheduler {
     }
 
     private void recoverTimerJobInstance(EjbTimerJob ejbTimerJob, Exception e) {
+        if (isSessionNotFound(e)) {
+            // if session is not found means the process has already finished. In this case we just need to remove
+            // the timer and avoid any recovery as it should not trigger any more timers.
+            try {
+                Transaction<TimerJobInstance> tx = timerJobInstance -> {
+                    if (!this.removeJob(timerJobInstance.getJobHandle())) {
+                        logger.warn("Session not found for timer {}. Timer could not removed.", ejbTimerJob.getTimerJobInstance());
+                    }
+                };
+                transaction(tx, ejbTimerJob.getTimerJobInstance());
+            } catch (Exception e1) {
+                logger.warn("There was a problem during timer removal {}", ejbTimerJob.getTimerJobInstance(), e1);
+            }
+            return;
+        }
+
         if (ejbTimerJob.getTimerJobInstance().getTrigger().hasNextFireTime() != null) {
             // this is an interval trigger. Problem here is that the timer scheduled by DefaultTimerJobInstance is lost
             // because of the transaction, so we need to do this here.
@@ -138,8 +155,11 @@ public class EJBTimerScheduler {
                
                 logger.warn("Execution of time failed Interval Trigger failed. Skipping {}", ejbTimerJob.getTimerJobInstance());
                 Transaction<TimerJobInstance> tx = timerJobInstance -> {
-                    this.removeJob(timerJobInstance.getJobHandle());
-                    this.internalSchedule(timerJobInstance);
+                    if (this.removeJob(timerJobInstance.getJobHandle())) {
+                        this.internalSchedule(timerJobInstance);
+                    } else {
+                        logger.debug("Interval trigger {} was removed before rescheduling", ejbTimerJob.getTimerJobInstance());
+                    }
                 };
                 transaction(tx, ejbTimerJob.getTimerJobInstance());
             } catch (Exception e1) {
@@ -177,6 +197,17 @@ public class EJBTimerScheduler {
                 logger.warn("Execution of time failed. Application server policy applied {}", ejbTimerJob.getTimerJobInstance());
                 throw new RuntimeException(e);
         }
+    }
+
+    private boolean isSessionNotFound(Exception e) {
+        Throwable current = e;
+        do {
+            if (current instanceof SessionNotFoundException) {
+                return true;
+            }
+            current = current.getCause();
+        } while (current != null);
+        return false;
     }
 
     @FunctionalInterface
