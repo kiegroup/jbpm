@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import org.jbpm.workflow.core.NodeContainer;
 import org.jbpm.workflow.core.impl.ConnectionImpl;
@@ -110,6 +111,18 @@ public class CompositeNode extends StateBasedNode implements NodeContainer, Even
     	removeNode(node);
     }
     
+    @Override
+    public boolean acceptsEvent(String type, Object event, Function<String, Object> resolver) {
+        for (Node node: internalGetNodes()) {
+            if (node instanceof EventNodeInterface) {
+                if (((EventNodeInterface) node).acceptsEvent(type, event, resolver)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
 	public boolean acceptsEvent(String type, Object event) {
 		for (Node node: internalGetNodes()) {
 			if (node instanceof EventNodeInterface) {

@@ -24,10 +24,12 @@ import java.util.Map;
 import org.jbpm.test.JbpmTestCase;
 import org.jbpm.test.listener.DebugProcessEventListener;
 import org.jbpm.test.listener.IterableProcessEventListener;
+import org.jbpm.test.listener.TrackingProcessEventListener;
 import org.junit.Test;
 import org.kie.api.command.Command;
 import org.kie.api.runtime.KieSession;
 
+import static java.util.Collections.singletonMap;
 import static org.jbpm.test.tools.IterableListenerAssert.assertChangedMultipleInstancesVariable;
 import static org.jbpm.test.tools.IterableListenerAssert.assertChangedVariable;
 import static org.jbpm.test.tools.IterableListenerAssert.assertLeft;
@@ -35,13 +37,18 @@ import static org.jbpm.test.tools.IterableListenerAssert.assertNextNode;
 import static org.jbpm.test.tools.IterableListenerAssert.assertProcessCompleted;
 import static org.jbpm.test.tools.IterableListenerAssert.assertProcessStarted;
 import static org.jbpm.test.tools.IterableListenerAssert.assertTriggered;
+import static org.jbpm.test.tools.TrackingListenerAssert.assertProcessCompleted;
+import static org.jbpm.test.tools.TrackingListenerAssert.assertProcessStarted;
 
 public class MultipleInstancesSubProcessTest extends JbpmTestCase {
 
-    private static final String MULTIPLE_INSTANCES =
-            "org/jbpm/test/functional/subprocess/MultipleInstancesSubProcess.bpmn";
-    private static final String MULTIPLE_INSTANCES_ID =
-            "org.jbpm.test.functional.subprocess.MultipleInstancesSubProcess";
+    private static final String MULTIPLE_INSTANCES = "org/jbpm/test/functional/subprocess/MultipleInstancesSubProcess.bpmn";
+    private static final String MULTIPLE_INSTANCES_ID = "org.jbpm.test.functional.subprocess.MultipleInstancesSubProcess";
+
+    private static final String MULTIPLE_INSTANCES_WITH_BOUNDARY_EVENT = "org/jbpm/test/functional/subprocess/MultipleSubprocessInstanceWithBoundaryEvent.bpmn2";
+    private static final String MULTIPLE_INSTANCES_WITH_BOUNDARY_EVENT_ID = "MultipleSubprocessInstanceWithBoundaryEvent";
+    private static final String MULTIPLE_INSTANCES_WITH_CALL_SUBPROCESS = "org/jbpm/test/functional/subprocess/MultipleSubprocessInstanceWithSubprocessCall.bpmn2";
+    private static final String MULTIPLE_INSTANCES_WITH_CALL_SUBPROCESS_ID = "MultipleSubprocessInstanceWithSubprocessCall";
 
     public MultipleInstancesSubProcessTest() {
         super(false);
@@ -83,6 +90,32 @@ public class MultipleInstancesSubProcessTest extends JbpmTestCase {
         assertLeft(eventListener, "multipleInstances");
         assertNextNode(eventListener, "end");
         assertProcessCompleted(eventListener, MULTIPLE_INSTANCES_ID);
+    }
+
+    @Test
+    public void testMultipleInstancesWithBoundaryEvent() {
+        TrackingProcessEventListener eventListener = new TrackingProcessEventListener();
+        addProcessEventListener(eventListener);
+        addWorkItemHandler("Human Task", getTestWorkItemHandler());
+        KieSession kieSession = createKSession(MULTIPLE_INSTANCES_WITH_BOUNDARY_EVENT);
+        long pid = kieSession.startProcess(MULTIPLE_INSTANCES_WITH_BOUNDARY_EVENT_ID, singletonMap("list", new ArrayList<>())).getId();
+        assertProcessStarted(eventListener, MULTIPLE_INSTANCES_WITH_BOUNDARY_EVENT_ID);
+        kieSession.signalEvent("escal-1", null, pid);
+        kieSession.signalEvent("escal-2", null, pid);
+        assertProcessCompleted(eventListener, MULTIPLE_INSTANCES_WITH_BOUNDARY_EVENT_ID);
+
+    }
+
+    @Test //(timeout = 30000)
+    public void testMultipleInstancesWithSubprocessCall() {
+        TrackingProcessEventListener eventListener = new TrackingProcessEventListener();
+        addProcessEventListener(eventListener);
+        KieSession kieSession = createKSession(MULTIPLE_INSTANCES_WITH_CALL_SUBPROCESS);
+        kieSession.startProcess(MULTIPLE_INSTANCES_WITH_CALL_SUBPROCESS_ID, singletonMap("list", new ArrayList<>()));
+        assertProcessStarted(eventListener, MULTIPLE_INSTANCES_WITH_CALL_SUBPROCESS_ID);
+        kieSession.signalEvent("mi-1", null);
+        kieSession.signalEvent("mi-2", null);
+        assertProcessCompleted(eventListener, MULTIPLE_INSTANCES_WITH_CALL_SUBPROCESS_ID);
     }
 
 }

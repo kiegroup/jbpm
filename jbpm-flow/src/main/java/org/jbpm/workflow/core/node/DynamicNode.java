@@ -39,13 +39,17 @@ public class DynamicNode extends CompositeContextNode {
 	}
 
     @Override
-    public boolean acceptsEvent(String type, Object event, Function<String, String> resolver) {
+    public boolean acceptsEvent(String type, Object event, Function<String, Object> resolver) {
         if (type.equals(getActivationEventName())) {
             return true;
         }
 
         for (Node node : getNodes()) {
-            if (node.getName()!=null && resolver.apply(node.getName()).contains(type) && node.getIncomingConnections().isEmpty()) {
+            if (node.getName() == null) {
+                continue;
+            }
+            Object var = resolver.apply(node.getName());
+            if(var != null && var.toString().contains(type) && node.getIncomingConnections().isEmpty()) {
                 return true;
             }
         }

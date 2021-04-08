@@ -33,6 +33,11 @@ public class Person implements Serializable {
     public Person() {
     }
 
+    public Person(long id, String name) {
+        this.name = name;
+        this.id = (int) id;
+    }
+
     public Person(String name) {
         super();
         this.name = name;
