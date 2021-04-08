@@ -118,6 +118,8 @@ public class EJBTimerScheduler {
         }
         try {
             transaction(this::executeTimerJobInstance, timerJobInstance);
+        } catch (SessionNotFoundException e) {
+            logger.warn("Process instance is not found. More likely already completed. Timer {} won't be recovered", timerJobInstance, e);
         } catch (Exception e) {
             recoverTimerJobInstance(timerJob, e);
         }

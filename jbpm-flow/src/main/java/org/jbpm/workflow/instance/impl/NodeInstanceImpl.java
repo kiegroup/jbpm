@@ -18,6 +18,7 @@ package org.jbpm.workflow.instance.impl;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -447,7 +448,15 @@ public abstract class NodeInstanceImpl implements org.jbpm.workflow.instance.Nod
         }
         return ((NodeImpl) getNode()).resolveContext(contextId, param);
     }
-    
+
+    public List<ContextInstance> resolveContextInstance(String contextId) {
+        // check for exclusive group first
+        NodeInstanceContainer parent = getNodeInstanceContainer();
+        if (parent instanceof ContextInstanceContainer) {
+            return ((ContextInstanceContainer) parent).getContextInstances(VariableScope.VARIABLE_SCOPE);
+        }
+        return Collections.emptyList();
+    }
     public ContextInstance resolveContextInstance(String contextId, Object param) {
         Context context = resolveContext(contextId, param);
         if (context == null) {
@@ -461,7 +470,7 @@ public abstract class NodeInstanceImpl implements org.jbpm.workflow.instance.Nod
         }
         return contextInstanceContainer.getContextInstance(context);
     }
-    
+
     private ContextInstanceContainer getContextInstanceContainer(ContextContainer contextContainer) {
     	ContextInstanceContainer contextInstanceContainer = null; 
 		if (this instanceof ContextInstanceContainer) {
