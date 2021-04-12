@@ -1268,7 +1268,7 @@
   </named-native-query>
   <named-native-query name="GetHistoryTasksByIdList">
       <query>
-              SELECT task.taskId as id, task.name, task.description,
+              SELECT task.taskId as id, task.name, 
                      task.actualOwner, pilog.correlationKey, task.createdOn,
                      task.createdBy, 
                      task.status, pilog.processInstanceId, pilog.processId, pilog.externalId,
