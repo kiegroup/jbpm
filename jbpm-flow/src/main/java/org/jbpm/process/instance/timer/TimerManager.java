@@ -16,6 +16,10 @@
 
 package org.jbpm.process.instance.timer;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
@@ -479,7 +483,7 @@ public class TimerManager {
      * Overdue aware trigger that introduces fixed delay to allow completion of session initialization
      * 
      */
-    public static class OverdueTrigger implements Trigger {
+    public static class OverdueTrigger implements Trigger, Externalizable {
 
         private static final long serialVersionUID = -2368476147776308013L;
 
@@ -519,6 +523,16 @@ public class TimerManager {
 
         public Date nextFireTime() {
             return orig.nextFireTime();
+        }
+
+        @Override
+        public void readExternal(ObjectInput input) throws IOException, ClassNotFoundException {
+            orig = (Trigger) input.readObject(); // it should never come to this
+        }
+
+        @Override
+        public void writeExternal(ObjectOutput output) throws IOException {
+            output.writeObject(orig);
         }
 
     }
