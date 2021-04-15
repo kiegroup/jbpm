@@ -20,6 +20,7 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -237,7 +238,6 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
                 .startProcess("BoundarySignalOnTask");
         ksession.signalEvent("MySignal", "value");
         assertProcessInstanceFinished(processInstance, ksession);
-
     }
 
     @Test
@@ -249,6 +249,20 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
         ksession.addEventListener(LOGGING_EVENT_LISTENER);
         ProcessInstance processInstance = ksession
                 .startProcess("BoundarySignalOnTask");
+        ksession.signalEvent("MySignal", "value");
+        assertProcessInstanceFinished(processInstance, ksession);
+
+    }
+    
+    @Test
+    public void testSignalBoundaryEventOnTaskWithVariableSignalName() throws Exception {
+        KieBase kbase = createKnowledgeBase("BPMN2-BoundarySignalWithVariableNameEventOnTaskbpmn.bpmn");
+        ksession = createKnowledgeSession(kbase);
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task",
+                new TestWorkItemHandler());
+        ksession.addEventListener(LOGGING_EVENT_LISTENER);
+        ProcessInstance processInstance = ksession
+                .startProcess("BoundarySignalOnTask", Collections.singletonMap("signalName","MySignal"));
         ksession.signalEvent("MySignal", "value");
         assertProcessInstanceFinished(processInstance, ksession);
 
@@ -296,6 +310,7 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
         ksession = createKnowledgeSession(kbase);
         ksession.addEventListener(new DefaultProcessEventListener() {
 
+            @Override
             public void beforeNodeTriggered(ProcessNodeTriggeredEvent event) {
                 if (event.getNodeInstance().getNode().getNodeType() == NodeType.THROW_EVENT) {
                     endSignal.countDown();
@@ -1562,6 +1577,7 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
         final long piId = processInstance.getId();
         ksession.execute(new ExecutableCommand<Void>() {
 
+            @Override
             public Void execute(Context context) {
                 StatefulKnowledgeSession ksession = (StatefulKnowledgeSession) ((RegistryContext) context).lookup( KieSession.class );
                 WorkflowProcessInstance processInstance = (WorkflowProcessInstance) ksession.getProcessInstance(piId);
@@ -1576,6 +1592,7 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
 
         Integer xValue = ksession.execute(new ExecutableCommand<Integer>() {
 
+            @Override
             public Integer execute(Context context) {
                 StatefulKnowledgeSession ksession = (StatefulKnowledgeSession) ((RegistryContext) context).lookup( KieSession.class );
                 WorkflowProcessInstance processInstance = (WorkflowProcessInstance) ksession.getProcessInstance(piId);
@@ -1777,6 +1794,7 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
         ksession.startProcess("BPMN2-IntermediateCatchSignalBetweenUserTasks");
 
         int signalListSize = ksession.execute(new ExecutableCommand<Integer>() {
+            @Override
             public Integer execute(Context context) {
                 SingleSessionCommandService commandService = (SingleSessionCommandService) ((CommandBasedStatefulKnowledgeSession) ksession).getRunner();
                 InternalKnowledgeRuntime kruntime = (InternalKnowledgeRuntime) commandService.getKieSession();
@@ -1795,6 +1813,7 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
         ksession.getWorkItemManager().completeWorkItem(1, null);
 
         signalListSize = ksession.execute(new ExecutableCommand<Integer>() {
+            @Override
             public Integer execute(Context context) {
                 SingleSessionCommandService commandService = (SingleSessionCommandService) ((CommandBasedStatefulKnowledgeSession) ksession).getRunner();
                 InternalKnowledgeRuntime kruntime = (InternalKnowledgeRuntime) commandService.getKieSession();
@@ -1813,6 +1832,7 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
         ksession.signalEvent("MySignal", null);
 
         signalListSize = ksession.execute(new ExecutableCommand<Integer>() {
+            @Override
             public Integer execute(Context context) {
                 SingleSessionCommandService commandService = (SingleSessionCommandService) ((CommandBasedStatefulKnowledgeSession) ksession).getRunner();
                 InternalKnowledgeRuntime kruntime = (InternalKnowledgeRuntime) commandService.getKieSession();
