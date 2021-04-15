@@ -147,8 +147,8 @@
       <artifactId>jbpm-workitems-webservice</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.jboss.spec.javax.xml.ws</groupId>
-      <artifactId>jboss-jaxws-api_2.3_spec</artifactId>
+      <groupId>jakarta.ws.rs</groupId>
+      <artifactId>jakarta.ws.rs-api</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -250,8 +250,8 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.jboss.spec.javax.jms</groupId>
-      <artifactId>jboss-jms-api_2.0_spec</artifactId>
+      <groupId>jakarta.jms</groupId>
+      <artifactId>jakarta.jms-api</artifactId>
       <scope>test</scope>
     </dependency>
 
@@ -261,13 +261,13 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.jboss.spec.javax.transaction</groupId>
-      <artifactId>jboss-transaction-api_1.2_spec</artifactId>
+      <groupId>jakarta.transaction</groupId>
+      <artifactId>jakarta.transaction-api</artifactId>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.jboss.spec.javax.ejb</groupId>
-      <artifactId>jboss-ejb-api_3.2_spec</artifactId>
+      <groupId>jakarta.ejb</groupId>
+      <artifactId>jakarta.ejb-api</artifactId>
       <scope>provided</scope>
     </dependency>
 
@@ -412,7 +412,7 @@
         </plugin>
         <plugin>
           <groupId>org.codehaus.cargo</groupId>
-          <artifactId>cargo-maven2-plugin</artifactId>
+          <artifactId>cargo-maven3-plugin</artifactId>
           <configuration>
             <container>
               <containerId>${container.id}</containerId>
@@ -515,7 +515,7 @@
     <plugins>
       <plugin>
         <groupId>org.codehaus.cargo</groupId>
-        <artifactId>cargo-maven2-plugin</artifactId>
+        <artifactId>cargo-maven3-plugin</artifactId>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -534,7 +534,7 @@
         </property>
       </activation>
       <properties>
-        <container.id>wildfly19x</container.id>
+        <container.id>wildfly23x</container.id>
         <container.port>8080</container.port>
         <org.jbpm.persistence.ds>java:/jdbc/jbpm</org.jbpm.persistence.ds>
         <container.tm>org.hibernate.service.jta.platform.internal.JBossAppServerJtaPlatform</container.tm>
@@ -544,7 +544,7 @@
           <plugins>
             <plugin>
               <groupId>org.codehaus.cargo</groupId>
-              <artifactId>cargo-maven2-plugin</artifactId>
+              <artifactId>cargo-maven3-plugin</artifactId>
               <configuration>
                 <container>
                   <type>installed</type>
@@ -608,7 +608,7 @@
         </property>
       </activation>
       <properties>
-        <container.id>wildfly19x</container.id>
+        <container.id>wildfly23x</container.id>
         <container.port>8080</container.port>
         <org.jbpm.persistence.ds>java:/jdbc/jbpm</org.jbpm.persistence.ds>
         <container.tm>org.hibernate.service.jta.platform.internal.JBossAppServerJtaPlatform</container.tm>
@@ -618,7 +618,7 @@
           <plugins>
             <plugin>
               <groupId>org.codehaus.cargo</groupId>
-              <artifactId>cargo-maven2-plugin</artifactId>
+              <artifactId>cargo-maven3-plugin</artifactId>
               <configuration>
                 <container>
                   <type>installed</type>
@@ -693,7 +693,7 @@
           <plugins>
             <plugin>
               <groupId>org.codehaus.cargo</groupId>
-              <artifactId>cargo-maven2-plugin</artifactId>
+              <artifactId>cargo-maven3-plugin</artifactId>
               <configuration>
                 <container>
                   <type>installed</type>
@@ -726,12 +726,12 @@
                       <artifactId>slf4j-jdk14</artifactId>
                     </dependency>
                     <dependency>
-                      <groupId>org.jboss.spec.javax.security.jacc</groupId>
-                      <artifactId>jboss-jacc-api_1.5_spec</artifactId>
+                      <groupId>jakarta.security.jacc</groupId>
+                      <artifactId>jakarta.security.jacc-api</artifactId>
                     </dependency>
                     <dependency>
-                      <groupId>org.jboss.spec.javax.transaction</groupId>
-                      <artifactId>jboss-transaction-api_1.2_spec</artifactId>
+                      <groupId>jakarta.transaction</groupId>
+                      <artifactId>jakarta.transaction-api</artifactId>
                     </dependency>
                     <dependency>
                       <groupId>org.jboss.integration</groupId>
@@ -800,8 +800,8 @@
           <scope>test</scope>
         </dependency>
         <dependency>
-          <groupId>org.jboss.spec.javax.security.jacc</groupId>
-          <artifactId>jboss-jacc-api_1.5_spec</artifactId>
+          <groupId>jakarta.security.jacc</groupId>
+          <artifactId>jakarta.security.jacc-api</artifactId>
           <scope>test</scope>
         </dependency>
 
@@ -860,7 +860,7 @@
           <plugins>
             <plugin>
               <groupId>org.codehaus.cargo</groupId>
-              <artifactId>cargo-maven2-plugin</artifactId>
+              <artifactId>cargo-maven3-plugin</artifactId>
               <configuration>
                 <container>
                   <type>installed</type>
@@ -963,7 +963,7 @@
           <plugins>
             <plugin>
               <groupId>org.codehaus.cargo</groupId>
-              <artifactId>cargo-maven2-plugin</artifactId>
+              <artifactId>cargo-maven3-plugin</artifactId>
               <configuration>
                 <container>
                   <!-- There is no Cargo for WebSphere 9 yet so we have to use the previous one -->

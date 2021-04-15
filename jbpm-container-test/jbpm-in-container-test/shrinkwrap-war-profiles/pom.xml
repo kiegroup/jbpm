@@ -54,13 +54,13 @@
             </exclusion>
             <!-- conflicts on WebLogic/WAS -->
             <exclusion>
-              <groupId>org.jboss.spec.javax.annotation</groupId>
-              <artifactId>jboss-annotations-api_1.2_spec</artifactId>
+              <groupId>jakarta.annotation</groupId>
+              <artifactId>jakarta.annotation-api</artifactId>
             </exclusion>
             <!-- conflicts on WebLogic/WAS -->
             <exclusion>
-              <groupId>org.jboss.spec.javax.transaction</groupId>
-              <artifactId>jboss-transaction-api_1.2_spec</artifactId>
+              <groupId>jakarta.transaction</groupId>
+              <artifactId>jakarta.transaction-api</artifactId>
             </exclusion>
           </exclusions>
         </dependency>
@@ -212,8 +212,8 @@
         </dependency>
         <!-- Needed for JDK 11 -->
         <dependency>
-          <groupId>org.jboss.spec.javax.xml.bind</groupId>
-          <artifactId>jboss-jaxb-api_2.3_spec</artifactId>
+          <groupId>jakarta.xml.bind</groupId>
+          <artifactId>jakarta.xml.bind-api</artifactId>
         </dependency>
       </dependencies>
     </profile>
