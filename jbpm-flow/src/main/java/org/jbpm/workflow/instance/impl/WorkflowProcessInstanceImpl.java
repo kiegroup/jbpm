@@ -433,7 +433,7 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
                         }
 
     	                RuntimeEngine runtime = manager.getRuntimeEngine(context);
-						KieRuntime managedkruntime = (KieRuntime) runtime.getKieSession();
+						KieRuntime managedkruntime = runtime.getKieSession();
     	                managedkruntime.signalEvent("processInstanceCompleted:" + getId(), this);
                 	} catch (SessionNotFoundException e) {
                 		// in case no session is found for parent process let's skip signal for process instance completion
@@ -518,7 +518,8 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 
 
 
-	public void configureSLA() {
+	@Override
+    public void configureSLA() {
 	    String slaDueDateExpression = (String) getProcess().getMetaData().get("customSLADueDate");
         if (slaDueDateExpression != null) {
             TimerInstance timer = configureSLATimer(slaDueDateExpression);
@@ -566,7 +567,12 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
     protected void registerExternalEventNodeListeners() {
         for (Node node : getWorkflowProcess().getNodes()) {
             if (node instanceof EventNode && "external".equals(((EventNode) node).getScope())) {
-                addEventListener(((EventNode) node).getType(), EMPTY_EVENT_LISTENER, true);
+                String eventType = ((EventNode) node).getType();
+                if (isVariableExpression(eventType)) {
+                    addEventListener(resolveVariable(eventType), EMPTY_EVENT_LISTENER, true);
+                } else {
+                    addEventListener(eventType, EMPTY_EVENT_LISTENER, true);
+                }
             } else if (node instanceof EventSubProcessNode) {
                 List<String> events = ((EventSubProcessNode) node).getEvents();
                 for (String type : events) {
@@ -587,7 +593,12 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
     private void unregisterExternalEventNodeListeners() {
         for (Node node : getWorkflowProcess().getNodes()) {
             if (node instanceof EventNode && "external".equals(((EventNode) node).getScope())) {
-                externalEventListeners.remove(((EventNode) node).getType());
+                String eventType = ((EventNode) node).getType();
+                if (isVariableExpression(eventType)) {
+                    removeEventListener(resolveVariable(eventType), EMPTY_EVENT_LISTENER, true);
+                } else {
+                    removeEventListener(eventType, EMPTY_EVENT_LISTENER, true);
+                }
             }
         }
     }
