@@ -47,7 +47,7 @@ import org.kie.api.runtime.process.WorkItemManager;
         defaultHandler = "mvel: new org.jbpm.process.workitem.email.EmailWorkItemHandler()",
         documentation = "${artifactId}/index.html",
         category = "${artifactId}",
-        icon = "Email.png",
+        icon = "defaultemailicon.png",
         parameters = {
                 @WidParameter(name = "From"),
                 @WidParameter(name = "To"),

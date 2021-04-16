@@ -9,7 +9,7 @@ import org.jbpm.process.core.datatype.impl.type.StringDataType;
       "Body" : new StringDataType()
     ],
     "displayName" : "Email",
-    "icon" : "defaultemailicon.gif"
+    "icon" : "defaultemailicon.png"
   ],
   
   [
@@ -18,6 +18,6 @@ import org.jbpm.process.core.datatype.impl.type.StringDataType;
       "Message" : new StringDataType()
     ],
     "displayName" : "Log",
-    "icon" : "defaultlogicon.gif"
+    "icon" : "defaultlogicon.png"
   ]
 ]

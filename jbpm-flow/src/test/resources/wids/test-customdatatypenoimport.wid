@@ -15,7 +15,7 @@
     ],
     "Result" : new CustomDataType(),
     "displayName" : "MyFirstWorkItem",
-    "icon" : "defaultemailicon.gif"
+    "icon" : "defaultemailicon.png"
   ],
 
   [
@@ -33,6 +33,6 @@
       ],
       "Result" : new ObjectDataType(),
       "displayName" : "MySecondWorkItem",
-      "icon" : "defaultemailicon.gif"
+      "icon" : "defaultemailicon.png"
     ],
 ]

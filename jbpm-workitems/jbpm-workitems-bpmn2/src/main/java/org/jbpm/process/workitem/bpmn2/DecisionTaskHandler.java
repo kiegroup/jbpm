@@ -43,7 +43,7 @@ import org.jbpm.process.workitem.core.util.service.WidService;
         defaultHandler = "mvel: new org.jbpm.process.workitem.bpmn2.DecisionTaskHandler()",
         documentation = "${artifactId}/index.html",
         category = "${artifactId}",
-        icon = "DecisionTask.png",
+        icon = "defaultdecisiontaskicon.png",
         parameters = {
                 @WidParameter(name = "Namespace", required = true),
                 @WidParameter(name = "Model", required = true),
