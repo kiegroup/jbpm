@@ -64,12 +64,12 @@
       <property name="hibernate.show_sql" value="false" />
 
       <property name="hibernate.dialect" value="${maven.hibernate.dialect}" />
+      <property name="hibernate.default_schema" value="${maven.jdbc.schema}"/>
 
       <property name="hibernate.connection.driver_class" value="${maven.jdbc.driver.class}" />
       <property name="hibernate.connection.url" value="${maven.jdbc.url}" />
       <property name="hibernate.connection.username" value="${maven.jdbc.username}" />
       <property name="hibernate.connection.password" value="${maven.jdbc.password}" />
-      <property name="hibernate.default_schema" value="${maven.jdbc.schema}"/>
       <property name="hibernate.connection.handling_mode" value="DELAYED_ACQUISITION_AND_RELEASE_AFTER_TRANSACTION"/>
 
       <!-- BZ 841786: AS7/EAP 6/Hib 4 uses new (sequence) generators which seem to cause problems -->
