@@ -54,6 +54,7 @@ import static java.util.Collections.emptyList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.jbpm.services.api.AdvanceRuntimeDataService.PROCESS_ATTR_CORRELATION_KEY;
 import static org.jbpm.services.api.AdvanceRuntimeDataService.PROCESS_ATTR_DEFINITION_ID;
 import static org.jbpm.services.api.AdvanceRuntimeDataService.PROCESS_ATTR_DEPLOYMENT_ID;
@@ -74,7 +75,6 @@ import static org.jbpm.services.api.query.model.QueryParam.type;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.kie.internal.task.api.TaskVariable.VariableType.INPUT;
 import static org.kie.internal.task.api.TaskVariable.VariableType.OUTPUT;
@@ -251,6 +251,35 @@ public class AdvanceRuntimeDataServiceImplTest extends AbstractKieServicesBaseTe
     }
 
     @Test
+    public void testQueryUserTasksGetDescription() {
+
+        List<QueryParam> attributes = emptyList();
+
+        List<UserTaskInstanceWithPotOwnerDesc> data = advanceVariableDataService.queryUserTasksByVariables(attributes, emptyList(), emptyList(), emptyList(), queryContext);
+        if (queryContext.getCount() > 0) {
+            assertThat(data.size(), is(queryContext.getCount()));
+        }
+
+        for (UserTaskInstanceWithPotOwnerDesc p : data) {
+            Assert.assertNotNull(p.getDescription());
+        }
+    }
+
+    @Test
+    public void testQueryUserAuditTasksGetDescription() {
+
+        List<QueryParam> attributes = list(history());
+
+        List<UserTaskInstanceWithPotOwnerDesc> data = advanceVariableDataService.queryUserTasksByVariables(attributes, emptyList(), emptyList(), emptyList(), queryContext);
+        if (queryContext.getCount() > 0) {
+            assertThat(data.size(), is(queryContext.getCount()));
+        }
+
+        for (UserTaskInstanceWithPotOwnerDesc p : data) {
+            Assert.assertNotNull(p.getDescription());
+        }
+    }
+    @Test
     public void testQueryIsNullOperator() {
 
         List<QueryParam> attributes = list(isNull(TASK_ATTR_OWNER));
@@ -262,6 +291,7 @@ public class AdvanceRuntimeDataServiceImplTest extends AbstractKieServicesBaseTe
 
         for (UserTaskInstanceWithPotOwnerDesc p : data) {
             Assert.assertNull(p.getActualOwner());
+            Assert.assertNotNull(p.getDescription());
         }
     }
 
