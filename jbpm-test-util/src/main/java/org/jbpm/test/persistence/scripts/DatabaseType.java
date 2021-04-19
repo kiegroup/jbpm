@@ -21,18 +21,19 @@ package org.jbpm.test.persistence.scripts;
  */
 public enum DatabaseType {
 
-    DB2("db2"),
-    DERBY("derby"),
-    H2("h2"),
-    HSQLDB("hsqldb"),
-    MYSQL5("mysql5"),
-    MYSQLINNODB("mysqlinnodb"),
-    ORACLE("oracle"),
-    POSTGRESQL("postgresql"),
-    SQLSERVER("sqlserver"),
-    SQLSERVER2008("sqlserver2008"),
-    SYBASE("sybase");
+    DB2("db2", "db2"),
+    DERBY("derby", "derby"),
+    H2("h2", "h2"),
+    HSQLDB("hsqldb", "hsqldb"),
+    MYSQL5("mysql5", "mysql5"),
+    MYSQLINNODB("mysql_innodb", "mysqlinnodb"),
+    ORACLE("oracle", "oracle"),
+    POSTGRESQL("postgres", "postgresql"),
+    SQLSERVER("sqlserver", "sqlserver"),
+    SQLSERVER2008("sqlserver", "sqlserver2008"),
+    SYBASE("sybase", "sybase");
 
+    private String scriptDatabasePrefix;
     private String scriptsFolderName;
 
     /**
@@ -40,7 +41,8 @@ public enum DatabaseType {
      *
      * @param scriptsFolderName Name of folder which contains scripts for database type.
      */
-    DatabaseType(String scriptsFolderName) {
+    DatabaseType(String scriptDatabasePrefix, String scriptsFolderName) {
+        this.scriptDatabasePrefix = scriptDatabasePrefix;
         this.scriptsFolderName = scriptsFolderName;
     }
 
@@ -51,5 +53,14 @@ public enum DatabaseType {
      */
     public String getScriptsFolderName() {
         return scriptsFolderName;
+    }
+
+    /**
+     * Gets the database prefix name used for the scripts, based on the hibernate dialect.
+     *
+     * @return Database prefix name used for the script.
+     */
+    public String getScriptDatabasePrefix()  {
+        return scriptDatabasePrefix;
     }
 }

@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 import org.jbpm.test.persistence.scripts.DatabaseType;
 import org.jbpm.test.persistence.scripts.PersistenceUnit;
 import org.jbpm.test.persistence.scripts.TestPersistenceContextBase;
+import org.jbpm.test.persistence.util.PersistenceUtil;
 import org.jbpm.test.util.DatabaseScript;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,6 +65,16 @@ public final class TestsUtil {
             
         logger.info("Returned DDL files: {}", Arrays.stream(foundFiles).map(File::getName).collect(Collectors.toList()));
         return foundFiles;
+    }
+
+    /**
+     * Gets database type based on dialect property specified in the datasource.properties file based in default
+     * path /datasource.properties.
+     * @return Database type based on specified dialect property. If no dialect is specified,
+     * returns H2 database type.
+     */
+    public static DatabaseType getDatabaseType() {
+        return getDatabaseType(PersistenceUtil.getDatasourceProperties());
     }
 
     /**
