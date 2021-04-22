@@ -125,8 +125,148 @@
                "methodName": "removePotentialOwners",
                "elementKind": "method",
                "justification": "[JBPM-9625] Allow to bypass the authenticated user in the KIE REST API that is adding users or groups as potential owners"
+             },
+             {
+  	       "code": "java.class.removed",
+               "old": "class org.jbpm.services.api.InvalidDeploymentIdException",
+   	       "package": "org.jbpm.services.api",
+   	       "classSimpleName": "InvalidDeploymentIdException",
+   	       "elementKind": "class",
+   	       "justification": "[JBPM-9705] Able to execute process admin REST API's without valid containerID"
+ 	     },
+             {
+   	       "code": "java.method.addedToInterface",
+               "new": "method void org.jbpm.services.api.admin.ProcessInstanceAdminService::cancelNodeInstance(java.lang.String, long, long) throws org.jbpm.services.api.NodeInstanceNotFoundException, org.jbpm.services.api.ProcessInstanceNotFoundException, org.jbpm.services.api.IncorrectDeploymentIDException",
+               "package": "org.jbpm.services.api.admin",
+               "classSimpleName": "ProcessInstanceAdminService",
+               "methodName": "cancelNodeInstance",
+               "elementKind": "method",
+               "justification": "[JBPM-9705] Able to execute process admin REST API's without valid containerID"
+             },
+             {
+               "code": "java.method.addedToInterface",
+               "new": "method java.util.Collection<org.jbpm.services.api.model.NodeInstanceDesc> org.jbpm.services.api.admin.ProcessInstanceAdminService::getActiveNodeInstances      (java.lang.String, long) throws org.jbpm.services.api.ProcessInstanceNotFoundException, org.jbpm.services.api.IncorrectDeploymentIDException",
+               "package": "org.jbpm.services.api.admin",
+               "classSimpleName": "ProcessInstanceAdminService",
+               "methodName": "getActiveNodeInstances",
+               "elementKind": "method",
+               "justification": "[JBPM-9705] Able to execute process admin REST API's without valid containerID"
+             },
+             {
+               "code": "java.method.exception.runtimeAdded",
+               "old": "method java.util.List<org.kie.internal.runtime.error.ExecutionError> org.jbpm.services.api.admin.ProcessInstanceAdminService::getErrorsByProcessInstanceId(long, boolean, org.kie.api.runtime.query.QueryContext)",
+               "new": "method java.util.List<org.kie.internal.runtime.error.ExecutionError> org.jbpm.services.api.admin.ProcessInstanceAdminService::getErrorsByProcessInstanceId(long, boolean, org.kie.api.runtime.query.QueryContext) throws org.jbpm.services.api.ProcessInstanceNotFoundException",
+               "exception": "org.jbpm.services.api.ProcessInstanceNotFoundException",
+               "package": "org.jbpm.services.api.admin",
+               "classSimpleName": "ProcessInstanceAdminService",
+               "methodName": "getErrorsByProcessInstanceId",
+               "elementKind": "method",
+               "justification": "[JBPM-9705] Able to execute process admin REST API's without valid containerID"
+             },
+             {
+               "code": "java.method.exception.runtimeAdded",
+               "old": "method java.util.List<org.kie.internal.runtime.error.ExecutionError> org.jbpm.services.api.admin.ProcessInstanceAdminService::getErrorsByProcessInstanceId(long, java.lang.String, boolean, org.kie.api.runtime.query.QueryContext)",
+               "new": "method java.util.List<org.kie.internal.runtime.error.ExecutionError> org.jbpm.services.api.admin.ProcessInstanceAdminService::getErrorsByProcessInstanceId(long, java.lang.String, boolean, org.kie.api.runtime.query.QueryContext) throws org.jbpm.services.api.ProcessInstanceNotFoundException",
+               "exception": "org.jbpm.services.api.ProcessInstanceNotFoundException",
+               "package": "org.jbpm.services.api.admin",
+               "classSimpleName": "ProcessInstanceAdminService",
+               "methodName": "getErrorsByProcessInstanceId",
+               "elementKind": "method",
+               "justification": "[JBPM-9705] Able to execute process admin REST API's without valid containerID"
+             },
+             {
+               "code": "java.method.addedToInterface",
+               "new": "method java.util.List<org.kie.internal.runtime.error.ExecutionError> org.jbpm.services.api.admin.ProcessInstanceAdminService::getErrorsByProcessInstanceId(java.lang.String, long, boolean, org.kie.api.runtime.query.QueryContext) throws org.jbpm.services.api.ProcessInstanceNotFoundException, org.jbpm.services.api.IncorrectDeploymentIDException",
+               "package": "org.jbpm.services.api.admin",
+               "classSimpleName": "ProcessInstanceAdminService",
+               "methodName": "getErrorsByProcessInstanceId",
+               "elementKind": "method",
+               "justification": "[JBPM-9705] Able to execute process admin REST API's without valid containerID"
+             },
+             {
+               "code": "java.method.addedToInterface",
+               "new": "method java.util.List<org.kie.internal.runtime.error.ExecutionError> org.jbpm.services.api.admin.ProcessInstanceAdminService::getErrorsByProcessInstanceId(java.lang.String, long, java.lang.String, boolean, org.kie.api.runtime.query.QueryContext) throws org.jbpm.services.api.ProcessInstanceNotFoundException, org.jbpm.services.api.NodeNotFoundException, org.jbpm.services.api.IncorrectDeploymentIDException",
+               "package": "org.jbpm.services.api.admin",
+               "classSimpleName": "ProcessInstanceAdminService",
+               "methodName": "getErrorsByProcessInstanceId",
+               "elementKind": "method",
+               "justification": "[JBPM-9705] Able to execute process admin REST API's without valid containerID"
+             },
+             {
+               "code": "java.method.exception.runtimeAdded",
+               "old": "method java.util.Collection<org.jbpm.services.api.admin.ProcessNode> org.jbpm.services.api.admin.ProcessInstanceAdminService::getProcessNodes(java.lang.String, long) throws org.jbpm.services.api.ProcessInstanceNotFoundException",
+               "new": "method java.util.Collection<org.jbpm.services.api.admin.ProcessNode> org.jbpm.services.api.admin.ProcessInstanceAdminService::getProcessNodes(java.lang.String, long) throws org.jbpm.services.api.ProcessInstanceNotFoundException, org.jbpm.services.api.IncorrectDeploymentIDException",
+               "exception": "org.jbpm.services.api.IncorrectDeploymentIDException",
+               "package": "org.jbpm.services.api.admin",
+               "classSimpleName": "ProcessInstanceAdminService",
+               "methodName": "getProcessNodes",
+               "elementKind": "method",
+               "justification": "[JBPM-9705] Able to execute process admin REST API's without valid containerID"
+             },
+             {
+               "code": "java.method.addedToInterface",
+               "new": "method java.util.Collection<org.jbpm.services.api.admin.ProcessNode> org.jbpm.services.api.admin.ProcessInstanceAdminService::getProcessNodes(long) throws org.jbpm.services.api.ProcessInstanceNotFoundException",
+               "package": "org.jbpm.services.api.admin",
+               "classSimpleName": "ProcessInstanceAdminService",
+               "methodName": "getProcessNodes",
+               "elementKind": "method",
+               "justification": "[JBPM-9705] Able to execute process admin REST API's without valid containerID"
+             },
+             {
+               "code": "java.method.addedToInterface",
+   	       "new": "method java.util.Collection<org.jbpm.services.api.admin.TimerInstance> org.jbpm.services.api.admin.ProcessInstanceAdminService::getTimerInstances(java.lang.String, long) throws org.jbpm.services.api.ProcessInstanceNotFoundException, org.jbpm.services.api.IncorrectDeploymentIDException",
+   	       "package": "org.jbpm.services.api.admin",
+   	       "classSimpleName": "ProcessInstanceAdminService",
+   	       "methodName": "getTimerInstances",
+   	       "elementKind": "method",
+   	       "justification": "[JBPM-9705] Able to execute process admin REST API's without valid containerID"
+             },
+             {
+               "code": "java.method.addedToInterface",
+               "new": "method void org.jbpm.services.api.admin.ProcessInstanceAdminService::retriggerNodeInstance(java.lang.String, long, long) throws org.jbpm.services.api.NodeInstanceNotFoundException, org.jbpm.services.api.ProcessInstanceNotFoundException, org.jbpm.services.api.IncorrectDeploymentIDException",
+               "package": "org.jbpm.services.api.admin",
+               "classSimpleName": "ProcessInstanceAdminService",
+               "methodName": "retriggerNodeInstance",
+               "elementKind": "method",
+               "justification": "[JBPM-9705] Able to execute process admin REST API's without valid containerID"
+             },
+ 	     {
+               "code": "java.method.addedToInterface",
+   	       "new": "method void org.jbpm.services.api.admin.ProcessInstanceAdminService::triggerNode(java.lang.String, long, long) throws org.jbpm.services.api.NodeNotFoundException, org.jbpm.services.api.ProcessInstanceNotFoundException, org.jbpm.services.api.IncorrectDeploymentIDException",
+               "package": "org.jbpm.services.api.admin",
+               "classSimpleName": "ProcessInstanceAdminService",
+               "methodName": "triggerNode",
+               "elementKind": "method",
+               "justification": "[JBPM-9705] Able to execute process admin REST API's without valid containerID"
+  	     },
+ 	     {
+   	       "code": "java.method.addedToInterface",
+               "new": "method void org.jbpm.services.api.admin.ProcessInstanceAdminService::updateTimer(java.lang.String, long, long, long, long, int) throws org.jbpm.services.api.NodeInstanceNotFoundException, org.jbpm.services.api.ProcessInstanceNotFoundException, org.jbpm.services.api.IncorrectDeploymentIDException",
+               "package": "org.jbpm.services.api.admin",
+               "classSimpleName": "ProcessInstanceAdminService",
+               "methodName": "updateTimer",
+               "elementKind": "method",
+               "justification": "[JBPM-9705] Able to execute process admin REST API's without valid containerID"
+             },
+ 	     {	
+   	       "code": "java.method.addedToInterface",
+   	       "new": "method void org.jbpm.services.api.admin.ProcessInstanceAdminService::updateTimerRelative(java.lang.String, long, long, long, long, int) throws org.jbpm.services.api.NodeInstanceNotFoundException, org.jbpm.services.api.ProcessInstanceNotFoundException, org.jbpm.services.api.IncorrectDeploymentIDException",
+   	       "package": "org.jbpm.services.api.admin",
+	       "classSimpleName": "ProcessInstanceAdminService",
+               "methodName": "updateTimerRelative",
+               "elementKind": "method",
+   	       "justification": "[JBPM-9705] Able to execute process admin REST API's without valid containerID"
+ 	     },
+             {
+               "code": "java.method.addedToInterface",
+               "new": "method java.util.Collection<org.jbpm.services.api.model.NodeInstanceDesc> org.jbpm.services.api.admin.ProcessInstanceAdminService::getActiveNodeInstances(java.lang.String, long) throws org.jbpm.services.api.ProcessInstanceNotFoundException, org.jbpm.services.api.IncorrectDeploymentIDException",
+               "package": "org.jbpm.services.api.admin",
+               "classSimpleName": "ProcessInstanceAdminService",
+               "methodName": "getActiveNodeInstances",
+               "elementKind": "method",
+               "justification": "[JBPM-9705] Able to execute process admin REST API's without valid containerID"
              }
-            ]
-        }
+ 	  ]
+       }
     }
 }

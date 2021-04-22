@@ -30,6 +30,7 @@ import org.jbpm.kie.services.impl.admin.commands.TriggerNodeCommand;
 import org.jbpm.process.instance.command.RelativeUpdateTimerCommand;
 import org.jbpm.process.instance.command.UpdateTimerCommand;
 import org.jbpm.runtime.manager.impl.AbstractRuntimeManager;
+import org.jbpm.services.api.IncorrectDeploymentIDException;
 import org.jbpm.services.api.NodeInstanceNotFoundException;
 import org.jbpm.services.api.NodeNotFoundException;
 import org.jbpm.services.api.ProcessInstanceNotFoundException;
@@ -85,6 +86,19 @@ public class ProcessInstanceAdminServiceImpl implements ProcessInstanceAdminServ
         ProcessInstanceDesc pi = runtimeDataService.getProcessInstanceById(processInstanceId);
         if (pi == null) {
             throw new ProcessInstanceNotFoundException("Process instance with id " + processInstanceId + " not found");
+        }           
+        Collection<ProcessNode> nodes = processService.execute(pi.getDeploymentId(), ProcessInstanceIdContext.get(processInstanceId), new ListNodesCommand(processInstanceId));
+        return nodes;
+    }
+    
+    @Override
+    public Collection<ProcessNode> getProcessNodes(String deploymentId, long processInstanceId) throws ProcessInstanceNotFoundException, IncorrectDeploymentIDException {
+        ProcessInstanceDesc pi = runtimeDataService.getProcessInstanceById(processInstanceId);
+        if (pi == null) {
+            throw new ProcessInstanceNotFoundException("Process instance with id " + processInstanceId + " not found");
+        }
+        if (!pi.getDeploymentId().equals(deploymentId)) {
+        	throw new IncorrectDeploymentIDException("Process instance with id " + processInstanceId +" does not belong to deployment id " + deploymentId);
         }
         
         Collection<ProcessNode> nodes = processService.execute(pi.getDeploymentId(), ProcessInstanceIdContext.get(processInstanceId), new ListNodesCommand(processInstanceId));
@@ -97,7 +111,18 @@ public class ProcessInstanceAdminServiceImpl implements ProcessInstanceAdminServ
         if (pi == null) {
             throw new ProcessInstanceNotFoundException("Process instance with id " + processInstanceId + " not found");
         }
-        
+        processService.execute(pi.getDeploymentId(), ProcessInstanceIdContext.get(processInstanceId), new CancelNodeInstanceCommand(processInstanceId, nodeInstanceId));
+    }
+    
+    @Override
+    public void cancelNodeInstance(String deploymentId, long processInstanceId, long nodeInstanceId) throws NodeInstanceNotFoundException, ProcessInstanceNotFoundException, IncorrectDeploymentIDException {
+        ProcessInstanceDesc pi = runtimeDataService.getProcessInstanceById(processInstanceId);
+        if (pi == null) {
+            throw new ProcessInstanceNotFoundException("Process instance with id " + processInstanceId + " not found");
+        }
+        if (!pi.getDeploymentId().equals(deploymentId)) {
+        	throw new IncorrectDeploymentIDException("Process instance with id " + processInstanceId +" does not belong to deployment id " + deploymentId);
+        }
         processService.execute(pi.getDeploymentId(), ProcessInstanceIdContext.get(processInstanceId), new CancelNodeInstanceCommand(processInstanceId, nodeInstanceId));
     }
 
@@ -107,7 +132,18 @@ public class ProcessInstanceAdminServiceImpl implements ProcessInstanceAdminServ
         if (pi == null) {
             throw new ProcessInstanceNotFoundException("Process instance with id " + processInstanceId + " not found");
         }
-        
+        processService.execute(pi.getDeploymentId(), ProcessInstanceIdContext.get(processInstanceId), new RetriggerNodeInstanceCommand(processInstanceId, nodeInstanceId));
+    }
+    
+    @Override
+    public void retriggerNodeInstance(String deploymentId, long processInstanceId, long nodeInstanceId) throws NodeInstanceNotFoundException, ProcessInstanceNotFoundException, IncorrectDeploymentIDException {
+        ProcessInstanceDesc pi = runtimeDataService.getProcessInstanceById(processInstanceId);
+        if (pi == null) {
+            throw new ProcessInstanceNotFoundException("Process instance with id " + processInstanceId + " not found");
+        }
+        if (!pi.getDeploymentId().equals(deploymentId)) {
+        	throw new IncorrectDeploymentIDException("Process instance with id " + processInstanceId +" does not belong to deployment id " + deploymentId);
+        }
         processService.execute(pi.getDeploymentId(), ProcessInstanceIdContext.get(processInstanceId), new RetriggerNodeInstanceCommand(processInstanceId, nodeInstanceId));
     }
 
@@ -120,13 +156,37 @@ public class ProcessInstanceAdminServiceImpl implements ProcessInstanceAdminServ
         processService.execute(pi.getDeploymentId(), ProcessInstanceIdContext.get(processInstanceId), new UpdateTimerCommand(processInstanceId, timerId, delay, period, repeatLimit));
     }
 
+    
+    @Override
+    public void updateTimer(String deploymentId, long processInstanceId, long timerId, long delay, long period, int repeatLimit) throws NodeInstanceNotFoundException, ProcessInstanceNotFoundException, IncorrectDeploymentIDException {
+        ProcessInstanceDesc pi = runtimeDataService.getProcessInstanceById(processInstanceId);
+        if (pi == null) {
+            throw new ProcessInstanceNotFoundException("Process instance with id " + processInstanceId + " not found");
+        }
+        if (!pi.getDeploymentId().equals(deploymentId)) {
+        	throw new IncorrectDeploymentIDException("Process instance with id " + processInstanceId +" does not belong to deployment id " + deploymentId);
+        }
+        processService.execute(pi.getDeploymentId(), ProcessInstanceIdContext.get(processInstanceId), new UpdateTimerCommand(processInstanceId, timerId, delay, period, repeatLimit));
+    }
+
     @Override
     public void updateTimerRelative(long processInstanceId, long timerId, long delay, long period, int repeatLimit) throws NodeInstanceNotFoundException, ProcessInstanceNotFoundException {
         ProcessInstanceDesc pi = runtimeDataService.getProcessInstanceById(processInstanceId);
         if (pi == null) {
             throw new ProcessInstanceNotFoundException("Process instance with id " + processInstanceId + " not found");
         }
-        
+        processService.execute(pi.getDeploymentId(), ProcessInstanceIdContext.get(processInstanceId), new RelativeUpdateTimerCommand(processInstanceId, timerId, delay, period, repeatLimit));
+    }
+    
+    @Override
+    public void updateTimerRelative(String deploymentId, long processInstanceId, long timerId, long delay, long period, int repeatLimit) throws NodeInstanceNotFoundException, ProcessInstanceNotFoundException, IncorrectDeploymentIDException {
+        ProcessInstanceDesc pi = runtimeDataService.getProcessInstanceById(processInstanceId);
+        if (pi == null) {
+            throw new ProcessInstanceNotFoundException("Process instance with id " + processInstanceId + " not found");
+        }
+        if (!pi.getDeploymentId().equals(deploymentId)) {
+        	throw new IncorrectDeploymentIDException("Process instance with id " + processInstanceId +" does not belong to deployment id " + deploymentId);
+        }
         processService.execute(pi.getDeploymentId(), ProcessInstanceIdContext.get(processInstanceId), new RelativeUpdateTimerCommand(processInstanceId, timerId, delay, period, repeatLimit));
     }
 
@@ -139,6 +199,19 @@ public class ProcessInstanceAdminServiceImpl implements ProcessInstanceAdminServ
         Collection<TimerInstance> timers = processService.execute(pi.getDeploymentId(), ProcessInstanceIdContext.get(processInstanceId), new ListTimersCommand(processInstanceId));
         return timers;
     }
+    
+    @Override
+    public Collection<TimerInstance> getTimerInstances(String deploymentId, long processInstanceId) throws ProcessInstanceNotFoundException, IncorrectDeploymentIDException {
+        ProcessInstanceDesc pi = runtimeDataService.getProcessInstanceById(processInstanceId);
+        if (pi == null) {
+            throw new ProcessInstanceNotFoundException("Process instance with id " + processInstanceId + " not found");
+        }
+        if (!pi.getDeploymentId().equals(deploymentId)) {
+         	throw new IncorrectDeploymentIDException("Process instance with id " + processInstanceId +" does not belong to deployment id " + deploymentId);
+         }
+        Collection<TimerInstance> timers = processService.execute(pi.getDeploymentId(), ProcessInstanceIdContext.get(processInstanceId), new ListTimersCommand(processInstanceId));
+        return timers;
+    }
 
     @Override
     public void triggerNode(long processInstanceId, long nodeId) throws NodeNotFoundException, ProcessInstanceNotFoundException {
@@ -148,9 +221,37 @@ public class ProcessInstanceAdminServiceImpl implements ProcessInstanceAdminServ
         }
         processService.execute(pi.getDeploymentId(), ProcessInstanceIdContext.get(processInstanceId), new TriggerNodeCommand(processInstanceId, nodeId));
     }
-
+    
+    @Override
+    public void triggerNode(String deploymentId, long processInstanceId, long nodeId) throws NodeNotFoundException, ProcessInstanceNotFoundException, IncorrectDeploymentIDException {
+        ProcessInstanceDesc pi = runtimeDataService.getProcessInstanceById(processInstanceId);
+        if (pi == null) {
+            throw new ProcessInstanceNotFoundException("Process instance with id " + processInstanceId + " not found");
+        }
+        if (!pi.getDeploymentId().equals(deploymentId)) {
+         	throw new IncorrectDeploymentIDException("Process instance with id " + processInstanceId +" does not belong to deployment id " + deploymentId);
+         }
+        processService.execute(pi.getDeploymentId(), ProcessInstanceIdContext.get(processInstanceId), new TriggerNodeCommand(processInstanceId, nodeId));
+    }
+    
     @Override
     public Collection<NodeInstanceDesc> getActiveNodeInstances(long processInstanceId) throws ProcessInstanceNotFoundException {
+    	 ProcessInstanceDesc pi = runtimeDataService.getProcessInstanceById(processInstanceId);
+         if (pi == null) {
+             throw new ProcessInstanceNotFoundException("Process instance with id " + processInstanceId + " not found");
+         }
+        return runtimeDataService.getProcessInstanceHistoryActive(processInstanceId, new QueryContext(0, 1000));
+    }
+
+    @Override
+    public Collection<NodeInstanceDesc> getActiveNodeInstances(String deploymentId, long processInstanceId) throws ProcessInstanceNotFoundException, IncorrectDeploymentIDException {
+    	 ProcessInstanceDesc pi = runtimeDataService.getProcessInstanceById(processInstanceId);
+         if (pi == null) {
+             throw new ProcessInstanceNotFoundException("Process instance with id " + processInstanceId + " not found");
+         }
+         if (!pi.getDeploymentId().equals(deploymentId)) {
+         	throw new IncorrectDeploymentIDException("Process instance with id " + processInstanceId +" does not belong to deployment id " + deploymentId);
+         }
         return runtimeDataService.getProcessInstanceHistoryActive(processInstanceId, new QueryContext(0, 1000));
     }
     
@@ -213,8 +314,32 @@ public class ProcessInstanceAdminServiceImpl implements ProcessInstanceAdminServ
     }
 
     @Override
-    public List<ExecutionError> getErrorsByProcessInstanceId(long processInstanceId, boolean includeAcknowledged, QueryContext queryContext) {
-        Map<String, Object> params = new HashMap<String, Object>();
+    public List<ExecutionError> getErrorsByProcessInstanceId(long processInstanceId, boolean includeAcknowledged, QueryContext queryContext) throws ProcessInstanceNotFoundException {
+    	 ProcessInstanceDesc pi = runtimeDataService.getProcessInstanceById(processInstanceId);
+         if (pi == null) {
+             throw new ProcessInstanceNotFoundException("Process instance with id " + processInstanceId + " not found");
+         }
+        
+    	Map<String, Object> params = new HashMap<String, Object>();
+        params.put("processInstanceId", processInstanceId);
+        params.put("ack", getAckMode(includeAcknowledged));
+        applyQueryContext(params, queryContext);        
+        
+        List<ExecutionError> execErrors = commandService.execute(new QueryNameCommand<List<ExecutionError>>("getErrorsByProcessInstanceId",params));
+        return execErrors;
+    }
+    
+    @Override
+    public List<ExecutionError> getErrorsByProcessInstanceId(String deploymentId, long processInstanceId, boolean includeAcknowledged, QueryContext queryContext) throws ProcessInstanceNotFoundException, IncorrectDeploymentIDException {
+    	 ProcessInstanceDesc pi = runtimeDataService.getProcessInstanceById(processInstanceId);
+         if (pi == null) {
+             throw new ProcessInstanceNotFoundException("Process instance with id " + processInstanceId + " not found");
+         }
+         if (!pi.getDeploymentId().equals(deploymentId)) {
+         	throw new IncorrectDeploymentIDException("Process instance with id " + processInstanceId +" does not belong to deployment id " + deploymentId);
+         }    	
+         
+    	Map<String, Object> params = new HashMap<String, Object>();
         params.put("processInstanceId", processInstanceId);
         params.put("ack", getAckMode(includeAcknowledged));
         applyQueryContext(params, queryContext);        
@@ -223,9 +348,15 @@ public class ProcessInstanceAdminServiceImpl implements ProcessInstanceAdminServ
         return execErrors;
     }
 
+    
     @Override
-    public List<ExecutionError> getErrorsByProcessInstanceId(long processInstanceId, String nodeName, boolean includeAcknowledged, QueryContext queryContext) {
-        Map<String, Object> params = new HashMap<String, Object>();
+    public List<ExecutionError> getErrorsByProcessInstanceId(long processInstanceId, String nodeName, boolean includeAcknowledged, QueryContext queryContext) throws ProcessInstanceNotFoundException {
+    	 ProcessInstanceDesc pi = runtimeDataService.getProcessInstanceById(processInstanceId);
+         if (pi == null) {
+             throw new ProcessInstanceNotFoundException("Process instance with id " + processInstanceId + " not found");
+         }
+                          
+    	Map<String, Object> params = new HashMap<String, Object>();
         params.put("processInstanceId", processInstanceId);
         params.put("nodeName", nodeName);
         params.put("ack", getAckMode(includeAcknowledged));
@@ -233,6 +364,26 @@ public class ProcessInstanceAdminServiceImpl implements ProcessInstanceAdminServ
         
         List<ExecutionError> execErrors = commandService.execute(new QueryNameCommand<List<ExecutionError>>("getErrorsByProcessInstanceIdNodeName",params));
         return execErrors;
+    }
+    
+	@Override
+    public List<ExecutionError> getErrorsByProcessInstanceId(String deploymentId, long processInstanceId, String nodeName, boolean includeAcknowledged, QueryContext queryContext) throws ProcessInstanceNotFoundException, NodeNotFoundException, IncorrectDeploymentIDException {
+    	 ProcessInstanceDesc pi = runtimeDataService.getProcessInstanceById(processInstanceId);
+         if (pi == null) {
+             throw new ProcessInstanceNotFoundException("Process instance with id " + processInstanceId + " not found");
+         }
+         if (!pi.getDeploymentId().equals(deploymentId)) {
+         	throw new IncorrectDeploymentIDException("Process instance with id " + processInstanceId +" does not belong to deployment id " + deploymentId);
+         }
+         
+    	 Map<String, Object> params = new HashMap<String, Object>();
+         params.put("processInstanceId", processInstanceId);
+         params.put("nodeName", nodeName);
+         params.put("ack", getAckMode(includeAcknowledged));
+         applyQueryContext(params, queryContext);        
+        
+         List<ExecutionError> execErrors = commandService.execute(new QueryNameCommand<List<ExecutionError>>("getErrorsByProcessInstanceIdNodeName",params));
+         return execErrors;
     }
     
     @Override
