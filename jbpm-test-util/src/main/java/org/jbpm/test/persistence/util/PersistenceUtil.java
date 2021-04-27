@@ -15,7 +15,6 @@
  */
 package org.jbpm.test.persistence.util;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -44,7 +43,6 @@ import org.kie.test.util.db.PoolingDataSourceWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.junit.Assert.assertNotNull;
 import static org.kie.api.runtime.EnvironmentName.ENTITY_MANAGER_FACTORY;
 import static org.kie.api.runtime.EnvironmentName.GLOBALS;
 import static org.kie.api.runtime.EnvironmentName.TRANSACTION;
@@ -236,27 +234,18 @@ public class PersistenceUtil {
      * @return Properties containing the datasource properties.
      */
     public static Properties getDatasourceProperties() { 
-        String propertiesNotFoundMessage = "Unable to load datasource properties [" + DATASOURCE_PROPERTIES + "]";
-        boolean propertiesNotFound = false;
-
         // Central place to set additional H2 properties
         System.setProperty("h2.lobInDatabase", "true");
         
         Properties props = new Properties();
         try (InputStream propsInputStream = PersistenceUtil.class.getResourceAsStream(DATASOURCE_PROPERTIES)){
-            assertNotNull(propertiesNotFoundMessage, propsInputStream);
             props.load(propsInputStream);
-        } catch (IOException ioe) {
-            propertiesNotFound = true;
-            logger.warn("Unable to find properties, using default H2 properties: {}", ioe.getMessage());
-            logger.warn("Stacktrace:", ioe);
-        }
-
-        String password = props.getProperty(PASSWORD);
-        if ("${maven.jdbc.password}".equals(password) || propertiesNotFound) {
+        } catch (Exception e) {
+            logger.warn("Unable to load datasource properties file {}, using default H2 properties: {}",
+                        DATASOURCE_PROPERTIES, e.getMessage());
+            logger.debug("Stacktrace:", e);
             props = getDefaultProperties();
         }
-
         return props;
     }
 
