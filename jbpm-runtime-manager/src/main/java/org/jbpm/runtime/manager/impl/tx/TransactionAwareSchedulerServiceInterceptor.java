@@ -16,6 +16,9 @@
 
 package org.jbpm.runtime.manager.impl.tx;
 
+import java.util.Optional;
+
+import org.drools.core.common.InternalKnowledgeRuntime;
 import org.drools.core.time.JobContext;
 import org.drools.core.time.SelfRemovalJobContext;
 import org.drools.core.time.impl.TimerJobInstance;
@@ -23,10 +26,11 @@ import org.drools.persistence.api.OrderedTransactionSynchronization;
 import org.drools.persistence.api.TransactionManager;
 import org.drools.persistence.api.TransactionManagerFactory;
 import org.drools.persistence.api.TransactionManagerHelper;
-import org.drools.persistence.jta.JtaTransactionManager;
 import org.jbpm.process.core.timer.GlobalSchedulerService;
 import org.jbpm.process.core.timer.NamedJobContext;
 import org.jbpm.process.core.timer.impl.DelegateSchedulerServiceInterceptor;
+import org.jbpm.process.instance.InternalProcessRuntime;
+import org.jbpm.process.instance.timer.TimerManager;
 import org.jbpm.process.instance.timer.TimerManager.ProcessJobContext;
 import org.kie.api.runtime.Environment;
 import org.kie.api.runtime.EnvironmentName;
@@ -94,8 +98,21 @@ public class TransactionAwareSchedulerServiceInterceptor extends DelegateSchedul
         public void afterCompletion(int status) {
             if ( status == TransactionManager.STATUS_COMMITTED && !timerJobInstance.getJobHandle().isCancel()) {
                 this.schedulerService.internalSchedule(timerJobInstance);
+            } else {
+                if (status == TransactionManager.STATUS_ROLLEDBACK) {
+                    // we remove from the timer from the map in timer manager
+                    JobContext ctxorig = timerJobInstance.getJobContext();
+                    ctxorig = (ctxorig instanceof SelfRemovalJobContext) ? ((SelfRemovalJobContext) ctxorig).getJobContext() : ctxorig; // unwrap
+                    if(!(ctxorig instanceof ProcessJobContext)) {
+                        return;
+                    }
+                    Optional<InternalKnowledgeRuntime> runtime = ctxorig.getInternalKnowledgeRuntime();
+                    if (runtime.isPresent()) {
+                        TimerManager tm = ((InternalProcessRuntime) runtime.get().getProcessRuntime()).getTimerManager();
+                        tm.cancelTimer(((ProcessJobContext) ctxorig).getTimer().getId());
+                    }
+                }
             }
-            
         }
 
 		@Override
