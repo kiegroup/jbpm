@@ -81,6 +81,10 @@ public class GlobalTimerService implements TimerService, InternalSchedulerServic
         return null;
     }
 
+    public boolean isTransactional() {
+        return this.schedulerService.isTransactional();
+    }
+
     @Override
     public JobHandle scheduleJob(Job job, JobContext ctx, Trigger trigger) {
         if (ctx instanceof StartProcessJobContext) {
