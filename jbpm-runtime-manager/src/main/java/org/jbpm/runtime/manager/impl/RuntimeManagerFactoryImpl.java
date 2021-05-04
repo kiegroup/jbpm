@@ -23,6 +23,7 @@ import org.jbpm.runtime.manager.api.SchedulerProvider;
 import org.jbpm.runtime.manager.impl.factory.InMemorySessionFactory;
 import org.jbpm.runtime.manager.impl.factory.JPASessionFactory;
 import org.jbpm.runtime.manager.impl.factory.LocalTaskServiceFactory;
+import org.jbpm.runtime.manager.impl.tx.NoTransactionalTimerResourcesCleanupAwareSchedulerServiceInterceptor;
 import org.jbpm.runtime.manager.impl.tx.TransactionAwareSchedulerServiceInterceptor;
 import org.kie.api.runtime.manager.RuntimeEnvironment;
 import org.kie.api.runtime.manager.RuntimeManager;
@@ -152,6 +153,8 @@ public class RuntimeManagerFactoryImpl implements RuntimeManagerFactory {
                 
                 if (!schedulerService.isTransactional()) {
                     schedulerService.setInterceptor(new TransactionAwareSchedulerServiceInterceptor(environment, manager, schedulerService));
+                } else {
+                    schedulerService.setInterceptor(new NoTransactionalTimerResourcesCleanupAwareSchedulerServiceInterceptor(environment, manager, schedulerService));
                 }
             }
         }

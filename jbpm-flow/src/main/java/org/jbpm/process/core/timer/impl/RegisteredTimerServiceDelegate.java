@@ -58,6 +58,11 @@ public class RegisteredTimerServiceDelegate implements TimerService, InternalSch
         }
     }
 
+    
+    public TimerService getTimerService() {
+        return timerService;
+    }
+
     @Override
     public JobHandle scheduleJob(Job job, JobContext ctx, Trigger trigger) {
         return timerService.scheduleJob(job, ctx, trigger);

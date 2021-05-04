@@ -239,7 +239,9 @@ public class EJBTimerScheduler {
 
 	public boolean removeJob(JobHandle jobHandle) {
 		EjbGlobalJobHandle ejbHandle = (EjbGlobalJobHandle) jobHandle;
-
+        if (USE_LOCAL_CACHE) {
+            localCache.remove(ejbHandle.getUuid());
+        }
 		for (Timer timer : timerService.getTimers()) {
 			try {
     		    Serializable info = timer.getInfo();
@@ -249,9 +251,7 @@ public class EJBTimerScheduler {
     				EjbGlobalJobHandle handle = (EjbGlobalJobHandle) job.getTimerJobInstance().getJobHandle();
     				if (handle.getUuid().equals(ejbHandle.getUuid())) {
     					logger.debug("Job handle {} does match timer and is going to be canceled", jobHandle);
-    					if (USE_LOCAL_CACHE) {
-    						localCache.remove(handle.getUuid());
-    					}
+
     					try {
     					    timer.cancel();
     					} catch (Throwable e) {
