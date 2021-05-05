@@ -127,7 +127,7 @@ import org.apache.http.conn.routing.HttpRoutePlanner;
         defaultHandler = "mvel: new org.jbpm.process.workitem.rest.RESTWorkItemHandler()",
         documentation = "${artifactId}/index.html",
         category = "${artifactId}",
-        icon = "Rest.png",
+        icon = "defaultresticon.png",
         parameters = {
                 @WidParameter(name = "Url"),
                 @WidParameter(name = "Method"),

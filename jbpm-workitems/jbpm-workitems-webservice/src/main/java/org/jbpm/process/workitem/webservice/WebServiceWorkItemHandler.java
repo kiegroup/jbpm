@@ -75,7 +75,7 @@ import org.slf4j.LoggerFactory;
         defaultHandler = "mvel: new org.jbpm.process.workitem.webservice.WebServiceWorkItemHandler()",
         documentation = "${artifactId}/index.html",
         category = "${artifactId}",
-        icon = "WebService.png",
+        icon = "defaultwebserviceicon.png",
         parameters = {
                 @WidParameter(name = "Url"),
                 @WidParameter(name = "Namespace"),

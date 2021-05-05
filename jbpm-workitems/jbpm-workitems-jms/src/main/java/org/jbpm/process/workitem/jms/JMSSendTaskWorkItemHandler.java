@@ -60,7 +60,7 @@ import org.slf4j.LoggerFactory;
                 @WidMavenDepends(group = "${groupId}", artifact = "${artifactId}", version = "${version}")
         },
         serviceInfo = @WidService(category = "${name}", description = "${description}",
-                keywords = "jsm,send,task",
+                keywords = "jms,send,task",
                 action = @WidAction(title = "Send JMS Message"),
                 authinfo = @WidAuth(required = true, params = {"connectionFactoryName", "destinationName"},
                 paramsdescription = {"Connection Factory JNDI Name", "Destination JNDI Name"})
