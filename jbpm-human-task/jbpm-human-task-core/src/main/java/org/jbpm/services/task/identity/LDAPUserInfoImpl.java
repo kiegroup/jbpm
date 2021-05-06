@@ -83,6 +83,7 @@ public class LDAPUserInfoImpl extends AbstractLDAPUserGroupInfo implements UserI
 
     @Override
     public Iterator<OrganizationalEntity> getMembersForGroup(Group group) {
+        LdapSearcher ldapSearcher = new LdapSearcher(this.config);
         String roleContext = getConfigProperty(ROLE_CTX);
         String roleFilter = getConfigProperty(ROLE_MEMBERS_FILTER, getConfigProperty(ROLE_FILTER));
         String roleAttrId = getConfigProperty(MEMBER_ATTR_ID, DEFAULT_MEMBER_ATTR_ID);
@@ -114,6 +115,7 @@ public class LDAPUserInfoImpl extends AbstractLDAPUserGroupInfo implements UserI
     }
 
     private String getAttributeValueForEntity(OrganizationalEntity entity, String attributeName, String defaultValue) {
+        LdapSearcher ldapSearcher = new LdapSearcher(this.config);
         String context = getConfigPropertyByEntity(entity, USER_CTX, ROLE_CTX);
         String filter = getConfigPropertyByEntity(entity, USER_FILTER, ROLE_FILTER);
         String attrId = getConfigProperty(attributeName, defaultValue);
@@ -174,7 +176,8 @@ public class LDAPUserInfoImpl extends AbstractLDAPUserGroupInfo implements UserI
     }
 
     @Override
-    public String getEntityForEmail(String email) {        
+    public String getEntityForEmail(String email) {
+        LdapSearcher ldapSearcher = new LdapSearcher(this.config);
         String context = getConfigProperty(USER_CTX);
         String filter = getConfigProperty(EMAIL_FILTER);
         String attributeId = getConfigProperty(USER_ATTR_ID, DEFAULT_USER_ATTR_ID);
