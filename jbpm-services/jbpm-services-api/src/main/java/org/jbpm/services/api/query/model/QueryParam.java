@@ -280,6 +280,14 @@ public class QueryParam implements Serializable {
         return new QueryParam(collection, "EXCLUDE", emptyList());
     }
 
+    public static QueryParam all(List<?> values) {
+        return new QueryParam(null, "ALL", values);
+    }
+
+    public static QueryParam any(List<?> values) {
+        return new QueryParam(null, "ANY", values);
+    }
+
     /**
      * Returns the column.
      * @return column

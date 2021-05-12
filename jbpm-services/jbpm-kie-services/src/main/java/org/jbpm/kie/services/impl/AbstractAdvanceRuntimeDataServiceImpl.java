@@ -233,7 +233,6 @@ public abstract class AbstractAdvanceRuntimeDataServiceImpl {
                         "           SELECT DISTINCT po.task_id \n" +
                         "           FROM PeopleAssignments_PotOwners po \n" +
                         "           WHERE po.entity_id IN (:owners) \n" +
-                        "           GROUP BY po.task_id \n" +
                         ") pot ON pot.task_id = task.id ");
             }
         }
