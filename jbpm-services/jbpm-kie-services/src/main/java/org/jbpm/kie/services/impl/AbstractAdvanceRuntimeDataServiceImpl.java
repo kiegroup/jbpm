@@ -41,6 +41,7 @@ import org.kie.api.runtime.query.QueryContext;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonMap;
 import static java.util.stream.Collectors.toList;
+import static org.jbpm.services.api.query.model.QueryParam.all;
 
 public abstract class AbstractAdvanceRuntimeDataServiceImpl {
 
@@ -120,11 +121,11 @@ public abstract class AbstractAdvanceRuntimeDataServiceImpl {
         return queryUserTasksByVariables(attributes, processVariables, taskVariables, toOwnersQueryParam(owners), processType, varPrefix, queryContext);
     }
 
-    private QueryParam toOwnersQueryParam(List<String> owners) {
+    QueryParam toOwnersQueryParam(List<String> owners) {
         if(owners == null || owners.isEmpty()) {
             return null;
         }
-        return new QueryParam(null, "ALL", owners);
+        return all(owners);
     }
 
     protected List<org.jbpm.services.api.model.UserTaskInstanceWithPotOwnerDesc> queryUserTasksByVariables(List<QueryParam> attributes,

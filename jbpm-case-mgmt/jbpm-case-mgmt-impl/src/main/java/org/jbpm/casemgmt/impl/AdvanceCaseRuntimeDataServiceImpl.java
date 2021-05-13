@@ -74,7 +74,6 @@ public class AdvanceCaseRuntimeDataServiceImpl extends AbstractAdvanceRuntimeDat
                                                                                                         List<QueryParam> caseVariables,
                                                                                                         List<String> owners,
                                                                                                         QueryContext queryContext) {
-
         return queryUserTasksByVariables(translate(translateTable, attributes), caseVariables, taskVariables, owners, CASE_TYPE, CASE_FILE_PREFIX, queryContext);
     }
 
@@ -84,7 +83,6 @@ public class AdvanceCaseRuntimeDataServiceImpl extends AbstractAdvanceRuntimeDat
                                                                                                         List<QueryParam> caseVariables,
                                                                                                         QueryParam owners,
                                                                                                         QueryContext queryContext) {
-
         return queryUserTasksByVariables(translate(translateTable, attributes), caseVariables, taskVariables, owners, CASE_TYPE, CASE_FILE_PREFIX, queryContext);
     }
 }
