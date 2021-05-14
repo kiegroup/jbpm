@@ -18,6 +18,8 @@ package org.jbpm.test.functional.timer;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -89,14 +91,14 @@ public class MultipleTimerServicesTest extends TimerBaseTest {
     }
     
     @Before
-    public void setup() {
+    public void setup() throws IOException, SQLException {
         Collection<String> runtimeManagerIds = RuntimeManagerRegistry.get().getRegisteredIdentifiers();
         if (runtimeManagerIds != null) {
             for (String id : runtimeManagerIds) {
                 RuntimeManagerRegistry.get().remove(id);
             }
         }
-        
+        createTimerSchema();
         System.setProperty("org.quartz.properties", "quartz-db.properties");
         cleanupSingletonSessionId();
         emf = Persistence.createEntityManagerFactory("org.jbpm.test.persistence");
@@ -109,24 +111,28 @@ public class MultipleTimerServicesTest extends TimerBaseTest {
     }
     
     @After
-    public void cleanup() {
-        System.clearProperty("org.quartz.properties");
-        ((QuartzSchedulerService)globalScheduler1).forceShutdown();
-        ((QuartzSchedulerService)globalScheduler2).forceShutdown();
-        managerM1.close();
-        managerM2.close();
-        
-        EntityManagerFactory emf = ((SimpleRuntimeEnvironment) environmentM1).getEmf();
-        if (emf != null) {
-            emf.close();
+    public void cleanup() throws IOException, SQLException {
+        try {
+            ((QuartzSchedulerService)globalScheduler1).forceShutdown();
+            ((QuartzSchedulerService)globalScheduler2).forceShutdown();
+        } finally {
+            System.clearProperty("org.quartz.properties");
+            dropTimerSchema();
+
+            managerM1.close();
+            managerM2.close();
+
+            EntityManagerFactory emf = ((SimpleRuntimeEnvironment) environmentM1).getEmf();
+            if (emf != null) {
+                emf.close();
+            }
+
+            emf = ((SimpleRuntimeEnvironment) environmentM2).getEmf();
+            if (emf != null && emf.isOpen()) {
+                emf.close();
+            }
         }
-        
-        emf = ((SimpleRuntimeEnvironment) environmentM2).getEmf();
-        if (emf != null && emf.isOpen()) {
-            emf.close();
-        }
-        
-    }    
+    }
     
     @Test(timeout=60000)
     public void testGlobalTimerServiceOnIndependentProcessInstanceManager() throws Exception {

@@ -24,10 +24,10 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
-import java.util.function.Predicate;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.sql.DataSource;
 
 import org.drools.core.impl.KnowledgeBaseFactory;
 import org.drools.core.impl.KnowledgeBaseImpl;
@@ -44,7 +44,6 @@ import org.kie.api.runtime.Environment;
 import org.kie.api.runtime.EnvironmentName;
 import org.kie.internal.persistence.jpa.JPAKnowledgeService;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
-import org.kie.test.util.db.PoolingDataSourceWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -126,19 +125,37 @@ public class TestPersistenceContextBase {
      */
     public void executeScripts(final File scriptsRootFolder, ScriptFilter scriptFilter) throws IOException, SQLException {
         testIsInitialized();
+        executeScripts(scriptsRootFolder, scriptFilter, (DataSource) context.get(PersistenceUtil.DATASOURCE), null);
+    }
+
+    /**
+     * Executes SQL scripts from specified root SQL scripts folder. Selects appropriate scripts from root folder
+     * by using dialect that is defined in datasource.properties file.
+     *
+     * @param scriptsRootFolder Root folder containing folders with SQL scripts for all supported database systems.
+     * @param scriptFilter       indicates the filter to apply, including springboot or not scripts and create/drop scripts
+     * @param dataSource        Datasource where scripts will be executed.
+     * @param defaultSchema     Default database schema to be set prior to running scripts
+     * @throws IOException
+     */
+    public void executeScripts(final File scriptsRootFolder, ScriptFilter scriptFilter,
+                               DataSource dataSource, String defaultSchema) throws IOException, SQLException {
         final File[] sqlScripts = TestsUtil.getDDLScriptFilesByDatabaseType(scriptsRootFolder, databaseType, scriptFilter);
         if (sqlScripts.length == 0 && scriptFilter.hasOption(Option.DISALLOW_EMTPY_RESULTS)) {
             throw new RuntimeException("No create sql files found for db type "
                                                + databaseType + " in folder " + scriptsRootFolder.getAbsolutePath());
         }
-        final Connection connection = ((PoolingDataSourceWrapper) context.get(PersistenceUtil.DATASOURCE)).getConnection();
+        final Connection connection = dataSource.getConnection();
         try {
             connection.setAutoCommit(false);
+            if (defaultSchema != null && !defaultSchema.isEmpty()) {
+                connection.setSchema(defaultSchema);
+            }
             for (File script : sqlScripts) {
                 logger.info("Executing script {}", script.getName());
                 final List<String> scriptCommands = SQLScriptUtil.getCommandsFromScript(script, databaseType);
                 for (String command : scriptCommands) {
-                    logger.info("query {} ", command);
+                    logger.debug("query {} ", command);
                     final PreparedStatement statement = preparedStatement(connection, command);
                     executeStatement(scriptFilter.hasOption(Option.THROW_ON_SCRIPT_ERROR), statement);
                 }

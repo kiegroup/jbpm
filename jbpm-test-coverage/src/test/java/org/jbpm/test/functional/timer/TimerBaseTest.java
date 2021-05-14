@@ -16,11 +16,14 @@
 
 package org.jbpm.test.functional.timer;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
 import org.jbpm.runtime.manager.impl.DefaultRegisterableItemsFactory;
 import org.jbpm.test.AbstractBaseTest;
+import org.jbpm.test.persistence.scripts.util.ScriptFilter;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.kie.api.event.process.ProcessEventListener;
@@ -31,11 +34,16 @@ import org.kie.test.util.db.PoolingDataSourceWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.jbpm.test.persistence.scripts.ScriptsBase.executeScriptRunner;
+import static org.jbpm.test.persistence.scripts.util.ScriptFilter.filter;
+import static org.jbpm.test.persistence.scripts.util.TestsUtil.getDatabaseType;
+
 public abstract class TimerBaseTest extends AbstractBaseTest {
     private static final Logger logger = LoggerFactory.getLogger(TimerBaseTest.class);
 	
 	private static PoolingDataSourceWrapper pds;
-
+    protected ScriptFilter createScript = filter("quartz_tables_" + getDatabaseType().getScriptDatabasePrefix() + ".sql");
+    protected ScriptFilter dropScript = filter("quartz_tables_drop_" + getDatabaseType().getScriptDatabasePrefix() + ".sql");
     protected static final String DB_DDL_SCRIPTS_RESOURCE_PATH = "/db/ddl-scripts";
 
     @BeforeClass
@@ -44,13 +52,21 @@ public abstract class TimerBaseTest extends AbstractBaseTest {
             pds = setupPoolingDataSource(DATASOURCE_NAME);
         }
     }
-    
+
     @AfterClass
     public static void tearDownOnce() {
         if (pds != null) {
             pds.close();
             pds = null;
         }
+    }
+
+    protected void createTimerSchema() throws IOException, SQLException {
+        executeScriptRunner(DB_DDL_SCRIPTS_RESOURCE_PATH, createScript, pds, getDataSourceProperties().getProperty("defaultSchema"));
+    }
+
+    protected void dropTimerSchema() throws IOException, SQLException {
+        executeScriptRunner(DB_DDL_SCRIPTS_RESOURCE_PATH, dropScript, pds, getDataSourceProperties().getProperty("defaultSchema"));
     }
     
     protected class TestRegisterableItemsFactory extends DefaultRegisterableItemsFactory {
