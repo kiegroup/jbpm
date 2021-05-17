@@ -105,7 +105,7 @@ public class TaskCommentTest extends HumanTaskServicesBaseTest{
             Comment comment2 = TaskModelProvider.getFactory().newComment();
             ((InternalComment)comment2).setAddedAt(new Date());
             User user2 = TaskModelProvider.getFactory().newUser();
-            ((InternalOrganizationalEntity) user2).setId("Master");
+            ((InternalOrganizationalEntity) user2).setId("Ruler");
             ((InternalComment)comment2).setAddedBy(user2);
             ((InternalComment)comment2).setText(txt+"asdf");
 

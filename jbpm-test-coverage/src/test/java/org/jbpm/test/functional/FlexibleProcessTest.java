@@ -104,7 +104,7 @@ public class FlexibleProcessTest extends JbpmTestCase {
     /**
      * Tests dynamic insertion of work item node into adhoc top-level process.
      * DynamicUtils does not support adhoc processes yet, but there is improved
-     * version on jbpm master branch.
+     * version on jbpm main branch.
      */
     @Test(timeout = 30000)
     public void testFlexibleProcessAddWorkItem() {

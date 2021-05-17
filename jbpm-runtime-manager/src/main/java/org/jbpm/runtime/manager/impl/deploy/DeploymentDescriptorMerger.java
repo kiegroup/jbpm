@@ -23,11 +23,11 @@ import org.kie.internal.runtime.conf.MergeMode;
 
 public class DeploymentDescriptorMerger {
 
-	public DeploymentDescriptor merge(List<DeploymentDescriptor> descriptorHierarchy, MergeMode mode) {
-	    return  org.kie.internal.runtime.manager.deploy.DeploymentDescriptorMerger.merge(descriptorHierarchy, mode);
-	}
+    public DeploymentDescriptor merge(List<DeploymentDescriptor> descriptorHierarchy, MergeMode mode) {
+        return org.kie.internal.runtime.manager.deploy.DeploymentDescriptorMerger.merge(descriptorHierarchy, mode);
+    }
 
-	public DeploymentDescriptor merge(DeploymentDescriptor master, DeploymentDescriptor slave, MergeMode mode) {
-	    return  org.kie.internal.runtime.manager.deploy.DeploymentDescriptorMerger.merge(master,slave, mode);
-	}
+    public DeploymentDescriptor merge(DeploymentDescriptor primary, DeploymentDescriptor secondary, MergeMode mode) {
+        return org.kie.internal.runtime.manager.deploy.DeploymentDescriptorMerger.merge(primary, secondary, mode);
+    }
 }
