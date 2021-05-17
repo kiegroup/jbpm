@@ -5,7 +5,7 @@
 [![GitHub Forks](https://img.shields.io/github/forks/kiegroup/jbpm.svg)](https://github.com/kiegroup/jbpm/network/members)
 [![Pull Requests](https://img.shields.io/github/issues-pr/kiegroup/jbpm.svg?style=flat-square)](https://github.com/kiegroup/jbpm/pulls)
 [![Contributors](https://img.shields.io/github/contributors/kiegroup/jbpm.svg?style=flat-square)](https://github.com/kiegroup/jbpm/graphs/contributors)
-[![License](https://img.shields.io/github/license/kiegroup/jbpm.svg)](https://github.com/kiegroup/jbpm/blob/master/LICENSE-ASL-2.0.txt)
+[![License](https://img.shields.io/github/license/kiegroup/jbpm.svg)](https://github.com/kiegroup/jbpm/blob/main/LICENSE-ASL-2.0.txt)
 [![Twitter Follow](https://img.shields.io/twitter/follow/jbossjbpm.svg?label=Follow&style=social)](https://twitter.com/jbossjbpm?lang=en)
 
 Quick Links
@@ -52,7 +52,7 @@ mvn clean install -DskipTests
 ```
 Contributing to jBPM
 --------------------
-All contributions are welcome! Before you start please read the [Developing Drools and jBPM](https://github.com/kiegroup/droolsjbpm-build-bootstrap/blob/master/README.md) guide.
+All contributions are welcome! Before you start please read the [Developing Drools and jBPM](https://github.com/kiegroup/droolsjbpm-build-bootstrap/blob/main/README.md) guide.
 
 Getting Help
 --------------------

@@ -43,54 +43,54 @@ public class DeploymentDescriptorMergerTest {
 
 	@Test
 	public void testDeploymentDesciptorMergeOverrideAll() {
-		DeploymentDescriptor master = new DeploymentDescriptorImpl("org.jbpm.domain");
+		DeploymentDescriptor primary = new DeploymentDescriptorImpl("org.jbpm.domain");
 
-		master.getBuilder()
+		primary.getBuilder()
 		.addMarshalingStrategy(new ObjectModel("org.jbpm.test.CustomStrategy", new Object[]{"param2"}))
 		.setLimitSerializationClasses(true);
 
-		assertNotNull(master);
-		assertEquals("org.jbpm.domain", master.getPersistenceUnit());
-		assertEquals("org.jbpm.domain", master.getAuditPersistenceUnit());
-		assertEquals(AuditMode.JPA, master.getAuditMode());
-		assertEquals(PersistenceMode.JPA, master.getPersistenceMode());
-		assertEquals(RuntimeStrategy.SINGLETON, master.getRuntimeStrategy());
-		assertEquals(1, master.getMarshallingStrategies().size());
-		assertEquals(0, master.getConfiguration().size());
-		assertEquals(0, master.getEnvironmentEntries().size());
-		assertEquals(0, master.getEventListeners().size());
-		assertEquals(0, master.getGlobals().size());
-		assertEquals(0, master.getTaskEventListeners().size());
-		assertEquals(0, master.getWorkItemHandlers().size());
-		assertTrue(master.getLimitSerializationClasses());
+		assertNotNull(primary);
+		assertEquals("org.jbpm.domain", primary.getPersistenceUnit());
+		assertEquals("org.jbpm.domain", primary.getAuditPersistenceUnit());
+		assertEquals(AuditMode.JPA, primary.getAuditMode());
+		assertEquals(PersistenceMode.JPA, primary.getPersistenceMode());
+		assertEquals(RuntimeStrategy.SINGLETON, primary.getRuntimeStrategy());
+		assertEquals(1, primary.getMarshallingStrategies().size());
+		assertEquals(0, primary.getConfiguration().size());
+		assertEquals(0, primary.getEnvironmentEntries().size());
+		assertEquals(0, primary.getEventListeners().size());
+		assertEquals(0, primary.getGlobals().size());
+		assertEquals(0, primary.getTaskEventListeners().size());
+		assertEquals(0, primary.getWorkItemHandlers().size());
+		assertTrue(primary.getLimitSerializationClasses());
 
-		DeploymentDescriptor slave = new DeploymentDescriptorImpl("org.jbpm.domain");
+		DeploymentDescriptor secondary = new DeploymentDescriptorImpl("org.jbpm.domain");
 
-		slave.getBuilder()
+		secondary.getBuilder()
 		.auditMode(AuditMode.JMS)
 		.persistenceMode(PersistenceMode.JPA)
 		.persistenceUnit("my.custom.unit")
 		.auditPersistenceUnit("my.custom.unit2")
 		.setLimitSerializationClasses(false);
 
-		assertNotNull(slave);
-		assertEquals("my.custom.unit", slave.getPersistenceUnit());
-		assertEquals("my.custom.unit2", slave.getAuditPersistenceUnit());
-		assertEquals(AuditMode.JMS, slave.getAuditMode());
-		assertEquals(PersistenceMode.JPA, slave.getPersistenceMode());
-		assertEquals(RuntimeStrategy.SINGLETON, slave.getRuntimeStrategy());
-		assertEquals(0, slave.getMarshallingStrategies().size());
-		assertEquals(0, slave.getConfiguration().size());
-		assertEquals(0, slave.getEnvironmentEntries().size());
-		assertEquals(0, slave.getEventListeners().size());
-		assertEquals(0, slave.getGlobals().size());
-		assertEquals(0, slave.getTaskEventListeners().size());
-		assertEquals(0, slave.getWorkItemHandlers().size());
-		assertFalse(slave.getLimitSerializationClasses());
+		assertNotNull(secondary);
+		assertEquals("my.custom.unit", secondary.getPersistenceUnit());
+		assertEquals("my.custom.unit2", secondary.getAuditPersistenceUnit());
+		assertEquals(AuditMode.JMS, secondary.getAuditMode());
+		assertEquals(PersistenceMode.JPA, secondary.getPersistenceMode());
+		assertEquals(RuntimeStrategy.SINGLETON, secondary.getRuntimeStrategy());
+		assertEquals(0, secondary.getMarshallingStrategies().size());
+		assertEquals(0, secondary.getConfiguration().size());
+		assertEquals(0, secondary.getEnvironmentEntries().size());
+		assertEquals(0, secondary.getEventListeners().size());
+		assertEquals(0, secondary.getGlobals().size());
+		assertEquals(0, secondary.getTaskEventListeners().size());
+		assertEquals(0, secondary.getWorkItemHandlers().size());
+		assertFalse(secondary.getLimitSerializationClasses());
 
 		// and now let's merge them
 		DeploymentDescriptorMerger merger = new DeploymentDescriptorMerger();
-		DeploymentDescriptor outcome = merger.merge(master, slave, MergeMode.OVERRIDE_ALL);
+		DeploymentDescriptor outcome = merger.merge(primary, secondary, MergeMode.OVERRIDE_ALL);
 
 		assertNotNull(outcome);
 		assertEquals("my.custom.unit", outcome.getPersistenceUnit());
@@ -110,54 +110,54 @@ public class DeploymentDescriptorMergerTest {
 
 	@Test
 	public void testDeploymentDesciptorMergeKeepAll() {
-		DeploymentDescriptor master = new DeploymentDescriptorImpl("org.jbpm.domain");
+		DeploymentDescriptor primary = new DeploymentDescriptorImpl("org.jbpm.domain");
 
-		master.getBuilder()
+		primary.getBuilder()
 		.addMarshalingStrategy(new ObjectModel("org.jbpm.test.CustomStrategy", new Object[]{"param2"}))
 		.setLimitSerializationClasses(true);
 
-		assertNotNull(master);
-		assertEquals("org.jbpm.domain", master.getPersistenceUnit());
-		assertEquals("org.jbpm.domain", master.getAuditPersistenceUnit());
-		assertEquals(AuditMode.JPA, master.getAuditMode());
-		assertEquals(PersistenceMode.JPA, master.getPersistenceMode());
-		assertEquals(RuntimeStrategy.SINGLETON, master.getRuntimeStrategy());
-		assertEquals(1, master.getMarshallingStrategies().size());
-		assertEquals(0, master.getConfiguration().size());
-		assertEquals(0, master.getEnvironmentEntries().size());
-		assertEquals(0, master.getEventListeners().size());
-		assertEquals(0, master.getGlobals().size());
-		assertEquals(0, master.getTaskEventListeners().size());
-		assertEquals(0, master.getWorkItemHandlers().size());
-		assertTrue(master.getLimitSerializationClasses());
+		assertNotNull(primary);
+		assertEquals("org.jbpm.domain", primary.getPersistenceUnit());
+		assertEquals("org.jbpm.domain", primary.getAuditPersistenceUnit());
+		assertEquals(AuditMode.JPA, primary.getAuditMode());
+		assertEquals(PersistenceMode.JPA, primary.getPersistenceMode());
+		assertEquals(RuntimeStrategy.SINGLETON, primary.getRuntimeStrategy());
+		assertEquals(1, primary.getMarshallingStrategies().size());
+		assertEquals(0, primary.getConfiguration().size());
+		assertEquals(0, primary.getEnvironmentEntries().size());
+		assertEquals(0, primary.getEventListeners().size());
+		assertEquals(0, primary.getGlobals().size());
+		assertEquals(0, primary.getTaskEventListeners().size());
+		assertEquals(0, primary.getWorkItemHandlers().size());
+		assertTrue(primary.getLimitSerializationClasses());
 
-		DeploymentDescriptor slave = new DeploymentDescriptorImpl("org.jbpm.domain");
+		DeploymentDescriptor secondary = new DeploymentDescriptorImpl("org.jbpm.domain");
 
-		slave.getBuilder()
+		secondary.getBuilder()
 		.auditMode(AuditMode.JMS)
 		.persistenceMode(PersistenceMode.JPA)
 		.persistenceUnit("my.custom.unit")
 		.auditPersistenceUnit("my.custom.unit2")
 		.setLimitSerializationClasses(false);
 
-		assertNotNull(slave);
-		assertEquals("my.custom.unit", slave.getPersistenceUnit());
-		assertEquals("my.custom.unit2", slave.getAuditPersistenceUnit());
-		assertEquals(AuditMode.JMS, slave.getAuditMode());
-		assertEquals(PersistenceMode.JPA, slave.getPersistenceMode());
-		assertEquals(RuntimeStrategy.SINGLETON, slave.getRuntimeStrategy());
-		assertEquals(0, slave.getMarshallingStrategies().size());
-		assertEquals(0, slave.getConfiguration().size());
-		assertEquals(0, slave.getEnvironmentEntries().size());
-		assertEquals(0, slave.getEventListeners().size());
-		assertEquals(0, slave.getGlobals().size());
-		assertEquals(0, slave.getTaskEventListeners().size());
-		assertEquals(0, slave.getWorkItemHandlers().size());
-		assertFalse(slave.getLimitSerializationClasses());
+		assertNotNull(secondary);
+		assertEquals("my.custom.unit", secondary.getPersistenceUnit());
+		assertEquals("my.custom.unit2", secondary.getAuditPersistenceUnit());
+		assertEquals(AuditMode.JMS, secondary.getAuditMode());
+		assertEquals(PersistenceMode.JPA, secondary.getPersistenceMode());
+		assertEquals(RuntimeStrategy.SINGLETON, secondary.getRuntimeStrategy());
+		assertEquals(0, secondary.getMarshallingStrategies().size());
+		assertEquals(0, secondary.getConfiguration().size());
+		assertEquals(0, secondary.getEnvironmentEntries().size());
+		assertEquals(0, secondary.getEventListeners().size());
+		assertEquals(0, secondary.getGlobals().size());
+		assertEquals(0, secondary.getTaskEventListeners().size());
+		assertEquals(0, secondary.getWorkItemHandlers().size());
+		assertFalse(secondary.getLimitSerializationClasses());
 
 		// and now let's merge them
 		DeploymentDescriptorMerger merger = new DeploymentDescriptorMerger();
-		DeploymentDescriptor outcome = merger.merge(master, slave, MergeMode.KEEP_ALL);
+		DeploymentDescriptor outcome = merger.merge(primary, secondary, MergeMode.KEEP_ALL);
 
 		assertNotNull(outcome);
 		assertEquals("org.jbpm.domain", outcome.getPersistenceUnit());
@@ -177,54 +177,54 @@ public class DeploymentDescriptorMergerTest {
 
 	@Test
 	public void testDeploymentDesciptorMergeOverrideEmpty() {
-		DeploymentDescriptor master = new DeploymentDescriptorImpl("org.jbpm.domain");
+		DeploymentDescriptor primary = new DeploymentDescriptorImpl("org.jbpm.domain");
 
-		master.getBuilder()
+		primary.getBuilder()
 		.addMarshalingStrategy(new ObjectModel("org.jbpm.test.CustomStrategy", new Object[]{"param2"}))
 		.setLimitSerializationClasses(true);
 
-		assertNotNull(master);
-		assertEquals("org.jbpm.domain", master.getPersistenceUnit());
-		assertEquals("org.jbpm.domain", master.getAuditPersistenceUnit());
-		assertEquals(AuditMode.JPA, master.getAuditMode());
-		assertEquals(PersistenceMode.JPA, master.getPersistenceMode());
-		assertEquals(RuntimeStrategy.SINGLETON, master.getRuntimeStrategy());
-		assertEquals(1, master.getMarshallingStrategies().size());
-		assertEquals(0, master.getConfiguration().size());
-		assertEquals(0, master.getEnvironmentEntries().size());
-		assertEquals(0, master.getEventListeners().size());
-		assertEquals(0, master.getGlobals().size());
-		assertEquals(0, master.getTaskEventListeners().size());
-		assertEquals(0, master.getWorkItemHandlers().size());
-		assertTrue(master.getLimitSerializationClasses());
+		assertNotNull(primary);
+		assertEquals("org.jbpm.domain", primary.getPersistenceUnit());
+		assertEquals("org.jbpm.domain", primary.getAuditPersistenceUnit());
+		assertEquals(AuditMode.JPA, primary.getAuditMode());
+		assertEquals(PersistenceMode.JPA, primary.getPersistenceMode());
+		assertEquals(RuntimeStrategy.SINGLETON, primary.getRuntimeStrategy());
+		assertEquals(1, primary.getMarshallingStrategies().size());
+		assertEquals(0, primary.getConfiguration().size());
+		assertEquals(0, primary.getEnvironmentEntries().size());
+		assertEquals(0, primary.getEventListeners().size());
+		assertEquals(0, primary.getGlobals().size());
+		assertEquals(0, primary.getTaskEventListeners().size());
+		assertEquals(0, primary.getWorkItemHandlers().size());
+		assertTrue(primary.getLimitSerializationClasses());
 
-		DeploymentDescriptor slave = new DeploymentDescriptorImpl("org.jbpm.domain");
+		DeploymentDescriptor secondary = new DeploymentDescriptorImpl("org.jbpm.domain");
 
-		slave.getBuilder()
+		secondary.getBuilder()
 		.auditMode(AuditMode.JMS)
 		.persistenceMode(PersistenceMode.JPA)
 		.persistenceUnit(null)
 		.auditPersistenceUnit("");
 
-		assertNotNull(slave);
-		assertEquals(null, slave.getPersistenceUnit());
-		assertEquals("", slave.getAuditPersistenceUnit());
-		assertEquals(AuditMode.JMS, slave.getAuditMode());
-		assertEquals(PersistenceMode.JPA, slave.getPersistenceMode());
-		assertEquals(RuntimeStrategy.SINGLETON, slave.getRuntimeStrategy());
-		assertEquals(0, slave.getMarshallingStrategies().size());
-		assertEquals(0, slave.getConfiguration().size());
-		assertEquals(0, slave.getEnvironmentEntries().size());
-		assertEquals(0, slave.getEventListeners().size());
-		assertEquals(0, slave.getGlobals().size());
-		assertEquals(0, slave.getTaskEventListeners().size());
-		assertEquals(0, slave.getWorkItemHandlers().size());
-		((DeploymentDescriptorImpl) slave).setLimitSerializationClasses(null);
-		assertNull(slave.getLimitSerializationClasses());
+		assertNotNull(secondary);
+		assertEquals(null, secondary.getPersistenceUnit());
+		assertEquals("", secondary.getAuditPersistenceUnit());
+		assertEquals(AuditMode.JMS, secondary.getAuditMode());
+		assertEquals(PersistenceMode.JPA, secondary.getPersistenceMode());
+		assertEquals(RuntimeStrategy.SINGLETON, secondary.getRuntimeStrategy());
+		assertEquals(0, secondary.getMarshallingStrategies().size());
+		assertEquals(0, secondary.getConfiguration().size());
+		assertEquals(0, secondary.getEnvironmentEntries().size());
+		assertEquals(0, secondary.getEventListeners().size());
+		assertEquals(0, secondary.getGlobals().size());
+		assertEquals(0, secondary.getTaskEventListeners().size());
+		assertEquals(0, secondary.getWorkItemHandlers().size());
+		((DeploymentDescriptorImpl) secondary).setLimitSerializationClasses(null);
+		assertNull(secondary.getLimitSerializationClasses());
 
 		// and now let's merge them
 		DeploymentDescriptorMerger merger = new DeploymentDescriptorMerger();
-		DeploymentDescriptor outcome = merger.merge(master, slave, MergeMode.OVERRIDE_EMPTY);
+		DeploymentDescriptor outcome = merger.merge(primary, secondary, MergeMode.OVERRIDE_EMPTY);
 
 		assertNotNull(outcome);
 		assertEquals("org.jbpm.domain", outcome.getPersistenceUnit());
@@ -244,30 +244,30 @@ public class DeploymentDescriptorMergerTest {
 
 	@Test
 	public void testDeploymentDesciptorMergeMergeCollections() {
-		DeploymentDescriptor master = new DeploymentDescriptorImpl("org.jbpm.domain");
+		DeploymentDescriptor primary = new DeploymentDescriptorImpl("org.jbpm.domain");
 
-		master.getBuilder()
+		primary.getBuilder()
 		.addMarshalingStrategy(new ObjectModel("org.jbpm.test.CustomStrategy", new Object[]{"param2"}))
 		.setLimitSerializationClasses(true);
 
-		assertNotNull(master);
-		assertEquals("org.jbpm.domain", master.getPersistenceUnit());
-		assertEquals("org.jbpm.domain", master.getAuditPersistenceUnit());
-		assertEquals(AuditMode.JPA, master.getAuditMode());
-		assertEquals(PersistenceMode.JPA, master.getPersistenceMode());
-		assertEquals(RuntimeStrategy.SINGLETON, master.getRuntimeStrategy());
-		assertEquals(1, master.getMarshallingStrategies().size());
-		assertEquals(0, master.getConfiguration().size());
-		assertEquals(0, master.getEnvironmentEntries().size());
-		assertEquals(0, master.getEventListeners().size());
-		assertEquals(0, master.getGlobals().size());
-		assertEquals(0, master.getTaskEventListeners().size());
-		assertEquals(0, master.getWorkItemHandlers().size());
-		assertTrue(master.getLimitSerializationClasses());
+		assertNotNull(primary);
+		assertEquals("org.jbpm.domain", primary.getPersistenceUnit());
+		assertEquals("org.jbpm.domain", primary.getAuditPersistenceUnit());
+		assertEquals(AuditMode.JPA, primary.getAuditMode());
+		assertEquals(PersistenceMode.JPA, primary.getPersistenceMode());
+		assertEquals(RuntimeStrategy.SINGLETON, primary.getRuntimeStrategy());
+		assertEquals(1, primary.getMarshallingStrategies().size());
+		assertEquals(0, primary.getConfiguration().size());
+		assertEquals(0, primary.getEnvironmentEntries().size());
+		assertEquals(0, primary.getEventListeners().size());
+		assertEquals(0, primary.getGlobals().size());
+		assertEquals(0, primary.getTaskEventListeners().size());
+		assertEquals(0, primary.getWorkItemHandlers().size());
+		assertTrue(primary.getLimitSerializationClasses());
 
-		DeploymentDescriptor slave = new DeploymentDescriptorImpl("org.jbpm.domain");
+		DeploymentDescriptor secondary = new DeploymentDescriptorImpl("org.jbpm.domain");
 
-		slave.getBuilder()
+		secondary.getBuilder()
 		.auditMode(AuditMode.JMS)
 		.persistenceMode(PersistenceMode.JPA)
 		.persistenceUnit(null)
@@ -275,24 +275,24 @@ public class DeploymentDescriptorMergerTest {
 		.addMarshalingStrategy(new ObjectModel("org.jbpm.test.AnotherCustomStrategy", new Object[]{"param2"}))
 		.setLimitSerializationClasses(false);
 
-		assertNotNull(slave);
-		assertEquals(null, slave.getPersistenceUnit());
-		assertEquals("", slave.getAuditPersistenceUnit());
-		assertEquals(AuditMode.JMS, slave.getAuditMode());
-		assertEquals(PersistenceMode.JPA, slave.getPersistenceMode());
-		assertEquals(RuntimeStrategy.SINGLETON, slave.getRuntimeStrategy());
-		assertEquals(1, slave.getMarshallingStrategies().size());
-		assertEquals(0, slave.getConfiguration().size());
-		assertEquals(0, slave.getEnvironmentEntries().size());
-		assertEquals(0, slave.getEventListeners().size());
-		assertEquals(0, slave.getGlobals().size());
-		assertEquals(0, slave.getTaskEventListeners().size());
-		assertEquals(0, slave.getWorkItemHandlers().size());
-		assertFalse(slave.getLimitSerializationClasses());
+		assertNotNull(secondary);
+		assertEquals(null, secondary.getPersistenceUnit());
+		assertEquals("", secondary.getAuditPersistenceUnit());
+		assertEquals(AuditMode.JMS, secondary.getAuditMode());
+		assertEquals(PersistenceMode.JPA, secondary.getPersistenceMode());
+		assertEquals(RuntimeStrategy.SINGLETON, secondary.getRuntimeStrategy());
+		assertEquals(1, secondary.getMarshallingStrategies().size());
+		assertEquals(0, secondary.getConfiguration().size());
+		assertEquals(0, secondary.getEnvironmentEntries().size());
+		assertEquals(0, secondary.getEventListeners().size());
+		assertEquals(0, secondary.getGlobals().size());
+		assertEquals(0, secondary.getTaskEventListeners().size());
+		assertEquals(0, secondary.getWorkItemHandlers().size());
+		assertFalse(secondary.getLimitSerializationClasses());
 
 		// and now let's merge them
 		DeploymentDescriptorMerger merger = new DeploymentDescriptorMerger();
-		DeploymentDescriptor outcome = merger.merge(master, slave, MergeMode.MERGE_COLLECTIONS);
+		DeploymentDescriptor outcome = merger.merge(primary, secondary, MergeMode.MERGE_COLLECTIONS);
 
 		assertNotNull(outcome);
 		assertEquals("org.jbpm.domain", outcome.getPersistenceUnit());
@@ -312,50 +312,50 @@ public class DeploymentDescriptorMergerTest {
 
 	@Test
 	public void testDeploymentDesciptorMergeHierarchy() {
-		DeploymentDescriptor master = new DeploymentDescriptorImpl("org.jbpm.domain");
+		DeploymentDescriptor primary = new DeploymentDescriptorImpl("org.jbpm.domain");
 
-		master.getBuilder()
+		primary.getBuilder()
 		.addMarshalingStrategy(new ObjectModel("org.jbpm.test.CustomStrategy", new Object[]{"param2"}));
 
-		assertNotNull(master);
-		assertEquals("org.jbpm.domain", master.getPersistenceUnit());
-		assertEquals("org.jbpm.domain", master.getAuditPersistenceUnit());
-		assertEquals(AuditMode.JPA, master.getAuditMode());
-		assertEquals(PersistenceMode.JPA, master.getPersistenceMode());
-		assertEquals(RuntimeStrategy.SINGLETON, master.getRuntimeStrategy());
-		assertEquals(1, master.getMarshallingStrategies().size());
-		assertEquals(0, master.getConfiguration().size());
-		assertEquals(0, master.getEnvironmentEntries().size());
-		assertEquals(0, master.getEventListeners().size());
-		assertEquals(0, master.getGlobals().size());
-		assertEquals(0, master.getTaskEventListeners().size());
-		assertEquals(0, master.getWorkItemHandlers().size());
+		assertNotNull(primary);
+		assertEquals("org.jbpm.domain", primary.getPersistenceUnit());
+		assertEquals("org.jbpm.domain", primary.getAuditPersistenceUnit());
+		assertEquals(AuditMode.JPA, primary.getAuditMode());
+		assertEquals(PersistenceMode.JPA, primary.getPersistenceMode());
+		assertEquals(RuntimeStrategy.SINGLETON, primary.getRuntimeStrategy());
+		assertEquals(1, primary.getMarshallingStrategies().size());
+		assertEquals(0, primary.getConfiguration().size());
+		assertEquals(0, primary.getEnvironmentEntries().size());
+		assertEquals(0, primary.getEventListeners().size());
+		assertEquals(0, primary.getGlobals().size());
+		assertEquals(0, primary.getTaskEventListeners().size());
+		assertEquals(0, primary.getWorkItemHandlers().size());
 
-		DeploymentDescriptor slave = new DeploymentDescriptorImpl("org.jbpm.domain");
+		DeploymentDescriptor secondary = new DeploymentDescriptorImpl("org.jbpm.domain");
 
-		slave.getBuilder()
+		secondary.getBuilder()
 		.auditMode(AuditMode.NONE)
 		.persistenceMode(PersistenceMode.JPA)
 		.persistenceUnit("my.custom.unit")
 		.auditPersistenceUnit("my.custom.unit2");
 
-		assertNotNull(slave);
-		assertEquals("my.custom.unit", slave.getPersistenceUnit());
-		assertEquals("my.custom.unit2", slave.getAuditPersistenceUnit());
-		assertEquals(AuditMode.NONE, slave.getAuditMode());
-		assertEquals(PersistenceMode.JPA, slave.getPersistenceMode());
-		assertEquals(RuntimeStrategy.SINGLETON, slave.getRuntimeStrategy());
-		assertEquals(0, slave.getMarshallingStrategies().size());
-		assertEquals(0, slave.getConfiguration().size());
-		assertEquals(0, slave.getEnvironmentEntries().size());
-		assertEquals(0, slave.getEventListeners().size());
-		assertEquals(0, slave.getGlobals().size());
-		assertEquals(0, slave.getTaskEventListeners().size());
-		assertEquals(0, slave.getWorkItemHandlers().size());
+		assertNotNull(secondary);
+		assertEquals("my.custom.unit", secondary.getPersistenceUnit());
+		assertEquals("my.custom.unit2", secondary.getAuditPersistenceUnit());
+		assertEquals(AuditMode.NONE, secondary.getAuditMode());
+		assertEquals(PersistenceMode.JPA, secondary.getPersistenceMode());
+		assertEquals(RuntimeStrategy.SINGLETON, secondary.getRuntimeStrategy());
+		assertEquals(0, secondary.getMarshallingStrategies().size());
+		assertEquals(0, secondary.getConfiguration().size());
+		assertEquals(0, secondary.getEnvironmentEntries().size());
+		assertEquals(0, secondary.getEventListeners().size());
+		assertEquals(0, secondary.getGlobals().size());
+		assertEquals(0, secondary.getTaskEventListeners().size());
+		assertEquals(0, secondary.getWorkItemHandlers().size());
 
-		DeploymentDescriptor slave2 = new DeploymentDescriptorImpl("org.jbpm.domain");
+		DeploymentDescriptor secondary2 = new DeploymentDescriptorImpl("org.jbpm.domain");
 
-		slave2.getBuilder()
+		secondary2.getBuilder()
 		.auditMode(AuditMode.JMS)
 		.persistenceMode(PersistenceMode.JPA)
 		.persistenceUnit("my.custom.unit2")
@@ -363,25 +363,25 @@ public class DeploymentDescriptorMergerTest {
 		.runtimeStrategy(RuntimeStrategy.PER_PROCESS_INSTANCE)
 		.addEnvironmentEntry(new NamedObjectModel("IS_JTA", "java.lang.Boolean", new Object[]{"false"}));
 
-		assertNotNull(slave2);
-		assertEquals("my.custom.unit2", slave2.getPersistenceUnit());
-		assertEquals("my.custom.altered", slave2.getAuditPersistenceUnit());
-		assertEquals(AuditMode.JMS, slave2.getAuditMode());
-		assertEquals(PersistenceMode.JPA, slave2.getPersistenceMode());
-		assertEquals(RuntimeStrategy.PER_PROCESS_INSTANCE, slave2.getRuntimeStrategy());
-		assertEquals(0, slave2.getMarshallingStrategies().size());
-		assertEquals(0, slave2.getConfiguration().size());
-		assertEquals(1, slave2.getEnvironmentEntries().size());
-		assertEquals(0, slave2.getEventListeners().size());
-		assertEquals(0, slave2.getGlobals().size());
-		assertEquals(0, slave2.getTaskEventListeners().size());
-		assertEquals(0, slave2.getWorkItemHandlers().size());
+		assertNotNull(secondary2);
+		assertEquals("my.custom.unit2", secondary2.getPersistenceUnit());
+		assertEquals("my.custom.altered", secondary2.getAuditPersistenceUnit());
+		assertEquals(AuditMode.JMS, secondary2.getAuditMode());
+		assertEquals(PersistenceMode.JPA, secondary2.getPersistenceMode());
+		assertEquals(RuntimeStrategy.PER_PROCESS_INSTANCE, secondary2.getRuntimeStrategy());
+		assertEquals(0, secondary2.getMarshallingStrategies().size());
+		assertEquals(0, secondary2.getConfiguration().size());
+		assertEquals(1, secondary2.getEnvironmentEntries().size());
+		assertEquals(0, secondary2.getEventListeners().size());
+		assertEquals(0, secondary2.getGlobals().size());
+		assertEquals(0, secondary2.getTaskEventListeners().size());
+		assertEquals(0, secondary2.getWorkItemHandlers().size());
 
 		// assemble hierarchy
 		List<DeploymentDescriptor> hierarchy = new ArrayList<DeploymentDescriptor>();
-		hierarchy.add(slave2);
-		hierarchy.add(slave);
-		hierarchy.add(master);
+		hierarchy.add(secondary2);
+		hierarchy.add(secondary);
+		hierarchy.add(primary);
 
 		// and now let's merge them
 		DeploymentDescriptorMerger merger = new DeploymentDescriptorMerger();
@@ -404,51 +404,51 @@ public class DeploymentDescriptorMergerTest {
 
 	@Test
 	public void testDeploymentDesciptorMergeMergeCollectionsAvoidDuplicates() {
-		DeploymentDescriptor master = new DeploymentDescriptorImpl("org.jbpm.domain");
+		DeploymentDescriptor primary = new DeploymentDescriptorImpl("org.jbpm.domain");
 
-		master.getBuilder()
+		primary.getBuilder()
 		.addMarshalingStrategy(new ObjectModel("org.jbpm.test.CustomStrategy", new Object[]{"param2"}));
 
-		assertNotNull(master);
-		assertEquals("org.jbpm.domain", master.getPersistenceUnit());
-		assertEquals("org.jbpm.domain", master.getAuditPersistenceUnit());
-		assertEquals(AuditMode.JPA, master.getAuditMode());
-		assertEquals(PersistenceMode.JPA, master.getPersistenceMode());
-		assertEquals(RuntimeStrategy.SINGLETON, master.getRuntimeStrategy());
-		assertEquals(1, master.getMarshallingStrategies().size());
-		assertEquals(0, master.getConfiguration().size());
-		assertEquals(0, master.getEnvironmentEntries().size());
-		assertEquals(0, master.getEventListeners().size());
-		assertEquals(0, master.getGlobals().size());
-		assertEquals(0, master.getTaskEventListeners().size());
-		assertEquals(0, master.getWorkItemHandlers().size());
+		assertNotNull(primary);
+		assertEquals("org.jbpm.domain", primary.getPersistenceUnit());
+		assertEquals("org.jbpm.domain", primary.getAuditPersistenceUnit());
+		assertEquals(AuditMode.JPA, primary.getAuditMode());
+		assertEquals(PersistenceMode.JPA, primary.getPersistenceMode());
+		assertEquals(RuntimeStrategy.SINGLETON, primary.getRuntimeStrategy());
+		assertEquals(1, primary.getMarshallingStrategies().size());
+		assertEquals(0, primary.getConfiguration().size());
+		assertEquals(0, primary.getEnvironmentEntries().size());
+		assertEquals(0, primary.getEventListeners().size());
+		assertEquals(0, primary.getGlobals().size());
+		assertEquals(0, primary.getTaskEventListeners().size());
+		assertEquals(0, primary.getWorkItemHandlers().size());
 
-		DeploymentDescriptor slave = new DeploymentDescriptorImpl("org.jbpm.domain");
+		DeploymentDescriptor secondary = new DeploymentDescriptorImpl("org.jbpm.domain");
 
-		slave.getBuilder()
+		secondary.getBuilder()
 		.auditMode(AuditMode.JMS)
 		.persistenceMode(PersistenceMode.JPA)
 		.persistenceUnit(null)
 		.auditPersistenceUnit("")
 		.addMarshalingStrategy(new ObjectModel("org.jbpm.test.CustomStrategy", new Object[]{"param2"}));
 
-		assertNotNull(slave);
-		assertEquals(null, slave.getPersistenceUnit());
-		assertEquals("", slave.getAuditPersistenceUnit());
-		assertEquals(AuditMode.JMS, slave.getAuditMode());
-		assertEquals(PersistenceMode.JPA, slave.getPersistenceMode());
-		assertEquals(RuntimeStrategy.SINGLETON, slave.getRuntimeStrategy());
-		assertEquals(1, slave.getMarshallingStrategies().size());
-		assertEquals(0, slave.getConfiguration().size());
-		assertEquals(0, slave.getEnvironmentEntries().size());
-		assertEquals(0, slave.getEventListeners().size());
-		assertEquals(0, slave.getGlobals().size());
-		assertEquals(0, slave.getTaskEventListeners().size());
-		assertEquals(0, slave.getWorkItemHandlers().size());
+		assertNotNull(secondary);
+		assertEquals(null, secondary.getPersistenceUnit());
+		assertEquals("", secondary.getAuditPersistenceUnit());
+		assertEquals(AuditMode.JMS, secondary.getAuditMode());
+		assertEquals(PersistenceMode.JPA, secondary.getPersistenceMode());
+		assertEquals(RuntimeStrategy.SINGLETON, secondary.getRuntimeStrategy());
+		assertEquals(1, secondary.getMarshallingStrategies().size());
+		assertEquals(0, secondary.getConfiguration().size());
+		assertEquals(0, secondary.getEnvironmentEntries().size());
+		assertEquals(0, secondary.getEventListeners().size());
+		assertEquals(0, secondary.getGlobals().size());
+		assertEquals(0, secondary.getTaskEventListeners().size());
+		assertEquals(0, secondary.getWorkItemHandlers().size());
 
 		// and now let's merge them
 		DeploymentDescriptorMerger merger = new DeploymentDescriptorMerger();
-		DeploymentDescriptor outcome = merger.merge(master, slave, MergeMode.MERGE_COLLECTIONS);
+		DeploymentDescriptor outcome = merger.merge(primary, secondary, MergeMode.MERGE_COLLECTIONS);
 
 		assertNotNull(outcome);
 		assertEquals("org.jbpm.domain", outcome.getPersistenceUnit());
@@ -467,51 +467,51 @@ public class DeploymentDescriptorMergerTest {
 
 	@Test
 	public void testDeploymentDesciptorMergeMergeCollectionsAvoidDuplicatesNamedObject() {
-		DeploymentDescriptor master = new DeploymentDescriptorImpl("org.jbpm.domain");
+		DeploymentDescriptor primary = new DeploymentDescriptorImpl("org.jbpm.domain");
 
-		master.getBuilder()
+		primary.getBuilder()
 		.addWorkItemHandler(new NamedObjectModel("mvel", "Log", "new org.jbpm.process.instance.impl.demo.SystemOutWorkItemHandler()"));
 
-		assertNotNull(master);
-		assertEquals("org.jbpm.domain", master.getPersistenceUnit());
-		assertEquals("org.jbpm.domain", master.getAuditPersistenceUnit());
-		assertEquals(AuditMode.JPA, master.getAuditMode());
-		assertEquals(PersistenceMode.JPA, master.getPersistenceMode());
-		assertEquals(RuntimeStrategy.SINGLETON, master.getRuntimeStrategy());
-		assertEquals(0, master.getMarshallingStrategies().size());
-		assertEquals(0, master.getConfiguration().size());
-		assertEquals(0, master.getEnvironmentEntries().size());
-		assertEquals(0, master.getEventListeners().size());
-		assertEquals(0, master.getGlobals().size());
-		assertEquals(0, master.getTaskEventListeners().size());
-		assertEquals(1, master.getWorkItemHandlers().size());
+		assertNotNull(primary);
+		assertEquals("org.jbpm.domain", primary.getPersistenceUnit());
+		assertEquals("org.jbpm.domain", primary.getAuditPersistenceUnit());
+		assertEquals(AuditMode.JPA, primary.getAuditMode());
+		assertEquals(PersistenceMode.JPA, primary.getPersistenceMode());
+		assertEquals(RuntimeStrategy.SINGLETON, primary.getRuntimeStrategy());
+		assertEquals(0, primary.getMarshallingStrategies().size());
+		assertEquals(0, primary.getConfiguration().size());
+		assertEquals(0, primary.getEnvironmentEntries().size());
+		assertEquals(0, primary.getEventListeners().size());
+		assertEquals(0, primary.getGlobals().size());
+		assertEquals(0, primary.getTaskEventListeners().size());
+		assertEquals(1, primary.getWorkItemHandlers().size());
 
-		DeploymentDescriptor slave = new DeploymentDescriptorImpl("org.jbpm.domain");
+		DeploymentDescriptor secondary = new DeploymentDescriptorImpl("org.jbpm.domain");
 
-		slave.getBuilder()
+		secondary.getBuilder()
 		.auditMode(AuditMode.JMS)
 		.persistenceMode(PersistenceMode.JPA)
 		.persistenceUnit(null)
 		.auditPersistenceUnit("")
 		.addWorkItemHandler(new NamedObjectModel("mvel", "Log", "new org.jbpm.process.instance.impl.demo.CustomSystemOutWorkItemHandler()"));
 
-		assertNotNull(slave);
-		assertEquals(null, slave.getPersistenceUnit());
-		assertEquals("", slave.getAuditPersistenceUnit());
-		assertEquals(AuditMode.JMS, slave.getAuditMode());
-		assertEquals(PersistenceMode.JPA, slave.getPersistenceMode());
-		assertEquals(RuntimeStrategy.SINGLETON, slave.getRuntimeStrategy());
-		assertEquals(0, slave.getMarshallingStrategies().size());
-		assertEquals(0, slave.getConfiguration().size());
-		assertEquals(0, slave.getEnvironmentEntries().size());
-		assertEquals(0, slave.getEventListeners().size());
-		assertEquals(0, slave.getGlobals().size());
-		assertEquals(0, slave.getTaskEventListeners().size());
-		assertEquals(1, slave.getWorkItemHandlers().size());
+		assertNotNull(secondary);
+		assertEquals(null, secondary.getPersistenceUnit());
+		assertEquals("", secondary.getAuditPersistenceUnit());
+		assertEquals(AuditMode.JMS, secondary.getAuditMode());
+		assertEquals(PersistenceMode.JPA, secondary.getPersistenceMode());
+		assertEquals(RuntimeStrategy.SINGLETON, secondary.getRuntimeStrategy());
+		assertEquals(0, secondary.getMarshallingStrategies().size());
+		assertEquals(0, secondary.getConfiguration().size());
+		assertEquals(0, secondary.getEnvironmentEntries().size());
+		assertEquals(0, secondary.getEventListeners().size());
+		assertEquals(0, secondary.getGlobals().size());
+		assertEquals(0, secondary.getTaskEventListeners().size());
+		assertEquals(1, secondary.getWorkItemHandlers().size());
 
 		// and now let's merge them
 		DeploymentDescriptorMerger merger = new DeploymentDescriptorMerger();
-		DeploymentDescriptor outcome = merger.merge(master, slave, MergeMode.MERGE_COLLECTIONS);
+		DeploymentDescriptor outcome = merger.merge(primary, secondary, MergeMode.MERGE_COLLECTIONS);
 
 		assertNotNull(outcome);
 		assertEquals("org.jbpm.domain", outcome.getPersistenceUnit());
@@ -527,7 +527,7 @@ public class DeploymentDescriptorMergerTest {
 		assertEquals(0, outcome.getTaskEventListeners().size());
 		assertEquals(1, outcome.getWorkItemHandlers().size());
 
-		// let's check if the slave version is preserved
+		// let's check if the secondary version is preserved
 		NamedObjectModel model = outcome.getWorkItemHandlers().get(0);
 		assertEquals("Log", model.getName());
 		assertEquals("new org.jbpm.process.instance.impl.demo.CustomSystemOutWorkItemHandler()", model.getIdentifier());
