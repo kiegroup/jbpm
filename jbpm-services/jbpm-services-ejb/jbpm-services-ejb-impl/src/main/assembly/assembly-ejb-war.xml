@@ -8,7 +8,7 @@
   <includeBaseDirectory>false</includeBaseDirectory>
   <files>
     <file>
-      <source>${project.basedir}/src/test/resources/META-INF/persistence.xml</source>
+      <source>${project.basedir}/src/test/filtered-resources/META-INF/persistence.xml</source>
       <outputDirectory>WEB-INF/classes/META-INF</outputDirectory>
     </file>
     <file>
