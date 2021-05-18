@@ -16,10 +16,6 @@
 
 package org.jbpm.event.emitters.elasticsearch;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
-
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -53,6 +49,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.kie.api.runtime.Environment;
 import org.kie.api.runtime.process.CaseAssignment;
 import org.kie.api.runtime.process.CaseData;
 import org.kie.api.task.model.Status;
@@ -61,6 +58,10 @@ import org.kie.api.task.model.User;
 import org.kie.internal.task.api.model.InternalPeopleAssignments;
 import org.kie.internal.task.api.model.InternalTaskData;
 import org.mockito.Mockito;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 public class ElasticSearchEventEmitterTest {
     
@@ -284,7 +285,7 @@ public class ElasticSearchEventEmitterTest {
         
         List<InstanceView<?>> views = new ArrayList<>();
         
-        TaskInstanceView instanceView = new TaskInstanceView(taskInstance);
+        TaskInstanceView instanceView = new TaskInstanceView(taskInstance, Mockito.mock(Environment.class));
         instanceView.copyFromSource();
         
         views.add(instanceView);

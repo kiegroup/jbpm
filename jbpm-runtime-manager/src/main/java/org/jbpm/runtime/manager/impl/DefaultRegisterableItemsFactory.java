@@ -21,8 +21,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Map.Entry;
+import java.util.Properties;
 
 import org.drools.core.impl.EnvironmentFactory;
 import org.jbpm.process.audit.AbstractAuditLogger;
@@ -162,17 +162,17 @@ public class DefaultRegisterableItemsFactory extends SimpleRegisterableItemsFact
 
 
     @Override
-	public List<TaskLifeCycleEventListener> getTaskListeners() {
-    	List<TaskLifeCycleEventListener> defaultListeners = new ArrayList<TaskLifeCycleEventListener>();
+	public List<TaskLifeCycleEventListener> getTaskListeners(RuntimeEngine runtime) {
+    	List<TaskLifeCycleEventListener> defaultListeners = new ArrayList<>();
     	DeploymentDescriptor descriptor = getRuntimeManager().getDeploymentDescriptor();
         if (descriptor == null) {
             defaultListeners.add(new JPATaskLifeCycleEventListener(true));
         } else if (descriptor.getAuditMode() == AuditMode.JPA) {
             
             if (descriptor.getPersistenceUnit().equals(descriptor.getAuditPersistenceUnit())) {
-                defaultListeners.add(TaskAuditLoggerFactory.newJPAInstance());
+                defaultListeners.add(TaskAuditLoggerFactory.newJPAInstance(runtime));
             } else {                
-                defaultListeners.add(TaskAuditLoggerFactory.newJPAInstance(EntityManagerFactoryManager.get().getOrCreate(descriptor.getAuditPersistenceUnit())));
+                defaultListeners.add(TaskAuditLoggerFactory.newJPAInstance(EntityManagerFactoryManager.get().getOrCreate(descriptor.getAuditPersistenceUnit()), runtime));
             }
             
         } else if (descriptor.getAuditMode() == AuditMode.JMS) {
@@ -188,7 +188,7 @@ public class DefaultRegisterableItemsFactory extends SimpleRegisterableItemsFact
             defaultListeners.add(jmsTaskLogger);
         }
         // add any custom listeners
-        defaultListeners.addAll(super.getTaskListeners());
+        defaultListeners.addAll(super.getTaskListeners(runtime));
         // add listeners from deployment descriptor
         defaultListeners.addAll(getTaskListenersFromDescriptor());
         

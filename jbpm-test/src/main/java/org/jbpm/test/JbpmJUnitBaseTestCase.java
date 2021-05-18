@@ -73,7 +73,6 @@ import org.kie.api.runtime.process.WorkflowProcessInstance;
 import org.kie.api.task.TaskLifeCycleEventListener;
 import org.kie.api.task.UserGroupCallback;
 import org.kie.internal.io.ResourceFactory;
-import org.kie.internal.runtime.StatefulKnowledgeSession;
 import org.kie.internal.runtime.manager.context.EmptyContext;
 import org.kie.test.util.db.PoolingDataSourceWrapper;
 import org.slf4j.Logger;
@@ -374,8 +373,8 @@ public abstract class JbpmJUnitBaseTestCase extends AbstractBaseTest {
 				}
 
 				@Override
-				public List<TaskLifeCycleEventListener> getTaskListeners() {
-					List<TaskLifeCycleEventListener> listeners = super.getTaskListeners();
+				public List<TaskLifeCycleEventListener> getTaskListeners(RuntimeEngine runtime) {
+					List<TaskLifeCycleEventListener> listeners = super.getTaskListeners(runtime);
 					listeners.addAll(customTaskListeners);
 					return listeners;
 				}
@@ -411,8 +410,8 @@ public abstract class JbpmJUnitBaseTestCase extends AbstractBaseTest {
 				}
 
 				@Override
-				public List<TaskLifeCycleEventListener> getTaskListeners() {
-					List<TaskLifeCycleEventListener> listeners = super.getTaskListeners();
+				public List<TaskLifeCycleEventListener> getTaskListeners(RuntimeEngine runtime) {
+					List<TaskLifeCycleEventListener> listeners = super.getTaskListeners(runtime);
 					listeners.addAll(customTaskListeners);
 					return listeners;
 				}
@@ -447,8 +446,8 @@ public abstract class JbpmJUnitBaseTestCase extends AbstractBaseTest {
 				}
 
 				@Override
-				public List<TaskLifeCycleEventListener> getTaskListeners() {
-					List<TaskLifeCycleEventListener> listeners = super.getTaskListeners();
+				public List<TaskLifeCycleEventListener> getTaskListeners(RuntimeEngine runtime) {
+					List<TaskLifeCycleEventListener> listeners = super.getTaskListeners(runtime);
 					listeners.addAll(customTaskListeners);
 					return listeners;
 				}
@@ -574,7 +573,7 @@ public abstract class JbpmJUnitBaseTestCase extends AbstractBaseTest {
             logService = runtimeEngine.getAuditService();
 
         } else {
-            inMemoryLogger = new WorkingMemoryInMemoryLogger((StatefulKnowledgeSession) runtimeEngine.getKieSession());
+            inMemoryLogger = new WorkingMemoryInMemoryLogger(runtimeEngine.getKieSession());
         }
 
         return runtimeEngine;
@@ -904,10 +903,12 @@ public abstract class JbpmJUnitBaseTestCase extends AbstractBaseTest {
 
         private List<WorkItem> workItems = new ArrayList<WorkItem>();
 
+        @Override
         public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
             workItems.add(workItem);
         }
 
+        @Override
         public void abortWorkItem(WorkItem workItem, WorkItemManager manager) {
         }
 

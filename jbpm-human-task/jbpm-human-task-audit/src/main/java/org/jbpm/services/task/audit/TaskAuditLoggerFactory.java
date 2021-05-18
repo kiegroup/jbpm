@@ -25,6 +25,7 @@ import javax.naming.NamingException;
 import javax.persistence.EntityManagerFactory;
 
 import org.jbpm.services.task.audit.jms.AsyncTaskLifeCycleEventProducer;
+import org.kie.api.runtime.manager.RuntimeEngine;
 
 public class TaskAuditLoggerFactory {
 
@@ -32,8 +33,8 @@ public class TaskAuditLoggerFactory {
      * Creates new instance of JPA task audit logger
      * @return new instance of JPA task audit logger
      */
-    public static JPATaskLifeCycleEventListener newJPAInstance() {
-        return new JPATaskLifeCycleEventListener(true);
+    public static JPATaskLifeCycleEventListener newJPAInstance( RuntimeEngine engine) {
+        return new JPATaskLifeCycleEventListener(engine);
     }
     
     /**
@@ -43,6 +44,16 @@ public class TaskAuditLoggerFactory {
      */
     public static JPATaskLifeCycleEventListener newJPAInstance(EntityManagerFactory emf) {
         return new JPATaskLifeCycleEventListener(emf);
+    }
+    
+    /**
+     * Creates new instance of JPA task audit logger with given entity manager factory
+     * @param enf EntityManagerFactory instance to be used
+     * @param engine Runtime engine
+     * @return new instance of JPA task audit logger
+     */
+    public static JPATaskLifeCycleEventListener newJPAInstance(EntityManagerFactory emf, RuntimeEngine engine) {
+        return new JPATaskLifeCycleEventListener(emf, engine);
     }
     
     /**

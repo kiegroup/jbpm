@@ -36,6 +36,7 @@ import org.jbpm.services.task.audit.variable.TaskIndexerManager;
 import org.jbpm.services.task.lifecycle.listeners.TaskLifeCycleEventListener;
 import org.jbpm.services.task.persistence.PersistableEventListener;
 import org.jbpm.services.task.utils.ClassUtil;
+import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.task.TaskEvent;
 import org.kie.api.task.model.OrganizationalEntity;
 import org.kie.api.task.model.Task;
@@ -61,8 +62,16 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
         super(null);
     }
     
+    public JPATaskLifeCycleEventListener(RuntimeEngine engine) {
+        this (null,engine);
+    }
+    
     public JPATaskLifeCycleEventListener(EntityManagerFactory emf) {
-        super(emf);
+        this (emf, null);
+    }
+    
+    public JPATaskLifeCycleEventListener(EntityManagerFactory emf, RuntimeEngine engine) {
+        super(emf, engine);
     }
 
     @Override

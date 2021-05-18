@@ -24,7 +24,10 @@ import java.util.stream.Collectors;
 import org.jbpm.persistence.api.integration.InstanceView;
 import org.kie.api.task.model.OrganizationalEntity;
 import org.kie.api.task.model.Task;
+import org.kie.internal.identity.IdentityProvider;
+import org.kie.internal.runtime.manager.RuntimeEnvironment;
 import org.kie.internal.task.api.model.InternalPeopleAssignments;
+import org.kie.internal.task.api.model.Operation;
 
 /**
  * InstanceView dedicated for <code>org.kie.api.task.model.Task</code>
@@ -54,6 +57,8 @@ public class TaskInstanceView implements InstanceView<Task> {
     private Long parentId;
     private String processId;
     private String containerId;
+    private Operation operation;
+    private String initiator;
 
     private List<String> potentialOwners;
 
@@ -70,8 +75,19 @@ public class TaskInstanceView implements InstanceView<Task> {
     public TaskInstanceView() {        
     }
     
-    public TaskInstanceView(Task source) {
+    public TaskInstanceView(Task source, RuntimeEnvironment env) {
+        this (source, env, Operation.Update);
+    }
+    
+   
+    
+    public TaskInstanceView(Task source, RuntimeEnvironment env , Operation operation) {
         this.source = source;
+        this.operation = operation;
+        if (env != null) {
+            IdentityProvider identityProvider = (IdentityProvider)env.getEnvironment().get("IdentityProvider");
+            this.initiator = identityProvider != null ? identityProvider.getName() : "unknown";
+        }
         copyFromSource();
     }
     
@@ -294,6 +310,14 @@ public class TaskInstanceView implements InstanceView<Task> {
         return source;
     }
     
+    public Operation getOperation() {
+        return operation;
+    }
+    
+    public String getInitiator() {
+        return initiator;
+    }
+    
     @Override
     public void copyFromSource() {
         if (this.id != null) {
@@ -304,7 +328,7 @@ public class TaskInstanceView implements InstanceView<Task> {
         this.actualOwner = safeOrgEntity(source.getTaskData().getActualOwner());
         this.businessAdmins = source.getPeopleAssignments().getBusinessAdministrators()
                 .stream()
-                .map(entity -> safeOrgEntity(entity))
+                .map(this::safeOrgEntity)
                 .collect(Collectors.toList());
         this.containerId = source.getTaskData().getDeploymentId();
         this.createdBy = safeOrgEntity(source.getTaskData().getCreatedBy());
@@ -312,7 +336,7 @@ public class TaskInstanceView implements InstanceView<Task> {
         this.description = source.getDescription();
         this.excludedOwners = ((InternalPeopleAssignments)source.getPeopleAssignments()).getExcludedOwners()
                 .stream()
-                .map(entity -> safeOrgEntity(entity))
+                .map(this::safeOrgEntity)
                 .collect(Collectors.toList());
         this.expirationDate = source.getTaskData().getExpirationTime();
         this.formName = source.getFormName();
@@ -323,7 +347,7 @@ public class TaskInstanceView implements InstanceView<Task> {
         this.parentId = source.getTaskData().getParentId();
         this.potentialOwners = source.getPeopleAssignments().getPotentialOwners()
                 .stream()
-                .map(entity -> safeOrgEntity(entity))
+                .map(this::safeOrgEntity)
                 .collect(Collectors.toList());
         this.priority = source.getPriority();
         this.processId = source.getTaskData().getProcessId();
