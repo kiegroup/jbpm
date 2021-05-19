@@ -393,6 +393,29 @@ public class AdvanceRuntimeDataServiceImplTest extends AbstractKieServicesBaseTe
     }
 
     @Test
+    public void testQueryTaskByVariablesWithNullOwners() {
+        QueryParam potOwners = null;
+        List<UserTaskInstanceWithPotOwnerDesc> data = advanceVariableDataService.queryUserTasksByVariables(emptyList(), emptyList(), emptyList(), potOwners, queryContext);
+        if (queryContext.getCount() > 0) {
+            assertThat(data.size(), is(queryContext.getCount()));
+        }
+    }
+
+    @Test
+    public void testQueryTaskByVariablesWithAllNullOwners() {
+        QueryParam potOwners = all(null);
+        List<UserTaskInstanceWithPotOwnerDesc> data = advanceVariableDataService.queryUserTasksByVariables(emptyList(), emptyList(), emptyList(), potOwners, queryContext);
+        assertTrue(data.isEmpty());
+    }
+
+    @Test
+    public void testQueryTaskByVariablesWithAnyNullOwners() {
+        QueryParam potOwners = any(null);
+        List<UserTaskInstanceWithPotOwnerDesc> data = advanceVariableDataService.queryUserTasksByVariables(emptyList(), emptyList(), emptyList(), potOwners, queryContext);
+        assertTrue(data.isEmpty());
+    }
+
+    @Test
     public void testQueryTaskByVariablesWithAllOwners() {
         QueryParam potOwners = all(Arrays.asList("katy", "kieserver"));
         List<UserTaskInstanceWithPotOwnerDesc> data = advanceVariableDataService.queryUserTasksByVariables(emptyList(), emptyList(), emptyList(), potOwners, queryContext);

@@ -150,7 +150,6 @@ public class AdvanceCaseRuntimeDataServiceImplTest extends AbstractCaseServicesB
         assertNotNull(caseId);
         assertEquals(HR_CASE_ID, caseId);
         caseService.cancelCase(caseId);
-
     }
 
     @Test

@@ -121,7 +121,7 @@ public abstract class AbstractAdvanceRuntimeDataServiceImpl {
         return queryUserTasksByVariables(attributes, processVariables, taskVariables, toOwnersQueryParam(owners), processType, varPrefix, queryContext);
     }
 
-    QueryParam toOwnersQueryParam(List<String> owners) {
+    private QueryParam toOwnersQueryParam(List<String> owners) {
         if(owners == null || owners.isEmpty()) {
             return null;
         }
@@ -219,9 +219,8 @@ public abstract class AbstractAdvanceRuntimeDataServiceImpl {
                                  ") TABLE_PROC_VAR ON TABLE_PROC_VAR.processInstanceId = pil.processInstanceId \n");
         }
 
-        Boolean exclusiveQuery = isExclusiveQuery(ownersArg);
         if (ownersArg != null) {
-            if (exclusiveQuery) {
+            if (isExclusiveQuery(ownersArg)) {
                 derivedTables.append("INNER JOIN ( \n" +
                         "           SELECT DISTINCT po.task_id \n" +
                         "           FROM PeopleAssignments_PotOwners po \n" +
@@ -282,7 +281,7 @@ public abstract class AbstractAdvanceRuntimeDataServiceImpl {
             if (ownersArg != null) {
                 List<String> distinctOwners = ((List<String>) ownersArg.getValue()).stream().distinct().collect(Collectors.toList());
                 query.setParameter("owners", distinctOwners);
-                if (exclusiveQuery) {
+                if (isExclusiveQuery(ownersArg)) {
                     query.setParameter("num_owners", distinctOwners.size());
                 }
             }
@@ -395,12 +394,6 @@ public abstract class AbstractAdvanceRuntimeDataServiceImpl {
     }
 
     private Boolean isExclusiveQuery(QueryParam ownersArg) {
-        if (ownersArg == null) {
-            return null;
-        }
-        if (ownersArg.getValue() == null || ownersArg.getValue().isEmpty()) {
-            throw new UnsupportedOperationException("QueryParam Values for pot-owners must not be empty");
-        }
         switch (ownersArg.getOperator()) {
             case "ALL":
                 return true;

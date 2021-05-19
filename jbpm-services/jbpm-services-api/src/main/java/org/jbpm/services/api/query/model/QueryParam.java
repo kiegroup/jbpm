@@ -16,13 +16,13 @@
 
 package org.jbpm.services.api.query.model;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 
 /**
  * Basic data carrier to provide filtering capabilities on top of query definition.
@@ -281,11 +281,11 @@ public class QueryParam implements Serializable {
     }
 
     public static QueryParam all(List<?> values) {
-        return new QueryParam(null, "ALL", values);
+        return new QueryParam(null, "ALL", values == null ? emptyList() : values);
     }
 
     public static QueryParam any(List<?> values) {
-        return new QueryParam(null, "ANY", values);
+        return new QueryParam(null, "ANY", values == null ? emptyList() : values);
     }
 
     /**
