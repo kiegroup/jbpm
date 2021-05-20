@@ -19,6 +19,7 @@ package org.jbpm.workflow.core.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jbpm.process.core.correlation.CorrelationManager;
 import org.jbpm.process.core.impl.ProcessImpl;
 import org.jbpm.workflow.core.WorkflowProcess;
 import org.kie.api.definition.process.Node;
@@ -35,7 +36,13 @@ public class WorkflowProcessImpl extends ProcessImpl implements WorkflowProcess,
     private boolean autoComplete = false;
     private boolean dynamic = false;
     private org.jbpm.workflow.core.NodeContainer nodeContainer;
-    
+
+    private CorrelationManager correlationManager = new CorrelationManager();
+
+    public CorrelationManager getCorrelationManager() {
+        return correlationManager;
+    }
+
     public WorkflowProcessImpl() {
         nodeContainer = (org.jbpm.workflow.core.NodeContainer) createNodeContainer();
     }

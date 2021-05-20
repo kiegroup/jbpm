@@ -27,16 +27,32 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 
+import org.jbpm.process.core.correlation.CorrelationInstance;
+import org.jbpm.process.core.correlation.CorrelationManager;
 import org.jbpm.util.PatternConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class EventTypeFilter implements EventFilter, Serializable {
+
     private static final Logger logger = LoggerFactory.getLogger(EventTypeFilter.class);
 
 	private static final long serialVersionUID = 510l;
 	
 	protected String type;
+
+    private String messageRef;
+
+    private CorrelationManager correlationManager;
+
+    @Override
+    public boolean isCorrelated() {
+        return messageRef != null;
+    }
+
+    public void setCorrelationManager(CorrelationManager correlationManager) {
+        this.correlationManager = correlationManager;
+    }
 
 	public String getType() {
 		return type;
@@ -46,20 +62,26 @@ public class EventTypeFilter implements EventFilter, Serializable {
 		this.type = type;
 	}
 
-	public boolean acceptsEvent(String type, Object event) {
-		if (this.type != null && this.type.equals(type)) {
-			return true;
-		}
-		return false;
-	}
+    public boolean acceptsEvent(String type, Object event) {
+        return this.type != null && this.type.equals(type);
+    }
 
-	public String toString() { 
-	    return "Event filter: [" + this.type + "]";
-	}
+    public String toString() {
+        return "Event filter: [" + this.type + "]";
+    }
 
     @Override
     public boolean acceptsEvent(String type, Object event, Function<String, Object> resolver) {
-        return this.type != null && isAccepted(type, resolver);
+        if( this.type != null && isAccepted(type, resolver)) {
+            if (correlationManager != null && correlationManager.isSubscribe(messageRef)) {
+                CorrelationInstance messageCorrelation = correlationManager.computeCorrelationInstance(messageRef, event);
+                CorrelationInstance processCorrelation = correlationManager.computeSubscription(messageRef, resolver);
+                logger.debug("The event type {} is correlated, computing correlations. Message correlation is {}; process correlation is: {} ", type, messageCorrelation, processCorrelation);
+                return messageCorrelation.equals(processCorrelation);
+            }
+            return true;
+        }
+        return false;
     }
 
     public boolean isAccepted(String type, Function<String, Object> resolver) {
@@ -132,5 +154,9 @@ public class EventTypeFilter implements EventFilter, Serializable {
             }
         }
         return combinations;
+    }
+
+    public void setMessageRef(String messageRef) {
+        this.messageRef = messageRef;
     }
 }
