@@ -445,7 +445,9 @@ public class BoundaryEventHandler extends AbstractNodeHandler {
                 eventNode.setMetaData("MessageType", message.getType());
                 List<EventFilter> eventFilters = new ArrayList<EventFilter>();
                 EventTypeFilter eventFilter = new EventTypeFilter();
+                eventFilter.setCorrelationManager(((RuleFlowProcess) parser.getMetaData().get("CurrentProcessDefinition")).getCorrelationManager());
                 eventFilter.setType("Message-" + message.getName());
+                eventFilter.setMessageRef(message.getId());
                 eventFilters.add(eventFilter);
                 eventNode.setScope("external");
                 eventNode.setEventFilters(eventFilters);

@@ -36,6 +36,7 @@ import org.drools.core.common.InternalKnowledgeRuntime;
 import org.drools.mvel.MVELSafeHelper;
 import org.jbpm.process.core.ContextContainer;
 import org.jbpm.process.core.context.variable.VariableScope;
+import org.jbpm.process.core.correlation.CorrelationManager;
 import org.jbpm.process.core.timer.BusinessCalendar;
 import org.jbpm.process.core.timer.DateTimeUtils;
 import org.jbpm.process.core.timer.Timer;
@@ -133,6 +134,8 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 	private long slaTimerId = -1;
 
 	private AgendaFilter agendaFilter;
+
+
 
     @Override
     public NodeContainer getNodeContainer() {

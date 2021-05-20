@@ -58,11 +58,13 @@ public class BoundaryEventNode extends EventNode {
             return acceptsEvent(type, event);
         }
 
+        boolean isCorrelated = false;
         for( EventFilter filter : getEventFilters() ) {
+            isCorrelated |= filter.isCorrelated();
             if( filter.acceptsEvent(type, event, resolver) ) {
                 return true;
             }
         }
-        return super.acceptsEvent(type, event);
+        return !isCorrelated && super.acceptsEvent(type, event);
     }
 }

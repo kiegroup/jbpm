@@ -226,11 +226,14 @@ public class IntermediateCatchEventHandler extends AbstractNodeHandler {
                     throw new IllegalArgumentException(
                             "Could not find message " + messageRef);
                 }
+
                 message.addIncomingNode(node);
                 eventNode.setMetaData("MessageType", message.getType());
                 List<EventFilter> eventFilters = new ArrayList<EventFilter>();
                 EventTypeFilter eventFilter = new EventTypeFilter();
+                eventFilter.setCorrelationManager(((RuleFlowProcess) parser.getMetaData().get("CurrentProcessDefinition")).getCorrelationManager());
                 eventFilter.setType("Message-" + message.getName());
+                eventFilter.setMessageRef(message.getId());
                 eventFilters.add(eventFilter);
                 eventNode.setEventFilters(eventFilters);
             }
