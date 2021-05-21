@@ -30,12 +30,16 @@ import java.util.function.Predicate;
 import org.jbpm.test.persistence.scripts.DatabaseType;
 import org.jbpm.test.persistence.scripts.DistributionType;
 
-
 public class ScriptFilter {
 
     public enum Option {
-        DISALLOW_EMTPY_RESULTS, // if the filter allow no results
-        THROW_ON_SCRIPT_ERROR // if the filter allows script errors
+        DISALLOW_EMPTY_RESULTS, // if the filter allow no results
+        THROW_ON_SCRIPT_ERROR, // if the filter allows script errors
+    }
+
+    public enum Filter {
+        IN,
+        OUT
     }
 
     private Set<DatabaseType> dbTypes;
@@ -50,7 +54,7 @@ public class ScriptFilter {
         this.dbTypes = new TreeSet<>();
         Collections.addAll(this.dbTypes, DatabaseType.values());
         Collections.addAll(this.predicates, filters);
-        env = new HashMap<String, Object>();
+        env = new HashMap<>();
     }
 
     @SafeVarargs
@@ -58,10 +62,40 @@ public class ScriptFilter {
         return new ScriptFilter(filters);
     }
 
+    public static ScriptFilter filter(Filter inOut, String... scripts) {
+        if (inOut != null) {
+            switch (inOut){
+                case IN:
+                    return new ScriptFilter(scriptFilterIn(scripts));
+                case OUT:
+                    return new ScriptFilter(scriptFilterOut(scripts));
+            }
+        }
+        return new ScriptFilter(scriptFilterIn(scripts));
+    }
+
     public static ScriptFilter filter(String... scripts) {
-        Predicate<File> predicate = Arrays.asList(scripts).stream().map(s -> (Predicate<File>) file -> file.getName().contains(s)).reduce(x -> false, Predicate::or);
-        ScriptFilter filter = new ScriptFilter(predicate);
-        return filter;
+        return filter(Filter.IN, scripts);
+    }
+
+    public ScriptFilter include(String... scripts) {
+        Predicate<File> predicate = scriptFilterIn(scripts);
+        predicates.add(predicate);
+        return this;
+    }
+
+    public ScriptFilter exclude(String... scripts) {
+        Predicate<File> predicate = scriptFilterOut(scripts);
+        predicates.add(predicate);
+        return this;
+    }
+
+    private static Predicate<File> scriptFilterIn(String... scripts) {
+        return Arrays.stream(scripts).map(s -> (Predicate<File>) file -> file.getName().contains(s)).reduce(x -> false, Predicate::or);
+    }
+
+    private static Predicate<File> scriptFilterOut(String... scripts) {
+        return Arrays.stream(scripts).map(s -> (Predicate<File>) file -> !file.getName().contains(s)).reduce(x -> true, Predicate::and);
     }
 
     public ScriptFilter env(String key, Object value) {
@@ -79,9 +113,12 @@ public class ScriptFilter {
 
         Predicate<File> filterName = file -> file.getName().contains("drop");
         filterName = !create ? filterName : filterName.negate();
-        ScriptFilter filter = new ScriptFilter(filterExtension, filterName, filterSpringboot, filterBytea);
+
+        Predicate<File> filterTaskAssigningTables = file -> !file.getName().toLowerCase().contains("task_assigning_tables");
+
+        ScriptFilter filter = new ScriptFilter(filterExtension, filterName, filterSpringboot, filterBytea, filterTaskAssigningTables);
         if (create) {
-            filter.setOptions(Option.DISALLOW_EMTPY_RESULTS, Option.THROW_ON_SCRIPT_ERROR);
+            filter.setOptions(Option.DISALLOW_EMPTY_RESULTS, Option.THROW_ON_SCRIPT_ERROR);
         }
         return filter;
     }
@@ -118,7 +155,7 @@ public class ScriptFilter {
         return this.dbTypes;
     }
 
-    public Map<String, Object> getEnvironent() {
+    public Map<String, Object> getEnvironment() {
         return env;
     }
 

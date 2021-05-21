@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.jbpm.test.persistence.scripts.TestPersistenceContextBase.createAndInitContext;
+import static org.jbpm.test.persistence.scripts.util.ScriptFilter.filter;
 
 public class ScriptsBase {
 
@@ -56,6 +57,8 @@ public class ScriptsBase {
         logger.info("Running with Hibernate " + org.hibernate.Version.getVersionString());
         TestsUtil.clearSchema();
         executeScriptRunner(DB_DDL_SCRIPTS_RESOURCE_PATH, ScriptFilter.init(false, false));
+        // Drop optional table "PlanningTask" if exists
+        executeScriptRunner(DB_DDL_SCRIPTS_RESOURCE_PATH, filter("task_assigning_tables_drop_"));
     }
 
     public static void executeScriptRunner(String resourcePath, ScriptFilter scriptFilter) throws IOException, SQLException {

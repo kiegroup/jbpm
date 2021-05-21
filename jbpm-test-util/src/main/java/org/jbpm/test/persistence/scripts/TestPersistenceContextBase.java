@@ -141,7 +141,7 @@ public class TestPersistenceContextBase {
     public void executeScripts(final File scriptsRootFolder, ScriptFilter scriptFilter,
                                DataSource dataSource, String defaultSchema) throws IOException, SQLException {
         final File[] sqlScripts = TestsUtil.getDDLScriptFilesByDatabaseType(scriptsRootFolder, databaseType, scriptFilter);
-        if (sqlScripts.length == 0 && scriptFilter.hasOption(Option.DISALLOW_EMTPY_RESULTS)) {
+        if (sqlScripts.length == 0 && scriptFilter.hasOption(Option.DISALLOW_EMPTY_RESULTS)) {
             throw new RuntimeException("No create sql files found for db type "
                                                + databaseType + " in folder " + scriptsRootFolder.getAbsolutePath());
         }
