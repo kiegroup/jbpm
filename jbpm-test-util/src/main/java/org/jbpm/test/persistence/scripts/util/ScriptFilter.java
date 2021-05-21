@@ -30,11 +30,10 @@ import java.util.function.Predicate;
 import org.jbpm.test.persistence.scripts.DatabaseType;
 import org.jbpm.test.persistence.scripts.DistributionType;
 
-
 public class ScriptFilter {
 
     public enum Option {
-        DISALLOW_EMTPY_RESULTS, // if the filter allow no results
+        DISALLOW_EMPTY_RESULTS, // if the filter allow no results
         THROW_ON_SCRIPT_ERROR // if the filter allows script errors
     }
 
@@ -50,7 +49,7 @@ public class ScriptFilter {
         this.dbTypes = new TreeSet<>();
         Collections.addAll(this.dbTypes, DatabaseType.values());
         Collections.addAll(this.predicates, filters);
-        env = new HashMap<String, Object>();
+        env = new HashMap<>();
     }
 
     @SafeVarargs
@@ -59,9 +58,14 @@ public class ScriptFilter {
     }
 
     public static ScriptFilter filter(String... scripts) {
-        Predicate<File> predicate = Arrays.asList(scripts).stream().map(s -> (Predicate<File>) file -> file.getName().contains(s)).reduce(x -> false, Predicate::or);
-        ScriptFilter filter = new ScriptFilter(predicate);
-        return filter;
+        Predicate<File> predicate = Arrays.stream(scripts).map(s -> (Predicate<File>) file -> file.getName().contains(s)).reduce(x -> false, Predicate::or);
+        return new ScriptFilter(predicate);
+    }
+
+    public ScriptFilter not(String... scripts) {
+        Predicate<File> predicate = Arrays.stream(scripts).map(s -> (Predicate<File>) file -> !file.getName().contains(s)).reduce(x -> false, Predicate::or);
+        predicates.add(predicate);
+        return this;
     }
 
     public ScriptFilter env(String key, Object value) {
@@ -79,9 +83,12 @@ public class ScriptFilter {
 
         Predicate<File> filterName = file -> file.getName().contains("drop");
         filterName = !create ? filterName : filterName.negate();
-        ScriptFilter filter = new ScriptFilter(filterExtension, filterName, filterSpringboot, filterBytea);
+
+        Predicate<File> filterTaskAssigningTables = file -> !file.getName().toLowerCase().contains("task_assigning_tables");
+
+        ScriptFilter filter = new ScriptFilter(filterExtension, filterName, filterSpringboot, filterBytea, filterTaskAssigningTables);
         if (create) {
-            filter.setOptions(Option.DISALLOW_EMTPY_RESULTS, Option.THROW_ON_SCRIPT_ERROR);
+            filter.setOptions(Option.DISALLOW_EMPTY_RESULTS, Option.THROW_ON_SCRIPT_ERROR);
         }
         return filter;
     }
@@ -118,7 +125,7 @@ public class ScriptFilter {
         return this.dbTypes;
     }
 
-    public Map<String, Object> getEnvironent() {
+    public Map<String, Object> getEnvironment() {
         return env;
     }
 
