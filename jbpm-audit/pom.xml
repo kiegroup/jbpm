@@ -47,6 +47,10 @@
       <artifactId>javax.persistence-api</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.jbpm</groupId>
+      <artifactId>jbpm-persistence-api</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.kie.soup</groupId>
       <artifactId>kie-soup-commons</artifactId>
     </dependency>
