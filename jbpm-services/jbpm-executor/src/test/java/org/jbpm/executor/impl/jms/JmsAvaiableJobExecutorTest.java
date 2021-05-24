@@ -45,6 +45,7 @@ import org.jbpm.executor.impl.ExecutorServiceImpl;
 import org.jbpm.executor.test.CountDownAsyncJobListener;
 import org.jbpm.test.util.ExecutorTestUtil;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.kie.api.executor.CommandContext;
@@ -78,10 +79,6 @@ public class JmsAvaiableJobExecutorTest  {
         emf = Persistence.createEntityManagerFactory("org.jbpm.executor");
 
         executorService = ExecutorServiceFactory.newExecutorService(emf);
-                
-        ((ExecutorImpl)((ExecutorServiceImpl)executorService).getExecutor()).setConnectionFactory(factory);
-        ((ExecutorImpl)((ExecutorServiceImpl)executorService).getExecutor()).setQueue(queue);
-        
         executorService.setThreadPoolSize(0);
         executorService.setInterval(100);
         executorService.setTimeunit(TimeUnit.MILLISECONDS);
@@ -230,7 +227,7 @@ public class JmsAvaiableJobExecutorTest  {
         executorService.scheduleRequest("org.jbpm.executor.commands.PrintOutCommand", ctxCMD);
         ut.commit();
         MessageReceiver receiver = new MessageReceiver();
-        receiver.receiveAndProcess(queue, countDownListener, 3000);
+        Assert.assertFalse(receiver.receiveAndProcess(queue, countDownListener, 3000));
 
         List<RequestInfo> inErrorRequests = executorService.getInErrorRequests(new QueryContext());
         assertEquals(0, inErrorRequests.size());
@@ -255,7 +252,8 @@ public class JmsAvaiableJobExecutorTest  {
         factory =  new ConnectionFactoryProxy(connectionFactory, new TransactionHelperImpl(com.arjuna.ats.jta.TransactionManager.transactionManager()));
         
         queue = (Queue) jmsServer.lookup("/queue/exampleQueue");
-        
+        new InitialContext().rebind("java:/JmsXA", factory);
+        new InitialContext().rebind("queue/KIE.EXECUTOR", queue);
     }
     
     private void stopHornetQServer() throws Exception {
@@ -266,31 +264,31 @@ public class JmsAvaiableJobExecutorTest  {
     private class MessageReceiver {
 
         void receiveAndProcess(Queue queue, CountDownAsyncJobListener countDownListener) throws Exception {
-
             receiveAndProcess(queue, countDownListener, 100000L);
-
         }
 
-        void receiveAndProcess(Queue queue, CountDownAsyncJobListener countDownListener, long waitTill) throws Exception {
+        boolean receiveAndProcess(Queue queue, CountDownAsyncJobListener countDownListener, long waitTill) throws Exception {
             
-            Connection qconnetion = factory.createConnection();
-            Session qsession = qconnetion.createSession(true, QueueSession.AUTO_ACKNOWLEDGE);
-            MessageConsumer consumer = qsession.createConsumer(queue);
-            qconnetion.start();
-            JmsAvailableJobsExecutor jmsExecutor = new JmsAvailableJobsExecutor();
-            jmsExecutor.setClassCacheManager(new ClassCacheManager());
-            jmsExecutor.setExecutorStoreService(((ExecutorImpl)((ExecutorServiceImpl)executorService).getExecutor()).getExecutorStoreService());
-            jmsExecutor.setQueryService(((ExecutorServiceImpl)executorService).getQueryService());
-            jmsExecutor.setEventSupport(((ExecutorServiceImpl)executorService).getEventSupport());
-            jmsExecutor.setExecutor(((ExecutorServiceImpl)executorService).getExecutor());
-            consumer.setMessageListener(jmsExecutor);
+            try (Connection qconnetion = factory.createConnection();
+                 Session qsession = qconnetion.createSession(true, QueueSession.AUTO_ACKNOWLEDGE);
+                 MessageConsumer consumer = qsession.createConsumer(queue);) {
 
-            // since we use message listener allow it to complete the async processing
-            countDownListener.waitTillCompleted(waitTill);
-            
-            consumer.close();            
-            qsession.close();            
-            qconnetion.close();
+                qconnetion.start();
+                JmsAvailableJobsExecutor jmsExecutor = new JmsAvailableJobsExecutor();
+                jmsExecutor.setClassCacheManager(new ClassCacheManager());
+                jmsExecutor.setExecutorStoreService(((ExecutorImpl)((ExecutorServiceImpl)executorService).getExecutor()).getExecutorStoreService());
+                jmsExecutor.setQueryService(((ExecutorServiceImpl)executorService).getQueryService());
+                jmsExecutor.setEventSupport(((ExecutorServiceImpl)executorService).getEventSupport());
+                jmsExecutor.setExecutor(((ExecutorServiceImpl)executorService).getExecutor());
+                consumer.setMessageListener(jmsExecutor);
+
+                // since we use message listener allow it to complete the async processing
+                countDownListener.waitTillCompleted(waitTill);
+                return countDownListener.end();
+            } catch(Exception e) {
+                logger.error("error during reception jms", e);
+                return false;
+            }
 
         }
 

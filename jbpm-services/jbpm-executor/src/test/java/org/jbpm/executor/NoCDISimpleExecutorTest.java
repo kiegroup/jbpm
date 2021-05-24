@@ -30,25 +30,25 @@ public class NoCDISimpleExecutorTest extends BasicExecutorBaseTest{
     
     @Before
     public void setUp() {
+        System.setProperty("org.kie.executor.jms", "false");
         pds = ExecutorTestUtil.setupPoolingDataSource();
         emf = Persistence.createEntityManagerFactory("org.jbpm.executor");
-
         executorService = ExecutorServiceFactory.newExecutorService(emf);
-        
-        
-        
-        executorService.init();
         super.setUp();
+        executorService.init();
+
     }
-    
+
     @After
     public void tearDown() {
+
         super.tearDown();
         executorService.destroy();
         if (emf != null) {
-        	emf.close();
+            emf.close();
         }
         pds.close();
+        System.clearProperty("org.kie.executor.jms");
     }
    
     

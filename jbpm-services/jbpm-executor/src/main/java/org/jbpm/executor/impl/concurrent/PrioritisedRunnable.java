@@ -41,13 +41,8 @@ public class PrioritisedRunnable implements Runnable {
     }
 
     public void run() {
-        try {
-            logger.debug("About to execute jobs...");
-            
-            this.availableJobsExecutor.executeJob(this.id);
-        } catch (Throwable e) {
-            logger.warn("Error while executing jobs  with id {} due to {}", this.id, e.getMessage(), e);
-        }
+        logger.debug("About to execute job {} with fireDate {}", this.id, fireDate);
+        this.availableJobsExecutor.executeJob(this.id);
     }
 
     public long getId() {

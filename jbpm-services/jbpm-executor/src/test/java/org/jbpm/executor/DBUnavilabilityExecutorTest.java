@@ -124,7 +124,7 @@ public class DBUnavilabilityExecutorTest{
         // wait for additional two jobs to run as they are reoccuring
         countDownListener.waitTillCompleted();        
         
-        List<RequestInfo> rescheduled = executorService.getRequestsByBusinessKey((String)ctxCMD.getData("businessKey"), Arrays.asList(STATUS.QUEUED), new QueryContext());
+        List<RequestInfo> rescheduled = executorService.getRequestsByBusinessKey((String)ctxCMD.getData("businessKey"), Arrays.asList(STATUS.QUEUED, STATUS.SCHEDULED), new QueryContext());
         assertEquals(1, rescheduled.size());  
         // finally cancel reoccuring job so it won't cause false resuts
         executorService.cancelRequest(rescheduled.get(0).getId());

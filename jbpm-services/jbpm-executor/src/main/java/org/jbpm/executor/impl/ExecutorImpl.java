@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2021 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,49 +16,26 @@
 
 package org.jbpm.executor.impl;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.ThreadFactory;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.JMSException;
-import javax.jms.MessageProducer;
-import javax.jms.Queue;
-import javax.jms.Session;
-import javax.jms.TextMessage;
-import javax.naming.InitialContext;
-
-import org.apache.commons.io.input.ClassLoaderObjectInputStream;
 import org.drools.core.process.instance.WorkItem;
 import org.drools.core.time.TimeUtils;
 import org.drools.persistence.api.TransactionManager;
 import org.jbpm.executor.ExecutorNotStartedException;
-import org.jbpm.executor.entities.RequestInfo;
-import org.jbpm.executor.impl.concurrent.LoadAndScheduleRequestsTask;
-import org.jbpm.executor.impl.concurrent.PrioritisedScheduledThreadPoolExecutor;
-import org.jbpm.executor.impl.concurrent.ScheduleTaskTransactionSynchronization;
-import org.jbpm.executor.impl.event.ExecutorEventSupportImpl;
 import org.jbpm.executor.impl.event.ExecutorEventSupport;
+import org.jbpm.executor.impl.event.ExecutorEventSupportImpl;
 import org.kie.api.executor.CommandContext;
 import org.kie.api.executor.ExecutorStoreService;
+import org.kie.api.executor.RequestInfo;
 import org.kie.api.executor.STATUS;
 import org.kie.internal.executor.api.Executor;
-import org.kie.internal.runtime.manager.InternalRuntimeManager;
-import org.kie.internal.runtime.manager.RuntimeManagerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,30 +69,24 @@ public class ExecutorImpl implements Executor {
     private static final int MAX_PRIORITY = 9;
     private static final int MIN_PRIORITY = 0;
 
-    private String threadFactoryLookup = System.getProperty("org.kie.executor.thread.factory", "java:comp/DefaultManagedThreadFactory");
-    private ExecutorStoreService executorStoreService;
-
-    private int threadPoolSize = Integer.parseInt(System.getProperty("org.kie.executor.pool.size", "1"));
     private int retries = Integer.parseInt(System.getProperty("org.kie.executor.retry.count", "3"));
     private int interval = Integer.parseInt(System.getProperty("org.kie.executor.interval", "0"));
     private TimeUnit timeunit = TimeUnit.valueOf(System.getProperty("org.kie.executor.timeunit", "SECONDS"));
 
-    // jms related instances
-    private boolean useJMS = Boolean.parseBoolean(System.getProperty("org.kie.executor.jms", "true"));
-    private String connectionFactoryName = System.getProperty("org.kie.executor.jms.cf", "java:/JmsXA");
-    private String queueName = System.getProperty("org.kie.executor.jms.queue", "queue/KIE.EXECUTOR");
-    private boolean transacted = Boolean.parseBoolean(System.getProperty("org.kie.executor.jms.transacted", "false"));
-    private ConnectionFactory connectionFactory;
-    private Queue queue;
-
-    private ScheduledExecutorService scheduler;
-    private ScheduledFuture<?> loadTaskFuture;
+    private ExecutorStoreService executorStoreService;
+    private List<TaskExecutorStrategy> taskExecutorStrategy;
 
     private ExecutorEventSupport eventSupport = new ExecutorEventSupportImpl();
     private AvailableJobsExecutor jobProcessor;
     private TransactionManager transactionManager;
 
-    public ExecutorImpl() {}
+    private int numberOfThreads;
+
+    public ExecutorImpl() {
+        taskExecutorStrategy = new ArrayList<>();
+        taskExecutorStrategy.add(new JMSTaskExecutorStrategy());
+        taskExecutorStrategy.add(new ThreadTaskExecutorStrategy());
+    }
 
     public void setEventSupport(ExecutorEventSupport eventSupport) {
         this.eventSupport = eventSupport;
@@ -127,38 +98,6 @@ public class ExecutorImpl implements Executor {
 
     public ExecutorStoreService getExecutorStoreService() {
         return executorStoreService;
-    }
-
-    public String getConnectionFactoryName() {
-        return connectionFactoryName;
-    }
-
-    public void setConnectionFactoryName(String connectionFactoryName) {
-        this.connectionFactoryName = connectionFactoryName;
-    }
-
-    public String getQueueName() {
-        return queueName;
-    }
-
-    public void setQueueName(String queueName) {
-        this.queueName = queueName;
-    }
-
-    public ConnectionFactory getConnectionFactory() {
-        return connectionFactory;
-    }
-
-    public void setConnectionFactory(ConnectionFactory connectionFactory) {
-        this.connectionFactory = connectionFactory;
-    }
-
-    public Queue getQueue() {
-        return queue;
-    }
-
-    public void setQueue(Queue queue) {
-        this.queue = queue;
     }
 
     public AvailableJobsExecutor getJobProcessor() {
@@ -177,149 +116,145 @@ public class ExecutorImpl implements Executor {
         this.transactionManager = transactionManager;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public int getInterval() {
         return interval;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public void setInterval(int interval) {
         this.interval = interval;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public int getRetries() {
         return retries;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public void setRetries(int retries) {
         this.retries = retries;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public int getThreadPoolSize() {
-        return threadPoolSize;
+        return numberOfThreads;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public void setThreadPoolSize(int threadPoolSize) {
-        this.threadPoolSize = threadPoolSize;
+        this.numberOfThreads = threadPoolSize;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public TimeUnit getTimeunit() {
         return timeunit;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public void setTimeunit(TimeUnit timeunit) {
         this.timeunit = timeunit;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public void init() {
-        if (!"true".equalsIgnoreCase(System.getProperty("org.kie.executor.disabled"))) {
-            logger.info("Starting jBPM Executor Component ...\n" + 
-                        " \t - Thread Pool Size: {}" + "\n" + 
-                        " \t - Retries per Request: {}\n" +
-                        " \t - Load from storage interval: {} {} (if less or equal 0 only initial sync with storage) \n",                         
-                        threadPoolSize, retries, interval, timeunit.toString());
+        if ("true".equalsIgnoreCase(System.getProperty("org.kie.executor.disabled"))) {
+            return;
+        }
+        logger.info("Starting jBPM Executor component");
+        taskExecutorStrategy.forEach(strategy -> {
+            strategy.setInterval(interval, timeunit);
+            strategy.setTransactionManager(transactionManager);
+            strategy.setNumberOfThreads(numberOfThreads);
+            strategy.setJobsExecutor(jobProcessor);
+            strategy.setExecutor(ExecutorImpl.this);
+            strategy.setExecutorStoreService(executorStoreService);
+            strategy.init();
+        });
 
-            scheduler = getScheduledExecutorService();
-
-            if (useJMS) {
-                try {
-                    InitialContext ctx = new InitialContext();
-                    if (this.connectionFactory == null) {
-                        this.connectionFactory = (ConnectionFactory) ctx.lookup(connectionFactoryName);
-                    }
-                    if (this.queue == null) {
-                        this.queue = (Queue) ctx.lookup(queueName);
-                    }
-                    logger.info("Executor JMS based support successfully activated on queue {}", queue);
-                } catch (Exception e) {
-                    logger.warn("Disabling JMS support in executor because: unable to initialize JMS configuration for executor due to {}", e.getMessage());
-                    logger.debug("JMS support executor failed due to {}", e.getMessage(), e);
-                    // since it cannot be initialized disable jms
-                    useJMS = false;
-                }
-            }
-            
-            LoadAndScheduleRequestsTask loadTask = new LoadAndScheduleRequestsTask(executorStoreService, scheduler, jobProcessor);
-            if (interval <= 0) {
-                scheduler.execute(loadTask);
-            } else {
-                logger.info("Interval ({}) is more than 0, scheduling periodic load of jobs from the storage", interval);
-                loadTaskFuture = scheduler.scheduleAtFixedRate(loadTask, 0, interval, timeunit);
-            }
-        } else {
+        if(taskExecutorStrategy.stream().noneMatch(TaskExecutorStrategy::active)) {
             throw new ExecutorNotStartedException();
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public void destroy() {
-        logger.info("Stopping jBPM Executor component");
-        if (scheduler != null) {
-            if (loadTaskFuture != null) {
-                loadTaskFuture.cancel(true);
-            }
-            scheduler.shutdownNow();
-            boolean terminated;
-            try {
-                terminated = scheduler.awaitTermination(60, TimeUnit.SECONDS);
-
-                if (!terminated) {
-                    logger.warn("Timeout occured while waiting on all jobs to be terminated");
-
-                    scheduler.shutdownNow();
-                }
-            } catch (InterruptedException e) {
-
-            }
+        if ("true".equalsIgnoreCase(System.getProperty("org.kie.executor.disabled"))) {
+            return;
         }
+        logger.info("Stopping jBPM Executor component");
+        taskExecutorStrategy.forEach(TaskExecutorStrategy::destroy);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    public void scheduleExecution(final RequestInfo requestInfo, final Date date) {
+        Optional<TaskExecutorStrategy> executionStrategy = taskExecutorStrategy.stream().filter(strategy -> strategy.accept(requestInfo, date)).findFirst();
+        if(executionStrategy.isPresent()) {
+            requestInfo.setStatus(STATUS.SCHEDULED);
+            executorStoreService.updateRequest(requestInfo, (job) -> {
+                logger.info("Sending Job {} with execution strategy {} {}", requestInfo.getId(), executionStrategy.get().getClass().getCanonicalName(), date == null ? "inmediately" : "at " + date.toString());
+                executionStrategy.get().schedule(requestInfo, date);
+            });
+        }
+        logger.debug("Scheduled request for Command: {} - requestId: {} with {} retries", requestInfo.getCommandName(), requestInfo.getId(), requestInfo.getRetries());
+
+    }
+
+    public void clearExecution(Long requestId) {
+        taskExecutorStrategy.forEach(strategy -> strategy.clear(requestId));
+    }
+
     @Override
     public Long scheduleRequest(String commandId, CommandContext ctx) {
         return scheduleRequest(commandId, null, ctx);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Long scheduleRequest(String commandId, Date date, CommandContext ctx) {
-
         if (ctx == null) {
-            throw new IllegalStateException("A Context Must Be Provided! ");
+            throw new IllegalArgumentException("A Context Must Be Provided! ");
         }
+
+        boolean owner = transactionManager.begin();
+        RequestInfo requestInfo = buildRequestInfo(commandId, date, ctx);
+        try {
+            eventSupport.fireBeforeJobScheduled(requestInfo, null);
+            executorStoreService.persistRequest(requestInfo, null);
+            scheduleExecution(requestInfo, date);
+            eventSupport.fireAfterJobScheduled(requestInfo, null);
+
+        } catch (Throwable e) {
+            eventSupport.fireAfterJobScheduled(requestInfo, e);
+        } finally {
+            transactionManager.commit(owner);
+        }
+        return requestInfo.getId();
+    }
+
+    @Override
+    public void cancelRequest(Long requestId) {
+        boolean owner = transactionManager.begin();
+        RequestInfo job = (RequestInfo) executorStoreService.findRequest(requestId);
+        try {
+            logger.debug("Before - Cancelling Request with Id: {}", requestId);
+            eventSupport.fireBeforeJobCancelled(job, null);
+            executorStoreService.removeRequest(requestId, (T) -> taskExecutorStrategy.forEach(strategy -> strategy.cancel(job)));
+            eventSupport.fireAfterJobCancelled(job, null);
+            
+        } catch (Throwable e) {
+            logger.warn("Could not cancel Request with Id: {}", requestId);
+            eventSupport.fireAfterJobCancelled(job, e);
+        } finally {
+            transactionManager.commit(owner);
+        }
+
+        logger.debug("After - Cancelling Request with Id: {}", requestId);
+    }
+
+
+
+    private RequestInfo buildRequestInfo(String commandId, Date date, CommandContext ctx) {
         String businessKey = (String) ctx.getData("businessKey");
-        RequestInfo requestInfo = new RequestInfo();
+        org.jbpm.executor.entities.RequestInfo requestInfo = new org.jbpm.executor.entities.RequestInfo();
         requestInfo.setCommandName(commandId);
         requestInfo.setKey(businessKey);
         requestInfo.setStatus(STATUS.QUEUED);
@@ -360,128 +295,26 @@ public class ExecutorImpl implements Executor {
             ctx.setData("retryDelay", retryDelay);
         }
 
-        if (ctx != null) {
-            try {
-                ByteArrayOutputStream bout = new ByteArrayOutputStream();
-                ObjectOutputStream oout = new ObjectOutputStream(bout);
-                oout.writeObject(ctx);
-                requestInfo.setRequestData(bout.toByteArray());
-            } catch (IOException e) {
-                logger.warn("Error serializing context data", e);
-                requestInfo.setRequestData(null);
-            }
-        }
-        eventSupport.fireBeforeJobScheduled(requestInfo, null);
-        try {
-            
-            Consumer<Object> function = null;
-            if (useJMS) {
-                // send JMS only for immediate job requests not for these that should be executed in future                 
-                if (date == null) {
-                    executorStoreService.persistRequest(requestInfo, null);
-                    logger.debug("Sending JMS message to trigger job execution for job {}", requestInfo.getId());
-                    // send JMS message to trigger processing
-                    sendMessage(String.valueOf(requestInfo.getId()), priority);
-                } else {
-                    logger.debug("JMS message not sent for job {} as the job should not be executed immediately but at {}", requestInfo.getId(), date);
-                    function = scheduleExecution(requestInfo, date);
-                    executorStoreService.persistRequest(requestInfo, function);
-                }
-            } else {
-                logger.debug("Scheduling request {} for execution at {}", requestInfo.getId(), requestInfo.getTime());
-                function = scheduleExecution(requestInfo, date);
-                executorStoreService.persistRequest(requestInfo, function);
-            }
-            
-            
-
-            logger.debug("Scheduled request for Command: {} - requestId: {} with {} retries", commandId, requestInfo.getId(), requestInfo.getRetries());
-            eventSupport.fireAfterJobScheduled(requestInfo, null);
-        } catch (Throwable e) {
-            eventSupport.fireAfterJobScheduled(requestInfo, e);
-        }
-        return requestInfo.getId();
+        requestInfo.setRequestData(ExecutorUtil.toByteArray(ctx));
+        return requestInfo;
     }
 
-    public Consumer<Object> scheduleExecution(final RequestInfo requestInfo, final Date date) {
-        return (T) -> {
-            scheduleExecutionViaSync(requestInfo, date);
-        };
-    }
-    
-    public void scheduleExecutionViaSync(final RequestInfo requestInfo, final Date date) {
-        
-        transactionManager.registerTransactionSynchronization(new ScheduleTaskTransactionSynchronization(scheduler, requestInfo, date, jobProcessor));
-        
-    }
-
-    public void clearExecution(Long requestId) {
-        ((PrioritisedScheduledThreadPoolExecutor) scheduler).done(requestId);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void cancelRequest(Long requestId) {
-        logger.debug("Before - Cancelling Request with Id: {}", requestId);
-        RequestInfo job = (RequestInfo) executorStoreService.findRequest(requestId);
-        eventSupport.fireBeforeJobCancelled(job, null);
-        try {
-            
-            executorStoreService.removeRequest(requestId, (T) -> {
-                    if (scheduler != null) {
-                        ((PrioritisedScheduledThreadPoolExecutor) scheduler).cancel(requestId);
-                    }
-                });
-            eventSupport.fireAfterJobCancelled(job, null);
-        } catch (Throwable e) {
-            eventSupport.fireAfterJobCancelled(job, e);
-        }
-
-        logger.debug("After - Cancelling Request with Id: {}", requestId);
-    }
-
-    public void markAsPendingRetryRequest(Long requestId) {
-        ((PrioritisedScheduledThreadPoolExecutor) scheduler).markAsPendingRetry(requestId);
-    }
 
     @Override
     public void updateRequestData(Long requestId, Map<String, Object> data) {
         logger.debug("About to update request {} data with following {}", requestId, data);
 
-        RequestInfo request = (RequestInfo) executorStoreService.findRequest(requestId);
-        if (request.getStatus().equals(STATUS.CANCELLED) || request.getStatus().equals(STATUS.DONE) || request.getStatus().equals(STATUS.RUNNING)) {
+        org.jbpm.executor.entities.RequestInfo request = (org.jbpm.executor.entities.RequestInfo) executorStoreService.findRequest(requestId);
+        EnumSet<STATUS> invalidStates = EnumSet.of(STATUS.CANCELLED, STATUS.DONE, STATUS.RUNNING);
+        if (invalidStates.contains(request.getStatus())) {
             throw new IllegalStateException("Request data can't be updated when request is in status " + request.getStatus());
         }
 
-        CommandContext ctx = null;
-        ClassLoader cl = getClassLoader(request.getDeploymentId());
-        try {
+        logger.debug("Processing Request Id: {}, status {} command {}", request.getId(), request.getStatus(), request.getCommandName());
+        ClassLoader cl = ExecutorUtil.getClassLoader(request.getDeploymentId());
+        CommandContext ctx = ExecutorUtil.toCommandContext(request.getRequestData(), cl);
 
-            logger.debug("Processing Request Id: {}, status {} command {}", request.getId(), request.getStatus(), request.getCommandName());
-            byte[] reqData = request.getRequestData();
-            if (reqData != null) {
-                ObjectInputStream in = null;
-                try {
-                    in = new ClassLoaderObjectInputStream(cl, new ByteArrayInputStream(reqData));
-                    ctx = (CommandContext) in.readObject();
-                } catch (IOException e) {
-                    logger.warn("Exception while serializing context data", e);
-                } finally {
-                    if (in != null) {
-                        in.close();
-                    }
-                }
-            }
-        } catch (Exception e) {
-            logger.error("Unexpected error when reading request data", e);
-            throw new RuntimeException(e);
-        }
-
-        if (ctx == null) {
-            ctx = new CommandContext();
-        }
-
+        // update data
         WorkItem workItem = (WorkItem) ctx.getData("workItem");
         if (workItem != null) {
             logger.debug("Updating work item {} parameters with data {}", workItem, data);
@@ -495,92 +328,13 @@ public class ExecutorImpl implements Executor {
             }
         }
 
-        try {
-            ByteArrayOutputStream bout = new ByteArrayOutputStream();
-            ObjectOutputStream oout = new ObjectOutputStream(bout);
-            oout.writeObject(ctx);
-            request.setRequestData(bout.toByteArray());
-        } catch (IOException e) {
-            throw new RuntimeException("Unable to save updated request data", e);
-        }
-
+        request.setRequestData(ExecutorUtil.toByteArray(ctx));
         executorStoreService.updateRequest(request, null);
         logger.debug("Request {} data updated successfully", requestId);
     }
 
-    protected void sendMessage(String messageBody, int priority) {
-        if (connectionFactory == null && queue == null) {
-            throw new IllegalStateException("ConnectionFactory and Queue cannot be null");
-        }
-        Connection queueConnection = null;
-        Session queueSession = null;
-        MessageProducer producer = null;
-        try {
-            queueConnection = connectionFactory.createConnection();
-            queueSession = queueConnection.createSession(transacted, Session.AUTO_ACKNOWLEDGE);
 
-            TextMessage message = queueSession.createTextMessage(messageBody);
-            producer = queueSession.createProducer(queue);
-            producer.setPriority(priority);
 
-            queueConnection.start();
-
-            producer.send(message);
-        } catch (Exception e) {
-            throw new RuntimeException("Error when sending JMS message with executor job request", e);
-        } finally {
-            if (producer != null) {
-                try {
-                    producer.close();
-                } catch (JMSException e) {
-                    logger.warn("Error when closing producer", e);
-                }
-            }
-
-            if (queueSession != null) {
-                try {
-                    queueSession.close();
-                } catch (JMSException e) {
-                    logger.warn("Error when closing queue session", e);
-                }
-            }
-
-            if (queueConnection != null) {
-                try {
-                    queueConnection.close();
-                } catch (JMSException e) {
-                    logger.warn("Error when closing queue connection", e);
-                }
-            }
-        }
-    }
-
-    protected ClassLoader getClassLoader(String deploymentId) {
-        ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        if (deploymentId == null) {
-            return cl;
-        }
-
-        InternalRuntimeManager manager = ((InternalRuntimeManager) RuntimeManagerRegistry.get().getManager(deploymentId));
-        if (manager != null && manager.getEnvironment().getClassLoader() != null) {
-            cl = manager.getEnvironment().getClassLoader();
-        }
-
-        return cl;
-    }
-
-    protected ScheduledExecutorService getScheduledExecutorService() {
-        ThreadFactory threadFactory = null;
-
-        try {
-            threadFactory = InitialContext.doLookup(threadFactoryLookup);
-        } catch (Exception e) {
-            threadFactory = Executors.defaultThreadFactory();
-        }
-
-        return new PrioritisedScheduledThreadPoolExecutor(threadPoolSize, threadFactory);
-    }
-    
     protected String getDeploymentId(CommandContext ctx) {
         String deploymentId = (String) ctx.getData("DeploymentId");
         if (deploymentId == null) {
@@ -589,7 +343,5 @@ public class ExecutorImpl implements Executor {
         
         return deploymentId;
     }
-
-
 
 }

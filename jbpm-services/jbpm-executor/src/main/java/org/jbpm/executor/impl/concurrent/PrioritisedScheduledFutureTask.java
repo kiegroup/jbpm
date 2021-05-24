@@ -29,9 +29,11 @@ public class PrioritisedScheduledFutureTask<V> implements RunnableScheduledFutur
     private RunnableScheduledFuture<V> delegate;
     private Integer priority;
     private Date fireDate;
+    private Long id;
     
-    public PrioritisedScheduledFutureTask(RunnableScheduledFuture<V> delegate, Integer priority, Date fireDate) {
+    public PrioritisedScheduledFutureTask(RunnableScheduledFuture<V> delegate, long id, Integer priority, Date fireDate) {
         super();
+        this.id = id;
         this.delegate = delegate;
         this.priority = priority;
         this.fireDate = fireDate;
@@ -39,6 +41,18 @@ public class PrioritisedScheduledFutureTask<V> implements RunnableScheduledFutur
 
     public void run() {
         delegate.run();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public Integer getPriority() {
+        return priority;
+    }
+
+    public Date getFireDate() {
+        return fireDate;
     }
 
     public boolean cancel(boolean mayInterruptIfRunning) {

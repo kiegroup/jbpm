@@ -36,6 +36,7 @@ public class AvailableJobsExecutor extends AbstractAvailableJobsExecutor {
             }
         } catch (Exception e) {
             logger.warn("Unexpected error while processin executor's job {}", e.getMessage(), e);
+            throw new RuntimeException(e);
         }
     }
 

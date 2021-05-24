@@ -115,7 +115,7 @@ public class ExecutorRequestAdminServiceImpl implements ExecutorAdminService, Re
 		                request.setStatus(STATUS.QUEUED);
 		                ctx.merge(request);
 		                
-		                ((ExecutorImpl) executor).scheduleExecutionViaSync(request, request.getTime());
+		                ((ExecutorImpl) executor).scheduleExecution(request, request.getTime());
 		            }
 				}
 	    	} catch (Exception e) {
@@ -159,7 +159,7 @@ public class ExecutorRequestAdminServiceImpl implements ExecutorAdminService, Re
 	                request.setStatus(STATUS.QUEUED);
 	                ctx.merge(request);
 	                
-	                ((ExecutorImpl) executor).scheduleExecutionViaSync(request, request.getTime());
+	                ((ExecutorImpl) executor).scheduleExecution(request, request.getTime());
 	            } else {
 	            	throw new IllegalArgumentException("Retrying completed or cancelled job is not allowed (job id " + requestId +")");
 	            }

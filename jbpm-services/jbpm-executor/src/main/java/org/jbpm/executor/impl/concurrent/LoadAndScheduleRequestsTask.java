@@ -18,10 +18,8 @@ package org.jbpm.executor.impl.concurrent;
 
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
-import org.jbpm.executor.impl.AvailableJobsExecutor;
+import org.jbpm.executor.impl.ExecutorImpl;
 import org.kie.api.executor.ExecutorStoreService;
 import org.kie.api.executor.RequestInfo;
 import org.slf4j.Logger;
@@ -31,44 +29,34 @@ public class LoadAndScheduleRequestsTask implements Runnable {
     
     private static final Logger logger = LoggerFactory.getLogger(LoadAndScheduleRequestsTask.class);
 
+    private ExecutorImpl executor;
     private ExecutorStoreService executorStoreService;
-    private ScheduledExecutorService scheduler;
-    private AvailableJobsExecutor jobProcessor;
-    
-    public LoadAndScheduleRequestsTask(ExecutorStoreService executorStoreService, ScheduledExecutorService scheduler, AvailableJobsExecutor jobProcessor) {
+
+
+    public LoadAndScheduleRequestsTask(ExecutorStoreService executorStoreService, ExecutorImpl executor) {
         super();
         this.executorStoreService = executorStoreService;
-        this.scheduler = scheduler;
-        this.jobProcessor = jobProcessor;
+        this.executor = executor;
     }
 
     @Override
     public void run() {
+        boolean owner = executor.getTransactionManager().begin();
         try {
-
             List<RequestInfo> loaded = executorStoreService.loadRequests();
-            logger.info("Load of jobs from storage started at {} with size {}", new Date(), loaded.size());
+            logger.debug("Load of jobs from storage started at {} with size {}", new Date(), loaded.size());
             if (!loaded.isEmpty()) {
-                logger.info("Found {} jobs that are waiting for execution, scheduling them...", loaded.size());
-                int scheduledCounter = 0;
+                logger.info("Found {} jobs that are waiting for execution", loaded.size());
                 for (RequestInfo request : loaded) {
-                    
-                    PrioritisedRunnable job = new PrioritisedRunnable(request.getId(), request.getPriority(), request.getTime(), jobProcessor);
                     long delay = request.getTime().getTime() - System.currentTimeMillis();
                     logger.debug("Scheduling with delay {} for request {} at time {}", delay, request.getId(), request.getTime());
-                    boolean scheduled = ((PrioritisedScheduledThreadPoolExecutor)scheduler).scheduleNoDuplicates(job, delay, TimeUnit.MILLISECONDS);
-                    if (scheduled) {
-                        logger.debug("Request {} has been successfully scheduled at {}", request.getId(), request.getTime());
-                        scheduledCounter++;
-                    } else {
-                        logger.debug("Request {} has not been scheduled as it's already there", request.getId());
-                    }
+                    executor.scheduleExecution(request, delay <= 0 ? null: request.getTime());
                 }
-                logger.info("{} jobs have been successfully scheduled", scheduledCounter);
             }
-            
-            logger.info("Load of jobs from storage finished at {}", new Date());
+            logger.debug("Load of jobs from storage finished at {}", new Date());
+            executor.getTransactionManager().commit(owner);
         } catch (Throwable e) {
+            executor.getTransactionManager().rollback(owner);
             logger.error("Unexpected error while synchronizing with data base for jobs", e);
         }
     }

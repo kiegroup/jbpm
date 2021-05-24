@@ -49,7 +49,7 @@ public class ExecutorQueryServiceImpl implements ExecutorQueryService {
 
     private CommandExecutor commandService;
     
-    private List<STATUS> waitingForExecutionOnly = Arrays.asList(STATUS.QUEUED, STATUS.RETRYING);
+    private List<STATUS> waitingForExecutionOnly = Arrays.asList(STATUS.QUEUED, STATUS.SCHEDULED, STATUS.RETRYING);
    
     public ExecutorQueryServiceImpl(boolean active) {
         QueryManager.get().addNamedQueries("META-INF/Executor-orm.xml");

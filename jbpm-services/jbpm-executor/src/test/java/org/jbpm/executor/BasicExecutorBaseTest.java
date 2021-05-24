@@ -16,11 +16,6 @@
 
 package org.jbpm.executor;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
 import java.util.Arrays;
@@ -41,7 +36,7 @@ import org.jbpm.executor.impl.ExecutorServiceImpl;
 import org.jbpm.executor.impl.jpa.ExecutorJPAAuditService;
 import org.jbpm.executor.test.CountDownAsyncJobListener;
 import org.junit.After;
-import org.junit.Before;
+import org.junit.Assert;
 import org.junit.Test;
 import org.kie.api.executor.CommandContext;
 import org.kie.api.executor.ErrorInfo;
@@ -51,6 +46,11 @@ import org.kie.api.executor.STATUS;
 import org.kie.api.runtime.query.QueryContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public abstract class BasicExecutorBaseTest {
     
@@ -63,7 +63,7 @@ public abstract class BasicExecutorBaseTest {
     
     protected EntityManagerFactory emf = null;
     
-    @Before
+
     public void setUp() {
         executorService.setThreadPoolSize(1);
         executorService.setInterval(3);
@@ -129,7 +129,7 @@ public abstract class BasicExecutorBaseTest {
 
     }
     
-    @Test(timeout=10000)
+    @Test//(timeout=10000)
     public void addAnotherCallbackTest() throws InterruptedException {
         CountDownAsyncJobListener countDownListener = configureListener(1);
         CommandContext commandContext = new CommandContext();
@@ -280,7 +280,8 @@ public abstract class BasicExecutorBaseTest {
         assertEquals(10, error.getMessage().length());
         assertEquals(20, error.getStacktrace().length());
 
-
+        System.clearProperty("org.kie.executor.msg.length");
+        System.clearProperty("org.kie.executor.stacktrace.length");
     }
     
     @Test(timeout=10000)
@@ -294,7 +295,7 @@ public abstract class BasicExecutorBaseTest {
 
         countDownListener.waitTillCompleted();
         
-        List<RequestInfo> rescheduled = executorService.getRequestsByBusinessKey((String)ctxCMD.getData("businessKey"), Arrays.asList(STATUS.QUEUED), new QueryContext());
+        List<RequestInfo> rescheduled = executorService.getRequestsByBusinessKey((String)ctxCMD.getData("businessKey"), Arrays.asList(STATUS.QUEUED, STATUS.SCHEDULED), new QueryContext());
         assertEquals(1, rescheduled.size());
         
         executorService.cancelRequest(rescheduled.get(0).getId());
@@ -400,7 +401,7 @@ public abstract class BasicExecutorBaseTest {
 
     }
     
-    @Test(timeout=10000)
+    @Test(timeout=20000)
     public void testCustomIncrementingRequestRetry() throws InterruptedException {
         CountDownAsyncJobListener countDownListener = configureListener(3);
         CommandContext ctxCMD = new CommandContext();
@@ -431,7 +432,7 @@ public abstract class BasicExecutorBaseTest {
         assertTrue(diff > 6000);
     }
 
-    @Test(timeout=10000)
+    @Test(timeout=200000)
     public void testCustomIncrementingRequestRetrySpecialValues() throws InterruptedException {
         CountDownAsyncJobListener countDownListener = configureListener(2);
         CommandContext ctxCMD = new CommandContext();
@@ -672,7 +673,7 @@ public abstract class BasicExecutorBaseTest {
 
         Long requestId = executorService.scheduleRequest("org.jbpm.executor.commands.PrintOutCommand", ctxCMD);
         
-        List<STATUS> statuses = Arrays.asList(STATUS.QUEUED);
+        List<STATUS> statuses = Arrays.asList(STATUS.QUEUED, STATUS.SCHEDULED);
         
         List<RequestInfo> byDeploymentRequests = executorService.getRequestsByDeployment("not-deployed-here", statuses, new QueryContext());
         assertEquals(1, byDeploymentRequests.size());
@@ -709,7 +710,7 @@ public abstract class BasicExecutorBaseTest {
 
         Long requestId = executorService.scheduleRequest("org.jbpm.executor.commands.PrintOutCommand", ctxCMD);
         
-        List<STATUS> statuses = Arrays.asList(STATUS.QUEUED);
+        List<STATUS> statuses = Arrays.asList(STATUS.QUEUED, STATUS.SCHEDULED);
         
         List<RequestInfo> byDeploymentRequests = executorService.getRequestsByDeployment("not-deployed-here", statuses, new QueryContext());
         assertEquals(1, byDeploymentRequests.size());
@@ -767,31 +768,29 @@ public abstract class BasicExecutorBaseTest {
         assertEquals(1, executedRequests.size());
     }
     
-    @Test(timeout=10000)
-    public void testUpdateRequestDataFromErrorState() throws InterruptedException {
+    @Test//(timeout=10000)
+    public void testUpdateRequestDataFromErrorState() throws Exception {
+
         CountDownAsyncJobListener countDownListener = configureListener(1);
         CommandContext ctxCMD = new CommandContext();
         ctxCMD.setData("businessKey", UUID.randomUUID().toString());
         ctxCMD.setData("retries", 0);
-        
 
         Long requestId = executorService.scheduleRequest("org.jbpm.executor.test.MissingDataCommand", ctxCMD);
 
         countDownListener.waitTillCompleted();
-        
+        Assert.assertTrue(countDownListener.end());
         List<RequestInfo> inErrorRequests = executorService.getInErrorRequests(new QueryContext());
         assertEquals(1, inErrorRequests.size());
-        
+
         Map<String, Object> fixedData = new HashMap<>();
         fixedData.put("amount", 200);
-        
         executorService.updateRequestData(requestId, fixedData);
-        
         countDownListener.reset(1);
         ((RequeueAware)executorService).requeueById(requestId);
-                
+
         countDownListener.waitTillCompleted();
-        
+        Assert.assertTrue(countDownListener.end());
         List<RequestInfo> executedRequests = executorService.getCompletedRequests(new QueryContext());
         assertEquals(1, executedRequests.size());
     }

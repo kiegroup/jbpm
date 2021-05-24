@@ -17,13 +17,12 @@
 package org.jbpm.executor.impl.concurrent;
 
 import java.util.Date;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.drools.persistence.api.TransactionManager;
 import org.drools.persistence.api.TransactionSynchronization;
-import org.jbpm.executor.entities.RequestInfo;
 import org.jbpm.executor.impl.AvailableJobsExecutor;
+import org.kie.api.executor.RequestInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,12 +30,12 @@ public class ScheduleTaskTransactionSynchronization implements TransactionSynchr
     
     private static final Logger logger = LoggerFactory.getLogger(ScheduleTaskTransactionSynchronization.class);
     
-    private ScheduledExecutorService scheduler;
+    private PrioritisedScheduledThreadPoolExecutor scheduler;
     private RequestInfo requestInfo;
     private Date date;
     private AvailableJobsExecutor jobProcessor;
     
-    public ScheduleTaskTransactionSynchronization(ScheduledExecutorService scheduler, RequestInfo requestInfo, Date date, AvailableJobsExecutor jobProcessor) {
+    public ScheduleTaskTransactionSynchronization(PrioritisedScheduledThreadPoolExecutor scheduler, RequestInfo requestInfo, Date date, AvailableJobsExecutor jobProcessor) {
         super();
         this.scheduler = scheduler;
         this.requestInfo = requestInfo;
@@ -51,17 +50,12 @@ public class ScheduleTaskTransactionSynchronization implements TransactionSynchr
     
     @Override
     public void afterCompletion(int status) {
-        
         if (status == TransactionManager.STATUS_COMMITTED && scheduler != null) {
             PrioritisedRunnable jobExecution = new PrioritisedRunnable(requestInfo.getId(), requestInfo.getPriority(), requestInfo.getTime(), jobProcessor);
-            if (date == null) {
-                logger.debug("Directly executing request {}", requestInfo.getId());
-                scheduler.execute(jobExecution);
-            } else {
-                long delay = date.getTime() - System.currentTimeMillis();
-                logger.debug("Scheduling with delay {} for request {}", delay, requestInfo.getId());
-                scheduler.schedule(jobExecution, delay, TimeUnit.MILLISECONDS);
-            }
+            logger.debug("Scheduling request {}", requestInfo.getId());
+            scheduler.schedule(jobExecution, date);
+        } else if (status == TransactionManager.STATUS_ROLLEDBACK && scheduler != null) {
+            
         }
     }
 }
