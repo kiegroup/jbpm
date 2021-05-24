@@ -29,6 +29,7 @@ drop table PeopleAssignments_ExclOwners;
 drop table PeopleAssignments_PotOwners;
 drop table PeopleAssignments_Recipients;
 drop table PeopleAssignments_Stakeholders;
+drop table PlanningTask;
 drop table ProcessInstanceInfo;
 drop table ProcessInstanceLog;
 drop table QueryDefinitionStore;

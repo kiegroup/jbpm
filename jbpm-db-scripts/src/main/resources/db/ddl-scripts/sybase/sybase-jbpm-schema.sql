@@ -304,6 +304,17 @@
     ) lock datarows
     go
 
+    create table PlanningTask (
+        taskId numeric(19,0) not null,
+        OPTLOCK int null,
+        assignedUser varchar(255) null,
+        taskIndex int not null,
+        lastModificationDate datetime null,
+        published smallint not null,
+        primary key (taskId)
+    ) lock datarows
+    go
+
     create table ProcessInstanceInfo (
         InstanceId numeric(19,0) identity not null,
         lastModificationDate datetime null,
@@ -877,6 +888,8 @@
     create index IDX_PAsStake_Entity ON PeopleAssignments_Stakeholders(entity_id)
     go
     create index IDX_PAsStake_Task ON PeopleAssignments_Stakeholders(task_id)
+    go
+    create index IDX_PlanningTask_assignedUser on PlanningTask(assignedUser)
     go
     create index IDX_Reassign_Esc ON Reassignment(Escalation_Reassignments_Id)
     go

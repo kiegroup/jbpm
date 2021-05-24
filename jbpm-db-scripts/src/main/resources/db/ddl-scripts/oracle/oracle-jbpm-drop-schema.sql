@@ -29,6 +29,7 @@ drop table PeopleAssignments_ExclOwners cascade constraints;
 drop table PeopleAssignments_PotOwners cascade constraints;
 drop table PeopleAssignments_Recipients cascade constraints;
 drop table PeopleAssignments_Stakeholders cascade constraints;
+drop table PlanningTask cascade constraints;
 drop table ProcessInstanceInfo cascade constraints;
 drop table ProcessInstanceLog cascade constraints;
 drop table QueryDefinitionStore cascade constraints;

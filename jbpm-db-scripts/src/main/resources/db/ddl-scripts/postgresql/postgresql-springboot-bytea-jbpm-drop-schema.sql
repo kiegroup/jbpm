@@ -74,6 +74,7 @@ drop table if exists PeopleAssignments_ExclOwners cascade;
 drop table if exists PeopleAssignments_PotOwners cascade;
 drop table if exists PeopleAssignments_Recipients cascade;
 drop table if exists PeopleAssignments_Stakeholders cascade;
+drop table if exists PlanningTask cascade;
 drop table if exists ProcessInstanceInfo cascade;
 drop table if exists ProcessInstanceLog cascade;
 drop table if exists QueryDefinitionStore cascade;

@@ -1,2 +1,0 @@
-drop table PlanningTask
-    go

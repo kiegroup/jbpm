@@ -275,6 +275,16 @@
         entity_id varchar2(255 char) not null
     );
 
+    create table PlanningTask (
+        taskId number(19,0) not null,
+        OPTLOCK number(10,0),
+        assignedUser varchar2(255 char),
+        taskIndex number(10,0) not null,
+        lastModificationDate timestamp,
+        published number(5,0) not null,
+        primary key (taskId)
+    );
+
     create table ProcessInstanceInfo (
         InstanceId number(19,0) not null,
         lastModificationDate timestamp,
@@ -814,6 +824,7 @@
     create index IDX_PAsRecip_Task ON PeopleAssignments_Recipients(task_id);
     create index IDX_PAsStake_Entity ON PeopleAssignments_Stakeholders(entity_id);
     create index IDX_PAsStake_Task ON PeopleAssignments_Stakeholders(task_id);
+    create index IDX_PlanningTask_assignedUser on PlanningTask(assignedUser);
     create index IDX_Reassign_Esc ON Reassignment(Escalation_Reassignments_Id);
     create index IDX_ReassignPO_Entity ON Reassignment_potentialOwners(entity_id);
     create index IDX_ReassignPO_Task ON Reassignment_potentialOwners(task_id);

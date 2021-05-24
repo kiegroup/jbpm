@@ -62,6 +62,7 @@ create table PeopleAssignments_ExclOwners (task_id int8 not null, entity_id varc
 create table PeopleAssignments_PotOwners (task_id int8 not null, entity_id varchar(255) not null);
 create table PeopleAssignments_Recipients (task_id int8 not null, entity_id varchar(255) not null);
 create table PeopleAssignments_Stakeholders (task_id int8 not null, entity_id varchar(255) not null);
+create table PlanningTask (taskId int8 not null, OPTLOCK int4, assignedUser varchar(255), taskIndex int4 not null, lastModificationDate timestamp, published int2 not null, primary key (taskId));
 create table ProcessInstanceInfo (InstanceId int8 not null, lastModificationDate timestamp, lastReadDate timestamp, processId varchar(255), processInstanceByteArray oid, startDate timestamp, state int4 not null, OPTLOCK int4, primary key (InstanceId));
 create table ProcessInstanceLog (id int8 not null, correlationKey varchar(255), duration int8, end_date timestamp, externalId varchar(255), user_identity varchar(255), outcome varchar(255), parentProcessInstanceId int8, processId varchar(255), processInstanceDescription varchar(255), processInstanceId int8 not null, processName varchar(255), processType int4, processVersion varchar(255), slaCompliance int4, sla_due_date timestamp, start_date timestamp, status int4, primary key (id));
 create table QueryDefinitionStore (id int8 not null, qExpression text, qName varchar(255), qSource varchar(255), qTarget varchar(255), primary key (id));
@@ -139,6 +140,7 @@ create index IDX_PAsRecip_Entity on PeopleAssignments_Recipients (entity_id);
 create index IDX_PAsRecip_Task on PeopleAssignments_Recipients (task_id);
 create index IDX_PAsStake_Entity on PeopleAssignments_Stakeholders (entity_id);
 create index IDX_PAsStake_Task on PeopleAssignments_Stakeholders (task_id);
+create index IDX_PlanningTask_assignedUser on PlanningTask(assignedUser);
 create index IDX_PInstLog_duration on ProcessInstanceLog (duration);
 create index IDX_PInstLog_end_date on ProcessInstanceLog (end_date);
 create index IDX_PInstLog_extId on ProcessInstanceLog (externalId);

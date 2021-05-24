@@ -287,6 +287,16 @@
         entity_id varchar(255) not null
     );
 
+    create table PlanningTask (
+        taskId bigint not null,
+        OPTLOCK integer,
+        assignedUser varchar(255),
+        taskIndex integer not null,
+        lastModificationDate datetime,
+        published smallint not null,
+        primary key (taskId)
+    );
+
     create table ProcessInstanceInfo (
         InstanceId bigint not null auto_increment,
         lastModificationDate datetime,
@@ -802,7 +812,8 @@
     create index IDX_BAMTaskSumm_taskId on BAMTaskSummary(taskId);
     create index IDX_BAMTaskSumm_taskName on BAMTaskSummary(taskName);
     create index IDX_BAMTaskSumm_userId on BAMTaskSummary(userId);
-    
+
+    create index IDX_PlanningTask_assignedUser on PlanningTask(assignedUser);
     create index IDX_PInstLog_duration on ProcessInstanceLog(duration);
     create index IDX_PInstLog_end_date on ProcessInstanceLog(end_date);
     create index IDX_PInstLog_extId on ProcessInstanceLog(externalId);

@@ -125,10 +125,13 @@ public class DDLScriptsTest extends ScriptsBase {
      */
     @Test
     public void createAndDropSchemaUsingDDLs() throws Exception {
-        executeScriptRunner(DB_DDL_SCRIPTS_RESOURCE_PATH, createScript);
-        validateAndPersistProcess();
-        validateQuartz();
-        executeScriptRunner(DB_DDL_SCRIPTS_RESOURCE_PATH, dropScript);
+        try {
+            executeScriptRunner(DB_DDL_SCRIPTS_RESOURCE_PATH, createScript);
+            validateAndPersistProcess();
+            validateQuartz();
+        } finally {
+            executeScriptRunner(DB_DDL_SCRIPTS_RESOURCE_PATH, dropScript);
+        }
     }
 
     protected void validateAndPersistProcess() {

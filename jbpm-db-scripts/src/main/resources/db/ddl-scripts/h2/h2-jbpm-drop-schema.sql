@@ -29,6 +29,7 @@ drop table PeopleAssignments_ExclOwners if exists;
 drop table PeopleAssignments_PotOwners if exists;
 drop table PeopleAssignments_Recipients if exists;
 drop table PeopleAssignments_Stakeholders if exists;
+drop table PlanningTask if exists;
 drop table ProcessInstanceInfo if exists;
 drop table ProcessInstanceLog if exists;
 drop table QueryDefinitionStore if exists;

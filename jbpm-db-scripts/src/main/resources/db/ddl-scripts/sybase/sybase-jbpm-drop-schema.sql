@@ -150,6 +150,8 @@ drop table PeopleAssignments_Recipients
     go
 drop table PeopleAssignments_Stakeholders
     go
+drop table PlanningTask
+    go
 drop table ProcessInstanceInfo
     go
 drop table ProcessInstanceLog

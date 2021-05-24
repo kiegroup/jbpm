@@ -157,7 +157,7 @@ public class TestPersistenceContextBase {
                 for (String command : scriptCommands) {
                     logger.debug("query {} ", command);
                     final PreparedStatement statement = preparedStatement(connection, command);
-                    executeStatement(scriptFilter.hasOption(Option.THROW_ON_SCRIPT_ERROR), statement);
+                    executeStatement(scriptFilter.hasOption(Option.THROW_ON_SCRIPT_ERROR), statement, connection);
                 }
             }
             connection.commit();
@@ -179,17 +179,20 @@ public class TestPersistenceContextBase {
         return statement;
     }
 
-    private void executeStatement(boolean createFiles, final PreparedStatement statement) throws SQLException {
+    private void executeStatement(boolean createFiles, final PreparedStatement statement, final Connection connection) throws SQLException {
         try {
             statement.execute();
-            statement.close();
         } catch (SQLException ex) {
             if (createFiles) {
                 throw ex;
             } else //Consume exceptions for dropping files
             {
                 logger.warn("Dropping statement failed: {} ", ex.getMessage());
+                // in case of ignoring errors on drop scripts, we need to commit the transaction
+                connection.commit();
             }
+        } finally {
+            statement.close();
         }
     }
 

@@ -73,6 +73,7 @@ drop table if exists PeopleAssignments_ExclOwners;
 drop table if exists PeopleAssignments_PotOwners;
 drop table if exists PeopleAssignments_Recipients;
 drop table if exists PeopleAssignments_Stakeholders;
+drop table if exists PlanningTask;
 drop table if exists ProcessInstanceInfo;
 drop table if exists ProcessInstanceLog;
 drop table if exists QueryDefinitionStore;
