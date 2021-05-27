@@ -20,5 +20,5 @@ public final class PersistenceEnvironmentName {
     private PersistenceEnvironmentName () {
         // nothing to do
     }
-    public static Boolean DISABLE_ENTITY_CHECKS = Boolean.getBoolean("org.kie.api.persistence.disableEntityChecks");
+    public static final Boolean DISABLE_ENTITY_CHECKS = Boolean.getBoolean("org.kie.api.persistence.disableEntityChecks");
 }
