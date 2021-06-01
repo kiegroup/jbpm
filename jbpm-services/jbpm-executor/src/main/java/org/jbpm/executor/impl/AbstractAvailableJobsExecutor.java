@@ -184,7 +184,10 @@ public abstract class AbstractAvailableJobsExecutor {
                     }
                     ((ExecutorImpl) executor).clearExecution(request.getId());
                 } catch (InterruptedException e) {
-                    ((ExecutorImpl) executor).cancelRequest(request.getId());
+                    // this is very strange situation where the thread hangs in a situation
+                    // we don't reschedule so we give a chance to go on
+                    request.setStatus(STATUS.QUEUED);
+                    executorStoreService.updateRequest(request, null);
                     Thread.currentThread().interrupt();
                 } catch (Throwable e) {
                     exception = e;

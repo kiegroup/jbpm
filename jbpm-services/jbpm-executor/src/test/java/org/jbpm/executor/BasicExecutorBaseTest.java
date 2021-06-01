@@ -37,9 +37,11 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.transaction.UserTransaction;
 
+import org.jbpm.executor.impl.ExecutorImpl;
 import org.jbpm.executor.impl.ExecutorServiceImpl;
 import org.jbpm.executor.impl.jpa.ExecutorJPAAuditService;
 import org.jbpm.executor.test.CountDownAsyncJobListener;
+import org.jbpm.executor.test.CountDownAsyncJobStartedListener;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -740,7 +742,7 @@ public abstract class BasicExecutorBaseTest {
         
         executorService.cancelRequest(requestId);
     }
-    
+
     @Test(timeout=10000)
     public void testUpdateRequestData() throws InterruptedException {
         CountDownAsyncJobListener countDownListener = configureListener(2);
