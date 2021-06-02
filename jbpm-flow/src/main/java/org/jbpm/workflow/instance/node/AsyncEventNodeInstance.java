@@ -59,7 +59,10 @@ public class AsyncEventNodeInstance extends EventNodeInstance {
             ctx.setData("processInstanceId", getProcessInstance().getId());
             ctx.setData("Signal", getEventType());
             ctx.setData("Event", null);
-            
+            // this is a clean up job. Either it is reusable or not we need to clean up so in case all retries failing the node is not leaving 
+            // hanging
+            ctx.setData("callbacks", "org.jbpm.process.core.async.AsyncOnErrorSignalCommandCallback");
+            ctx.setData("NodeInstanceId", getId());
             executorService.scheduleRequest(AsyncSignalEventCommand.class.getName(), ctx);
             
             Node node = getNode();
