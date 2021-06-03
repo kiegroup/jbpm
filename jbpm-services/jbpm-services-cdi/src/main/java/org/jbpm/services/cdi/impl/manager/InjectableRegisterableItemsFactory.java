@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.inject.Any;
 import javax.enterprise.inject.Instance;
@@ -235,7 +234,7 @@ public class InjectableRegisterableItemsFactory extends DefaultRegisterableItems
     
     
     @Override
-    public List<TaskLifeCycleEventListener> getTaskListeners(RuntimeEngine runtime) {
+    public List<TaskLifeCycleEventListener> getTaskListeners() {
         List<TaskLifeCycleEventListener> defaultListeners = new ArrayList<TaskLifeCycleEventListener>();
         try {
             for ( EventListenerProducer<TaskLifeCycleEventListener> producer : taskListenerProducer ) {

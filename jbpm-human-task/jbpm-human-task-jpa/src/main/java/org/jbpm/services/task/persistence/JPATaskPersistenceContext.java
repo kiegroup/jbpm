@@ -51,7 +51,6 @@ import org.jbpm.services.task.impl.model.TaskDataImpl_;
 import org.jbpm.services.task.impl.model.TaskImpl;
 import org.jbpm.services.task.impl.model.TaskImpl_;
 import org.jbpm.services.task.impl.model.UserImpl;
-import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.task.UserGroupCallback;
 import org.kie.api.task.model.Attachment;
 import org.kie.api.task.model.Comment;
@@ -62,9 +61,6 @@ import org.kie.api.task.model.OrganizationalEntity;
 import org.kie.api.task.model.Task;
 import org.kie.api.task.model.TaskSummary;
 import org.kie.api.task.model.User;
-import org.kie.internal.runtime.manager.InternalRuntimeEngine;
-import org.kie.internal.runtime.manager.InternalRuntimeManager;
-import org.kie.internal.runtime.manager.RuntimeEnvironment;
 import org.kie.internal.task.api.TaskPersistenceContext;
 import org.kie.internal.task.api.model.ContentData;
 import org.kie.internal.task.api.model.Deadline;
@@ -90,7 +86,7 @@ public class JPATaskPersistenceContext implements TaskPersistenceContext {
     private static TaskQueryManager querymanager = TaskQueryManager.get();
 
     protected EntityManager em;
-    protected RuntimeEnvironment env;
+    protected String userId;
     protected final boolean isJTA;
     protected final boolean pessimisticLocking;
     protected LockModeType lockMode;
@@ -99,25 +95,25 @@ public class JPATaskPersistenceContext implements TaskPersistenceContext {
         this (em, null);
     }
 
-    public JPATaskPersistenceContext(EntityManager em, RuntimeEngine engine) {
-        this(em, engine, true);
+    public JPATaskPersistenceContext(EntityManager em, String userId) {
+        this(em, userId, true);
     }
     
     public JPATaskPersistenceContext(EntityManager em, boolean isJTA) {
         this (em, null, isJTA);
     }
 
-    public JPATaskPersistenceContext(EntityManager em, RuntimeEngine engine, boolean isJTA) {
-       this(em, engine,  isJTA, false, null);
+    public JPATaskPersistenceContext(EntityManager em, String userId, boolean isJTA) {
+       this(em, userId,  isJTA, false, null);
     }
     
     public JPATaskPersistenceContext(EntityManager em, boolean isJTA, boolean locking, String lockingMode) {
         this (em, null, isJTA, locking, lockingMode);
     }
 
-    public JPATaskPersistenceContext(EntityManager em, RuntimeEngine engine, boolean isJTA, boolean locking, String lockingMode) {
+    public JPATaskPersistenceContext(EntityManager em, String userId, boolean isJTA, boolean locking, String lockingMode) {
         this.em = em;
-        this.env = engine != null ? ((InternalRuntimeManager)((InternalRuntimeEngine)engine).getManager()).getEnvironment() : null;
+        this.userId = userId;
         this.isJTA = isJTA;
         this.pessimisticLocking = locking;
         this.lockMode = LockModeType.valueOf(lockingMode == null ? LockModeType.PESSIMISTIC_FORCE_INCREMENT.name() : lockingMode);
@@ -152,7 +148,7 @@ public class JPATaskPersistenceContext implements TaskPersistenceContext {
         	this.em.flush();
             return this.em.find(TaskImpl.class, task.getId(), lockMode );
         }
-        EventManagerProvider.getInstance().get().create(new TaskInstanceView(task, env, Operation.Create));
+        EventManagerProvider.getInstance().get().create(new TaskInstanceView(task, userId, Operation.Create));
         return task;
 	}
 
@@ -161,7 +157,7 @@ public class JPATaskPersistenceContext implements TaskPersistenceContext {
 		check();
 		Task updated = this.em.merge(task);
 		
-		EventManagerProvider.getInstance().get().update(new TaskInstanceView(task, env, operation));
+		EventManagerProvider.getInstance().get().update(new TaskInstanceView(task, userId, operation));
 		
 		return updated;
 	}
@@ -171,7 +167,7 @@ public class JPATaskPersistenceContext implements TaskPersistenceContext {
 		check();
 		em.remove( task );
 		
-		EventManagerProvider.getInstance().get().delete(new TaskInstanceView(task, env, Operation.Remove));
+		EventManagerProvider.getInstance().get().delete(new TaskInstanceView(task, userId, Operation.Remove));
 		
 		return task;
 	}
@@ -432,7 +428,7 @@ public class JPATaskPersistenceContext implements TaskPersistenceContext {
 	public Attachment removeAttachmentFromTask(Task task, long attachmentId) {
 		Attachment removed = ((InternalTaskData) task.getTaskData()).removeAttachment(attachmentId);
 		
-		EventManagerProvider.getInstance().get().update(new TaskInstanceView(task, env, Operation.Attachment));
+		EventManagerProvider.getInstance().get().update(new TaskInstanceView(task, userId, Operation.Attachment));
 		
 		return removed;
 	}
@@ -441,7 +437,7 @@ public class JPATaskPersistenceContext implements TaskPersistenceContext {
 	public Attachment addAttachmentToTask(Attachment attachment, Task task) {
 		((InternalTaskData) task.getTaskData()).addAttachment(attachment);
 		
-		EventManagerProvider.getInstance().get().update(new TaskInstanceView(task, env, Operation.Attachment));
+		EventManagerProvider.getInstance().get().update(new TaskInstanceView(task, userId, Operation.Attachment));
 		
 		return attachment;
 	}
@@ -483,7 +479,7 @@ public class JPATaskPersistenceContext implements TaskPersistenceContext {
 	public Comment removeCommentFromTask(Comment comment, Task task) {
 		((InternalTaskData) task.getTaskData()).removeComment(comment.getId());
 		
-		EventManagerProvider.getInstance().get().update(new TaskInstanceView(task, env, Operation.Comment));
+		EventManagerProvider.getInstance().get().update(new TaskInstanceView(task, userId, Operation.Comment));
 		
 		return comment;
 	}
@@ -492,7 +488,7 @@ public class JPATaskPersistenceContext implements TaskPersistenceContext {
 	public Comment addCommentToTask(Comment comment, Task task) {
 		((InternalTaskData) task.getTaskData()).addComment(comment);
 		
-		EventManagerProvider.getInstance().get().update(new TaskInstanceView(task, env, Operation.Comment));
+		EventManagerProvider.getInstance().get().update(new TaskInstanceView(task, userId, Operation.Comment));
 		
 		return comment;
 	}
@@ -815,5 +811,4 @@ public class JPATaskPersistenceContext implements TaskPersistenceContext {
         List<TaskSummary> result = queryUtil.doCriteriaQuery(userId, userGroupCallback, (QueryWhere) queryWhere);
         return result;
     }
-
 }

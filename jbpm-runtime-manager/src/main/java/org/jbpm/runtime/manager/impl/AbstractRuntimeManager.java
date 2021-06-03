@@ -57,6 +57,8 @@ import org.kie.internal.runtime.conf.DeploymentDescriptor;
 import org.kie.internal.runtime.error.ExecutionErrorManager;
 import org.kie.internal.runtime.error.ExecutionErrorStorage;
 import org.kie.internal.runtime.manager.CacheManager;
+import org.kie.internal.runtime.manager.Disposable;
+import org.kie.internal.runtime.manager.DisposeListener;
 import org.kie.internal.runtime.manager.InternalRegisterableItemsFactory;
 import org.kie.internal.runtime.manager.InternalRuntimeEngine;
 import org.kie.internal.runtime.manager.InternalRuntimeManager;
@@ -267,7 +269,6 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
         this.closed = true;
     }
 
-    @Override
     public org.kie.internal.runtime.manager.RuntimeEnvironment getEnvironment() {
         return (org.kie.internal.runtime.manager.RuntimeEnvironment)environment;
     }
@@ -276,7 +277,6 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
         this.environment = environment;
     }
 
-    @Override
     public String getIdentifier() {
         return identifier;
     }
@@ -308,7 +308,7 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
             
           	// register task listeners if any  
             RegisterableItemsFactory factory = environment.getRegisterableItemsFactory();
-        	for (TaskLifeCycleEventListener taskListener : factory.getTaskListeners(engine)) {
+        	for (TaskLifeCycleEventListener taskListener : factory.getTaskListeners()) {
         		((EventService<TaskLifeCycleEventListener>)internalTaskService).registerTaskEventListener(taskListener);
         	}
 

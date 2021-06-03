@@ -18,27 +18,22 @@ package org.jbpm.services.task.persistence;
 
 import javax.persistence.EntityManagerFactory;
 
-import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.task.TaskLifeCycleEventListener;
 import org.kie.internal.task.api.TaskPersistenceContext;
 
 public abstract class PersistableEventListener implements TaskLifeCycleEventListener {
 
 	private EntityManagerFactory emf;
-	private RuntimeEngine engine;
 	
-	public PersistableEventListener(EntityManagerFactory emf) {
-	    this (emf, null);
+	protected PersistableEventListener(EntityManagerFactory emf) {
+	    this.emf = emf;
 	}
-
-	public PersistableEventListener(EntityManagerFactory emf, RuntimeEngine engine) {
-		this.emf = emf;
-		this.engine = engine;
-	}
-
-	protected TaskPersistenceContext getPersistenceContext(TaskPersistenceContext persistenceContext) {
+	
+	
+	
+	protected TaskPersistenceContext getPersistenceContext(TaskPersistenceContext persistenceContext, String userId) {
 		if (emf != null) {
-			return new JPATaskPersistenceContext(emf.createEntityManager(), engine) {
+			return new JPATaskPersistenceContext(emf.createEntityManager(), userId) {
 
 				@Override
 				public void close() {

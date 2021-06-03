@@ -28,7 +28,6 @@ import org.jbpm.services.task.identity.JBossUserGroupCallbackImpl;
 import org.jbpm.test.JbpmTestCase;
 import org.junit.Test;
 import org.kie.api.io.ResourceType;
-import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.runtime.manager.RuntimeEnvironment;
 import org.kie.api.runtime.manager.RuntimeManager;
 import org.kie.api.runtime.manager.RuntimeManagerFactory;
@@ -100,11 +99,11 @@ public class MultipleRuntimeManagerTest extends JbpmTestCase  {
                     .knowledgeBase(kbuilder.newKieBase())
                     .registerableItemsFactory(new DefaultRegisterableItemsFactory() {
                         @Override
-                        public List<TaskLifeCycleEventListener> getTaskListeners(RuntimeEngine runtime) {
+                        public List<TaskLifeCycleEventListener> getTaskListeners() {
                             List<TaskLifeCycleEventListener> defaultListeners = new ArrayList<TaskLifeCycleEventListener>();
                             defaultListeners.add(new JPATaskLifeCycleEventListener(false));
                             // add any custom listeners
-                            defaultListeners.addAll(super.getTaskListeners(runtime));
+                            defaultListeners.addAll(super.getTaskListeners());
                             // add listeners from deployment descriptor
                             defaultListeners.addAll(getTaskListenersFromDescriptor());
 

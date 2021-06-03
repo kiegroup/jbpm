@@ -16,6 +16,13 @@
 
 package org.jbpm.runtime.manager.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.kie.api.task.model.Status.InProgress;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -39,6 +46,7 @@ import org.jbpm.services.task.events.DefaultTaskEventListener;
 import org.jbpm.services.task.identity.JBossUserGroupCallbackImpl;
 import org.jbpm.test.listener.process.NodeLeftCountDownProcessEventListener;
 import org.jbpm.test.util.AbstractBaseTest;
+import org.kie.test.util.db.PoolingDataSourceWrapper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -74,14 +82,6 @@ import org.kie.internal.runtime.manager.TaskServiceFactory;
 import org.kie.internal.runtime.manager.context.CorrelationKeyContext;
 import org.kie.internal.runtime.manager.context.EmptyContext;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
-import org.kie.test.util.db.PoolingDataSourceWrapper;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.kie.api.task.model.Status.InProgress;
 
 public class PerProcessInstanceRuntimeManagerTest extends AbstractBaseTest {
     private PoolingDataSourceWrapper pds;
@@ -568,8 +568,8 @@ public class PerProcessInstanceRuntimeManagerTest extends AbstractBaseTest {
                 .registerableItemsFactory(new DefaultRegisterableItemsFactory(){
 
 					@Override
-					public List<TaskLifeCycleEventListener> getTaskListeners(RuntimeEngine engine) {
-						List<TaskLifeCycleEventListener> listeners = super.getTaskListeners(engine);
+					public List<TaskLifeCycleEventListener> getTaskListeners() {
+						List<TaskLifeCycleEventListener> listeners = super.getTaskListeners();
 						listeners.add(new DefaultTaskEventListener(){
 
 							@Override

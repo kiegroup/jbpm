@@ -24,8 +24,6 @@ import java.util.stream.Collectors;
 import org.jbpm.persistence.api.integration.InstanceView;
 import org.kie.api.task.model.OrganizationalEntity;
 import org.kie.api.task.model.Task;
-import org.kie.internal.identity.IdentityProvider;
-import org.kie.internal.runtime.manager.RuntimeEnvironment;
 import org.kie.internal.task.api.model.InternalPeopleAssignments;
 import org.kie.internal.task.api.model.Operation;
 
@@ -75,19 +73,16 @@ public class TaskInstanceView implements InstanceView<Task> {
     public TaskInstanceView() {        
     }
     
-    public TaskInstanceView(Task source, RuntimeEnvironment env) {
-        this (source, env, Operation.Update);
+    public TaskInstanceView(Task source, String initiator) {
+        this (source, initiator, Operation.Update);
     }
     
    
     
-    public TaskInstanceView(Task source, RuntimeEnvironment env , Operation operation) {
+    public TaskInstanceView(Task source, String initiator, Operation operation) {
         this.source = source;
         this.operation = operation;
-        if (env != null) {
-            IdentityProvider identityProvider = (IdentityProvider)env.getEnvironment().get("IdentityProvider");
-            this.initiator = identityProvider != null ? identityProvider.getName() : "unknown";
-        }
+        this.initiator = initiator == null ? "unknown" : initiator;
         copyFromSource();
     }
     

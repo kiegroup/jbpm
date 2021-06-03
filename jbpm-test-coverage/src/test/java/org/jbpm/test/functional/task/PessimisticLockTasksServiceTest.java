@@ -70,13 +70,11 @@ public class PessimisticLockTasksServiceTest extends JbpmTestCase {
         super(true, true);
     }
 
-    @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
     }
 
-    @Override
     @After
     public void tearDown() throws Exception {
         super.tearDown();
@@ -114,7 +112,7 @@ public class PessimisticLockTasksServiceTest extends JbpmTestCase {
                 .userGroupCallback(runtimeEnv.getUserGroupCallback());
         // register task listeners if any
         RegisterableItemsFactory itemsFactory = runtimeEnv.getRegisterableItemsFactory();
-        for (TaskLifeCycleEventListener taskListener : itemsFactory.getTaskListeners(runtimeEngine)) {
+        for (TaskLifeCycleEventListener taskListener : itemsFactory.getTaskListeners()) {
             configurator.listener(taskListener);
         }
 

@@ -49,7 +49,6 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.kie.api.runtime.Environment;
 import org.kie.api.runtime.process.CaseAssignment;
 import org.kie.api.runtime.process.CaseData;
 import org.kie.api.task.model.Status;
@@ -285,7 +284,7 @@ public class ElasticSearchEventEmitterTest {
         
         List<InstanceView<?>> views = new ArrayList<>();
         
-        TaskInstanceView instanceView = new TaskInstanceView(taskInstance, Mockito.mock(Environment.class));
+        TaskInstanceView instanceView = new TaskInstanceView(taskInstance, null);
         instanceView.copyFromSource();
         
         views.add(instanceView);

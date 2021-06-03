@@ -36,7 +36,6 @@ import org.jbpm.services.task.audit.variable.TaskIndexerManager;
 import org.jbpm.services.task.lifecycle.listeners.TaskLifeCycleEventListener;
 import org.jbpm.services.task.persistence.PersistableEventListener;
 import org.jbpm.services.task.utils.ClassUtil;
-import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.task.TaskEvent;
 import org.kie.api.task.model.OrganizationalEntity;
 import org.kie.api.task.model.Task;
@@ -62,23 +61,15 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
         super(null);
     }
     
-    public JPATaskLifeCycleEventListener(RuntimeEngine engine) {
-        this (null,engine);
-    }
-    
     public JPATaskLifeCycleEventListener(EntityManagerFactory emf) {
-        this (emf, null);
-    }
-    
-    public JPATaskLifeCycleEventListener(EntityManagerFactory emf, RuntimeEngine engine) {
-        super(emf, engine);
+        super(emf);
     }
 
     @Override
     public void afterTaskStartedEvent(TaskEvent event) {
         String userId = event.getTaskContext().getUserId();
         Task ti = event.getTask();
-        TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext());
+        TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext(), userId);
         try {
             TaskEventImpl taskEventImpl = new TaskEventImpl(ti.getId(), org.kie.internal.task.api.model.TaskEvent.TaskEventType.STARTED, ti.getTaskData().getProcessInstanceId(), ti.getTaskData().getWorkItemId(), userId);
             event.getMetadata().put(METADATA_TASK_EVENT, taskEventImpl);
@@ -103,7 +94,7 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
     public void afterTaskActivatedEvent(TaskEvent event) {
         String userId = event.getTaskContext().getUserId();
         Task ti = event.getTask();
-        TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext());
+        TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext(), userId);
         try {            
             TaskEventImpl taskEventImpl = new TaskEventImpl(ti.getId(), org.kie.internal.task.api.model.TaskEvent.TaskEventType.ACTIVATED, ti.getTaskData().getProcessInstanceId(), ti.getTaskData().getWorkItemId(),
                                                             userId);
@@ -130,7 +121,7 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
     public void afterTaskClaimedEvent(TaskEvent event) {
         String userId = event.getTaskContext().getUserId();
         Task ti = event.getTask();
-        TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext());
+        TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext(), userId);
         try {            
             TaskEventImpl taskEventImpl = new TaskEventImpl(ti.getId(), org.kie.internal.task.api.model.TaskEvent.TaskEventType.CLAIMED, ti.getTaskData().getProcessInstanceId(), ti.getTaskData().getWorkItemId(), userId);
             event.getMetadata().put(METADATA_TASK_EVENT, taskEventImpl);
@@ -157,7 +148,7 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
     public void afterTaskSkippedEvent(TaskEvent event) {
         String userId = event.getTaskContext().getUserId();
         Task ti = event.getTask();
-        TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext());
+        TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext(), userId);
         try {            
             TaskEventImpl taskEventImpl = new TaskEventImpl(ti.getId(), org.kie.internal.task.api.model.TaskEvent.TaskEventType.SKIPPED, ti.getTaskData().getProcessInstanceId(), ti.getTaskData().getWorkItemId(), userId);
             event.getMetadata().put(METADATA_TASK_EVENT, taskEventImpl);
@@ -185,7 +176,7 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
     public void afterTaskStoppedEvent(TaskEvent event) {
         String userId = event.getTaskContext().getUserId();
         Task ti = event.getTask();
-        TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext());
+        TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext(), userId);
         try {            
             TaskEventImpl taskEventImpl = new TaskEventImpl(ti.getId(), org.kie.internal.task.api.model.TaskEvent.TaskEventType.STOPPED, ti.getTaskData().getProcessInstanceId(), ti.getTaskData().getWorkItemId(), userId);
             event.getMetadata().put(METADATA_TASK_EVENT, taskEventImpl);
@@ -212,7 +203,7 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
     public void afterTaskCompletedEvent(TaskEvent event) {
         String userId = event.getTaskContext().getUserId();
         Task ti = event.getTask();
-        TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext());
+        TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext(), userId);
         try {
             // this is and ad-hoc but because recursive events I don't have other means to retrieve the data (end date)
             ProcessInstanceLog pil = persistenceContext.queryStringWithParametersInTransaction(
@@ -250,7 +241,7 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
     public void afterTaskFailedEvent(TaskEvent event) {
         String userId = event.getTaskContext().getUserId();
         Task ti = event.getTask();
-        TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext());
+        TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext(), userId);
         try {
             TaskEventImpl taskEventImpl = new TaskEventImpl(ti.getId(), org.kie.internal.task.api.model.TaskEvent.TaskEventType.FAILED, ti.getTaskData().getProcessInstanceId(), ti.getTaskData().getWorkItemId(), userId);
             event.getMetadata().put(METADATA_TASK_EVENT, taskEventImpl);
@@ -276,7 +267,7 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
     public void afterTaskAddedEvent(TaskEvent event) {
         String userId = event.getTaskContext().getUserId();
         Task ti = event.getTask();
-        TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext());
+        TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext(), userId);
         try {
             if(ti.getTaskData().getProcessId() != null){
                 userId = ti.getTaskData().getProcessId();
@@ -316,7 +307,7 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
     public void afterTaskExitedEvent(TaskEvent event) {
         String userId = event.getTaskContext().getUserId();
         Task ti = event.getTask();
-        TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext());
+        TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext(), userId);
         try {            
             TaskEventImpl taskEventImpl = new TaskEventImpl(ti.getId(), org.kie.internal.task.api.model.TaskEvent.TaskEventType.EXITED, ti.getTaskData().getProcessInstanceId(), ti.getTaskData().getWorkItemId(), userId);
             event.getMetadata().put(METADATA_TASK_EVENT, taskEventImpl);
@@ -347,7 +338,7 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
     @Override
     public void afterTaskReleasedEvent(TaskEvent event) {
         Task ti = event.getTask();
-        TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext());
+        TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext(), event.getTaskContext().getUserId());
         try {
              
             AuditTaskImpl auditTaskImpl = getAuditTask(event, persistenceContext, ti);
@@ -376,7 +367,7 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
     public void afterTaskResumedEvent(TaskEvent event) {
         String userId = event.getTaskContext().getUserId();
         Task ti = event.getTask();
-        TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext());
+        TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext(), userId);
         try {            
             TaskEventImpl taskEventImpl = new TaskEventImpl(ti.getId(), org.kie.internal.task.api.model.TaskEvent.TaskEventType.RESUMED, ti.getTaskData().getProcessInstanceId(), ti.getTaskData().getWorkItemId(), userId);
             event.getMetadata().put(METADATA_TASK_EVENT, taskEventImpl);
@@ -406,7 +397,7 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
     public void afterTaskSuspendedEvent(TaskEvent event) {
         String userId = event.getTaskContext().getUserId();
         Task ti = event.getTask();
-        TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext());
+        TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext(), userId);
         try {
             TaskEventImpl taskEventImpl = new TaskEventImpl(ti.getId(), org.kie.internal.task.api.model.TaskEvent.TaskEventType.SUSPENDED, ti.getTaskData().getProcessInstanceId(), ti.getTaskData().getWorkItemId(),
                                                             userId);
@@ -437,7 +428,7 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
     public void afterTaskForwardedEvent(TaskEvent event) {
         String userId = event.getTaskContext().getUserId();
         Task ti = event.getTask();
-        TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext());
+        TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext(), userId);
         try {
             StringBuilder message = new StringBuilder();
             String entitiesAsString = (ti.getPeopleAssignments().getPotentialOwners()).stream().map(oe -> oe.getId()).collect(Collectors.joining(","));
@@ -477,7 +468,7 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
     public void afterTaskDelegatedEvent(TaskEvent event) {
         String userId = event.getTaskContext().getUserId();
         Task ti = event.getTask();
-        TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext());
+        TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext(), userId);
         try {           
             TaskEventImpl taskEventImpl = new TaskEventImpl(ti.getId(), org.kie.internal.task.api.model.TaskEvent.TaskEventType.DELEGATED, ti.getTaskData().getProcessInstanceId(), ti.getTaskData().getWorkItemId(),
                                                             userId);
@@ -508,7 +499,7 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
     public void afterTaskNominatedEvent(TaskEvent event) {
         String userId = event.getTaskContext().getUserId();
         Task ti = event.getTask();
-        TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext());
+        TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext(), userId);
         try {
             TaskEventImpl taskEventImpl = new TaskEventImpl(ti.getId(), org.kie.internal.task.api.model.TaskEvent.TaskEventType.NOMINATED, userId, new Date());
             event.getMetadata().put(METADATA_TASK_EVENT, taskEventImpl);
@@ -600,7 +591,7 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
     public void beforeTaskReleasedEvent(TaskEvent event) {
         String userId = event.getTaskContext().getUserId();
         Task ti = event.getTask();
-        TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext());
+        TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext(), userId);
         try {
             TaskEventImpl taskEventImpl = new TaskEventImpl(ti.getId(), org.kie.internal.task.api.model.TaskEvent.TaskEventType.RELEASED, ti.getTaskData().getProcessInstanceId(), ti.getTaskData().getWorkItemId(),
                                                             userId);
@@ -675,7 +666,7 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
         String userId = event.getTaskContext().getUserId();
         Task ti = event.getTask();
         
-        TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext());
+        TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext(), userId);
         try {
             
             AuditTaskImpl auditTaskImpl = getAuditTask(event, persistenceContext, ti);
@@ -768,7 +759,7 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
     public void afterTaskReassignedEvent(TaskEvent event) {
         String userId = event.getTaskContext().getUserId();
         Task ti = event.getTask();
-        TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext());
+        TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext(), userId);
         try {
             TaskEventImpl taskEventImpl = new TaskEventImpl(ti.getId(),
                                                             org.kie.internal.task.api.model.TaskEvent.TaskEventType.DELEGATED,
@@ -812,7 +803,7 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
     public void afterTaskOutputVariableChangedEvent(TaskEvent event, Map<String, Object> variables) {
         String userId = event.getTaskContext().getUserId();
         Task task = event.getTask();        
-        TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext());
+        TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext(), userId);
         // first cleanup previous values if any
         HashMap<String, Object> params = new HashMap<String, Object>();
         params.put("type", VariableType.OUTPUT);
@@ -850,7 +841,7 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
             return;
         }
         Task task = event.getTask();        
-        TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext());
+        TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext(), event.getTaskContext().getUserId());
 
         indexAndPersistVariables(event, task, variables, persistenceContext, VariableType.INPUT);
         
@@ -890,7 +881,7 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
         }
         String userId = event.getTaskContext().getUserId();
         Task task = event.getTask();        
-        TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext());
+        TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext(), userId);
         StringBuilder message = new StringBuilder();
         
         switch (type) {
@@ -906,7 +897,7 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
             default:
                 break;
         }
-        String entitiesAsString = entities.stream().map(oe -> oe.getId()).collect(Collectors.joining(","));
+        String entitiesAsString = entities.stream().map(OrganizationalEntity::getId).collect(Collectors.joining(","));
         message.append(entitiesAsString);
         message.append(messageSufix);
         

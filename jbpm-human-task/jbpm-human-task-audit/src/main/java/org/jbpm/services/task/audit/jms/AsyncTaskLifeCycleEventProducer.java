@@ -16,8 +16,6 @@
 
 package org.jbpm.services.task.audit.jms;
 
-import static org.kie.soup.xstream.XStreamUtils.createTrustingXStream;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -33,6 +31,7 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
+import com.thoughtworks.xstream.XStream;
 import org.jbpm.services.task.audit.TaskLifeCycleEventConstants;
 import org.jbpm.services.task.audit.impl.model.AuditTaskData;
 import org.jbpm.services.task.audit.impl.model.AuditTaskImpl;
@@ -52,7 +51,7 @@ import org.kie.internal.task.api.TaskVariable.VariableType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.thoughtworks.xstream.XStream;
+import static org.kie.soup.xstream.XStreamUtils.createTrustingXStream;
 
 public class AsyncTaskLifeCycleEventProducer extends PersistableEventListener implements TaskLifeCycleEventListener {
 
@@ -364,7 +363,7 @@ public class AsyncTaskLifeCycleEventProducer extends PersistableEventListener im
         
         List<TaskEventImpl> taskEvents = new ArrayList<>();
         
-        TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext());
+        TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext(), userId);
         try {
             AuditTaskImpl auditTaskImpl = getAuditTask(persistenceContext, ti); 
             if((ti.getDescription() != null && !ti.getDescription().equals(auditTaskImpl.getDescription()))

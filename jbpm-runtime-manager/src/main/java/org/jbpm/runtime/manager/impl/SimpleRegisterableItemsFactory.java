@@ -129,8 +129,8 @@ public class SimpleRegisterableItemsFactory implements InternalRegisterableItems
     }
     
 	@Override
-	public List<TaskLifeCycleEventListener> getTaskListeners(RuntimeEngine runtime) {
-		List<TaskLifeCycleEventListener> listeners = new ArrayList<>();
+	public List<TaskLifeCycleEventListener> getTaskListeners() {
+		List<TaskLifeCycleEventListener> listeners = new ArrayList<TaskLifeCycleEventListener>();
         for (Class<? extends TaskLifeCycleEventListener> clazz : taskListeners) {
         	TaskLifeCycleEventListener tListener = createInstance(clazz, null);
             if (tListener != null) {

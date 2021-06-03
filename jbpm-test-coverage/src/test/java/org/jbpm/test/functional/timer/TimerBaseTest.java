@@ -110,9 +110,9 @@ public abstract class TimerBaseTest extends AbstractBaseTest {
         }
 
         @Override
-        public List<TaskLifeCycleEventListener> getTaskListeners(RuntimeEngine runtime) {
+        public List<TaskLifeCycleEventListener> getTaskListeners() {
 
-            List<TaskLifeCycleEventListener> listeners = super.getTaskListeners(runtime);
+            List<TaskLifeCycleEventListener> listeners = super.getTaskListeners();
             if (tlistener != null) {
                 listeners.addAll(Arrays.asList(tlistener));
             }
