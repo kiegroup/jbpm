@@ -89,6 +89,7 @@ public abstract class AbstractRuleTaskHandler extends AbstractLogOrThrowWorkItem
 
     protected static final String STATELESS_TYPE = "stateless";
     protected static final String STATEFULL_TYPE = "statefull";
+    protected static final String STATEFUL_TYPE = "stateful";
 
     protected static final String DRL_LANG = "DRL";
     protected static final String DMN_LANG = "DMN";
@@ -165,7 +166,8 @@ public abstract class AbstractRuleTaskHandler extends AbstractLogOrThrowWorkItem
             logger.debug("Facts to be inserted into working memory {}",
                          parameters);
             if (DRL_LANG.equalsIgnoreCase(language)) {
-                if (STATEFULL_TYPE.equalsIgnoreCase(kieSessionType)) {
+                if (STATEFULL_TYPE.equalsIgnoreCase(kieSessionType) || 
+                    STATEFUL_TYPE.equalsIgnoreCase(kieSessionType)) {
                     handleStatefull(workItem,
                                     kieSessionName,
                                     parameters,
