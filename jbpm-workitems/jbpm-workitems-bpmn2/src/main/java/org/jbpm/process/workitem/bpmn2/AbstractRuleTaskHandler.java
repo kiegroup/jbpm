@@ -15,7 +15,9 @@
  */
 package org.jbpm.process.workitem.bpmn2;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,12 +25,10 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import org.jbpm.process.workitem.core.AbstractLogOrThrowWorkItemHandler;
-import org.jbpm.process.workitem.core.util.Wid;
-import org.jbpm.process.workitem.core.util.WidMavenDepends;
-import org.jbpm.process.workitem.core.util.WidParameter;
-import org.jbpm.process.workitem.core.util.service.WidAction;
-import org.jbpm.process.workitem.core.util.service.WidAuth;
-import org.jbpm.process.workitem.core.util.service.WidService;
+import org.jbpm.workflow.core.node.DataAssociation;
+import org.jbpm.workflow.core.node.WorkItemNode;
+import org.jbpm.workflow.instance.WorkflowProcessInstance;
+import org.jbpm.workflow.instance.node.WorkItemNodeInstance;
 import org.kie.api.KieServices;
 import org.kie.api.builder.KieScanner;
 import org.kie.api.command.BatchExecutionCommand;
@@ -38,6 +38,8 @@ import org.kie.api.runtime.ExecutionResults;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.StatelessKieSession;
+import org.kie.api.runtime.manager.RuntimeEngine;
+import org.kie.api.runtime.manager.RuntimeManager;
 import org.kie.api.runtime.process.WorkItem;
 import org.kie.api.runtime.process.WorkItemManager;
 import org.kie.api.runtime.rule.FactHandle;
@@ -47,8 +49,14 @@ import org.kie.dmn.api.core.DMNModel;
 import org.kie.dmn.api.core.DMNResult;
 import org.kie.dmn.api.core.DMNRuntime;
 import org.kie.internal.runtime.Cacheable;
+import org.kie.internal.runtime.manager.RuntimeManagerRegistry;
+import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.javaparser.JavaParser;
+import com.github.javaparser.JavaParserBuild;
 
 /**
  * Additional BusinessRuleTask support that allows to decouple rules from processes - as default BusinessRuleTask
@@ -90,6 +98,10 @@ public abstract class AbstractRuleTaskHandler extends AbstractLogOrThrowWorkItem
     private KieContainer kieContainer;
     private KieScanner kieScanner;
 
+    private ClassLoader classLoader;
+    private RuntimeManager runtimeManager;
+    private TypeTransformer typeTransformer;
+    
     public AbstractRuleTaskHandler(String groupId,
                                    String artifactId,
                                    String version) {
@@ -100,9 +112,17 @@ public abstract class AbstractRuleTaskHandler extends AbstractLogOrThrowWorkItem
     }
 
     public AbstractRuleTaskHandler(String groupId,
+            String artifactId,
+            String version,
+            long scannerInterval) {
+        this(groupId, artifactId, version, scannerInterval, null, null);
+    }
+    public AbstractRuleTaskHandler(String groupId,
                                    String artifactId,
                                    String version,
-                                   long scannerInterval) {
+                                   long scannerInterval,
+                                   ClassLoader classLoader,
+                                   RuntimeManager runtimeManager) {
         logger.debug("About to create KieContainer for {}, {}, {} with scanner interval {}",
                      groupId,
                      artifactId,
@@ -111,6 +131,9 @@ public abstract class AbstractRuleTaskHandler extends AbstractLogOrThrowWorkItem
         kieContainer = kieServices.newKieContainer(kieServices.newReleaseId(groupId,
                                                                             artifactId,
                                                                             version));
+        this.classLoader = classLoader;
+        this.runtimeManager = runtimeManager;
+        this.typeTransformer = new TypeTransformer(classLoader);
 
         if (scannerInterval > 0) {
             kieScanner = kieServices.newKieScanner(kieContainer);
@@ -154,7 +177,8 @@ public abstract class AbstractRuleTaskHandler extends AbstractLogOrThrowWorkItem
                                     results);
                 }
             } else if (DMN_LANG.equalsIgnoreCase(language)) {
-                handleDMN(parameters,
+                handleDMN(workItem,
+                          parameters,
                           results);
             } else {
                 throw new IllegalArgumentException("Not supported language type " + language);
@@ -172,6 +196,10 @@ public abstract class AbstractRuleTaskHandler extends AbstractLogOrThrowWorkItem
     public void abortWorkItem(WorkItem workItem,
                               WorkItemManager manager) {
         // no-op
+    }
+
+    public void setRuntimeManager(RuntimeManager runtimeManager) {
+        this.runtimeManager = runtimeManager;
     }
 
     @Override
@@ -218,8 +246,7 @@ public abstract class AbstractRuleTaskHandler extends AbstractLogOrThrowWorkItem
                                    String kieSessionName,
                                    Map<String, Object> parameters,
                                    Map<String, Object> results) {
-        logger.debug("Evaluating rules in stateless session with name {}",
-                     kieSessionName);
+        logger.debug("Evaluating rules in stateless session with name {}", kieSessionName);
         StatelessKieSession kieSession = kieContainer.newStatelessKieSession(kieSessionName);
         List<Command<?>> commands = new ArrayList<Command<?>>();
 
@@ -246,7 +273,8 @@ public abstract class AbstractRuleTaskHandler extends AbstractLogOrThrowWorkItem
         }
     }
 
-    protected void handleDMN(Map<String, Object> parameters,
+    protected void handleDMN(WorkItem workItem,
+                             Map<String, Object> parameters,
                              Map<String, Object> results) {
         String namespace = (String) parameters.remove("Namespace");
         String model = (String) parameters.remove("Model");
@@ -283,8 +311,43 @@ public abstract class AbstractRuleTaskHandler extends AbstractLogOrThrowWorkItem
             throw new RuntimeException("DMN result errors:: " + errors);
         }
 
-        results.putAll(dmnResult.getContext().getAll());
+        // no class loader defined we don't even try to convert.
+        if(classLoader == null || runtimeManager == null) {
+            results.putAll(dmnResult.getContext().getAll());
+            return;
+        }
+
+        RuntimeEngine engine = runtimeManager.getRuntimeEngine(ProcessInstanceIdContext.get(workItem.getProcessInstanceId()));
+        try {
+            KieSession localksession = engine.getKieSession();
+            WorkflowProcessInstance processInstance = (WorkflowProcessInstance) localksession.getProcessInstance(workItem.getProcessInstanceId());
+            WorkItemNodeInstance nodeInstance = findNodeInstance(workItem.getId(), processInstance);
+            WorkItemNode workItemNode = (WorkItemNode) nodeInstance.getNode();
+
+            // data outputs contains the structure refs for data association
+            Map<String, String> dataTypeOutputs = (Map<String, String>) workItemNode.getMetaData("DataOutputs");
+            Map<String, Object> decisionOutputData = dmnResult.getContext().getAll();
+            Map<String, Object> outcome = new HashMap<>();
+
+            if(!workItemNode.getOutAssociations().isEmpty()) {
+                // if there is one out association but the data is multiple we collapse to an object
+                for(DataAssociation dataAssociation : workItemNode.getOutAssociations()) {
+                   String targetOutputTask = dataAssociation.getSources().get(0);
+                   String targetTypeOutputTask = dataTypeOutputs.get(targetOutputTask);
+                   outcome.put(targetOutputTask, typeTransformer.transform(decisionOutputData.get(targetOutputTask), targetTypeOutputTask));
+                }
+                results.putAll(outcome);
+            } else {
+                results.putAll(dmnResult.getContext().getAll());
+            }
+        } catch (IOException | ClassNotFoundException e) {
+            results.putAll(dmnResult.getContext().getAll());
+        } finally {
+            runtimeManager.disposeRuntimeEngine(engine);
+        }
+
     }
+
 
     public KieContainer getKieContainer() {
         return this.kieContainer;

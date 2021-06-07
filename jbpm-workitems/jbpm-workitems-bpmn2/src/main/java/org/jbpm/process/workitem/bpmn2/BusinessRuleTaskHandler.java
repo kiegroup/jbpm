@@ -21,6 +21,7 @@ import org.jbpm.process.workitem.core.util.WidParameter;
 import org.jbpm.process.workitem.core.util.service.WidAction;
 import org.jbpm.process.workitem.core.util.service.WidAuth;
 import org.jbpm.process.workitem.core.util.service.WidService;
+import org.kie.api.runtime.manager.RuntimeManager;
 
 /**
  * Additional BusinessRuleTask support that allows to decouple rules from processes - as default BusinessRuleTask
@@ -70,6 +71,15 @@ public class BusinessRuleTaskHandler extends AbstractRuleTaskHandler {
                                    String version,
                                    long scannerInterval) {
         super(groupId, artifactId, version, scannerInterval);
+    }
+
+    public BusinessRuleTaskHandler(String groupId,
+            String artifactId,
+            String version,
+            long scannerInterval,
+            ClassLoader classLoader,
+            RuntimeManager runtimeManager) {
+        super(groupId, artifactId, version, scannerInterval, classLoader, runtimeManager);
     }
 
     @Override
