@@ -16,19 +16,32 @@
 
 package org.jbpm.test;
 
+import java.io.File;
+import java.nio.file.Files;
 import java.util.Map;
 import java.util.Properties;
+import java.util.UUID;
 
+import org.apache.commons.io.IOUtils;
 import org.assertj.core.api.Assertions;
+import org.drools.compiler.kie.builder.impl.InternalKieModule;
 import org.jbpm.test.persistence.util.PersistenceUtil;
 import org.junit.Rule;
 import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.kie.api.KieServices;
+import org.kie.api.builder.KieBuilder;
+import org.kie.api.builder.KieFileSystem;
+import org.kie.api.builder.Message;
+import org.kie.api.builder.ReleaseId;
+import org.kie.api.builder.Results;
 import org.kie.api.command.KieCommands;
+import org.kie.api.io.Resource;
 import org.kie.api.io.ResourceType;
 import org.kie.api.runtime.KieSession;
+import org.kie.internal.builder.InternalKieBuilder;
+import org.kie.scanner.KieMavenRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,6 +115,33 @@ public abstract class JbpmTestCase extends JbpmJUnitBaseTestCase {
 
     protected static KieCommands getCommands() {
         return getServices().getCommands();
+    }
+
+    protected byte[] createAndDeployJar(KieServices ks, ReleaseId releaseId, Resource... resources) throws Exception {
+        KieFileSystem kfs = ks.newKieFileSystem().generateAndWritePomXML(releaseId);
+        for (int i = 0; i < resources.length; i++) {
+            if (resources[i] != null) {
+                kfs.write(resources[i]);
+            }
+        }
+        KieBuilder kieBuilder = ks.newKieBuilder(kfs);
+        ((InternalKieBuilder) kieBuilder).buildAll(o -> true);
+        Results results = kieBuilder.getResults();
+        if (results.hasMessages(Message.Level.ERROR)) {
+            throw new IllegalStateException(results.getMessages(Message.Level.ERROR).toString());
+        }
+        InternalKieModule kieModule = (InternalKieModule) ks.getRepository().getKieModule(releaseId);
+        byte[] pomXmlContent = IOUtils.toByteArray(kieModule.getPomAsStream());
+        File pom = new File("target",
+                UUID.randomUUID().toString());
+        Files.write(pom.toPath(),
+                pomXmlContent);
+        KieMavenRepository.getKieMavenRepository().installArtifact(releaseId,
+                kieModule,
+                pom);
+
+        byte[] jar = kieModule.getBytes();
+        return jar;
     }
 
 }

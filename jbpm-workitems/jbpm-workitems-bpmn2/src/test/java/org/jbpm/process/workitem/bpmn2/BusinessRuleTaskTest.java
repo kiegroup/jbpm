@@ -106,7 +106,7 @@ public class BusinessRuleTaskTest {
 
         BusinessRuleTaskHandler handler = new BusinessRuleTaskHandler(GROUP_ID,
                                                                       ARTIFACT_ID,
-                                                                      VERSION);
+                                                                      VERSION,0);
         ksession.getWorkItemManager().registerWorkItemHandler("DecisionTask",
                                                               handler);
         Map<String, Object> params = new HashMap<String, Object>();
