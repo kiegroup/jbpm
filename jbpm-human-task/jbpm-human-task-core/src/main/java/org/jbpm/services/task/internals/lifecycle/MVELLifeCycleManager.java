@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.drools.mvel.MVELSafeHelper;
 import org.jbpm.persistence.api.integration.EventManagerProvider;
@@ -392,7 +393,7 @@ public class MVELLifeCycleManager implements LifeCycleManager {
             
             evalCommand(operation, commands, task, user, targetEntity, groupIds, entities);
             
-            persistenceContext.updateTask(task, operation);
+            persistenceContext.updateTask(task, operation, Optional.ofNullable(targetEntityId));
 
             switch (operation) {
                 case Activate: {

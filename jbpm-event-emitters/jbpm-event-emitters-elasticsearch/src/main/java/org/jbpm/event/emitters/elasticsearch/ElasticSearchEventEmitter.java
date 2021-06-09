@@ -22,6 +22,11 @@ import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.apache.http.HttpEntity;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -44,11 +49,6 @@ import org.jbpm.persistence.api.integration.model.ProcessInstanceView;
 import org.jbpm.persistence.api.integration.model.TaskInstanceView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 
 /**
  * Basic ElasticSearch implementation of EventEmitter that simply pushes out data to
@@ -74,6 +74,7 @@ public class ElasticSearchEventEmitter implements EventEmitter {
     private String elasticSearchUrl = System.getProperty("org.jbpm.event.emitters.elasticsearch.url", "http://localhost:9200");
     private String elasticSearchUser = System.getProperty("org.jbpm.event.emitters.elasticsearch.user");
     private String elasticSearchPassword = System.getProperty("org.jbpm.event.emitters.elasticsearch.password");
+    private boolean ignoreNull = Boolean.getBoolean("org.jbpm.event.emitters.elasticsearch.ignoreNull");
     
     private ObjectMapper mapper = new ObjectMapper();
 
@@ -85,16 +86,20 @@ public class ElasticSearchEventEmitter implements EventEmitter {
         mapper.setDateFormat(new SimpleDateFormat(dateFormatStr));
         mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         mapper.configure(MapperFeature.PROPAGATE_TRANSIENT_MARKER, true);
-        
+        if (ignoreNull) {
+            mapper.setSerializationInclusion(Include.NON_NULL);
+        }
         executor = buildExecutorService();
         httpclient = buildClient();
     }
 
+    @Override
     public void deliver(Collection<InstanceView<?>> data) {
         // no-op
 
     }
 
+    @Override
     public void apply(Collection<InstanceView<?>> data) {
         if (data.isEmpty()) {
             return;
@@ -158,11 +163,13 @@ public class ElasticSearchEventEmitter implements EventEmitter {
         });
     }
 
+    @Override
     public void drop(Collection<InstanceView<?>> data) {
         // no-op
 
     }
 
+    @Override
     public EventCollection newCollection() {
         return new BaseEventCollection();
     }

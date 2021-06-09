@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.TreeMap;
 
 import javax.persistence.EntityExistsException;
@@ -153,11 +154,11 @@ public class JPATaskPersistenceContext implements TaskPersistenceContext {
 	}
 
 	@Override
-	public Task updateTask(Task task, Operation operation) {
+	public Task updateTask(Task task, Operation operation, Optional<String> targetEntity) {
 		check();
 		Task updated = this.em.merge(task);
 		
-		EventManagerProvider.getInstance().get().update(new TaskInstanceView(task, userId, operation));
+		EventManagerProvider.getInstance().get().update(new TaskInstanceView(task, userId, operation, targetEntity.orElse(null)));
 		
 		return updated;
 	}
@@ -428,7 +429,7 @@ public class JPATaskPersistenceContext implements TaskPersistenceContext {
 	public Attachment removeAttachmentFromTask(Task task, long attachmentId) {
 		Attachment removed = ((InternalTaskData) task.getTaskData()).removeAttachment(attachmentId);
 		
-		EventManagerProvider.getInstance().get().update(new TaskInstanceView(task, userId, Operation.Attachment));
+		EventManagerProvider.getInstance().get().update(new TaskInstanceView(task, userId, Operation.Attach));
 		
 		return removed;
 	}
@@ -437,7 +438,7 @@ public class JPATaskPersistenceContext implements TaskPersistenceContext {
 	public Attachment addAttachmentToTask(Attachment attachment, Task task) {
 		((InternalTaskData) task.getTaskData()).addAttachment(attachment);
 		
-		EventManagerProvider.getInstance().get().update(new TaskInstanceView(task, userId, Operation.Attachment));
+		EventManagerProvider.getInstance().get().update(new TaskInstanceView(task, userId, Operation.Attach));
 		
 		return attachment;
 	}
