@@ -26,8 +26,12 @@ import org.hibernate.boot.spi.MetadataContributor;
 import org.hibernate.engine.spi.ExecuteUpdateResultCheckStyle;
 import org.jboss.jandex.IndexView;
 import org.jbpm.persistence.api.JbpmEntityContributor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JbpmMetadataContributor implements MetadataContributor {
+
+    private static final Logger log = LoggerFactory.getLogger(JbpmMetadataContributor.class);
 
     private List<JbpmEntityContributor> contributors;
 
@@ -41,6 +45,7 @@ public class JbpmMetadataContributor implements MetadataContributor {
     public void contribute(InFlightMetadataCollector metadataCollector, IndexView jandexIndex) {
         List<String> entityDisableChecks = contributors.stream().flatMap(e -> e.disableInsertChecks().stream()).collect(Collectors.toList());
         for(String entity : entityDisableChecks) {
+            log.debug("disabling row count check for entity {}", entity);
             metadataCollector.getEntityBindingMap().get(entity).setCustomSQLInsert(null, false, ExecuteUpdateResultCheckStyle.NONE);
         }
     }
