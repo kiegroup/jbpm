@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.drools.core.common.InternalAgenda;
 import org.drools.core.common.InternalKnowledgeRuntime;
@@ -88,6 +89,10 @@ public class RuleSetNodeInstance extends StateBasedNodeInstance implements Event
     private Map<String, List<ContextInstance>> subContextInstances = new HashMap<>();
 
     private ObjectMapper objectMapper = new ObjectMapper()
+            .registerModule(new JavaTimeModule())
+            .registerModule(new com.fasterxml.jackson.databind.module.SimpleModule()
+                                    .addSerializer(org.kie.dmn.feel.lang.types.impl.ComparablePeriod.class,
+                                                   new org.kie.dmn.feel.lang.types.impl.ComparablePeriodSerializer()))
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     protected RuleSetNode getRuleSetNode() {

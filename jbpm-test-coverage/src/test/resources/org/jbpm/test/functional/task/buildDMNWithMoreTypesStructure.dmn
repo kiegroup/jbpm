@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dmn:definitions xmlns:dmn="http://www.omg.org/spec/DMN/20180521/MODEL/" xmlns="https://kiegroup.org/dmn/_615AB1B9-FCD2-45A8-B113-156E7C415D24" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:dmndi="http://www.omg.org/spec/DMN/20180521/DMNDI/" xmlns:feel="http://www.omg.org/spec/DMN/20180521/FEEL/" xmlns:kie="http://www.drools.org/kie/dmn/1.2" id="_A2EBF75E-A51E-4A2D-AA2A-EC5F83FAED5B" name="buildDMNWithMoreTypesStructure" expressionLanguage="http://www.omg.org/spec/DMN/20180521/FEEL/" typeLanguage="http://www.omg.org/spec/DMN/20180521/FEEL/" namespace="https://kiegroup.org/dmn/_615AB1B9-FCD2-45A8-B113-156E7C415D24">
+   <dmn:extensionElements />
+   <dmn:itemDefinition id="_7288B2DA-DCCD-4B90-91BA-7E800B785441" name="tStrucutre" isCollection="false">
+      <dmn:itemComponent id="_C39D5952-0359-434A-9E78-2FF54256BAED" name="id" isCollection="false">
+         <dmn:typeRef>Any</dmn:typeRef>
+      </dmn:itemComponent>
+      <dmn:itemComponent id="_75FD5B88-DD61-4A81-A928-602E22FB8486" name="cache" isCollection="false">
+         <dmn:typeRef>context</dmn:typeRef>
+      </dmn:itemComponent>
+      <dmn:itemComponent id="_472C0D0A-9C10-4A4A-A37A-3A7636E200AA" name="currentDate" isCollection="false">
+         <dmn:typeRef>date</dmn:typeRef>
+      </dmn:itemComponent>
+      <dmn:itemComponent id="_1C42AF26-368D-434A-A0FB-991069C20C55" name="currentDateTime" isCollection="false">
+         <dmn:typeRef>date and time</dmn:typeRef>
+      </dmn:itemComponent>
+      <dmn:itemComponent id="_3760DC13-FE6C-4258-B02C-12F58B165998" name="daysTimeDuration" isCollection="false">
+         <dmn:typeRef>days and time duration</dmn:typeRef>
+      </dmn:itemComponent>
+      <dmn:itemComponent id="_1DCD86B8-D3A9-4C5C-ACCD-CB9030169FCF" name="currentTime" isCollection="false">
+         <dmn:typeRef>time</dmn:typeRef>
+      </dmn:itemComponent>
+      <dmn:itemComponent id="_951B781F-B01D-4A61-B596-2C346DCB7D4E" name="yearsMonthsDuration" isCollection="false">
+         <dmn:typeRef>years and months duration</dmn:typeRef>
+      </dmn:itemComponent>
+   </dmn:itemDefinition>
+   <dmn:decision id="_4A56750F-DF95-48DF-9C3F-FC35A79CAD93" name="Generated Structure">
+      <dmn:extensionElements />
+      <dmn:variable id="_DC5EB2C3-BB21-4525-9E50-D9C35BBA7441" name="Generated Structure" typeRef="tStrucutre" />
+      <dmn:context id="_A25838E8-EE46-401F-A5A8-3CDCA7398206">
+         <dmn:contextEntry>
+            <dmn:variable id="_0A2C7E40-4CEC-4A8D-92BB-998D731C2A97" name="id" typeRef="Any" />
+            <dmn:literalExpression id="_8D651C2E-E548-441A-874B-27C248E98BBF">
+               <dmn:text>123456</dmn:text>
+            </dmn:literalExpression>
+         </dmn:contextEntry>
+         <dmn:contextEntry>
+            <dmn:variable id="_B2594DC0-3CE0-4DA5-802A-46DB97BEEEA8" name="cache" typeRef="context" />
+            <dmn:context id="_7ACC8AC6-D4C1-44FE-A7E5-6F9FA977F9CA">
+               <dmn:contextEntry>
+                  <dmn:variable id="_E62684AA-A3A4-4551-BFCB-2C68D33DFF35" name="keyA" typeRef="string" />
+                  <dmn:literalExpression id="_765A6277-70A1-47BA-BBFE-26673D30A763">
+                     <dmn:text>"value a"</dmn:text>
+                  </dmn:literalExpression>
+               </dmn:contextEntry>
+               <dmn:contextEntry>
+                  <dmn:variable id="_7AA81C42-B4CD-4844-91D4-BADEC6FCB5D7" name="keyB" typeRef="string" />
+                  <dmn:literalExpression id="_30749508-E519-45FF-A074-817086F7118F">
+                     <dmn:text>"value b"</dmn:text>
+                  </dmn:literalExpression>
+               </dmn:contextEntry>
+            </dmn:context>
+         </dmn:contextEntry>
+         <dmn:contextEntry>
+            <dmn:variable id="_7908A5CC-C321-43D9-A340-6E997B5A8489" name="currentDate" typeRef="date" />
+            <dmn:literalExpression id="_23ED47DE-20B1-46DB-B7BC-3DEF2C20E612">
+               <dmn:text>date(2021, 6, 11)</dmn:text>
+            </dmn:literalExpression>
+         </dmn:contextEntry>
+         <dmn:contextEntry>
+            <dmn:variable id="_55C8BF19-579D-4E89-84EE-EF8824F399A8" name="currentDateTime" typeRef="date and time" />
+            <dmn:literalExpression id="_574A39ED-AD6C-43F5-92F7-3AD4833DC828">
+               <dmn:text>date and time(date(2021, 06, 11), time(7, 49, 0))</dmn:text>
+            </dmn:literalExpression>
+         </dmn:contextEntry>
+         <dmn:contextEntry>
+            <dmn:variable id="_610FD61C-613A-4629-9476-ACBA082725D0" name="daysTimeDuration" typeRef="days and time duration" />
+            <dmn:literalExpression id="_94093A5E-42A1-4D78-B20B-59F76490B283">
+               <dmn:text>duration( "P1DT23H12M30S" )</dmn:text>
+            </dmn:literalExpression>
+         </dmn:contextEntry>
+         <dmn:contextEntry>
+            <dmn:variable id="_96A0C8E7-7698-4D99-9A41-FC81F5F601C5" name="currentTime" typeRef="time" />
+            <dmn:literalExpression id="_AA3E26AD-58C7-4A68-A011-3CFC79F544E4">
+               <dmn:text>time(7, 49, 0)</dmn:text>
+            </dmn:literalExpression>
+         </dmn:contextEntry>
+         <dmn:contextEntry>
+            <dmn:variable id="_5F070B88-E8F7-48CA-AAF5-79307A1AE445" name="yearsMonthsDuration" typeRef="years and months duration" />
+            <dmn:literalExpression id="_5D025493-8374-46E8-99E7-208EF694A763">
+               <dmn:text>duration( "P3Y5M" )</dmn:text>
+            </dmn:literalExpression>
+         </dmn:contextEntry>
+      </dmn:context>
+   </dmn:decision>
+   <dmndi:DMNDI>
+      <dmndi:DMNDiagram id="_419A0AEB-CAB9-49F5-93B9-2269EE251FF7" name="DRG">
+         <di:extension>
+            <kie:ComponentsWidthsExtension>
+               <kie:ComponentWidths dmnElementRef="_A25838E8-EE46-401F-A5A8-3CDCA7398206">
+                  <kie:width>50</kie:width>
+                  <kie:width>161</kie:width>
+                  <kie:width>470</kie:width>
+               </kie:ComponentWidths>
+               <kie:ComponentWidths dmnElementRef="_8D651C2E-E548-441A-874B-27C248E98BBF">
+                  <kie:width>470</kie:width>
+               </kie:ComponentWidths>
+               <kie:ComponentWidths dmnElementRef="_7ACC8AC6-D4C1-44FE-A7E5-6F9FA977F9CA">
+                  <kie:width>50</kie:width>
+                  <kie:width>100</kie:width>
+                  <kie:width>300</kie:width>
+               </kie:ComponentWidths>
+               <kie:ComponentWidths dmnElementRef="_765A6277-70A1-47BA-BBFE-26673D30A763">
+                  <kie:width>300</kie:width>
+               </kie:ComponentWidths>
+               <kie:ComponentWidths dmnElementRef="_30749508-E519-45FF-A074-817086F7118F">
+                  <kie:width>300</kie:width>
+               </kie:ComponentWidths>
+               <kie:ComponentWidths dmnElementRef="_23ED47DE-20B1-46DB-B7BC-3DEF2C20E612">
+                  <kie:width>470</kie:width>
+               </kie:ComponentWidths>
+               <kie:ComponentWidths dmnElementRef="_574A39ED-AD6C-43F5-92F7-3AD4833DC828">
+                  <kie:width>470</kie:width>
+               </kie:ComponentWidths>
+               <kie:ComponentWidths dmnElementRef="_94093A5E-42A1-4D78-B20B-59F76490B283">
+                  <kie:width>470</kie:width>
+               </kie:ComponentWidths>
+               <kie:ComponentWidths dmnElementRef="_AA3E26AD-58C7-4A68-A011-3CFC79F544E4">
+                  <kie:width>470</kie:width>
+               </kie:ComponentWidths>
+               <kie:ComponentWidths dmnElementRef="_5D025493-8374-46E8-99E7-208EF694A763">
+                  <kie:width>470</kie:width>
+               </kie:ComponentWidths>
+            </kie:ComponentsWidthsExtension>
+         </di:extension>
+         <dmndi:DMNShape id="dmnshape-drg-_4A56750F-DF95-48DF-9C3F-FC35A79CAD93" dmnElementRef="_4A56750F-DF95-48DF-9C3F-FC35A79CAD93" isCollapsed="false">
+            <dmndi:DMNStyle>
+               <dmndi:FillColor red="255" green="255" blue="255" />
+               <dmndi:StrokeColor red="0" green="0" blue="0" />
+               <dmndi:FontColor red="0" green="0" blue="0" />
+            </dmndi:DMNStyle>
+            <dc:Bounds x="301" y="164" width="100" height="50" />
+            <dmndi:DMNLabel />
+         </dmndi:DMNShape>
+      </dmndi:DMNDiagram>
+   </dmndi:DMNDI>
+</dmn:definitions>

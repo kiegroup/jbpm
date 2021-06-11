@@ -20,6 +20,7 @@ public class Person {
 
     private String name;
     private Integer age;
+    private Address address;
 
     public Person() {
         // do nothing
@@ -43,5 +44,13 @@ public class Person {
 
     public void setAge(Integer age) {
         this.age = age;
+    }
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
     }
 }
