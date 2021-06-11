@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-package org.jbpm.process.workitem.bpmn2;
+package org.jbpm.workflow.instance.node;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jbpm.process.workitem.bpmn2.objects.Person;
+import org.jbpm.process.instance.impl.util.TypeTransformer;
+import org.jbpm.process.test.Person;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -43,7 +44,7 @@ public class TypeTransformerTest {
         Map<String, Object> p1 = new LinkedHashMap<>();
         p1.put("age", 12);
         data.add(p1);
-        Object outcome = typeTransformer.transform(data, "java.util.List<org.jbpm.process.workitem.bpmn2.objects.Person>");
+        Object outcome = typeTransformer.transform(data, "java.util.List<org.jbpm.process.test.Person>");
         Assert.assertTrue(outcome instanceof java.util.List);
         List<Person> persons = (List<Person>) outcome;
         Assert.assertTrue(persons.get(0) instanceof Person);

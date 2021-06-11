@@ -25,8 +25,6 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.drools.core.common.InternalAgenda;
 import org.drools.core.common.InternalKnowledgeRuntime;
@@ -37,6 +35,7 @@ import org.jbpm.process.core.context.exception.ExceptionScope;
 import org.jbpm.process.core.context.variable.Variable;
 import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.core.datatype.DataType;
+import org.jbpm.process.core.datatype.impl.type.ObjectDataType;
 import org.jbpm.process.core.impl.DataTransformerRegistry;
 import org.jbpm.process.instance.ContextInstance;
 import org.jbpm.process.instance.ContextInstanceContainer;
@@ -44,6 +43,7 @@ import org.jbpm.process.instance.context.exception.ExceptionScopeInstance;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
 import org.jbpm.process.instance.impl.ContextInstanceFactory;
 import org.jbpm.process.instance.impl.ContextInstanceFactoryRegistry;
+import org.jbpm.process.instance.impl.util.TypeTransformer;
 import org.jbpm.util.PatternConstants;
 import org.jbpm.workflow.core.node.DataAssociation;
 import org.jbpm.workflow.core.node.RuleSetNode;
@@ -87,9 +87,11 @@ public class RuleSetNodeInstance extends StateBasedNodeInstance implements Event
     // NOTE: ContetxInstances are not persisted as current functionality (exception scope) does not require it
     private Map<String, List<ContextInstance>> subContextInstances = new HashMap<>();
 
-    private ObjectMapper objectMapper = new ObjectMapper()
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    private TypeTransformer typeTransformer;
 
+    public RuleSetNodeInstance() {
+        typeTransformer = new TypeTransformer();
+    }
     protected RuleSetNode getRuleSetNode() {
         return (RuleSetNode) getNode();
     }
@@ -316,14 +318,17 @@ public class RuleSetNodeInstance extends StateBasedNodeInstance implements Event
                         // exclude java.lang.Object as it is considered unknown type
                         if (!dataType.getStringType().endsWith("java.lang.Object") && value instanceof String) {
                             value = dataType.readValue((String) value);
-                        } else if (!dataType.getStringType().endsWith("java.lang.Object") && value instanceof Map) {
+                        } else if (!dataType.getStringType().endsWith("java.lang.Object") && dataType instanceof ObjectDataType) {
                             try {
-                                Class<?> clazz = Class.forName(dataType.getStringType());
-                                if (!clazz.isInstance(Map.class)) {
-                                    value = objectMapper.convertValue(value, clazz);
+                                ClassLoader classLoader = ((ObjectDataType) dataType).getClassLoader();
+                                if (classLoader != null) {
+                                    value = typeTransformer.transform(classLoader, value, dataType.getStringType());
+                                } else {
+                                    value = typeTransformer.transform(value, dataType.getStringType());
                                 }
                             } catch (Exception e) {
-                                throw new RuntimeException("Cannot convert value", e);
+                                // do nothing in this case
+                                e.printStackTrace();
                             }
                         }
 

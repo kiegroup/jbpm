@@ -53,7 +53,7 @@ import org.kie.internal.builder.KnowledgeBuilderFactory;
 import org.kie.internal.io.ResourceFactory;
 import org.kie.scanner.KieMavenRepository;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class BusinessRuleTaskTest {
 
@@ -106,7 +106,8 @@ public class BusinessRuleTaskTest {
 
         BusinessRuleTaskHandler handler = new BusinessRuleTaskHandler(GROUP_ID,
                                                                       ARTIFACT_ID,
-                                                                      VERSION,0);
+                                                                      VERSION,
+                                                                      0);
         ksession.getWorkItemManager().registerWorkItemHandler("DecisionTask",
                                                               handler);
         Map<String, Object> params = new HashMap<String, Object>();
@@ -183,7 +184,6 @@ public class BusinessRuleTaskTest {
         //This is mapped with data associations to Encapsulated Output in the DMN model	 and should not be part of the returned model because encapsulated decisions are not returned
         assertEquals(null,
                      encapsulatedOutput);
-
     }
 
     private static KieBase readKnowledgeBase() throws Exception {
