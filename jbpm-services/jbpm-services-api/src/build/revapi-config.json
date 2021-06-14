@@ -16,116 +16,17 @@
     },
     "ignores": {
         "revapi": {
-            "_comment": "Changes between 7.48.0.Final and the current branch. These changes are desired and thus ignored.",
+            "_comment": "Changes between 7.52.0.Final and the current branch. These changes are desired and thus ignored.",
             "ignore": [
-		{
-		  "code": "java.method.addedToInterface",
-		  "new": "method java.util.Set<java.lang.String> org.jbpm.services.api.model.ProcessDefinition::getTagsForVariable(java.lang.String)",
-		  "package": "org.jbpm.services.api.model",
-		  "classSimpleName": "ProcessDefinition",
-		  "methodName": "getTagsForVariable",
-		  "elementKind": "method",
-		  "justification": "[JBPM-9548] Need access to process variables tags at FormRendererBase"
-		},
-              {
-                "code": "java.method.addedToInterface",
-                "new": "method java.util.Map<java.lang.String, java.util.Set<java.lang.String>> org.jbpm.services.api.model.ProcessDefinition::getTagsInfo()",
-                "package": "org.jbpm.services.api.model",
-                "classSimpleName": "ProcessDefinition",
-                "methodName": "getTagsInfo",
-                "elementKind": "method",
-                "justification": "[AF-2811] Required Process Variable Tags shouldn't be accepted in forms when empty"
-              },
-                {
-                  "code": "java.method.addedToInterface",
-                  "new": "method java.util.Collection<org.jbpm.services.api.model.ProcessInstanceDesc> org.jbpm.services.api.RuntimeDataService::getProcessInstancesWithSubprocessByProcessInstanceId(java.lang.Long, java.util.List<java.lang.Integer>, org.kie.api.runtime.query.QueryContext)",
-                  "package": "org.jbpm.services.api",
-                  "classSimpleName": "RuntimeDataService",
-                  "methodName": "getProcessInstancesWithSubprocessByProcessInstanceId",
-                  "elementKind": "method",
-                  "justification": "https://issues.redhat.com/browse/JBPM-9583"
-                },
                 {
                     "code": "java.method.addedToInterface",
-                    "new": "method java.util.Set<java.lang.String> org.jbpm.services.api.model.ProcessDefinition::getTagsForVariable(java.lang.String)",
+                    "new": "method java.util.Map<java.lang.String, java.util.Set<java.lang.String>> org.jbpm.services.api.model.ProcessDefinition::getTagsInfo()",
                     "package": "org.jbpm.services.api.model",
                     "classSimpleName": "ProcessDefinition",
-                    "methodName": "getTagsForVariable",
+                    "methodName": "getTagsInfo",
                     "elementKind": "method",
-                    "justification": "[JBPM-9548] Need access to process variables tags at FormRendererBase (kie-server-services-jbpm-ui)"
-                },
-                {
-                    "code": "java.method.addedToInterface",
-                    "new": "method java.util.Map<java.lang.String, java.lang.Object> org.jbpm.services.api.ProcessService::computeProcessOutcome(java.lang.String, java.lang.String, java.util.Map<java.lang.String, java.lang.Object>)",
-                    "package": "org.jbpm.services.api",
-                    "classSimpleName": "ProcessService",
-                    "methodName": "computeProcessOutcome",
-                    "elementKind": "method",
-                    "justification": "[JBPM-9624] Return the process variables for synchronous execution use cases"
-                },
-            {
-               "code": "java.method.addedToInterface",
-               "new": "method java.util.Set<java.lang.String> org.jbpm.services.api.model.ProcessDefinition::getTagsForVariable(java.lang.String)",
-               "package": "org.jbpm.services.api.model",
-               "classSimpleName": "ProcessDefinition",
-               "methodName": "getTagsForVariable",
-               "elementKind": "method",
-               "justification": "[JBPM-9548] Need access to process variables tags at FormRendererBase (kie-server-services-jbpm-ui)"
-            },
-            {
-               "code": "java.method.addedToInterface",
-               "new": "method void org.jbpm.services.api.admin.UserTaskAdminService::addBusinessAdmins(java.lang.String, java.lang.String, long, boolean, org.kie.api.task.model.OrganizationalEntity[]) throws org.jbpm.services.api.TaskNotFoundException",
-               "package": "org.jbpm.services.api.admin",
-               "classSimpleName": "UserTaskAdminService",
-               "methodName": "addBusinessAdmins",
-               "elementKind": "method",
-               "justification": "[JBPM-9625] Allow to bypass the authenticated user in the KIE REST API that is adding users or groups as potential owners"
-            },
-            {
-               "code": "java.method.addedToInterface",
-               "new": "method void org.jbpm.services.api.admin.UserTaskAdminService::addExcludedOwners(java.lang.String, java.lang.String, long, boolean, org.kie.api.task.model.OrganizationalEntity[]) throws org.jbpm.services.api.TaskNotFoundException",
-               "package": "org.jbpm.services.api.admin",
-               "classSimpleName": "UserTaskAdminService",
-               "methodName": "addExcludedOwners",
-               "elementKind": "method",
-               "justification": "[JBPM-9625] Allow to bypass the authenticated user in the KIE REST API that is adding users or groups as potential owners"
-            },
-            {
-               "code": "java.method.addedToInterface",
-               "new": "method void org.jbpm.services.api.admin.UserTaskAdminService::addPotentialOwners(java.lang.String, java.lang.String, long, boolean, org.kie.api.task.model.OrganizationalEntity[]) throws org.jbpm.services.api.TaskNotFoundException",
-               "package": "org.jbpm.services.api.admin",
-               "classSimpleName": "UserTaskAdminService",
-               "methodName": "addPotentialOwners",
-               "elementKind": "method",
-               "justification": "[JBPM-9625] Allow to bypass the authenticated user in the KIE REST API that is adding users or groups as potential owners"
-             },
-             {
-               "code": "java.method.addedToInterface",
-               "new": "method void org.jbpm.services.api.admin.UserTaskAdminService::removeBusinessAdmins(java.lang.String, java.lang.String, long, org.kie.api.task.model.OrganizationalEntity[]) throws org.jbpm.services.api.TaskNotFoundException, java.lang.IllegalStateException",
-               "package": "org.jbpm.services.api.admin",
-               "classSimpleName": "UserTaskAdminService",
-               "methodName": "removeBusinessAdmins",
-               "elementKind": "method",
-               "justification": "[JBPM-9625] Allow to bypass the authenticated user in the KIE REST API that is adding users or groups as potential owners"
-             },
-             {
-               "code": "java.method.addedToInterface",
-               "new": "method void org.jbpm.services.api.admin.UserTaskAdminService::removeExcludedOwners(java.lang.String, java.lang.String, long, org.kie.api.task.model.OrganizationalEntity[]) throws org.jbpm.services.api.TaskNotFoundException",
-               "package": "org.jbpm.services.api.admin",
-               "classSimpleName": "UserTaskAdminService",
-               "methodName": "removeExcludedOwners",
-               "elementKind": "method",
-               "justification": "[JBPM-9625] Allow to bypass the authenticated user in the KIE REST API that is adding users or groups as potential owners"
-             },
-             {
-               "code": "java.method.addedToInterface",
-               "new": "method void org.jbpm.services.api.admin.UserTaskAdminService::removePotentialOwners(java.lang.String, java.lang.String, long, org.kie.api.task.model.OrganizationalEntity[]) throws org.jbpm.services.api.TaskNotFoundException",
-               "package": "org.jbpm.services.api.admin",
-               "classSimpleName": "UserTaskAdminService",
-               "methodName": "removePotentialOwners",
-               "elementKind": "method",
-               "justification": "[JBPM-9625] Allow to bypass the authenticated user in the KIE REST API that is adding users or groups as potential owners"
-             }
+                    "justification": "[AF-2811] Required Process Variable Tags shouldn't be accepted in forms when empty"
+                }
             ]
         }
     }
