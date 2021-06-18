@@ -180,5 +180,9 @@ public class DeadlineImpl implements org.kie.internal.task.api.model.Deadline {
         return CollectionUtils.equals(documentation, other.documentation) && CollectionUtils.equals(escalations, other.escalations);
     }
 
-
+    @Override
+    public String toString() {
+        return "DeadlineImpl [id=" + id + ", documentation=" + documentation + ", date=" + date + ", escalations=" +
+               escalations + ", escalated=" + escalated + "]";
+    }
 }

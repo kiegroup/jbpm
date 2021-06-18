@@ -51,6 +51,9 @@ public class DefaultCountDownProcessEventListener extends DefaultProcessEventLis
         }
     }
 
+    public long count() {
+        return latch.getCount();
+    }
     public void waitTillCompleted(long timeOut) {
         try {
             latch.await(timeOut, TimeUnit.MILLISECONDS);

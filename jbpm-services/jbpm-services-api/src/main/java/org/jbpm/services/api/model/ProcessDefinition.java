@@ -143,4 +143,10 @@ public interface ProcessDefinition extends Serializable, DeployedAsset {
      * @return tags names
      */
     Set<String> getTagsForVariable(String varName);
+
+    /**
+     * Return the list of tags
+     * @return tags names with variable name
+     */
+    Map<String, Set<String>> getTagsInfo();
 }

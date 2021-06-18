@@ -99,9 +99,7 @@ public abstract class GlobalTimerServiceBaseTest extends TimerBaseTest{
     protected EntityManagerFactory emf;
    
     protected abstract RuntimeManager getManager(RuntimeEnvironment environment, boolean waitOnStart);
-      
-    
-    
+
     public void cleanup() {
         if (manager != null) {
             manager.close();

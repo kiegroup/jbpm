@@ -182,8 +182,7 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
     }
 
     public static PoolingDataSourceWrapper setupPoolingDataSource() {
-        Properties dsProps = PersistenceUtil.getDatasourceProperties();
-        return PersistenceUtil.setupPoolingDataSource(dsProps, "jdbc/testDS1");
+        return PersistenceUtil.setupPoolingDataSource("jdbc/testDS1");
     }
 
     public void setPersistence(boolean sessionPersistence) {
@@ -602,7 +601,7 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
         List<String> names = getNotTriggeredNodes(processInstanceId, nodeNames);
         assertTrue(Arrays.equals(names.toArray(), nodeNames));
     }
-    
+
     public int getNumberOfNodeTriggered(long processInstanceId,
             String node) {
         int counter = 0;

@@ -15,12 +15,26 @@
  */
 package org.jbpm.executor;
 
+import java.util.List;
+import java.util.UUID;
+
 import javax.persistence.Persistence;
 
+import org.jbpm.executor.impl.ExecutorImpl;
+import org.jbpm.executor.impl.ExecutorServiceImpl;
+import org.jbpm.executor.test.CountDownAsyncJobStartedListener;
 import org.jbpm.test.util.ExecutorTestUtil;
+import org.kie.api.executor.CommandContext;
+import org.kie.api.executor.RequestInfo;
+import org.kie.api.executor.STATUS;
+import org.kie.api.runtime.query.QueryContext;
 import org.kie.test.util.db.PoolingDataSourceWrapper;
+
+import static org.junit.Assert.assertEquals;
+
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Test;
 
 
 public class NoCDISimpleExecutorTest extends BasicExecutorBaseTest{
@@ -40,7 +54,29 @@ public class NoCDISimpleExecutorTest extends BasicExecutorBaseTest{
         executorService.init();
         super.setUp();
     }
-    
+
+    @Test(timeout=10000)
+    public void testJobsQueryWithStatusAfterInterrupt() throws InterruptedException {
+        CountDownAsyncJobStartedListener countDownListener = new CountDownAsyncJobStartedListener(1);
+        ((ExecutorServiceImpl) executorService).addAsyncJobListener(countDownListener);
+        
+        String uuid = UUID.randomUUID().toString();
+        CommandContext ctxCMD = new CommandContext();
+        ctxCMD.setData("businessKey", uuid);
+
+        executorService.scheduleRequest("org.jbpm.executor.ReoccurringPrintOutCommand", ctxCMD);
+        countDownListener.waitTillStarted();
+        List<RequestInfo> uuidRequests = executorService.getRequestsByBusinessKey(uuid, new QueryContext());
+        assertEquals(1, uuidRequests.size());
+        assertEquals(STATUS.RUNNING, uuidRequests.get(0).getStatus());
+
+        executorService.destroy();
+
+        List<RequestInfo> info = executorService.getRequestsByBusinessKey(uuid, new QueryContext());
+        assertEquals(STATUS.QUEUED, info.get(0).getStatus());
+
+    }
+
     @After
     public void tearDown() {
         super.tearDown();

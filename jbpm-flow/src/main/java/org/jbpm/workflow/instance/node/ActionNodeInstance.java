@@ -31,6 +31,8 @@ public class ActionNodeInstance extends NodeInstanceImpl {
 
     private static final long serialVersionUID = 510l;
 
+
+
     protected ActionNode getActionNode() {
         return (ActionNode) getNode();
     }
@@ -40,20 +42,31 @@ public class ActionNodeInstance extends NodeInstanceImpl {
             throw new IllegalArgumentException(
                 "An ActionNode only accepts default incoming connections!");
         }
-		Action action = (Action) getActionNode().getAction().getMetaData("Action");
-		try {
-		    ProcessContext context = new ProcessContext(getProcessInstance().getKnowledgeRuntime());
-		    context.setNodeInstance(this);
-	        executeAction(action);
-		} catch( WorkflowRuntimeException wre) { 
-		    throw wre;
-		} catch (Exception e) {
-		    // for the case that one of the following throws an exception
-		    // - the ProcessContext() constructor 
-		    // - or context.setNodeInstance(this) 
-		    throw new WorkflowRuntimeException(this, getProcessInstance(), "Unable to execute Action: " + e.getMessage(), e);
-		} 
-    	triggerCompleted();
+        
+        if (!getActionNode().isExecuteActionAfterComplete()) {
+            executedAction();
+        }
+        triggerCompleted();
+
+        if (getActionNode().isExecuteActionAfterComplete()) {
+            executedAction();
+        }
+    }
+
+    private void executedAction () {
+        Action action = (Action) getActionNode().getAction().getMetaData("Action");
+        try {
+            ProcessContext context = new ProcessContext(getProcessInstance().getKnowledgeRuntime());
+            context.setNodeInstance(this);
+            executeAction(action);
+        } catch( WorkflowRuntimeException wre) { 
+            throw wre;
+        } catch (Exception e) {
+            // for the case that one of the following throws an exception
+            // - the ProcessContext() constructor 
+            // - or context.setNodeInstance(this) 
+            throw new WorkflowRuntimeException(this, getProcessInstance(), "Unable to execute Action: " + e.getMessage(), e);
+        } 
     }
 
     public void triggerCompleted() {

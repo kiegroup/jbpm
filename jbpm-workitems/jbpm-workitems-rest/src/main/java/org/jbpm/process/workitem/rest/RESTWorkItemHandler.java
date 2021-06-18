@@ -19,9 +19,12 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,12 +63,14 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.BasicAuthCache;
+import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.protocol.BasicHttpContext;
@@ -112,6 +117,8 @@ import org.apache.http.conn.routing.HttpRoutePlanner;
  * if not given string format will be returned</li>
  * <li>AcceptHeader - accept header value</li>
  * <li>Headers - additional HTTP Headers in format: header1=val1;header2=val2</li>
+ * <li>Cookie - Cookie need to send while accessing REST API in format: cookieParam1=cookieParam1_Value;cookieParam2=cookieParam2_Value</li>
+ * <li>CookiePath - Define path for which the cookie is valid - default set to / </li>
  * </ul>
  */
 
@@ -120,7 +127,7 @@ import org.apache.http.conn.routing.HttpRoutePlanner;
         defaultHandler = "mvel: new org.jbpm.process.workitem.rest.RESTWorkItemHandler()",
         documentation = "${artifactId}/index.html",
         category = "${artifactId}",
-        icon = "Rest.png",
+        icon = "defaultresticon.png",
         parameters = {
                 @WidParameter(name = "Url"),
                 @WidParameter(name = "Method"),
@@ -138,7 +145,9 @@ import org.apache.http.conn.routing.HttpRoutePlanner;
                 @WidParameter(name = "Password"),
                 @WidParameter(name = "AuthUrl"),
                 @WidParameter(name = "ContentType"),
-                @WidParameter(name = "ContentTypeCharset")
+                @WidParameter(name = "ContentTypeCharset"),
+                @WidParameter(name = "Cookie"),
+                @WidParameter(name = "CookiePath")
         },
         results = {
                 @WidResult(name = "Result", runtimeType = "java.lang.Object")
@@ -173,6 +182,9 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler imple
     public static final String PARAM_RESULT = "Result";
     public static final String PARAM_STATUS = "Status";
     public static final String PARAM_STATUS_MSG = "StatusMsg";
+    public static final String PARAM_COOKIE = "Cookie";
+    public static final String PARAM_COOKIE_PATH = "CookiePath";
+
 
     private String username;
     private String password;
@@ -188,7 +200,7 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler imple
 
     // protected for test purpose
     protected static boolean HTTP_CLIENT_API_43 = true;
-
+ 
     static {
         try {
             Class.forName("org.apache.http.client.methods.RequestBuilder");
@@ -760,6 +772,8 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler imple
         String acceptHeader = (String) workItem.getParameter("AcceptHeader");
         String acceptCharset = (String) workItem.getParameter("AcceptCharset");
         String headers = (String) workItem.getParameter(PARAM_HEADERS);
+        String cookie= (String) workItem.getParameter(PARAM_COOKIE);
+        String cookiePath= (String) workItem.getParameter(PARAM_COOKIE_PATH);
 
         if (urlStr == null) {
             throw new IllegalArgumentException("Url is a required parameter");
@@ -771,7 +785,7 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler imple
             handleException = Boolean.parseBoolean(handleExceptionStr);
         }
         Map<String, Object> params = workItem.getParameters();
-
+        
         // authentication type from parameters
         AuthenticationType authType = type;
         if (params.get(PARAM_AUTH_TYPE) != null) {
@@ -790,9 +804,12 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler imple
         if(headers == null) {
             headers = "";
         }
-
+    
         HttpClient httpClient = getHttpClient(readTimeout,
-                                              connectTimeout);
+                                              connectTimeout,
+                                              urlStr,
+                                              cookie,
+                                              cookiePath);
 
         Object methodObject = configureRequest(method,
                                                urlStr,
@@ -1297,7 +1314,10 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler imple
     }
 
     protected HttpClient getHttpClient(Integer readTimeout,
-                                       Integer connectTimeout) {
+                                       Integer connectTimeout,
+                                       String url,
+                                       String cookie,
+                                       String cookiePath) {
         if (getDoCacheClient() && HTTP_CLIENT_API_43) {
             if (cachedClient == null) {
                 cachedClient = getNewPooledHttpClient(readTimeout,
@@ -1306,7 +1326,7 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler imple
 
             return cachedClient;
         }
-
+        
         if (HTTP_CLIENT_API_43) {
             RequestConfig config = RequestConfig.custom()
                     .setSocketTimeout(readTimeout)
@@ -1314,9 +1334,17 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler imple
                     .setConnectionRequestTimeout(connectTimeout)
                     .build();
 
-            HttpClientBuilder clientBuilder = HttpClientBuilder.create()
+            HttpClientBuilder clientBuilder;
+            clientBuilder = HttpClientBuilder.create()
                     .setDefaultRequestConfig(config);
-            
+
+            if (cookie != null && !cookie.isEmpty()) {
+                BasicCookieStore basicCookieStore = addCookie(url, cookie, cookiePath);
+                if (basicCookieStore != null) {
+                    clientBuilder.setDefaultCookieStore(basicCookieStore);
+                }
+            }
+
             if (Boolean.getBoolean(USE_SYSTEM_PROPERTIES)) {
                 HttpRoutePlanner routePlanner = getRoutePlanner();
                 if (routePlanner != null) {
@@ -1332,6 +1360,12 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler imple
                                                    readTimeout);
             httpClient.getParams().setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT,
                                                    connectTimeout);
+            if (cookie!=null && !cookie.isEmpty()) {
+            	BasicCookieStore basicCookieStore=addCookie(url,cookie,cookiePath);
+            	if(basicCookieStore != null) {
+                httpClient.setCookieStore(basicCookieStore);
+            	}
+            }
             if (Boolean.getBoolean(USE_SYSTEM_PROPERTIES)) {
                 HttpRoutePlanner routePlanner = getRoutePlanner();
                 if (routePlanner != null) {
@@ -1342,7 +1376,44 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler imple
             return httpClient;
         }
     }
-    
+
+    protected BasicCookieStore addCookie(String url, String cookie, String cookiePath) {
+        String host = null;
+        BasicClientCookie basicClientCookie = null;
+        BasicCookieStore basicCookieStore = null;
+
+        try {
+            host = new URL(url).getHost();
+        } catch (MalformedURLException e) {
+            host = null;
+            logger.error("Unexpected exception occured while retriving host", e);
+            return null;
+        }
+        basicCookieStore = new BasicCookieStore();
+        for (String c : cookie.split(";")) {
+            String[] cookieParts = c.split("=", 2);
+            if (cookieParts.length == 2 && validateCookie(cookieParts)) {
+                basicClientCookie = new BasicClientCookie(cookieParts[0], cookieParts[1]);
+                basicClientCookie.setDomain(host);
+                if (cookiePath != null && !cookiePath.isEmpty()) {
+                    basicClientCookie.setPath(cookiePath);
+                } else {
+                    basicClientCookie.setPath("/");
+                }
+                basicCookieStore.addCookie(basicClientCookie);
+            }
+        }
+        return basicCookieStore;
+    }
+
+    private boolean validateCookie(String[] cookieParts) {
+        if ((!cookieParts[0].trim().isEmpty()) && (!cookieParts[1].trim().isEmpty())) {
+            return true;
+        }
+        logger.error("Provided cookie " + Arrays.toString(cookieParts) + " is not valid.");
+        return false;
+    }
+
     private HttpRoutePlanner getRoutePlanner ()
     {
         String proxyHost = System.getProperty("http.proxyHost");
@@ -1479,4 +1550,5 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler imple
             logger.error("Unable to close cached client connection: " + e.getMessage());
         }
     }
+
 }

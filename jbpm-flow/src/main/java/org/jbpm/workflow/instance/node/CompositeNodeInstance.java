@@ -289,7 +289,7 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
 		super.signalEvent(type, event);
 		for (Node node: getCompositeNode().internalGetNodes()) {
 			if (node instanceof EventNodeInterface) {
-				if (((EventNodeInterface) node).acceptsEvent(type, event)) {
+				if (((EventNodeInterface) node).acceptsEvent(type, event, ((WorkflowProcessInstanceImpl) this.getProcessInstance()).getEventFilterResolver(this, node, currentView))) {
 					if (node instanceof EventNode && ((EventNode) node).getFrom() == null) {
 						EventNodeInstanceInterface eventNodeInstance = (EventNodeInstanceInterface) getNodeInstance(node);
 						eventNodeInstance.signalEvent(type, event);
@@ -300,8 +300,7 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
 						List<NodeInstance> nodeInstances = getNodeInstances(node.getId(), currentView);
 						if (nodeInstances != null && !nodeInstances.isEmpty()) {
 							for (NodeInstance nodeInstance : nodeInstances) {
-								((EventNodeInstanceInterface) nodeInstance)
-										.signalEvent(type, event);
+								((EventNodeInstanceInterface) nodeInstance).signalEvent(type, event);
 							}
 						}
 					}

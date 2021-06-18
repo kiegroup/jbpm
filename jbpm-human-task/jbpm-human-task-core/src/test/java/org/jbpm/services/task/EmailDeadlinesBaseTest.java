@@ -16,6 +16,7 @@
 package org.jbpm.services.task;
 
 
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.mail.Address;
+import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMessage.RecipientType;
@@ -81,6 +83,7 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
     }
     
     
+    @Override
     public void tearDown(){
         if (wiser != null) {
             wiser.stop();
@@ -100,13 +103,13 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
     @Test(timeout = 10000)
     public void testDelayedEmailNotificationOnDeadline() throws Exception {  
         CountDownTaskEventListener countDownListener = new CountDownTaskEventListener(1, false, true);
-        addCountDownListner(countDownListener);
+        addCountDownListener(countDownListener);
         
         Map<String, Object> vars = new HashMap<String, Object>();
         vars.put("now", new Date());
 
         Reader reader = new InputStreamReader(getClass().getResourceAsStream(MvelFilePath.DeadlineWithNotification));
-        Task task = (Task) TaskFactory.evalTask(reader, vars);
+        Task task = TaskFactory.evalTask(reader, vars);
         
         taskService.addTask(task, new HashMap<String, Object>());
         long taskId = task.getId();
@@ -141,7 +144,7 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
         assertTrue(list.contains("new-email@domain.com"));
         assertTrue(list.contains("darth@domain.com"));
 
-        MimeMessage msg = ((WiserMessage) getWiser().getMessages().get(0)).getMimeMessage();
+        MimeMessage msg = getWiser().getMessages().get(0).getMimeMessage();
         assertEquals(myBody, msg.getContent());
         assertEquals(mySubject, msg.getSubject());
         assertEquals("from@domain.com", ((InternetAddress) msg.getFrom()[0]).getAddress());
@@ -149,7 +152,7 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
 
         final Address[] recipients = msg.getRecipients(RecipientType.TO);
         assertNotNull(recipients);
-        assertTrue(recipients.length == 2);
+        assertEquals(2, recipients.length);
         list = new ArrayList<String>(2);
         list.add(((InternetAddress) recipients[0]).getAddress());
         list.add(((InternetAddress) recipients[1]).getAddress());
@@ -157,16 +160,73 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
         assertTrue(list.contains("darth@domain.com"));
     }
     
+    
+    @Test(timeout = 10000)
+    public void testDelayedEmail2NotificationsOnDeadline() {
+        CountDownTaskEventListener countDownListener = new CountDownTaskEventListener(2, false, true);
+        addCountDownListener(countDownListener);
+
+        Map<String, Object> vars = new HashMap<String, Object>();
+        vars.put("now", new Date());
+
+        Reader reader = new InputStreamReader(getClass().getResourceAsStream(MvelFilePath.DeadlineWith2Notifications));
+        Task task = TaskFactory.evalTask(reader, vars);
+
+        taskService.addTask(task, new HashMap<>());
+        long taskId = task.getId();
+
+        InternalContent content = (InternalContent) TaskModelProvider.getFactory().newContent();
+
+        Map<String, String> params = fillMarshalSubjectAndBodyParams();
+        ContentData marshalledObject = ContentMarshallerHelper.marshal(task, params, null);
+        content.setContent(marshalledObject.getContent());
+        taskService.addContent(taskId, content);
+        long contentId = content.getId();
+
+        content = (InternalContent) taskService.getContentById(contentId);
+        Object unmarshallObject = ContentMarshallerHelper.unmarshall(content.getContent(), null);
+        checkContentSubjectAndBody(unmarshallObject);
+
+        // emails should not be set yet
+        assertEquals(0, getWiser().getMessages().size());
+
+        countDownListener.waitTillCompleted();
+
+        for (WiserMessage msg : getWiser().getMessages()) {
+            logger.info(msg.getEnvelopeReceiver());
+        }
+        assertEquals(2, getWiser().getMessages().size());
+
+        List<String> list = new ArrayList<>(2);
+        list.add(getWiser().getMessages().get(0).getEnvelopeReceiver());
+        list.add(getWiser().getMessages().get(1).getEnvelopeReceiver());
+        assertTrue(list.contains("new-email@domain.com"));
+        assertTrue(list.contains("darth@domain.com"));
+
+        assertTrue("Cannot find expected message", getWiser().getMessages().stream().anyMatch(m -> {
+            try {
+                MimeMessage msg = m.getMimeMessage();
+                return "new-email@domain.com".equals(((InternetAddress) msg.getRecipients(RecipientType.TO)[0])
+                        .getAddress()) && myBody.equals(msg.getContent()) && mySubject.equals(msg.getSubject()) &&
+                       "from@domain.com".equals(((InternetAddress) msg.getFrom()[0]).getAddress()) &&
+                       "replyTo@domain.com".equals(((InternetAddress) msg.getReplyTo()[0]).getAddress());
+            } catch (MessagingException | IOException e) {
+                throw new IllegalStateException(e);
+            }
+        }));
+    }
+    
+    
     @Test(timeout=10000)     
     public void testDelayedEmailNotificationOnDeadlineContentSingleObject() throws Exception {
         CountDownTaskEventListener countDownListener = new CountDownTaskEventListener(1, false, true);
-        addCountDownListner(countDownListener);
+        addCountDownListener(countDownListener);
         
         Map<String, Object> vars = new HashMap<String, Object>();
         vars.put("now", new Date());
 
         Reader reader = new InputStreamReader(getClass().getResourceAsStream(MvelFilePath.DeadlineWithNotificationContentSingleObject));
-        Task task = (Task) TaskFactory.evalTask(reader, vars);
+        Task task = TaskFactory.evalTask(reader, vars);
      
         taskService.addTask(task, new HashMap<String, Object>());
         long taskId = task.getId();
@@ -196,7 +256,7 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
         assertTrue(list.contains("tony@domain.com"));
         assertTrue(list.contains("darth@domain.com"));
 
-        MimeMessage msg = ((WiserMessage) getWiser().getMessages().get(0)).getMimeMessage();
+        MimeMessage msg = getWiser().getMessages().get(0).getMimeMessage();
         assertEquals("'singleobject'", msg.getContent());
         assertEquals("'singleobject'", msg.getSubject());
         assertEquals("from@domain.com", ((InternetAddress) msg.getFrom()[0]).getAddress());
@@ -204,7 +264,7 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
 
         final Address[] recipients = msg.getRecipients(RecipientType.TO);
         assertNotNull(recipients);
-        assertTrue(recipients.length == 2);
+        assertEquals(2, recipients.length);
         list = new ArrayList<String>(2);
         list.add(((InternetAddress) recipients[0]).getAddress());
         list.add(((InternetAddress) recipients[1]).getAddress());
@@ -215,7 +275,7 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
     @Test(timeout=10000)     
     public void testDelayedEmailNotificationOnDeadlineTaskCompleted() throws Exception {
         CountDownTaskEventListener countDownListener = new CountDownTaskEventListener(1, false, true);
-        addCountDownListner(countDownListener);
+        addCountDownListener(countDownListener);
         
         Map<String, Object> vars = new HashMap<String, Object>();
         vars.put("now", new Date());
@@ -267,11 +327,13 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
         assertEquals(0, task.getDeadlines().getStartDeadlines().size());
         assertEquals(0, task.getDeadlines().getEndDeadlines().size());       
     }
+    
+   
 
     @Test(timeout=10000)     
     public void testDelayedEmailNotificationOnDeadlineTaskFailed() throws Exception {
         CountDownTaskEventListener countDownListener = new CountDownTaskEventListener(1, false, true);
-        addCountDownListner(countDownListener);
+        addCountDownListener(countDownListener);
         
         Map<String, Object> vars = new HashMap<String, Object>();
         vars.put("now", new Date());
@@ -329,7 +391,7 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
     @Test(timeout=10000)     
     public void testDelayedEmailNotificationOnDeadlineTaskSkipped() throws Exception {
         CountDownTaskEventListener countDownListener = new CountDownTaskEventListener(1, false, true);
-        addCountDownListner(countDownListener);
+        addCountDownListener(countDownListener);
         
         Map<String, Object> vars = new HashMap<String, Object>();
         vars.put("now", new Date());
@@ -384,7 +446,7 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
     @Test(timeout=10000)         
     public void testDelayedEmailNotificationOnDeadlineTaskExited() throws Exception {
         CountDownTaskEventListener countDownListener = new CountDownTaskEventListener(1, false, true);
-        addCountDownListner(countDownListener);
+        addCountDownListener(countDownListener);
         
         Map<String, Object> vars = new HashMap<String, Object>();
         vars.put("now", new Date());
@@ -439,19 +501,19 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
     @Test(timeout=10000)     
     public void testDelayedReassignmentOnDeadline() throws Exception {
         CountDownTaskEventListener countDownListener = new CountDownTaskEventListener(1, true, false);
-        addCountDownListner(countDownListener);
+        addCountDownListener(countDownListener);
         
 
         Map<String, Object> vars = new HashMap<String, Object>();
         vars.put("now", new Date());
 
         Reader reader = new InputStreamReader(getClass().getResourceAsStream(MvelFilePath.DeadlineWithReassignment));
-        Task task = (Task) TaskFactory.evalTask(reader, vars);
+        Task task = TaskFactory.evalTask(reader, vars);
         taskService.addTask(task, new HashMap<String, Object>());
         long taskId = task.getId();
 
         task = taskService.getTaskById(taskId);
-        List<OrganizationalEntity> potentialOwners = (List<OrganizationalEntity>) task.getPeopleAssignments().getPotentialOwners();
+        List<OrganizationalEntity> potentialOwners = task.getPeopleAssignments().getPotentialOwners();
         List<String> ids = new ArrayList<String>(potentialOwners.size());
         for (OrganizationalEntity entity : potentialOwners) {
             ids.add(entity.getId());
@@ -464,7 +526,7 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
         
         task = taskService.getTaskById(taskId);
         assertEquals(Status.Ready, task.getTaskData().getStatus());
-        potentialOwners = (List<OrganizationalEntity>) task.getPeopleAssignments().getPotentialOwners();
+        potentialOwners = task.getPeopleAssignments().getPotentialOwners();
 
         ids = new ArrayList<String>(potentialOwners.size());
         for (OrganizationalEntity entity : potentialOwners) {
@@ -477,7 +539,7 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
     @Test(timeout=10000)     
     public void testDelayedEmailNotificationStartDeadlineStatusDoesNotMatch() throws Exception {
         CountDownTaskEventListener countDownListener = new CountDownTaskEventListener(2, false, true);
-        addCountDownListner(countDownListener);
+        addCountDownListener(countDownListener);
         
         Map<String, Object> vars = new HashMap<String, Object>();
         vars.put("now", new Date());

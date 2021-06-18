@@ -16,8 +16,10 @@
 
 package org.jbpm.test.functional.timer;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -82,25 +84,25 @@ public class GlobalQuartzDBTimerServiceTest extends GlobalTimerServiceBaseTest {
     }
     
     @Before
-    public void setUp() {
+    public void setUp() throws IOException, SQLException {
         cleanupSingletonSessionId();
-        emf = Persistence.createEntityManagerFactory("org.jbpm.test.persistence");
+        createTimerSchema();
         System.setProperty("org.quartz.properties", "quartz-db.properties");
+        emf = Persistence.createEntityManagerFactory("org.jbpm.test.persistence");
         globalScheduler = new QuartzSchedulerService();
         ((QuartzSchedulerService)globalScheduler).forceShutdown();
     }
     
     @After
-    public void tearDown() {
+    public void tearDown() throws IOException, SQLException {
         try {
-            
             globalScheduler.shutdown();
-        } catch (Exception e) {
-            
+        } finally {
+            dropTimerSchema();
+            System.clearProperty("org.quartz.properties");
+            cleanup();
         }
-        cleanup();
-        System.clearProperty("org.quartz.properties");
-    }   
+    }
     
     @Override
     protected RuntimeManager getManager(RuntimeEnvironment environment, boolean waitOnStart) {
@@ -127,7 +129,7 @@ public class GlobalQuartzDBTimerServiceTest extends GlobalTimerServiceBaseTest {
 
     
     @Test(timeout=20000)
-    public void testTimerStartManagerClose() throws Exception {
+    public void testTimerStartManagerClose() {
         NodeLeftCountDownProcessEventListener countDownListener = new NodeLeftCountDownProcessEventListener("StartProcess", 3);
         QuartzSchedulerService additionalCopy = new QuartzSchedulerService();
         additionalCopy.initScheduler(null);
@@ -263,7 +265,7 @@ public class GlobalQuartzDBTimerServiceTest extends GlobalTimerServiceBaseTest {
     }
 
     @Test(timeout=20000)
-    public void testContinueTimer() throws Exception {
+    public void testContinueTimer() {
         // JBPM-4443
         NodeLeftCountDownProcessEventListener countDownListener = new NodeLeftCountDownProcessEventListener("timer", 2);
         // prepare listener to assert results

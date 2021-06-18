@@ -53,16 +53,18 @@ public class BoundaryEventNode extends EventNode {
     }
 
     @Override
-    public boolean acceptsEvent(String type, Object event, Function<String, String> resolver) {
+    public boolean acceptsEvent(String type, Object event, Function<String, Object> resolver) {
         if (resolver == null) {
             return acceptsEvent(type, event);
         }
 
+        boolean isCorrelated = false;
         for( EventFilter filter : getEventFilters() ) {
+            isCorrelated |= filter.isCorrelated();
             if( filter.acceptsEvent(type, event, resolver) ) {
                 return true;
             }
         }
-        return super.acceptsEvent(type, event);
+        return !isCorrelated && super.acceptsEvent(type, event);
     }
 }

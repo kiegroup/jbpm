@@ -518,8 +518,8 @@ public abstract class StateBasedNodeInstance extends ExtendedNodeInstanceImpl im
                 }
 
                 if (variable != null) {
-                    variableScopeInstance.getVariableScope().validateVariable(getProcessInstance().getProcessName(), variableName, result.getValue());
-                    variableScopeInstance.setVariable(variableName, result.getValue());
+                    variableScopeInstance.setVariable(variableName, variableScopeInstance.getVariableScope()
+                            .validateVariable(getProcessInstance().getProcessName(), variableName, result.getValue()));
                 }
             }
         }

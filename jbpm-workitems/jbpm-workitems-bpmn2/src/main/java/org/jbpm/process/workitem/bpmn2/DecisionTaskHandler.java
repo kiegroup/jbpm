@@ -21,7 +21,7 @@ import org.jbpm.process.workitem.core.util.WidParameter;
 import org.jbpm.process.workitem.core.util.service.WidAction;
 import org.jbpm.process.workitem.core.util.service.WidAuth;
 import org.jbpm.process.workitem.core.util.service.WidService;
-
+import org.kie.api.runtime.manager.RuntimeManager;
 /**
  * Additional BusinessRuleTask support that allows to decouple rules from processes - as default BusinessRuleTask
  * uses exact same working memory (kie session) as process which essentially means same kbase.
@@ -43,7 +43,7 @@ import org.jbpm.process.workitem.core.util.service.WidService;
         defaultHandler = "mvel: new org.jbpm.process.workitem.bpmn2.DecisionTaskHandler()",
         documentation = "${artifactId}/index.html",
         category = "${artifactId}",
-        icon = "DecisionTask.png",
+        icon = "defaultdecisiontaskicon.png",
         parameters = {
                 @WidParameter(name = "Namespace", required = true),
                 @WidParameter(name = "Model", required = true),
@@ -71,6 +71,15 @@ public class DecisionTaskHandler extends AbstractRuleTaskHandler {
                                    String version,
                                    long scannerInterval) {
         super(groupId, artifactId, version, scannerInterval);
+    }
+
+    public DecisionTaskHandler(String groupId,
+            String artifactId,
+            String version,
+            long scannerInterval,
+            ClassLoader classLoader,
+            RuntimeManager runtimeManager) {
+        super(groupId, artifactId, version, scannerInterval, classLoader, runtimeManager);
     }
 
     @Override

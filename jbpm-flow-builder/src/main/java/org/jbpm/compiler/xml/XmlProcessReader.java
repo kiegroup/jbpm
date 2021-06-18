@@ -19,16 +19,15 @@ package org.jbpm.compiler.xml;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
-import java.util.List;
-import java.util.LinkedList;
-
 import java.text.MessageFormat;
-import javax.xml.parsers.SAXParser;
+import java.util.Collection;
+import java.util.List;
 
-import org.kie.api.definition.process.Process;
+import javax.xml.parsers.SAXParser;
 import org.drools.core.xml.ExtensibleXmlParser;
 import org.drools.core.xml.SemanticModules;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
+import org.kie.api.definition.process.Process;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -120,7 +119,7 @@ public class XmlProcessReader {
         return (ProcessBuildData) this.parser.getData();
     }
 
-    protected String processParserMessage(LinkedList<Object> parents, Attributes attr, String errorMessage) {
+    protected String processParserMessage(Collection<Object> parents, Attributes attr, String errorMessage) {
         String nodeId = (attr == null  || attr.getValue("id") == null) ? "" : attr.getValue("id");
         String nodeName = (attr == null  || attr.getValue("name") == null) ? "" : attr.getValue("name");
 

@@ -16,6 +16,8 @@
 
 package org.jbpm.test.functional.timer;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -111,13 +113,14 @@ public class GlobalTimerServiceVolumeTest extends TimerBaseTest {
     public TestName testName = new TestName();
 
     @Before
-    public void setup() {
+    public void setup() throws IOException, SQLException {
 
         Properties properties = new Properties();
         properties.setProperty("mary", "HR");
         properties.setProperty("john", "HR");
         userGroupCallback = new JBossUserGroupCallbackImpl(properties);
 
+        createTimerSchema();
         System.setProperty("org.quartz.properties", "quartz-db.properties");
         globalScheduler = new QuartzSchedulerService();
 
@@ -159,12 +162,16 @@ public class GlobalTimerServiceVolumeTest extends TimerBaseTest {
     }
 
     @After
-    public void tearDown() {
-        globalScheduler.shutdown();
-        if (manager != null) {
-            manager.close();
+    public void tearDown() throws IOException, SQLException {
+        try {
+            globalScheduler.shutdown();
+        } finally {
+            dropTimerSchema();
+            if (manager != null) {
+                manager.close();
+            }
+            emf.close();
         }
-        emf.close();
     }
 
     @Test(timeout=30000)

@@ -49,6 +49,7 @@ import javax.transaction.UserTransaction;
 import org.drools.core.time.JobHandle;
 import org.drools.core.time.impl.TimerJobInstance;
 import org.jbpm.process.core.timer.TimerServiceRegistry;
+import org.kie.internal.runtime.manager.SessionNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -117,6 +118,8 @@ public class EJBTimerScheduler {
         }
         try {
             transaction(this::executeTimerJobInstance, timerJobInstance);
+        } catch (SessionNotFoundException e) {
+            logger.warn("Process instance is not found. More likely already completed. Timer {} won't be recovered", timerJobInstance, e);
         } catch (Exception e) {
             recoverTimerJobInstance(timerJob, e);
         }
@@ -131,6 +134,22 @@ public class EJBTimerScheduler {
     }
 
     private void recoverTimerJobInstance(EjbTimerJob ejbTimerJob, Exception e) {
+        if (isSessionNotFound(e)) {
+            // if session is not found means the process has already finished. In this case we just need to remove
+            // the timer and avoid any recovery as it should not trigger any more timers.
+            try {
+                Transaction<TimerJobInstance> tx = timerJobInstance -> {
+                    if (!this.removeJob(timerJobInstance.getJobHandle())) {
+                        logger.warn("Session not found for timer {}. Timer could not removed.", ejbTimerJob.getTimerJobInstance());
+                    }
+                };
+                transaction(tx, ejbTimerJob.getTimerJobInstance());
+            } catch (Exception e1) {
+                logger.warn("There was a problem during timer removal {}", ejbTimerJob.getTimerJobInstance(), e1);
+            }
+            return;
+        }
+
         if (ejbTimerJob.getTimerJobInstance().getTrigger().hasNextFireTime() != null) {
             // this is an interval trigger. Problem here is that the timer scheduled by DefaultTimerJobInstance is lost
             // because of the transaction, so we need to do this here.
@@ -138,8 +157,11 @@ public class EJBTimerScheduler {
                
                 logger.warn("Execution of time failed Interval Trigger failed. Skipping {}", ejbTimerJob.getTimerJobInstance());
                 Transaction<TimerJobInstance> tx = timerJobInstance -> {
-                    this.removeJob(timerJobInstance.getJobHandle());
-                    this.internalSchedule(timerJobInstance);
+                    if (this.removeJob(timerJobInstance.getJobHandle())) {
+                        this.internalSchedule(timerJobInstance);
+                    } else {
+                        logger.debug("Interval trigger {} was removed before rescheduling", ejbTimerJob.getTimerJobInstance());
+                    }
                 };
                 transaction(tx, ejbTimerJob.getTimerJobInstance());
             } catch (Exception e1) {
@@ -177,6 +199,17 @@ public class EJBTimerScheduler {
                 logger.warn("Execution of time failed. Application server policy applied {}", ejbTimerJob.getTimerJobInstance());
                 throw new RuntimeException(e);
         }
+    }
+
+    private boolean isSessionNotFound(Exception e) {
+        Throwable current = e;
+        do {
+            if (current instanceof SessionNotFoundException) {
+                return true;
+            }
+            current = current.getCause();
+        } while (current != null);
+        return false;
     }
 
     @FunctionalInterface
@@ -239,7 +272,9 @@ public class EJBTimerScheduler {
 
 	public boolean removeJob(JobHandle jobHandle) {
 		EjbGlobalJobHandle ejbHandle = (EjbGlobalJobHandle) jobHandle;
-
+        if (USE_LOCAL_CACHE) {
+            localCache.remove(ejbHandle.getUuid());
+        }
 		for (Timer timer : timerService.getTimers()) {
 			try {
     		    Serializable info = timer.getInfo();
@@ -249,9 +284,7 @@ public class EJBTimerScheduler {
     				EjbGlobalJobHandle handle = (EjbGlobalJobHandle) job.getTimerJobInstance().getJobHandle();
     				if (handle.getUuid().equals(ejbHandle.getUuid())) {
     					logger.debug("Job handle {} does match timer and is going to be canceled", jobHandle);
-    					if (USE_LOCAL_CACHE) {
-    						localCache.remove(handle.getUuid());
-    					}
+
     					try {
     					    timer.cancel();
     					} catch (Throwable e) {

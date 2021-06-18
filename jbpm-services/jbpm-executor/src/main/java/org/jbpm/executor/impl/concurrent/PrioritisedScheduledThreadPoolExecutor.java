@@ -16,7 +16,11 @@
 
 package org.jbpm.executor.impl.concurrent;
 
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.RunnableScheduledFuture;
@@ -35,6 +39,8 @@ public class PrioritisedScheduledThreadPoolExecutor extends ScheduledThreadPoolE
     
     private ConcurrentHashMap<Long, ScheduledFuture<?>> scheduled = new ConcurrentHashMap<>();
 
+    private Set<Long> pendingRetries = Collections.synchronizedSet(new HashSet<>());
+
     public PrioritisedScheduledThreadPoolExecutor(int corePoolSize, ThreadFactory threadFactory, RejectedExecutionHandler handler) {
         super(corePoolSize, threadFactory, handler);
     }
@@ -46,20 +52,29 @@ public class PrioritisedScheduledThreadPoolExecutor extends ScheduledThreadPoolE
 
     
     public boolean scheduleNoDuplicates(Runnable command, long delay, TimeUnit unit) {
+        Long requestId = null;
+        Date fireDate = null;
         if (command instanceof PrioritisedRunnable) {
-            Long requestId = ((PrioritisedRunnable) command).getId();
+            PrioritisedRunnable runnable = (PrioritisedRunnable) command;
+            requestId = runnable.getId();
+            fireDate = runnable.getFireDate();
             ScheduledFuture<?> alreadyScheduled = scheduled.get(requestId);
             logger.debug("Checking if request with id {} is already scheduled {}", requestId, alreadyScheduled);
-            if (alreadyScheduled != null) {
-                if (alreadyScheduled.isDone()) {
-                    logger.debug("Request {} is already completed so remove it and reschedule", requestId);
-                    scheduled.remove(requestId);                    
-                } else {
-                    logger.debug("Request {} is already scheduled", requestId);
-                    return false;
-                }
+            if(alreadyScheduled != null && alreadyScheduled.isDone()) {
+                this.scheduled.remove(requestId);
+            }
+
+            // there are valid scheduled tasks or request is marked as retried
+            if (scheduled.containsKey(requestId)) {
+                logger.debug("Request {} is already scheduled", requestId);
+                return false;
+            } else if (pendingRetries.contains(requestId)) {
+                logger.debug("Request {} is already scheduled for retry", requestId);
+                return false;
             }
         }
+
+        logger.debug("Schedule request {} with fireDate {} is already scheduled at {}", requestId, fireDate, delay);
         super.schedule(command, delay, unit);
         return true;
     }
@@ -72,7 +87,8 @@ public class PrioritisedScheduledThreadPoolExecutor extends ScheduledThreadPoolE
             r = new PrioritisedScheduledFutureTask<V>(r, 
                     ((PrioritisedRunnable) runnable).getPriority(), 
                     ((PrioritisedRunnable) runnable).getFireDate());
-            this.scheduled.putIfAbsent(((PrioritisedRunnable) runnable).getId(), r);
+            // should always replace the old scheduled
+            this.scheduled.put(((PrioritisedRunnable) runnable).getId(), r);
             logger.debug("Request job {} has been scheduled number of jobs in the pool {}", ((PrioritisedRunnable) runnable).getId(), scheduled.size());
         }
         
@@ -80,7 +96,13 @@ public class PrioritisedScheduledThreadPoolExecutor extends ScheduledThreadPoolE
     }
 
     
+    public void markAsPendingRetry(Long requestId) {
+        this.scheduled.remove(requestId);
+        this.pendingRetries.add(requestId);
+    }
+
     public void cancel(Long requestId) {
+        pendingRetries.remove(requestId);
         ScheduledFuture<?> future = this.scheduled.remove(requestId);
         if (future != null) {
             boolean canceled = future.cancel(false);
@@ -89,6 +111,7 @@ public class PrioritisedScheduledThreadPoolExecutor extends ScheduledThreadPoolE
     }
     
     public void done(Long requestId) {
+        pendingRetries.remove(requestId);
         this.scheduled.remove(requestId);
         logger.debug("Request job {} has been completed number of jobs in the pool {}", requestId, scheduled.size());
     }
@@ -97,14 +120,17 @@ public class PrioritisedScheduledThreadPoolExecutor extends ScheduledThreadPoolE
     public void shutdown() {
         super.shutdown();
         this.scheduled.clear();
+        this.pendingRetries.clear();
     }
 
     @Override
     public List<Runnable> shutdownNow() {        
         List<Runnable> remaining = super.shutdownNow();
         this.scheduled.clear();
-        
+        this.pendingRetries.clear();
         return remaining;
     }
+
+
     
 }

@@ -21,6 +21,7 @@ public class MvelFilePath {
     public static final String DeadlineWithMultipleReassignment = "/org/jbpm/services/task/service/DeadlineWithMultipleReassignment.mvel";
     public static final String DeadlineWithReassignment = "/org/jbpm/services/task/service/DeadlineWithReassignment.mvel";
     public static final String DeadlineWithNotification = "/org/jbpm/services/task/service/DeadlineWithNotification.mvel";
+    public static final String DeadlineWith2Notifications = "/org/jbpm/services/task/service/DeadlineWith2Notifications.mvel";
     public static final String DeadlineWithNotificationContentSingleObject = "/org/jbpm/services/task/service/DeadlineWithNotificationContentSingleObject.mvel";
     
     public static final String FullTask = "/org/jbpm/services/task/xml/JaxbFullTask.mvel";

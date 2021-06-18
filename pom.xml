@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.kie</groupId>
         <artifactId>kie-parent</artifactId>
-        <version>7.52.0-SNAPSHOT</version>
+        <version>7.56.0-SNAPSHOT</version>
         <!-- relativePath causes out-of-date problems on hudson slaves -->
         <!--<relativePath>../droolsjbpm-build-bootstrap/pom.xml</relativePath>-->
     </parent>
@@ -154,11 +154,6 @@
 
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>org.jbpm</groupId>
-                <artifactId>jbpm-test-util</artifactId>
-                <version>${project.version}</version>
-            </dependency>
             <dependency>
                 <groupId>simple-jndi</groupId>
                 <artifactId>simple-jndi</artifactId>

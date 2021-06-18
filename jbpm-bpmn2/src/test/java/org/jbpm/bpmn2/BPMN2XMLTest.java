@@ -16,14 +16,11 @@
 
 package org.jbpm.bpmn2;
 
-import static org.assertj.core.api.Assertions.*;
-
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.LinkedList;
-
 
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.Difference;
@@ -43,6 +40,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class BPMN2XMLTest extends XMLTestCase {
 	
@@ -114,7 +113,7 @@ public class BPMN2XMLTest extends XMLTestCase {
 		modules.addSemanticModule(new BPMNDISemanticModule());
 		XmlProcessReader processReader = new XmlProcessReader(modules, getClass().getClassLoader()) {
 			@Override
-			protected String processParserMessage(LinkedList<Object> parents, org.xml.sax.Attributes attr, String errorMessage) {
+			protected String processParserMessage( Collection<Object> parents, org.xml.sax.Attributes attr, String errorMessage) {
 				setErrorMessage(super.processParserMessage(parents, attr, errorMessage));
 				return errorMessage;
 			}
@@ -135,7 +134,7 @@ public class BPMN2XMLTest extends XMLTestCase {
 		modules.addSemanticModule(new BPMNDISemanticModule());
 		XmlProcessReader processReader = new XmlProcessReader(modules, getClass().getClassLoader()) {
 			@Override
-			protected String processParserMessage(LinkedList<Object> parents, org.xml.sax.Attributes attr, String errorMessage) {
+			protected String processParserMessage(Collection<Object> parents, org.xml.sax.Attributes attr, String errorMessage) {
 				setErrorMessage(super.processParserMessage(parents, attr, errorMessage));
 				return errorMessage;
 			}

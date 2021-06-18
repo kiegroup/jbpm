@@ -89,7 +89,7 @@ public class PotOwnerTasksPreprocessor extends UserTasksPreprocessor {
 
     @Override
     protected Collection<String> getGroupColumns(Collection<String> columns) {
-        columns.remove(COLUMN_ORGANIZATIONAL_ENTITY);
+        columns.removeIf(c -> c.equalsIgnoreCase(COLUMN_ORGANIZATIONAL_ENTITY));
         return columns;
     }
 

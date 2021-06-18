@@ -84,7 +84,7 @@ public class EventSubProcessNode extends CompositeContextNode {
     }
 
     @Override
-    public boolean acceptsEvent(String type, Object event, Function<String, String> resolver) {
+    public boolean acceptsEvent(String type, Object event, Function<String, Object> resolver) {
         if (resolver == null) {
             return acceptsEvent(type, event);
         }

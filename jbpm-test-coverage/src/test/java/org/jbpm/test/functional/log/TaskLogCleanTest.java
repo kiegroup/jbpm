@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.assertj.core.api.Assertions;
@@ -86,7 +87,7 @@ public class TaskLogCleanTest extends JbpmTestCase {
     }
 
     @Test
-    public void testDeleteLogsByProcessId() {
+    public void testDeleteLogsByProcessId() throws InterruptedException {
         kieSession = createKSession(HUMAN_TASK);
 
         processInstanceList = startProcess(kieSession, HUMAN_TASK_ID, 2);
@@ -101,7 +102,7 @@ public class TaskLogCleanTest extends JbpmTestCase {
     }
 
     @Test
-    public void testDeleteLogsByProcessName() {
+    public void testDeleteLogsByProcessName() throws InterruptedException {
         kieSession = createKSession(HUMAN_TASK);
 
         processInstanceList = startProcess(kieSession, HUMAN_TASK_ID, 3);
@@ -119,10 +120,10 @@ public class TaskLogCleanTest extends JbpmTestCase {
     }
 
     @Test
-    public void testDeleteLogsByDate() {
+    public void testDeleteLogsByDate() throws InterruptedException {
         kieSession = createKSession(HUMAN_TASK);
 
-        processInstanceList = startProcess(kieSession, HUMAN_TASK_ID, 4);
+        processInstanceList = startProcess(kieSession, HUMAN_TASK_ID, 4, 5);
         abortProcess(kieSession, processInstanceList);
         TaskService taskService = getRuntimeEngine().getTaskService();
 
@@ -170,7 +171,7 @@ public class TaskLogCleanTest extends JbpmTestCase {
         Assertions.assertThat(getAllAuditTaskLogs()).hasSize(2);
     }
 
-    private void testDeleteLogsByDateRange(Date startDate, Date endDate, boolean remove) {
+    private void testDeleteLogsByDateRange(Date startDate, Date endDate, boolean remove) throws InterruptedException {
         processInstanceList = new ArrayList<ProcessInstance>();
         kieSession = createKSession(HUMAN_TASK);
 
@@ -184,22 +185,22 @@ public class TaskLogCleanTest extends JbpmTestCase {
     }
 
     @Test
-    public void testDeleteLogsByDateRangeEndingYesterday() {
+    public void testDeleteLogsByDateRangeEndingYesterday() throws InterruptedException {
         testDeleteLogsByDateRange(getYesterday(), getYesterday(), false);
     }
 
     @Test
-    public void testDeleteLogsByDateRangeIncludingToday() {
+    public void testDeleteLogsByDateRangeIncludingToday() throws InterruptedException {
         testDeleteLogsByDateRange(getYesterday(), getTomorrow(), true);
     }
 
     @Test
-    public void testDeleteLogsByDateRangeStartingTomorrow() {
+    public void testDeleteLogsByDateRangeStartingTomorrow() throws InterruptedException {
         testDeleteLogsByDateRange(getTomorrow(), getTomorrow(), false);
     }
 
     @Test
-    public void testDeleteTaskEventByDate() {
+    public void testDeleteTaskEventByDate() throws InterruptedException {
         kieSession = createKSession(HUMAN_TASK_MULTIACTORS);
 
         Date startDate = new Date();
@@ -237,7 +238,7 @@ public class TaskLogCleanTest extends JbpmTestCase {
     }
     
     @Test
-    public void testDeleteTaskVariablesByDateActiveProcess() {
+    public void testDeleteTaskVariablesByDateActiveProcess() throws InterruptedException {
         kieSession = createKSession(INPUT_ASSOCIATION);
 
         Date startDate = new Date();
@@ -271,7 +272,7 @@ public class TaskLogCleanTest extends JbpmTestCase {
     }
     
     @Test
-    public void testDeleteTaskVariablesByDate() {
+    public void testDeleteTaskVariablesByDate() throws InterruptedException {
         kieSession = createKSession(HUMAN_TASK_MULTIACTORS);
 
         Date startDate = new Date();
@@ -316,7 +317,7 @@ public class TaskLogCleanTest extends JbpmTestCase {
     }
 
     @Test
-    public void testClearLogs() {
+    public void testClearLogs() throws InterruptedException {
         kieSession = createKSession(HUMAN_TASK);
         processInstanceList = startProcess(kieSession, HUMAN_TASK_ID, 2);
         
@@ -370,9 +371,10 @@ public class TaskLogCleanTest extends JbpmTestCase {
         }
     }
 
-    private List<ProcessInstance> startProcess(KieSession kieSession, String processId, int count) {
-        List<ProcessInstance> piList = new ArrayList<ProcessInstance>();
+    private List<ProcessInstance> startProcess(KieSession kieSession, String processId, int count, int milliseconds) throws InterruptedException {
+        List<ProcessInstance> piList = new ArrayList<>();
         for (int i = 0; i < count; i++) {
+            TimeUnit.MILLISECONDS.sleep(milliseconds);
             ProcessInstance pi = kieSession.startProcess(processId);
             if (pi != null) {
                 piList.add(pi);
@@ -381,4 +383,7 @@ public class TaskLogCleanTest extends JbpmTestCase {
         return piList;
     }
 
+    private List<ProcessInstance> startProcess(KieSession kieSession, String processId, int count) throws InterruptedException {
+        return startProcess(kieSession, processId, count, 0);
+    }
 }

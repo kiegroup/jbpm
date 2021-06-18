@@ -18,6 +18,7 @@ package org.jbpm.workflow.core.node;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 import org.jbpm.process.core.event.EventFilter;
 import org.jbpm.process.core.event.EventTransformer;
@@ -83,6 +84,16 @@ public class EventNode extends ExtendedNodeImpl implements EventNodeInterface {
     		}
     	}
     	return true;
+    }
+
+   @Override
+   public boolean acceptsEvent(String type, Object event, Function<String, Object> resolver) {
+        for (EventFilter filter: filters) {
+            if (!filter.acceptsEvent(type, event, resolver)) {
+                return false;
+            }
+        }
+        return true;
     }
 	
 	public void setEventTransformer(EventTransformer transformer) {

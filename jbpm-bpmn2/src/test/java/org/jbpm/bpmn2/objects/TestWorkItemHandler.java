@@ -19,17 +19,21 @@ package org.jbpm.bpmn2.objects;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.kie.api.runtime.process.*;
+import org.kie.api.runtime.process.WorkItem;
+import org.kie.api.runtime.process.WorkItemHandler;
+import org.kie.api.runtime.process.WorkItemManager;
 
 public class TestWorkItemHandler implements WorkItemHandler {
 
-    private List<WorkItem> workItems = new ArrayList<WorkItem>();
+    private List<WorkItem> workItems = new ArrayList<>();
+    private List<WorkItem> abortedWorkItems = new ArrayList<>();
 
     public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
         workItems.add(workItem);
     }
 
     public void abortWorkItem(WorkItem workItem, WorkItemManager manager) {
+        abortedWorkItems.add(workItem);
     }
 
     public WorkItem getWorkItem() {
@@ -45,8 +49,14 @@ public class TestWorkItemHandler implements WorkItemHandler {
         }
     }
 
+    public List<WorkItem> getAbortedWorkItems() {
+        List<WorkItem> result = new ArrayList<>(abortedWorkItems);
+        abortedWorkItems.clear();
+        return result;
+    }
+
     public List<WorkItem> getWorkItems() {
-        List<WorkItem> result = new ArrayList<WorkItem>(workItems);
+        List<WorkItem> result = new ArrayList<>(workItems);
         workItems.clear();
         return result;
     }

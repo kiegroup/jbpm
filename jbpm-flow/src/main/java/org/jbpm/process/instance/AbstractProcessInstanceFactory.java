@@ -57,9 +57,8 @@ public abstract class AbstractProcessInstanceFactory implements ProcessInstanceF
         if ( parameters != null ) {
             if ( variableScope != null ) {
                 for ( Map.Entry<String, Object> entry : parameters.entrySet() ) {
-                	
-                	variableScope.validateVariable(process.getName(), entry.getKey(), entry.getValue());
-                    variableScopeInstance.setVariable( entry.getKey(), entry.getValue() );
+                    variableScopeInstance.setVariable(entry.getKey(),
+                            variableScope.validateVariable(process.getName(), entry.getKey(), entry.getValue()));
                 }
             } else {
                 throw new IllegalArgumentException( "This process does not support parameters!" );

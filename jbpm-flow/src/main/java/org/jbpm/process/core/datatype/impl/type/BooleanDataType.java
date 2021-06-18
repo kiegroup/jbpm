@@ -31,12 +31,15 @@ public final class BooleanDataType
 
     private static final long serialVersionUID = 510l;
 
+    @Override
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
     }
 
+    @Override
     public void writeExternal(ObjectOutput out) throws IOException {
     }
 
+    @Override
     public boolean verifyDataType(final Object value) {
         if ( value instanceof Boolean ) {
             return true;
@@ -44,15 +47,23 @@ public final class BooleanDataType
         return false;
     }
 
+    @Override
     public Object readValue(String value) {
         return new Boolean(value);
     }
 
+    @Override
     public String writeValue(Object value) {
         return (Boolean) value ? "true" : "false";
     }
 
+    @Override
     public String getStringType() {
         return "Boolean";
+    }
+
+    @Override
+    public Object valueOf(String value) {
+        return Boolean.parseBoolean(value);
     }
 }

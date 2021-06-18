@@ -336,6 +336,11 @@ public class ProcessAssetDesc implements ProcessDefinition {
     }
 
     @Override
+    public Map<String, Set<String>> getTagsInfo() {
+        return tagsByVariable;
+    }
+
+    @Override
     public String toString() {
         return "ProcessAssetDesc{" +
                 "id='" + id + '\'' +

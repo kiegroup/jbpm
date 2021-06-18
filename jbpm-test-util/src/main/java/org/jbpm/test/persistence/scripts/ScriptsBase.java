@@ -20,6 +20,8 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 
+import javax.sql.DataSource;
+
 import org.jbpm.test.persistence.scripts.util.TestsUtil;
 import org.jbpm.test.persistence.scripts.util.ScriptFilter;
 import org.junit.BeforeClass;
@@ -60,6 +62,17 @@ public class ScriptsBase {
         final TestPersistenceContextBase scriptRunnerContext = createAndInitContext(PersistenceUnit.SCRIPT_RUNNER);
         try {
             scriptRunnerContext.executeScripts(new File(ScriptsBase.class.getResource(resourcePath).getFile()), scriptFilter);
+        } finally {
+            scriptRunnerContext.clean();
+        }
+    }
+
+    public static void executeScriptRunner(String resourcePath, ScriptFilter scriptFilter,
+                                           DataSource dataSource, String defaultSchema) throws IOException, SQLException {
+        final TestPersistenceContextBase scriptRunnerContext = new TestPersistenceContextBase();
+        try {
+            scriptRunnerContext.executeScripts(new File(ScriptsBase.class.getResource(resourcePath).getFile()),
+                                               scriptFilter, dataSource, defaultSchema);
         } finally {
             scriptRunnerContext.clean();
         }

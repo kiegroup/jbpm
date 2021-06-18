@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.jbpm</groupId>
     <artifactId>jbpm</artifactId>
-    <version>7.52.0-SNAPSHOT</version>
+    <version>7.56.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>jbpm-test-coverage</artifactId>
@@ -207,6 +207,17 @@
   </build>
 
   <profiles>
+    <profile>
+      <id>local</id>
+      <activation>
+        <property>
+          <name>!maven.quartz.driver.delegate.class</name>
+        </property>
+      </activation>
+      <properties>
+        <maven.quartz.driver.delegate.class>org.jbpm.process.core.timer.impl.quartz.DeploymentsAwareStdJDBCDelegate</maven.quartz.driver.delegate.class>
+      </properties>
+    </profile>
     <profile>
       <id>integration-tests</id>
       <activation>

@@ -17,6 +17,7 @@
 package org.jbpm.shared.services.impl;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.persistence.EntityManager;
@@ -86,6 +87,13 @@ public class JpaPersistenceContext implements Context {
 	}
 
 	
+    public <T> List<T> nativeQueryStringWithParametersInTransaction(String queryString, Map<String, Object> params, Class<T> clazz) {
+        check();
+        Query query = this.em.createNativeQuery(queryString);
+        params.forEach(query::setParameter);
+        return (List<T>) query.getResultList();
+    }
+
 	public <T> T queryStringWithParametersInTransaction(String queryString,
 			Map<String, Object> params, Class<T> clazz) {
 		check();

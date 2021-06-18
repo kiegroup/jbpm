@@ -99,6 +99,7 @@ public class UserTaskInstanceWithPotOwnerQueryMapper extends AbstractQueryMapper
               getColumnDateValue(dataSetResult, COLUMN_EXPIRATIONTIME, index),//expirationtime,
               getColumnLongValue(dataSetResult, COLUMN_TASKID, index),//taskId,
               getColumnStringValue(dataSetResult, COLUMN_NAME, index),//name,
+              getColumnStringValue(dataSetResult, COLUMN_DESCRIPTION, index),//description,
               getColumnIntValue(dataSetResult, COLUMN_PRIORITY, index),//priority,
               getColumnLongValue(dataSetResult, COLUMN_TASK_PROCESSINSTANCEID, index),//processInstanceId,
               getColumnStringValue(dataSetResult, COLUMN_TASK_PROCESSID, index),//processId,

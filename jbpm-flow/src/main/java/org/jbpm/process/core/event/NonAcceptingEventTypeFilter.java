@@ -35,7 +35,7 @@ public class NonAcceptingEventTypeFilter extends EventTypeFilter {
 	 * Nodes that use this event filter should never be triggered by this event
 	 */
 	@Override
-	public boolean acceptsEvent(String type, Object event, Function<String, String> resolver) {
+	public boolean acceptsEvent(String type, Object event, Function<String, Object> resolver) {
 		return false;
 	}
 
