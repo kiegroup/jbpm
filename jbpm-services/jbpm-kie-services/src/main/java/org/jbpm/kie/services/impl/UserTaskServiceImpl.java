@@ -17,6 +17,7 @@
 package org.jbpm.kie.services.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -192,6 +193,17 @@ public class UserTaskServiceImpl implements UserTaskService, VariablesAware {
 		}
 
 	}
+
+    @Override
+    public void claim(String deploymentId, Collection<Long> taskIds, String userId) {
+        taskIds.forEach(taskId -> {
+            try {
+                claim(deploymentId, taskId, userId);
+            } catch (TaskNotFoundException | PermissionDeniedException e) {
+                logger.warn("Problem claiming task id {}", taskId, e);
+            }
+        });
+    }
 
 	@Override
     public void complete(Long taskId, String userId, Map<String, Object> params) {
@@ -719,7 +731,7 @@ public class UserTaskServiceImpl implements UserTaskService, VariablesAware {
 		try {
 			TaskService taskService = engine.getTaskService();
 			// perform actual operation
-            return ((InternalTaskService) taskService).addContentFromUser(taskId, userId, (Map<String, Object>) values);
+            return ((InternalTaskService) taskService).addContentFromUser(taskId, userId, values);
 		} finally {
 			disposeRuntimeEngine(manager, engine);
 		}

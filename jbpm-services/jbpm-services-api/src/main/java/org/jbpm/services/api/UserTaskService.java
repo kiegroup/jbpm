@@ -16,6 +16,7 @@
 
 package org.jbpm.services.api;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -60,7 +61,16 @@ public interface UserTaskService {
 	 */
 	void claim(Long taskId, String userId);
 	
-	/**
+    /**
+     * Claim responsibility for a list of tasks, i.e. set the tasks to status Reserved
+     * 
+     * @param deploymentId
+     * @param taskIds list of task to be claimed 
+     * @param userId
+     */
+    void claim(String deploymentId, Collection<Long> taskIds, String userId);
+
+    /**
      * Claim responsibility for a task, i.e. set the task to status Reserved
      * 
      * @param deploymentId

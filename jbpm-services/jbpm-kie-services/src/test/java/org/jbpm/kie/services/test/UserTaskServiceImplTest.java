@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -184,6 +185,28 @@ private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentSe
     	task = runtimeDataService.getTaskById(taskId);
     	assertNotNull(task);
     	assertEquals(Status.Reserved.toString(), task.getStatus());
+    }
+    
+    
+    @Test
+    public void testReleaseAndBulkClaim() {
+        processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument");
+        assertNotNull(processInstanceId);
+        List<Long> taskIds = runtimeDataService.getTasksByProcessInstanceId(processInstanceId);
+        assertNotNull(taskIds);
+        assertEquals(1, taskIds.size());
+        
+        Long taskId = taskIds.get(0);
+        
+        userTaskService.release(taskId, "salaboy");
+        UserTaskInstanceDesc task = runtimeDataService.getTaskById(taskId);
+        assertNotNull(task);
+        assertEquals(Status.Ready.toString(), task.getStatus());
+        
+        userTaskService.claim(null, Collections.singletonList(taskId), "salaboy");
+        task = runtimeDataService.getTaskById(taskId);
+        assertNotNull(task);
+        assertEquals(Status.Reserved.toString(), task.getStatus());
     }
     
     @Test
