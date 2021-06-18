@@ -26,6 +26,15 @@
                     "methodName": "getTagsInfo",
                     "elementKind": "method",
                     "justification": "[AF-2811] Required Process Variable Tags shouldn't be accepted in forms when empty"
+                },
+                {
+                    "code": "java.method.addedToInterface",
+                    "new": "method void org.jbpm.services.api.UserTaskService::claim(java.lang.String, java.util.Collection<java.lang.Long>, java.lang.String)",
+                    "package": "org.jbpm.services.api",
+                    "classSimpleName": "UserTaskService",
+                    "methodName": "claim",
+                    "elementKind": "method",
+                    "justification": "https://issues.redhat.com/browse/JBPM-9786"
                 }
             ]
         }
