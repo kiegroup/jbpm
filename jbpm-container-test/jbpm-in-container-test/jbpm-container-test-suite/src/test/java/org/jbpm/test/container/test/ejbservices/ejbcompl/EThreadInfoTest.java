@@ -173,7 +173,7 @@ public class EThreadInfoTest extends AbstractRuntimeEJBServicesTest {
 
         Collection<VariableDesc> statusMsg = runtimeDataService.getVariableHistory(pid, "statusMsg", new QueryContext());
         Assertions.assertThat(statusMsg).hasSize(1);
-        Assertions.assertThat(statusMsg.iterator().next().getNewValue()).contains("successfully completed Ok");
+        Assertions.assertThat(statusMsg.iterator().next().getNewValue()).contains("successfully completed OK");
 
         Collection<VariableDesc> stackTraceHistory = getStackTrace(pid);
         Collection<VariableDesc> threadNameHistory = getThreadName(pid);

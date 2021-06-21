@@ -279,7 +279,7 @@
     <!-- In-memory web container for REST WIH testing -->
     <dependency>
       <groupId>org.jboss.resteasy</groupId>
-      <artifactId>tjws</artifactId>
+      <artifactId>resteasy-undertow</artifactId>
     </dependency>
 
     <!-- EJB Services tests -->
