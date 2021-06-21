@@ -18,11 +18,11 @@ package org.jbpm.test.regression;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.assertj.core.api.Assertions;
 import org.jbpm.executor.AsynchronousJobEvent;
@@ -60,15 +60,15 @@ public class ParallelAsyncJobsTest extends JbpmAsyncJobTestCase {
      * the 4 seconds so pending task count should not be lower than 3 if parallelism does not work.
      */
     @Test(timeout=30000)
-    public void testRunBasicAsync() throws Exception {
+    public void testRunBasicAsync() {
         ExecutorService executorService = getExecutorService();
-        final Set<String> threadExeuctingJobs = new HashSet<>();
+        final Set<String> threadExecutingJobs = new CopyOnWriteArraySet<>();
         CountDownAsyncJobListener countDownListener = new CountDownAsyncJobListener(4) {
 
             @Override
             public void afterJobExecuted(AsynchronousJobEvent event) {
+                threadExecutingJobs.add(Thread.currentThread().getName());
                 super.afterJobExecuted(event);
-                threadExeuctingJobs.add(Thread.currentThread().getName());
             }
             
         };
@@ -79,7 +79,7 @@ public class ParallelAsyncJobsTest extends JbpmAsyncJobTestCase {
                 "org.jbpm.test.command.LongRunningCommand"));
 
         List<String> exceptions = new ArrayList<String>();
-        exceptions.add("ADRESS_EXCEPTION");
+        exceptions.add("ADDRESS_EXCEPTION");
         exceptions.add("ID_EXCEPTION");
         exceptions.add("PHONE_EXCEPTION");
 
@@ -96,7 +96,7 @@ public class ParallelAsyncJobsTest extends JbpmAsyncJobTestCase {
         // assert that all jobs have where completed.
         Assertions.assertThat(executorService.getCompletedRequests(new QueryContext()))
                 .as("All async jobs should have been executed").hasSize(4);
-        Assertions.assertThat(threadExeuctingJobs)
+        Assertions.assertThat(threadExecutingJobs)
         .as("There should be 4 distinct threads as jobs where executed in parallel").hasSize(4);
     }
     
