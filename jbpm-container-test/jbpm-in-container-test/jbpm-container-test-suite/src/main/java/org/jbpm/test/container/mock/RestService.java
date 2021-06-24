@@ -16,38 +16,44 @@
 
 package org.jbpm.test.container.mock;
 
-import java.util.Collections;
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
 
-import org.jboss.resteasy.plugins.server.tjws.TJWSEmbeddedJaxrsServer;
+import org.jboss.resteasy.plugins.server.undertow.UndertowJaxrsServer;
+import org.jboss.resteasy.spi.ResteasyDeployment;
+
+import static io.undertow.Undertow.builder;
+import static java.util.Collections.singletonList;
 
 public class RestService {
 
-    private static final String URL = "http://localhost";
+    private static final String HOST = "localhost";
     private static final int PORT = 5667;
+    private static final String URL = "http://" + HOST;
 
     public static final String ECHO_URL = URL + ":" + PORT + "/echo";
     public static final String PING_URL = URL + ":" + PORT + "/ping";
     public static final String STATUS_URL = URL + ":" + PORT + "/status";
 
-    private static TJWSEmbeddedJaxrsServer server;
+    private static UndertowJaxrsServer server;
 
     private RestService() {
     }
 
     public static void start() {
-        server = new TJWSEmbeddedJaxrsServer();
-        server.setPort(PORT);
-        server.getDeployment().setResources(Collections.singletonList((Object) new Resource()));
-        server.start();
+        server = new UndertowJaxrsServer();
+        server.start(builder().addHttpListener(PORT, HOST));
+        ResteasyDeployment deployment = new ResteasyDeployment();
+        deployment.setApplication(new Application());
+        deployment.setResources(singletonList(new Resource()));
+        server.deploy(deployment);
     }
 
     public static void stop() {
