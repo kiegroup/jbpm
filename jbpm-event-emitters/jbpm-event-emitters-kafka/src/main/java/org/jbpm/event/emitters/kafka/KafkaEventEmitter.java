@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
  * Expects following parameters to configure itself - via system properties
  * <ul>
  *  <li>org.kie.jbpm.event.emitters.kafka.date_format - date and time format to be sent to Kafka - default format is yyyy-MM-dd'T'HH:mm:ss.SSSZ</li>
- *  <li>org.kie.jbpm.event.emitters.kafka.boopstrap.servers - Kafka server ip, default is localhost:9092</li>
+ *  <li>org.kie.jbpm.event.emitters.kafka.bootstrap.servers - Kafka server ip, default is localhost:9092</li>
  *  <li>org.kie.jbpm.event.emitters.kafka.client.id - Kafka client id</li>
  *  <li>org.kie.jbpm.event.emitters.kafka.acks - Kafka acknowledge policy, check <a href="http://kafka.apache.org/documentation.html#producerconfigs">Kafka documentation</a></li>
  *  <li>org.kie.jbpm.event.emitters.kafka.topic.<processes|tasks|cases>. Topic name for subscribing to these events. Defaults are "jbpm-<processes|tasks|cases>-events"</li>
@@ -145,7 +145,7 @@ public class KafkaEventEmitter implements EventEmitter {
     private static Producer<String, byte[]> getProducer() {
         Map<String, Object> configs = new HashMap<>();
         configs.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, System.getProperty(
-                "org.kie.jbpm.event.emitters.kafka.boopstrap.servers", "localhost:9092"));
+                "org.kie.jbpm.event.emitters.kafka.bootstrap.servers", "localhost:9092"));
         String acks = System.getProperty("org.kie.jbpm.event.emitters.kafka.acks");
         if (acks != null) {
             configs.put(ProducerConfig.ACKS_CONFIG, acks);
