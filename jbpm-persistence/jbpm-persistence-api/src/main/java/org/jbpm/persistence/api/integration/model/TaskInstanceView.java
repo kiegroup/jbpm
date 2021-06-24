@@ -25,7 +25,6 @@ import org.jbpm.persistence.api.integration.InstanceView;
 import org.kie.api.task.model.OrganizationalEntity;
 import org.kie.api.task.model.Task;
 import org.kie.internal.task.api.model.InternalPeopleAssignments;
-import org.kie.internal.task.api.model.Operation;
 
 /**
  * InstanceView dedicated for <code>org.kie.api.task.model.Task</code>
@@ -55,9 +54,6 @@ public class TaskInstanceView implements InstanceView<Task> {
     private Long parentId;
     private String processId;
     private String containerId;
-    private Operation operation;
-    private String initiator;
-    private String targetEntity;
 
     private List<String> potentialOwners;
 
@@ -71,26 +67,11 @@ public class TaskInstanceView implements InstanceView<Task> {
 
     private transient Task source;
     
-    public TaskInstanceView() {
+    public TaskInstanceView() {        
     }
-
+    
     public TaskInstanceView(Task source) {
-        this(source, "unknown");
-    }
-    
-    public TaskInstanceView(Task source, String initiator) {
-        this (source, initiator, Operation.Update);
-    }
-    
-    public TaskInstanceView(Task source, String initiator, Operation operation) {
-        this (source, initiator, operation, null); 
-    }
-    
-    public TaskInstanceView(Task source, String initiator, Operation operation, String targetEntity) {
         this.source = source;
-        this.operation = operation;
-        this.initiator = initiator == null ? "unknown" : initiator;
-        this.targetEntity = targetEntity;
         copyFromSource();
     }
     
@@ -293,24 +274,6 @@ public class TaskInstanceView implements InstanceView<Task> {
     public void setOutputData(Map<String, Object> outputData) {
         this.outputData = outputData;
     }
-    
-    @Override
-    public Task getSource() {
-        return source;
-    }
-    
-    public Operation getOperation() {
-        return operation;
-    }
-    
-    public String getInitiator() {
-        return initiator;
-    }
-    
-    
-    public String getTargetEntity() {
-        return targetEntity;
-    }
 
     @Override
     public String toString() {
@@ -327,6 +290,11 @@ public class TaskInstanceView implements InstanceView<Task> {
     }
 
     @Override
+    public Task getSource() {
+        return source;
+    }
+    
+    @Override
     public void copyFromSource() {
         if (this.id != null) {
             return;
@@ -336,7 +304,7 @@ public class TaskInstanceView implements InstanceView<Task> {
         this.actualOwner = safeOrgEntity(source.getTaskData().getActualOwner());
         this.businessAdmins = source.getPeopleAssignments().getBusinessAdministrators()
                 .stream()
-                .map(this::safeOrgEntity)
+                .map(entity -> safeOrgEntity(entity))
                 .collect(Collectors.toList());
         this.containerId = source.getTaskData().getDeploymentId();
         this.createdBy = safeOrgEntity(source.getTaskData().getCreatedBy());
@@ -344,7 +312,7 @@ public class TaskInstanceView implements InstanceView<Task> {
         this.description = source.getDescription();
         this.excludedOwners = ((InternalPeopleAssignments)source.getPeopleAssignments()).getExcludedOwners()
                 .stream()
-                .map(this::safeOrgEntity)
+                .map(entity -> safeOrgEntity(entity))
                 .collect(Collectors.toList());
         this.expirationDate = source.getTaskData().getExpirationTime();
         this.formName = source.getFormName();
@@ -355,7 +323,7 @@ public class TaskInstanceView implements InstanceView<Task> {
         this.parentId = source.getTaskData().getParentId();
         this.potentialOwners = source.getPeopleAssignments().getPotentialOwners()
                 .stream()
-                .map(this::safeOrgEntity)
+                .map(entity -> safeOrgEntity(entity))
                 .collect(Collectors.toList());
         this.priority = source.getPriority();
         this.processId = source.getTaskData().getProcessId();

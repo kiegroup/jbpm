@@ -16,8 +16,8 @@
 package org.jbpm.services.task.impl;
 
 import java.util.List;
-import org.jbpm.services.task.utils.ClassUtil;
 
+import org.jbpm.services.task.utils.ClassUtil;
 import org.kie.api.task.model.Attachment;
 import org.kie.api.task.model.Content;
 import org.kie.api.task.model.Task;
@@ -31,40 +31,46 @@ import org.kie.internal.task.api.model.InternalAttachment;
 public class TaskAttachmentServiceImpl implements TaskAttachmentService {
  
     private TaskPersistenceContext persistenceContext;
+    private String userId;
 
     public TaskAttachmentServiceImpl() {
     }
     
-    public TaskAttachmentServiceImpl(TaskPersistenceContext persistenceContext) {
+    public TaskAttachmentServiceImpl(TaskPersistenceContext persistenceContext, String userId) {
     	this.persistenceContext = persistenceContext;
+    	this.userId = userId;
     }
  
     public void setPersistenceContext(TaskPersistenceContext persistenceContext) {
 		this.persistenceContext = persistenceContext;
 	}
 
-	public long addAttachment(long taskId, Attachment attachment, Content content) {
+	@Override
+    public long addAttachment(long taskId, Attachment attachment, Content content) {
         Task task = persistenceContext.findTask(taskId);
         persistenceContext.persistAttachment(attachment);
         persistenceContext.persistContent(content);
         ((InternalAttachment) attachment).setContent(content);
-        persistenceContext.addAttachmentToTask(attachment, task);
+        persistenceContext.addAttachmentToTask(attachment, task, userId);
         return attachment.getId();
     }
 
+    @Override
     public void deleteAttachment(long taskId, long attachmentId) {
        Task task = persistenceContext.findTask(taskId);
-       Attachment attachment = persistenceContext.removeAttachmentFromTask(task, attachmentId);
+       Attachment attachment = persistenceContext.removeAttachmentFromTask(task, attachmentId, userId);
        Content content = persistenceContext.findContent(attachment.getAttachmentContentId());
        persistenceContext.removeContent(content);
     }
 
+    @Override
     public List<Attachment> getAllAttachmentsByTaskId(long taskId) {
-         return (List<Attachment>) persistenceContext.queryWithParametersInTransaction("AttachmentsByTaskId", 
+         return persistenceContext.queryWithParametersInTransaction("AttachmentsByTaskId", 
         		persistenceContext.addParametersToMap("taskId", taskId),
                 ClassUtil.<List<Attachment>>castClass(List.class));
     }
 
+    @Override
     public Attachment getAttachmentById(long attachId) {
         return persistenceContext.findAttachment(attachId);
     }

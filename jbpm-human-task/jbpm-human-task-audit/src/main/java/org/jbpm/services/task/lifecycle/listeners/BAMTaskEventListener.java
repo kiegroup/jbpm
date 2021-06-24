@@ -77,7 +77,6 @@ public class BAMTaskEventListener extends PersistableEventListener  {
     	super(emf);
     }
 
-    @Override
     public void afterTaskStartedEvent(TaskEvent event) {
     	updateTask(event, new BAMTaskWorker() {
             @Override
@@ -94,17 +93,14 @@ public class BAMTaskEventListener extends PersistableEventListener  {
         });
     }
 
-    @Override
     public void afterTaskActivatedEvent(TaskEvent event) {
     	updateTask(event);
     }
 
-    @Override
     public void afterTaskClaimedEvent(TaskEvent event) {
     	updateTask(event);
     }
 
-    @Override
     public void afterTaskCompletedEvent(TaskEvent event) {
 
     	updateTask(event, new BAMTaskWorker() {
@@ -123,39 +119,32 @@ public class BAMTaskEventListener extends PersistableEventListener  {
         });
     }
 
-    @Override
     public void afterTaskAddedEvent(TaskEvent event) {
         createTask(event, null, null);
     }
 
 
-    @Override
     public void afterTaskSkippedEvent(TaskEvent event) {
         createOrUpdateTask(event, Status.Obsolete);
     }
 
-    @Override
     public void afterTaskStoppedEvent(TaskEvent event) {
         updateTask(event);
     }
 
     
-    @Override
     public void afterTaskFailedEvent(TaskEvent event) {
         createOrUpdateTask(event, Status.Failed);
     }
 
-    @Override
     public void afterTaskExitedEvent(TaskEvent event) {
         createOrUpdateTask(event, Status.Exited);
     }
 
-    @Override
     public void afterTaskReleasedEvent(TaskEvent event) {
     	updateTask(event);
     }
 
-    @Override
     public void afterTaskDelegatedEvent(TaskEvent event) {
     	updateTask(event);
     }
@@ -168,12 +157,10 @@ public class BAMTaskEventListener extends PersistableEventListener  {
     	updateTask(event);
     }
 
-    @Override
     public void afterTaskResumedEvent(TaskEvent event) {
     	updateTask(event);
     }
 
-    @Override
     public void afterTaskSuspendedEvent(TaskEvent event) {
     	updateTask(event);
     }
@@ -232,7 +219,7 @@ public class BAMTaskEventListener extends PersistableEventListener  {
     protected BAMTaskSummaryImpl createTask(TaskEvent event, Status newStatus, BAMTaskWorker worker) {
         BAMTaskSummaryImpl result = null;
         Task ti = event.getTask();
-        TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext(), event.getTaskContext().getUserId());
+        TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext());
         try {
 	        if (ti == null) {
 	            logger.error("The task instance does not exist.");
@@ -263,7 +250,7 @@ public class BAMTaskEventListener extends PersistableEventListener  {
     protected BAMTaskSummaryImpl updateTask(TaskEvent event, Status newStatus, BAMTaskWorker worker) {
         BAMTaskSummaryImpl result = null;
         Task ti = event.getTask();
-        TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext(), event.getTaskContext().getUserId());
+        TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext());
         try {
 
 	        if (ti == null) {

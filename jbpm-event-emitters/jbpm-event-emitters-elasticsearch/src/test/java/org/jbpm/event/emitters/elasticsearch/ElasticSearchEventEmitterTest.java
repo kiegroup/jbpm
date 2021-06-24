@@ -43,6 +43,7 @@ import org.jbpm.persistence.api.integration.InstanceView;
 import org.jbpm.persistence.api.integration.model.CaseInstanceView;
 import org.jbpm.persistence.api.integration.model.ProcessInstanceView;
 import org.jbpm.persistence.api.integration.model.TaskInstanceView;
+import org.jbpm.persistence.api.integration.model.TaskOperationView;
 import org.jbpm.workflow.core.impl.WorkflowProcessImpl;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 import org.junit.AfterClass;
@@ -54,9 +55,10 @@ import org.kie.api.runtime.process.CaseData;
 import org.kie.api.task.model.Status;
 import org.kie.api.task.model.Task;
 import org.kie.api.task.model.User;
+import org.kie.internal.task.api.TaskOperationInfo;
+import org.kie.internal.task.api.TaskOperationType;
 import org.kie.internal.task.api.model.InternalPeopleAssignments;
 import org.kie.internal.task.api.model.InternalTaskData;
-import org.kie.internal.task.api.model.Operation;
 import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -285,10 +287,14 @@ public class ElasticSearchEventEmitterTest {
         
         List<InstanceView<?>> views = new ArrayList<>();
         
-        TaskInstanceView instanceView = new TaskInstanceView(taskInstance, "pepe", Operation.Archive, "rafael");
+        TaskInstanceView instanceView = new TaskInstanceView(taskInstance);
         instanceView.copyFromSource();
         
+        TaskOperationView operationView = new TaskOperationView (TaskOperationInfo.forUpdate(taskInstance, "pepe" , TaskOperationType.SUSPEND, "rafael"));
+        operationView.copyFromSource();
+        
         views.add(instanceView);
+        views.add(operationView);
         // use latch to wait for async processing of the emitter
         CountDownLatch latch = new CountDownLatch(1);
         ElasticSearchEventEmitter emitter = new ElasticSearchEventEmitter() {
@@ -367,7 +373,7 @@ public class ElasticSearchEventEmitterTest {
 
             List<InstanceView<?>> views = new ArrayList<>();
 
-            TaskInstanceView instanceView = new TaskInstanceView(taskInstance, null);
+            TaskInstanceView instanceView = new TaskInstanceView(taskInstance);
             instanceView.copyFromSource();
 
             views.add(instanceView);

@@ -39,4 +39,6 @@ public interface InstanceView<T> extends Serializable {
      * PersistentEventManager will invoke it before delivering if it was not done before.
      */
     void copyFromSource();
+    
+    String getCompositeId();
 }

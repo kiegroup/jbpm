@@ -29,18 +29,21 @@ import org.kie.internal.task.api.TaskPersistenceContext;
 public class TaskCommentServiceImpl implements TaskCommentService {
      
     private TaskPersistenceContext persistenceContext;
+    private String userId;
 
 	public TaskCommentServiceImpl() {
     }
 	
-	public TaskCommentServiceImpl(TaskPersistenceContext persistenceContext) {
+	public TaskCommentServiceImpl(TaskPersistenceContext persistenceContext, String userId) {
 		this.persistenceContext = persistenceContext;
+		this.userId = userId;
 	}
     
     public void setPersistenceContext(TaskPersistenceContext persistenceContext) {
 		this.persistenceContext = persistenceContext;
 	}
 
+    @Override
     public long addComment(long taskId, Comment comment) {
         Task task = persistenceContext.findTask(taskId);
         
@@ -48,18 +51,20 @@ public class TaskCommentServiceImpl implements TaskCommentService {
             persistenceContext.persistUser(comment.getAddedBy());
         }
         persistenceContext.persistComment(comment);
-        persistenceContext.addCommentToTask(comment, task);
+        persistenceContext.addCommentToTask(comment, task, userId);
         return comment.getId();
        
     }
 
+    @Override
     public void deleteComment(long taskId, long commentId) {
         Task task = persistenceContext.findTask(taskId);
         Comment comment = persistenceContext.findComment(commentId);
-        persistenceContext.removeCommentFromTask(comment, task);
+        persistenceContext.removeCommentFromTask(comment, task, userId);
         persistenceContext.removeComment(comment);
     }
 
+    @Override
     public List<Comment> getAllCommentsByTaskId(long taskId) {
         Task task = persistenceContext.findTask(taskId);
         if (task != null) {
@@ -69,6 +74,7 @@ public class TaskCommentServiceImpl implements TaskCommentService {
         return new ArrayList<Comment>();
     }
 
+    @Override
     public Comment getCommentById(long commentId) {
         return persistenceContext.findComment(commentId);
     }

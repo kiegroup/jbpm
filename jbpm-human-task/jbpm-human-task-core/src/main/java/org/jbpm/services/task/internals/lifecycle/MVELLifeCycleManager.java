@@ -30,7 +30,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.drools.mvel.MVELSafeHelper;
 import org.jbpm.persistence.api.integration.EventManagerProvider;
@@ -54,6 +53,8 @@ import org.kie.internal.runtime.error.ExecutionErrorManager;
 import org.kie.internal.task.api.TaskContentService;
 import org.kie.internal.task.api.TaskContext;
 import org.kie.internal.task.api.TaskModelProvider;
+import org.kie.internal.task.api.TaskOperationInfo;
+import org.kie.internal.task.api.TaskOperationType;
 import org.kie.internal.task.api.TaskPersistenceContext;
 import org.kie.internal.task.api.model.FaultData;
 import org.kie.internal.task.api.model.InternalContent;
@@ -392,8 +393,9 @@ public class MVELLifeCycleManager implements LifeCycleManager {
             }
             
             evalCommand(operation, commands, task, user, targetEntity, groupIds, entities);
-            
-            persistenceContext.updateTask(task, operation, Optional.ofNullable(targetEntityId));
+
+            persistenceContext.updateTask(task, TaskOperationInfo.forUpdate(task, userId, TaskOperationType.from(operation),
+                    getTargetEntities(targetEntityId, entities)));
 
             switch (operation) {
                 case Activate: {
@@ -472,6 +474,36 @@ public class MVELLifeCycleManager implements LifeCycleManager {
 
 
     }
+
+    private String[] getTargetEntities(String targetEntityId, OrganizationalEntity[] entities) {
+        String[] result;
+        if (targetEntityId != null) {
+            if (entities != null && entities.length>0) {
+                result = new String[entities.length+1];
+            } 
+            else {
+                result = new String[1];
+                int i =1;
+                for (OrganizationalEntity entity: entities) {
+                    result[i++] = entity.getId();
+                }
+            }
+            result[0] = targetEntityId;
+        }
+        else if (entities != null && entities.length > 0) {
+            result = new String[entities.length];
+            int i = 0;
+            for (OrganizationalEntity entity: entities) {
+                result[i++] = entity.getId();
+            }
+        }
+        else {
+            result = null;
+        }
+        return result;
+    }
+    
+
 
     protected void invokeAssignmentService(Task taskImpl, TaskContext context, String excludedUser) {
         // use assignment service to directly assign actual owner if enabled

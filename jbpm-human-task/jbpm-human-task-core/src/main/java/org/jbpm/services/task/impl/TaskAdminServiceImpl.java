@@ -31,9 +31,10 @@ import org.kie.api.task.model.Status;
 import org.kie.api.task.model.Task;
 import org.kie.api.task.model.TaskSummary;
 import org.kie.internal.task.api.TaskAdminService;
+import org.kie.internal.task.api.TaskOperationInfo;
+import org.kie.internal.task.api.TaskOperationType;
 import org.kie.internal.task.api.TaskPersistenceContext;
 import org.kie.internal.task.api.model.InternalTask;
-import org.kie.internal.task.api.model.Operation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,12 +46,14 @@ public class TaskAdminServiceImpl implements TaskAdminService {
     private static final Logger logger = LoggerFactory.getLogger(TaskAdminServiceImpl.class);
     
     private TaskPersistenceContext persistenceContext;
+    private String userId;
 
     public TaskAdminServiceImpl() {
     }
 
-    public TaskAdminServiceImpl(TaskPersistenceContext persistenceContext) {
-    	this.persistenceContext = persistenceContext;
+    public TaskAdminServiceImpl(TaskPersistenceContext persistenceContext, String userId) {
+        this.persistenceContext = persistenceContext;
+        this.userId = userId;
     }
     
     public void setPersistenceContext(TaskPersistenceContext persistenceContext) {
@@ -113,7 +116,7 @@ public class TaskAdminServiceImpl implements TaskAdminService {
             Task task = persistenceContext.findTask(taskId);
             if (task != null) {
 	            ((InternalTask) task).setArchived(true);
-	            persistenceContext.updateTask(task, Operation.Archive);
+	            persistenceContext.updateTask(task, TaskOperationInfo.forUpdate(task, userId, TaskOperationType.ARCHIVE));
 	            archivedTasks++;
             }
         }
@@ -162,7 +165,7 @@ public class TaskAdminServiceImpl implements TaskAdminService {
                 ClassUtil.<List<Task>>castClass(List.class));
         int count = 0;
         for (Task t : tasks) {
-            persistenceContext.removeTask(t);
+            persistenceContext.removeTask(t, TaskOperationInfo.forRemove(t, userId));
             count++;
         }
         return count;

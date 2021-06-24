@@ -27,6 +27,8 @@ import org.kie.api.task.model.Task;
 import org.kie.internal.task.api.ContentMarshallerContext;
 import org.kie.internal.task.api.TaskContentService;
 import org.kie.internal.task.api.TaskModelProvider;
+import org.kie.internal.task.api.TaskOperationInfo;
+import org.kie.internal.task.api.TaskOperationType;
 import org.kie.internal.task.api.TaskPersistenceContext;
 import org.kie.internal.task.api.model.ContentData;
 import org.kie.internal.task.api.model.InternalContent;
@@ -39,16 +41,18 @@ public class TaskContentServiceImpl implements TaskContentService {
 
     private TaskPersistenceContext persistenceContext;
     private TaskEventSupport taskEventSupport;
+    private String userId;
     
     private org.kie.internal.task.api.TaskContext context;
 
     public TaskContentServiceImpl() {
     }
     
-    public TaskContentServiceImpl(org.kie.internal.task.api.TaskContext context, TaskPersistenceContext persistenceContext, TaskEventSupport taskEventSupport) {
+    public TaskContentServiceImpl(org.kie.internal.task.api.TaskContext context, TaskPersistenceContext persistenceContext, TaskEventSupport taskEventSupport, String userId) {
     	this.context = context;    	
         this.persistenceContext = persistenceContext;
     	this.taskEventSupport = taskEventSupport;
+    	this.userId = userId;
     }
 
     public void setPersistenceContext(TaskPersistenceContext persistenceContext) {
@@ -59,6 +63,7 @@ public class TaskContentServiceImpl implements TaskContentService {
         this.taskEventSupport = taskEventSupport;
     }
     
+    @Override
     @SuppressWarnings("unchecked")
 	public long addOutputContent(long taskId, Map<String, Object> params) {
         Task task = persistenceContext.findTask(taskId);
@@ -96,12 +101,13 @@ public class TaskContentServiceImpl implements TaskContentService {
                 
         ((InternalTaskData)task.getTaskData()).setTaskOutputVariables(params);        
         taskEventSupport.fireAfterTaskOutputVariablesChanged(task, context, params);
-        persistenceContext.updateTask(task);
+        persistenceContext.updateTask(task, TaskOperationInfo.forUpdate(task, userId, TaskOperationType.SAVE_CONTENT));
         
         return contentId;
     }
 
     // TODO: if there's an existing document content entity, we lose all link to that through this!
+    @Override
     public long setDocumentContent(long taskId, Content content) {
         Task task = persistenceContext.findTask(taskId);
         persistenceContext.persistContent(content);
@@ -109,6 +115,7 @@ public class TaskContentServiceImpl implements TaskContentService {
         return content.getId();
     }
 
+    @Override
     public void deleteDocumentContent(long taskId, long contentId) {
         Task task = persistenceContext.findTask(taskId);
         ((InternalTaskData) task.getTaskData()).setDocumentContentId(-1);
@@ -117,6 +124,7 @@ public class TaskContentServiceImpl implements TaskContentService {
 
     }
 
+    @Override
     public List<Content> getAllContentByTaskId(long taskId) {
     	Task task = persistenceContext.findTask(taskId);
     	
@@ -133,6 +141,7 @@ public class TaskContentServiceImpl implements TaskContentService {
         return allContent;
     }
 
+    @Override
     public Content getContentById(long contentId) {
         return persistenceContext.findContent(contentId);
     }
@@ -147,6 +156,7 @@ public class TaskContentServiceImpl implements TaskContentService {
     	TaskContentRegistry.get().removeMarshallerContext(ownerId);
     }   
 
+    @Override
     public ContentMarshallerContext getMarshallerContext(Task task) {
         return TaskContentRegistry.get().getMarshallerContext(task);
     }

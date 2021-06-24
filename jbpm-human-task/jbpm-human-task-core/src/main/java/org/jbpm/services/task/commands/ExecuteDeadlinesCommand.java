@@ -43,6 +43,8 @@ import org.kie.api.task.model.Task;
 import org.kie.api.task.model.TaskData;
 import org.kie.internal.task.api.ContentMarshallerContext;
 import org.kie.internal.task.api.TaskDeadlinesService.DeadlineType;
+import org.kie.internal.task.api.TaskOperationInfo;
+import org.kie.internal.task.api.TaskOperationType;
 import org.kie.internal.task.api.TaskPersistenceContext;
 import org.kie.internal.task.api.UserInfo;
 import org.kie.internal.task.api.model.Deadline;
@@ -174,7 +176,7 @@ public class ExecuteDeadlinesCommand extends TaskCommand<Void> {
 	        deadline.setEscalated(true);
 
 			persistenceContext.updateDeadline(deadline);
-			persistenceContext.updateTask(task);
+			persistenceContext.updateTask(task, TaskOperationInfo.forUpdate(task, userId,TaskOperationType.UPDATE_DEADLINE));
 			DeadlineSchedulerHelper.rescheduleDeadlinesForTask((InternalTask) task, ctx, true, deadline, type);
 		} catch (Exception e) {
 

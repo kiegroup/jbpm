@@ -24,16 +24,14 @@ import org.kie.internal.task.api.TaskPersistenceContext;
 public abstract class PersistableEventListener implements TaskLifeCycleEventListener {
 
 	private EntityManagerFactory emf;
-	
-	protected PersistableEventListener(EntityManagerFactory emf) {
-	    this.emf = emf;
+
+	public PersistableEventListener(EntityManagerFactory emf) {
+		this.emf = emf;
 	}
-	
-	
-	
-	protected TaskPersistenceContext getPersistenceContext(TaskPersistenceContext persistenceContext, String userId) {
+
+	protected TaskPersistenceContext getPersistenceContext(TaskPersistenceContext persistenceContext) {
 		if (emf != null) {
-			return new JPATaskPersistenceContext(emf.createEntityManager(), userId) {
+			return new JPATaskPersistenceContext(emf.createEntityManager()) {
 
 				@Override
 				public void close() {

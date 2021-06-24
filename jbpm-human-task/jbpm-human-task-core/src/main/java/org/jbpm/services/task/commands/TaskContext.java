@@ -78,7 +78,7 @@ public class TaskContext implements org.kie.internal.task.api.TaskContext, Reque
     }  
     
     public TaskInstanceService getTaskInstanceService() {
-        return new TaskInstanceServiceImpl(this, persistenceContext, getMvelLifeCycleManager(), taskEventSupport, environment);
+        return new TaskInstanceServiceImpl(this, persistenceContext, getMvelLifeCycleManager(), taskEventSupport, environment, userId);
     }
     
     public TaskDefService getTaskDefService() {
@@ -90,15 +90,15 @@ public class TaskContext implements org.kie.internal.task.api.TaskContext, Reque
     }
 
     public TaskContentService getTaskContentService() {
-        return new TaskContentServiceImpl(this, persistenceContext, taskEventSupport);
+        return new TaskContentServiceImpl(this, persistenceContext, taskEventSupport, userId);
     }
     
     public TaskCommentService getTaskCommentService() {
-    	return new TaskCommentServiceImpl(persistenceContext);
+        return new TaskCommentServiceImpl(persistenceContext, userId);
     }
     
     public TaskAttachmentService getTaskAttachmentService() {
-        return new TaskAttachmentServiceImpl(persistenceContext);
+        return new TaskAttachmentServiceImpl(persistenceContext, userId);
     }
 
     public TaskIdentityService getTaskIdentityService() {
@@ -106,7 +106,7 @@ public class TaskContext implements org.kie.internal.task.api.TaskContext, Reque
     }
     
     public TaskAdminService getTaskAdminService() {
-    	return new TaskAdminServiceImpl(persistenceContext);
+    	return new TaskAdminServiceImpl(persistenceContext, userId);
     }
     
     public TaskDeadlinesService getTaskDeadlinesService() {
@@ -117,6 +117,7 @@ public class TaskContext implements org.kie.internal.task.api.TaskContext, Reque
     	return new TaskRuleServiceImpl(RuleContextProviderImpl.get());
     }
     
+    @Override
     public TaskPersistenceContext getPersistenceContext() {
     	if (persistenceContext == null) {
     		throw new IllegalStateException("No task persistence context available");
@@ -124,10 +125,12 @@ public class TaskContext implements org.kie.internal.task.api.TaskContext, Reque
     	return persistenceContext;
     }
 
-	public void setPersistenceContext(TaskPersistenceContext persistenceContext) {
+	@Override
+    public void setPersistenceContext(TaskPersistenceContext persistenceContext) {
 		this.persistenceContext = persistenceContext;
 	}	
 
+    @Override
     public Object get(String string) {
     	if (string.startsWith("local:")) {
     		return delegate.get(string);
@@ -135,6 +138,7 @@ public class TaskContext implements org.kie.internal.task.api.TaskContext, Reque
         return this.environment.get(string);
     }
 
+    @Override
     public void set(String string, Object o) {
     	if (string.startsWith("local:")) {
     		delegate.set(string, o);
@@ -168,10 +172,12 @@ public class TaskContext implements org.kie.internal.task.api.TaskContext, Reque
         throw new UnsupportedOperationException("Not supported for this type of context.");
     }
 
+    @Override
     public String getName() {
         throw new UnsupportedOperationException("Not supported for this type of context.");
     }
 
+    @Override
     public void remove(String string) {
         throw new UnsupportedOperationException("Not supported for this type of context.");
     }
@@ -236,6 +242,7 @@ public class TaskContext implements org.kie.internal.task.api.TaskContext, Reque
         return userId;
     }
     
+    @Override
     public void setUserId(String userId) {
         this.userId = userId;
     }
