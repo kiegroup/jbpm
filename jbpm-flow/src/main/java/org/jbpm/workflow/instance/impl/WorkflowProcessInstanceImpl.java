@@ -424,20 +424,24 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
             if (isSignalCompletion()) {
                 RuntimeManager manager = (RuntimeManager) kruntime.getEnvironment().get(EnvironmentName.RUNTIME_MANAGER);
                 if (getParentProcessInstanceId() > 0 && manager != null) {
-                	try {
-                	    org.kie.api.runtime.manager.Context<?> context = ProcessInstanceIdContext.get(getParentProcessInstanceId());
+            	    org.kie.api.runtime.manager.Context<?> context = ProcessInstanceIdContext.get(getParentProcessInstanceId());
 
-                        String caseId = (String) kruntime.getEnvironment().get(EnvironmentName.CASE_ID);
-                        if (caseId != null) {
-                            context = CaseContext.get(caseId);
+                    String caseId = (String) kruntime.getEnvironment().get(EnvironmentName.CASE_ID);
+                    if (caseId != null) {
+                        context = CaseContext.get(caseId);
+                    }
+
+                    RuntimeEngine runtime = null;
+                    try {
+                        runtime = manager.getRuntimeEngine(context);
+                        runtime.getKieSession().signalEvent("processInstanceCompleted:" + getId(), this);
+                    } catch (SessionNotFoundException e) {
+                        // in case no session is found for parent process let's skip signal for process instance completion
+                    } finally {
+                        if(runtime != null) {
+                            manager.disposeRuntimeEngine(runtime);
                         }
-
-    	                RuntimeEngine runtime = manager.getRuntimeEngine(context);
-						KieRuntime managedkruntime = runtime.getKieSession();
-    	                managedkruntime.signalEvent("processInstanceCompleted:" + getId(), this);
-                	} catch (SessionNotFoundException e) {
-                		// in case no session is found for parent process let's skip signal for process instance completion
-                	}
+                    }
                 } else {
                     processRuntime.getSignalManager().signalEvent("processInstanceCompleted:" + getId(), this);
                 }
@@ -446,6 +450,7 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
             super.setState(state, outcome);
         }
     }
+
 
     @Override
     public void setState(final int state) {
