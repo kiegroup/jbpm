@@ -473,8 +473,14 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
                         }
 
     	                RuntimeEngine runtime = manager.getRuntimeEngine(context);
-						KieRuntime managedkruntime = runtime.getKieSession();
-    	                managedkruntime.signalEvent("processInstanceCompleted:" + getId(), this);
+                        try {
+						    KieRuntime managedkruntime = runtime.getKieSession();
+    	                    managedkruntime.signalEvent("processInstanceCompleted:" + getId(), this);
+                        } catch (SessionNotFoundException e) {
+                            // in case no session is found for parent process let's skip signal for process instance completion
+                        } finally {
+                            manager.disposeRuntimeEngine(runtime);
+                        }
                 	} catch (SessionNotFoundException e) {
                 		// in case no session is found for parent process let's skip signal for process instance completion
                 	}
