@@ -34,6 +34,7 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.apache.kafka.clients.producer.MockProducer;
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.jbpm.persistence.api.integration.EventEmitter;
 import org.jbpm.persistence.api.integration.InstanceView;
@@ -45,6 +46,7 @@ import org.junit.Test;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.slf4j.LoggerFactory;
 
+import static org.jbpm.event.emitters.kafka.KafkaEventEmitter.KAFKA_EMITTER_PREFIX;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -231,6 +233,21 @@ public class KafkaEventEmitterTest {
         assertEquals(ex.getMessage(), logEvent.get().getThrowableProxy().getMessage());
 
     }
+    
+    @Test
+    public void testProperties() {
+        System.setProperty(KAFKA_EMITTER_PREFIX + ProducerConfig.BATCH_SIZE_CONFIG, "1000");
+        System.setProperty(KAFKA_EMITTER_PREFIX + "randomProperty", "JOJOJO");
+        try {
+            Map<String, Object> producerProperties = KafkaEventEmitter.getProducerProperties();
+            assertEquals(1, producerProperties.size());
+            assertEquals("1000", producerProperties.get(ProducerConfig.BATCH_SIZE_CONFIG));
+        } finally {
+            System.clearProperty(KAFKA_EMITTER_PREFIX + ProducerConfig.BATCH_SIZE_CONFIG);
+            System.clearProperty(KAFKA_EMITTER_PREFIX + "randomProperty");
+
+        }
+    }
 
     private void emit(EventEmitter emitter, Collection<InstanceView<?>> views) {
         try {
@@ -240,5 +257,7 @@ public class KafkaEventEmitterTest {
             emitter.drop(views);
         }
     }
+    
+    
 
 }
