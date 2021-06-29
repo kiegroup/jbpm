@@ -16,7 +16,10 @@
 
 package org.jbpm.process.audit;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.ServiceLoader;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -68,7 +71,7 @@ public class JPAWorkingMemoryDbLogger extends AbstractAuditLoggerAdapter {
     private EntityManagerFactory emf;
     
     private ProcessIndexerManager indexManager = ProcessIndexerManager.get();
-
+    private List<ArchiveLoggerProvider> archiveLoggerProvider;
     /*
      * for backward compatibility
      */
@@ -78,12 +81,14 @@ public class JPAWorkingMemoryDbLogger extends AbstractAuditLoggerAdapter {
         if (processRuntime != null) {
             processRuntime.addEventListener( (ProcessEventListener) this );
         }
+        initArchiveLoggerProvider();
     }
     
     public JPAWorkingMemoryDbLogger(KieSession session) {
     	Environment env = session.getEnvironment();
         internalSetIsJTA(env);
         session.addEventListener(this);
+        initArchiveLoggerProvider();
     }
     /*
      * end of backward compatibility
@@ -91,19 +96,28 @@ public class JPAWorkingMemoryDbLogger extends AbstractAuditLoggerAdapter {
 
     public JPAWorkingMemoryDbLogger(EntityManagerFactory emf) {
         this.emf = emf;
+        initArchiveLoggerProvider();
     }
     
     public JPAWorkingMemoryDbLogger() { 
         // default constructor when this is used with a persistent KieSession
+        initArchiveLoggerProvider();
     }
         
     public JPAWorkingMemoryDbLogger(EntityManagerFactory emf, Environment env) {
         this.emf = emf;
         internalSetIsJTA(env);
+        initArchiveLoggerProvider();
     }
 
     public JPAWorkingMemoryDbLogger(Environment env) {
         internalSetIsJTA(env);
+        initArchiveLoggerProvider();
+    }
+
+    private void initArchiveLoggerProvider() {
+        archiveLoggerProvider = new ArrayList<>();
+        ServiceLoader.load(ArchiveLoggerProvider.class).forEach(e -> archiveLoggerProvider.add(e));
     }
 
     private void internalSetIsJTA(Environment env) { 
@@ -162,6 +176,9 @@ public class JPAWorkingMemoryDbLogger extends AbstractAuditLoggerAdapter {
             log = (ProcessInstanceLog) builder.buildEvent(event, log);
             setProcessInstanceMetadata(event.getProcessInstance(), METADATA_PROCESSINTANCE_LOG, log);
             em.merge(log);
+            // archive everything
+            final ProcessInstanceLog logToArchive = log;
+            this.archiveLoggerProvider.stream().forEach(archiver -> archiver.archive(em, logToArchive));
         }
         leaveTransaction(em, tx);
     }

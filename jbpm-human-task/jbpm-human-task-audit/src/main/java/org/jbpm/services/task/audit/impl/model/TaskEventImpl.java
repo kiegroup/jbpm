@@ -35,6 +35,7 @@ import javax.persistence.Index;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.persistence.Version;
 
 import org.kie.internal.task.api.model.TaskEvent;
@@ -77,6 +78,10 @@ public class TaskEventImpl implements TaskEvent, Serializable {
 
   @Temporal(javax.persistence.TemporalType.TIMESTAMP)
   private Date logTime;
+
+  @Temporal(TemporalType.TIMESTAMP)
+  @Column(name = "end_date")
+  private Date end;
 
   public TaskEventImpl() {
   }
@@ -124,6 +129,15 @@ public class TaskEventImpl implements TaskEvent, Serializable {
   public long getTaskId() {
     return taskId;
   }
+
+  public Date getEnd() {
+      return end;
+  }
+
+  public void setEnd(Date end) {
+      this.end = end;
+  }
+
 
   @Override
   public TaskEventType getType() {
@@ -235,7 +249,7 @@ public class TaskEventImpl implements TaskEvent, Serializable {
     public String toString() {
         return "TaskEventImpl [id=" + id + ", version=" + version + ", taskId=" + taskId + ", workItemId=" + workItemId +
                ", type=" + type + ", processInstanceId=" + processInstanceId + ", userId=" + userId + ", message=" +
-               message + ", correlationKey=" + correlationKey + ", processType=" + processType + ", logTime=" + logTime +
+               message + ", correlationKey=" + correlationKey + ", processType=" + processType + ", logTime=" + logTime +  ", end=" + end +
                "]";
     }
   
