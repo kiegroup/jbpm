@@ -34,6 +34,7 @@
         taskId bigint,
         workItemId bigint,
         lastModificationDate datetime,
+        end_date datetime,
         primary key (id)
     ) ENGINE=InnoDB;
 
@@ -52,6 +53,7 @@
         taskName varchar(255),
         userId varchar(255),
         OPTLOCK integer,
+        end_date datetime,
         primary key (pk)
     ) ENGINE=InnoDB;
 
@@ -231,6 +233,7 @@
         workItemId bigint,
         nodeContainerId varchar(255),
         referenceId bigint,
+        end_date datetime,
         primary key (id)
     ) ENGINE=InnoDB;
 
@@ -443,6 +446,7 @@
         workItemId bigint,
         correlationKey varchar(255),
         processType integer,
+        end_date datetime,
         primary key (id)
     );
 
@@ -470,6 +474,7 @@
         value varchar(255),
         variableId varchar(255),
         variableInstanceId varchar(255),
+        end_date datetime,
         primary key (id)
     ) ENGINE=InnoDB;
 

@@ -71,7 +71,11 @@ public class VariableInstanceLog implements Serializable, AuditEvent, org.kie.ap
     private String oldValue;
     
     private String externalId;
-    
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "end_date")
+    private Date end;
+
 	// constructors
     
     public VariableInstanceLog() {
@@ -95,6 +99,14 @@ public class VariableInstanceLog implements Serializable, AuditEvent, org.kie.ap
     public void setId(long id) {
 		this.id = id;
 	}
+
+    public Date getEnd() {
+        return end;
+    }
+
+    public void setEnd(Date end) {
+        this.end = end;
+    }
 
     public Long getProcessInstanceId() {
         return processInstanceId;

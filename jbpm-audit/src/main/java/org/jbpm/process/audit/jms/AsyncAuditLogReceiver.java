@@ -16,7 +16,10 @@
 
 package org.jbpm.process.audit.jms;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.ServiceLoader;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -26,6 +29,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
 import org.jbpm.process.audit.AbstractAuditLogger;
+import org.jbpm.process.audit.ArchiveLoggerProvider;
 import org.jbpm.process.audit.NodeInstanceLog;
 import org.jbpm.process.audit.ProcessInstanceLog;
 
@@ -57,10 +61,12 @@ public class AsyncAuditLogReceiver implements MessageListener {
     
     private EntityManagerFactory entityManagerFactory;
     private XStream xstream;
+    private List<ArchiveLoggerProvider> archiveLoggerProvider;
     
     public AsyncAuditLogReceiver(EntityManagerFactory entityManagerFactory) {
         this.entityManagerFactory = entityManagerFactory;
         initXStream();
+        initArchiveLoggerProvider();
     }
 
     private void initXStream() {
@@ -71,6 +77,11 @@ public class AsyncAuditLogReceiver implements MessageListener {
         }
     }
     
+    private void initArchiveLoggerProvider() {
+        archiveLoggerProvider = new ArrayList<>();
+        ServiceLoader.load(ArchiveLoggerProvider.class).forEach(e -> archiveLoggerProvider.add(e));
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public void onMessage(Message message) {
@@ -105,16 +116,19 @@ public class AsyncAuditLogReceiver implements MessageListener {
                     List<ProcessInstanceLog> result = em.createQuery(
                             "from ProcessInstanceLog as log where log.processInstanceId = :piId and log.end is null")
                             .setParameter("piId", processCompletedEvent.getProcessInstanceId()).getResultList();
-                            
-                            if (result != null && result.size() != 0) {
-                               ProcessInstanceLog log = result.get(result.size() - 1);
-                               log.setOutcome(processCompletedEvent.getOutcome());
-                               log.setStatus(processCompletedEvent.getStatus());
-                               log.setEnd(processCompletedEvent.getEnd());
-                               log.setDuration(processCompletedEvent.getDuration());
-                               
-                               em.merge(log);   
-                           }
+
+                    if (result != null && result.size() != 0) {
+                        ProcessInstanceLog log = result.get(result.size() - 1);
+                        log.setOutcome(processCompletedEvent.getOutcome());
+                        log.setStatus(processCompletedEvent.getStatus());
+                        log.setEnd(processCompletedEvent.getEnd());
+                        log.setDuration(processCompletedEvent.getDuration());
+
+                        em.merge(log);
+
+                        this.archiveLoggerProvider.stream().forEach(archiver -> archiver.archive(em, log));
+                    }
+
                     break;
                 default:
                     em.persist(event);

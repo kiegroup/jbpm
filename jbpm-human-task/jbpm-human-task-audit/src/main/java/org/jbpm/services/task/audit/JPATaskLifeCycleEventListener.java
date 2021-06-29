@@ -20,6 +20,7 @@
  */
 package org.jbpm.services.task.audit;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 
 import javax.persistence.EntityManagerFactory;
 
+import org.jbpm.process.audit.ProcessInstanceLog;
 import org.jbpm.services.task.audit.impl.model.AuditTaskImpl;
 import org.jbpm.services.task.audit.impl.model.TaskEventImpl;
 import org.jbpm.services.task.audit.variable.TaskIndexerManager;
@@ -203,8 +205,16 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
         Task ti = event.getTask();
         TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext());
         try {
+            // this is and ad-hoc but because recursive events I don't have other means to retrieve the data (end date)
+            ProcessInstanceLog pil = persistenceContext.queryStringWithParametersInTransaction(
+                    "SELECT o FROM ProcessInstanceLog o WHERE o.processInstanceId = :pid", true,
+                    Collections.singletonMap("pid", ti.getTaskData().getProcessInstanceId()),
+                    ProcessInstanceLog.class);
             TaskEventImpl taskEventImpl = new TaskEventImpl(ti.getId(), org.kie.internal.task.api.model.TaskEvent.TaskEventType.COMPLETED, ti.getTaskData().getProcessInstanceId(), ti.getTaskData().getWorkItemId(),
                                                             userId);
+            if(pil != null) {
+               taskEventImpl.setEnd(pil.getEnd());
+            }
             event.getMetadata().put(METADATA_TASK_EVENT, taskEventImpl);
             persistenceContext.persist(taskEventImpl);
 
@@ -213,9 +223,13 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
                 logger.warn("Unable find audit task entry for task id {} '{}', skipping audit task update", ti.getId(), ti.getName());
                 return;
             }
+
             auditTaskImpl.setStatus(ti.getTaskData().getStatus().name());
             auditTaskImpl.setActualOwner(getActualOwner(ti));
             auditTaskImpl.setLastModificationDate(event.getEventDate());
+            if(pil != null) {
+                auditTaskImpl.setEnd(pil.getEnd());
+            }
             event.getMetadata().put(METADATA_AUDIT_TASK, auditTaskImpl);
             persistenceContext.merge(auditTaskImpl);
         } finally {
@@ -238,6 +252,7 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
                 logger.warn("Unable find audit task entry for task id {} '{}', skipping audit task update", ti.getId(), ti.getName());
                 return;
             }
+            ;
             auditTaskImpl.setStatus(ti.getTaskData().getStatus().name());
             auditTaskImpl.setActualOwner(getActualOwner(ti));
             auditTaskImpl.setLastModificationDate(event.getEventDate());
