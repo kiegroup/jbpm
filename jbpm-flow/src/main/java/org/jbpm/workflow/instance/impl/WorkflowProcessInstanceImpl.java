@@ -36,7 +36,6 @@ import org.drools.core.common.InternalKnowledgeRuntime;
 import org.drools.mvel.MVELSafeHelper;
 import org.jbpm.process.core.ContextContainer;
 import org.jbpm.process.core.context.variable.VariableScope;
-import org.jbpm.process.core.correlation.CorrelationManager;
 import org.jbpm.process.core.timer.BusinessCalendar;
 import org.jbpm.process.core.timer.DateTimeUtils;
 import org.jbpm.process.core.timer.Timer;
@@ -464,26 +463,26 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
             if (isSignalCompletion()) {
                 RuntimeManager manager = (RuntimeManager) kruntime.getEnvironment().get(EnvironmentName.RUNTIME_MANAGER);
                 if (getParentProcessInstanceId() > 0 && manager != null) {
-                	try {
-                	    org.kie.api.runtime.manager.Context<?> context = ProcessInstanceIdContext.get(getParentProcessInstanceId());
 
-                        String caseId = (String) kruntime.getEnvironment().get(EnvironmentName.CASE_ID);
-                        if (caseId != null) {
-                            context = CaseContext.get(caseId);
-                        }
+                    org.kie.api.runtime.manager.Context<?> context = ProcessInstanceIdContext.get(getParentProcessInstanceId());
+                    String caseId = (String) kruntime.getEnvironment().get(EnvironmentName.CASE_ID);
+                    if (caseId != null) {
+                        context = CaseContext.get(caseId);
+                    }
 
-    	                RuntimeEngine runtime = manager.getRuntimeEngine(context);
-                        try {
-						    KieRuntime managedkruntime = runtime.getKieSession();
-    	                    managedkruntime.signalEvent("processInstanceCompleted:" + getId(), this);
-                        } catch (SessionNotFoundException e) {
-                            // in case no session is found for parent process let's skip signal for process instance completion
-                        } finally {
+                    RuntimeEngine runtime = null;
+                    try {
+                        runtime = manager.getRuntimeEngine(context);
+                        KieRuntime managedkruntime = runtime.getKieSession();
+                        managedkruntime.signalEvent("processInstanceCompleted:" + getId(), this);
+                    } catch (SessionNotFoundException e) {
+                        logger.debug("Could not found find parent process instance id {} for signaling completion", context.getContextId());
+                    } finally {
+                        if(manager != null) {
                             manager.disposeRuntimeEngine(runtime);
                         }
-                	} catch (SessionNotFoundException e) {
-                		// in case no session is found for parent process let's skip signal for process instance completion
-                	}
+                    }
+
                 } else {
                     processRuntime.getSignalManager().signalEvent("processInstanceCompleted:" + getId(), this);
                 }
