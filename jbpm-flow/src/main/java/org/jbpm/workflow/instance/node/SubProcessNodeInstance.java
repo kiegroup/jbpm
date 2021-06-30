@@ -254,21 +254,27 @@ public class SubProcessNodeInstance extends StateBasedNodeInstance implements Ev
         	InternalKnowledgeRuntime kruntime = ((ProcessInstance) getProcessInstance()).getKnowledgeRuntime();
         	RuntimeManager manager = (RuntimeManager) kruntime.getEnvironment().get(EnvironmentName.RUNTIME_MANAGER);
         	if (manager != null) {
-        	    try {
-            	    org.kie.api.runtime.manager.Context<?> context = ProcessInstanceIdContext.get(processInstanceId);
-                    
-                    String caseId = (String) kruntime.getEnvironment().get(EnvironmentName.CASE_ID);
-                    if (caseId != null) {
-                        context = CaseContext.get(caseId);
-                    }
-                    
-                    RuntimeEngine runtime = manager.getRuntimeEngine(context);
 
+                org.kie.api.runtime.manager.Context<?> context = ProcessInstanceIdContext.get(processInstanceId);
+
+                String caseId = (String) kruntime.getEnvironment().get(EnvironmentName.CASE_ID);
+                if (caseId != null) {
+                    context = CaseContext.get(caseId);
+                }
+
+                RuntimeEngine runtime = null;
+                try {
+                    runtime = manager.getRuntimeEngine(context);
                     KieRuntime managedkruntime = (KieRuntime) runtime.getKieSession();
-            		processInstance = (ProcessInstance) managedkruntime.getProcessInstance(processInstanceId);
-        	    } catch (SessionNotFoundException e) {
-        	        // in case no session is found for parent process let's skip signal for process instance completion
-        	    }
+                    processInstance = (ProcessInstance) managedkruntime.getProcessInstance(processInstanceId);
+                } catch (SessionNotFoundException e) {
+                    // in case no session is found for parent process let's skip signal for process instance completion
+                    logger.debug("Could not found find subprocess instance id {} for cancelling {}", context.getContextId(), cancelType);
+                } finally {
+                    if(runtime != null) {
+                        manager.disposeRuntimeEngine(runtime);
+                    }
+                }
         	} else {
         		processInstance = (ProcessInstance) kruntime.getProcessInstance(processInstanceId);
         	}

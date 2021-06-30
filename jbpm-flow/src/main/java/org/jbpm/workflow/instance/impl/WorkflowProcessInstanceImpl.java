@@ -424,8 +424,7 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
             if (isSignalCompletion()) {
                 RuntimeManager manager = (RuntimeManager) kruntime.getEnvironment().get(EnvironmentName.RUNTIME_MANAGER);
                 if (getParentProcessInstanceId() > 0 && manager != null) {
-            	    org.kie.api.runtime.manager.Context<?> context = ProcessInstanceIdContext.get(getParentProcessInstanceId());
-
+                    org.kie.api.runtime.manager.Context<?> context = ProcessInstanceIdContext.get(getParentProcessInstanceId());
                     String caseId = (String) kruntime.getEnvironment().get(EnvironmentName.CASE_ID);
                     if (caseId != null) {
                         context = CaseContext.get(caseId);
