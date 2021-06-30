@@ -46,10 +46,21 @@ public interface AdvanceCaseRuntimeDataService {
                                                                   List<String> potentialOwners,
                                                                   QueryContext queryContext);
 
+    List<ProcessInstanceWithVarsDesc> queryCaseByVariablesAndTask(List<QueryParam> attributes,
+                                                                  List<QueryParam> taskVariables,
+                                                                  List<QueryParam> caseVariables,
+                                                                  QueryParam potentialOwners,
+                                                                  QueryContext queryContext);
+
     List<UserTaskInstanceWithPotOwnerDesc> queryUserTasksByVariables(List<QueryParam> attributes,
                                                                      List<QueryParam> taskVariables,
                                                                      List<QueryParam> caseVariables,
                                                                      List<String> potentialOwners,
                                                                      QueryContext queryContext);
 
+    List<UserTaskInstanceWithPotOwnerDesc> queryUserTasksByVariables(List<QueryParam> attributes,
+                                                                     List<QueryParam> taskVariables,
+                                                                     List<QueryParam> caseVariables,
+                                                                     QueryParam potentialOwners,
+                                                                     QueryContext queryContext);
 }

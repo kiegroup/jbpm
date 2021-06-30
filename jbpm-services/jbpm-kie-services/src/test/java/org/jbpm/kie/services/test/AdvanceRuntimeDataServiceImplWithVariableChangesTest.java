@@ -146,7 +146,7 @@ public class AdvanceRuntimeDataServiceImplWithVariableChangesTest extends Abstra
     @Test
     public void testQueryProcessTaskByVariablesWithOwners() {
 
-        List<UserTaskInstanceWithPotOwnerDesc> userTasks = advanceVariableDataService.queryUserTasksByVariables(emptyList(), emptyList(), emptyList(), emptyList(), new QueryContext(0, 0));
+        List<UserTaskInstanceWithPotOwnerDesc> userTasks = advanceVariableDataService.queryUserTasksByVariables(emptyList(), emptyList(), emptyList(), (List<String>) null, new QueryContext(0, 0));
 
         for (UserTaskInstanceWithPotOwnerDesc userTask : userTasks) {
             Long taskId = userTask.getTaskId();
@@ -161,7 +161,7 @@ public class AdvanceRuntimeDataServiceImplWithVariableChangesTest extends Abstra
         List<QueryParam> attributes = list(equalsTo(TASK_ATTR_NAME, "CustomTask"));
         List<QueryParam> processVariables = list(equalsTo("var_b", "3"));
         List<QueryParam> taskVariables = list(equalsTo("task_in_a1", "somethingelse"), QueryParam.type("task_in_a2", TaskVariable.VariableType.INPUT.ordinal()));
-        List<String> potOwners = singletonList("kieserver");
+        QueryParam potOwners = new QueryParam(null, "ALL", singletonList("kieserver"));
 
         List<ProcessInstanceWithVarsDesc> data = advanceVariableDataService.queryProcessByVariablesAndTask(attributes, processVariables, taskVariables, potOwners, new QueryContext(0, 0));
         assertThat(data.size(), is(1));

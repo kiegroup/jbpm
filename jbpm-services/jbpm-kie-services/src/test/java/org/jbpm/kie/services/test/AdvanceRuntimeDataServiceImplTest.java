@@ -61,6 +61,8 @@ import static org.jbpm.services.api.AdvanceRuntimeDataService.PROCESS_ATTR_DEPLO
 import static org.jbpm.services.api.AdvanceRuntimeDataService.PROCESS_COLLECTION_VARIABLES;
 import static org.jbpm.services.api.AdvanceRuntimeDataService.TASK_ATTR_NAME;
 import static org.jbpm.services.api.AdvanceRuntimeDataService.TASK_ATTR_OWNER;
+import static org.jbpm.services.api.query.model.QueryParam.all;
+import static org.jbpm.services.api.query.model.QueryParam.any;
 import static org.jbpm.services.api.query.model.QueryParam.equalsTo;
 import static org.jbpm.services.api.query.model.QueryParam.exclude;
 import static org.jbpm.services.api.query.model.QueryParam.history;
@@ -340,8 +342,7 @@ public class AdvanceRuntimeDataServiceImplTest extends AbstractKieServicesBaseTe
         List<QueryParam> variables = list(equalsTo("task_in_a1", "a0"));
         List<QueryParam> attributes = list(equalsTo(PROCESS_ATTR_DEPLOYMENT_ID, "org.jbpm.test:test-module:1.0.0"));
 
-        List<String> potOwners = emptyList();
-        List<UserTaskInstanceWithPotOwnerDesc> data = advanceVariableDataService.queryUserTasksByVariables(attributes, variables, emptyList(), potOwners, queryContext);
+        List<UserTaskInstanceWithPotOwnerDesc> data = advanceVariableDataService.queryUserTasksByVariables(attributes, variables, emptyList(), emptyList(), queryContext);
         if (queryContext.getCount() > 0) {
             assertThat(data.size(), is(queryContext.getCount()));
         }
@@ -356,8 +357,7 @@ public class AdvanceRuntimeDataServiceImplTest extends AbstractKieServicesBaseTe
         List<QueryParam> variables = list(equalsTo("task_in_a1", "a0"));
         List<QueryParam> attributes = list(equalsTo(PROCESS_ATTR_DEPLOYMENT_ID, "org.jbpm.test:test-module:1.0.0"), exclude(PROCESS_COLLECTION_VARIABLES));
 
-        List<String> potOwners = emptyList();
-        List<UserTaskInstanceWithPotOwnerDesc> data = advanceVariableDataService.queryUserTasksByVariables(attributes, variables, emptyList(), potOwners, queryContext);
+        List<UserTaskInstanceWithPotOwnerDesc> data = advanceVariableDataService.queryUserTasksByVariables(attributes, variables, emptyList(), emptyList(), queryContext);
         if (queryContext.getCount() > 0) {
             assertEquals((int) queryContext.getCount(), data.size());
         }
@@ -370,8 +370,7 @@ public class AdvanceRuntimeDataServiceImplTest extends AbstractKieServicesBaseTe
     public void testQueryTaskNotEqualsByVariables() {
         List<QueryParam> attributes = list(notEqualsTo(PROCESS_ATTR_DEFINITION_ID, "test.test_A"));
 
-        List<String> potOwners = emptyList();
-        List<UserTaskInstanceWithPotOwnerDesc> data = advanceVariableDataService.queryUserTasksByVariables(attributes, emptyList(), emptyList(), potOwners, queryContext);
+        List<UserTaskInstanceWithPotOwnerDesc> data = advanceVariableDataService.queryUserTasksByVariables(attributes, emptyList(), emptyList(), emptyList(), queryContext);
         if (queryContext.getCount() > 0) {
             assertThat(data.size(), is(queryContext.getCount()));
         }
@@ -382,8 +381,7 @@ public class AdvanceRuntimeDataServiceImplTest extends AbstractKieServicesBaseTe
 
     @Test
     public void testQueryTaskByVariablesWithOwners() {
-
-        List<String> potOwners = Collections.singletonList("katy");
+        QueryParam potOwners = all(Collections.singletonList("katy"));
         List<UserTaskInstanceWithPotOwnerDesc> data = advanceVariableDataService.queryUserTasksByVariables(emptyList(), emptyList(), emptyList(), potOwners, queryContext);
         if (queryContext.getCount() > 0) {
             assertThat(data.size(), is(queryContext.getCount()));
@@ -395,19 +393,61 @@ public class AdvanceRuntimeDataServiceImplTest extends AbstractKieServicesBaseTe
     }
 
     @Test
+    public void testQueryTaskByVariablesWithNullOwners() {
+        QueryParam potOwners = null;
+        List<UserTaskInstanceWithPotOwnerDesc> data = advanceVariableDataService.queryUserTasksByVariables(emptyList(), emptyList(), emptyList(), potOwners, queryContext);
+        if (queryContext.getCount() > 0) {
+            assertThat(data.size(), is(queryContext.getCount()));
+        }
+    }
+
+    @Test
+    public void testQueryTaskByVariablesWithAllNullOwners() {
+        QueryParam potOwners = all(null);
+        List<UserTaskInstanceWithPotOwnerDesc> data = advanceVariableDataService.queryUserTasksByVariables(emptyList(), emptyList(), emptyList(), potOwners, queryContext);
+        assertTrue(data.isEmpty());
+    }
+
+    @Test
+    public void testQueryTaskByVariablesWithAnyNullOwners() {
+        QueryParam potOwners = any(null);
+        List<UserTaskInstanceWithPotOwnerDesc> data = advanceVariableDataService.queryUserTasksByVariables(emptyList(), emptyList(), emptyList(), potOwners, queryContext);
+        assertTrue(data.isEmpty());
+    }
+
+    @Test
     public void testQueryTaskByVariablesWithAllOwners() {
-        List<String> potOwners = Arrays.asList("katy", "nobody");
+        QueryParam potOwners = all(Arrays.asList("katy", "kieserver"));
         List<UserTaskInstanceWithPotOwnerDesc> data = advanceVariableDataService.queryUserTasksByVariables(emptyList(), emptyList(), emptyList(), potOwners, queryContext);
         assertEquals(0, data.size());
 
+        potOwners = all(Arrays.asList("katy", "wbadmin"));
+        data = advanceVariableDataService.queryUserTasksByVariables(emptyList(), emptyList(), emptyList(), potOwners, queryContext);
+        if (queryContext.getCount() > 0) {
+            assertThat(data.size(), is(queryContext.getCount()));
+        }
+        for (UserTaskInstanceWithPotOwnerDesc p : data) {
+            assertTrue(p.getPotentialOwners().contains("katy") && p.getPotentialOwners().contains("wbadmin"));
+        }
+    }
+
+    @Test
+    public void testQueryTaskByVariablesWithAnyOwners() {
+        QueryParam potOwners = any(Arrays.asList("katy", "kieserver"));
+        List<UserTaskInstanceWithPotOwnerDesc> data = advanceVariableDataService.queryUserTasksByVariables(emptyList(), emptyList(), emptyList(), potOwners, queryContext);
+        if (queryContext.getCount() > 0) {
+            assertThat(data.size(), is(queryContext.getCount()));
+        }
+        for (UserTaskInstanceWithPotOwnerDesc p : data) {
+            assertTrue(p.getPotentialOwners().contains("katy") || p.getPotentialOwners().contains("kieserver"));
+        }
     }
 
     @Test
     public void testQueryTaskByVariablesWithByProcessVar() {
         List<QueryParam> processVariables = list(equalsTo("var_a", "a1"));
 
-        List<String> potOwners = Collections.emptyList();
-        List<UserTaskInstanceWithPotOwnerDesc> data = advanceVariableDataService.queryUserTasksByVariables(emptyList(), emptyList(), processVariables, potOwners, queryContext);
+        List<UserTaskInstanceWithPotOwnerDesc> data = advanceVariableDataService.queryUserTasksByVariables(emptyList(), emptyList(), processVariables, emptyList(), queryContext);
         if (queryContext.getCount() > 0) {
             assertThat(data.size(), is(queryContext.getCount()));
         } else {
@@ -461,7 +501,7 @@ public class AdvanceRuntimeDataServiceImplTest extends AbstractKieServicesBaseTe
 
     @Test
     public void testQueryAllNull() {
-        List<UserTaskInstanceWithPotOwnerDesc> data = advanceVariableDataService.queryUserTasksByVariables(null, null, null, null, queryContext);
+        List<UserTaskInstanceWithPotOwnerDesc> data = advanceVariableDataService.queryUserTasksByVariables(null, null, null, (List<String>) null, queryContext);
         if (queryContext.getCount() > 0) {
             assertThat(data.size(), is(queryContext.getCount()));
         } else {
@@ -474,8 +514,7 @@ public class AdvanceRuntimeDataServiceImplTest extends AbstractKieServicesBaseTe
         List<QueryParam> processVariables = list(notEqualsTo("var_a", "a1"), isNotNull("var_a"));
         List<QueryParam> variables = list(notEqualsTo("task_in_a1", "a0"), isNotNull("task_in_a1"));
 
-        List<String> potOwners = Collections.emptyList();
-        List<UserTaskInstanceWithPotOwnerDesc> data = advanceVariableDataService.queryUserTasksByVariables(emptyList(), variables, processVariables, potOwners, queryContext);
+        List<UserTaskInstanceWithPotOwnerDesc> data = advanceVariableDataService.queryUserTasksByVariables(emptyList(), variables, processVariables, emptyList(), queryContext);
         if (queryContext.getCount() > 0) {
             assertThat(data.size(), is(queryContext.getCount()));
         } else {
@@ -530,7 +569,7 @@ public class AdvanceRuntimeDataServiceImplTest extends AbstractKieServicesBaseTe
     @Test
     public void testQueryHistoryAllNull() {
         List<QueryParam> attributes = list(history());
-        List<UserTaskInstanceWithPotOwnerDesc> data = advanceVariableDataService.queryUserTasksByVariables(attributes, null, null, null, queryContext);
+        List<UserTaskInstanceWithPotOwnerDesc> data = advanceVariableDataService.queryUserTasksByVariables(attributes, null, null, (List<String>) null, queryContext);
         if (queryContext.getCount() > 0) {
             assertThat(data.size(), is(queryContext.getCount()));
         } else {
