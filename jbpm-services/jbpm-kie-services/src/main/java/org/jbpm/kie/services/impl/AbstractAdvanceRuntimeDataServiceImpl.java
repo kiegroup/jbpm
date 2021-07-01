@@ -257,7 +257,7 @@ public abstract class AbstractAdvanceRuntimeDataServiceImpl {
             });
 
             taskVariables.stream().filter(e -> e.getObjectValue() != null).forEach(var -> {
-                String valueParam = computeVarValueParameter(var, "V", var.getColumn());
+                String valueParam = computeVarValueParameter(var, "V");
                 query.setParameter(valueParam, var.getObjectValue());
             });
 
@@ -270,7 +270,7 @@ public abstract class AbstractAdvanceRuntimeDataServiceImpl {
                 query.setParameter(nameParam, varPrefix + var.getColumn());
             });
             processVariables.stream().filter(e -> e.getObjectValue() != null).forEach(var -> {
-                String valueParam = computeVarValueParameter(var, "P", var.getColumn());
+                String valueParam = computeVarValueParameter(var, "P");
                 query.setParameter(valueParam, var.getObjectValue());
             });
 
@@ -286,7 +286,15 @@ public abstract class AbstractAdvanceRuntimeDataServiceImpl {
                 }
             }
 
-            attributes.stream().filter(e -> e.getObjectValue() != null).forEach(entry -> query.setParameter("ATTR_" + entry.getColumn(), entry.getObjectValue()));
+            attributes.stream().filter(e -> e.getObjectValue() != null).forEach(entry -> {
+                if ("BETWEEN".equals(entry.getOperator())) {
+                    for (int i = 0; i < entry.getValue().size(); i++) {
+                        query.setParameter("ATTR_" + entry.getColumn() + "_" + i, entry.getValue().get(i));
+                    }
+                } else {
+                    query.setParameter("ATTR_" + entry.getColumn(), entry.getObjectValue());
+                }
+            });
             query.setParameter("processType", processType);
 
             addPagination(query, queryContext);
@@ -347,7 +355,7 @@ public abstract class AbstractAdvanceRuntimeDataServiceImpl {
 
             List<QueryParam> varParams = params.stream().filter(e -> e.getColumn().equals(var)).collect(toList());
             varParams.stream().forEach(expr -> {
-                String valueParam = computeVarValueParameter(expr, prefix, expr.getColumn());
+                String valueParam = computeVarValueParameter(expr, prefix);
                 condition.append(" AND " + computeExpression(expr, valueField, ":" + valueParam));
             });
 
@@ -361,7 +369,7 @@ public abstract class AbstractAdvanceRuntimeDataServiceImpl {
         return prefix + "_NAME_" + sanitize(name);
     }
 
-    private String computeVarValueParameter(QueryParam expr, String prefix, String name) {
+    private String computeVarValueParameter(QueryParam expr, String prefix) {
         return prefix + "_VALUE_" + expr.getOperator() + "_" + sanitize(expr.getColumn());
     }
 
@@ -388,8 +396,21 @@ public abstract class AbstractAdvanceRuntimeDataServiceImpl {
                 return leftOperand + " <> " + rightOperand + " ";
             case "LIKE_TO":
                 return leftOperand + " LIKE " + rightOperand + " ";
+            case "GREATER_THAN":
+                return leftOperand + " > " + rightOperand;
+            case "GREATER_OR_EQUALS_TO":
+                return leftOperand + " >= " + rightOperand;
+            case "LOWER_THAN":
+                return leftOperand + " < " + rightOperand;
+            case "LOWER_OR_EQUALS_TO":
+                return leftOperand + " <= " + rightOperand;
+            case "BETWEEN":
+                 if(expr.getValue().size() != 2) {
+                    throw new IllegalArgumentException("BETWEEN operator requires 2 values. Received: " + expr.getValue().size());
+                }
+                return leftOperand + " >= " + rightOperand + "_0 AND " + leftOperand + " <= " + rightOperand + "_1";
             default:
-                throw new UnsupportedOperationException("Queryparam: " + expr + " not supported");
+                throw new UnsupportedOperationException("Queryparam: " + expr.getOperator() + " not supported");
         }
     }
 
