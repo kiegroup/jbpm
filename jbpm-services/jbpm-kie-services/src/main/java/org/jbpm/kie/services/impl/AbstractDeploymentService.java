@@ -163,10 +163,14 @@ public abstract class AbstractDeploymentService implements DeploymentService, Li
                 
             } catch (Throwable e) {
                 deploymentsMap.remove(unit.getIdentifier());
-                if (manager != null) {
-                	manager.close();
-                }
-                notifyOnUnDeploy(unit, deployedUnit);
+                try {
+                    if (manager != null) {
+                        manager.close();
+                    }
+                    notifyOnUnDeploy(unit, deployedUnit);
+                } catch (Exception cleanupFailure) {
+                    logger.error("Ignoring exception while cleaning up", cleanupFailure);
+                } 
                 throw new RuntimeException(e);
             }
         }
