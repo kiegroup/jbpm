@@ -16,10 +16,17 @@
 
 package org.jbpm.persistence.api;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public interface JbpmEntityContributor {
 
-    List<String> disableInsertChecks();
+    default List<String> disableInsertChecks() {
+        return Collections.emptyList();
+    }
 
+    default Map<String, String> enableFilters() {
+        return Collections.emptyMap();
+    }
 }

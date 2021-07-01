@@ -17,13 +17,17 @@
 package org.jbpm.persistence.support;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.stream.Collectors;
 
 import org.hibernate.boot.spi.InFlightMetadataCollector;
 import org.hibernate.boot.spi.MetadataContributor;
 import org.hibernate.engine.spi.ExecuteUpdateResultCheckStyle;
+import org.hibernate.engine.spi.FilterDefinition;
 import org.jboss.jandex.IndexView;
 import org.jbpm.persistence.api.JbpmEntityContributor;
 import org.slf4j.Logger;
@@ -47,6 +51,18 @@ public class JbpmMetadataContributor implements MetadataContributor {
         for(String entity : entityDisableChecks) {
             log.debug("disabling row count check for entity {}", entity);
             metadataCollector.getEntityBindingMap().get(entity).setCustomSQLInsert(null, false, ExecuteUpdateResultCheckStyle.NONE);
+        }
+
+        Map<String, String> entityFilters = new HashMap<>();
+        contributors.stream().forEach(contributor -> entityFilters.putAll(contributor.enableFilters()));
+
+        // filter for logs
+        metadataCollector.addFilterDefinition(new FilterDefinition("jBPMEntityFilter", null, Collections.emptyMap()));
+        for(Map.Entry<String, String> filter : entityFilters.entrySet()) {
+            String entity = filter.getKey();
+            String where = filter.getValue();
+            log.debug("adding filter for entity {} with condition {}", entity, where);
+            metadataCollector.getEntityBindingMap().get(entity).addFilter("jBPMEntityFilter", where, false, null, null);
         }
     }
 

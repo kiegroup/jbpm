@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 
+import org.hibernate.Session;
 import org.jbpm.process.audit.JPAAuditLogService;
 import org.jbpm.process.audit.NodeInstanceLog;
 import org.jbpm.process.audit.ProcessInstanceLog;
@@ -81,6 +82,7 @@ public class ProcessInstanceLogArchiveTest extends JbpmTestCase {
 
         EntityManager em = getEmf().createEntityManager();
 
+        em.unwrap(Session.class).enableFilter("jBPMEntityFilter");
         List<ProcessInstanceLog> pLogs = em.createQuery("SELECT o FROM ProcessInstanceLog o", ProcessInstanceLog.class).getResultList();
         Assert.assertTrue(!pLogs.isEmpty());
         for(ProcessInstanceLog log : pLogs) {

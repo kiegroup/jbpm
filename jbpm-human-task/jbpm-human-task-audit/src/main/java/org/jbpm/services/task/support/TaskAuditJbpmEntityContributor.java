@@ -18,7 +18,9 @@ package org.jbpm.services.task.support;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.jbpm.persistence.api.JbpmEntityContributor;
 import org.jbpm.persistence.api.PersistenceEnvironmentName;
@@ -37,6 +39,15 @@ public class TaskAuditJbpmEntityContributor implements JbpmEntityContributor {
                 AuditTaskImpl.class.getCanonicalName(),
                 TaskEventImpl.class.getCanonicalName(),
                 BAMTaskSummaryImpl.class.getCanonicalName());
+    }
+
+    @Override
+    public Map<String, String> enableFilters() {
+        Map<String, String> filters = new HashMap<>();
+        filters.put(AuditTaskImpl.class.getCanonicalName(), "end_date IS NULL");
+        filters.put(TaskEventImpl.class.getCanonicalName(), "end_date IS NULL");
+        filters.put(BAMTaskSummaryImpl.class.getCanonicalName(), "end_date IS NULL");
+        return filters;
     }
 
 }

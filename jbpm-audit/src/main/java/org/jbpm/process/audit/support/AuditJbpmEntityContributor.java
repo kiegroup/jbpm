@@ -18,7 +18,9 @@ package org.jbpm.process.audit.support;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.jbpm.persistence.api.JbpmEntityContributor;
 import org.jbpm.persistence.api.PersistenceEnvironmentName;
@@ -40,4 +42,12 @@ public class AuditJbpmEntityContributor implements JbpmEntityContributor {
                 VariableInstanceLog.class.getCanonicalName());
     }
 
+    @Override
+    public Map<String, String> enableFilters() {
+        Map<String, String> filters = new HashMap<>();
+        filters.put(ProcessInstanceLog.class.getCanonicalName(), "end_date IS NULL");
+        filters.put(NodeInstanceLog.class.getCanonicalName(), "end_date IS NULL");
+        filters.put(VariableInstanceLog.class.getCanonicalName(), "end_date IS NULL");
+        return filters;
+    }
 }
