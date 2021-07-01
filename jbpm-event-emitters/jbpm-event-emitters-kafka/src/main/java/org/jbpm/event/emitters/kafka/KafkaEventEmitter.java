@@ -55,6 +55,8 @@ public class KafkaEventEmitter implements EventEmitter {
 
     private static final Logger logger = LoggerFactory.getLogger(KafkaEventEmitter.class);
     private static final String SOURCE_FORMATTER = "/process/%s/%s";
+    protected static final String KAFKA_EMITTER_PREFIX = "org.kie.jbpm.event.emitters.kafka.";
+
     private ObjectMapper mapper;
 
     private Producer<String, byte[]> producer;
@@ -74,10 +76,12 @@ public class KafkaEventEmitter implements EventEmitter {
                 .configure(MapperFeature.PROPAGATE_TRANSIENT_MARKER, true);
     }
 
+    @Override
     public void deliver(Collection<InstanceView<?>> data) {
         // nothing to do
     }
 
+    @Override
     public void apply(Collection<InstanceView<?>> data) {
         if (data == null || data.isEmpty()) {
             return;
@@ -128,6 +132,7 @@ public class KafkaEventEmitter implements EventEmitter {
     }
 
 
+    @Override
     public void drop(Collection<InstanceView<?>> data) {
         // nothing to do
     }
@@ -143,24 +148,28 @@ public class KafkaEventEmitter implements EventEmitter {
     }
 
     private static Producer<String, byte[]> getProducer() {
-        Map<String, Object> configs = new HashMap<>();
-        configs.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, System.getProperty(
-                "org.kie.jbpm.event.emitters.kafka.bootstrap.servers", "localhost:9092"));
-        String acks = System.getProperty("org.kie.jbpm.event.emitters.kafka.acks");
-        if (acks != null) {
-            configs.put(ProducerConfig.ACKS_CONFIG, acks);
-        }
-        String clientId = System.getProperty("org.kie.jbpm.event.emitters.kafka.client.id");
-        if (clientId != null) {
-            configs.put(ProducerConfig.CLIENT_ID_CONFIG, clientId);
-        }
-        configs.put(ProducerConfig.MAX_BLOCK_MS_CONFIG, 
-                    System.getProperty("org.kie.jbpm.event.emitters.kafka.max.block.ms", "2000"));
+        Map<String, Object> configs = getProducerProperties();
+        configs.putIfAbsent(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        configs.putIfAbsent(ProducerConfig.MAX_BLOCK_MS_CONFIG, "2000");
         return new KafkaProducer<>(configs, new StringSerializer(), new ByteArraySerializer());
     }
 
     private static String getTopic(String eventType) {
         return System.getProperty("org.kie.jbpm.event.emitters.kafka.topic." + eventType, "jbpm-" + eventType +
                                                                                           "-events");
+    }
+
+    protected static Map<String, Object> getProducerProperties() {
+        Map<String, Object> properties = new HashMap<>();
+        for (Map.Entry<Object, Object> entry : System.getProperties().entrySet()) {
+            String key = entry.getKey().toString();
+            if (key.startsWith(KAFKA_EMITTER_PREFIX)) {
+                String propName = key.substring(KAFKA_EMITTER_PREFIX.length());
+                if (ProducerConfig.configNames().contains(propName)) {
+                    properties.put(propName, entry.getValue());
+                }
+            }
+        }
+        return properties;
     }
 }
