@@ -24,7 +24,7 @@
     <!-- properties connected with EJB services application END -->
 
     <!-- Container-related properties -->
-    <container.id>wildfly19x</container.id>
+    <container.id>wildfly23x</container.id>
 
     <!-- Default data source name applies to both supported containers -->
     <org.jbpm.persistence.ds>java:/jdbc/jbpm</org.jbpm.persistence.ds>
