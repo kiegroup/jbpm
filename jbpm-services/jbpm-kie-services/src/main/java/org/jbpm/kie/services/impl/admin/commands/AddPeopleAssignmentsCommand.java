@@ -16,6 +16,9 @@
 
 package org.jbpm.kie.services.impl.admin.commands;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.jbpm.services.task.commands.TaskContext;
 import org.jbpm.services.task.commands.UserGroupCallbackTaskCommand;
 import org.jbpm.services.task.events.TaskEventSupport;
@@ -26,10 +29,9 @@ import org.kie.api.task.model.OrganizationalEntity;
 import org.kie.api.task.model.Task;
 import org.kie.internal.task.api.model.InternalPeopleAssignments;
 
-import java.util.Arrays;
-import java.util.List;
-
-import static org.jbpm.kie.services.impl.admin.UserTaskAdminServiceImpl.*;
+import static org.jbpm.kie.services.impl.admin.UserTaskAdminServiceImpl.ADMIN;
+import static org.jbpm.kie.services.impl.admin.UserTaskAdminServiceImpl.EXCL_OWNER;
+import static org.jbpm.kie.services.impl.admin.UserTaskAdminServiceImpl.POT_OWNER;
 
 
 public class AddPeopleAssignmentsCommand extends UserGroupCallbackTaskCommand<Void> {
@@ -91,6 +93,7 @@ public class AddPeopleAssignmentsCommand extends UserGroupCallbackTaskCommand<Vo
         }
         taskEventSupport.fireBeforeTaskAssignmentsAddedEvent(task, context, assignmentType, entityList);
         doCallbackOperationForPeopleAssignments(((InternalPeopleAssignments)task.getPeopleAssignments()), context);
+        context.getPersistenceContext().updateTask(task);
         taskEventSupport.fireAfterTaskAssignmentsAddedEvent(task, context, assignmentType, entityList);
         return null;
     }
