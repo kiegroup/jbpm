@@ -26,8 +26,6 @@ import org.kie.api.runtime.Context;
 import org.kie.api.task.model.Task;
 import org.kie.internal.task.api.TaskDeadlinesService;
 import org.kie.internal.task.api.TaskDeadlinesService.DeadlineType;
-import org.kie.internal.task.api.TaskOperationInfo;
-import org.kie.internal.task.api.TaskOperationType;
 import org.kie.internal.task.api.TaskPersistenceContext;
 import org.kie.internal.task.api.model.Deadline;
 import org.kie.internal.task.api.model.Deadlines;
@@ -75,7 +73,7 @@ public class ScheduleTaskDeadlineCommand extends UserGroupCallbackTaskCommand<Lo
         doCallbackOperationForTaskDeadlines(deadlines, context);
         
         persistenceContext.persistDeadline(deadline);        
-        persistenceContext.updateTask(task, TaskOperationInfo.forUpdate(task, userId, TaskOperationType.UPDATE_DEADLINE));
+        persistenceContext.updateTask(task);
         logger.debug("Task updated and deadline stored with id {}", deadline.getId());
         
         TaskDeadlinesService deadlinesService = context.getTaskDeadlinesService();

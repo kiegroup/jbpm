@@ -28,8 +28,6 @@ import org.kie.api.task.model.OrganizationalEntity;
 import org.kie.api.task.model.PeopleAssignments;
 import org.kie.internal.task.api.TaskDeadlinesService;
 import org.kie.internal.task.api.TaskDeadlinesService.DeadlineType;
-import org.kie.internal.task.api.TaskOperationInfo;
-import org.kie.internal.task.api.TaskOperationType;
 import org.kie.internal.task.api.TaskPersistenceContext;
 import org.kie.internal.task.api.model.Deadline;
 import org.kie.internal.task.api.model.Deadlines;
@@ -81,7 +79,7 @@ public class DeadlineSchedulerHelper {
                              persistenceContext),
                      System.currentTimeMillis(), task.getId(), DeadlineType.END, deadlineService);
          }
-         persistenceContext.updateTask(task, TaskOperationInfo.forUpdate(task, taskContext.getUserId(),TaskOperationType.UPDATE_DEADLINE));
+         persistenceContext.updateTask(task);
     }
     
     

@@ -32,8 +32,6 @@ import org.kie.api.task.model.OrganizationalEntity;
 import org.kie.api.task.model.Task;
 import org.kie.internal.task.api.ContentMarshallerContext;
 import org.kie.internal.task.api.TaskModelProvider;
-import org.kie.internal.task.api.TaskOperationInfo;
-import org.kie.internal.task.api.TaskOperationType;
 import org.kie.internal.task.api.TaskPersistenceContext;
 import org.kie.internal.task.api.model.ContentData;
 import org.kie.internal.task.api.model.InternalContent;
@@ -126,7 +124,7 @@ public class UpdateTaskCommand extends UserGroupCallbackTaskCommand<Void> {
             context.getTaskContentService().addOutputContent(taskId, outputs);
         }
         
-        persistenceContext.updateTask(task, TaskOperationInfo.forUpdate(task, userId, TaskOperationType.SAVE_CONTENT));
+        persistenceContext.updateTask(task);
         // finally trigger event support after the updates
         taskEventSupport.fireAfterTaskUpdated(task, context);
         

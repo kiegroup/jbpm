@@ -51,14 +51,14 @@ public class TaskAttachmentServiceImpl implements TaskAttachmentService {
         persistenceContext.persistAttachment(attachment);
         persistenceContext.persistContent(content);
         ((InternalAttachment) attachment).setContent(content);
-        persistenceContext.addAttachmentToTask(attachment, task, userId);
+        persistenceContext.addAttachmentToTask(attachment, task);
         return attachment.getId();
     }
 
     @Override
     public void deleteAttachment(long taskId, long attachmentId) {
        Task task = persistenceContext.findTask(taskId);
-       Attachment attachment = persistenceContext.removeAttachmentFromTask(task, attachmentId, userId);
+       Attachment attachment = persistenceContext.removeAttachmentFromTask(task, attachmentId);
        Content content = persistenceContext.findContent(attachment.getAttachmentContentId());
        persistenceContext.removeContent(content);
     }

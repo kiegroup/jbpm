@@ -39,7 +39,6 @@ import org.drools.core.util.StringUtils;
 import org.jbpm.persistence.api.integration.EventManagerProvider;
 import org.jbpm.persistence.api.integration.PersistenceEventManager;
 import org.jbpm.persistence.api.integration.model.TaskInstanceView;
-import org.jbpm.persistence.api.integration.model.TaskOperationView;
 import org.jbpm.query.jpa.data.QueryWhere;
 import org.jbpm.services.task.impl.model.AttachmentImpl;
 import org.jbpm.services.task.impl.model.CommentImpl;
@@ -63,8 +62,6 @@ import org.kie.api.task.model.OrganizationalEntity;
 import org.kie.api.task.model.Task;
 import org.kie.api.task.model.TaskSummary;
 import org.kie.api.task.model.User;
-import org.kie.internal.task.api.TaskOperationInfo;
-import org.kie.internal.task.api.TaskOperationType;
 import org.kie.internal.task.api.TaskPersistenceContext;
 import org.kie.internal.task.api.model.ContentData;
 import org.kie.internal.task.api.model.Deadline;
@@ -129,7 +126,7 @@ public class JPATaskPersistenceContext implements TaskPersistenceContext {
 	}
 
     @Override
-    public Task persistTask(Task task, TaskOperationInfo taskOperation) {
+    public Task persistTask(Task task) {
         check();
         this.em.persist(task);
         if (this.pessimisticLocking) {
@@ -138,29 +135,25 @@ public class JPATaskPersistenceContext implements TaskPersistenceContext {
         }
         PersistenceEventManager eventManager = EventManagerProvider.getInstance().get();
         eventManager.create(new TaskInstanceView(task));
-        eventManager.create(new TaskOperationView(taskOperation));
-
         return task;
     }
 
     @Override
-    public Task updateTask(Task task, TaskOperationInfo taskOperation) {
+    public Task updateTask(Task task) {
         check();
         Task updated = this.em.merge(task);
         PersistenceEventManager eventManager = EventManagerProvider.getInstance().get();
         eventManager.update(new TaskInstanceView(task));
-        eventManager.update(new TaskOperationView(taskOperation));
         return updated;
     }
 
     @Override
-    public Task removeTask(Task task, TaskOperationInfo taskOperation) {
+    public Task removeTask(Task task) {
         check();
         em.remove(task);
 
         PersistenceEventManager eventManager = EventManagerProvider.getInstance().get();
         eventManager.delete(new TaskInstanceView(task));
-        eventManager.delete(new TaskOperationView(taskOperation));
         return task;
     }
 
@@ -417,26 +410,20 @@ public class JPATaskPersistenceContext implements TaskPersistenceContext {
 	}
 	
     @Override
-    public Attachment removeAttachmentFromTask(Task task, long attachmentId, String userId) {
+    public Attachment removeAttachmentFromTask(Task task, long attachmentId) {
         Attachment removed = ((InternalTaskData) task.getTaskData()).removeAttachment(attachmentId);
 
         PersistenceEventManager eventManager = EventManagerProvider.getInstance().get();
         eventManager.update(new TaskInstanceView(task));
-        eventManager.update(new TaskOperationView(TaskOperationInfo.forUpdate(task, userId,
-                TaskOperationType.REMOVE_ATTACHMENT)));
-
         return removed;
     }
 
     @Override
-    public Attachment addAttachmentToTask(Attachment attachment, Task task, String userId) {
+    public Attachment addAttachmentToTask(Attachment attachment, Task task) {
         ((InternalTaskData) task.getTaskData()).addAttachment(attachment);
 
         PersistenceEventManager eventManager = EventManagerProvider.getInstance().get();
         eventManager.update(new TaskInstanceView(task));
-        eventManager.update(new TaskOperationView(TaskOperationInfo.forUpdate(task, userId,
-                TaskOperationType.ADD_ATTACHMENT)));
-
         return attachment;
     }
 
@@ -474,24 +461,19 @@ public class JPATaskPersistenceContext implements TaskPersistenceContext {
 	}
 	
     @Override
-    public Comment removeCommentFromTask(Comment comment, Task task, String userId) {
+    public Comment removeCommentFromTask(Comment comment, Task task) {
         ((InternalTaskData) task.getTaskData()).removeComment(comment.getId());
 
         PersistenceEventManager eventManager = EventManagerProvider.getInstance().get();
         eventManager.update(new TaskInstanceView(task));
-        eventManager.update(new TaskOperationView(TaskOperationInfo.forUpdate(task, userId,
-                TaskOperationType.REMOVE_COMMENT)));
-
         return comment;
     }
 
     @Override
-    public Comment addCommentToTask(Comment comment, Task task, String userId) {
+    public Comment addCommentToTask(Comment comment, Task task) {
         ((InternalTaskData) task.getTaskData()).addComment(comment);
         PersistenceEventManager eventManager = EventManagerProvider.getInstance().get();
         eventManager.update(new TaskInstanceView(task));
-        eventManager.update(new TaskOperationView(TaskOperationInfo.forUpdate(task, userId, TaskOperationType.ADD_COMMENT)));
-
         return comment;
     }
 

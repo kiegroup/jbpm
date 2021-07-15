@@ -15,33 +15,39 @@
  */
 package org.jbpm.persistence.api.integration.model;
 
-import java.util.Arrays;
-
 import org.jbpm.persistence.api.integration.InstanceView;
-import org.kie.internal.task.api.TaskOperationInfo;
-import org.kie.internal.task.api.TaskOperationType;
+import org.kie.api.task.TaskEvent;
+import org.kie.api.task.TaskLifeCycleEventListener.AssignmentType;
+import org.kie.internal.task.api.model.TaskEvent.TaskEventType;
 
 
-public class TaskOperationView implements InstanceView<TaskOperationInfo> {
+public class TaskOperationView implements InstanceView<TaskEvent> {
 
     private static final long serialVersionUID = 1L;
-    private transient TaskOperationInfo source;
+    private transient TaskEvent source;
 
     private String compositeId;
-    private TaskOperationType type;
+    private TaskEventType type;
+    private AssignmentType assignType;
     private String userId;
-    private String[] targetEntities;
-
-    public TaskOperationView(TaskOperationInfo taskOperation) {
+    
+    public TaskOperationView(TaskEvent taskOperation, TaskEventType type) {
+        this (taskOperation, type, null);
+    }
+    
+    public TaskOperationView(TaskEvent taskOperation, TaskEventType type, AssignmentType assignType) {
         this.source = taskOperation;
+        this.type = type;
+        this.assignType = assignType;
     }
 
-    public String[] getTargetEntities() {
-        return targetEntities;
-    }
-
-    public TaskOperationType getType() {
+  
+    public TaskEventType getType() {
         return type;
+    }
+    
+    public AssignmentType getAssignType() {
+        return assignType;
     }
 
     public String getUserId() {
@@ -51,24 +57,16 @@ public class TaskOperationView implements InstanceView<TaskOperationInfo> {
     @Override
     public void copyFromSource() {
         this.compositeId = System.getProperty("org.kie.server.id", "") + '_' + source.getTask().getId();
-        this.userId = source.getUserId();
-        this.type = source.getType();
-        this.targetEntities = source.getTargetEntities();
+        this.userId = source.getTaskContext().getUserId();
     }
 
     @Override
-    public TaskOperationInfo getSource() {
+    public TaskEvent getSource() {
         return source;
     }
 
     @Override
     public String getCompositeId() {
        return compositeId;
-    }
-
-    @Override
-    public String toString() {
-        return "TaskOperationView [compositeId=" + compositeId + ", type=" + type + ", userId=" + userId +
-               ", targetEntities=" + Arrays.toString(targetEntities) + "]";
     }
 }

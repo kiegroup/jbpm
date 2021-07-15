@@ -51,7 +51,7 @@ public class TaskCommentServiceImpl implements TaskCommentService {
             persistenceContext.persistUser(comment.getAddedBy());
         }
         persistenceContext.persistComment(comment);
-        persistenceContext.addCommentToTask(comment, task, userId);
+        persistenceContext.addCommentToTask(comment, task);
         return comment.getId();
        
     }
@@ -60,7 +60,7 @@ public class TaskCommentServiceImpl implements TaskCommentService {
     public void deleteComment(long taskId, long commentId) {
         Task task = persistenceContext.findTask(taskId);
         Comment comment = persistenceContext.findComment(commentId);
-        persistenceContext.removeCommentFromTask(comment, task, userId);
+        persistenceContext.removeCommentFromTask(comment, task);
         persistenceContext.removeComment(comment);
     }
 

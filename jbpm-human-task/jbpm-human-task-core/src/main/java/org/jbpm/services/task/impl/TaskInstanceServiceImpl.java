@@ -48,7 +48,6 @@ import org.kie.api.task.model.User;
 import org.kie.internal.task.api.ContentMarshallerContext;
 import org.kie.internal.task.api.TaskInstanceService;
 import org.kie.internal.task.api.TaskModelProvider;
-import org.kie.internal.task.api.TaskOperationInfo;
 import org.kie.internal.task.api.TaskPersistenceContext;
 import org.kie.internal.task.api.model.ContentData;
 import org.kie.internal.task.api.model.FaultData;
@@ -113,7 +112,7 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
     public long addTask(Task task, Map<String, Object> params) {    	
     	taskEventSupport.fireBeforeTaskAdded(task, context);
     	
-    	persistenceContext.persistTask(task, TaskOperationInfo.forCreate(task, userId));
+    	persistenceContext.persistTask(task);
     	
     	resolveTaskDetailsForTaskProperties(task);    	
     	
@@ -139,7 +138,7 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
     public long addTask(Task task, ContentData contentData) {
     	taskEventSupport.fireBeforeTaskAdded(task, context);  
     	
-    	persistenceContext.persistTask(task, TaskOperationInfo.forCreate(task, userId));
+    	persistenceContext.persistTask(task);
     	
     	resolveTaskDetailsForTaskProperties(task);
         
