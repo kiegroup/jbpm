@@ -1,7 +1,7 @@
-alter table AuditTaskImpl add column end_date datetime;
-alter table BAMTaskSummary add column end_date datetime;
-alter table TaskEvent add column end_date datetime;
-alter table NodeInstanceLog add column end_date datetime;
-alter table VariableInstanceLog add column end_date datetime;
+alter table AuditTaskImpl add end_date datetime;
+alter table BAMTaskSummary add end_date datetime;
+alter table TaskEvent add end_date datetime;
+alter table NodeInstanceLog add end_date datetime;
+alter table VariableInstanceLog add end_date datetime;
 
 
