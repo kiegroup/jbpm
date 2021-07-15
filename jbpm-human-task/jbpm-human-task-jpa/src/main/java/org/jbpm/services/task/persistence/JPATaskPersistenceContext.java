@@ -37,7 +37,6 @@ import javax.persistence.criteria.Root;
 
 import org.drools.core.util.StringUtils;
 import org.jbpm.persistence.api.integration.EventManagerProvider;
-import org.jbpm.persistence.api.integration.PersistenceEventManager;
 import org.jbpm.persistence.api.integration.model.TaskInstanceView;
 import org.jbpm.query.jpa.data.QueryWhere;
 import org.jbpm.services.task.impl.model.AttachmentImpl;
@@ -81,28 +80,29 @@ import static org.kie.internal.query.QueryParameterIdentifiers.ORDER_TYPE;
 public class JPATaskPersistenceContext implements TaskPersistenceContext {
 
     // logger set to public for test reasons, see the org.jbpm.services.task.TaskQueryBuilderLocalTest
-    public static final Logger logger = LoggerFactory.getLogger(JPATaskPersistenceContext.class);
+	public final static Logger logger = LoggerFactory.getLogger(JPATaskPersistenceContext.class);
 
-    private static TaskQueryManager querymanager = TaskQueryManager.get();
+	private static TaskQueryManager querymanager = TaskQueryManager.get();
 
-    protected EntityManager em;
+	protected EntityManager em;
     protected final boolean isJTA;
     protected final boolean pessimisticLocking;
     protected LockModeType lockMode;
 
     public JPATaskPersistenceContext(EntityManager em) {
-        this (em, true);
+        this(em, true, false, null);
     }
 
     public JPATaskPersistenceContext(EntityManager em, boolean isJTA) {
-        this (em, isJTA, false, null);
-    } 
+       this(em, isJTA, false, null);
+    }
 
     public JPATaskPersistenceContext(EntityManager em, boolean isJTA, boolean locking, String lockingMode) {
         this.em = em;
         this.isJTA = isJTA;
         this.pessimisticLocking = locking;
         this.lockMode = LockModeType.valueOf(lockingMode == null ? LockModeType.PESSIMISTIC_FORCE_INCREMENT.name() : lockingMode);
+
         logger.debug("TaskPersistenceManager configured with em {}, isJTA {}, pessimistic locking {}", em, isJTA, locking);
     }
 
@@ -125,37 +125,37 @@ public class JPATaskPersistenceContext implements TaskPersistenceContext {
 		return task;
 	}
 
-    @Override
-    public Task persistTask(Task task) {
-        check();
-        this.em.persist(task);
-        if (this.pessimisticLocking) {
-            this.em.flush();
-            return this.em.find(TaskImpl.class, task.getId(), lockMode);
+	@Override
+	public Task persistTask(Task task) {
+		check();
+		this.em.persist( task );
+        if( this.pessimisticLocking ) {
+        	this.em.flush();
+            return this.em.find(TaskImpl.class, task.getId(), lockMode );
         }
-        PersistenceEventManager eventManager = EventManagerProvider.getInstance().get();
-        eventManager.create(new TaskInstanceView(task));
+        EventManagerProvider.getInstance().get().create(new TaskInstanceView(task));
         return task;
-    }
+	}
 
-    @Override
-    public Task updateTask(Task task) {
-        check();
-        Task updated = this.em.merge(task);
-        PersistenceEventManager eventManager = EventManagerProvider.getInstance().get();
-        eventManager.update(new TaskInstanceView(task));
-        return updated;
-    }
+	@Override
+	public Task updateTask(Task task) {
+		check();
+		Task updated = this.em.merge(task);
+		
+		EventManagerProvider.getInstance().get().update(new TaskInstanceView(task));
+		
+		return updated;
+	}
 
-    @Override
-    public Task removeTask(Task task) {
-        check();
-        em.remove(task);
-
-        PersistenceEventManager eventManager = EventManagerProvider.getInstance().get();
-        eventManager.delete(new TaskInstanceView(task));
-        return task;
-    }
+	@Override
+	public Task removeTask(Task task) {
+		check();
+		em.remove( task );
+		
+		EventManagerProvider.getInstance().get().delete(new TaskInstanceView(task));
+		
+		return task;
+	}
 
 	@Override
 	public Group findGroup(String groupId) {
@@ -409,23 +409,23 @@ public class JPATaskPersistenceContext implements TaskPersistenceContext {
 		return attachment;
 	}
 	
-    @Override
-    public Attachment removeAttachmentFromTask(Task task, long attachmentId) {
-        Attachment removed = ((InternalTaskData) task.getTaskData()).removeAttachment(attachmentId);
-
-        PersistenceEventManager eventManager = EventManagerProvider.getInstance().get();
-        eventManager.update(new TaskInstanceView(task));
-        return removed;
-    }
-
-    @Override
-    public Attachment addAttachmentToTask(Attachment attachment, Task task) {
-        ((InternalTaskData) task.getTaskData()).addAttachment(attachment);
-
-        PersistenceEventManager eventManager = EventManagerProvider.getInstance().get();
-        eventManager.update(new TaskInstanceView(task));
-        return attachment;
-    }
+	@Override
+	public Attachment removeAttachmentFromTask(Task task, long attachmentId) {
+		Attachment removed = ((InternalTaskData) task.getTaskData()).removeAttachment(attachmentId);
+		
+		EventManagerProvider.getInstance().get().update(new TaskInstanceView(task));
+		
+		return removed;
+	}
+	
+	@Override
+	public Attachment addAttachmentToTask(Attachment attachment, Task task) {
+		((InternalTaskData) task.getTaskData()).addAttachment(attachment);
+		
+		EventManagerProvider.getInstance().get().update(new TaskInstanceView(task));
+		
+		return attachment;
+	}
 
 	@Override
 	public Comment findComment(Long commentId) {
@@ -460,22 +460,23 @@ public class JPATaskPersistenceContext implements TaskPersistenceContext {
 		return comment;
 	}
 	
-    @Override
-    public Comment removeCommentFromTask(Comment comment, Task task) {
-        ((InternalTaskData) task.getTaskData()).removeComment(comment.getId());
-
-        PersistenceEventManager eventManager = EventManagerProvider.getInstance().get();
-        eventManager.update(new TaskInstanceView(task));
-        return comment;
-    }
-
-    @Override
-    public Comment addCommentToTask(Comment comment, Task task) {
-        ((InternalTaskData) task.getTaskData()).addComment(comment);
-        PersistenceEventManager eventManager = EventManagerProvider.getInstance().get();
-        eventManager.update(new TaskInstanceView(task));
-        return comment;
-    }
+	@Override
+	public Comment removeCommentFromTask(Comment comment, Task task) {
+		((InternalTaskData) task.getTaskData()).removeComment(comment.getId());
+		
+		EventManagerProvider.getInstance().get().update(new TaskInstanceView(task));
+		
+		return comment;
+	}
+	
+	@Override
+	public Comment addCommentToTask(Comment comment, Task task) {
+		((InternalTaskData) task.getTaskData()).addComment(comment);
+		
+		EventManagerProvider.getInstance().get().update(new TaskInstanceView(task));
+		
+		return comment;
+	}
 
 	@Override
 	public Deadline findDeadline(Long deadlineId) {
@@ -701,7 +702,7 @@ public class JPATaskPersistenceContext implements TaskPersistenceContext {
 		}
 		if (singleResult) {
                     List<T> results = query.getResultList();
-                    return results.isEmpty() ? null : results.get(0);
+                    return (T) ((results.isEmpty() )? null : results.get(0));
 		}
 		return (T) query.getResultList();
 	}
@@ -795,4 +796,5 @@ public class JPATaskPersistenceContext implements TaskPersistenceContext {
         List<TaskSummary> result = queryUtil.doCriteriaQuery(userId, userGroupCallback, (QueryWhere) queryWhere);
         return result;
     }
+
 }

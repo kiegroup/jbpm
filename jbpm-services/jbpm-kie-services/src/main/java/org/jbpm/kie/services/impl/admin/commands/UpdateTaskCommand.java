@@ -16,10 +16,6 @@
 
 package org.jbpm.kie.services.impl.admin.commands;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import org.jbpm.services.api.model.UserTaskInstanceDesc;
 import org.jbpm.services.task.commands.TaskContext;
 import org.jbpm.services.task.commands.UserGroupCallbackTaskCommand;
@@ -37,6 +33,10 @@ import org.kie.internal.task.api.model.ContentData;
 import org.kie.internal.task.api.model.InternalContent;
 import org.kie.internal.task.api.model.InternalTask;
 import org.kie.internal.task.api.model.InternalTaskData;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 
 public class UpdateTaskCommand extends UserGroupCallbackTaskCommand<Void> {

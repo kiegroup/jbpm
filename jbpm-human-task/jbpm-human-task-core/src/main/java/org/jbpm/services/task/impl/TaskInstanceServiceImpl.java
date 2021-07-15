@@ -77,21 +77,18 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
     private TaskPersistenceContext persistenceContext;    
     private TaskEventSupport taskEventSupport;
     private Environment environment;
-    private String userId;
 
     public TaskInstanceServiceImpl() {
     }
 
-    public TaskInstanceServiceImpl(org.kie.internal.task.api.TaskContext context,
-                                   TaskPersistenceContext persistenceContext,
-                                   LifeCycleManager lifeCycleManager, TaskEventSupport taskEventSupport,
-                                   Environment environment, String userId) {
-        this.context = context;
-        this.persistenceContext = persistenceContext;
-        this.lifeCycleManager = lifeCycleManager;
-        this.taskEventSupport = taskEventSupport;
-        this.environment = environment;
-        this.userId = userId;
+    public TaskInstanceServiceImpl(org.kie.internal.task.api.TaskContext context, TaskPersistenceContext persistenceContext,
+    		LifeCycleManager lifeCycleManager, TaskEventSupport taskEventSupport,
+    		Environment environment) {
+    	this.context = context;
+    	this.persistenceContext = persistenceContext;
+    	this.lifeCycleManager = lifeCycleManager;
+    	this.taskEventSupport = taskEventSupport;
+    	this.environment = environment;
     }
 
     public void setLifeCycleManager(LifeCycleManager lifeCycleManager) {
@@ -108,7 +105,6 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
     }
 
    
-    @Override
     public long addTask(Task task, Map<String, Object> params) {    	
     	taskEventSupport.fireBeforeTaskAdded(task, context);
     	
@@ -134,7 +130,6 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
 		return task.getId();
     }
 
-    @Override
     public long addTask(Task task, ContentData contentData) {
     	taskEventSupport.fireBeforeTaskAdded(task, context);  
     	
@@ -154,22 +149,18 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
         return task.getId();
     }
 
-    @Override
     public void activate(long taskId, String userId) {
         lifeCycleManager.taskOperation(Operation.Activate, taskId, userId, null, null, toGroups(null));
     }
 
-    @Override
     public void claim(long taskId, String userId) {
         lifeCycleManager.taskOperation(Operation.Claim, taskId, userId, null, null, toGroups(null));
     }
 
-    @Override
     public void claim(long taskId, String userId, List<String> groupIds) {
     	lifeCycleManager.taskOperation(Operation.Claim, taskId, userId, null, null, groupIds);
     }
 
-    @Override
     public void claimNextAvailable(String userId) {
         List<Status> status = new ArrayList<Status>();
         status.add(Status.Ready);
@@ -183,7 +174,6 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
         }
     }
 
-    @Override
     public void claimNextAvailable(String userId, List<String> groupIds) {
         List<Status> status = new ArrayList<Status>();
         status.add(Status.Ready);
@@ -197,17 +187,14 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
         }
     }
 
-    @Override
     public void complete(long taskId, String userId, Map<String, Object> data) {
         lifeCycleManager.taskOperation(Operation.Complete, taskId, userId, null, data, toGroups(null));
     }
 
-    @Override
     public void delegate(long taskId, String userId, String targetUserId) {
         lifeCycleManager.taskOperation(Operation.Delegate, taskId, userId, targetUserId, null, toGroups(null));
     }
 
-    @Override
     public void deleteFault(long taskId, String userId) {
     	Task task = persistenceContext.findTask(taskId);
     	
@@ -219,7 +206,6 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
         persistenceContext.setFaultToTask(null, data, task);
     }
 
-    @Override
     public void deleteOutput(long taskId, String userId) {
     	Task task = persistenceContext.findTask(taskId);
     	
@@ -241,27 +227,22 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
         taskEventSupport.fireAfterTaskOutputVariablesChanged(task, this.context, null);
     }
 
-    @Override
     public void exit(long taskId, String userId) {
         lifeCycleManager.taskOperation(Operation.Exit, taskId, userId, null, null, toGroups(null));
     }
 
-    @Override
     public void fail(long taskId, String userId, Map<String, Object> faultData) {
         lifeCycleManager.taskOperation(Operation.Fail, taskId, userId, null, faultData, toGroups(null));
     }
 
-    @Override
     public void forward(long taskId, String userId, String targetEntityId) {
         lifeCycleManager.taskOperation(Operation.Forward, taskId, userId, targetEntityId, null, toGroups(null));
     }
 
-    @Override
     public void release(long taskId, String userId) {
         lifeCycleManager.taskOperation(Operation.Release, taskId, userId, null, null, toGroups(null));
     }
 
-    @Override
     public void remove(long taskId, String userId) {
     	Task task = persistenceContext.findTask(taskId);
     	User user = persistenceContext.findUser(userId);
@@ -272,12 +253,10 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
 		}
     }
 
-    @Override
     public void resume(long taskId, String userId) {
         lifeCycleManager.taskOperation(Operation.Resume, taskId, userId, null, null, toGroups(null));
     }
 
-    @Override
     public void setFault(long taskId, String userId, FaultData fault) {
     	Task task = persistenceContext.findTask(taskId);
     	
@@ -287,7 +266,6 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
 		persistenceContext.setFaultToTask(content, fault, task);
     }
 
-    @Override
     public void setOutput(long taskId, String userId, Object outputContentData) {
     	Task task = persistenceContext.findTask(taskId);
     	
@@ -298,7 +276,6 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
 		persistenceContext.setOutputToTask(content, contentData, task);
     }
 
-    @Override
     public void setPriority(long taskId, int priority) {
         Task task = persistenceContext.findTask(taskId);
         
@@ -309,7 +286,6 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
         taskEventSupport.fireAfterTaskUpdated(task, context);
     }
 
-    @Override
     public void setTaskNames(long taskId, List<I18NText> inputTaskNames) {
         Task task = persistenceContext.findTask(taskId);
         
@@ -328,39 +304,32 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
         taskEventSupport.fireAfterTaskUpdated(task, context);
     }
 
-    @Override
     public void skip(long taskId, String userId) {
         lifeCycleManager.taskOperation(Operation.Skip, taskId, userId, null, null, toGroups(null));
     }
 
-    @Override
     public void start(long taskId, String userId) {
         lifeCycleManager.taskOperation(Operation.Start, taskId, userId, null, null, toGroups(null));
     }
 
-    @Override
     public void stop(long taskId, String userId) {
         lifeCycleManager.taskOperation(Operation.Stop, taskId, userId, null, null, toGroups(null));
     }
 
-    @Override
     public void suspend(long taskId, String userId) {
         lifeCycleManager.taskOperation(Operation.Suspend, taskId, userId, null, null, toGroups(null));
     }
 
-    @Override
     public void nominate(long taskId, String userId, List<OrganizationalEntity> potentialOwners) {      
         lifeCycleManager.taskOperation(Operation.Nominate, taskId, userId, null, null, toGroups(null), 
         		potentialOwners.toArray(new OrganizationalEntity[potentialOwners.size()]));
     }
 
-    @Override
     public void setSubTaskStrategy(long taskId, SubTasksStrategy strategy) {
         Task task = persistenceContext.findTask(taskId);
         ((InternalTask) task).setSubTaskStrategy(strategy);
     }
 
-    @Override
     public void setExpirationDate(long taskId, Date date) {
         Task task = persistenceContext.findTask(taskId);
         
@@ -371,7 +340,6 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
         taskEventSupport.fireAfterTaskUpdated(task, context);
     }
 
-    @Override
     public void setDescriptions(long taskId, List<I18NText> inputDescriptions) {
         Task task = persistenceContext.findTask(taskId);
         
@@ -390,43 +358,36 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
         taskEventSupport.fireAfterTaskUpdated(task, context);
     }
 
-    @Override
     public void setSkipable(long taskId, boolean skipable) {
         Task task = persistenceContext.findTask(taskId);
         ((InternalTaskData) task.getTaskData()).setSkipable(skipable);
     }
 
-    @Override
     public int getPriority(long taskId) {
         Task task = persistenceContext.findTask(taskId);
         return task.getPriority();
     }
 
-    @Override
     public Date getExpirationDate(long taskId) {
         Task task = persistenceContext.findTask(taskId);
         return task.getTaskData().getExpirationTime();
     }
 
-    @Override
     public List<I18NText> getDescriptions(long taskId) {
         Task task = persistenceContext.findTask(taskId);
-        return task.getDescriptions();
+        return (List<I18NText>) task.getDescriptions();
     }
 
-    @Override
     public boolean isSkipable(long taskId) {
         Task task = persistenceContext.findTask(taskId);
         return task.getTaskData().isSkipable();
     }
 
-    @Override
     public SubTasksStrategy getSubTaskStrategy(long taskId) {
         Task task = persistenceContext.findTask(taskId);
         return ((InternalTask) task).getSubTaskStrategy();
     }
     
-    @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
 	public <T> T execute(Command<T> command) {
         return (T) ((TaskCommand) command).execute( new TaskContext() );
@@ -454,7 +415,7 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
     public long addOutputContentFromUser( long taskId, String userId, Map<String, Object> params ) {
         // check permissions
         this.lifeCycleManager.taskOperation(Operation.Modify, taskId, userId, null, null, toGroups(null));
-        return new TaskContentServiceImpl(context, this.persistenceContext, taskEventSupport, userId).addOutputContent(taskId, params);
+        return new TaskContentServiceImpl(context, this.persistenceContext, taskEventSupport).addOutputContent(taskId, params);
     }
 
     @Override

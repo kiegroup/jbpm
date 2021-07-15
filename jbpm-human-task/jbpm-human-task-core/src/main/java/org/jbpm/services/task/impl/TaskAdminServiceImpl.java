@@ -44,21 +44,18 @@ public class TaskAdminServiceImpl implements TaskAdminService {
     private static final Logger logger = LoggerFactory.getLogger(TaskAdminServiceImpl.class);
     
     private TaskPersistenceContext persistenceContext;
-    private String userId;
 
     public TaskAdminServiceImpl() {
     }
 
-    public TaskAdminServiceImpl(TaskPersistenceContext persistenceContext, String userId) {
-        this.persistenceContext = persistenceContext;
-        this.userId = userId;
+    public TaskAdminServiceImpl(TaskPersistenceContext persistenceContext) {
+    	this.persistenceContext = persistenceContext;
     }
     
     public void setPersistenceContext(TaskPersistenceContext persistenceContext) {
         this.persistenceContext = persistenceContext;
     }
 
-    @Override
     public List<TaskSummary> getActiveTasks() {
         HashMap<String, Object> params = persistenceContext.addParametersToMap(
                 "status", Arrays.asList(Status.InProgress));
@@ -67,7 +64,6 @@ public class TaskAdminServiceImpl implements TaskAdminService {
                 ClassUtil.<List<TaskSummary>>castClass(List.class));
     }
 
-    @Override
     public List<TaskSummary> getActiveTasks(Date since) {
         HashMap<String, Object> params = persistenceContext.addParametersToMap(
                 "status", Arrays.asList(Status.InProgress),
@@ -77,7 +73,6 @@ public class TaskAdminServiceImpl implements TaskAdminService {
                 ClassUtil.<List<TaskSummary>>castClass(List.class));
     }
 
-    @Override
     public List<TaskSummary> getCompletedTasks() {
         HashMap<String, Object> params = persistenceContext.addParametersToMap(
                 "status", Arrays.asList(Status.Completed));
@@ -86,7 +81,6 @@ public class TaskAdminServiceImpl implements TaskAdminService {
                 ClassUtil.<List<TaskSummary>>castClass(List.class));
     }
 
-    @Override
     public List<TaskSummary> getCompletedTasks(Date since) {
         HashMap<String, Object> params = persistenceContext.addParametersToMap(
                 "status", Arrays.asList(Status.Completed),
@@ -96,7 +90,6 @@ public class TaskAdminServiceImpl implements TaskAdminService {
                 ClassUtil.<List<TaskSummary>>castClass(List.class));
     }
 
-    @Override
     public List<TaskSummary> getCompletedTasksByProcessId(Long processId) {
         HashMap<String, Object> params = persistenceContext.addParametersToMap(
                 "status", Arrays.asList(Status.Completed),
@@ -106,7 +99,6 @@ public class TaskAdminServiceImpl implements TaskAdminService {
                 ClassUtil.<List<TaskSummary>>castClass(List.class));
     }
 
-    @Override
     public int archiveTasks(List<TaskSummary> tasks) {
         int archivedTasks = 0;
         for (TaskSummary sum : tasks) {
@@ -121,14 +113,12 @@ public class TaskAdminServiceImpl implements TaskAdminService {
         return archivedTasks;
     }
 
-    @Override
     public List<TaskSummary> getArchivedTasks() {
         HashMap<String, Object> params = new HashMap<String, Object>();
         return persistenceContext.queryWithParametersInTransaction("ArchivedTasks", params,
                 ClassUtil.<List<TaskSummary>>castClass(List.class));
     }
 
-    @Override
     public int removeTasks(List<TaskSummary> tasks) {
         int removedTasks = 0;
 
@@ -157,7 +147,6 @@ public class TaskAdminServiceImpl implements TaskAdminService {
         return removedTasks;
     }
 
-    @Override
     public int removeAllTasks() {
         List<Task> tasks = persistenceContext.queryInTransaction("GetAllTasks", 
                 ClassUtil.<List<Task>>castClass(List.class));

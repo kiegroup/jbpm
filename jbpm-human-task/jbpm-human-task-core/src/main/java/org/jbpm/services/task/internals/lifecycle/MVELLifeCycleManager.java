@@ -190,15 +190,15 @@ public class MVELLifeCycleManager implements LifeCycleManager {
                     break;
                 }
                 case PotentialOwner: {
-                	operationAllowed = !isExcludedOwner && isAllowed(user, groupIds, task.getPeopleAssignments().getPotentialOwners());
+                	operationAllowed = !isExcludedOwner && isAllowed(user, groupIds, (List<OrganizationalEntity>) task.getPeopleAssignments().getPotentialOwners());
                     break;
                 }
                 case BusinessAdministrator: {
-                    operationAllowed = isAllowed(user, groupIds, task.getPeopleAssignments().getBusinessAdministrators());
+                    operationAllowed = isAllowed(user, groupIds, (List<OrganizationalEntity>) task.getPeopleAssignments().getBusinessAdministrators());
                     break;
                 }
                 case TaskStakeholders: {
-                    operationAllowed = !isExcludedOwner && isAllowed(user, groupIds, ((InternalPeopleAssignments) task.getPeopleAssignments()).getTaskStakeholders());
+                    operationAllowed = !isExcludedOwner && isAllowed(user, groupIds, (List<OrganizationalEntity>) ((InternalPeopleAssignments) task.getPeopleAssignments()).getTaskStakeholders());
                     break;
                 }
                 case Anyone: {
@@ -287,7 +287,6 @@ public class MVELLifeCycleManager implements LifeCycleManager {
     }
     
 
-    @Override
     public void taskOperation(final Operation operation, final long taskId, final String userId,
             final String targetEntityId, final Map<String, Object> data,
             List<String> groupIds, OrganizationalEntity...entities) throws TaskException {
@@ -391,7 +390,7 @@ public class MVELLifeCycleManager implements LifeCycleManager {
             }
             
             evalCommand(operation, commands, task, user, targetEntity, groupIds, entities);
-
+            
             persistenceContext.updateTask(task);
 
             switch (operation) {
@@ -471,7 +470,6 @@ public class MVELLifeCycleManager implements LifeCycleManager {
 
 
     }
-
 
     protected void invokeAssignmentService(Task taskImpl, TaskContext context, String excludedUser) {
         // use assignment service to directly assign actual owner if enabled
