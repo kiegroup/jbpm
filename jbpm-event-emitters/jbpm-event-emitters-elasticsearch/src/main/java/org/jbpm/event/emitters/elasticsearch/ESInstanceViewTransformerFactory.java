@@ -22,5 +22,5 @@ public interface ESInstanceViewTransformerFactory {
     
     void configureObjectMapper (ObjectMapper mapper);
     
-    ESInstanceViewTransformer getInstanceViewTransfomer (InstanceView<?> view);
+    ESInstanceViewTransformer getInstanceViewTransformer (InstanceView<?> view);
 }

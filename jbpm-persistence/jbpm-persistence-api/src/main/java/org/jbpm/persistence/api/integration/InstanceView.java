@@ -40,5 +40,8 @@ public interface InstanceView<T> extends Serializable {
      */
     void copyFromSource();
     
+    /** Returns the id of the view. 
+     *   Might be used by implementors to determine if two views are representations of the same underlying object
+     */
     String getCompositeId();
 }

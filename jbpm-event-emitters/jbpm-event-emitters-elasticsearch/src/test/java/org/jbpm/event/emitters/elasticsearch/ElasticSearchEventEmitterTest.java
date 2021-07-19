@@ -22,6 +22,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -52,17 +53,20 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.kie.api.runtime.process.CaseAssignment;
 import org.kie.api.runtime.process.CaseData;
+import org.kie.api.task.TaskContext;
+import org.kie.api.task.TaskEvent;
+import org.kie.api.task.TaskLifeCycleEventListener.AssignmentType;
 import org.kie.api.task.model.Status;
 import org.kie.api.task.model.Task;
 import org.kie.api.task.model.User;
-import org.kie.internal.task.api.TaskOperationInfo;
-import org.kie.internal.task.api.TaskOperationType;
 import org.kie.internal.task.api.model.InternalPeopleAssignments;
 import org.kie.internal.task.api.model.InternalTaskData;
+import org.kie.internal.task.api.model.TaskEvent.TaskEventType;
 import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class ElasticSearchEventEmitterTest {
@@ -241,10 +245,18 @@ public class ElasticSearchEventEmitterTest {
         
         String expectedResult = read(this.getClass().getResourceAsStream("/testTaskInstanceThroughEmitter.json"));
         
-        Task taskInstance = Mockito.mock(Task.class);
+        Task taskInstance = mock(Task.class);
+        TaskEvent taskEvent = mock(TaskEvent.class);
+        TaskContext taskContext = mock(TaskContext.class);
+        
+        when(taskEvent.getTask()).thenReturn(taskInstance);
+        when(taskEvent.getTaskContext()).thenReturn(taskContext);
+        when(taskEvent.getEventDate()).thenReturn(getDate());
+        when(taskContext.getUserId()).thenReturn("pepe");
+        
         InternalTaskData taskData = Mockito.mock(InternalTaskData.class);
-        User user = Mockito.mock(User.class);
-        InternalPeopleAssignments peopleAssignments = Mockito.mock(InternalPeopleAssignments.class);
+        User user = mock(User.class);
+        InternalPeopleAssignments peopleAssignments = mock(InternalPeopleAssignments.class);
         
         when(peopleAssignments.getBusinessAdministrators()).thenReturn(Collections.emptyList());
         when(peopleAssignments.getExcludedOwners()).thenReturn(Collections.emptyList());
@@ -290,7 +302,7 @@ public class ElasticSearchEventEmitterTest {
         TaskInstanceView instanceView = new TaskInstanceView(taskInstance);
         instanceView.copyFromSource();
         
-        TaskOperationView operationView = new TaskOperationView (TaskOperationInfo.forUpdate(taskInstance, "pepe" , TaskOperationType.SUSPEND, "rafael"));
+        TaskOperationView operationView = new TaskOperationView (taskEvent, TaskEventType.UPDATED, AssignmentType.POT_OWNER);
         operationView.copyFromSource();
         
         views.add(instanceView);
@@ -315,6 +327,12 @@ public class ElasticSearchEventEmitterTest {
         assertThat(responseCollector.get(0)).isEqualToNormalizingNewlines(expectedResult);
     }
     
+    private Date getDate() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(2021,1,1);
+        return calendar.getTime();
+    }
+
     @Test
     public void testTaskInstanceThroughEmitterIgnoreNull() throws Exception {
 
@@ -368,7 +386,6 @@ public class ElasticSearchEventEmitterTest {
             when(taskInstance.getName()).thenReturn("Simple Task");
             when(taskInstance.getSubject()).thenReturn("empty");
             when(taskInstance.getPriority()).thenReturn(5);
-            when(taskInstance.getTaskType()).thenReturn("");
             when(taskInstance.getTaskData()).thenReturn(taskData);
 
             List<InstanceView<?>> views = new ArrayList<>();

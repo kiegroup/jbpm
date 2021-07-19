@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2021 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 package org.jbpm.persistence.api.integration.model;
 
+import java.util.Date;
+
 import org.jbpm.persistence.api.integration.InstanceView;
 import org.kie.api.task.TaskEvent;
 import org.kie.api.task.TaskLifeCycleEventListener.AssignmentType;
@@ -29,19 +31,15 @@ public class TaskOperationView implements InstanceView<TaskEvent> {
     private String compositeId;
     private TaskEventType type;
     private AssignmentType assignType;
+    private Date date;
     private String userId;
     
-    public TaskOperationView(TaskEvent taskOperation, TaskEventType type) {
-        this (taskOperation, type, null);
-    }
-    
-    public TaskOperationView(TaskEvent taskOperation, TaskEventType type, AssignmentType assignType) {
-        this.source = taskOperation;
+    public TaskOperationView(TaskEvent taskEvent, TaskEventType type, AssignmentType assignType) {
+        this.source = taskEvent;
         this.type = type;
         this.assignType = assignType;
     }
 
-  
     public TaskEventType getType() {
         return type;
     }
@@ -53,11 +51,16 @@ public class TaskOperationView implements InstanceView<TaskEvent> {
     public String getUserId() {
         return userId;
     }
+    
+    public Date getDate () {
+        return date;
+    }
 
     @Override
     public void copyFromSource() {
         this.compositeId = System.getProperty("org.kie.server.id", "") + '_' + source.getTask().getId();
         this.userId = source.getTaskContext().getUserId();
+        this.date = source.getEventDate();
     }
 
     @Override
@@ -69,4 +72,11 @@ public class TaskOperationView implements InstanceView<TaskEvent> {
     public String getCompositeId() {
        return compositeId;
     }
+
+    @Override
+    public String toString() {
+        return "TaskOperationView [compositeId=" + compositeId + ", type=" + type + ", assignType=" + assignType +
+               ", date=" + date + ", userId=" + userId + "]";
+    }
+
 }

@@ -32,9 +32,9 @@ import org.jbpm.persistence.api.integration.model.TaskOperationView;
 
 public class DefaultESInstanceViewTransformerFactory implements ESInstanceViewTransformerFactory{
     
-    private String dateFormatStr = System.getProperty("org.jbpm.event.emitters.elasticsearch.date_format", System
+    private final String dateFormatStr = System.getProperty("org.jbpm.event.emitters.elasticsearch.date_format", System
             .getProperty("org.kie.server.json.date_format", "yyyy-MM-dd'T'HH:mm:ss.SSSZ"));
-    private boolean ignoreNull = Boolean.getBoolean("org.jbpm.event.emitters.elasticsearch.ignoreNull");
+    private final boolean ignoreNull = Boolean.getBoolean("org.jbpm.event.emitters.elasticsearch.ignoreNull");
     
     protected Map<Class<?>, ESInstanceViewTransformer> viewMapping = new ConcurrentHashMap<>();
      
@@ -57,7 +57,7 @@ public class DefaultESInstanceViewTransformerFactory implements ESInstanceViewTr
     }
 
     @Override
-    public ESInstanceViewTransformer getInstanceViewTransfomer(InstanceView<?> view) {
+    public ESInstanceViewTransformer getInstanceViewTransformer(InstanceView<?> view) {
         return viewMapping.get(view.getClass());
     }
 

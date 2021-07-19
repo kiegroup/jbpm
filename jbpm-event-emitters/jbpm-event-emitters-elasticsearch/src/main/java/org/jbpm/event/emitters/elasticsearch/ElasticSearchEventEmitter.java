@@ -77,7 +77,7 @@ public class ElasticSearchEventEmitter implements EventEmitter {
                 factory = Class.forName(className).asSubclass(ESInstanceViewTransformerFactory.class).getConstructor().newInstance();
             }
             catch (ReflectiveOperationException | ClassCastException ex) {
-                logger.warn ("Error intializing configured factory "+className+ " using default",ex);
+                logger.warn ("Error initializing configured factory "+className+ " using default",ex);
             }
         }
         return factory != null ? factory : new DefaultESInstanceViewTransformerFactory();
@@ -116,7 +116,7 @@ public class ElasticSearchEventEmitter implements EventEmitter {
             Set<String> visitedIds = new HashSet<>();
             for (InstanceView<?> view : data) {
                 try {
-                    ESInstanceViewTransformer instanceView = factory.getInstanceViewTransfomer(view);
+                    ESInstanceViewTransformer instanceView = factory.getInstanceViewTransformer(view);
                     if (instanceView == null) {
                         logger.warn("Unsupported view {} ", view.getClass());
                         continue;
