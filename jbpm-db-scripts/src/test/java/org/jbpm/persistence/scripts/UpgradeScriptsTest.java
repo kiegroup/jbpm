@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.text.ParseException;
-import java.util.Arrays;
 import java.util.Collection;
 
 import org.jbpm.test.persistence.scripts.DatabaseType;
@@ -39,9 +38,13 @@ import org.kie.internal.runtime.StatefulKnowledgeSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static java.util.Arrays.asList;
 import static org.jbpm.persistence.scripts.TestPersistenceContext.createAndInitContext;
 import static org.jbpm.test.persistence.scripts.DatabaseType.DB2;
 import static org.jbpm.test.persistence.scripts.DatabaseType.SYBASE;
+import static org.jbpm.test.persistence.scripts.util.ScriptFilter.filter;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assume.assumeTrue;
 
 /**
@@ -59,7 +62,7 @@ public class UpgradeScriptsTest extends ScriptsBase {
 
     @Parameters(name = "{0}")
     static public Collection<Object> distributionTypes() {
-        return Arrays.asList(DistributionType.COMMUNITY, DistributionType.PRODUCT);
+        return asList(DistributionType.COMMUNITY, DistributionType.PRODUCT);
     }
 
     private DistributionType distributionType;
@@ -105,11 +108,39 @@ public class UpgradeScriptsTest extends ScriptsBase {
         }
     }
 
+    /**
+     * Tests that DB schema is upgraded properly using database task_assigning_tables upgrade scripts.
+     * @throws IOException
+     * @throws SQLException
+     */
+    @Test
+    public void testTaskAssigningScripts() throws IOException, SQLException {
+        logger.info("entering testTaskAssigningScripts with type: {} ", distributionType);
+        try {
+            createSchema60UsingDDLs();
+            // We need to create optional table "PlanningTask" beforehand
+            ScriptFilter taskAssigningTable = filter("task_assigning_tables_")
+                                                .not("drop")
+                                                .setOptions(ScriptFilter.Option.DISALLOW_EMPTY_RESULTS, ScriptFilter.Option.THROW_ON_SCRIPT_ERROR);
+            executeScriptRunner(DB_DDL_SCRIPTS_RESOURCE_PATH, taskAssigningTable);
+            executeScriptRunner(DB_UPGRADE_SCRIPTS_RESOURCE_PATH, ScriptFilter.init(false, true).setDistribution(distributionType));
+            ScriptFilter scriptFilter = filter("task_assigning_tables.sql").
+                                        setDistribution(distributionType).
+                                        setOptions(ScriptFilter.Option.THROW_ON_SCRIPT_ERROR);
+            executeScriptRunner(DB_UPGRADE_SCRIPTS_RESOURCE_PATH, scriptFilter);
+            startAndPersistSomeProcess();
+        } finally {
+            dropFinalSchemaAfterUpgradingUsingDDLs();
+            // Drop optional table "PlanningTask" if exists
+            executeScriptRunner(DB_DDL_SCRIPTS_RESOURCE_PATH, filter("task_assigning_tables_drop_"));
+        }
+    }
+
     private void startAndPersistSomeProcess() {
         final TestPersistenceContext dbTestingContext = createAndInitContext(PersistenceUnit.DB_TESTING_VALIDATE);
         try {
             dbTestingContext.startAndPersistSomeProcess(TEST_PROCESS_ID);
-            Assert.assertTrue(dbTestingContext.getStoredProcessesCount() == 1);
+            assertEquals(1, dbTestingContext.getStoredProcessesCount());
         } finally {
             dbTestingContext.clean();
         }
@@ -122,8 +153,7 @@ public class UpgradeScriptsTest extends ScriptsBase {
      * @throws SQLException
      */
     @Test
-
-    public void testPersistedProcess() throws IOException, ParseException, SQLException {
+    public void testPersistedProcess() throws IOException, SQLException {
         logger.debug("entering testPersistedProcess with type: {}", distributionType);
         try {
             createSchema60UsingDDLs();
@@ -151,29 +181,29 @@ public class UpgradeScriptsTest extends ScriptsBase {
         final TestPersistenceContext dbTestingContext = new TestPersistenceContext();
         dbTestingContext.init(PersistenceUnit.DB_TESTING_VALIDATE);
         try {
-            Assert.assertTrue(dbTestingContext.getStoredProcessesCount() == 1);
-            Assert.assertTrue(dbTestingContext.getStoredSessionsCount() == 1);
+            assertEquals(1, dbTestingContext.getStoredProcessesCount());
+            assertEquals(1, dbTestingContext.getStoredSessionsCount());
 
             final StatefulKnowledgeSession persistedSession = dbTestingContext.loadPersistedSession(
                     TEST_SESSION_ID.longValue(), TEST_PROCESS_ID);
-            Assert.assertNotNull(persistedSession);
+            assertNotNull(persistedSession);
 
             // Start another process.
             persistedSession.startProcess(TEST_PROCESS_ID);
-            Assert.assertTrue(dbTestingContext.getStoredProcessesCount() == 2);
+            assertEquals(2, dbTestingContext.getStoredProcessesCount());
 
             // Load old process instance.
             ProcessInstance processInstance = persistedSession.getProcessInstance(TEST_PROCESS_INSTANCE_ID);
-            Assert.assertNotNull(processInstance);
+            assertNotNull(processInstance);
 
             persistedSession.signalEvent("test", null);
             processInstance = persistedSession.getProcessInstance(TEST_PROCESS_INSTANCE_ID);
             Assert.assertNull(processInstance);
-            Assert.assertTrue(dbTestingContext.getStoredProcessesCount() == 0);
+            assertEquals(0, dbTestingContext.getStoredProcessesCount());
 
             persistedSession.dispose();
             persistedSession.destroy();
-            Assert.assertTrue(dbTestingContext.getStoredSessionsCount() == 0);
+            assertEquals(0, dbTestingContext.getStoredSessionsCount());
         } finally {
             dbTestingContext.clean();
         }
