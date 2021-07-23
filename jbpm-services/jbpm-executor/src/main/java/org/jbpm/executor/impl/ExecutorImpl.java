@@ -51,8 +51,8 @@ import org.jbpm.executor.entities.RequestInfo;
 import org.jbpm.executor.impl.concurrent.LoadAndScheduleRequestsTask;
 import org.jbpm.executor.impl.concurrent.PrioritisedScheduledThreadPoolExecutor;
 import org.jbpm.executor.impl.concurrent.ScheduleTaskTransactionSynchronization;
-import org.jbpm.executor.impl.event.ExecutorEventSupportImpl;
 import org.jbpm.executor.impl.event.ExecutorEventSupport;
+import org.jbpm.executor.impl.event.ExecutorEventSupportImpl;
 import org.kie.api.executor.CommandContext;
 import org.kie.api.executor.ExecutorStoreService;
 import org.kie.api.executor.STATUS;
@@ -99,6 +99,7 @@ public class ExecutorImpl implements Executor {
     private int retries = Integer.parseInt(System.getProperty("org.kie.executor.retry.count", "3"));
     private int interval = Integer.parseInt(System.getProperty("org.kie.executor.interval", "0"));
     private TimeUnit timeunit = TimeUnit.valueOf(System.getProperty("org.kie.executor.timeunit", "SECONDS"));
+    private boolean jobIdInHeader = Boolean.getBoolean("org.kie.executor.jms.jobHeader");
 
     // jms related instances
     private boolean useJMS = Boolean.parseBoolean(System.getProperty("org.kie.executor.jms", "true"));
@@ -520,6 +521,9 @@ public class ExecutorImpl implements Executor {
             queueSession = queueConnection.createSession(transacted, Session.AUTO_ACKNOWLEDGE);
 
             TextMessage message = queueSession.createTextMessage(messageBody);
+            if (jobIdInHeader) {
+                message.setStringProperty("jobId", messageBody);
+            }
             producer = queueSession.createProducer(queue);
             producer.setPriority(priority);
 
