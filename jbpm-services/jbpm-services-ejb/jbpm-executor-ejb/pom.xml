@@ -69,22 +69,22 @@
     </dependency>
 
     <dependency>
-      <groupId>javax.persistence</groupId>
-      <artifactId>javax.persistence-api</artifactId>
+      <groupId>jakarta.persistence</groupId>
+      <artifactId>jakarta.persistence-api</artifactId>
       <optional>true</optional>
     </dependency>
 
     <dependency>
-      <groupId>org.jboss.spec.javax.el</groupId>
-      <artifactId>jboss-el-api_3.0_spec</artifactId>
+      <groupId>jakarta.el</groupId>
+      <artifactId>jakarta.el-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>javax.inject</groupId>
-      <artifactId>javax.inject</artifactId>
+      <groupId>jakarta.inject</groupId>
+      <artifactId>jakarta.inject-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>javax.enterprise</groupId>
-      <artifactId>cdi-api</artifactId>
+      <groupId>jakarta.enterprise</groupId>
+      <artifactId>jakarta.enterprise.cdi-api</artifactId>
       <exclusions>
         <exclusion>
           <groupId>javax.el</groupId>
@@ -97,15 +97,15 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.jboss.spec.javax.ejb</groupId>
-      <artifactId>jboss-ejb-api_3.2_spec</artifactId>
+      <groupId>jakarta.ejb</groupId>
+      <artifactId>jakarta.ejb-api</artifactId>
       <scope>provided</scope>
     </dependency>
 
     <!-- support for JMS based executor -->
     <dependency>
-      <groupId>org.jboss.spec.javax.jms</groupId>
-      <artifactId>jboss-jms-api_2.0_spec</artifactId>
+      <groupId>jakarta.jms</groupId>
+      <artifactId>jakarta.jms-api</artifactId>
       <scope>provided</scope>
     </dependency>
 
@@ -162,8 +162,8 @@
       <optional>true</optional>
       <exclusions>
         <exclusion>
-           <groupId>javax.activation</groupId>
-           <artifactId>javax.activation-api</artifactId> 
+           <groupId>jakarta.activation</groupId>
+           <artifactId>jakarta.activation-api</artifactId> 
         </exclusion>
       </exclusions>
     </dependency>

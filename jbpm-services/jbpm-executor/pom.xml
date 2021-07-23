@@ -53,8 +53,8 @@
     </dependency>
 
     <dependency>
-      <groupId>javax.persistence</groupId>
-      <artifactId>javax.persistence-api</artifactId>
+      <groupId>jakarta.persistence</groupId>
+      <artifactId>jakarta.persistence-api</artifactId>
       <optional>true</optional>
     </dependency>
 
@@ -65,7 +65,7 @@
       <optional>true</optional>
       <scope>provided</scope>
       <exclusions>
-        <!-- collides with javax.activation:javax.activation-api:jar:1.2.0:compile  -->
+        <!-- collides with jakarta.activation:jakarta.activation-api:jar:1.2.0:compile  -->
         <exclusion>
           <groupId>jakarta.activation</groupId>
           <artifactId>jakarta.activation-api</artifactId>
@@ -113,13 +113,13 @@
     
     <!-- support for JMS based executor -->
     <dependency>
-      <groupId>org.jboss.spec.javax.jms</groupId>
-      <artifactId>jboss-jms-api_2.0_spec</artifactId>
+      <groupId>jakarta.jms</groupId>
+      <artifactId>jakarta.jms-api</artifactId>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.jboss.spec.javax.xml.bind</groupId>
-      <artifactId>jboss-jaxb-api_2.3_spec</artifactId>
+      <groupId>jakarta.xml.bind</groupId>
+      <artifactId>jakarta.xml.bind-api</artifactId>
       <scope>provided</scope>
     </dependency>
 
@@ -149,8 +149,8 @@
       <scope>test</scope>
       <exclusions>
         <exclusion>
-           <groupId>javax.activation</groupId>
-           <artifactId>javax.activation-api</artifactId> 
+           <groupId>jakarta.activation</groupId>
+           <artifactId>jakarta.activation-api</artifactId> 
         </exclusion>
       </exclusions>
     </dependency>
@@ -176,8 +176,8 @@
       <optional>true</optional>
       <exclusions>
         <exclusion>
-          <groupId>javax.enterprise</groupId>
-          <artifactId>cdi-api</artifactId>
+          <groupId>jakarta.enterprise</groupId>
+          <artifactId>jakarta.enterprise.cdi-api</artifactId>
         </exclusion>
       </exclusions>
 
@@ -198,7 +198,7 @@
           <artifactId>netty</artifactId>
         </exclusion>
         <exclusion>
-          <groupId>org.jboss.spec.javax.transaction</groupId>
+          <groupId>jakarta.transaction</groupId>
           <artifactId>jboss-transaction-api_1.1_spec</artifactId>
         </exclusion>
       </exclusions>
@@ -226,7 +226,7 @@
       <scope>test</scope>
       <exclusions>
         <exclusion>
-          <groupId>org.jboss.spec.javax.transaction</groupId>
+          <groupId>jakarta.transaction</groupId>
           <artifactId>jboss-transaction-api_1.1_spec</artifactId>
         </exclusion>
       </exclusions>

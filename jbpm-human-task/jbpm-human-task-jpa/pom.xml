@@ -37,8 +37,8 @@
       <artifactId>jbpm-query-jpa</artifactId>
     </dependency>
     <dependency>
-      <groupId>javax.persistence</groupId>
-      <artifactId>javax.persistence-api</artifactId>
+      <groupId>jakarta.persistence</groupId>
+      <artifactId>jakarta.persistence-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.kie</groupId>
@@ -72,7 +72,7 @@
       <optional>true</optional>
       <scope>provided</scope>
       <exclusions>
-        <!-- collides with javax.activation:javax.activation-api:jar:1.2.0:compile  -->
+        <!-- collides with jakarta.activation:jakarta.activation-api:jar:1.2.0:compile  -->
         <exclusion>
           <groupId>jakarta.activation</groupId>
           <artifactId>jakarta.activation-api</artifactId>
@@ -90,13 +90,13 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.jboss.spec.javax.xml.bind</groupId>
-      <artifactId>jboss-jaxb-api_2.3_spec</artifactId>
+      <groupId>jakarta.xml.bind</groupId>
+      <artifactId>jakarta.xml.bind-api</artifactId>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.jboss.spec.javax.annotation</groupId>
-      <artifactId>jboss-annotations-api_1.2_spec</artifactId>
+      <groupId>jakarta.annotation</groupId>
+      <artifactId>jakarta.annotation-api</artifactId>
       <scope>provided</scope>
     </dependency>
   </dependencies>

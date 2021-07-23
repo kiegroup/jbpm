@@ -77,6 +77,10 @@
   </dependencyManagement>
 
   <dependencies>
+    <dependency>
+      <groupId>jakarta.ws.rs</groupId>
+      <artifactId>jakarta.ws.rs-api</artifactId>
+    </dependency>
     <!-- This is an artificial dependency to make sure the jbpm-container-test modules are executed one at a time during
          parallel build (otherwise the tests fail because of conflicting port binding) -->
     <dependency>
@@ -267,15 +271,15 @@
       <artifactId>hibernate-entitymanager</artifactId>
       <exclusions>
         <exclusion>
-          <groupId>javax.activation</groupId>
-          <artifactId>javax.activation-api</artifactId>
+          <groupId>jakarta.activation</groupId>
+          <artifactId>jakarta.activation-api</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
 
     <dependency>
-      <groupId>javax.persistence</groupId>
-      <artifactId>javax.persistence-api</artifactId>
+      <groupId>jakarta.persistence</groupId>
+      <artifactId>jakarta.persistence-api</artifactId>
     </dependency>
 
     <!--H2 for Cargo plugin-->
@@ -287,8 +291,8 @@
 
     <!-- EJB -->
     <dependency>
-      <groupId>org.jboss.spec.javax.ejb</groupId>
-      <artifactId>jboss-ejb-api_3.2_spec</artifactId>
+      <groupId>jakarta.ejb</groupId>
+      <artifactId>jakarta.ejb-api</artifactId>
     </dependency>
 
     <!-- In-memory web containers for WebService and REST WIH testing -->
@@ -313,23 +317,23 @@
           <artifactId>jcip-annotations</artifactId>
         </exclusion>
         <exclusion>
-          <groupId>javax.activation</groupId>
-          <artifactId>activation</artifactId>
+          <groupId>jakarta.activation</groupId>
+          <artifactId>jakarta.activation-api</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
 
     <dependency>
-      <groupId>org.jboss.spec.javax.xml.ws</groupId>
-      <artifactId>jboss-jaxws-api_2.3_spec</artifactId>
+      <groupId>jakarta.xml.ws</groupId>
+      <artifactId>jakarta.xml.ws-api</artifactId>
     </dependency>
     <dependency>
       <groupId>javax.jws</groupId>
       <artifactId>javax.jws-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>javax.activation</groupId>
-      <artifactId>activation</artifactId>
+      <groupId>jakarta.activation</groupId>
+      <artifactId>jakarta.activation-api</artifactId>
     </dependency>
 
     <dependency>
@@ -383,7 +387,7 @@
         </plugin>
         <plugin>
           <groupId>org.codehaus.cargo</groupId>
-          <artifactId>cargo-maven2-plugin</artifactId>
+          <artifactId>cargo-maven3-plugin</artifactId>
           <configuration>
             <container>
               <containerId>${container.id}</containerId>
@@ -477,7 +481,7 @@
     <plugins>
       <plugin>
         <groupId>org.codehaus.cargo</groupId>
-        <artifactId>cargo-maven2-plugin</artifactId>
+        <artifactId>cargo-maven3-plugin</artifactId>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -507,7 +511,7 @@
           <plugins>
             <plugin>
               <groupId>org.codehaus.cargo</groupId>
-              <artifactId>cargo-maven2-plugin</artifactId>
+              <artifactId>cargo-maven3-plugin</artifactId>
               <configuration>
                 <container>
                   <type>installed</type>
@@ -536,7 +540,7 @@
           <plugins>
             <plugin>
               <groupId>org.codehaus.cargo</groupId>
-              <artifactId>cargo-maven2-plugin</artifactId>
+              <artifactId>cargo-maven3-plugin</artifactId>
               <configuration>
                 <container>
                   <type>installed</type>

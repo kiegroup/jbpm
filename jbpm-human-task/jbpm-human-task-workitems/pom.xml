@@ -79,8 +79,8 @@
       <scope>test</scope>
       <exclusions>
         <exclusion>
-           <groupId>javax.activation</groupId>
-           <artifactId>javax.activation-api</artifactId> 
+           <groupId>jakarta.activation</groupId>
+           <artifactId>jakarta.activation-api</artifactId> 
         </exclusion>
       </exclusions>
     </dependency>
@@ -91,8 +91,8 @@
     </dependency>
     <!-- javax.el required by hibernate-validator -->
     <dependency>
-      <groupId>org.jboss.spec.javax.el</groupId>
-      <artifactId>jboss-el-api_3.0_spec</artifactId>
+      <groupId>jakarta.el</groupId>
+      <artifactId>jakarta.el-api</artifactId>
       <scope>test</scope>
     </dependency>
 
