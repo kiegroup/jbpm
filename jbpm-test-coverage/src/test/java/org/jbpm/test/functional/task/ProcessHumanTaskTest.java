@@ -281,7 +281,7 @@ public class ProcessHumanTaskTest extends JbpmTestCase {
                                         .filter(instanceView -> instanceView instanceof TaskInstanceView)
                                         .collect(Collectors.toList());
 
-        assertEquals(3, events.size());
+        assertEquals(9, events.size());
         assertEquals(1, piEvents.size());
         assertEquals(2, tiEvents.size());
 

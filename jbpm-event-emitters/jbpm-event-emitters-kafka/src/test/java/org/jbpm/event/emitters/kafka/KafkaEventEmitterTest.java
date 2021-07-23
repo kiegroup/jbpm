@@ -169,6 +169,11 @@ public class KafkaEventEmitterTest {
             public void copyFromSource() {
 
             }
+
+            @Override
+            public String getCompositeId() {
+                return null;
+            }
         };
         try (KafkaEventEmitter emitter = new KafkaEventEmitter(producer)) {
             emit(emitter, Collections.singletonList(piView));

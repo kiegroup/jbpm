@@ -111,7 +111,8 @@ public class KafkaEventEmitter implements EventEmitter {
                 processInstanceId = caseInstanceView.getId();
                 processId = caseInstanceView.getCaseDefinitionId();
             } else {
-                throw new UnsupportedOperationException("Unsupported view type " + view.getClass());
+                logger.warn("Unsupported view type {}", view.getClass());
+                continue;
             }
             try {
                 producer.send(new ProducerRecord<>(getTopic(topic), mapper.writeValueAsBytes(

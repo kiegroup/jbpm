@@ -16,16 +16,13 @@
 
 package org.jbpm.event.emitters.elasticsearch;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
-
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -47,6 +44,7 @@ import org.jbpm.persistence.api.integration.InstanceView;
 import org.jbpm.persistence.api.integration.model.CaseInstanceView;
 import org.jbpm.persistence.api.integration.model.ProcessInstanceView;
 import org.jbpm.persistence.api.integration.model.TaskInstanceView;
+import org.jbpm.persistence.api.integration.model.TaskOperationView;
 import org.jbpm.workflow.core.impl.WorkflowProcessImpl;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 import org.junit.AfterClass;
@@ -55,12 +53,21 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.kie.api.runtime.process.CaseAssignment;
 import org.kie.api.runtime.process.CaseData;
+import org.kie.api.task.TaskContext;
+import org.kie.api.task.TaskEvent;
+import org.kie.api.task.TaskLifeCycleEventListener.AssignmentType;
 import org.kie.api.task.model.Status;
 import org.kie.api.task.model.Task;
 import org.kie.api.task.model.User;
 import org.kie.internal.task.api.model.InternalPeopleAssignments;
 import org.kie.internal.task.api.model.InternalTaskData;
+import org.kie.internal.task.api.model.TaskEvent.TaskEventType;
 import org.mockito.Mockito;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ElasticSearchEventEmitterTest {
     
@@ -238,10 +245,18 @@ public class ElasticSearchEventEmitterTest {
         
         String expectedResult = read(this.getClass().getResourceAsStream("/testTaskInstanceThroughEmitter.json"));
         
-        Task taskInstance = Mockito.mock(Task.class);
+        Task taskInstance = mock(Task.class);
+        TaskEvent taskEvent = mock(TaskEvent.class);
+        TaskContext taskContext = mock(TaskContext.class);
+        
+        when(taskEvent.getTask()).thenReturn(taskInstance);
+        when(taskEvent.getTaskContext()).thenReturn(taskContext);
+        when(taskEvent.getEventDate()).thenReturn(getDate());
+        when(taskContext.getUserId()).thenReturn("pepe");
+        
         InternalTaskData taskData = Mockito.mock(InternalTaskData.class);
-        User user = Mockito.mock(User.class);
-        InternalPeopleAssignments peopleAssignments = Mockito.mock(InternalPeopleAssignments.class);
+        User user = mock(User.class);
+        InternalPeopleAssignments peopleAssignments = mock(InternalPeopleAssignments.class);
         
         when(peopleAssignments.getBusinessAdministrators()).thenReturn(Collections.emptyList());
         when(peopleAssignments.getExcludedOwners()).thenReturn(Collections.emptyList());
@@ -287,7 +302,11 @@ public class ElasticSearchEventEmitterTest {
         TaskInstanceView instanceView = new TaskInstanceView(taskInstance);
         instanceView.copyFromSource();
         
+        TaskOperationView operationView = new TaskOperationView (taskEvent, TaskEventType.UPDATED, AssignmentType.POT_OWNER);
+        operationView.copyFromSource();
+        
         views.add(instanceView);
+        views.add(operationView);
         // use latch to wait for async processing of the emitter
         CountDownLatch latch = new CountDownLatch(1);
         ElasticSearchEventEmitter emitter = new ElasticSearchEventEmitter() {
@@ -306,6 +325,96 @@ public class ElasticSearchEventEmitterTest {
         
         assertThat(responseCollector).hasSize(1);        
         assertThat(responseCollector.get(0)).isEqualToNormalizingNewlines(expectedResult);
+    }
+    
+    private Date getDate() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(2021,1,1);
+        return calendar.getTime();
+    }
+
+    @Test
+    public void testTaskInstanceThroughEmitterIgnoreNull() throws Exception {
+
+        System.setProperty("org.jbpm.event.emitters.elasticsearch.ignoreNull", "true");
+        ElasticSearchEventEmitter emitter = null;
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat(dateFormatStr);
+            // sample date must match one set in the expected result file
+            Date sampleDate = sdf.parse("2018-10-23");
+
+            String expectedResult = read(this.getClass().getResourceAsStream("/testTaskInstanceThroughEmitterIgnoreNull.json"));
+
+            Task taskInstance = Mockito.mock(Task.class);
+            InternalTaskData taskData = Mockito.mock(InternalTaskData.class);
+            User user = Mockito.mock(User.class);
+            InternalPeopleAssignments peopleAssignments = Mockito.mock(InternalPeopleAssignments.class);
+
+            when(peopleAssignments.getBusinessAdministrators()).thenReturn(Collections.emptyList());
+            when(peopleAssignments.getExcludedOwners()).thenReturn(Collections.emptyList());
+            when(peopleAssignments.getPotentialOwners()).thenReturn(Collections.emptyList());
+
+            when(user.getId()).thenReturn("john");
+
+            Map<String, Object> variables = new HashMap<>();
+            variables.put("initiator", "john");
+            variables.put("variable", 123);
+
+            Map<String, Object> outputVariables = new HashMap<>();
+            outputVariables.put("outcome", "good work");
+            outputVariables.put("score", 55);
+
+            when(taskData.getActivationTime()).thenReturn(sampleDate);
+            when(taskData.getActualOwner()).thenReturn(user);
+            when(taskData.getDeploymentId()).thenReturn("test");
+            when(taskData.getCreatedBy()).thenReturn(user);
+            when(taskData.getCreatedOn()).thenReturn(sampleDate);
+            when(taskData.getExpirationTime()).thenReturn(sampleDate);
+            when(taskData.getTaskInputVariables()).thenReturn(variables);
+            when(taskData.getTaskOutputVariables()).thenReturn(outputVariables);
+            when(taskData.getParentId()).thenReturn(-1L);
+            when(taskData.getProcessId()).thenReturn("process");
+            when(taskData.getProcessInstanceId()).thenReturn(99L);
+            when(taskData.isSkipable()).thenReturn(true);
+            when(taskData.getStatus()).thenReturn(Status.Reserved);
+            when(taskData.getWorkItemId()).thenReturn(100L);
+
+            when(taskInstance.getId()).thenReturn(44L);
+            when(taskInstance.getPeopleAssignments()).thenReturn(peopleAssignments);
+            when(taskInstance.getDescription()).thenReturn("simple task");
+            when(taskInstance.getFormName()).thenReturn("simpletask");
+            when(taskInstance.getName()).thenReturn("Simple Task");
+            when(taskInstance.getSubject()).thenReturn("empty");
+            when(taskInstance.getPriority()).thenReturn(5);
+            when(taskInstance.getTaskData()).thenReturn(taskData);
+
+            List<InstanceView<?>> views = new ArrayList<>();
+
+            TaskInstanceView instanceView = new TaskInstanceView(taskInstance);
+            instanceView.copyFromSource();
+
+            views.add(instanceView);
+            // use latch to wait for async processing of the emitter
+            CountDownLatch latch = new CountDownLatch(1);
+            emitter = new ElasticSearchEventEmitter() {
+
+                @Override
+                protected ExecutorService buildExecutorService() {
+                    return createExecutor(latch);
+                }
+
+            };
+            emitter.apply(views);
+            latch.await(5, TimeUnit.SECONDS);
+            assertThat(responseCollector).hasSize(1);
+            assertThat(responseCollector.get(0)).isEqualToNormalizingNewlines(expectedResult);
+        } finally {
+            // always close emitter to clean resources
+            if (emitter != null) {
+                emitter.close();
+            }
+            System.clearProperty("org.jbpm.event.emitters.elasticsearch.ignoreNull");
+        }
     }
     
     protected String read(InputStream input) {
