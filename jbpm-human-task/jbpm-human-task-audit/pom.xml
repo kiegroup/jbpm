@@ -43,6 +43,11 @@
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
     </dependency>
+
+    <dependency>
+      <groupId>jakarta.inject</groupId>
+      <artifactId>jakarta.inject-api</artifactId>
+    </dependency>
     
     <!-- jms handling of task audit logs -->
     <dependency>
@@ -157,14 +162,6 @@
       <artifactId>subethasmtp-wiser</artifactId>
       <scope>test</scope>
       <exclusions>
-        <exclusion>
-          <groupId>commons-logging</groupId>
-          <artifactId>commons-logging</artifactId>
-        </exclusion>
-        <exclusion>
-          <artifactId>log4j</artifactId>
-          <groupId>log4j</groupId>
-        </exclusion>
         <exclusion>
           <artifactId>logkit</artifactId>
           <groupId>logkit</groupId>

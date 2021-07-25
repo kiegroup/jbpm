@@ -200,14 +200,6 @@
       <scope>test</scope>
       <exclusions>
         <exclusion>
-          <groupId>commons-logging</groupId>
-          <artifactId>commons-logging</artifactId>
-        </exclusion>
-        <exclusion>
-          <artifactId>log4j</artifactId>
-          <groupId>log4j</groupId>
-        </exclusion>
-        <exclusion>
           <artifactId>logkit</artifactId>
           <groupId>logkit</groupId>
         </exclusion>
