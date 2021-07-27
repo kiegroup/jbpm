@@ -157,8 +157,8 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>javax.xml.soap</groupId>
-      <artifactId>javax.xml.soap-api</artifactId>
+      <groupId>jakarta.xml.soap</groupId>
+      <artifactId>jakarta.xml.soap-api</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -217,6 +217,12 @@
       <groupId>org.jboss.shrinkwrap.resolver</groupId>
       <artifactId>shrinkwrap-resolver-impl-maven</artifactId>
       <scope>runtime</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>javax.inject</groupId>
+          <artifactId>javax.inject</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.jboss.shrinkwrap.resolver</groupId>
@@ -338,8 +344,8 @@
 
     <!-- Webservices Metadata API needed for JDK11+ -->
     <dependency>
-      <groupId>javax.jws</groupId>
-      <artifactId>javax.jws-api</artifactId>
+      <groupId>jakarta.jws</groupId>
+      <artifactId>jakarta.jws-api</artifactId>
       <scope>test</scope>
     </dependency>
 
