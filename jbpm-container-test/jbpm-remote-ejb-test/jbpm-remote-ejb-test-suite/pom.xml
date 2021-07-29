@@ -190,13 +190,6 @@
       <groupId>org.drools</groupId>
       <artifactId>drools-decisiontables</artifactId>
       <scope>provided</scope>
-      <exclusions>
-        <exclusion>
-          <!-- Classes from stax-api are already present in 'xml-apis:xml-apis' dependency -->
-          <groupId>javax.xml.stream</groupId>
-          <artifactId>stax-api</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.drools</groupId>
