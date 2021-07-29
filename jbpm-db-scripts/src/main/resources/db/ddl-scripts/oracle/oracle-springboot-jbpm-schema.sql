@@ -170,6 +170,7 @@ create index IDX_Task_workItemId on Task (workItemId);
 create index IDX_TaskComments_CreatedBy on task_comment (addedBy_id);
 create index IDX_TaskComments_Id on task_comment (TaskData_Comments_Id);
 create index IDX_TaskEvent_taskId on TaskEvent (taskId);
+create index IDX_TaskEvent_processInstanceId on TaskEvent (processInstanceId);
 create index IDX_TaskVariableImpl_taskId on TaskVariableImpl (taskId);
 create index IDX_TaskVariableImpl_pInstId on TaskVariableImpl (processInstanceId);
 create index IDX_TaskVariableImpl_processId on TaskVariableImpl (processId);
