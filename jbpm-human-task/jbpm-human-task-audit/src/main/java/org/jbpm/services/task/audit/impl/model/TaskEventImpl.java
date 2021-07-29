@@ -44,7 +44,7 @@ import org.kie.internal.task.api.model.TaskEvent;
  *
  */
 @Entity
-@Table(name = "TaskEvent", indexes = {@Index(name = "IDX_TaskEvent_taskId", columnList = "taskId")})
+@Table(name = "TaskEvent", indexes = {@Index(name = "IDX_TaskEvent_taskId", columnList = "taskId"), @Index(name = "IDX_AuditTaskImpl_pInstId", columnList = "processInstanceId")})
 @SequenceGenerator(name = "taskEventIdSeq", sequenceName = "TASK_EVENT_ID_SEQ")
 public class TaskEventImpl implements TaskEvent, Serializable {
 

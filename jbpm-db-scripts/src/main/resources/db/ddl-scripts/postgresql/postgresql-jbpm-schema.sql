@@ -836,6 +836,7 @@
     create index IDX_Task_workItemId on Task(workItemId);
 
     create index IDX_TaskEvent_taskId on TaskEvent (taskId);
+    create index IDX_TaskEvent_processInstanceId on TaskEvent (processInstanceId);
 
     create index IDX_EventTypes_element ON EventTypes(element);
 

@@ -914,6 +914,9 @@
     create index IDX_TaskEvent_taskId on TaskEvent (taskId)
     go
 
+    create index IDX_TaskEvent_processInstanceId on TaskEvent (processInstanceId)
+    go
+
     create index IDX_EventTypes_element ON EventTypes(element)
     go
 
