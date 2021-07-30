@@ -16,19 +16,29 @@
 
 package org.jbpm.test.functional.subprocess;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
+import org.apache.commons.lang3.mutable.MutableInt;
+import org.apache.tools.ant.Task;
 import org.assertj.core.api.Assertions;
 import org.jbpm.test.JbpmTestCase;
 import org.jbpm.test.listener.IterableProcessEventListener;
 import org.junit.Test;
 import org.kie.api.command.Command;
 import org.kie.api.event.process.DefaultProcessEventListener;
+import org.kie.api.event.process.ProcessCompletedEvent;
 import org.kie.api.event.process.ProcessNodeTriggeredEvent;
 import org.kie.api.runtime.KieSession;
+import org.kie.api.runtime.manager.RuntimeEngine;
+import org.kie.api.runtime.manager.audit.ProcessInstanceLog;
+import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.process.WorkItem;
 import org.kie.api.runtime.process.WorkItemHandler;
 import org.kie.api.runtime.process.WorkItemManager;
+import org.kie.api.task.TaskService;
 
 import static org.jbpm.test.tools.IterableListenerAssert.assertChangedVariable;
 import static org.jbpm.test.tools.IterableListenerAssert.assertLeft;
@@ -49,6 +59,18 @@ public class ReusableSubProcessTest extends JbpmTestCase {
     private static final String CALL_ACTIVITY_CHILD_ID =
             "org.jbpm.test.functional.subprocess.ReusableSubProcess-child";
 
+    
+    private static final String INVOKE_ACTIVITY_PARENT =
+            "org/jbpm/test/functional/subprocess/ReusableSubprocess-parent-trigger.bpmn2";
+    private static final String INVOKE_ACTIVITY_PARENT_ID =
+            "org.jbpm.test.functional.subprocess.ReusableSubprocess-parent";
+
+    private static final String INVOKE_ACTIVITY_CHILD =
+            "org/jbpm/test/functional/subprocess/ReusableSubprocess-child-trigger.bpmn2";
+    private static final String INVOKE_ACTIVITY_CHILD_ID =
+            "org.jbpm.test.functional.subprocess.ReusableSubprocess-child";
+    
+    
     private static final String ERROR_HANDLING_MAIN_PROCESS =
             "org/jbpm/test/functional/subprocess/ErrorHandlingMainProcess.bpmn";
 
@@ -59,7 +81,7 @@ public class ReusableSubProcessTest extends JbpmTestCase {
             "ExceptionHandling.MainProcess";
 
     public ReusableSubProcessTest() {
-        super(false);
+        super(true);
     }
 
     @Test(timeout = 30000)
@@ -93,6 +115,43 @@ public class ReusableSubProcessTest extends JbpmTestCase {
 
         assertProcessCompleted(eventListener, CALL_ACTIVITY_PARENT_ID);
     }
+
+    @Test(timeout = 30000)
+    public void testInvokeReusableOnce() {
+        MutableInt counter = new MutableInt();
+        addProcessEventListener(new DefaultProcessEventListener() {
+            @Override
+            public void afterProcessCompleted(ProcessCompletedEvent event) {
+                counter.increment();
+            }
+        });
+        KieSession ksession = createKSession(INVOKE_ACTIVITY_CHILD, INVOKE_ACTIVITY_PARENT);
+        long pid = ksession.startProcess(INVOKE_ACTIVITY_PARENT_ID, Collections.singletonMap("varProcesoPadre", true)).getId();
+
+        assertProcessInstanceActive(pid);
+        List<? extends ProcessInstanceLog> log = this.getLogService().findActiveProcessInstances(INVOKE_ACTIVITY_CHILD_ID);
+        Assertions.assertThat(log).hasSize(1);
+        RuntimeEngine runtimeEngine = getRuntimeEngine();
+        TaskService taskService = runtimeEngine.getTaskService();
+
+        long cpid = log.get(0).getProcessInstanceId();
+        List<Long> cpids = taskService.getTasksByProcessInstanceId(cpid);
+        long taskId = cpids.get(0);
+        taskService.claim(taskId, "Administrator");
+        taskService.start(taskId, "Administrator");
+        taskService.complete(taskId, "Administrator", Collections.emptyMap());
+        assertProcessInstanceCompleted(cpid);
+
+        List<Long> pids = taskService.getTasksByProcessInstanceId(pid);
+        taskId = pids.get(0);
+        taskService.claim(taskId, "Administrator");
+        taskService.start(taskId, "Administrator");
+        taskService.complete(taskId, "Administrator", Collections.emptyMap());
+        assertProcessInstanceCompleted(pid);
+        System.out.println(counter);
+    }
+
+    
 
     class RestWorkItemHandler implements WorkItemHandler {
 
