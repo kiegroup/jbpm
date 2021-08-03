@@ -58,7 +58,7 @@ public class DBUnavilabilityExecutorTest{
 	@BeforeClass
     public static void createDBServer() {
         dsProps = ExecutorTestUtil.getDatasourceProperties();
-        dsProps.setProperty("url", "jdbc:h2:tcp://localhost:9123/target/jbpm-exec-test;MVCC=TRUE");
+        dsProps.setProperty("url", "jdbc:h2:tcp://localhost:9123/target/./jbpm-exec-test;MVCC=TRUE");
         dsProps.setProperty("tcpPort", "9123");
         PersistenceUtil.startH2TcpServer(dsProps);
     }
