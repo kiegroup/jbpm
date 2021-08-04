@@ -34,7 +34,7 @@
         <maven.jdbc.username>sa</maven.jdbc.username>
         <maven.jdbc.password>sasa</maven.jdbc.password>
         <maven.jdbc.url>jdbc:h2:mem:jbpm-db;MVCC=true</maven.jdbc.url>
-        <maven.jdbc.schema>public</maven.jdbc.schema>
+        <maven.jdbc.schema>PUBLIC</maven.jdbc.schema>
 
         <checkstyle.failOnViolation>true</checkstyle.failOnViolation>
         <checkstyle.logViolationsToConsole>true</checkstyle.logViolationsToConsole>
