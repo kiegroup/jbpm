@@ -851,3 +851,12 @@
     create index IDX_TaskVariableImpl_processId on TaskVariableImpl(processId);
 
     create index IDX_PAsPot_TaskEntity ON PeopleAssignments_PotOwners (task_id, entity_id);
+
+    create index IDX_CaseRoleAssignLog_caseId on CaseRoleAssignmentLog(caseId);
+    create index IDX_CaseRoleAssignLog_processInstanceId on CaseRoleAssignmentLog(processInstanceId);
+
+    create index IDX_CaseFileDataLog_caseId on CaseFileDataLog(caseId);
+    create index IDX_CaseFileDataLog_itemName on CaseFileDataLog(itemName);
+    
+    
+    

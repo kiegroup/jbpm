@@ -895,3 +895,10 @@
     create index IDX_TaskVariableImpl_taskId on TaskVariableImpl(taskId);
     create index IDX_TaskVariableImpl_pInstId on TaskVariableImpl(processInstanceId);
     create index IDX_TaskVariableImpl_processId on TaskVariableImpl(processId);
+
+    create index IDX_CaseRoleAssignLog_caseId on CaseRoleAssignmentLog(caseId);
+    create index IDX_CaseRoleAssignLog_processInstanceId on CaseRoleAssignmentLog(processInstanceId);
+
+    create index IDX_CaseFileDataLog_caseId on CaseFileDataLog(caseId);
+    create index IDX_CaseFileDataLog_itemName on CaseFileDataLog(itemName);
+    
