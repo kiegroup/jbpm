@@ -120,6 +120,7 @@ public class EJBTimerScheduler {
             transaction(this::executeTimerJobInstance, timerJobInstance);
         } catch (SessionNotFoundException e) {
             logger.warn("Process instance is not found. More likely already completed. Timer {} won't be recovered", timerJobInstance, e);
+            removeUnrecoverableTimer(timerJob);
         } catch (Exception e) {
             recoverTimerJobInstance(timerJob, e);
         }
@@ -133,20 +134,25 @@ public class EJBTimerScheduler {
         }
     }
 
+    private void removeUnrecoverableTimer(EjbTimerJob ejbTimerJob) {
+        try {
+            Transaction<TimerJobInstance> tx = timerJobInstance -> {
+                if (!this.removeJob(timerJobInstance.getJobHandle())) {
+                    logger.warn("Session not found for timer {}. Timer could not removed.", ejbTimerJob.getTimerJobInstance());
+                }
+            };
+            transaction(tx, ejbTimerJob.getTimerJobInstance());
+        } catch (Exception e1) {
+            logger.warn("There was a problem during timer removal {}", ejbTimerJob.getTimerJobInstance(), e1);
+        }
+    }
+
     private void recoverTimerJobInstance(EjbTimerJob ejbTimerJob, Exception e) {
         if (isSessionNotFound(e)) {
+            logger.warn("Trying to recover timer. Not possible due to process instance is not found. More likely already completed. Timer {} won't be recovered", ejbTimerJob.getTimerJobInstance(), e);
             // if session is not found means the process has already finished. In this case we just need to remove
             // the timer and avoid any recovery as it should not trigger any more timers.
-            try {
-                Transaction<TimerJobInstance> tx = timerJobInstance -> {
-                    if (!this.removeJob(timerJobInstance.getJobHandle())) {
-                        logger.warn("Session not found for timer {}. Timer could not removed.", ejbTimerJob.getTimerJobInstance());
-                    }
-                };
-                transaction(tx, ejbTimerJob.getTimerJobInstance());
-            } catch (Exception e1) {
-                logger.warn("There was a problem during timer removal {}", ejbTimerJob.getTimerJobInstance(), e1);
-            }
+            removeUnrecoverableTimer(ejbTimerJob);
             return;
         }
 
