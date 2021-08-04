@@ -23,7 +23,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.Transient;
 
@@ -33,6 +35,10 @@ import org.slf4j.LoggerFactory;
 
 @Entity
 @SequenceGenerator(name = "caseFileDataLogIdSeq", sequenceName = "CASE_FILE_DATA_LOG_ID_SEQ", allocationSize = 1)
+@Table(indexes = { 
+        @Index(name = "IDX_CaseFileDataLog_caseId", columnList="caseId"),
+        @Index(name = "IDX_CaseFileDataLog_itemName", columnList="itemName")
+})
 public class CaseFileDataLog implements Serializable, CaseFileData {
 
     private static final Logger logger = LoggerFactory.getLogger(CaseFileDataLog.class);
