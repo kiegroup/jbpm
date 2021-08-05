@@ -281,6 +281,11 @@
       <artifactId>jakarta.ejb-api</artifactId>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
+      <scope>test</scope>
+    </dependency>
 
     <dependency>
       <groupId>org.jboss.xnio</groupId>
