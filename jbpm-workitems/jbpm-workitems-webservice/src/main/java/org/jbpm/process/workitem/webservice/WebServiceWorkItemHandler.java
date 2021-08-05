@@ -30,14 +30,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import javax.xml.namespace.QName;
 
+import org.apache.cxf.common.jaxb.JAXBUtils;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.ClientCallback;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.dynamic.DynamicClientFactory;
+import org.apache.cxf.headers.Header;
+import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.jaxws.endpoint.dynamic.JaxWsDynamicClientFactory;
 import org.apache.cxf.jaxws.interceptors.HolderInInterceptor;
 import org.apache.cxf.jaxws.interceptors.WrapperClassInInterceptor;
@@ -52,6 +56,8 @@ import org.jbpm.process.workitem.core.util.Wid;
 import org.jbpm.process.workitem.core.util.WidMavenDepends;
 import org.jbpm.process.workitem.core.util.WidParameter;
 import org.jbpm.process.workitem.core.util.WidResult;
+import org.jbpm.process.workitem.core.util.WorkItemHeaderInfo;
+import org.jbpm.process.workitem.core.util.WorkItemHeaderUtils;
 import org.jbpm.process.workitem.core.util.service.WidAction;
 import org.jbpm.process.workitem.core.util.service.WidAuth;
 import org.jbpm.process.workitem.core.util.service.WidService;
@@ -106,7 +112,7 @@ public class WebServiceWorkItemHandler extends AbstractLogOrThrowWorkItemHandler
     private final Long defaultJbpmCxfClientConnectionTimeout = Long.parseLong(System.getProperty("org.jbpm.cxf.client.connectionTimeout", "30000"));
     private final Long defaultJbpmCxfClientReceiveTimeout = Long.parseLong(System.getProperty("org.jbpm.cxf.client.receiveTimeout", "60000"));
 
-    private ConcurrentHashMap<String, Client> clients = new ConcurrentHashMap<String, Client>();
+    private ConcurrentHashMap<String, Client> clients = new ConcurrentHashMap<>();
     private DynamicClientFactory dcf = null;
     private KieSession ksession;
     private int asyncTimeout = 10;
@@ -317,6 +323,7 @@ public class WebServiceWorkItemHandler extends AbstractLogOrThrowWorkItemHandler
         this.handlingStrategy = handlingStrategy;
     }
 
+    @Override
     public void executeWorkItem(WorkItem workItem,
                                 final WorkItemManager manager) {
 
@@ -397,6 +404,7 @@ public class WebServiceWorkItemHandler extends AbstractLogOrThrowWorkItemHandler
                     }
                     new Thread(new Runnable() {
 
+                        @Override
                         public void run() {
 
                             try {
@@ -488,15 +496,7 @@ public class WebServiceWorkItemHandler extends AbstractLogOrThrowWorkItemHandler
 	        String importNamespace = (String) workItem.getParameter("Namespace");
 	        if (importLocation != null && importLocation.trim().length() > 0
 	                && importNamespace != null && importNamespace.trim().length() > 0) {
-	            Client client = getDynamicClientFactory().createClient(importLocation,
-	                                                                   new QName(importNamespace,
-	                                                                             interfaceRef),
-	                                                                   getInternalClassLoader(),
-	                                                                   null);
-	            setClientTimeout(workItem, client);
-	            clients.put(interfaceRef,
-	                        client);
-	            return client;
+	            return getClient (workItem, importLocation, importNamespace, interfaceRef);
 	        }
 
 	        long processInstanceId = ((WorkItemImpl) workItem).getProcessInstanceId();
@@ -508,25 +508,56 @@ public class WebServiceWorkItemHandler extends AbstractLogOrThrowWorkItemHandler
 	            for (Bpmn2Import importObj : typedImports) {
 	                if (WSDL_IMPORT_TYPE.equalsIgnoreCase(importObj.getType())) {
 	                    try {
-	                        client = getDynamicClientFactory().createClient(importObj.getLocation(),
-	                                                                        new QName(importObj.getNamespace(),
-	                                                                                  interfaceRef),
-	                                                                        getInternalClassLoader(),
-	                                                                        null);
-	                        setClientTimeout(workItem, client);
-	                        clients.put(interfaceRef,
-	                                    client);
-	                        return client;
-	                    } catch (Exception e) {
-	                        logger.error("Error when creating WS Client",
-	                                     e);
-	                        continue;
-	                    }
-	                }
-	            }
-	        }
+	                        return getClient (workItem, importObj.getLocation(), importObj.getNamespace(), interfaceRef);
+                        } catch (Exception e) {
+                            logger.error("Error when creating WS Client", e);
+                        }
+                    }
+                }
+            }
         }
         return null;
+    }
+    
+    
+    private Client getClient(WorkItem workItem, String location, String namespace, String interfaceRef) {
+        Client client = getDynamicClientFactory().createClient(location, new QName(namespace, interfaceRef),
+                                                               getInternalClassLoader(), null);
+        setClientTimeout(workItem, client);
+        Collection<WorkItemHeaderInfo> headers = WorkItemHeaderUtils.getHeaderInfo(workItem);
+        if (!headers.isEmpty()) {
+            client.getRequestContext().put(Header.HEADER_LIST,
+                                           headers.stream().map(this::buildHeader).collect(Collectors.toList()));
+        }
+        clients.put(interfaceRef, client);
+        return client;
+    }
+
+
+
+    private Header buildHeader(WorkItemHeaderInfo header) {
+        String namespace = (String) header.getParam("NS");
+        QName name = namespace == null ? new QName(header.getName()) : new QName(namespace, header.getName());
+        Class<?> contentClass = String.class;
+        String type = (String) header.getParam("TYPE");
+        boolean escape = Boolean.parseBoolean((String) header.getParam("ESCAPE"));
+        if (type != null) {
+            try {
+                contentClass = classLoader.loadClass(type);
+            } catch (ClassNotFoundException ex) {
+                logger.warn("Cannot find type {}", type, ex);
+            }
+        }
+        JAXBDataBinding binding = null;
+        try {
+            binding = new JAXBDataBinding(contentClass);
+            if (!escape) {
+                binding.setEscapeHandler(JAXBUtils.createNoEscapeHandler(binding.getContext().getClass()));
+            }
+        } catch (Exception ex) {
+            logger.warn("Error creating binding for type {}", type, ex);
+        }
+        return new Header(name, header.getContent(), binding);
     }
 
     private void setClientTimeout(WorkItem workItem, Client client) {
@@ -556,6 +587,7 @@ public class WebServiceWorkItemHandler extends AbstractLogOrThrowWorkItemHandler
         return this.dcf;
     }
 
+    @Override
     public void abortWorkItem(WorkItem workItem,
                               WorkItemManager manager) {
         // Do nothing, cannot be aborted
