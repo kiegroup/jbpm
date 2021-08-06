@@ -27,7 +27,7 @@ public class Assignment implements Serializable {
 	private String dialect;
 	private String from;
 	private String to;
-    private Map<String, Object> metaData = new HashMap<String, Object>();
+    private transient Map<String, Object> metaData = new HashMap<>();
 	
 	public Assignment(String dialect, String from, String to) {
 		this.dialect = dialect;
