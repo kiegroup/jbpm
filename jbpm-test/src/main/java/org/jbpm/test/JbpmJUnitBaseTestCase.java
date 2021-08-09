@@ -46,6 +46,7 @@ import org.jbpm.runtime.manager.impl.DefaultRegisterableItemsFactory;
 import org.jbpm.runtime.manager.impl.SimpleRegisterableItemsFactory;
 import org.jbpm.runtime.manager.impl.jpa.EntityManagerFactoryManager;
 import org.jbpm.services.task.identity.JBossUserGroupCallbackImpl;
+import org.jbpm.test.persistence.processinstance.objects.TestEventEmitter;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 import org.junit.After;
 import org.junit.Before;
@@ -234,6 +235,7 @@ public abstract class JbpmJUnitBaseTestCase extends AbstractBaseTest {
             clearCustomRegistry();
             disposeRuntimeManager();
             clearHistory();
+            TestEventEmitter.clear();
         } finally {
             if (setupDataSource) {
                 try {

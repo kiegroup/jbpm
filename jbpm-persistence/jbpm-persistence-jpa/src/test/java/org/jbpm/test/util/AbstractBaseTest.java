@@ -18,17 +18,16 @@ package org.jbpm.test.util;
 
 import org.drools.core.impl.KnowledgeBaseFactory;
 import org.drools.core.impl.KnowledgeBaseImpl;
+import org.jbpm.test.persistence.processinstance.objects.TestEventEmitter;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.kie.api.KieBase;
 import org.kie.api.definition.process.Process;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 
 public abstract class AbstractBaseTest {
     
-    private static final Logger log = LoggerFactory.getLogger(AbstractBaseTest.class);
-
     protected boolean useLocking;
    
     public KieBase createKieBase(Process... process) { 
@@ -37,6 +36,11 @@ public abstract class AbstractBaseTest {
             ((KnowledgeBaseImpl) kbase).addProcess(processToAdd);
         }
         return kbase;
+    }
+    
+    @After
+    public void cleanup() throws Exception {
+    	TestEventEmitter.clear();
     }
     
     @BeforeClass
