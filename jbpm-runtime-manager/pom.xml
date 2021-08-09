@@ -288,7 +288,7 @@
               javax.enterprise.util,
               javax.inject,
               javax.naming,
-              jakarta.persistence,
+              javax.persistence,
               javax.xml,
               javax.xml.bind,
               javax.xml.bind.annotation,

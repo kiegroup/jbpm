@@ -190,7 +190,7 @@
           <instructions>
             <Import-Package>
               javassist.util.proxy;resolution:=optional,
-              jakarta.persistence,
+              javax.persistence,
               javax.naming,
               javax.transaction.*;resolution:=optional,
               org.hibernate.proxy;resolution:=optional,
