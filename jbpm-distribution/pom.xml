@@ -177,23 +177,11 @@
     <dependency>
       <groupId>org.jbpm</groupId>
       <artifactId>jbpm-workitems-email</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>jakarta.activation</groupId>
-          <artifactId>jakarta.activation-api</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.jbpm</groupId>
       <artifactId>jbpm-workitems-email</artifactId>
       <classifier>sources</classifier>
-      <exclusions>
-        <exclusion>
-          <groupId>jakarta.activation</groupId>
-          <artifactId>jakarta.activation-api</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>  
     <dependency>
       <groupId>org.jbpm</groupId>

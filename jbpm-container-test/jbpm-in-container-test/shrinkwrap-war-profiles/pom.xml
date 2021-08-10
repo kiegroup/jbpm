@@ -251,8 +251,8 @@
           <artifactId>hibernate-entitymanager</artifactId>
           <exclusions>
             <exclusion>
-              <groupId>jakarta.transaction</groupId>
-              <artifactId>jboss-transaction-api_1.1_spec</artifactId>
+          <groupId>jakarta.transaction</groupId>
+          <artifactId>jakarta.transaction-api</artifactId>
             </exclusion>
             <exclusion>
               <groupId>jakarta.persistence</groupId>
@@ -261,10 +261,6 @@
             <exclusion>
               <groupId>org.hibernate.jakarta.persistence</groupId>
               <artifactId>hibernate-jpa-2.1-api</artifactId>
-            </exclusion>
-            <exclusion>
-              <groupId>org.apache.geronimo.specs</groupId>
-              <artifactId>geronimo-jta_1.1_spec</artifactId>
             </exclusion>
             <exclusion>
               <groupId>xml-apis</groupId>
@@ -325,7 +321,7 @@
           <exclusions>
             <exclusion>
               <groupId>jakarta.transaction</groupId>
-              <artifactId>jboss-transaction-api_1.1_spec</artifactId>
+              <artifactId>jakarta.transaction-api</artifactId>
             </exclusion>
             <exclusion>
               <groupId>jakarta.persistence</groupId>
@@ -338,10 +334,6 @@
              <exclusion>
               <groupId>org.hibernate.jakarta.persistence</groupId>
               <artifactId>hibernate-jpa-2.1-api</artifactId>
-            </exclusion>
-            <exclusion>
-              <groupId>org.apache.geronimo.specs</groupId>
-              <artifactId>geronimo-jta_1.1_spec</artifactId>
             </exclusion>
             <exclusion>
               <groupId>xml-apis</groupId>

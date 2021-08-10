@@ -71,17 +71,7 @@
       <optional>true</optional>
       <scope>provided</scope>
       <exclusions>
-        <!-- collides with jakarta.activation:jakarta.activation-api:jar:1.2.0:compile  -->
-        <exclusion>
-          <groupId>jakarta.activation</groupId>
-          <artifactId>jakarta.activation-api</artifactId>
-        </exclusion>
-        <!-- collides with  javax.xml.bind:jaxb-api:jar:2.3.1:compile -->
-        <exclusion>
-          <groupId>jakarta.xml.bind</groupId>
-          <artifactId>jakarta.xml.bind-api</artifactId>
-        </exclusion>
-        <!-- collides with  org.jboss.spec.javax.xml.bind:jboss-jaxb-api_2.3_spec:jar:1.0.1.Final:compile -->
+        <!-- collides with jakarta.xml.bind-api -->
         <exclusion>
           <groupId>javax.xml.bind</groupId>
           <artifactId>jaxb-api</artifactId>
@@ -116,12 +106,6 @@
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-core</artifactId>
       <scope>test</scope>
-      <exclusions>
-        <exclusion>
-           <groupId>jakarta.activation</groupId>
-           <artifactId>jakarta.activation-api</artifactId> 
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>com.h2database</groupId>

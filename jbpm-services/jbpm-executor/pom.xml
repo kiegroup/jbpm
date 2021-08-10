@@ -65,17 +65,7 @@
       <optional>true</optional>
       <scope>provided</scope>
       <exclusions>
-        <!-- collides with jakarta.activation:jakarta.activation-api:jar:1.2.0:compile  -->
-        <exclusion>
-          <groupId>jakarta.activation</groupId>
-          <artifactId>jakarta.activation-api</artifactId>
-        </exclusion>
-        <!-- collides with  javax.xml.bind:jaxb-api:jar:2.3.1:compile -->
-        <exclusion>
-          <groupId>jakarta.xml.bind</groupId>
-          <artifactId>jakarta.xml.bind-api</artifactId>
-        </exclusion>
-        <!-- collides with  org.jboss.spec.javax.xml.bind:jboss-jaxb-api_2.3_spec:jar:1.0.1.Final:compile -->
+        <!-- collides with jakarta.xml.bind-api -->
         <exclusion>
           <groupId>javax.xml.bind</groupId>
           <artifactId>jaxb-api</artifactId>
@@ -147,12 +137,6 @@
       <artifactId>hibernate-core</artifactId>
       <optional>true</optional>
       <scope>test</scope>
-      <exclusions>
-        <exclusion>
-           <groupId>jakarta.activation</groupId>
-           <artifactId>jakarta.activation-api</artifactId> 
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>com.h2database</groupId>
@@ -174,13 +158,6 @@
       <groupId>org.jbpm</groupId>
       <artifactId>jbpm-human-task-audit</artifactId>
       <optional>true</optional>
-      <exclusions>
-        <exclusion>
-          <groupId>jakarta.enterprise</groupId>
-          <artifactId>jakarta.enterprise.cdi-api</artifactId>
-        </exclusion>
-      </exclusions>
-
     </dependency>
     <dependency>
       <groupId>org.jbpm</groupId>
@@ -196,10 +173,6 @@
         <exclusion>
           <groupId>io.netty</groupId>
           <artifactId>netty</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>jakarta.transaction</groupId>
-          <artifactId>jboss-transaction-api_1.1_spec</artifactId>
         </exclusion>
       </exclusions>
       <scope>test</scope>
@@ -224,12 +197,6 @@
       <groupId>org.hornetq</groupId>
       <artifactId>hornetq-jms-server</artifactId>
       <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>jakarta.transaction</groupId>
-          <artifactId>jboss-transaction-api_1.1_spec</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
   </dependencies>
 

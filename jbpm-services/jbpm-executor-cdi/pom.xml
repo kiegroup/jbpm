@@ -154,12 +154,6 @@
       <artifactId>hibernate-core</artifactId>
       <scope>test</scope>
       <optional>true</optional>
-      <exclusions>
-        <exclusion>
-           <groupId>jakarta.activation</groupId>
-           <artifactId>jakarta.activation-api</artifactId> 
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>com.h2database</groupId>
