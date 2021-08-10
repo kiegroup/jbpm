@@ -16,6 +16,7 @@
 
 package org.jbpm.test.functional.task;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -245,7 +246,6 @@ public class ProcessHumanTaskTest extends JbpmTestCase {
     @Test
     public void testProcessAndTaskIntegrationWithEventManager() {
         sessionPersistence = true; // so JPAProcessInstanceManager is used
-        TestEventEmitter.clear();
         createRuntimeManager("org/jbpm/test/functional/task/humantask.bpmn");
         RuntimeEngine runtimeEngine = getRuntimeEngine();
         KieSession ksession = runtimeEngine.getKieSession();
@@ -269,21 +269,14 @@ public class ProcessHumanTaskTest extends JbpmTestCase {
         taskService.start(task.getId(), "mary");
         taskService.complete(task.getId(), "mary", null);
 
-        List<InstanceView<?>> events = TestEventEmitter.getEvents();
-
-        List<InstanceView<?>> piEvents = events
-                                        .stream()
-                                        .filter(instanceView -> instanceView instanceof ProcessInstanceView)
-                                        .collect(Collectors.toList());
-
-        List<InstanceView<?>> tiEvents = events
-                                        .stream()
-                                        .filter(instanceView -> instanceView instanceof TaskInstanceView)
-                                        .collect(Collectors.toList());
-
+        Collection<InstanceView<?>> events = TestEventEmitter.getEvents();
         assertEquals(11, events.size());
-        assertEquals(1, piEvents.size());
-        assertEquals(2, tiEvents.size());
+        assertEquals(1, events
+                .stream()
+                .filter(instanceView -> instanceView instanceof ProcessInstanceView).count());
+        assertEquals(2, events
+                .stream()
+                .filter(instanceView -> instanceView instanceof TaskInstanceView).count());
 
         assertNodeTriggered(processInstance.getId(), "End");
         assertProcessInstanceNotActive(processInstance.getId(), ksession);

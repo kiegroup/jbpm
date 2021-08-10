@@ -54,10 +54,8 @@ public class TestEventEmitter implements EventEmitter {
         return new BaseEventCollection();
     }
     
-    public static List<InstanceView<?>> getEvents() {
-        List<InstanceView<?>> currentEvents = new ArrayList<>(events);
-        events.clear();
-        return currentEvents;
+    public static Set<InstanceView<?>> getEvents() {
+        return events;
     }
     
     public static void clear() {
@@ -66,7 +64,6 @@ public class TestEventEmitter implements EventEmitter {
 
     @Override
     public void close() {
-        // no-op
     }
 
 }
