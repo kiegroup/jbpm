@@ -251,15 +251,15 @@
           <artifactId>hibernate-entitymanager</artifactId>
           <exclusions>
             <exclusion>
-          <groupId>jakarta.transaction</groupId>
-          <artifactId>jakarta.transaction-api</artifactId>
+              <groupId>javax.persistence</groupId>
+              <artifactId>javax.persistence-api</artifactId>
             </exclusion>
             <exclusion>
-              <groupId>jakarta.persistence</groupId>
-              <artifactId>jakarta.persistence-api</artifactId>
+              <groupId>org.jboss.spec.javax.transaction</groupId>
+              <artifactId>jboss-transaction-api_1.2_spec</artifactId>
             </exclusion>
             <exclusion>
-              <groupId>org.hibernate.jakarta.persistence</groupId>
+              <groupId>org.hibernate.javax.persistence</groupId>
               <artifactId>hibernate-jpa-2.1-api</artifactId>
             </exclusion>
             <exclusion>
@@ -320,19 +320,19 @@
           <artifactId>hibernate-entitymanager</artifactId>
           <exclusions>
             <exclusion>
-              <groupId>jakarta.transaction</groupId>
-              <artifactId>jakarta.transaction-api</artifactId>
+              <groupId>javax.persistence</groupId>
+              <artifactId>javax.persistence-api</artifactId>
             </exclusion>
             <exclusion>
-              <groupId>jakarta.persistence</groupId>
-              <artifactId>jakarta.persistence-api</artifactId>
+              <groupId>org.jboss.spec.javax.transaction</groupId>
+              <artifactId>jboss-transaction-api_1.2_spec</artifactId>
             </exclusion>
             <exclusion>
               <groupId>org.javassist</groupId>
               <artifactId>javassist</artifactId>
             </exclusion>
              <exclusion>
-              <groupId>org.hibernate.jakarta.persistence</groupId>
+              <groupId>org.hibernate.javax.persistence</groupId>
               <artifactId>hibernate-jpa-2.1-api</artifactId>
             </exclusion>
             <exclusion>

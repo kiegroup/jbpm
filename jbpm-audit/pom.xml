@@ -170,10 +170,6 @@
           <groupId>org.jboss.jbossts.jts</groupId>
           <artifactId>jbossjts-jacorb</artifactId>
         </exclusion>
-        <exclusion>
-          <groupId>jakarta.transaction</groupId>
-          <artifactId>jakarta.transaction-api</artifactId>
-        </exclusion>
       </exclusions>
     </dependency>
     
