@@ -36,6 +36,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import org.apache.kafka.clients.producer.MockProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.serialization.ByteArraySerializer;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.jbpm.persistence.api.integration.EventEmitter;
 import org.jbpm.persistence.api.integration.InstanceView;
 import org.jbpm.persistence.api.integration.model.CaseInstanceView;
@@ -57,7 +59,7 @@ public class KafkaEventEmitterTest {
 
     @Before
     public void setup() {
-        producer = new MockProducer<>();
+        producer = new MockProducer<>(false, new StringSerializer(), new ByteArraySerializer());
     }
 
     @SuppressWarnings("unchecked")
