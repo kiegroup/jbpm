@@ -22,7 +22,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
 
 import org.kie.api.task.model.Group;
 import org.kie.api.task.model.OrganizationalEntity;
@@ -30,6 +32,10 @@ import org.kie.api.task.model.User;
 
 @Entity
 @SequenceGenerator(name = "caseRoleAssignLogIdSeq", sequenceName = "CASE_ROLE_ASSIGN_LOG_ID_SEQ", allocationSize = 1)
+@Table(indexes = { 
+        @Index(name = "IDX_CaseRoleAssignLog_caseId", columnList="caseId"),
+        @Index(name = "IDX_CaseRoleAssignLog_processInstanceId", columnList="processInstanceId")
+})
 public class CaseRoleAssignmentLog implements Serializable {
 
     private static final long serialVersionUID = 5757703502285633210L;

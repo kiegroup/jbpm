@@ -92,14 +92,13 @@ public class PersistentStatefulSessionTest extends AbstractBaseTest {
     
     @Before
     public void setUp() throws Exception {
-        String methodName = testName.getMethodName();
         context = setupWithPoolingDataSource(JBPM_PERSISTENCE_UNIT_NAME);
         
         env = createEnvironment(context);
         if( useLocking ) {
             env.set(EnvironmentName.USE_PESSIMISTIC_LOCKING, true);
         }
-        TestEventEmitter.clear();
+       
     }
 
     @After
@@ -672,7 +671,7 @@ public class PersistentStatefulSessionTest extends AbstractBaseTest {
         ksession.insert( "TestString" );
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
         
-        List<InstanceView<?>> events = TestEventEmitter.getEvents();
+        Collection<InstanceView<?>> events = TestEventEmitter.getEvents();
         assertNotNull(events);
         assertEquals(1, events.size());
     }

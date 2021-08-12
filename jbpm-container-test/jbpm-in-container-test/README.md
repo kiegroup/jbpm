@@ -37,7 +37,7 @@ By default, the tests are run with the H2 database. If you want to change the da
 
 ## WebSphere and Arquillian adapter
 Currently, Arquillian adapter for WebSphere is not publicly available in Central Maven Repository. Instead, you have to build your own adapter and add it as a dependency to the profile **was9** in the **jbpm-container-test-suite/pom.xml** file.
-This adapter's source code is available on [GitHub](https://github.com/arquillian/arquillian-container-was/tree/master/was-remote-9) as well.
+This adapter's source code is available on [GitHub](https://github.com/arquillian/arquillian-container-was/tree/main/was-remote-9) as well.
 
 ## Running a single test
 If you want to run a single test, just specify it via an additional parameter ```-Dit.test=<test-name>``` and add ```-DfailIfNoTests=false```.

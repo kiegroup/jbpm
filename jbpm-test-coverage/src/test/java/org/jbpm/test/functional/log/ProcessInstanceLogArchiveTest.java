@@ -25,13 +25,17 @@ import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 
+import org.jbpm.process.audit.DefaultArchiveLoggerProvider;
 import org.jbpm.process.audit.JPAAuditLogService;
 import org.jbpm.process.audit.NodeInstanceLog;
 import org.jbpm.process.audit.ProcessInstanceLog;
 import org.jbpm.process.audit.VariableInstanceLog;
+import org.jbpm.services.task.audit.DefaultHumanTaskArchiveLoggerProvider;
 import org.jbpm.services.task.audit.impl.model.TaskEventImpl;
 import org.jbpm.test.JbpmTestCase;
+import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessInstance;
@@ -47,6 +51,18 @@ public class ProcessInstanceLogArchiveTest extends JbpmTestCase {
 
 
     private JPAAuditLogService auditService;
+
+    @BeforeClass
+    public static void envUp() {
+        System.setProperty("org.kie.jbpm.persistence.archive-provider", 
+                DefaultArchiveLoggerProvider.class.getCanonicalName() + "," + 
+                DefaultHumanTaskArchiveLoggerProvider.class.getCanonicalName());
+    }
+
+    @AfterClass
+    public static void envDown() {
+        System.clearProperty("org.kie.jbpm.persistence.archive-provider");
+    }
 
     @Override
     public void setUp() throws Exception {

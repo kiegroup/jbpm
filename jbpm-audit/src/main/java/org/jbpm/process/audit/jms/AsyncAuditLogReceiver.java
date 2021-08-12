@@ -30,6 +30,7 @@ import javax.persistence.EntityManagerFactory;
 
 import org.jbpm.process.audit.AbstractAuditLogger;
 import org.jbpm.process.audit.ArchiveLoggerProvider;
+import org.jbpm.process.audit.AuditLoggerArchiveTreat;
 import org.jbpm.process.audit.NodeInstanceLog;
 import org.jbpm.process.audit.ProcessInstanceLog;
 
@@ -57,7 +58,7 @@ import static org.kie.soup.xstream.XStreamUtils.createTrustingXStream;
  *  <li>dependency injection - inject entity manager factory or entity manager by annotating methods</li>
  * </ul>
  */
-public class AsyncAuditLogReceiver implements MessageListener {
+public class AsyncAuditLogReceiver implements MessageListener, AuditLoggerArchiveTreat {
     
     private EntityManagerFactory entityManagerFactory;
     private XStream xstream;
@@ -66,7 +67,7 @@ public class AsyncAuditLogReceiver implements MessageListener {
     public AsyncAuditLogReceiver(EntityManagerFactory entityManagerFactory) {
         this.entityManagerFactory = entityManagerFactory;
         initXStream();
-        initArchiveLoggerProvider();
+        archiveLoggerProvider = initArchiveLoggerProvider();
     }
 
     private void initXStream() {
@@ -75,11 +76,6 @@ public class AsyncAuditLogReceiver implements MessageListener {
             String[] voidDeny = {"void.class", "Void.class"};
             xstream.denyTypes(voidDeny);
         }
-    }
-    
-    private void initArchiveLoggerProvider() {
-        archiveLoggerProvider = new ArrayList<>();
-        ServiceLoader.load(ArchiveLoggerProvider.class).forEach(e -> archiveLoggerProvider.add(e));
     }
 
     @SuppressWarnings("unchecked")

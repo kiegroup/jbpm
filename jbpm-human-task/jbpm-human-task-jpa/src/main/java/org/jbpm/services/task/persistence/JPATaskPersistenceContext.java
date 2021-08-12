@@ -80,7 +80,7 @@ import static org.kie.internal.query.QueryParameterIdentifiers.ORDER_TYPE;
 public class JPATaskPersistenceContext implements TaskPersistenceContext {
 
     // logger set to public for test reasons, see the org.jbpm.services.task.TaskQueryBuilderLocalTest
-	public final static Logger logger = LoggerFactory.getLogger(JPATaskPersistenceContext.class);
+	private static final Logger logger = LoggerFactory.getLogger(JPATaskPersistenceContext.class);
 
 	private static TaskQueryManager querymanager = TaskQueryManager.get();
 
@@ -702,7 +702,7 @@ public class JPATaskPersistenceContext implements TaskPersistenceContext {
 		}
 		if (singleResult) {
                     List<T> results = query.getResultList();
-                    return (T) ((results.isEmpty() )? null : results.get(0));
+                    return (results.isEmpty() )? null : results.get(0);
 		}
 		return (T) query.getResultList();
 	}

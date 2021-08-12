@@ -27,6 +27,7 @@ public class DatabaseScript implements Comparable<DatabaseScript> {
     private String name;
     private Version from;
     private Version to;
+    private String qualifier;
     private File script;
 
     public DatabaseScript(File script) {
@@ -35,12 +36,15 @@ public class DatabaseScript implements Comparable<DatabaseScript> {
     }
 
     public DatabaseScript(String value) {
-        Pattern pattern = Pattern.compile("(.*)-(\\d+\\.\\d+)-to-(\\d+\\.\\d+).sql");
+        Pattern pattern = Pattern.compile("(.*)-(\\d+\\.\\d+)-to-(\\d+\\.\\d+)-?(.*)?.sql");
         Matcher matcher = pattern.matcher(value);
-        if (matcher.matches() && matcher.groupCount() == 3) {
+        if (matcher.matches() && matcher.groupCount() >= 3) {
             this.name = matcher.group(1);
             this.from = new Version(matcher.group(2));
             this.to = new Version(matcher.group(3));
+            if(matcher.groupCount() > 3) {
+                this.qualifier = matcher.group(4);
+            }
         } else {
             this.name = value;
         }
@@ -96,6 +100,10 @@ public class DatabaseScript implements Comparable<DatabaseScript> {
     @Override
     public String toString() {
         return from != null && to != null ? "Script " + this.name + " from version " + from + " to " + to : "Script " + this.name;
+    }
+
+    public String getQualifier() {
+        return qualifier;
     }
 
 }
