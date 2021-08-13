@@ -22,6 +22,10 @@ import static org.junit.Assert.*;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.UUID;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.*;
 
 import javax.naming.InitialContext;
 import javax.transaction.UserTransaction;
@@ -184,6 +188,103 @@ public class GetProcessInstancesTest extends AbstractBaseTest {
         
         ksession.dispose();
         
+    }
+
+    @Test
+    public void processInstanceWriteAfterReadonly1() throws Exception {
+        internalProcessInstanceWriteAfterReadonly(false); // checks OptimisticLockException "Row was updated or deleted by another transaction"
+    }
+
+    @Test
+    public void processInstanceWriteAfterReadonly2() throws Exception {
+        internalProcessInstanceWriteAfterReadonly(true); // checks variable
+    }
+
+    private void internalProcessInstanceWriteAfterReadonly(boolean checkVariable) throws Exception {
+        long[] processId = new long[1];
+
+        StatefulKnowledgeSession ksession = reloadKnowledgeSession();
+        processId[0] = ksession.createProcessInstance("org.jbpm.processinstance.helloworld", null).getId();
+        ksession.dispose();
+
+        assertProcessInstancesExist(processId);
+
+        String testVarName = "testVar" + processId;
+        String testVarValue = UUID.randomUUID().toString();
+
+        Lock lock = new ReentrantLock();
+        AtomicBoolean thread1Waiting = new AtomicBoolean(true);
+        AtomicBoolean thread2Waiting = new AtomicBoolean(true);
+        Condition thread1Ready = lock.newCondition();
+        Condition thread2Ready = lock.newCondition();
+        Callable<Void> thread1Task = () -> {
+            lock.lock();
+            try {
+                // synchronization with thread2Task
+                while (thread1Waiting.get()) {
+                    thread2Ready.await();
+                }
+
+                UserTransaction ut = (UserTransaction) new InitialContext().lookup( "java:comp/UserTransaction" );
+                ut.begin();
+
+                // getting process instance in write-mode and setting up variable
+                StatefulKnowledgeSession ksession1 = JPAKnowledgeService.newStatefulKnowledgeSession(kbase, null, createEnvironment(context));
+                RuleFlowProcessInstance processInstance = (RuleFlowProcessInstance) ksession1.getProcessInstance(processId[0], false); // write-mode access
+                assertNotNull(processInstance);
+                processInstance.setVariable(testVarName, testVarValue);
+
+                ut.commit();
+                ksession1.dispose();
+
+                thread2Waiting.set(false);
+                thread1Ready.signal();
+            } finally {
+                lock.unlock();
+            }
+            return null;
+        };
+        Callable<Void> thread2Task = () -> {
+            lock.lock();
+            try {
+                UserTransaction ut = (UserTransaction) new InitialContext().lookup( "java:comp/UserTransaction" );
+                ut.begin();
+
+                // firstly we getting process instance in readonly mode
+                StatefulKnowledgeSession ksession2 = JPAKnowledgeService.newStatefulKnowledgeSession(kbase, null, createEnvironment(context));
+                RuleFlowProcessInstance processInstance = (RuleFlowProcessInstance) ksession2.getProcessInstance(processId[0], true); // readonly access
+                assertNotNull(processInstance);
+                assertNull(processInstance.getVariable(testVarName));
+
+                // waiting thread1Task work
+                thread1Waiting.set(false);
+                thread2Ready.signal();          
+                while (thread2Waiting.get()) {
+                    thread1Ready.await();
+                }
+
+                // now we read process instance in write-mode
+                processInstance = (RuleFlowProcessInstance) ksession2.getProcessInstance(processId[0], false); // write-mode access
+                assertNotNull(processInstance);
+                if (checkVariable)
+                    assertEquals(testVarValue, processInstance.getVariable(testVarName)); // it doesn't returns expected value while we are using the old ProcessInstanceInfo version
+
+                ut.commit(); // raises OptimisticLockException "Row was updated or deleted by another transaction" prior we have fix it
+                ksession2.dispose();
+            } finally {
+                lock.unlock();
+            }
+            return null;
+        };
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+        try {
+            Future<Void> future1 = executor.submit(thread1Task);
+            Future<Void> future2 = executor.submit(thread2Task);
+            future1.get(1000, TimeUnit.MILLISECONDS);
+            future2.get(1000, TimeUnit.MILLISECONDS);
+        } finally {
+            executor.shutdown();
+        }
     }
 
    

@@ -23,9 +23,12 @@ import java.util.ConcurrentModificationException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.persistence.EntityManager;
+
 import org.drools.core.common.InternalKnowledgeRuntime;
 import org.drools.persistence.api.TransactionManager;
 import org.drools.persistence.api.TransactionManagerHelper;
+import org.jbpm.persistence.JpaProcessPersistenceContextManager;
 import org.jbpm.persistence.api.ProcessPersistenceContext;
 import org.jbpm.persistence.api.ProcessPersistenceContextManager;
 import org.jbpm.persistence.api.integration.EventManagerProvider;
@@ -140,7 +143,8 @@ public class JPAProcessInstanceManager
         	ProcessPersistenceContextManager ppcm 
         	    = (ProcessPersistenceContextManager) this.kruntime.getEnvironment().get( EnvironmentName.PERSISTENCE_CONTEXT_MANAGER );
         	ppcm.beginCommandScopedEntityManager();
-        	
+            EntityManager cmdScopedEntityManager = ((JpaProcessPersistenceContextManager)ppcm).getCommandScopedEntityManager();
+
             ProcessPersistenceContext context = ppcm.getProcessPersistenceContext();
             ProcessInstanceInfo processInstanceInfo = (ProcessInstanceInfo) context.findProcessInstanceInfo( id );
             if ( processInstanceInfo == null ) {
@@ -172,6 +176,8 @@ public class JPAProcessInstanceManager
 
             if (readOnly) {
                 internalRemoveProcessInstance(processInstance);
+                cmdScopedEntityManager.detach(processInstanceInfo); // removing from cache - it needs to use fresh ProcessInstanceInfo version in the next write-mode access
+                // that fixes OptimisticLockException "Row was updated or deleted by another transaction"
             }
             return processInstance;
         } finally {
