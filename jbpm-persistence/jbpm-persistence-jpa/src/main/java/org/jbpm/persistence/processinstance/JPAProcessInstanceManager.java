@@ -143,7 +143,6 @@ public class JPAProcessInstanceManager
         	ProcessPersistenceContextManager ppcm 
         	    = (ProcessPersistenceContextManager) this.kruntime.getEnvironment().get( EnvironmentName.PERSISTENCE_CONTEXT_MANAGER );
         	ppcm.beginCommandScopedEntityManager();
-            EntityManager cmdScopedEntityManager = ((JpaProcessPersistenceContextManager)ppcm).getCommandScopedEntityManager();
 
             ProcessPersistenceContext context = ppcm.getProcessPersistenceContext();
             ProcessInstanceInfo processInstanceInfo = (ProcessInstanceInfo) context.findProcessInstanceInfo( id );
@@ -176,8 +175,11 @@ public class JPAProcessInstanceManager
 
             if (readOnly) {
                 internalRemoveProcessInstance(processInstance);
-                cmdScopedEntityManager.detach(processInstanceInfo); // removing from cache - it needs to use fresh ProcessInstanceInfo version in the next write-mode access
-                // that fixes OptimisticLockException "Row was updated or deleted by another transaction"
+                if (ppcm instanceof JpaProcessPersistenceContextManager) { // for MapBasedPersistenceTest
+                    EntityManager cmdScopedEntityManager = ((JpaProcessPersistenceContextManager)ppcm).getCommandScopedEntityManager();
+                    cmdScopedEntityManager.detach(processInstanceInfo); // removing from cache - it needs to use fresh ProcessInstanceInfo version in the next write-mode access
+                                                                        // that fixes OptimisticLockException "Row was updated or deleted by another transaction"
+                }
             }
             return processInstance;
         } finally {
