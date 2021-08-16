@@ -30,7 +30,9 @@
         <extension module="org.wildfly.extension.discovery"/>
         <extension module="org.wildfly.extension.ee-security"/>
         <extension module="org.wildfly.extension.elytron"/>
-        <extension module="org.wildfly.extension.io"/>
+	<extension module="org.wildfly.extension.io"/>
+	<extension module="org.wildfly.extension.metrics"/>
+	<extension module="org.wildfly.extension.health"/>
         <extension module="org.wildfly.extension.messaging-activemq"/>
         <extension module="org.wildfly.extension.microprofile.config-smallrye"/>
         <extension module="org.wildfly.extension.microprofile.health-smallrye"/>
@@ -457,9 +459,10 @@
             </server>
         </subsystem>
         <subsystem xmlns="urn:wildfly:microprofile-config-smallrye:1.0"/>
+        <subsystem xmlns="urn:wildfly:health:1.0"/>
         <subsystem xmlns="urn:wildfly:microprofile-health-smallrye:2.0" security-enabled="false" empty-liveness-checks-status="${env.MP_HEALTH_EMPTY_LIVENESS_CHECKS_STATUS:UP}" empty-readiness-checks-status="${env.MP_HEALTH_EMPTY_READINESS_CHECKS_STATUS:UP}"/>
         <subsystem xmlns="urn:wildfly:microprofile-jwt-smallrye:1.0"/>
-        <subsystem xmlns="urn:wildfly:microprofile-metrics-smallrye:2.0" security-enabled="false" exposed-subsystems="*" prefix="${wildfly.metrics.prefix:wildfly}"/>
+        <subsystem xmlns="urn:wildfly:metrics:1.0" security-enabled="false" exposed-subsystems="*" prefix="${wildfly.metrics.prefix:wildfly}"/>
         <subsystem xmlns="urn:wildfly:microprofile-opentracing-smallrye:2.0" default-tracer="jaeger">
             <jaeger-tracer name="jaeger">
                 <sampler-configuration sampler-type="const" sampler-param="1.0"/>
