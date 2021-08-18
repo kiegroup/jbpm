@@ -3,7 +3,7 @@
         OPTLOCK integer,
         assignedUser varchar(255),
         taskIndex integer not null,
-        lastModificationDate datetime,
+        lastModificationDate datetime(6),
         published smallint not null,
         primary key (taskId)
     ) ENGINE=InnoDB;

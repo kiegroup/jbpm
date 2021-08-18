@@ -1,0 +1,1 @@
+alter table PlanningTask modify lastModificationDate DATETIME(6);
