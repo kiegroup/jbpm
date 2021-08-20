@@ -71,8 +71,6 @@ public class EJBTimerScheduler {
 
     private static final Integer TIMER_RETRY_LIMIT = Integer.parseInt(System.getProperty("org.kie.jbpm.timer.retry.limit", "3"));
 
-    private static final TimerExceptionPolicy TIMER_RETRY_POLICY = Enum.valueOf(TimerExceptionPolicy.class, System.getProperty("org.kie.jbpm.timer.retry.policy", "PLATFORM"));
-
 	private static final Integer OVERDUE_WAIT_TIME = Integer.parseInt(System.getProperty("org.jbpm.overdue.timer.wait", "20000"));
 
 	private static final boolean USE_LOCAL_CACHE = Boolean.parseBoolean(System.getProperty("org.jbpm.ejb.timer.local.cache", "true"));
@@ -177,34 +175,29 @@ public class EJBTimerScheduler {
         }
 
         // if there is not next date to be fired, we need to apply policy otherwise will be lost
-        switch (TIMER_RETRY_POLICY) {
-            case RETRY:
-                logger.warn("Execution of time failed. The timer will be retried {}", ejbTimerJob.getTimerJobInstance());
-                Transaction<TimerJobInstance> operation = (instance) -> {
-                    ZonedDateTime nextRetry = ZonedDateTime.now().plus(TIMER_RETRY_INTERVAL, ChronoUnit.MILLIS);
-                    EjbTimerJobRetry info = null;
-                    if(ejbTimerJob instanceof EjbTimerJobRetry) {
-                        info = ((EjbTimerJobRetry) ejbTimerJob).next();
-                    } else {
-                        info =  new EjbTimerJobRetry(instance);
-                    }
-                    if (TIMER_RETRY_LIMIT > 0 && info.getRetry() > TIMER_RETRY_LIMIT) {
-                        logger.warn("The timer {} reached retry limit {}. It won't be retried again", instance, TIMER_RETRY_LIMIT);
-                        return;
-                    }
-                    TimerConfig config = new TimerConfig(info, true);
-                    timerService.createSingleActionTimer(Date.from(nextRetry.toInstant()), config);
-                };
-                try {
-                    transaction(operation, ejbTimerJob.getTimerJobInstance());
-                } catch (Exception e1) {
-                    logger.error("Failed to executed timer recovery {}", e1.getMessage(), e1);
-                }
-                break;
-            case PLATFORM:
-                logger.warn("Execution of time failed. Application server policy applied {}", ejbTimerJob.getTimerJobInstance());
-                throw new RuntimeException(e);
+
+        logger.warn("Execution of time failed. The timer will be retried {}", ejbTimerJob.getTimerJobInstance());
+        Transaction<TimerJobInstance> operation = (instance) -> {
+            ZonedDateTime nextRetry = ZonedDateTime.now().plus(TIMER_RETRY_INTERVAL, ChronoUnit.MILLIS);
+            EjbTimerJobRetry info = null;
+            if(ejbTimerJob instanceof EjbTimerJobRetry) {
+                info = ((EjbTimerJobRetry) ejbTimerJob).next();
+            } else {
+                info =  new EjbTimerJobRetry(instance);
+            }
+            if (TIMER_RETRY_LIMIT > 0 && info.getRetry() > TIMER_RETRY_LIMIT) {
+                logger.warn("The timer {} reached retry limit {}. It won't be retried again", instance, TIMER_RETRY_LIMIT);
+                return;
+            }
+            TimerConfig config = new TimerConfig(info, true);
+            timerService.createSingleActionTimer(Date.from(nextRetry.toInstant()), config);
+        };
+        try {
+            transaction(operation, ejbTimerJob.getTimerJobInstance());
+        } catch (Exception e1) {
+            logger.error("Failed to executed timer recovery {}", e1.getMessage(), e1);
         }
+
     }
 
     private boolean isSessionNotFound(Exception e) {
@@ -230,7 +223,11 @@ public class EJBTimerScheduler {
             operation.doWork(item);
             utx.commit();
         } catch(RollbackException e) {
-            logger.warn("Transaction was rolled back for {}", item);
+            logger.warn("Transaction was rolled back for {} with status {}", item, utx.getStatus());
+            if(utx.getStatus() == javax.transaction.Status.STATUS_ACTIVE) {
+                utx.rollback();
+            }
+            throw new RuntimeException("jbpm timer has been rolledback", e);
         } catch (Exception e) {
             try {
                 utx.rollback();
