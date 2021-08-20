@@ -85,8 +85,8 @@
     
     <!-- cdi -->
     <dependency>
-      <groupId>org.jboss.spec.javax.el</groupId>
-      <artifactId>jboss-el-api_3.0_spec</artifactId>
+      <groupId>jakarta.el</groupId>
+      <artifactId>jakarta.el-api</artifactId>
       <scope>provided</scope>
       <optional>true</optional>
     </dependency>
@@ -108,8 +108,8 @@
       <artifactId>jbpm-human-task-jpa</artifactId>
     </dependency>
     <dependency>
-      <groupId>javax.enterprise</groupId>
-      <artifactId>cdi-api</artifactId>
+      <groupId>jakarta.enterprise</groupId>
+      <artifactId>jakarta.enterprise.cdi-api</artifactId>
       <optional>true</optional>
       <exclusions>
         <exclusion>
@@ -140,13 +140,13 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.jboss.spec.javax.ejb</groupId>
-      <artifactId>jboss-ejb-api_3.2_spec</artifactId>
+      <groupId>jakarta.ejb</groupId>
+      <artifactId>jakarta.ejb-api</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.jboss.spec.javax.jms</groupId>
-      <artifactId>jboss-jms-api_2.0_spec</artifactId>
+      <groupId>jakarta.jms</groupId>
+      <artifactId>jakarta.jms-api</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -154,11 +154,6 @@
       <artifactId>drools-decisiontables</artifactId>
       <scope>test</scope>
       <exclusions>
-        <exclusion>
-          <!-- Classes from stax-api are already present in 'xml-apis:xml-apis' dependency -->
-          <groupId>javax.xml.stream</groupId>
-          <artifactId>stax-api</artifactId>
-        </exclusion>
         <exclusion>
           <!-- Not needing for testing -->
           <groupId>org.apache.xmlbeans</groupId>
@@ -182,12 +177,6 @@
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-core</artifactId>
       <scope>test</scope>
-      <exclusions>
-        <exclusion>
-           <groupId>javax.activation</groupId>
-           <artifactId>javax.activation-api</artifactId> 
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>com.h2database</groupId>

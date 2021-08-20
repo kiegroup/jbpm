@@ -36,7 +36,7 @@
       <include name="kie*.jar"/>
       <include name="protobuf*.jar"/>
       <include name="slf4j*.jar"/>
-      <include name="log4j*.jar"/>
+      <include name="log4j*.jar"/>  
       <include name="commons-logging*.jar"/>
       <include name="commons-collections*.jar"/>
       <include name="dom4j-2.1.1.jar"/>

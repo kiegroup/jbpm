@@ -43,11 +43,16 @@
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
     </dependency>
+
+    <dependency>
+      <groupId>jakarta.inject</groupId>
+      <artifactId>jakarta.inject-api</artifactId>
+    </dependency>
     
     <!-- jms handling of task audit logs -->
     <dependency>
-      <groupId>org.jboss.spec.javax.jms</groupId>
-      <artifactId>jboss-jms-api_2.0_spec</artifactId>
+      <groupId>jakarta.jms</groupId>
+      <artifactId>jakarta.jms-api</artifactId>
       <scope>provided</scope>
     </dependency>
      <dependency>
@@ -66,17 +71,7 @@
       <optional>true</optional>
       <scope>provided</scope>
       <exclusions>
-        <!-- collides with javax.activation:javax.activation-api:jar:1.2.0:compile  -->
-        <exclusion>
-          <groupId>jakarta.activation</groupId>
-          <artifactId>jakarta.activation-api</artifactId>
-        </exclusion>
-        <!-- collides with  javax.xml.bind:jaxb-api:jar:2.3.1:compile -->
-        <exclusion>
-          <groupId>jakarta.xml.bind</groupId>
-          <artifactId>jakarta.xml.bind-api</artifactId>
-        </exclusion>
-        <!-- collides with  org.jboss.spec.javax.xml.bind:jboss-jaxb-api_2.3_spec:jar:1.0.1.Final:compile -->
+        <!-- collides with jakarta.xml.bind-api -->
         <exclusion>
           <groupId>javax.xml.bind</groupId>
           <artifactId>jaxb-api</artifactId>
@@ -94,13 +89,6 @@
       <groupId>org.jboss.weld.se</groupId>
       <artifactId>weld-se-core</artifactId>
       <scope>test</scope>
-      <exclusions>
-         <!-- collides with javax.enterprise:cdi-api:jar:2.0.SP1:compile -->
-         <exclusion>
-           <groupId>jakarta.enterprise</groupId>
-           <artifactId>jakarta.enterprise.cdi-api</artifactId>
-         </exclusion>
-      </exclusions>
     </dependency>
 
     <!--  Test: persistence -->
@@ -118,12 +106,6 @@
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-core</artifactId>
       <scope>test</scope>
-      <exclusions>
-        <exclusion>
-           <groupId>javax.activation</groupId>
-           <artifactId>javax.activation-api</artifactId> 
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>com.h2database</groupId>
@@ -158,14 +140,6 @@
       <scope>test</scope>
       <exclusions>
         <exclusion>
-          <groupId>commons-logging</groupId>
-          <artifactId>commons-logging</artifactId>
-        </exclusion>
-        <exclusion>
-          <artifactId>log4j</artifactId>
-          <groupId>log4j</groupId>
-        </exclusion>
-        <exclusion>
           <artifactId>logkit</artifactId>
           <groupId>logkit</groupId>
         </exclusion>
@@ -178,8 +152,8 @@
       <scope>runtime</scope>
     </dependency>
     <dependency>
-      <groupId>org.jboss.spec.javax.ejb</groupId>
-      <artifactId>jboss-ejb-api_3.2_spec</artifactId>
+      <groupId>jakarta.ejb</groupId>
+      <artifactId>jakarta.ejb-api</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -203,8 +177,8 @@
     	<artifactId>guava</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.jboss.spec.javax.xml.bind</groupId>
-      <artifactId>jboss-jaxb-api_2.3_spec</artifactId>
+      <groupId>jakarta.xml.bind</groupId>
+      <artifactId>jakarta.xml.bind-api</artifactId>
       <scope>provided</scope>
     </dependency>
   </dependencies>

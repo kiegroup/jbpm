@@ -39,8 +39,8 @@
           <exclusions>
             <!-- conflicts with Hibernate on WAS -->
             <exclusion>
-              <groupId>javax.persistence</groupId>
-              <artifactId>javax.persistence-api</artifactId>
+              <groupId>jakarta.persistence</groupId>
+              <artifactId>jakarta.persistence-api</artifactId>
             </exclusion>
             <!-- conflicts with Weld and Hibernate on WAS -->
             <exclusion>
@@ -54,13 +54,13 @@
             </exclusion>
             <!-- conflicts on WebLogic/WAS -->
             <exclusion>
-              <groupId>org.jboss.spec.javax.annotation</groupId>
-              <artifactId>jboss-annotations-api_1.2_spec</artifactId>
+              <groupId>jakarta.annotation</groupId>
+              <artifactId>jakarta.annotation-api</artifactId>
             </exclusion>
             <!-- conflicts on WebLogic/WAS -->
             <exclusion>
-              <groupId>org.jboss.spec.javax.transaction</groupId>
-              <artifactId>jboss-transaction-api_1.2_spec</artifactId>
+              <groupId>jakarta.transaction</groupId>
+              <artifactId>jakarta.transaction-api</artifactId>
             </exclusion>
           </exclusions>
         </dependency>
@@ -81,8 +81,8 @@
           <exclusions>
             <!-- conflicts with Hibernate on WAS -->
             <exclusion>
-              <groupId>javax.persistence</groupId>
-              <artifactId>javax.persistence-api</artifactId>
+              <groupId>jakarta.persistence</groupId>
+              <artifactId>jakarta.persistence-api</artifactId>
             </exclusion>
             <!-- conflicts with Weld and Hibernate on WAS -->
             <exclusion>
@@ -91,18 +91,18 @@
             </exclusion>
             <!-- conflicts on WebLogic/WAS -->
             <exclusion>
-              <groupId>javax.enterprise</groupId>
-              <artifactId>cdi-api</artifactId>
+              <groupId>jakarta.enterprise</groupId>
+              <artifactId>jakarta.enterprise.cdi-api</artifactId>
             </exclusion>
             <!-- conflicts on WebLogic/WAS -->
             <exclusion>
-              <groupId>org.jboss.spec.javax.transaction</groupId>
-              <artifactId>jboss-transaction-api_1.2_spec</artifactId>
+              <groupId>jakarta.transaction</groupId>
+              <artifactId>jakarta.transaction-api</artifactId>
             </exclusion>
             <!-- conflicts on WebLogic/WAS -->
             <exclusion>
-              <groupId>javax.inject</groupId>
-              <artifactId>javax.inject</artifactId>
+              <groupId>jakarta.inject</groupId>
+              <artifactId>jakarta.inject-api</artifactId>
             </exclusion>
             <!-- conflicts on WebLogic/WAS -->
             <exclusion>
@@ -123,13 +123,13 @@
           <exclusions>
             <!-- conflicts with Hibernate on EWS -->
             <exclusion>
-              <groupId>javax.persistence</groupId>
-              <artifactId>javax.persistence-api</artifactId>
+              <groupId>jakarta.persistence</groupId>
+              <artifactId>jakarta.persistence-api</artifactId>
             </exclusion>
             <!-- conflicts with BTM/Hibernate on EWS -->
             <exclusion>
-              <groupId>org.jboss.spec.javax.transaction</groupId>
-              <artifactId>jboss-transaction-api_1.2_spec</artifactId>
+              <groupId>jakarta.transaction</groupId>
+              <artifactId>jakarta.transaction-api</artifactId>
             </exclusion>
             <!-- conflicts with Weld and Hibernate on EWS -->
             <exclusion>
@@ -143,8 +143,8 @@
             </exclusion>
             <!-- conflicts on WAS -->
             <exclusion>
-              <groupId>org.jboss.spec.javax.xml.bind</groupId>
-              <artifactId>jboss-jaxb-api_2.3_spec</artifactId>
+              <groupId>jakarta.xml.bind</groupId>
+              <artifactId>jakarta.xml.bind-api</artifactId>
             </exclusion>
           </exclusions>
         </dependency>
@@ -205,15 +205,15 @@
           <artifactId>idep-hibernate-core</artifactId>
           <exclusions>
             <exclusion>
-              <groupId>org.jboss.spec.javax.transaction</groupId>
-              <artifactId>jboss-transaction-api_1.2_spec</artifactId>
+              <groupId>jakarta.transaction</groupId>
+              <artifactId>jakarta.transaction-api</artifactId>
             </exclusion>
           </exclusions>
         </dependency>
         <!-- Needed for JDK 11 -->
         <dependency>
-          <groupId>org.jboss.spec.javax.xml.bind</groupId>
-          <artifactId>jboss-jaxb-api_2.3_spec</artifactId>
+          <groupId>jakarta.xml.bind</groupId>
+          <artifactId>jakarta.xml.bind-api</artifactId>
         </dependency>
       </dependencies>
     </profile>
@@ -251,20 +251,16 @@
           <artifactId>hibernate-entitymanager</artifactId>
           <exclusions>
             <exclusion>
-              <groupId>org.jboss.spec.javax.transaction</groupId>
-              <artifactId>jboss-transaction-api_1.1_spec</artifactId>
-            </exclusion>
-            <exclusion>
               <groupId>javax.persistence</groupId>
               <artifactId>javax.persistence-api</artifactId>
             </exclusion>
             <exclusion>
-              <groupId>org.hibernate.javax.persistence</groupId>
-              <artifactId>hibernate-jpa-2.1-api</artifactId>
+              <groupId>org.jboss.spec.javax.transaction</groupId>
+              <artifactId>jboss-transaction-api_1.2_spec</artifactId>
             </exclusion>
             <exclusion>
-              <groupId>org.apache.geronimo.specs</groupId>
-              <artifactId>geronimo-jta_1.1_spec</artifactId>
+              <groupId>org.hibernate.javax.persistence</groupId>
+              <artifactId>hibernate-jpa-2.1-api</artifactId>
             </exclusion>
             <exclusion>
               <groupId>xml-apis</groupId>
@@ -324,12 +320,12 @@
           <artifactId>hibernate-entitymanager</artifactId>
           <exclusions>
             <exclusion>
-              <groupId>org.jboss.spec.javax.transaction</groupId>
-              <artifactId>jboss-transaction-api_1.1_spec</artifactId>
-            </exclusion>
-            <exclusion>
               <groupId>javax.persistence</groupId>
               <artifactId>javax.persistence-api</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>org.jboss.spec.javax.transaction</groupId>
+              <artifactId>jboss-transaction-api_1.2_spec</artifactId>
             </exclusion>
             <exclusion>
               <groupId>org.javassist</groupId>
@@ -338,10 +334,6 @@
              <exclusion>
               <groupId>org.hibernate.javax.persistence</groupId>
               <artifactId>hibernate-jpa-2.1-api</artifactId>
-            </exclusion>
-            <exclusion>
-              <groupId>org.apache.geronimo.specs</groupId>
-              <artifactId>geronimo-jta_1.1_spec</artifactId>
             </exclusion>
             <exclusion>
               <groupId>xml-apis</groupId>

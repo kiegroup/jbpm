@@ -91,12 +91,6 @@
       <groupId>org.jbpm</groupId>
       <artifactId>jbpm-test-util</artifactId>
       <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>javax.activation</groupId>
-          <artifactId>javax.activation-api</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
   </dependencies>
 
