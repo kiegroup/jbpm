@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.lang3.time.DateUtils;
 import org.jbpm.services.api.DeploymentEvent;
 import org.jbpm.services.api.DeploymentEventListener;
 import org.jbpm.services.api.DeploymentService;
@@ -85,8 +86,9 @@ public class DeploymentSynchronizer implements DeploymentEventListener {
 			} else {				
 				deploymentStore.getDeploymentUnitsByDate(lastSync, enabledSet, disabledSet, activatedSet, deactivatedSet);
 			}
-			// update last sync date with time taken just before the query time
-			this.lastSync = timeOfSync;
+			// update last sync date with time taken just before the query time minus 1 second overlapped margin
+			// because DeploymentStore may be not committed yet and then updateDate will be skipped in next execution
+			this.lastSync = DateUtils.addSeconds(timeOfSync, -1);
 
 			logger.debug("About to synchronize deployment units, found new enabled {}, found new disabled {}", enabledSet, disabledSet);
 			if (enabledSet != null) {
