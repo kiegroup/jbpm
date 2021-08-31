@@ -18,7 +18,6 @@ package org.jbpm.services.task.audit.impl.model;
 import java.io.Serializable;
 import java.util.Date;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -27,7 +26,6 @@ import javax.persistence.Index;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
 import org.kie.internal.task.api.AuditTask;
 
@@ -72,10 +70,6 @@ public class AuditTaskImpl implements Serializable,
     private Long workItemId;
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date lastModificationDate;
-
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "end_date")
-    private Date end;
 
     public AuditTaskImpl() {
     }
@@ -157,14 +151,6 @@ public class AuditTaskImpl implements Serializable,
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Date getEnd() {
-        return end;
-    }
-
-    public void setEnd(Date end) {
-        this.end = end;
     }
 
     @Override
