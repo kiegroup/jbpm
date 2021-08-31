@@ -75,9 +75,6 @@ public class BAMTaskSummaryImpl implements Serializable {
     private String userId;
     private Long duration;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "end_date")
-    private Date end;
 
     public BAMTaskSummaryImpl() {
     }
@@ -98,14 +95,6 @@ public class BAMTaskSummaryImpl implements Serializable {
 
     public void setPk(Long pk) {
         this.pk = pk;
-    }
-
-    public Date getEnd() {
-        return end;
-    }
-
-    public void setEnd(Date end) {
-        this.end = end;
     }
 
     public long getTaskId() {

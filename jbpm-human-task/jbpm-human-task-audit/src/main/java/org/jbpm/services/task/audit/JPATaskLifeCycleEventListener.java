@@ -20,7 +20,6 @@
  */
 package org.jbpm.services.task.audit;
 
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -32,11 +31,13 @@ import javax.persistence.EntityManagerFactory;
 import org.jbpm.persistence.api.integration.EventManagerProvider;
 import org.jbpm.persistence.api.integration.PersistenceEventManager;
 import org.jbpm.persistence.api.integration.model.TaskOperationView;
-import org.jbpm.process.audit.ProcessInstanceLog;
+import org.jbpm.process.audit.ArchiveLoggerProvider;
+import org.jbpm.process.audit.AuditLoggerArchiveTreat;
 import org.jbpm.services.task.audit.impl.model.AuditTaskImpl;
 import org.jbpm.services.task.audit.impl.model.TaskEventImpl;
 import org.jbpm.services.task.audit.variable.TaskIndexerManager;
 import org.jbpm.services.task.lifecycle.listeners.TaskLifeCycleEventListener;
+import org.jbpm.services.task.persistence.JPATaskPersistenceContext;
 import org.jbpm.services.task.persistence.PersistableEventListener;
 import org.jbpm.services.task.utils.ClassUtil;
 import org.kie.api.task.TaskEvent;
@@ -53,20 +54,24 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-public class JPATaskLifeCycleEventListener extends PersistableEventListener implements TaskLifeCycleEventListener {
+public class JPATaskLifeCycleEventListener extends PersistableEventListener implements TaskLifeCycleEventListener, AuditLoggerArchiveTreat {
 
     public static final String METADATA_TASK_EVENT = "TASK_EVENT";
     public static final String METADATA_AUDIT_TASK = "TASK_AUDIT_EVENT";
     public static final String METADATA_VAR_EVENT = "TASK_VAR_EVENT";
 
     private static final Logger logger = LoggerFactory.getLogger(JPATaskLifeCycleEventListener.class);
+    private List<ArchiveLoggerProvider> archiveLoggerProviders;
 
+    
     public JPATaskLifeCycleEventListener(boolean flag) {
         super(null);
+        archiveLoggerProviders = initArchiveLoggerProvider();
     }
     
     public JPATaskLifeCycleEventListener(EntityManagerFactory emf) {
         super(emf);
+        archiveLoggerProviders = initArchiveLoggerProvider();
     }
 
     @Override
@@ -214,17 +219,11 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
         Task ti = event.getTask();
         TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext());
         try {
-            // this is and ad-hoc but because recursive events I don't have other means to retrieve the data (end date)
-            ProcessInstanceLog pil = persistenceContext.queryStringWithParametersInTransaction(
-                    "SELECT o FROM ProcessInstanceLog o WHERE o.processInstanceId = :pid", true,
-                    Collections.singletonMap("pid", ti.getTaskData().getProcessInstanceId()),
-                    ProcessInstanceLog.class);
             TaskEventImpl taskEventImpl = new TaskEventImpl(ti.getId(), TaskEventType.COMPLETED, ti.getTaskData().getProcessInstanceId(), ti.getTaskData().getWorkItemId(),
                                                             userId);
-            if(pil != null) {
-               taskEventImpl.setEnd(pil.getEnd());
-            }
+
             event.getMetadata().put(METADATA_TASK_EVENT, taskEventImpl);
+            archiveLoggerProviders.forEach(e -> e.archive(((JPATaskPersistenceContext) persistenceContext).getEntityManager(), taskEventImpl));
             persistenceContext.persist(taskEventImpl);
             createTaskOperationView (event, TaskEventType.COMPLETED);
 
@@ -237,10 +236,8 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
             auditTaskImpl.setStatus(ti.getTaskData().getStatus().name());
             auditTaskImpl.setActualOwner(getActualOwner(ti));
             auditTaskImpl.setLastModificationDate(event.getEventDate());
-            if(pil != null) {
-                auditTaskImpl.setEnd(pil.getEnd());
-            }
             event.getMetadata().put(METADATA_AUDIT_TASK, auditTaskImpl);
+            archiveLoggerProviders.forEach(e -> e.archive(((JPATaskPersistenceContext) persistenceContext).getEntityManager(), auditTaskImpl));
             persistenceContext.merge(auditTaskImpl);
         } finally {
             cleanup(persistenceContext);

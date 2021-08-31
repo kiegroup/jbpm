@@ -74,10 +74,6 @@ public class NodeInstanceLog implements Serializable, AuditEvent, org.kie.api.ru
     @Column(nullable=true)
     private Integer slaCompliance;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "end_date")
-    private Date end;
-
     public NodeInstanceLog() {
     }
     
@@ -92,14 +88,6 @@ public class NodeInstanceLog implements Serializable, AuditEvent, org.kie.api.ru
         this.date = new Date();
     }
 	
-    public Date getEnd() {
-        return end;
-    }
-
-    public void setEnd(Date end) {
-        this.end = end;
-    }
-
 	public Integer getType() {
 		return type;
 	}

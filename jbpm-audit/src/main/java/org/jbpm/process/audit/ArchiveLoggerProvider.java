@@ -18,8 +18,14 @@ package org.jbpm.process.audit;
 
 import javax.persistence.EntityManager;
 
+import org.kie.internal.task.api.AuditTask;
+import org.kie.internal.task.api.model.TaskEvent;
+
 public interface ArchiveLoggerProvider {
 
     void archive(EntityManager em, ProcessInstanceLog log);
 
+    void archive(EntityManager em, TaskEvent event);
+
+    void archive(EntityManager em, AuditTask event);
 }

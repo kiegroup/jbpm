@@ -79,10 +79,6 @@ public class TaskEventImpl implements TaskEvent, Serializable {
   @Temporal(javax.persistence.TemporalType.TIMESTAMP)
   private Date logTime;
 
-  @Temporal(TemporalType.TIMESTAMP)
-  @Column(name = "end_date")
-  private Date end;
-
   public TaskEventImpl() {
   }
 
@@ -128,14 +124,6 @@ public class TaskEventImpl implements TaskEvent, Serializable {
   @Override
   public long getTaskId() {
     return taskId;
-  }
-
-  public Date getEnd() {
-      return end;
-  }
-
-  public void setEnd(Date end) {
-      this.end = end;
   }
 
 
@@ -249,7 +237,7 @@ public class TaskEventImpl implements TaskEvent, Serializable {
     public String toString() {
         return "TaskEventImpl [id=" + id + ", version=" + version + ", taskId=" + taskId + ", workItemId=" + workItemId +
                ", type=" + type + ", processInstanceId=" + processInstanceId + ", userId=" + userId + ", message=" +
-               message + ", correlationKey=" + correlationKey + ", processType=" + processType + ", logTime=" + logTime +  ", end=" + end +
+               message + ", correlationKey=" + correlationKey + ", processType=" + processType + ", logTime=" + logTime + 
                "]";
     }
   

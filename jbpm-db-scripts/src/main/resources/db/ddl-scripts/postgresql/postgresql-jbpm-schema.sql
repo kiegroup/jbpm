@@ -30,7 +30,6 @@
         taskId int8,
         workItemId int8,
         lastModificationDate timestamp,
-        end_date timestamp,
         primary key (id)
     );
 
@@ -46,7 +45,6 @@
         taskName varchar(255),
         userId varchar(255),
         OPTLOCK int4,
-        end_date timestamp,
         primary key (pk)
     );
 
@@ -218,7 +216,6 @@
         workItemId int8,
         nodeContainerId varchar(255),
         referenceId int8,
-        end_date timestamp,
         primary key (id)
     );
 
@@ -418,7 +415,6 @@
         workItemId int8,
         correlationKey varchar(255),
         processType int4,
-        end_date timestamp,
         primary key (id)
     );
 
@@ -444,7 +440,6 @@
         value varchar(255),
         variableId varchar(255),
         variableInstanceId varchar(255),
-        end_date timestamp,
         primary key (id)
     );
 
