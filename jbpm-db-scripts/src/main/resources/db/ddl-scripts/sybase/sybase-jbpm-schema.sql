@@ -31,7 +31,6 @@
         taskId numeric(19,0) null,
         workItemId numeric(19,0) null,
         lastModificationDate datetime,
-        end_date datetime,
         primary key (id)
     ) lock datarows
     go
@@ -48,7 +47,6 @@
         taskName varchar(255) null,
         userId varchar(255) null,
         OPTLOCK int null,
-        end_date datetime,
         primary key (pk)
     ) lock datarows
     go
@@ -236,7 +234,6 @@
         workItemId numeric(19,0) null,
         nodeContainerId varchar(255) null,
         referenceId numeric(19,0) null,
-        end_date datetime,
         primary key (id)
     ) lock datarows
     go
@@ -456,7 +453,6 @@
         workItemId numeric(19,0) null,
         correlationKey varchar(255),	
         processType int,
-        end_date datetime,
         primary key (id)
     ) lock datarows
     go
@@ -484,7 +480,6 @@
         value varchar(255) null,
         variableId varchar(255) null,
         variableInstanceId varchar(255) null,
-        end_date datetime,
         primary key (id)
     ) lock datarows
     go

@@ -50,11 +50,6 @@ alter table WorkItemInfo modify creationDate DATETIME(6);
 
 alter table task_comment modify addedAt DATETIME(6);
 
-alter table AuditTaskImpl add column end_date DATETIME(6);
-alter table BAMTaskSummary add column end_date DATETIME(6);
-alter table TaskEvent add column end_date DATETIME(6);
-alter table NodeInstanceLog add column end_date DATETIME(6);
-alter table VariableInstanceLog add column end_date DATETIME(6);
 
 create index IDX_TaskEvent_processInstanceId on TaskEvent (processInstanceId);
 create index IDX_CaseRoleAssignLog_caseId on CaseRoleAssignmentLog(caseId);

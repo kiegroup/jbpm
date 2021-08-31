@@ -108,7 +108,7 @@ public class JPATaskPersistenceContext implements TaskPersistenceContext {
 
     // Package level getters ------------------------------------------------------------------------------------------------------
 
-    EntityManager getEntityManager() {
+    public EntityManager getEntityManager() {
         return this.em;
     }
 
