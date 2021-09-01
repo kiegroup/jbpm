@@ -8,3 +8,5 @@ alter table NodeInstanceLog drop column end_date
 go
 alter table VariableInstanceLog drop column end_date
 go
+alter table NodeInstanceLog add column observation varchar(255)
+go

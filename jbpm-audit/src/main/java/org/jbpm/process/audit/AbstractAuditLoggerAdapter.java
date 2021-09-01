@@ -21,6 +21,7 @@ import org.jbpm.process.instance.impl.ProcessInstanceImpl;
 import org.jbpm.workflow.instance.impl.NodeInstanceImpl;
 import org.kie.api.event.process.ProcessCompletedEvent;
 import org.kie.api.event.process.ProcessNodeLeftEvent;
+import org.kie.api.event.process.ProcessAsyncNodeScheduledEvent;
 import org.kie.api.event.process.ProcessNodeTriggeredEvent;
 import org.kie.api.event.process.ProcessStartedEvent;
 import org.kie.api.event.process.ProcessVariableChangedEvent;
@@ -65,6 +66,11 @@ public abstract class AbstractAuditLoggerAdapter extends AbstractAuditLogger {
     protected abstract void processStarted(ProcessStartedEvent event);
 
     @Override
+    public void onAsyncNodeScheduledEvent(ProcessAsyncNodeScheduledEvent event) {
+        nodeScheduled(event);
+    }
+
+    @Override
     public void afterProcessStarted(ProcessStartedEvent event) {
         // nothing 
 
@@ -87,6 +93,8 @@ public abstract class AbstractAuditLoggerAdapter extends AbstractAuditLogger {
     public void beforeNodeTriggered(ProcessNodeTriggeredEvent event) {
         nodeEnter(event);
     }
+
+    protected abstract void nodeScheduled(ProcessAsyncNodeScheduledEvent event);
 
     protected abstract void nodeEnter(ProcessNodeTriggeredEvent event);
 

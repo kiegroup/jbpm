@@ -154,7 +154,7 @@ public class AsyncContinuationSupportTest extends AbstractExecutorBaseTest {
 
         List<? extends NodeInstanceLog> logs = runtime.getAuditService().findNodeInstances(processInstanceId);
         assertNotNull(logs);
-        assertEquals(8, logs.size());
+        assertEquals(9, logs.size());
     }
 
     @Test
@@ -243,7 +243,7 @@ public class AsyncContinuationSupportTest extends AbstractExecutorBaseTest {
 
         List<? extends NodeInstanceLog> logs = runtime.getAuditService().findNodeInstances(processInstanceId);
         assertNotNull(logs);
-        assertEquals(6, logs.size());
+        assertEquals(7, logs.size());
     }
 
     @Test(timeout=10000)
@@ -306,7 +306,7 @@ public class AsyncContinuationSupportTest extends AbstractExecutorBaseTest {
 
         List<? extends NodeInstanceLog> logs = runtime.getAuditService().findNodeInstances(processInstanceId);
         assertNotNull(logs);
-        assertEquals(12, logs.size());
+        assertEquals(15, logs.size());
     }
 
     @Test(timeout=10000)
@@ -360,7 +360,7 @@ public class AsyncContinuationSupportTest extends AbstractExecutorBaseTest {
 
         List<? extends NodeInstanceLog> logs = runtime.getAuditService().findNodeInstances(processInstanceId);
         assertNotNull(logs);
-        assertEquals(26, logs.size());
+        assertEquals(29, logs.size());
     }
 
     @Test(timeout=10000)
@@ -409,7 +409,7 @@ public class AsyncContinuationSupportTest extends AbstractExecutorBaseTest {
 
         List<? extends NodeInstanceLog> logs = runtime.getAuditService().findNodeInstances(processInstanceId);
         assertNotNull(logs);
-        assertEquals(18, logs.size());
+        assertEquals(19, logs.size());
     }
 
     @Test(timeout=10000)
@@ -457,7 +457,7 @@ public class AsyncContinuationSupportTest extends AbstractExecutorBaseTest {
 
         List<? extends NodeInstanceLog> logs = runtime.getAuditService().findNodeInstances(processInstanceId);
         assertNotNull(logs);
-        assertEquals(18, logs.size());
+        assertEquals(22, logs.size());
     }
 
     @Test(timeout=10000)
@@ -506,7 +506,7 @@ public class AsyncContinuationSupportTest extends AbstractExecutorBaseTest {
 
         List<? extends NodeInstanceLog> logs = runtime.getAuditService().findNodeInstances(processInstanceId);
         assertNotNull(logs);
-        assertEquals(18, logs.size());
+        assertEquals(20, logs.size());
     }
 
     @Test(timeout=10000)
@@ -553,7 +553,7 @@ public class AsyncContinuationSupportTest extends AbstractExecutorBaseTest {
 
         List<? extends NodeInstanceLog> logs = runtime.getAuditService().findNodeInstances(processInstanceId);
         assertNotNull(logs);
-        assertEquals(6, logs.size());
+        assertEquals(7, logs.size());
     }
 
 
@@ -604,7 +604,7 @@ public class AsyncContinuationSupportTest extends AbstractExecutorBaseTest {
 
         List<? extends NodeInstanceLog> logs = runtime.getAuditService().findNodeInstances(processInstanceId);
         assertNotNull(logs);
-        assertEquals(14, logs.size());
+        assertEquals(17, logs.size());
     }
 
     @Test(timeout=1000000)
@@ -679,7 +679,7 @@ public class AsyncContinuationSupportTest extends AbstractExecutorBaseTest {
 
         List<? extends NodeInstanceLog> logs = runtime.getAuditService().findNodeInstances(processInstanceId);
         assertNotNull(logs);
-        assertEquals(8, logs.size());
+        assertEquals(9, logs.size());
     }
 
     @Test(timeout=10000)
@@ -726,7 +726,7 @@ public class AsyncContinuationSupportTest extends AbstractExecutorBaseTest {
 
         List<? extends NodeInstanceLog> logs = runtime.getAuditService().findNodeInstances(processInstanceId);
         assertNotNull(logs);
-        assertEquals(8, logs.size());
+        assertEquals(11, logs.size());
 
         waitForAllJobsToComplete();
         List<RequestInfo> completed = executorService.getCompletedRequests(new QueryContext());
@@ -781,7 +781,7 @@ public class AsyncContinuationSupportTest extends AbstractExecutorBaseTest {
 
         List<? extends NodeInstanceLog> logs = runtime.getAuditService().findNodeInstances(processInstanceId);
         assertNotNull(logs);
-        assertEquals(8, logs.size());
+        assertEquals(11, logs.size());
 
         waitForAllJobsToComplete();
         List<RequestInfo> completed = executorService.getCompletedRequests(new QueryContext());
@@ -836,7 +836,7 @@ public class AsyncContinuationSupportTest extends AbstractExecutorBaseTest {
 
         List<? extends NodeInstanceLog> logs = runtime.getAuditService().findNodeInstances(processInstanceId);
         assertNotNull(logs);
-        assertEquals(6, logs.size());
+        assertEquals(8, logs.size());
 
         waitForAllJobsToComplete();
         List<RequestInfo> completed = executorService.getCompletedRequests(new QueryContext());
@@ -884,7 +884,7 @@ public class AsyncContinuationSupportTest extends AbstractExecutorBaseTest {
 
         List<? extends NodeInstanceLog> logs = runtime.getAuditService().findNodeInstances(processInstanceId);
         assertNotNull(logs);
-        assertEquals(18, logs.size());
+        assertEquals(25, logs.size());
 
         waitForAllJobsToComplete();
         List<RequestInfo> completed = executorService.getCompletedRequests(new QueryContext());
@@ -940,7 +940,7 @@ public class AsyncContinuationSupportTest extends AbstractExecutorBaseTest {
 
         List<? extends NodeInstanceLog> logs = runtime.getAuditService().findNodeInstances(processInstanceId);
         assertNotNull(logs);
-        assertEquals(8, logs.size());
+        assertEquals(10, logs.size());
 
         waitForAllJobsToComplete();
         List<RequestInfo> completed = executorService.getCompletedRequests(new QueryContext());

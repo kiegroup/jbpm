@@ -17,9 +17,13 @@
 package org.jbpm.workflow.instance.node;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
+import org.drools.core.common.InternalKnowledgeRuntime;
 import org.jbpm.process.core.async.AsyncSignalEventCommand;
+import org.jbpm.process.instance.InternalProcessRuntime;
 import org.jbpm.workflow.core.impl.NodeImpl;
 import org.jbpm.workflow.core.node.AsyncEventNode;
 import org.jbpm.workflow.instance.impl.NodeInstanceImpl;
@@ -60,7 +64,7 @@ public class AsyncEventNodeInstance extends EventNodeInstance {
             ctx.setData("Signal", getEventType());
             ctx.setData("Event", null);
             
-            executorService.scheduleRequest(AsyncSignalEventCommand.class.getName(), ctx);
+            Long jobId = executorService.scheduleRequest(AsyncSignalEventCommand.class.getName(), ctx);
             
             Node node = getNode();
             if (node != null) {
@@ -70,6 +74,11 @@ public class AsyncEventNodeInstance extends EventNodeInstance {
                 }
                 ((WorkflowProcessInstanceImpl) getProcessInstance()).getIterationLevels().remove(getNode().getMetaData().get("UniqueId"));
             }
+            Map<String, Object> data = new HashMap<>();
+            data.put("jobId", jobId);
+            data.put("nodeInstanceId", this.getId());
+            InternalKnowledgeRuntime kruntime = getProcessInstance().getKnowledgeRuntime();
+            ((InternalProcessRuntime) kruntime.getProcessRuntime()).getProcessEventSupport().fireOnAsyncNodeScheduledEvent(this, kruntime, data);
     	} else {
     	    logger.warn("No async executor service found continuing as sync operation...");
     	    // if there is no executor service available move as sync node
