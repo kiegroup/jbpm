@@ -216,6 +216,7 @@
         workItemId int8,
         nodeContainerId varchar(255),
         referenceId int8,
+        observation varchar(255),
         primary key (id)
     );
 

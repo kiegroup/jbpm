@@ -16,10 +16,7 @@
 
 package org.jbpm.process.audit;
 
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.ServiceLoader;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -44,6 +41,7 @@ import org.kie.api.event.KieRuntimeEvent;
 import org.kie.api.event.process.ProcessCompletedEvent;
 import org.kie.api.event.process.ProcessEventListener;
 import org.kie.api.event.process.ProcessNodeLeftEvent;
+import org.kie.api.event.process.ProcessAsyncNodeScheduledEvent;
 import org.kie.api.event.process.ProcessNodeTriggeredEvent;
 import org.kie.api.event.process.ProcessStartedEvent;
 import org.kie.api.event.process.ProcessVariableChangedEvent;
@@ -127,7 +125,13 @@ public class JPAWorkingMemoryDbLogger extends AbstractAuditLoggerAdapter impleme
         NodeInstanceLog log = (NodeInstanceLog) builder.buildEvent(event);
         setNodeInstanceMetadata(event.getNodeInstance(), METADATA_NODEINSTANCE_LOG, log);
         persist(log, event);
+    }
 
+    @Override
+    protected void nodeScheduled(ProcessAsyncNodeScheduledEvent event) {
+        NodeInstanceLog log = (NodeInstanceLog) builder.buildEvent(event);
+        setNodeInstanceMetadata(event.getNodeInstance(), METADATA_NODEINSTANCE_LOG, log);
+        persist(log, event);
     }
 
     @Override
@@ -408,5 +412,7 @@ public class JPAWorkingMemoryDbLogger extends AbstractAuditLoggerAdapter impleme
         	return null;
         }
     }
+
+
 
 }

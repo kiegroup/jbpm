@@ -234,6 +234,7 @@
         workItemId numeric(19,0) null,
         nodeContainerId varchar(255) null,
         referenceId numeric(19,0) null,
+        observation varchar(255),
         primary key (id)
     ) lock datarows
     go
