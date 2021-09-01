@@ -28,6 +28,7 @@ import org.kie.api.definition.process.Node;
 import org.kie.api.definition.process.NodeContainer;
 import org.kie.api.event.process.ProcessCompletedEvent;
 import org.kie.api.event.process.ProcessNodeLeftEvent;
+import org.kie.api.event.process.ProcessAsyncNodeScheduledEvent;
 import org.kie.api.event.process.ProcessNodeTriggeredEvent;
 import org.kie.api.event.process.ProcessStartedEvent;
 import org.kie.api.event.process.ProcessVariableChangedEvent;
@@ -86,6 +87,42 @@ public class DefaultAuditEventBuilderImpl implements AuditEventBuilder {
         logEvent.setProcessInstanceDescription( pi.getDescription() );
         logEvent.setSlaCompliance(pi.getSlaCompliance());
         return logEvent;
+    }
+
+    @Override
+    public AuditEvent buildEvent(ProcessAsyncNodeScheduledEvent pnse) {
+        ProcessInstanceImpl pi = (ProcessInstanceImpl) pnse.getProcessInstance();
+        NodeInstanceImpl nodeInstance = (NodeInstanceImpl) pnse.getNodeInstance();
+        Node node = nodeInstance.getNode();
+        String nodeId = null;
+        String nodeType = null;
+        String nodeContainerId = null;
+        if (node != null) {
+            nodeId = (String)node.getMetaData().get("UniqueId");
+            nodeType = node.getClass().getSimpleName();
+            nodeContainerId = getNodeContainerId(node.getNodeContainer());
+        } else {
+            nodeId = Long.toString(nodeInstance.getNodeId());
+            nodeType = (String)nodeInstance.getMetaData("NodeType");
+        }
+        NodeInstanceLog log = new NodeInstanceLog(NodeInstanceLog.TYPE_ASYNC_ENTER, pi.getId(), pi.getProcessId(), Long.toString(nodeInstance.getId()),
+                nodeId, nodeInstance.getNodeName());
+        if (nodeInstance instanceof WorkItemNodeInstance && ((WorkItemNodeInstance) nodeInstance).getWorkItem() != null) {
+            log.setWorkItemId(((WorkItemNodeInstance) nodeInstance).getWorkItem().getId());
+        }
+        if (nodeInstance instanceof SubProcessNodeInstance) {
+            log.setReferenceId(((SubProcessNodeInstance) nodeInstance).getProcessInstanceId());
+        }
+        String connection = (String)nodeInstance.getMetaData().get("IncomingConnection");
+        log.setConnection(connection);
+        log.setExternalId(""+((KieSession) pnse.getKieRuntime()).getIdentifier());
+        log.setNodeType(nodeType);
+        log.setNodeContainerId(nodeContainerId);
+        log.setDate(pnse.getEventDate());
+        log.setSlaCompliance(nodeInstance.getSlaCompliance());
+        log.setSlaDueDate(nodeInstance.getSlaDueDate());
+        log.setObservation(pnse.getExtraData().toString());
+        return log;
     }
 
     @Override
@@ -224,5 +261,7 @@ public class DefaultAuditEventBuilderImpl implements AuditEventBuilder {
         }
         return null;
     }
+
+
 
 }

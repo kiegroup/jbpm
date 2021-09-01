@@ -216,6 +216,7 @@
         workItemId bigint,
         nodeContainerId varchar(255),
         referenceId bigint,
+        observation varchar(255),
         primary key (id)
     ) ENGINE=InnoDB;
 

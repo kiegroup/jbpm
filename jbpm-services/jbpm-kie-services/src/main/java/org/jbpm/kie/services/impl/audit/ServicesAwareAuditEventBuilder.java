@@ -27,6 +27,7 @@ import org.jbpm.process.instance.ProcessInstance;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
 import org.kie.api.event.process.ProcessCompletedEvent;
 import org.kie.api.event.process.ProcessNodeLeftEvent;
+import org.kie.api.event.process.ProcessAsyncNodeScheduledEvent;
 import org.kie.api.event.process.ProcessNodeTriggeredEvent;
 import org.kie.api.event.process.ProcessStartedEvent;
 import org.kie.api.event.process.ProcessVariableChangedEvent;
@@ -67,6 +68,14 @@ public class ServicesAwareAuditEventBuilder extends DefaultAuditEventBuilderImpl
 
     @Override
     public AuditEvent buildEvent(ProcessNodeTriggeredEvent pnte) {
+        NodeInstanceLog nodeInstanceLog = (NodeInstanceLog) super.buildEvent(pnte);
+        nodeInstanceLog.setExternalId(deploymentUnitId);
+        return nodeInstanceLog;
+
+    }
+
+    @Override
+    public AuditEvent buildEvent(ProcessAsyncNodeScheduledEvent pnte) {
         NodeInstanceLog nodeInstanceLog = (NodeInstanceLog) super.buildEvent(pnte);
         nodeInstanceLog.setExternalId(deploymentUnitId);
         return nodeInstanceLog;

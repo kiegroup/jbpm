@@ -21,8 +21,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.EntityManager;
+
 import org.assertj.core.api.Assertions;
 import org.jbpm.executor.ExecutorServiceFactory;
+import org.jbpm.process.audit.NodeInstanceLog;
 import org.jbpm.process.workitem.bpmn2.ServiceTaskHandler;
 import org.jbpm.test.JbpmTestCase;
 import org.junit.After;
@@ -34,6 +37,9 @@ import org.kie.api.executor.ExecutorService;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.audit.VariableInstanceLog;
 import org.kie.api.runtime.process.ProcessInstance;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
 
 
 public class AsyncThreadIsolationTest extends JbpmTestCase {
@@ -79,7 +85,7 @@ public class AsyncThreadIsolationTest extends JbpmTestCase {
         executorService.destroy();
     }
 
-    @Test(timeout = 10000)
+    @Test
     public void testCorrectProcessStateAfterException() {
         KieSession ksession = createKSession(BPMN_ATI);
         Map<String, Object> params = new HashMap<String, Object>();
@@ -104,6 +110,14 @@ public class AsyncThreadIsolationTest extends JbpmTestCase {
         pi = ksession.getProcessInstance(pi.getId());
         Assertions.assertThat(pi).isNotNull();
         Assertions.assertThat(pi.getState()).isEqualTo(ProcessInstance.STATE_ACTIVE);
+
+        EntityManager em = getEmf().createEntityManager();
+        List<NodeInstanceLog> logs = em.createQuery("SELECT o FROM NodeInstanceLog o WHERE o.type = :type", NodeInstanceLog.class)
+                .setParameter("type", NodeInstanceLog.TYPE_ASYNC_ENTER)
+                .getResultList();
+        em.close();
+        assertEquals(2, logs.size());
+        assertNotNull(logs.get(0).getObservation());
     }
 
 }

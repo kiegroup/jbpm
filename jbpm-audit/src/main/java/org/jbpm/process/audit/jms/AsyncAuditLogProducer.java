@@ -34,6 +34,7 @@ import org.jbpm.process.audit.variable.ProcessIndexerManager;
 import org.jbpm.workflow.instance.impl.NodeInstanceImpl;
 import org.kie.api.event.process.ProcessCompletedEvent;
 import org.kie.api.event.process.ProcessNodeLeftEvent;
+import org.kie.api.event.process.ProcessAsyncNodeScheduledEvent;
 import org.kie.api.event.process.ProcessNodeTriggeredEvent;
 import org.kie.api.event.process.ProcessStartedEvent;
 import org.kie.api.event.process.ProcessVariableChangedEvent;
@@ -120,6 +121,13 @@ public class AsyncAuditLogProducer extends AbstractAuditLogger {
     public void beforeNodeTriggered(ProcessNodeTriggeredEvent event) {
         NodeInstanceLog log = (NodeInstanceLog) builder.buildEvent(event);
         sendMessage(log, BEFORE_NODE_ENTER_EVENT_TYPE, 8);
+        ((NodeInstanceImpl) event.getNodeInstance()).getMetaData().put("NodeInstanceLog", log);
+    }
+
+    @Override
+    public void onAsyncNodeScheduledEvent(ProcessAsyncNodeScheduledEvent event) {
+        NodeInstanceLog log = (NodeInstanceLog) builder.buildEvent(event);
+        sendMessage(log, ON_ASYNC_NODE_EVENT_TYPE, 7);
         ((NodeInstanceImpl) event.getNodeInstance()).getMetaData().put("NodeInstanceLog", log);
     }
 

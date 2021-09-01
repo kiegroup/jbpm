@@ -34,6 +34,7 @@ public abstract class AbstractAuditLogger implements ProcessEventListener {
     public static final int AFTER_NODE_LEFT_EVENT_TYPE = 7;
     public static final int BEFORE_VAR_CHANGE_EVENT_TYPE = 8;
     public static final int AFTER_VAR_CHANGE_EVENT_TYPE = 9;
+    public static final int ON_ASYNC_NODE_EVENT_TYPE = 10;
     
     protected AuditEventBuilder builder = new DefaultAuditEventBuilderImpl();
     
