@@ -26,8 +26,13 @@ import org.jbpm.workflow.core.node.Assignment;
 import org.jbpm.workflow.instance.impl.NodeInstanceResolverFactory;
 import org.kie.api.runtime.process.NodeInstance;
 import org.kie.api.runtime.process.ProcessContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MVELAssignmentAction implements AssignmentAction {
+    
+    
+    private static final Logger logger = LoggerFactory.getLogger(MVELAssignmentAction.class);
 
     private String to;
     private String from;
@@ -57,24 +62,39 @@ public class MVELAssignmentAction implements AssignmentAction {
     public void execute(NodeInstance nodeInstance, ProcessContext context) {
         Object targetObject = targetExpr != null ? target.apply(context, nodeInstance) : null;
         Object srcObject = srcExpr != null ? src.apply(context, nodeInstance) : null;
-        NodeInstanceResolverFactory resolver = new NodeInstanceResolverFactory(
-                (org.jbpm.workflow.instance.NodeInstance) nodeInstance);
         // just evaluating, not assignment
         if (targetExpr != null && targetObject == null || notEvalTarget()) {
-            targetObject = notEvalSrc() ? srcObject : MVELSafeHelper.getEvaluator().eval(from, srcObject, resolver);
+            targetObject = notEvalSrc() ? srcObject : MVELSafeHelper.getEvaluator().eval(from, srcObject, new NodeInstanceResolverFactory((org.jbpm.workflow.instance.NodeInstance) nodeInstance));
+            if (targetExpr != null) {
+                producer.accept(context, nodeInstance, targetObject);
+            }
         } else {
+            String lValue = ensureLocated(targetExpr, to);
+            String rootName = targetExpr != null ? targetExpr : getRootValue(lValue);
+            MVELResolverFactory resolver = new MVELResolverFactory((org.jbpm.workflow.instance.NodeInstance) nodeInstance, rootName);
             if (srcExpr != null) {
                 resolver.addExtraParameter(srcExpr, srcObject);
             }
             if (targetExpr != null) {
                 resolver.addExtraParameter(targetExpr, targetObject);
             }
-            MVELSafeHelper.getEvaluator().eval(ensureLocated(targetExpr, to).concat("=").concat(ensureLocated(srcExpr,
-                    from)), resolver);
+            String expr = lValue.concat("=").concat(ensureLocated(srcExpr, from));
+            logger.debug("Executing mvel assignment {}", expr);
+            MVELSafeHelper.getEvaluator().eval(expr, resolver);
+            context.setVariable(rootName, resolver.getVariable());
         }
-        if (targetExpr != null) {
-            producer.accept(context, nodeInstance, targetObject);
+    }
+    
+    private String getRootValue (String lValue) {
+        int indexOf = lValue.indexOf(".");
+        if (indexOf > 0) {
+            lValue = lValue.substring(0, indexOf);
         }
+        indexOf = lValue.indexOf('[');
+        if (indexOf > 0) {
+            lValue = lValue.substring(0, indexOf);
+        }
+        return lValue;
     }
 
     private static boolean isThis(String assignmentExpr) {

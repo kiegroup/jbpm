@@ -16,6 +16,12 @@
 
 package org.jbpm.bpmn2;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
 import java.util.Arrays;
@@ -24,11 +30,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.drools.core.event.DefaultProcessEventListener;
 import org.jbpm.bpmn2.core.Association;
 import org.jbpm.bpmn2.core.DataStore;
 import org.jbpm.bpmn2.core.Definitions;
@@ -43,6 +51,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.kie.api.KieBase;
+import org.kie.api.event.process.ProcessVariableChangedEvent;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.process.WorkItem;
 import org.kie.api.runtime.process.WorkItemHandler;
@@ -54,13 +63,35 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 @RunWith(Parameterized.class)
 public class DataTest extends JbpmBpmn2TestCase {
+
+    private class CounterProcessEventListener extends DefaultProcessEventListener {
+
+        private int counter = 0;
+
+        protected void incCounter() {
+            counter++;
+        }
+
+        public int getCounter() {
+            return counter;
+        }
+
+        public void afterVariableChanged(ProcessVariableChangedEvent event) {
+            assertNotEquals(event.getOldValue(), event.getNewValue());
+            if (event.getOldValue() != null) {
+                incCounter();
+            }
+        }
+
+        public void beforeVariableChanged(ProcessVariableChangedEvent event) {
+            assertNotEquals(event.getOldValue(), event.getNewValue());
+            if (event.getOldValue() != null) {
+                incCounter();
+            }
+        }
+    }
 
     public static class Person implements Serializable {
 
@@ -89,6 +120,30 @@ public class DataTest extends JbpmBpmn2TestCase {
         public Address getAddress() {
             return address;
         }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(address, name);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (!(obj instanceof Person)) {
+                return false;
+            }
+            Person other = (Person) obj;
+            return Objects.equals(address, other.address) && Objects.equals(name, other.name);
+        }
+
+        @Override
+        public String toString() {
+            return "Person [name=" + name + ", address=" + address + "]";
+        }
+        
+        
     }
 
     public static class Address implements Serializable {
@@ -118,6 +173,33 @@ public class DataTest extends JbpmBpmn2TestCase {
         public void setCountry(String country) {
             this.country = country;
         }
+
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(city, country);
+        }
+
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (!(obj instanceof Address)) {
+                return false;
+            }
+            Address other = (Address) obj;
+            return Objects.equals(city, other.city) && Objects.equals(country, other.country);
+        }
+
+
+        @Override
+        public String toString() {
+            return "Address [city=" + city + ", country=" + country + "]";
+        }
+        
+        
     }
 
 
@@ -646,6 +728,7 @@ public class DataTest extends JbpmBpmn2TestCase {
                         assertEquals("France", person.getAddress().getCountry());
                         mgr.completeWorkItem(workItem.getId(), Collections.singletonMap("output", new Person(
                                 "Javierito", new Address("Sevilla", "Spain"))));
+                        person = (Person) processInstance.getVariable("instanceMetadata");
                         assertEquals("Napoleon", person.getName());
                         assertEquals("Sevilla", person.getAddress().getCity());
                         assertEquals("Spain", person.getAddress().getCountry());
@@ -692,6 +775,8 @@ public class DataTest extends JbpmBpmn2TestCase {
     public void testDataOutputAssociationsStunnerWithPojo() throws Exception {
         KieBase kbase = createKnowledgeBaseWithoutDumper("BPMN2-DataOutputAssociationStunner.bpmn2");
         ksession = createKnowledgeSession(kbase);
+        CounterProcessEventListener listener = new CounterProcessEventListener();
+        ksession.addEventListener(listener);
         ksession.getWorkItemManager().registerWorkItemHandler("Human Task",
                 new WorkItemHandler() {
 
@@ -711,6 +796,7 @@ public class DataTest extends JbpmBpmn2TestCase {
                         assertEquals("France", person.getAddress().getCountry());
                         mgr.completeWorkItem(workItem.getId(), Collections.singletonMap("output", new Address("Sevilla",
                                 "Spain")));
+                        person = (Person) processInstance.getVariable("instanceMetadata");
                         assertEquals("Napoleon", person.getName());
                         assertEquals("Sevilla", person.getAddress().getCity());
                         assertEquals("Spain", person.getAddress().getCountry());
@@ -719,6 +805,7 @@ public class DataTest extends JbpmBpmn2TestCase {
                 });
         ksession.startProcess("process", Collections.singletonMap("instanceMetadata", new Person("Napoleon",
                 new Address("Paris", "France"))));
+        assertEquals(2, listener.getCounter());
     }
 
     @Test
@@ -744,6 +831,7 @@ public class DataTest extends JbpmBpmn2TestCase {
                         assertEquals("France", person.getAddress().getCountry());
                         mgr.completeWorkItem(workItem.getId(), Collections.singletonMap("instanceAddress", new Address(
                                 "Sevilla", "Spain")));
+                        person = (Person) processInstance.getVariable("instanceMetadata");
                         assertEquals("Napoleon", person.getName());
                         assertEquals("Sevilla", person.getAddress().getCity());
                         assertEquals("Spain", person.getAddress().getCountry());
@@ -758,6 +846,8 @@ public class DataTest extends JbpmBpmn2TestCase {
     public void testDataOutputAssociationsWithPojoList() throws Exception {
         KieBase kbase = createKnowledgeBaseWithoutDumper("BPMN2-DataOutputAssociations-PojoList.bpmn2");
         ksession = createKnowledgeSession(kbase);
+        CounterProcessEventListener listener = new CounterProcessEventListener();
+        ksession.addEventListener(listener);
         ksession.getWorkItemManager().registerWorkItemHandler("Human Task",
                 new WorkItemHandler() {
 
@@ -779,6 +869,9 @@ public class DataTest extends JbpmBpmn2TestCase {
                         mgr.completeWorkItem(workItem.getId(), Collections.singletonMap("output", Arrays.asList(
                                 new Person("Javierito", new Address("Paris", "France")), new Person("Napoleon",
                                         new Address("Sevilla", "Spain")))));
+                        persons = (List<Person>) processInstance.getVariable("instanceMetadata");
+                        assertNotNull(persons);
+                        person = persons.get(0);
                         assertEquals("Javierito", person.getName());
                         assertEquals("Sevilla", person.getAddress().getCity());
                         assertEquals("Spain", person.getAddress().getCountry());
@@ -788,6 +881,7 @@ public class DataTest extends JbpmBpmn2TestCase {
         ksession.startProcess("process", Collections.singletonMap("instanceMetadata", Arrays.asList(new Person(
                 "Javierito", new Address("Paris", "France")), new Person("Napoleon", new Address("Madrid",
                         "Spain")))));
+        assertEquals(2, listener.getCounter());
     }
 
     @Test
@@ -815,6 +909,8 @@ public class DataTest extends JbpmBpmn2TestCase {
                         mgr.completeWorkItem(workItem.getId(), Collections.singletonMap("output", Arrays.asList(
                                 new Person("Javierito", new Address("Paris", "France")), new Person("Napoleon",
                                         new Address("Sevilla", "Spain")))));
+                        person = (Map<String, Object>) processInstance.getVariable(
+                                "instanceMetadata");
                         assertEquals("Javierito", person.get("name"));
                         address = (Address) person.get("address");
                         assertEquals("Sevilla", address.getCity());
