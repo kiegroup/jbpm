@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jbpm.process.core.datatype.DataType;
 
 /**
@@ -41,12 +42,15 @@ public final class FloatDataType
 
     @Override
     public boolean verifyDataType(final Object value) {
-        if ( value instanceof Float ) {
-            return true;
-        } else if ( value == null ) {
+        if (value == null) {
             return true;
         } else {
-            return false;
+            try {
+                Float.parseFloat(value.toString());
+                return true;
+            } catch (NumberFormatException e) {
+                return false;
+            }
         }
     }
 
