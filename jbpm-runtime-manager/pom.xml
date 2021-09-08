@@ -358,6 +358,7 @@
               org.kie.internal.runtime.manager.deploy,
               org.kie.internal.task.api,
               org.kie.internal.task.api.model,
+              org.kie.internal.task.exception,
               org.kie.internal.task.query,
               org.kie.scanner;resolution:=optional,
               org.kie.spring.persistence;resolution:=optional,
