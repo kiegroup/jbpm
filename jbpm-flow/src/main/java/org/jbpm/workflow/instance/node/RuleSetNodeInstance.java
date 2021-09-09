@@ -305,10 +305,13 @@ public class RuleSetNodeInstance extends StateBasedNodeInstance implements Event
                     VariableScopeInstance variableScopeInstance = (VariableScopeInstance)
                             resolveContextInstance(VariableScope.VARIABLE_SCOPE, association.getTarget());
                     if (variableScopeInstance != null) {
-                        Object value = objects.get(association.getSources().get(0));
+                        String source = association.getSources().get(0);
+                        source = resolveVariable(source); // resolve expression if any
+
+                        Object value = objects.get(source);
                         if (value == null) {
                             try {
-                                value = MVELSafeHelper.getEvaluator().eval(association.getSources().get(0), new MapVariableResolverFactory(objects));
+                                value = MVELSafeHelper.getEvaluator().eval(source, new MapVariableResolverFactory(objects));
                             } catch (Throwable t) {
                                 // do nothing
                             }
@@ -390,9 +393,11 @@ public class RuleSetNodeInstance extends StateBasedNodeInstance implements Event
         return replacements;
     }
 
-    private Object resolveVariable(Object s) {
 
-        if (s instanceof String) {
+
+
+    private Object resolveVariable(Object s) {
+        if (isExpression(s)) {
             Matcher matcher = PatternConstants.PARAMETER_MATCHER.matcher((String) s);
             while (matcher.find()) {
                 String paramName = matcher.group(1);
@@ -418,6 +423,10 @@ public class RuleSetNodeInstance extends StateBasedNodeInstance implements Event
         }
 
         return s;
+    }
+
+    private boolean isExpression(Object expression) {
+        return expression instanceof String && PatternConstants.PARAMETER_MATCHER.matcher((String) expression).matches();
     }
 
     protected Map<String, Object> getSourceParameters(DataAssociation association) {
