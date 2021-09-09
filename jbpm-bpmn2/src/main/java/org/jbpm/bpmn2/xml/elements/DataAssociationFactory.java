@@ -66,8 +66,7 @@ public final class DataAssociationFactory {
                     source = subNode.getTextContent();
                     String mapped = dataOutputs.get(source);
                     if (mapped == null) {
-                        logger.warn("Data outputs in this node {} does not contain source {}", xmlNode.getAttributes()
-                                .getNamedItem("id"), source);
+                        logger.warn("Data outputs in this node {} does not contain source {} not mapped", xmlNode.getAttributes().getNamedItem("id"), source);
                     }
                     else {
                         source = mapped;

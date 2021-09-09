@@ -55,6 +55,12 @@ public class RuleTaskTest extends JbpmTestCase {
             "org.jbpm.test.functional.task.RuleTask2";
     private static final String RULE_TASK_2_DRL = "org/jbpm/test/functional/task/RuleTask2.drl";
 
+    private static final String DMN_TASK =
+            "org/jbpm/test/functional/task/DMNOutputExpressionProcess.bpmn";
+    private static final String DMN_TASK_ID =
+            "org.jbpm.test.functional.task.DMNOutputExpressionProcess";
+    private static final String DMN_TASK_DRL = "org/jbpm/test/functional/task/DMNOutputExpression.dmn";
+
     public RuleTaskTest() {
         super(false);
     }
@@ -156,6 +162,25 @@ public class RuleTaskTest extends JbpmTestCase {
             System.out.println(s);
         }
         assertEquals(2, executeRuleList.size());
+    }
+
+    @Test(timeout = 30000)
+    public void testRuleDMNOutputExpressionTask() {
+        Map<String, ResourceType> res = new HashMap<String, ResourceType>();
+        res.put(DMN_TASK, ResourceType.BPMN2);
+        res.put(DMN_TASK_DRL, ResourceType.DMN);
+        KieSession ksession = createKSession(res);
+        ksession.getEnvironment().set("org.jbpm.rule.task.waitstate", true);
+
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("output", "Generated Date");
+        ProcessInstance pi = ksession.startProcess(DMN_TASK_ID, parameters);
+        assertNotNull(pi);
+        assertEquals(ProcessInstance.STATE_COMPLETED, pi.getState());
+
+        WorkflowProcessInstance wpi = (WorkflowProcessInstance) pi;
+        assertNotNull(wpi.getVariable("date"));
+
     }
 
     public KieSession createKSession(Map<String, ResourceType> res) {
