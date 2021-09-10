@@ -16,41 +16,62 @@
 
 package org.jbpm.persistence.api.integration.base;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Collection;
-import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 
 import org.jbpm.persistence.api.integration.EventCollection;
 import org.jbpm.persistence.api.integration.InstanceView;
 
 /**
- * Base event collection that collects all events in LinkedHashSet to eliminate duplicates.
+ * Base event collection that collects all events avoiding duplicates.
  * No extra filtering is performed.
  *
  */
 public class BaseEventCollection implements EventCollection {
 
     private static final long serialVersionUID = -5241582057875657702L;
-    private Set<InstanceView<?>> events = new LinkedHashSet<>();
-    
+    private Map<InstanceView<?>, InstanceView<?>> eventsMap = new LinkedHashMap<>();
+
     @Override
     public void update(InstanceView<?> item) {
-        this.events.add(item);
+        this.eventsMap.put(item, item);
     }
-    
+
     @Override
     public void remove(InstanceView<?> item) {
-        this.events.add(item);
+        this.eventsMap.put(item, item);
     }
-    
+
     @Override
-    public Collection<InstanceView<?>> getEvents() {                
-        return this.events;
+    public Collection<InstanceView<?>> getEvents() {
+        return this.eventsMap.values();
     }
-    
+
     @Override
     public void add(InstanceView<?> event) {
-        this.events.add(event);
+        this.eventsMap.put(event, event);
+    }
+
+    @SuppressWarnings("unchecked")
+    private void readObject(ObjectInputStream input) throws ClassNotFoundException, IOException {
+        Object collection = input.readObject();
+        if (collection instanceof Set) {
+            eventsMap = new LinkedHashMap<>();
+            for (InstanceView<?> event : (Set<InstanceView<?>>)collection) {
+                eventsMap.put(event, event);
+            }
+        } else {
+            eventsMap = (Map<InstanceView<?>, InstanceView<?>>) collection;
+        }
+    }
+
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        out.writeObject(eventsMap);
     }
 
 }
