@@ -35,9 +35,9 @@ import javax.persistence.Index;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.persistence.Version;
 
+import org.kie.internal.task.api.model.InternalTaskData;
 import org.kie.internal.task.api.model.TaskEvent;
 
 /**
@@ -75,6 +75,8 @@ public class TaskEventImpl implements TaskEvent, Serializable {
   private String correlationKey;
 
   private Integer processType;
+  
+  private String currentOwner;
 
   @Temporal(javax.persistence.TemporalType.TIMESTAMP)
   private Date logTime;
@@ -113,7 +115,22 @@ public class TaskEventImpl implements TaskEvent, Serializable {
   public TaskEventImpl(Long taskId, TaskEventType type, Long processInstanceId, Long workItemId, String userId, String message) {
     this(taskId, type, processInstanceId, workItemId, userId, new Date());
     this.message = message;
+  }
+  
+  public TaskEventImpl(org.kie.api.task.TaskEvent event, TaskEventType type) {
+      this(event, type, null);
+  }
 
+  public TaskEventImpl(org.kie.api.task.TaskEvent event, TaskEventType type, String message) {
+      InternalTaskData taskData = (InternalTaskData)event.getTask().getTaskData(); 
+      this.taskId = event.getTask().getId();
+      this.type = type;
+      this.processInstanceId = taskData.getProcessInstanceId();
+      this.workItemId = taskData.getWorkItemId();
+      this.currentOwner = taskData.getActualOwner()!= null? taskData.getActualOwner().getId() : "";
+      this.userId = event.getTaskContext().getUserId();
+      this.message = message;
+      this.logTime = event.getEventDate();
   }
 
   @Override
@@ -125,7 +142,6 @@ public class TaskEventImpl implements TaskEvent, Serializable {
   public long getTaskId() {
     return taskId;
   }
-
 
   @Override
   public TaskEventType getType() {
@@ -180,65 +196,39 @@ public class TaskEventImpl implements TaskEvent, Serializable {
   }
 
   @Override
+  public String getCurrentOwner() {
+      return currentOwner;
+  }
+
+  public void setCurrentOwner(String currentOwner) {
+      this.currentOwner = currentOwner;
+  }
+
+  @Override
   public int hashCode() {
-    int hash = 3;
-    hash = 97 * hash + (this.id != null ? this.id.hashCode() : 0);
-    hash = 97 * hash + (this.version != null ? this.version.hashCode() : 0);
-    hash = 97 * hash + (this.taskId != null ? this.taskId.hashCode() : 0);
-    hash = 97 * hash + (this.workItemId != null ? this.workItemId.hashCode() : 0);
-    hash = 97 * hash + (this.type != null ? this.type.hashCode() : 0);
-    hash = 97 * hash + (this.message != null ? this.message.hashCode() : 0);
-    hash = 97 * hash + (this.processInstanceId != null ? this.processInstanceId.hashCode() : 0);
-    hash = 97 * hash + (this.userId != null ? this.userId.hashCode() : 0);
-    hash = 97 * hash + (this.logTime != null ? this.logTime.hashCode() : 0);
-    return hash;
+      return Objects.hash(currentOwner, correlationKey, id, logTime, message, processInstanceId, processType, taskId, type, userId, version, workItemId);
   }
 
   @Override
   public boolean equals(Object obj) {
-    if (obj == null) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
-    final TaskEventImpl other = (TaskEventImpl) obj;
-    if (!Objects.equals(this.id, other.id) && (this.id == null || !this.id.equals(other.id))) {
-      return false;
-    }
-    if (!Objects.equals(this.version, other.version) && (this.version == null || !this.version.equals(other.version))) {
-      return false;
-    }
-    if (!Objects.equals(this.taskId, other.taskId) && (this.taskId == null || !this.taskId.equals(other.taskId))) {
-      return false;
-    }
-    if (!Objects.equals(this.workItemId, other.workItemId) && (this.workItemId == null || !this.workItemId.equals(other.workItemId))) {
-      return false;
-    }
-    if (this.type != other.type) {
-      return false;
-    }
-    if (!Objects.equals(this.message, other.message)) {
-      return false;
-    }
-    if (!Objects.equals(this.processInstanceId, other.processInstanceId) && (this.processInstanceId == null || !this.processInstanceId.equals(other.processInstanceId))) {
-      return false;
-    }
-    if ((this.userId == null) ? (other.userId != null) : !this.userId.equals(other.userId)) {
-      return false;
-    }
-    if (this.logTime != other.logTime && (this.logTime == null || !this.logTime.equals(other.logTime))) {
-      return false;
-    }
-    return true;
+      if (this == obj) {
+          return true;
+      }
+      if (!(obj instanceof TaskEventImpl)) {
+          return false;
+      }
+      TaskEventImpl other = (TaskEventImpl) obj;
+      return Objects.equals(currentOwner, other.currentOwner) && Objects.equals(correlationKey, other.correlationKey) && Objects.equals(id, other.id) && Objects.equals(logTime, other.logTime) && Objects.equals(message,
+                                                                                                                                                                                                                other.message) &&
+             Objects.equals(processInstanceId, other.processInstanceId) && Objects.equals(processType, other.processType) && Objects.equals(taskId, other.taskId) && type == other.type && Objects.equals(userId,
+                                                                                                                                                                                                          other.userId) &&
+             Objects.equals(version, other.version) && Objects.equals(workItemId, other.workItemId);
   }
 
-    @Override
-    public String toString() {
-        return "TaskEventImpl [id=" + id + ", version=" + version + ", taskId=" + taskId + ", workItemId=" + workItemId +
-               ", type=" + type + ", processInstanceId=" + processInstanceId + ", userId=" + userId + ", message=" +
-               message + ", correlationKey=" + correlationKey + ", processType=" + processType + ", logTime=" + logTime + 
-               "]";
-    }
-  
+  @Override
+  public String toString() {
+      return "TaskEventImpl [id=" + id + ", version=" + version + ", taskId=" + taskId + ", workItemId=" + workItemId + ", type=" + type + ", processInstanceId=" + processInstanceId + ", userId=" + userId +
+             ", message=" +
+             message + ", correlationKey=" + correlationKey + ", processType=" + processType + ", actualOwner=" + currentOwner + ", logTime=" + logTime + "]";
+  }
 }

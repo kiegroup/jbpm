@@ -102,10 +102,9 @@ public class AsyncTaskLifeCycleEventProducer extends PersistableEventListener im
     
     @Override
     public void afterTaskStartedEvent(TaskEvent event) {
-        String userId = event.getTaskContext().getUserId();
         Task ti = event.getTask();
         
-        TaskEventImpl taskEvent = new TaskEventImpl(ti.getId(), org.kie.internal.task.api.model.TaskEvent.TaskEventType.STARTED, ti.getTaskData().getProcessInstanceId(), ti.getTaskData().getWorkItemId(), userId );                     
+        TaskEventImpl taskEvent = new TaskEventImpl(event, org.kie.internal.task.api.model.TaskEvent.TaskEventType.STARTED);                     
         AuditTaskImpl auditTaskImpl = createAuditTask(ti, event.getEventDate());         
         auditTaskImpl.setStatus(ti.getTaskData().getStatus().name());
         auditTaskImpl.setActualOwner(getActualOwner(ti));
@@ -116,11 +115,10 @@ public class AsyncTaskLifeCycleEventProducer extends PersistableEventListener im
 
     @Override
     public void afterTaskActivatedEvent(TaskEvent event) {
-        String userId = event.getTaskContext().getUserId();
         Task ti = event.getTask();
-        TaskEventImpl taskEvent = new TaskEventImpl(ti.getId(), org.kie.internal.task.api.model.TaskEvent.TaskEventType.ACTIVATED, ti.getTaskData().getProcessInstanceId(), ti.getTaskData().getWorkItemId(), userId);
+        TaskEventImpl taskEvent = new TaskEventImpl(event, org.kie.internal.task.api.model.TaskEvent.TaskEventType.ACTIVATED);
                   
-        AuditTaskImpl auditTaskImpl = createAuditTask(ti, event.getEventDate());    
+        AuditTaskImpl auditTaskImpl = createAuditTask(ti, event.getEventDate());
         auditTaskImpl.setStatus(ti.getTaskData().getStatus().name());
         auditTaskImpl.setActualOwner(getActualOwner(ti));
         auditTaskImpl.setDescription(ti.getDescription());    
@@ -131,9 +129,8 @@ public class AsyncTaskLifeCycleEventProducer extends PersistableEventListener im
 
     @Override
     public void afterTaskClaimedEvent(TaskEvent event) {
-        String userId = event.getTaskContext().getUserId();
         Task ti = event.getTask();
-        TaskEventImpl taskEvent = new TaskEventImpl(ti.getId(), org.kie.internal.task.api.model.TaskEvent.TaskEventType.CLAIMED, ti.getTaskData().getProcessInstanceId(), ti.getTaskData().getWorkItemId(), userId);
+        TaskEventImpl taskEvent = new TaskEventImpl(event, org.kie.internal.task.api.model.TaskEvent.TaskEventType.CLAIMED);
 
         AuditTaskImpl auditTaskImpl = createAuditTask(ti, event.getEventDate());
 
@@ -148,9 +145,8 @@ public class AsyncTaskLifeCycleEventProducer extends PersistableEventListener im
 
     @Override
     public void afterTaskSkippedEvent(TaskEvent event) {
-        String userId = event.getTaskContext().getUserId();
         Task ti = event.getTask();
-        TaskEventImpl taskEvent = new TaskEventImpl(ti.getId(), org.kie.internal.task.api.model.TaskEvent.TaskEventType.SKIPPED, ti.getTaskData().getProcessInstanceId(), ti.getTaskData().getWorkItemId(), userId);
+        TaskEventImpl taskEvent = new TaskEventImpl(event, org.kie.internal.task.api.model.TaskEvent.TaskEventType.SKIPPED);
 
         AuditTaskImpl auditTaskImpl = createAuditTask(ti, event.getEventDate());
 
@@ -163,9 +159,8 @@ public class AsyncTaskLifeCycleEventProducer extends PersistableEventListener im
 
     @Override
     public void afterTaskStoppedEvent(TaskEvent event) {
-        String userId = event.getTaskContext().getUserId();
         Task ti = event.getTask();
-        TaskEventImpl taskEvent = new TaskEventImpl(ti.getId(), org.kie.internal.task.api.model.TaskEvent.TaskEventType.STOPPED, ti.getTaskData().getProcessInstanceId(), ti.getTaskData().getWorkItemId(), userId);
+        TaskEventImpl taskEvent = new TaskEventImpl(event, org.kie.internal.task.api.model.TaskEvent.TaskEventType.STOPPED);
 
         AuditTaskImpl auditTaskImpl = createAuditTask(ti, event.getEventDate());
         auditTaskImpl.setDescription(ti.getDescription());
@@ -178,9 +173,8 @@ public class AsyncTaskLifeCycleEventProducer extends PersistableEventListener im
 
     @Override
     public void afterTaskCompletedEvent(TaskEvent event) {
-        String userId = event.getTaskContext().getUserId();
         Task ti = event.getTask();
-        TaskEventImpl taskEvent = new TaskEventImpl(ti.getId(), org.kie.internal.task.api.model.TaskEvent.TaskEventType.COMPLETED, ti.getTaskData().getProcessInstanceId(), ti.getTaskData().getWorkItemId(), userId);
+        TaskEventImpl taskEvent = new TaskEventImpl(event, org.kie.internal.task.api.model.TaskEvent.TaskEventType.COMPLETED);
 
         AuditTaskImpl auditTaskImpl = createAuditTask(ti, event.getEventDate());
         auditTaskImpl.setStatus(ti.getTaskData().getStatus().name());
@@ -191,9 +185,8 @@ public class AsyncTaskLifeCycleEventProducer extends PersistableEventListener im
 
     @Override
     public void afterTaskFailedEvent(TaskEvent event) {
-        String userId = event.getTaskContext().getUserId();
         Task ti = event.getTask();
-        TaskEventImpl taskEvent = new TaskEventImpl(ti.getId(), org.kie.internal.task.api.model.TaskEvent.TaskEventType.FAILED, ti.getTaskData().getProcessInstanceId(), ti.getTaskData().getWorkItemId(), userId);
+        TaskEventImpl taskEvent = new TaskEventImpl(event, org.kie.internal.task.api.model.TaskEvent.TaskEventType.FAILED);
 
         AuditTaskImpl auditTaskImpl = createAuditTask(ti, event.getEventDate());
         auditTaskImpl.setStatus(ti.getTaskData().getStatus().name());
@@ -204,21 +197,16 @@ public class AsyncTaskLifeCycleEventProducer extends PersistableEventListener im
 
     @Override
     public void afterTaskAddedEvent(TaskEvent event) {
-        String userId = event.getTaskContext().getUserId();
         Task ti = event.getTask();   
-        if(ti.getTaskData().getProcessId() != null){
-            userId = ti.getTaskData().getProcessId();
-        }
         AuditTaskImpl auditTask = createAuditTask(ti, event.getEventDate());            
-        TaskEventImpl taskEvent = new TaskEventImpl(ti.getId(), org.kie.internal.task.api.model.TaskEvent.TaskEventType.ADDED, ti.getTaskData().getProcessInstanceId(), ti.getTaskData().getWorkItemId(), userId);
+        TaskEventImpl taskEvent = new TaskEventImpl(event, org.kie.internal.task.api.model.TaskEvent.TaskEventType.ADDED);
         sendMessage(new AuditTaskData(auditTask, taskEvent), 9);
     }
 
     @Override
     public void afterTaskExitedEvent(TaskEvent event) {
-        String userId = event.getTaskContext().getUserId();
         Task ti = event.getTask();
-        TaskEventImpl taskEvent = new TaskEventImpl(ti.getId(), org.kie.internal.task.api.model.TaskEvent.TaskEventType.EXITED, ti.getTaskData().getProcessInstanceId(), ti.getTaskData().getWorkItemId(), userId);
+        TaskEventImpl taskEvent = new TaskEventImpl(event, org.kie.internal.task.api.model.TaskEvent.TaskEventType.EXITED);
 
         AuditTaskImpl auditTaskImpl = createAuditTask(ti, event.getEventDate());
         auditTaskImpl.setDescription(ti.getDescription());
@@ -252,9 +240,8 @@ public class AsyncTaskLifeCycleEventProducer extends PersistableEventListener im
 
     @Override
     public void afterTaskResumedEvent(TaskEvent event) {
-        String userId = event.getTaskContext().getUserId();
         Task ti = event.getTask();
-        TaskEventImpl taskEvent = new TaskEventImpl(ti.getId(), org.kie.internal.task.api.model.TaskEvent.TaskEventType.RESUMED, ti.getTaskData().getProcessInstanceId(), ti.getTaskData().getWorkItemId(), userId);
+        TaskEventImpl taskEvent = new TaskEventImpl(event, org.kie.internal.task.api.model.TaskEvent.TaskEventType.RESUMED);
 
         AuditTaskImpl auditTaskImpl = createAuditTask(ti, event.getEventDate());
         auditTaskImpl.setDescription(ti.getDescription());
@@ -270,9 +257,8 @@ public class AsyncTaskLifeCycleEventProducer extends PersistableEventListener im
 
     @Override
     public void afterTaskSuspendedEvent(TaskEvent event) {
-        String userId = event.getTaskContext().getUserId();
         Task ti = event.getTask();
-        TaskEventImpl taskEvent = new TaskEventImpl(ti.getId(), org.kie.internal.task.api.model.TaskEvent.TaskEventType.SUSPENDED, ti.getTaskData().getProcessInstanceId(), ti.getTaskData().getWorkItemId(), userId);
+        TaskEventImpl taskEvent = new TaskEventImpl(event, org.kie.internal.task.api.model.TaskEvent.TaskEventType.SUSPENDED);
 
         AuditTaskImpl auditTaskImpl = createAuditTask(ti, event.getEventDate());
 
@@ -289,14 +275,13 @@ public class AsyncTaskLifeCycleEventProducer extends PersistableEventListener im
 
     @Override
     public void afterTaskForwardedEvent(TaskEvent event) {
-        String userId = event.getTaskContext().getUserId();
         Task ti = event.getTask();
 
         StringBuilder message = new StringBuilder();
         String entitiesAsString = (ti.getPeopleAssignments().getPotentialOwners()).stream().map(oe -> oe.getId()).collect(Collectors.joining(","));
         message.append("Forward to [" + entitiesAsString + "]");
 
-        TaskEventImpl taskEvent = new TaskEventImpl(ti.getId(), org.kie.internal.task.api.model.TaskEvent.TaskEventType.FORWARDED, ti.getTaskData().getProcessInstanceId(), ti.getTaskData().getWorkItemId(), userId, message.toString());
+        TaskEventImpl taskEvent = new TaskEventImpl(event, org.kie.internal.task.api.model.TaskEvent.TaskEventType.FORWARDED, message.toString());
 
         AuditTaskImpl auditTaskImpl = createAuditTask(ti, event.getEventDate());
         auditTaskImpl.setDescription(ti.getDescription());
@@ -313,9 +298,8 @@ public class AsyncTaskLifeCycleEventProducer extends PersistableEventListener im
 
     @Override
     public void afterTaskDelegatedEvent(TaskEvent event) {
-        String userId = event.getTaskContext().getUserId();
         Task ti = event.getTask();
-        TaskEventImpl taskEvent = new TaskEventImpl(ti.getId(), org.kie.internal.task.api.model.TaskEvent.TaskEventType.DELEGATED, ti.getTaskData().getProcessInstanceId(), ti.getTaskData().getWorkItemId(), userId);
+        TaskEventImpl taskEvent = new TaskEventImpl( event, org.kie.internal.task.api.model.TaskEvent.TaskEventType.DELEGATED);
 
         AuditTaskImpl auditTaskImpl = createAuditTask(ti, event.getEventDate());
         auditTaskImpl.setDescription(ti.getDescription());
@@ -331,9 +315,8 @@ public class AsyncTaskLifeCycleEventProducer extends PersistableEventListener im
     
     @Override
     public void afterTaskNominatedEvent(TaskEvent event) {
-        String userId = event.getTaskContext().getUserId();
         Task ti = event.getTask();
-        TaskEventImpl taskEvent = new TaskEventImpl(ti.getId(), org.kie.internal.task.api.model.TaskEvent.TaskEventType.NOMINATED, userId, new Date());
+        TaskEventImpl taskEvent = new TaskEventImpl(event, org.kie.internal.task.api.model.TaskEvent.TaskEventType.NOMINATED);
 
         AuditTaskImpl auditTaskImpl = createAuditTask(ti, event.getEventDate());
         auditTaskImpl.setDescription(ti.getDescription());
@@ -350,16 +333,13 @@ public class AsyncTaskLifeCycleEventProducer extends PersistableEventListener im
 
     @Override
     public void beforeTaskReleasedEvent(TaskEvent event) {
-        String userId = event.getTaskContext().getUserId();
-        Task ti = event.getTask();
-        TaskEventImpl taskEvent = new TaskEventImpl(ti.getId(), org.kie.internal.task.api.model.TaskEvent.TaskEventType.RELEASED, ti.getTaskData().getProcessInstanceId(), ti.getTaskData().getWorkItemId(), userId);
+        TaskEventImpl taskEvent = new TaskEventImpl(event, org.kie.internal.task.api.model.TaskEvent.TaskEventType.RELEASED);
         sendMessage(new AuditTaskData(null, taskEvent), 7);
     }
 
 
     @Override
     public void afterTaskUpdatedEvent(TaskEvent event) {
-        String userId = event.getTaskContext().getUserId();
         Task ti = event.getTask();
         
         List<TaskEventImpl> taskEvents = new ArrayList<>();
@@ -371,24 +351,18 @@ public class AsyncTaskLifeCycleEventProducer extends PersistableEventListener im
                     || (ti.getDescription() == null && auditTaskImpl.getDescription() != null)){
                 String message = getUpdateFieldLog("Description", auditTaskImpl.getDescription(), ti.getDescription());
     
-                TaskEventImpl taskEvent = new TaskEventImpl(ti.getId(),
-                            org.kie.internal.task.api.model.TaskEvent.TaskEventType.UPDATED,
-                            ti.getTaskData().getProcessInstanceId(), ti.getTaskData().getWorkItemId(), userId, message);
+                TaskEventImpl taskEvent = new TaskEventImpl(event, org.kie.internal.task.api.model.TaskEvent.TaskEventType.UPDATED, message);
                 taskEvents.add(taskEvent);
             }
             if( (ti.getName() != null && !ti.getName().equals(auditTaskImpl.getName()))
                     || (ti.getName() == null && auditTaskImpl.getName() != null)){
                 String message = getUpdateFieldLog("Name", auditTaskImpl.getName(), ti.getName());
-                TaskEventImpl taskEvent = new TaskEventImpl(ti.getId(),
-                            org.kie.internal.task.api.model.TaskEvent.TaskEventType.UPDATED,
-                            ti.getTaskData().getProcessInstanceId(), ti.getTaskData().getWorkItemId(), userId, message);
+                TaskEventImpl taskEvent = new TaskEventImpl(event, org.kie.internal.task.api.model.TaskEvent.TaskEventType.UPDATED, message);
                 taskEvents.add(taskEvent);
             }
             if( auditTaskImpl.getPriority() != ti.getPriority()){
                 String message = getUpdateFieldLog("Priority", String.valueOf(auditTaskImpl.getPriority()), String.valueOf(ti.getPriority()));
-                TaskEventImpl taskEvent = new TaskEventImpl(ti.getId(),
-                            org.kie.internal.task.api.model.TaskEvent.TaskEventType.UPDATED,
-                            ti.getTaskData().getProcessInstanceId(), ti.getTaskData().getWorkItemId(), userId, message);
+                TaskEventImpl taskEvent = new TaskEventImpl(event, org.kie.internal.task.api.model.TaskEvent.TaskEventType.UPDATED, message);
                 taskEvents.add(taskEvent);
             }
     
@@ -401,9 +375,7 @@ public class AsyncTaskLifeCycleEventProducer extends PersistableEventListener im
                 String message = getUpdateFieldLog( "DueDate",
                                                     fromDate,
                                                     toDate );
-                TaskEventImpl taskEvent = new TaskEventImpl(ti.getId(),
-                            org.kie.internal.task.api.model.TaskEvent.TaskEventType.UPDATED,
-                            ti.getTaskData().getProcessInstanceId(), ti.getTaskData().getWorkItemId(), userId, message);
+                TaskEventImpl taskEvent = new TaskEventImpl(event, org.kie.internal.task.api.model.TaskEvent.TaskEventType.UPDATED, message);
                 taskEvents.add(taskEvent);
             }
     
@@ -424,7 +396,7 @@ public class AsyncTaskLifeCycleEventProducer extends PersistableEventListener im
     public void afterTaskReassignedEvent(TaskEvent event) {
         String userId = event.getTaskContext().getUserId();
         Task ti = event.getTask();
-        TaskEventImpl taskEvent = new TaskEventImpl(ti.getId(), org.kie.internal.task.api.model.TaskEvent.TaskEventType.DELEGATED, ti.getTaskData().getProcessInstanceId(), ti.getTaskData().getWorkItemId(), userId);
+        TaskEventImpl taskEvent = new TaskEventImpl(event, org.kie.internal.task.api.model.TaskEvent.TaskEventType.DELEGATED, userId);
                 
         AuditTaskImpl auditTaskImpl = createAuditTask(ti, event.getEventDate());
         auditTaskImpl.setDescription(ti.getDescription());
@@ -442,7 +414,6 @@ public class AsyncTaskLifeCycleEventProducer extends PersistableEventListener im
     
     @Override
     public void afterTaskOutputVariableChangedEvent(TaskEvent event, Map<String, Object> variables) {
-        String userId = event.getTaskContext().getUserId();
         Task task = event.getTask();        
 
         if (variables == null || variables.isEmpty()) {
@@ -451,11 +422,7 @@ public class AsyncTaskLifeCycleEventProducer extends PersistableEventListener im
         
         List<TaskVariableImpl> taskVariables = indexVariables(task, variables, VariableType.OUTPUT);
         String message = "Task output data updated";
-        TaskEventImpl taskEvent = new TaskEventImpl(task.getId(), 
-                                                     org.kie.internal.task.api.model.TaskEvent.TaskEventType.UPDATED, 
-                                                     task.getTaskData().getProcessInstanceId(), 
-                                                     task.getTaskData().getWorkItemId(), 
-                                                     userId, message);
+        TaskEventImpl taskEvent = new TaskEventImpl(event, org.kie.internal.task.api.model.TaskEvent.TaskEventType.UPDATED, message);
         AuditTaskImpl auditTaskImpl = createAuditTask(task, event.getEventDate());
         auditTaskImpl.setLastModificationDate(event.getEventDate());
         
@@ -507,9 +474,6 @@ public class AsyncTaskLifeCycleEventProducer extends PersistableEventListener im
         if (entities == null || entities.isEmpty()) {
             return;
         }
-        String userId = event.getTaskContext().getUserId();
-        Task task = event.getTask();        
-        
         StringBuilder message = new StringBuilder();
         
         switch (type) {
@@ -525,16 +489,10 @@ public class AsyncTaskLifeCycleEventProducer extends PersistableEventListener im
             default:
                 break;
         }
-        String entitiesAsString = entities.stream().map(oe -> oe.getId()).collect(Collectors.joining(","));
-        message.append(entitiesAsString);
+        message.append(entities.stream().map(oe -> oe.getId()).collect(Collectors.joining(",")));
         message.append(messageSufix);
         
-        TaskEventImpl taskEvent = new TaskEventImpl(task.getId(), 
-                                                     org.kie.internal.task.api.model.TaskEvent.TaskEventType.UPDATED, 
-                                                     task.getTaskData().getProcessInstanceId(), 
-                                                     task.getTaskData().getWorkItemId(), 
-                                                     userId, message.toString());
-        
+        TaskEventImpl taskEvent = new TaskEventImpl(event, org.kie.internal.task.api.model.TaskEvent.TaskEventType.UPDATED, message.toString());
         sendMessage(new AuditTaskData(null, taskEvent), 2);
     }
 
