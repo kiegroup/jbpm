@@ -415,6 +415,7 @@
         workItemId bigint,
         correlationKey varchar(255),
         processType int,
+        currentOwner varchar(255),
         primary key (id)
     );
 

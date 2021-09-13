@@ -1,0 +1,1 @@
+ALTER TABLE TaskEvent ADD currentOwner varchar2(255);

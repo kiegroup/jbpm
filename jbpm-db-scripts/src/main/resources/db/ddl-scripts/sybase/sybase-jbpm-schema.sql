@@ -453,6 +453,7 @@
         workItemId numeric(19,0) null,
         correlationKey varchar(255),	
         processType int,
+        currentOwner varchar(255),
         primary key (id)
     ) lock datarows
     go

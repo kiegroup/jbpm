@@ -76,11 +76,10 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
 
     @Override
     public void afterTaskStartedEvent(TaskEvent event) {
-        String userId = event.getTaskContext().getUserId();
         Task ti = event.getTask();
         TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext());
         try {
-            TaskEventImpl taskEventImpl = new TaskEventImpl(ti.getId(), TaskEventType.STARTED, ti.getTaskData().getProcessInstanceId(), ti.getTaskData().getWorkItemId(), userId);
+            TaskEventImpl taskEventImpl = new TaskEventImpl(event, TaskEventType.STARTED);
             event.getMetadata().put(METADATA_TASK_EVENT, taskEventImpl);
             persistenceContext.persist(taskEventImpl);
             createTaskOperationView(event, TaskEventType.STARTED);
@@ -102,12 +101,10 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
 
     @Override
     public void afterTaskActivatedEvent(TaskEvent event) {
-        String userId = event.getTaskContext().getUserId();
         Task ti = event.getTask();
         TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext());
         try {            
-            TaskEventImpl taskEventImpl = new TaskEventImpl(ti.getId(), TaskEventType.ACTIVATED, ti.getTaskData().getProcessInstanceId(), ti.getTaskData().getWorkItemId(),
-                                                            userId);
+            TaskEventImpl taskEventImpl = new TaskEventImpl(event, TaskEventType.ACTIVATED);
             event.getMetadata().put(METADATA_TASK_EVENT, taskEventImpl);
             persistenceContext.persist(taskEventImpl);
             createTaskOperationView(event, TaskEventType.ACTIVATED);
@@ -130,11 +127,10 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
 
     @Override
     public void afterTaskClaimedEvent(TaskEvent event) {
-        String userId = event.getTaskContext().getUserId();
         Task ti = event.getTask();
         TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext());
         try {            
-            TaskEventImpl taskEventImpl = new TaskEventImpl(ti.getId(), TaskEventType.CLAIMED, ti.getTaskData().getProcessInstanceId(), ti.getTaskData().getWorkItemId(), userId);
+            TaskEventImpl taskEventImpl = new TaskEventImpl(event, TaskEventType.CLAIMED);
             event.getMetadata().put(METADATA_TASK_EVENT, taskEventImpl);
             persistenceContext.persist(taskEventImpl);
             createTaskOperationView(event, TaskEventType.CLAIMED);
@@ -158,11 +154,10 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
 
     @Override
     public void afterTaskSkippedEvent(TaskEvent event) {
-        String userId = event.getTaskContext().getUserId();
         Task ti = event.getTask();
         TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext());
         try {            
-            TaskEventImpl taskEventImpl = new TaskEventImpl(ti.getId(), TaskEventType.SKIPPED, ti.getTaskData().getProcessInstanceId(), ti.getTaskData().getWorkItemId(), userId);
+            TaskEventImpl taskEventImpl = new TaskEventImpl(event, TaskEventType.SKIPPED);
             event.getMetadata().put(METADATA_TASK_EVENT, taskEventImpl);
             persistenceContext.persist(taskEventImpl);
             createTaskOperationView (event, TaskEventType.SKIPPED);
@@ -187,11 +182,10 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
 
     @Override
     public void afterTaskStoppedEvent(TaskEvent event) {
-        String userId = event.getTaskContext().getUserId();
         Task ti = event.getTask();
         TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext());
         try {            
-            TaskEventImpl taskEventImpl = new TaskEventImpl(ti.getId(), TaskEventType.STOPPED, ti.getTaskData().getProcessInstanceId(), ti.getTaskData().getWorkItemId(), userId);
+            TaskEventImpl taskEventImpl = new TaskEventImpl(event, TaskEventType.STOPPED);
             event.getMetadata().put(METADATA_TASK_EVENT, taskEventImpl);
             persistenceContext.persist(taskEventImpl);
             createTaskOperationView (event, TaskEventType.STOPPED);
@@ -215,12 +209,10 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
 
     @Override
     public void afterTaskCompletedEvent(TaskEvent event) {
-        String userId = event.getTaskContext().getUserId();
         Task ti = event.getTask();
         TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext());
         try {
-            TaskEventImpl taskEventImpl = new TaskEventImpl(ti.getId(), TaskEventType.COMPLETED, ti.getTaskData().getProcessInstanceId(), ti.getTaskData().getWorkItemId(),
-                                                            userId);
+            TaskEventImpl taskEventImpl = new TaskEventImpl(event, TaskEventType.COMPLETED);
 
             event.getMetadata().put(METADATA_TASK_EVENT, taskEventImpl);
             archiveLoggerProviders.forEach(e -> e.archive(((JPATaskPersistenceContext) persistenceContext).getEntityManager(), taskEventImpl));
@@ -246,11 +238,10 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
 
     @Override
     public void afterTaskFailedEvent(TaskEvent event) {
-        String userId = event.getTaskContext().getUserId();
         Task ti = event.getTask();
         TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext());
         try {
-            TaskEventImpl taskEventImpl = new TaskEventImpl(ti.getId(), TaskEventType.FAILED, ti.getTaskData().getProcessInstanceId(), ti.getTaskData().getWorkItemId(), userId);
+            TaskEventImpl taskEventImpl = new TaskEventImpl(event, TaskEventType.FAILED);
             event.getMetadata().put(METADATA_TASK_EVENT, taskEventImpl);
             persistenceContext.persist(taskEventImpl);
             createTaskOperationView (event, TaskEventType.FAILED);
@@ -273,13 +264,9 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
 
     @Override
     public void afterTaskAddedEvent(TaskEvent event) {
-        String userId = event.getTaskContext().getUserId();
         Task ti = event.getTask();
         TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext());
         try {
-            if(ti.getTaskData().getProcessId() != null){
-                userId = ti.getTaskData().getProcessId();
-            }
             AuditTaskImpl auditTaskImpl = new AuditTaskImpl(
                 ti.getId(),
                 ti.getName(),
@@ -302,7 +289,7 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
             event.getMetadata().put(METADATA_AUDIT_TASK, auditTaskImpl);
             persistenceContext.persist(auditTaskImpl);
 
-            TaskEventImpl taskEventImpl = new TaskEventImpl(ti.getId(), TaskEventType.ADDED, ti.getTaskData().getProcessInstanceId(), ti.getTaskData().getWorkItemId(), userId);
+            TaskEventImpl taskEventImpl = new TaskEventImpl(event, TaskEventType.ADDED);
             event.getMetadata().put(METADATA_TASK_EVENT, taskEventImpl);
             persistenceContext.persist(taskEventImpl);
             createTaskOperationView(event, TaskEventType.ADDED);
@@ -314,11 +301,10 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
 
     @Override
     public void afterTaskExitedEvent(TaskEvent event) {
-        String userId = event.getTaskContext().getUserId();
         Task ti = event.getTask();
         TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext());
         try {            
-            TaskEventImpl taskEventImpl = new TaskEventImpl(ti.getId(), TaskEventType.EXITED, ti.getTaskData().getProcessInstanceId(), ti.getTaskData().getWorkItemId(), userId);
+            TaskEventImpl taskEventImpl = new TaskEventImpl(event, TaskEventType.EXITED);
             event.getMetadata().put(METADATA_TASK_EVENT, taskEventImpl);
             persistenceContext.persist(taskEventImpl);
             createTaskOperationView (event, TaskEventType.EXITED);
@@ -376,11 +362,10 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
 
     @Override
     public void afterTaskResumedEvent(TaskEvent event) {
-        String userId = event.getTaskContext().getUserId();
         Task ti = event.getTask();
         TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext());
         try {            
-            TaskEventImpl taskEventImpl = new TaskEventImpl(ti.getId(), TaskEventType.RESUMED, ti.getTaskData().getProcessInstanceId(), ti.getTaskData().getWorkItemId(), userId);
+            TaskEventImpl taskEventImpl = new TaskEventImpl(event, TaskEventType.RESUMED);
             event.getMetadata().put(METADATA_TASK_EVENT, taskEventImpl);
             persistenceContext.persist(taskEventImpl);
             createTaskOperationView (event, TaskEventType.RESUMED);
@@ -407,12 +392,10 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
 
     @Override
     public void afterTaskSuspendedEvent(TaskEvent event) {
-        String userId = event.getTaskContext().getUserId();
         Task ti = event.getTask();
         TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext());
         try {
-            TaskEventImpl taskEventImpl = new TaskEventImpl(ti.getId(), TaskEventType.SUSPENDED, ti.getTaskData().getProcessInstanceId(), ti.getTaskData().getWorkItemId(),
-                                                            userId);
+            TaskEventImpl taskEventImpl = new TaskEventImpl(event, TaskEventType.SUSPENDED);
             event.getMetadata().put(METADATA_TASK_EVENT, taskEventImpl);
             persistenceContext.persist(taskEventImpl);
             createTaskOperationView (event, TaskEventType.SUSPENDED);
@@ -439,7 +422,6 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
 
     @Override
     public void afterTaskForwardedEvent(TaskEvent event) {
-        String userId = event.getTaskContext().getUserId();
         Task ti = event.getTask();
         TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext());
         try {
@@ -447,12 +429,7 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
             String entitiesAsString = (ti.getPeopleAssignments().getPotentialOwners()).stream().map(oe -> oe.getId()).collect(Collectors.joining(","));
             message.append("Forward to [" + entitiesAsString + "]");
             
-            TaskEventImpl taskEventImpl = new TaskEventImpl(ti.getId(),
-                                                            TaskEventType.FORWARDED,
-                                                            ti.getTaskData().getProcessInstanceId(),
-                                                            ti.getTaskData().getWorkItemId(),
-                                                            userId,
-                                                            message.toString());
+            TaskEventImpl taskEventImpl = new TaskEventImpl(event, TaskEventType.FORWARDED, message.toString());
 
             event.getMetadata().put(METADATA_TASK_EVENT, taskEventImpl);
             persistenceContext.persist(taskEventImpl);
@@ -480,12 +457,10 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
 
     @Override
     public void afterTaskDelegatedEvent(TaskEvent event) {
-        String userId = event.getTaskContext().getUserId();
         Task ti = event.getTask();
         TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext());
         try {           
-            TaskEventImpl taskEventImpl = new TaskEventImpl(ti.getId(), TaskEventType.DELEGATED, ti.getTaskData().getProcessInstanceId(), ti.getTaskData().getWorkItemId(),
-                                                            userId);
+            TaskEventImpl taskEventImpl = new TaskEventImpl(event, TaskEventType.DELEGATED);
             event.getMetadata().put(METADATA_TASK_EVENT, taskEventImpl);
             persistenceContext.persist(taskEventImpl);
             createTaskOperationView (event, TaskEventType.DELEGATED);
@@ -512,11 +487,10 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
     
     @Override
     public void afterTaskNominatedEvent(TaskEvent event) {
-        String userId = event.getTaskContext().getUserId();
         Task ti = event.getTask();
         TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext());
         try {
-            TaskEventImpl taskEventImpl = new TaskEventImpl(ti.getId(), TaskEventType.NOMINATED, userId, new Date());
+            TaskEventImpl taskEventImpl = new TaskEventImpl(event, TaskEventType.NOMINATED);
             event.getMetadata().put(METADATA_TASK_EVENT, taskEventImpl);
             persistenceContext.persist(taskEventImpl);
             createTaskOperationView (event, TaskEventType.NOMINATED);
@@ -603,12 +577,9 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
 
     @Override
     public void beforeTaskReleasedEvent(TaskEvent event) {
-        String userId = event.getTaskContext().getUserId();
-        Task ti = event.getTask();
         TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext());
         try {
-            TaskEventImpl taskEventImpl = new TaskEventImpl(ti.getId(), TaskEventType.RELEASED, ti.getTaskData().getProcessInstanceId(), ti.getTaskData().getWorkItemId(),
-                                                            userId);
+            TaskEventImpl taskEventImpl = new TaskEventImpl(event, TaskEventType.RELEASED);
             event.getMetadata().put(METADATA_TASK_EVENT, taskEventImpl);
             persistenceContext.persist(taskEventImpl);
             createTaskOperationView (event, TaskEventType.RELEASED);
@@ -678,9 +649,7 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
 
     @Override
     public void afterTaskUpdatedEvent(TaskEvent event) {
-        String userId = event.getTaskContext().getUserId();
         Task ti = event.getTask();
-        
         TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext());
         try {
             
@@ -694,11 +663,8 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
                     || (ti.getDescription() == null && auditTaskImpl.getDescription() != null)){
                 String message = getUpdateFieldLog("Description", auditTaskImpl.getDescription(), ti.getDescription());
 
-                TaskEventImpl taskEventImpl = new TaskEventImpl(ti.getId(),
+                TaskEventImpl taskEventImpl = new TaskEventImpl(event,
                                                                 TaskEventType.UPDATED,
-                                                                ti.getTaskData().getProcessInstanceId(),
-                                                                ti.getTaskData().getWorkItemId(),
-                                                                userId,
                                                                 message);
                 event.getMetadata().put(METADATA_TASK_EVENT, taskEventImpl);
                 persistenceContext.persist(taskEventImpl);
@@ -708,11 +674,8 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
             if( (ti.getName() != null && !ti.getName().equals(auditTaskImpl.getName()))
                     || (ti.getName() == null && auditTaskImpl.getName() != null)){
                 String message = getUpdateFieldLog("Name", auditTaskImpl.getName(), ti.getName());
-                TaskEventImpl taskEventImpl = new TaskEventImpl(ti.getId(),
+                TaskEventImpl taskEventImpl = new TaskEventImpl(event,
                                                                 TaskEventType.UPDATED,
-                                                                ti.getTaskData().getProcessInstanceId(),
-                                                                ti.getTaskData().getWorkItemId(),
-                                                                userId,
                                                                 message);
                 event.getMetadata().put(METADATA_TASK_EVENT, taskEventImpl);
                 persistenceContext.persist(taskEventImpl);
@@ -720,11 +683,8 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
             }
             if( auditTaskImpl.getPriority() != ti.getPriority()){
                 String message = getUpdateFieldLog("Priority", String.valueOf(auditTaskImpl.getPriority()), String.valueOf(ti.getPriority()));
-                TaskEventImpl taskEventImpl = new TaskEventImpl(ti.getId(),
+                TaskEventImpl taskEventImpl = new TaskEventImpl(event,
                                                                 TaskEventType.UPDATED,
-                                                                ti.getTaskData().getProcessInstanceId(),
-                                                                ti.getTaskData().getWorkItemId(),
-                                                                userId,
                                                                 message);
                 event.getMetadata().put(METADATA_TASK_EVENT, taskEventImpl);
                 persistenceContext.persist(taskEventImpl);
@@ -740,11 +700,8 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
                 String message = getUpdateFieldLog( "DueDate",
                                                     fromDate,
                                                     toDate );
-                TaskEventImpl taskEventImpl = new TaskEventImpl(ti.getId(),
+                TaskEventImpl taskEventImpl = new TaskEventImpl(event,
                                                                 TaskEventType.UPDATED,
-                                                                ti.getTaskData().getProcessInstanceId(),
-                                                                ti.getTaskData().getWorkItemId(),
-                                                                userId,
                                                                 message);
                 event.getMetadata().put(METADATA_TASK_EVENT, taskEventImpl);
                 persistenceContext.persist(taskEventImpl);
@@ -777,15 +734,10 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
 
     @Override
     public void afterTaskReassignedEvent(TaskEvent event) {
-        String userId = event.getTaskContext().getUserId();
         Task ti = event.getTask();
         TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext());
         try {
-            TaskEventImpl taskEventImpl = new TaskEventImpl(ti.getId(),
-                                                            TaskEventType.DELEGATED,
-                                                            ti.getTaskData().getProcessInstanceId(),
-                                                            ti.getTaskData().getWorkItemId(),
-                                                            userId);
+            TaskEventImpl taskEventImpl = new TaskEventImpl(event, TaskEventType.DELEGATED);
             event.getMetadata().put(METADATA_TASK_EVENT, taskEventImpl);
             persistenceContext.persist(taskEventImpl);
             createTaskOperationView (event, TaskEventType.DELEGATED);
@@ -823,7 +775,6 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
     
     @Override
     public void afterTaskOutputVariableChangedEvent(TaskEvent event, Map<String, Object> variables) {
-        String userId = event.getTaskContext().getUserId();
         Task task = event.getTask();        
         TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext());
         // first cleanup previous values if any
@@ -839,11 +790,9 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
         
         indexAndPersistVariables(event, task, variables, persistenceContext, VariableType.OUTPUT);
         String message = "Task output data updated";
-        TaskEventImpl taskEventImpl = new TaskEventImpl(task.getId(),
+        TaskEventImpl taskEventImpl = new TaskEventImpl(event,
                                                         TaskEventType.UPDATED,
-                                                        task.getTaskData().getProcessInstanceId(),
-                                                        task.getTaskData().getWorkItemId(),
-                                                        userId, message);
+                                                        message);
         event.getMetadata().put(METADATA_TASK_EVENT, taskEventImpl);
         persistenceContext.persist(taskEventImpl);
         createTaskOperationView (event, TaskEventType.UPDATED);
@@ -902,8 +851,6 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
         if (entities == null || entities.isEmpty()) {
             return;
         }
-        String userId = event.getTaskContext().getUserId();
-        Task task = event.getTask();        
         TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext());
         StringBuilder message = new StringBuilder();
         
@@ -920,15 +867,12 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
             default:
                 break;
         }
-        String entitiesAsString = entities.stream().map(oe -> oe.getId()).collect(Collectors.joining(","));
-        message.append(entitiesAsString);
+        message.append(entities.stream().map(oe -> oe.getId()).collect(Collectors.joining(",")));
         message.append(messageSufix);
         
-        TaskEventImpl taskEventImpl = new TaskEventImpl(task.getId(),
-                                                        TaskEventType.UPDATED,
-                                                        task.getTaskData().getProcessInstanceId(),
-                                                        task.getTaskData().getWorkItemId(),
-                                                        userId, message.toString());
+        TaskEventImpl taskEventImpl = new TaskEventImpl(event,
+                                                        TaskEventType.UPDATED, 
+                                                        message.toString());
         event.getMetadata().put(METADATA_TASK_EVENT, taskEventImpl);
         persistenceContext.persist(taskEventImpl);
         createTaskOperationView (event, TaskEventType.UPDATED, type);
