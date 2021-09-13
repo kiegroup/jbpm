@@ -1,0 +1,1 @@
+ALTER TABLE TaskEvent ADD COLUMN currentOwner varchar2(255);
