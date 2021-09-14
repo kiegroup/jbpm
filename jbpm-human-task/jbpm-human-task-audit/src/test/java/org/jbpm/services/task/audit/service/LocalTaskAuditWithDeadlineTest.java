@@ -114,9 +114,13 @@ public class LocalTaskAuditWithDeadlineTest extends HumanTaskServicesBaseTest {
         assertEquals(1, tasks.size());
         
         AuditTask auditTask = tasks.get(0);
-        assertEquals(Status.Reserved.toString(), auditTask.getStatus());
-        assertEquals("Tony Stark", auditTask.getActualOwner());
-    
+        
+        //Check if countdown listener has not expired yet
+        if (countDownListener.latchCount() != 0) {
+            assertEquals(Status.Reserved.toString(), auditTask.getStatus());
+            assertEquals("Tony Stark", auditTask.getActualOwner());
+        }
+        
         // should have re-assigned by now
         countDownListener.waitTillCompleted();
         
@@ -171,8 +175,12 @@ public class LocalTaskAuditWithDeadlineTest extends HumanTaskServicesBaseTest {
         assertEquals(1, tasks.size());
 
         AuditTask auditTask = tasks.get(0);
-        assertEquals(Status.Reserved.toString(), auditTask.getStatus());
-        assertEquals("Tony Stark", auditTask.getActualOwner());
+        
+        //Check if countdown listener has not expired yet
+        if (countDownListener.latchCount() != 0) {
+            assertEquals(Status.Reserved.toString(), auditTask.getStatus());
+            assertEquals("Tony Stark", auditTask.getActualOwner());
+        }
 
         // should have re-assigned by now
         countDownListener.waitTillCompleted();
