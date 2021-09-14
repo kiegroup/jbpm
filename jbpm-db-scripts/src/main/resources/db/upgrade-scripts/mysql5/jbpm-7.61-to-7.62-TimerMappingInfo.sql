@@ -1,5 +1,3 @@
-ALTER TABLE TaskEvent ADD COLUMN currentOwner varchar(255);
-alter table NodeInstanceLog add column observation varchar(255);
 
 create table TimerMappingInfo (
 	id bigint generated not null auto_increment, 

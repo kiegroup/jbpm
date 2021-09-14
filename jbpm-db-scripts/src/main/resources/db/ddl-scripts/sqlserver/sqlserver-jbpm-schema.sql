@@ -100,6 +100,15 @@
         primary key (mappingId)
     );
 
+    create table TimerMappingInfo (
+    	id bigint numeric(19,0) identity not null, 
+    	externalTimerId varchar(255), 
+    	kieSessionId numeric(19,0) not null, 
+    	timerId numeric(19,0) not null, 
+    	uuid varchar(255) not null, 
+    	primary key (id)
+    );
+
     create table CorrelationKeyInfo (
         keyId numeric(19,0) identity not null,
         name varchar(255) not null,
@@ -774,7 +783,9 @@
     create index IDX_CMI_Context ON ContextMappingInfo(CONTEXT_ID);    
     create index IDX_CMI_KSession ON ContextMappingInfo(KSESSION_ID);    
     create index IDX_CMI_Owner ON ContextMappingInfo(OWNER_ID);
-    
+
+    create unique index IDX_TMI_KSessionUUID on TimerMappingInfo (kieSessionId, uuid);
+
     create index IDX_RequestInfo_status ON RequestInfo(status);
     create index IDX_RequestInfo_timestamp ON RequestInfo(timestamp);
     create index IDX_RequestInfo_owner ON RequestInfo(owner);

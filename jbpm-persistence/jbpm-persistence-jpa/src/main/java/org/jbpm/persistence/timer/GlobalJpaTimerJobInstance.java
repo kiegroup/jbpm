@@ -15,6 +15,8 @@
  */
 package org.jbpm.persistence.timer;
 
+import java.io.Serializable;
+
 import org.drools.core.time.InternalSchedulerService;
 import org.drools.core.time.Job;
 import org.drools.core.time.JobContext;
@@ -51,7 +53,9 @@ public class GlobalJpaTimerJobInstance extends JpaTimerJobInstance {
 
     private static final long serialVersionUID = -5383556604449217342L;
     private String timerServiceId;
-
+    private String externalTimerId;
+    private Serializable timerInfo;
+    
     public GlobalJpaTimerJobInstance(Job job, JobContext ctx, Trigger trigger,
             JobHandle handle, InternalSchedulerService scheduler) {
         super(job, ctx, trigger, handle, scheduler);
@@ -98,7 +102,21 @@ public class GlobalJpaTimerJobInstance extends JpaTimerJobInstance {
             closeTansactionIfNeeded(jtaTm, success);
         }
     }
-    
+
+    public Serializable getTimerInfo() {
+        return timerInfo;
+    }
+    public void setTimerInfo(Serializable timerInfo) {
+        this.timerInfo = timerInfo;
+    }
+
+    public String getExternalTimerId() {
+        return externalTimerId;
+    }
+
+    public void setExternalTimerId(String externalTimerId) {
+        this.externalTimerId = externalTimerId;
+    }
 
     @Override
 	public String toString() {

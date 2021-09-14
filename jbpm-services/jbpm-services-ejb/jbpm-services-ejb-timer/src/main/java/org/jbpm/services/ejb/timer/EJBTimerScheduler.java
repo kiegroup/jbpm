@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
@@ -41,6 +42,7 @@ import javax.ejb.Startup;
 import javax.ejb.Timeout;
 import javax.ejb.Timer;
 import javax.ejb.TimerConfig;
+import javax.ejb.TimerHandle;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.transaction.RollbackException;
@@ -48,6 +50,7 @@ import javax.transaction.UserTransaction;
 
 import org.drools.core.time.JobHandle;
 import org.drools.core.time.impl.TimerJobInstance;
+import org.jbpm.persistence.timer.GlobalJpaTimerJobInstance;
 import org.jbpm.process.core.timer.TimerServiceRegistry;
 import org.kie.internal.runtime.manager.SessionNotFoundException;
 import org.slf4j.Logger;
@@ -185,7 +188,10 @@ public class EJBTimerScheduler {
                 return;
             }
             TimerConfig config = new TimerConfig(info, true);
-            timerService.createSingleActionTimer(Date.from(nextRetry.toInstant()), config);
+            Timer timer = timerService.createSingleActionTimer(Date.from(nextRetry.toInstant()), config);
+            TimerHandle handler = timer.getHandle();
+            ((GlobalJpaTimerJobInstance) ejbTimerJob.getTimerJobInstance()).setTimerInfo(handler);
+            ((GlobalJpaTimerJobInstance) ejbTimerJob.getTimerJobInstance()).setExternalTimerId(getPlatformTimerId(timer));
         };
         try {
             transaction(operation, ejbTimerJob.getTimerJobInstance());
@@ -234,22 +240,35 @@ public class EJBTimerScheduler {
         }
     }
 
-	public void internalSchedule(TimerJobInstance timerJobInstance) {
+    public void internalSchedule(TimerJobInstance timerJobInstance) {
         Serializable info = removeTransientFields(new EjbTimerJob(timerJobInstance));
         TimerConfig config = new TimerConfig(info, true);
-		Date expirationTime = timerJobInstance.getTrigger().hasNextFireTime();
-		logger.debug("Timer expiration date is {}", expirationTime);
-		if (expirationTime != null) {
-			timerService.createSingleActionTimer(expirationTime, config);
-			logger.debug("Timer scheduled {} on {} scheduler service", timerJobInstance);
-			if (USE_LOCAL_CACHE) {
-				localCache.putIfAbsent(((EjbGlobalJobHandle) timerJobInstance.getJobHandle()).getUuid(), timerJobInstance);
-			}
-		} else {
-			logger.info("Timer that was to be scheduled has already expired");
-		}
-	}
+        Date expirationTime = timerJobInstance.getTrigger().hasNextFireTime();
+        logger.debug("Timer expiration date is {}", expirationTime);
+        if (expirationTime != null) {
+            Timer timer = timerService.createSingleActionTimer(expirationTime, config);
+            TimerHandle handle = timer.getHandle();
+            ((GlobalJpaTimerJobInstance) timerJobInstance).setTimerInfo(handle);
+            logger.debug("Timer scheduled {} on {} scheduler service", timerJobInstance);
+            ((GlobalJpaTimerJobInstance) timerJobInstance).setExternalTimerId(getPlatformTimerId(timer));
+            if (USE_LOCAL_CACHE) {
+                localCache.putIfAbsent(((EjbGlobalJobHandle) timerJobInstance.getJobHandle()).getUuid(), timerJobInstance);
+            }
+        } else {
+            logger.info("Timer that was to be scheduled has already expired");
+        }
+    }
 
+
+    private String getPlatformTimerId(Timer timer) {
+        try {
+            Method method = timer.getClass().getMethod("getId");
+            return (String) method.invoke(timer);
+        } catch (Exception timerIdException) {
+            logger.trace("Failed to get the platform timer id {}", timerIdException.getMessage(), timerIdException);
+            return null;
+        }
+    }
 
     private Serializable removeTransientFields(Serializable info) {
         // removing transient fields
@@ -274,6 +293,20 @@ public class EJBTimerScheduler {
             boolean removedFromCache = localCache.remove(ejbHandle.getUuid()) != null;
             logger.debug("Job handle {} is {} removed from cache ", jobHandle, removedFromCache ? "" : "not" );
         }
+
+        // small speed improvement using the ejb serializable info handler
+        GlobalJpaTimerJobInstance timerJobInstance = (GlobalJpaTimerJobInstance) ejbHandle.getTimerJobInstance();
+        Object ejbTimerHandle =  timerJobInstance.getTimerInfo();
+        if(ejbTimerHandle instanceof TimerHandle) {
+            try {
+                ((TimerHandle) ejbTimerHandle).getTimer().cancel();
+            } catch (Throwable e) {
+                logger.debug("Timer cancel error due to {}", e.getMessage());
+                return false;
+            }
+            return true;
+        }
+
 		for (Timer timer : timerService.getTimers()) {
 			try {
     		    Serializable info = timer.getInfo();

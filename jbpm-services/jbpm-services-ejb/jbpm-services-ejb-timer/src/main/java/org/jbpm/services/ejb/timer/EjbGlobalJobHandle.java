@@ -30,6 +30,7 @@ public class EjbGlobalJobHandle extends GlobalJobHandle {
 		this.deploymentId = deploymentId;
 	}
 
+	@Override
 	public String getUuid() {
 		return uuid;
 	}
@@ -51,4 +52,5 @@ public class EjbGlobalJobHandle extends GlobalJobHandle {
 		this.deploymentId = deploymentId;
 	}
 
+	
 }

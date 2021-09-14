@@ -274,6 +274,11 @@ public class QuartzSchedulerService implements GlobalSchedulerService {
             this.jobGroup = group;
         }
 
+        @Override
+        public String getUuid() {
+            return getJobGroup() + "-" + getJobName();
+        }
+
         public String getJobName() {
             return jobName;
         }

@@ -7,6 +7,7 @@ drop table CaseIdInfo;
 drop table CaseRoleAssignmentLog;
 drop table Content;
 drop table ContextMappingInfo;
+drop table TimerMappingInfo;
 drop table CorrelationKeyInfo;
 drop table CorrelationPropertyInfo;
 drop table Deadline;

@@ -106,6 +106,8 @@ drop table Content
     go
 drop table ContextMappingInfo
     go
+drop table TimerMappingInfo
+    go
 drop table CorrelationKeyInfo
     go
 drop table CorrelationPropertyInfo

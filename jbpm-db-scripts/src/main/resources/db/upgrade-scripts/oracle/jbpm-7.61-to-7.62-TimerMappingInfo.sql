@@ -1,5 +1,3 @@
-ALTER TABLE TaskEvent ADD currentOwner varchar2(255);
-alter table NodeInstanceLog add observation varchar2(255 char);
 
 create table TimerMappingInfo (
 	id number(19,0) not null, 
