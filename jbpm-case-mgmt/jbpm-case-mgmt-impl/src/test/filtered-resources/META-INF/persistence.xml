@@ -47,7 +47,7 @@
     <class>org.jbpm.persistence.correlation.CorrelationPropertyInfo</class>
     <!-- manager -->
     <class>org.jbpm.runtime.manager.impl.jpa.ContextMappingInfo</class>
-    
+    <class>org.jbpm.runtime.manager.impl.jpa.TimerMappingInfo</class>
     <!-- bam -->
     <class>org.jbpm.process.audit.ProcessInstanceLog</class>
     <class>org.jbpm.process.audit.NodeInstanceLog</class>
@@ -76,6 +76,7 @@
     
     <!-- error handling -->
     <class>org.jbpm.runtime.manager.impl.jpa.ExecutionErrorInfo</class>
+    
 
     <properties>
       <property name="hibernate.dialect" value="${maven.hibernate.dialect}" />

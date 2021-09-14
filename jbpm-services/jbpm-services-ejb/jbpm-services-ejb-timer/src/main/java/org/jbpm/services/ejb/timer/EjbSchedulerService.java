@@ -40,7 +40,7 @@ import org.jbpm.process.instance.timer.TimerManager.ProcessJobContext;
 
 public class EjbSchedulerService implements GlobalSchedulerService {
     
-    private static final Boolean TRANSACTIONAL = Boolean.parseBoolean(System.getProperty("org.jbpm.ejb.timer.tx", "false"));
+    private static final Boolean TRANSACTIONAL = Boolean.parseBoolean(System.getProperty("org.jbpm.ejb.timer.tx", "true"));
 
 	private AtomicLong idCounter = new AtomicLong();
 	private TimerService globalTimerService;
@@ -86,10 +86,10 @@ public class EjbSchedulerService implements GlobalSchedulerService {
         scheduler.evictCache(jobHandle);
     }
 
-	@Override
-	public void internalSchedule(TimerJobInstance timerJobInstance) {
-		scheduler.internalSchedule(timerJobInstance);
-	}
+    @Override
+    public void internalSchedule(TimerJobInstance timerJobInstance) {
+        scheduler.internalSchedule(timerJobInstance);
+    }
 
 	@Override
 	public void initScheduler(TimerService timerService) {

@@ -20,6 +20,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+
+import org.drools.core.time.JobHandle;
 import org.drools.core.time.TimerService;
 import org.drools.persistence.api.OrderedTransactionSynchronization;
 import org.drools.persistence.api.TransactionManager;
@@ -27,12 +31,17 @@ import org.drools.persistence.api.TransactionManagerFactory;
 import org.drools.persistence.api.TransactionManagerHelper;
 import org.drools.persistence.api.TransactionSynchronization;
 import org.jbpm.persistence.api.integration.EventManagerProvider;
+import org.jbpm.persistence.timer.GlobalJpaTimerJobInstance;
 import org.jbpm.process.core.timer.GlobalSchedulerService;
 import org.jbpm.process.core.timer.TimerServiceRegistry;
 import org.jbpm.process.core.timer.impl.GlobalTimerService;
+import org.jbpm.process.core.timer.impl.TimerServiceListener;
+import org.jbpm.process.core.timer.impl.GlobalTimerService.GlobalJobHandle;
 import org.jbpm.runtime.manager.api.SchedulerProvider;
 import org.jbpm.runtime.manager.impl.error.DefaultExecutionErrorStorage;
 import org.jbpm.runtime.manager.impl.error.ExecutionErrorManagerImpl;
+import org.jbpm.runtime.manager.impl.jpa.EntityManagerFactoryManager;
+import org.jbpm.runtime.manager.impl.jpa.TimerMappingInfo;
 import org.jbpm.runtime.manager.impl.lock.RuntimeManagerLockStrategyFactory;
 import org.jbpm.runtime.manager.impl.lock.RuntimeManagerLockWatcherSingletonService;
 import org.jbpm.runtime.manager.impl.tx.NoOpTransactionManager;
@@ -42,6 +51,7 @@ import org.jbpm.runtime.manager.spi.RuntimeManagerLock;
 import org.jbpm.runtime.manager.spi.RuntimeManagerLockStrategy;
 import org.jbpm.services.task.events.WorkflowBridgeTaskLifeCycleEventListener;
 import org.jbpm.services.task.impl.TaskContentRegistry;
+import org.jbpm.services.task.impl.TaskDeadlinesServiceImpl;
 import org.jbpm.services.task.impl.command.CommandBasedTaskService;
 import org.jbpm.services.task.wih.ExternalTaskEventListener;
 import org.kie.api.event.process.ProcessEventListener;
@@ -55,6 +65,7 @@ import org.kie.api.runtime.manager.Context;
 import org.kie.api.runtime.manager.RegisterableItemsFactory;
 import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.runtime.manager.RuntimeEnvironment;
+import org.kie.api.runtime.manager.RuntimeManager;
 import org.kie.api.runtime.process.WorkItemHandler;
 import org.kie.api.task.TaskLifeCycleEventListener;
 import org.kie.internal.runtime.conf.DeploymentDescriptor;
@@ -173,13 +184,16 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
         if (environment instanceof SchedulerProvider) {
             GlobalSchedulerService schedulerService = ((SchedulerProvider) environment).getSchedulerService();  
             if (schedulerService != null) {
-                TimerService globalTs = new GlobalTimerService(this, schedulerService);
+                GlobalTimerService globalTs = new GlobalTimerService(this, schedulerService);
                 String timerServiceId = identifier  + TimerServiceRegistry.TIMER_SERVICE_SUFFIX;
                 // and register it in the registry under 'default' key
                 TimerServiceRegistry.getInstance().registerTimerService(timerServiceId, globalTs);
                 ((SimpleRuntimeEnvironment)environment).addToConfiguration("drools.timerService", 
                         "new org.jbpm.process.core.timer.impl.RegisteredTimerServiceDelegate(\""+timerServiceId+"\")");
                 
+                if(environment.usePersistence() && schedulerService.isTransactional()) {
+                    installPersistentTimerMapping(this, globalTs);
+                }
                 if (!schedulerService.isTransactional()) {
                     schedulerService.setInterceptor(new TransactionAwareSchedulerServiceInterceptor(environment, this, schedulerService));
                 } else {
@@ -188,8 +202,98 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
             }
         }
     }
-	
-	
+
+    private void installPersistentTimerMapping (RuntimeManager manager, GlobalTimerService globalTs) {
+        globalTs.addTimerServiceListener(new TimerServiceListener() {
+            @Override
+            public void fireTimerScheduled(JobHandle jobHandle) {
+                if(jobHandle == null) {
+                    return;
+                }
+                EntityManager em = getEntityManager(manager);
+                if(em == null) {
+                    return;
+                }
+
+                GlobalJobHandle globalJobHandle = (GlobalJobHandle) jobHandle;
+
+
+                try {
+                    if(!em.isJoinedToTransaction()) {
+                        return;
+                    }
+                    List<TimerMappingInfo> tmi = em.createQuery("SELECT o FROM TimerMappingInfo o WHERE o.kieSessionId = :kieSessionId AND o.uuid = :uuid", TimerMappingInfo.class)
+                        .setParameter("kieSessionId", globalJobHandle.getSessionId())
+                        .setParameter("uuid", globalJobHandle.getUuid())
+                        .getResultList();
+
+                    if(!tmi.isEmpty()) {
+                        return;
+                    }
+                    GlobalJpaTimerJobInstance dtji = (GlobalJpaTimerJobInstance) globalJobHandle.getTimerJobInstance();
+                    TimerMappingInfo info = new TimerMappingInfo(globalJobHandle.getId(), dtji.getExternalTimerId(), globalJobHandle.getSessionId(), globalJobHandle.getUuid());
+                    em.persist(info);
+                    logger.debug("Created Timer Mapping Info for {}", info);
+                } finally {
+                    em.close();
+                }
+            }
+
+            @Override
+            public void fireTimerCancelled(JobHandle jobHandle) {
+                if(jobHandle == null) {
+                    return;
+                }
+
+                EntityManager em = getEntityManager(manager);
+                if(em == null) {
+                    return;
+                }
+                GlobalJobHandle globalJobHandle = (GlobalJobHandle) jobHandle;
+                try {
+                    if(!em.isJoinedToTransaction()) {
+                        return;
+                    }
+                    int count = em.createQuery("DELETE FROM TimerMappingInfo o WHERE o.kieSessionId = :kieSessionId AND o.uuid = :uuid")
+                        .setParameter("kieSessionId", globalJobHandle.getSessionId())
+                        .setParameter("uuid", globalJobHandle.getUuid())
+                        .executeUpdate();
+                    logger.debug("Destroy Timer Mapping Info {} for id {} sessioin id {} and uuid {}", count, globalJobHandle.getId(), globalJobHandle.getSessionId(), globalJobHandle.getUuid());
+                } finally {
+                    em.close();
+                }
+
+            }
+            
+        });
+    }
+
+    private EntityManager getEntityManager(RuntimeManager manager) {
+        try {
+            if(manager == null) {
+                return null;
+            }
+            AbstractRuntimeManager arm = (AbstractRuntimeManager) manager;
+            EntityManagerFactory emf = ((SimpleRuntimeEnvironment) arm.getEnvironment()).getEmf();
+            if(emf != null) {
+                return emf.createEntityManager();
+            }
+    
+            emf = (EntityManagerFactory) arm.getEnvironment().getEnvironment().get(EnvironmentName.ENTITY_MANAGER_FACTORY);
+            if(emf != null) {
+                return emf.createEntityManager();
+            }
+    
+            String pu = ((InternalRuntimeManager) manager).getDeploymentDescriptor().getPersistenceUnit();
+            emf = EntityManagerFactoryManager.get().getOrCreate(pu);
+
+            return emf.createEntityManager();
+        } catch (Throwable e) {
+            logger.debug("could not create entity manager. more likely tx not active", e);
+            return null;
+        }
+    }
+
 	protected void registerItems(RuntimeEngine runtime) {
         RegisterableItemsFactory factory = environment.getRegisterableItemsFactory();
         KieSession ksession = ((InternalRuntimeEngine) runtime).internalGetKieSession();
