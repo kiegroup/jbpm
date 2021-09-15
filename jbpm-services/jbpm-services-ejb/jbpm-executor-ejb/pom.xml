@@ -171,6 +171,12 @@
       <optional>true</optional>
     </dependency>
     <dependency>
+      <groupId>org.jboss</groupId>
+      <artifactId>jboss-transaction-spi-jakarta</artifactId>
+      <scope>test</scope>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
       <groupId>org.jbpm</groupId>
       <artifactId>jbpm-human-task-audit</artifactId>
       <optional>true</optional>
