@@ -581,21 +581,25 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 	}
 	
     public TimerInstance configureSLATimer(String slaDueDateExpression, String timerName) {
+        return configureTimer(slaDueDateExpression, timerName, useTimerSLATracking());
+    }
+
+    public TimerInstance configureTimer(String timerExpression, String timerName, boolean trackTimer) {
         // setup SLA if provided
-        slaDueDateExpression = resolveVariable(slaDueDateExpression);
-        if (slaDueDateExpression == null || slaDueDateExpression.trim().isEmpty()) {
-            logger.debug("Sla due date expression resolved to no value '{}'", slaDueDateExpression);
+        String timerResolvedExpression = resolveVariable(timerExpression);
+        if (timerResolvedExpression == null || timerResolvedExpression.trim().isEmpty()) {
+            logger.debug("Timer due date expression resolved to no value '{}'", timerResolvedExpression);
             return null;
         }
-        logger.debug("SLA due date is set to {}", slaDueDateExpression);
+        logger.debug("Configure timer {} due date is set to {}", timerName, timerResolvedExpression);
         InternalKnowledgeRuntime kruntime = getKnowledgeRuntime();
         long duration = -1;
         if (kruntime != null && kruntime.getEnvironment().get("jbpm.business.calendar") != null) {
             BusinessCalendar businessCalendar = (BusinessCalendar) kruntime.getEnvironment().get("jbpm.business.calendar");
 
-            duration = businessCalendar.calculateBusinessTimeAsDuration(slaDueDateExpression);
+            duration = businessCalendar.calculateBusinessTimeAsDuration(timerResolvedExpression);
         } else {
-            duration = DateTimeUtils.parseDuration(slaDueDateExpression);
+            duration = DateTimeUtils.parseDuration(timerResolvedExpression);
         }
 
         TimerInstance timerInstance = new TimerInstance();
@@ -603,10 +607,15 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
         timerInstance.setDelay(duration);
         timerInstance.setPeriod(0);
         timerInstance.setName(timerName);
-        if (useTimerSLATracking()) {
+
+        if(trackTimer) {
             ((InternalProcessRuntime) kruntime.getProcessRuntime()).getTimerManager().registerTimer(timerInstance, this);
         }
         return timerInstance;
+    }
+
+    public void cancelTimer(long timerId) {
+        ((InternalProcessRuntime) getKnowledgeRuntime().getProcessRuntime()).getTimerManager().cancelTimer(timerId);
     }
 
     protected void registerExternalEventNodeListeners() {

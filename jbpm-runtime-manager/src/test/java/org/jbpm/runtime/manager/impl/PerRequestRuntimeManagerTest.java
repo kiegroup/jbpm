@@ -430,7 +430,7 @@ public class PerRequestRuntimeManagerTest extends AbstractBaseTest {
         manager.disposeRuntimeEngine(runtime2);
         
         runtime1 = manager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstance.getId()));
-        
+
         List<Long> tasks1 = runtime1.getTaskService().getTasksByProcessInstanceId(processInstance.getId());
         assertNotNull(tasks1);
         assertEquals(1, tasks1.size());
@@ -442,9 +442,14 @@ public class PerRequestRuntimeManagerTest extends AbstractBaseTest {
         assertEquals(1, tasks2.size());
         
         Object data = "some data";
-        
+
+        // this is a fault test as this will avoid to install the dispose after the transaction 
+        runtime1.getKieSession();
+
         runtime1.getTaskService().claim(tasks1.get(0), "john");
+        runtime1 = manager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstance.getId()));
         runtime1.getTaskService().start(tasks1.get(0), "john");
+        runtime1 = manager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstance.getId()));
         runtime1.getTaskService().complete(tasks1.get(0), "john", Collections.singletonMap("_output", data));
         
         manager.disposeRuntimeEngine(runtime1);

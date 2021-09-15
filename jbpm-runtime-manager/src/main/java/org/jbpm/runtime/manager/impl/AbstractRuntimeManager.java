@@ -40,6 +40,7 @@ import org.jbpm.runtime.manager.impl.tx.NoTransactionalTimerResourcesCleanupAwar
 import org.jbpm.runtime.manager.impl.tx.TransactionAwareSchedulerServiceInterceptor;
 import org.jbpm.runtime.manager.spi.RuntimeManagerLock;
 import org.jbpm.runtime.manager.spi.RuntimeManagerLockStrategy;
+import org.jbpm.services.task.events.WorkflowBridgeTaskLifeCycleEventListener;
 import org.jbpm.services.task.impl.TaskContentRegistry;
 import org.jbpm.services.task.impl.TaskDeadlinesServiceImpl;
 import org.jbpm.services.task.impl.command.CommandBasedTaskService;
@@ -247,6 +248,7 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
         if (((RuntimeEngineImpl)runtime).isAfterCompletion()) {
             return true;
         }
+
         try {
             // check tx status to disallow dispose when within active transaction       
             TransactionManager tm = getTransactionManager(((InternalRuntimeEngine) runtime).internalGetKieSession().getEnvironment());
@@ -333,21 +335,21 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
         return internalTaskService;
     }
     
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({ "unchecked"})
     protected void configureRuntimeOnTaskService(InternalTaskService internalTaskService, RuntimeEngine engine) {
-    	
-        if (internalTaskService != null) {            
-            
-            ExternalTaskEventListener listener = new ExternalTaskEventListener();
+
+        if (internalTaskService != null) {
+
             if (internalTaskService instanceof EventService) {
-                ((EventService)internalTaskService).registerTaskEventListener(listener);
+                ((EventService<TaskLifeCycleEventListener>) internalTaskService).registerTaskEventListener(new ExternalTaskEventListener());
+                ((EventService<TaskLifeCycleEventListener>) internalTaskService).registerTaskEventListener(new WorkflowBridgeTaskLifeCycleEventListener(this));
             }
-            
-          	// register task listeners if any  
+
+            // register task listeners if any  
             RegisterableItemsFactory factory = environment.getRegisterableItemsFactory();
-        	for (TaskLifeCycleEventListener taskListener : factory.getTaskListeners()) {
-        		((EventService<TaskLifeCycleEventListener>)internalTaskService).registerTaskEventListener(taskListener);
-        	}
+            for (TaskLifeCycleEventListener taskListener : factory.getTaskListeners()) {
+                ((EventService<TaskLifeCycleEventListener>) internalTaskService).registerTaskEventListener(taskListener);
+            }
 
         }
     }
