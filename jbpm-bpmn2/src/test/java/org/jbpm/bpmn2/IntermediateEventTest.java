@@ -2642,7 +2642,7 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
         assertProcessInstanceActive(processInstance);
         workItems = handler.getWorkItems();
         assertThat(workItems).isNotNull();
-        assertThat(workItems.size()).isEqualTo(3);
+        assertThat(workItems.size()).isEqualTo(countDownListener.getCountAfter());
 
         ksession.abortProcessInstance(processInstance.getId());
 
@@ -2674,7 +2674,7 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
 
         workItems = handler.getWorkItems();
         assertThat(workItems).isNotNull();
-        assertThat(workItems.size()).isEqualTo(2);
+        assertThat(workItems.size()).isEqualTo(countDownListener.getCountAfter());
 
         ksession.abortProcessInstance(processInstance.getId());
 
