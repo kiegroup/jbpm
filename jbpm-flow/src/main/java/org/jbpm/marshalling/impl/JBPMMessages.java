@@ -4914,6 +4914,15 @@ public final class JBPMMessages {
          * <code>optional int64 error_handling_process_instance_id = 3;</code>
          */
         long getErrorHandlingProcessInstanceId();
+
+        /**
+         * <code>optional int64 timer_instance_id_suspendUntil = 4;</code>
+         */
+        boolean hasTimerInstanceIdSuspendUntil();
+        /**
+         * <code>optional int64 timer_instance_id_suspendUntil = 4;</code>
+         */
+        long getTimerInstanceIdSuspendUntil();
       }
       /**
        * Protobuf type {@code org.jbpm.marshalling.ProcessInstance.NodeInstanceContent.HumanTaskNode}
@@ -4996,6 +5005,11 @@ public final class JBPMMessages {
                 case 24: {
                   bitField0_ |= 0x00000002;
                   errorHandlingProcessInstanceId_ = input.readInt64();
+                  break;
+                }
+                case 32: {
+                  bitField0_ |= 0x00000004;
+                  timerInstanceIdSuspendUntil_ = input.readInt64();
                   break;
                 }
               }
@@ -5093,10 +5107,26 @@ public final class JBPMMessages {
           return errorHandlingProcessInstanceId_;
         }
 
+        public static final int TIMER_INSTANCE_ID_SUSPENDUNTIL_FIELD_NUMBER = 4;
+        private long timerInstanceIdSuspendUntil_;
+        /**
+         * <code>optional int64 timer_instance_id_suspendUntil = 4;</code>
+         */
+        public boolean hasTimerInstanceIdSuspendUntil() {
+          return ((bitField0_ & 0x00000004) == 0x00000004);
+        }
+        /**
+         * <code>optional int64 timer_instance_id_suspendUntil = 4;</code>
+         */
+        public long getTimerInstanceIdSuspendUntil() {
+          return timerInstanceIdSuspendUntil_;
+        }
+
         private void initFields() {
           workItemId_ = 0L;
           timerInstanceId_ = java.util.Collections.emptyList();
           errorHandlingProcessInstanceId_ = 0L;
+          timerInstanceIdSuspendUntil_ = 0L;
         }
         private byte memoizedIsInitialized = -1;
         public final boolean isInitialized() {
@@ -5119,6 +5149,9 @@ public final class JBPMMessages {
           }
           if (((bitField0_ & 0x00000002) == 0x00000002)) {
             output.writeInt64(3, errorHandlingProcessInstanceId_);
+          }
+          if (((bitField0_ & 0x00000004) == 0x00000004)) {
+            output.writeInt64(4, timerInstanceIdSuspendUntil_);
           }
           getUnknownFields().writeTo(output);
         }
@@ -5145,6 +5178,10 @@ public final class JBPMMessages {
           if (((bitField0_ & 0x00000002) == 0x00000002)) {
             size += com.google.protobuf.CodedOutputStream
               .computeInt64Size(3, errorHandlingProcessInstanceId_);
+          }
+          if (((bitField0_ & 0x00000004) == 0x00000004)) {
+            size += com.google.protobuf.CodedOutputStream
+              .computeInt64Size(4, timerInstanceIdSuspendUntil_);
           }
           size += getUnknownFields().getSerializedSize();
           memoizedSerializedSize = size;
@@ -5269,6 +5306,8 @@ public final class JBPMMessages {
             bitField0_ = (bitField0_ & ~0x00000002);
             errorHandlingProcessInstanceId_ = 0L;
             bitField0_ = (bitField0_ & ~0x00000004);
+            timerInstanceIdSuspendUntil_ = 0L;
+            bitField0_ = (bitField0_ & ~0x00000008);
             return this;
           }
 
@@ -5310,6 +5349,10 @@ public final class JBPMMessages {
               to_bitField0_ |= 0x00000002;
             }
             result.errorHandlingProcessInstanceId_ = errorHandlingProcessInstanceId_;
+            if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
+              to_bitField0_ |= 0x00000004;
+            }
+            result.timerInstanceIdSuspendUntil_ = timerInstanceIdSuspendUntil_;
             result.bitField0_ = to_bitField0_;
             onBuilt();
             return result;
@@ -5341,6 +5384,9 @@ public final class JBPMMessages {
             }
             if (other.hasErrorHandlingProcessInstanceId()) {
               setErrorHandlingProcessInstanceId(other.getErrorHandlingProcessInstanceId());
+            }
+            if (other.hasTimerInstanceIdSuspendUntil()) {
+              setTimerInstanceIdSuspendUntil(other.getTimerInstanceIdSuspendUntil());
             }
             this.mergeUnknownFields(other.getUnknownFields());
             return this;
@@ -5495,6 +5541,38 @@ public final class JBPMMessages {
           public Builder clearErrorHandlingProcessInstanceId() {
             bitField0_ = (bitField0_ & ~0x00000004);
             errorHandlingProcessInstanceId_ = 0L;
+            onChanged();
+            return this;
+          }
+
+          private long timerInstanceIdSuspendUntil_ ;
+          /**
+           * <code>optional int64 timer_instance_id_suspendUntil = 4;</code>
+           */
+          public boolean hasTimerInstanceIdSuspendUntil() {
+            return ((bitField0_ & 0x00000008) == 0x00000008);
+          }
+          /**
+           * <code>optional int64 timer_instance_id_suspendUntil = 4;</code>
+           */
+          public long getTimerInstanceIdSuspendUntil() {
+            return timerInstanceIdSuspendUntil_;
+          }
+          /**
+           * <code>optional int64 timer_instance_id_suspendUntil = 4;</code>
+           */
+          public Builder setTimerInstanceIdSuspendUntil(long value) {
+            bitField0_ |= 0x00000008;
+            timerInstanceIdSuspendUntil_ = value;
+            onChanged();
+            return this;
+          }
+          /**
+           * <code>optional int64 timer_instance_id_suspendUntil = 4;</code>
+           */
+          public Builder clearTimerInstanceIdSuspendUntil() {
+            bitField0_ = (bitField0_ & ~0x00000008);
+            timerInstanceIdSuspendUntil_ = 0L;
             onChanged();
             return this;
           }
@@ -24521,7 +24599,7 @@ public final class JBPMMessages {
       "\n\'org/jbpm/marshalling/jbpmmessages.prot" +
       "o\022\024org.jbpm.marshalling\0326org/drools/seri" +
       "alization/protobuf/droolsmessages.proto\"" +
-      "\354\036\n\017ProcessInstance\022\024\n\014process_type\030\001 \001(" +
+      "\225\037\n\017ProcessInstance\022\024\n\014process_type\030\001 \001(" +
       "\t\022\n\n\002id\030\002 \001(\003\022\022\n\nprocess_id\030\003 \001(\t\022\r\n\005sta" +
       "te\030\004 \001(\005\022\035\n\025node_instance_counter\030\005 \001(\003\022" +
       "\023\n\013process_xml\030\013 \001(\t\022\"\n\032parent_process_i" +
@@ -24547,7 +24625,7 @@ public final class JBPMMessages {
       "\022\r\n\005level\030\005 \001(\005\022\024\n\014sla_timer_id\030\006 \001(\003\022\024\n" +
       "\014sla_due_date\030\007 \001(\003\022\026\n\016sla_compliance\030\010 " +
       "\001(\005\0328\n\026ExclusiveGroupInstance\022\036\n\026group_n" +
-      "ode_instance_id\030\001 \003(\003\032\233\024\n\023NodeInstanceCo",
+      "ode_instance_id\030\001 \003(\003\032\304\024\n\023NodeInstanceCo",
       "ntent\022D\n\004type\030\001 \001(\01626.org.jbpm.marshalli" +
       "ng.ProcessInstance.NodeInstanceType\022W\n\010r" +
       "ule_set\030\002 \001(\0132E.org.jbpm.marshalling.Pro" +
@@ -24582,77 +24660,78 @@ public final class JBPMMessages {
       "cessInstance.NodeInstanceContent.RuleSet" +
       "Node.TextMapEntry\022\027\n\017rule_flow_group\030\003 \001" +
       "(\t\032+\n\014TextMapEntry\022\014\n\004name\030\001 \001(\t\022\r\n\005valu" +
-      "e\030\002 \001(\t\032l\n\rHumanTaskNode\022\024\n\014work_item_id" +
-      "\030\001 \001(\003\022\031\n\021timer_instance_id\030\002 \003(\003\022*\n\"err" +
-      "or_handling_process_instance_id\030\003 \001(\003\032k\n" +
-      "\014WorkItemNode\022\024\n\014work_item_id\030\001 \001(\003\022\031\n\021t" +
-      "imer_instance_id\030\002 \003(\003\022*\n\"error_handling" +
-      "_process_instance_id\030\003 \001(\003\032H\n\016SubProcess",
-      "Node\022\033\n\023process_instance_id\030\001 \001(\003\022\031\n\021tim" +
-      "er_instance_id\030\002 \003(\003\032*\n\rMilestoneNode\022\031\n" +
-      "\021timer_instance_id\030\001 \003(\003\032\013\n\tEventNode\032\035\n" +
-      "\tTimerNode\022\020\n\010timer_id\030\001 \001(\003\032\234\001\n\010JoinNod" +
-      "e\022_\n\007trigger\030\001 \003(\0132N.org.jbpm.marshallin" +
-      "g.ProcessInstance.NodeInstanceContent.Jo" +
-      "inNode.JoinTrigger\032/\n\013JoinTrigger\022\017\n\007nod" +
-      "e_id\030\001 \001(\003\022\017\n\007counter\030\002 \001(\005\032&\n\tStateNode" +
-      "\022\031\n\021timer_instance_id\030\001 \003(\003\032\304\002\n\024Composit" +
-      "eContextNode\022\031\n\021timer_instance_id\030\002 \003(\003\022",
-      "0\n\010variable\030\003 \003(\0132\036.org.jbpm.marshalling" +
-      ".Variable\022I\n\rnode_instance\030\004 \003(\01322.org.j" +
-      "bpm.marshalling.ProcessInstance.NodeInst" +
-      "ance\022U\n\017exclusive_group\030\005 \003(\0132<.org.jbpm" +
-      ".marshalling.ProcessInstance.ExclusiveGr" +
-      "oupInstance\022=\n\017iterationLevels\030\006 \003(\0132$.o" +
-      "rg.jbpm.marshalling.IterationLevel\032\200\002\n\013F" +
-      "orEachNode\022I\n\rnode_instance\030\001 \003(\01322.org." +
+      "e\030\002 \001(\t\032\224\001\n\rHumanTaskNode\022\024\n\014work_item_i" +
+      "d\030\001 \001(\003\022\031\n\021timer_instance_id\030\002 \003(\003\022*\n\"er" +
+      "ror_handling_process_instance_id\030\003 \001(\003\022&" +
+      "\n\036timer_instance_id_suspendUntil\030\004 \001(\003\032k" +
+      "\n\014WorkItemNode\022\024\n\014work_item_id\030\001 \001(\003\022\031\n\021" +
+      "timer_instance_id\030\002 \003(\003\022*\n\"error_handlin",
+      "g_process_instance_id\030\003 \001(\003\032H\n\016SubProces" +
+      "sNode\022\033\n\023process_instance_id\030\001 \001(\003\022\031\n\021ti" +
+      "mer_instance_id\030\002 \003(\003\032*\n\rMilestoneNode\022\031" +
+      "\n\021timer_instance_id\030\001 \003(\003\032\013\n\tEventNode\032\035" +
+      "\n\tTimerNode\022\020\n\010timer_id\030\001 \001(\003\032\234\001\n\010JoinNo" +
+      "de\022_\n\007trigger\030\001 \003(\0132N.org.jbpm.marshalli" +
+      "ng.ProcessInstance.NodeInstanceContent.J" +
+      "oinNode.JoinTrigger\032/\n\013JoinTrigger\022\017\n\007no" +
+      "de_id\030\001 \001(\003\022\017\n\007counter\030\002 \001(\005\032&\n\tStateNod" +
+      "e\022\031\n\021timer_instance_id\030\001 \003(\003\032\304\002\n\024Composi",
+      "teContextNode\022\031\n\021timer_instance_id\030\002 \003(\003" +
+      "\0220\n\010variable\030\003 \003(\0132\036.org.jbpm.marshallin" +
+      "g.Variable\022I\n\rnode_instance\030\004 \003(\01322.org." +
       "jbpm.marshalling.ProcessInstance.NodeIns" +
-      "tance\0220\n\010variable\030\002 \003(\0132\036.org.jbpm.marsh",
-      "alling.Variable\022=\n\017iterationLevels\030\003 \003(\013" +
-      "2$.org.jbpm.marshalling.IterationLevel\022\032" +
-      "\n\022sequential_counter\030\004 \001(\005\022\031\n\021timer_inst" +
-      "ance_id\030\005 \003(\003\032$\n\016AsyncEventNode\022\022\n\nevent" +
-      "_type\030\001 \001(\t\"\250\002\n\020NodeInstanceType\022\021\n\rRULE" +
-      "_SET_NODE\020\000\022\023\n\017HUMAN_TASK_NODE\020\001\022\022\n\016WORK" +
-      "_ITEM_NODE\020\002\022\023\n\017SUBPROCESS_NODE\020\003\022\022\n\016MIL" +
-      "ESTONE_NODE\020\004\022\016\n\nEVENT_NODE\020\005\022\016\n\nTIMER_N" +
-      "ODE\020\006\022\r\n\tJOIN_NODE\020\007\022\016\n\nSTATE_NODE\020\010\022\032\n\026" +
-      "COMPOSITE_CONTEXT_NODE\020\t\022\021\n\rFOR_EACH_NOD",
-      "E\020\n\022\020\n\014DYNAMIC_NODE\020\013\022\031\n\025EVENT_SUBPROCES" +
-      "S_NODE\020\014\022\024\n\020ASYNC_EVENT_NODE\020\r\"?\n\010Variab" +
-      "le\022\014\n\004name\030\001 \001(\t\022\026\n\016strategy_index\030\002 \001(\005" +
-      "\022\r\n\005value\030\003 \001(\014\"\305\001\n\010WorkItem\022\n\n\002id\030\001 \001(\003" +
-      "\022\034\n\024process_instances_id\030\002 \001(\003\022\014\n\004name\030\003" +
-      " \001(\t\022\r\n\005state\030\004 \001(\005\0220\n\010variable\030\005 \003(\0132\036." +
-      "org.jbpm.marshalling.Variable\022\025\n\rdeploym" +
-      "ent_id\030\006 \001(\t\022\030\n\020node_instance_id\030\007 \001(\003\022\017" +
-      "\n\007node_id\030\010 \001(\003\"\374\002\n\014ProcessTimer\022?\n\005time" +
-      "r\030\001 \001(\01320.org.jbpm.marshalling.ProcessTi",
-      "mer.TimerInstance\022;\n\007trigger\030\002 \001(\0132*.org" +
-      ".drools.serialization.protobuf.Trigger\032\355" +
-      "\001\n\rTimerInstance\022\n\n\002id\030\001 \001(\003\022\020\n\010timer_id" +
-      "\030\002 \001(\003\022\r\n\005delay\030\003 \001(\003\022\016\n\006period\030\004 \001(\003\022\033\n" +
-      "\023process_instance_id\030\005 \001(\003\022\026\n\016activated_" +
-      "time\030\006 \001(\003\022\026\n\016last_triggered\030\007 \001(\003\022\034\n\024DE" +
-      "PRECATED_sessionId\030\010 \001(\005\022\021\n\tsessionId\030\t " +
-      "\001(\003\022\023\n\013repeatLimit\030\n \001(\005\022\014\n\004name\030\013 \001(\t\"+" +
-      "\n\016IterationLevel\022\n\n\002id\030\001 \001(\t\022\r\n\005level\030\002 " +
-      "\001(\005\"E\n\021VariableContainer\0220\n\010variable\030\001 \003",
-      "(\0132\036.org.jbpm.marshalling.Variable:o\n\020pr" +
-      "ocess_instance\022..org.drools.serializatio" +
-      "n.protobuf.ProcessData\030\n \003(\0132%.org.jbpm." +
-      "marshalling.ProcessInstance:a\n\twork_item" +
-      "\022..org.drools.serialization.protobuf.Pro" +
-      "cessData\030\013 \003(\0132\036.org.jbpm.marshalling.Wo" +
-      "rkItem:@\n\010timer_id\022..org.drools.serializ" +
-      "ation.protobuf.ProcessData\030\r \001(\003:i\n\rproc" +
-      "ess_timer\022..org.drools.serialization.pro" +
-      "tobuf.ProcessData\030\014 \003(\0132\".org.jbpm.marsh",
-      "alling.ProcessTimer:g\n\nproc_timer\022/.org." +
-      "drools.serialization.protobuf.Timers.Tim" +
-      "er\030d \001(\0132\".org.jbpm.marshalling.ProcessT" +
-      "imerB)\n\031org.jbpm.marshalling.implB\014JBPMM" +
-      "essages"
+      "tance\022U\n\017exclusive_group\030\005 \003(\0132<.org.jbp" +
+      "m.marshalling.ProcessInstance.ExclusiveG" +
+      "roupInstance\022=\n\017iterationLevels\030\006 \003(\0132$." +
+      "org.jbpm.marshalling.IterationLevel\032\200\002\n\013" +
+      "ForEachNode\022I\n\rnode_instance\030\001 \003(\01322.org" +
+      ".jbpm.marshalling.ProcessInstance.NodeIn",
+      "stance\0220\n\010variable\030\002 \003(\0132\036.org.jbpm.mars" +
+      "halling.Variable\022=\n\017iterationLevels\030\003 \003(" +
+      "\0132$.org.jbpm.marshalling.IterationLevel\022" +
+      "\032\n\022sequential_counter\030\004 \001(\005\022\031\n\021timer_ins" +
+      "tance_id\030\005 \003(\003\032$\n\016AsyncEventNode\022\022\n\neven" +
+      "t_type\030\001 \001(\t\"\250\002\n\020NodeInstanceType\022\021\n\rRUL" +
+      "E_SET_NODE\020\000\022\023\n\017HUMAN_TASK_NODE\020\001\022\022\n\016WOR" +
+      "K_ITEM_NODE\020\002\022\023\n\017SUBPROCESS_NODE\020\003\022\022\n\016MI" +
+      "LESTONE_NODE\020\004\022\016\n\nEVENT_NODE\020\005\022\016\n\nTIMER_" +
+      "NODE\020\006\022\r\n\tJOIN_NODE\020\007\022\016\n\nSTATE_NODE\020\010\022\032\n",
+      "\026COMPOSITE_CONTEXT_NODE\020\t\022\021\n\rFOR_EACH_NO" +
+      "DE\020\n\022\020\n\014DYNAMIC_NODE\020\013\022\031\n\025EVENT_SUBPROCE" +
+      "SS_NODE\020\014\022\024\n\020ASYNC_EVENT_NODE\020\r\"?\n\010Varia" +
+      "ble\022\014\n\004name\030\001 \001(\t\022\026\n\016strategy_index\030\002 \001(" +
+      "\005\022\r\n\005value\030\003 \001(\014\"\305\001\n\010WorkItem\022\n\n\002id\030\001 \001(" +
+      "\003\022\034\n\024process_instances_id\030\002 \001(\003\022\014\n\004name\030" +
+      "\003 \001(\t\022\r\n\005state\030\004 \001(\005\0220\n\010variable\030\005 \003(\0132\036" +
+      ".org.jbpm.marshalling.Variable\022\025\n\rdeploy" +
+      "ment_id\030\006 \001(\t\022\030\n\020node_instance_id\030\007 \001(\003\022" +
+      "\017\n\007node_id\030\010 \001(\003\"\374\002\n\014ProcessTimer\022?\n\005tim",
+      "er\030\001 \001(\01320.org.jbpm.marshalling.ProcessT" +
+      "imer.TimerInstance\022;\n\007trigger\030\002 \001(\0132*.or" +
+      "g.drools.serialization.protobuf.Trigger\032" +
+      "\355\001\n\rTimerInstance\022\n\n\002id\030\001 \001(\003\022\020\n\010timer_i" +
+      "d\030\002 \001(\003\022\r\n\005delay\030\003 \001(\003\022\016\n\006period\030\004 \001(\003\022\033" +
+      "\n\023process_instance_id\030\005 \001(\003\022\026\n\016activated" +
+      "_time\030\006 \001(\003\022\026\n\016last_triggered\030\007 \001(\003\022\034\n\024D" +
+      "EPRECATED_sessionId\030\010 \001(\005\022\021\n\tsessionId\030\t" +
+      " \001(\003\022\023\n\013repeatLimit\030\n \001(\005\022\014\n\004name\030\013 \001(\t\"" +
+      "+\n\016IterationLevel\022\n\n\002id\030\001 \001(\t\022\r\n\005level\030\002",
+      " \001(\005\"E\n\021VariableContainer\0220\n\010variable\030\001 " +
+      "\003(\0132\036.org.jbpm.marshalling.Variable:o\n\020p" +
+      "rocess_instance\022..org.drools.serializati" +
+      "on.protobuf.ProcessData\030\n \003(\0132%.org.jbpm" +
+      ".marshalling.ProcessInstance:a\n\twork_ite" +
+      "m\022..org.drools.serialization.protobuf.Pr" +
+      "ocessData\030\013 \003(\0132\036.org.jbpm.marshalling.W" +
+      "orkItem:@\n\010timer_id\022..org.drools.seriali" +
+      "zation.protobuf.ProcessData\030\r \001(\003:i\n\rpro" +
+      "cess_timer\022..org.drools.serialization.pr",
+      "otobuf.ProcessData\030\014 \003(\0132\".org.jbpm.mars" +
+      "halling.ProcessTimer:g\n\nproc_timer\022/.org" +
+      ".drools.serialization.protobuf.Timers.Ti" +
+      "mer\030d \001(\0132\".org.jbpm.marshalling.Process" +
+      "TimerB)\n\031org.jbpm.marshalling.implB\014JBPM" +
+      "Messages"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -24714,7 +24793,7 @@ public final class JBPMMessages {
     internal_static_org_jbpm_marshalling_ProcessInstance_NodeInstanceContent_HumanTaskNode_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_org_jbpm_marshalling_ProcessInstance_NodeInstanceContent_HumanTaskNode_descriptor,
-        new java.lang.String[] { "WorkItemId", "TimerInstanceId", "ErrorHandlingProcessInstanceId", });
+        new java.lang.String[] { "WorkItemId", "TimerInstanceId", "ErrorHandlingProcessInstanceId", "TimerInstanceIdSuspendUntil", });
     internal_static_org_jbpm_marshalling_ProcessInstance_NodeInstanceContent_WorkItemNode_descriptor =
       internal_static_org_jbpm_marshalling_ProcessInstance_NodeInstanceContent_descriptor.getNestedTypes().get(2);
     internal_static_org_jbpm_marshalling_ProcessInstance_NodeInstanceContent_WorkItemNode_fieldAccessorTable = new

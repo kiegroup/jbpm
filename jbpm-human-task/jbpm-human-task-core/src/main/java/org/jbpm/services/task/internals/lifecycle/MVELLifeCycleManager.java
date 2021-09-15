@@ -462,7 +462,6 @@ public class MVELLifeCycleManager implements LifeCycleManager {
                 }
                 
             }
-            
             getExecutionErrorHandler().processed(task);
         } catch (RuntimeException re) {
             throw re;

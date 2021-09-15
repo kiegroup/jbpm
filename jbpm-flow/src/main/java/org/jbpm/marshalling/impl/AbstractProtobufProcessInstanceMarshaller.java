@@ -247,6 +247,7 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
                     _task.addTimerInstanceId( id );
                 }
             }
+            _task.setTimerInstanceIdSuspendUntil(((HumanTaskNodeInstance) nodeInstance).getSuspendUntilTimerId());
             _task.setErrorHandlingProcessInstanceId(((HumanTaskNodeInstance) nodeInstance).getExceptionHandlingProcessInstanceId());
             _content = JBPMMessages.ProcessInstance.NodeInstanceContent.newBuilder()
                     .setType( NodeInstanceType.HUMAN_TASK_NODE )
@@ -750,6 +751,11 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
                     ((HumanTaskNodeInstance) nodeInstance).internalSetTimerInstances( timerInstances );                    
                 }
                 ((WorkItemNodeInstance) nodeInstance).internalSetProcessInstanceId( _content.getHumanTask().getErrorHandlingProcessInstanceId() );
+                if(_content.getHumanTask().hasTimerInstanceIdSuspendUntil()) {
+                    ((HumanTaskNodeInstance) nodeInstance).setSuspendUntilTimerId(_content.getHumanTask().getTimerInstanceIdSuspendUntil());
+                } else {
+                    ((HumanTaskNodeInstance) nodeInstance).setSuspendUntilTimerId(-1);
+                }
                 break;
             case WORK_ITEM_NODE :
                 nodeInstance = new WorkItemNodeInstance();

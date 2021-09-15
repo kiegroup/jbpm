@@ -21,6 +21,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.jbpm.persistence.api.integration.InstanceView;
@@ -30,14 +32,17 @@ import org.jbpm.services.task.assignment.AssignmentServiceProvider;
 import org.jbpm.services.task.assignment.AssignmentServiceRegistry;
 import org.jbpm.services.task.assignment.impl.AssignmentImpl;
 import org.jbpm.services.task.assignment.impl.AssignmentServiceImpl;
+import org.jbpm.services.task.events.DefaultTaskEventListener;
 import org.jbpm.test.JbpmTestCase;
 import org.jbpm.test.persistence.processinstance.objects.TestEventEmitter;
+import org.junit.Assert;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.runtime.manager.RuntimeManager;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.task.TaskContext;
+import org.kie.api.task.TaskEvent;
 import org.kie.api.task.TaskService;
 import org.kie.api.task.model.Task;
 import org.kie.api.task.model.TaskSummary;
@@ -279,6 +284,77 @@ public class ProcessHumanTaskTest extends JbpmTestCase {
                 .filter(instanceView -> instanceView instanceof TaskInstanceView).count());
 
         assertNodeTriggered(processInstance.getId(), "End");
+        assertProcessInstanceNotActive(processInstance.getId(), ksession);
+    }
+
+    @Test
+    public void testHumanTaskWithSuspendUntil() throws Exception {
+        CountDownLatch latch = new CountDownLatch(1);
+        addTaskEventListener(new DefaultTaskEventListener() {
+            @Override
+            public void afterTaskResumedEvent(TaskEvent event) {
+                latch.countDown();
+            }
+        });
+        sessionPersistence = true; // so JPAProcessInstanceManager is used
+        createRuntimeManager("org/jbpm/test/functional/task/HumanTaskWithSuspendUntil.bpmn2");
+        RuntimeEngine runtimeEngine = getRuntimeEngine();
+        KieSession ksession = runtimeEngine.getKieSession();
+
+        TaskService taskService = runtimeEngine.getTaskService();
+
+
+        ProcessInstance processInstance = ksession.startProcess("humanTaskWithSuspendUntil");
+
+        assertProcessInstanceActive(processInstance.getId(), ksession);
+
+        // let john execute Task 1
+        List<TaskSummary> list = taskService.getTasksAssignedAsPotentialOwner("john", "en-UK");
+        TaskSummary task = list.get(0);
+        logger.info("John is executing task {}", task.getName());
+        taskService.start(task.getId(), "john");
+        logger.info("John is suspending task {}", task.getName());
+        taskService.suspend(task.getId(), "john"); 
+        latch.await();
+        taskService.complete(task.getId(), "john", null);
+
+        assertProcessInstanceNotActive(processInstance.getId(), ksession);
+    }
+
+    @Test
+    public void testHumanTaskWithSuspendUntilRemoveTimer() throws Exception {
+        CountDownLatch latch = new CountDownLatch(2);
+        addTaskEventListener(new DefaultTaskEventListener() {
+            @Override
+            public void afterTaskResumedEvent(TaskEvent event) {
+                latch.countDown();
+            }
+        });
+        sessionPersistence = true; // so JPAProcessInstanceManager is used
+        createRuntimeManager("org/jbpm/test/functional/task/HumanTaskWithSuspendUntil.bpmn2");
+        RuntimeEngine runtimeEngine = getRuntimeEngine();
+        KieSession ksession = runtimeEngine.getKieSession();
+
+        TaskService taskService = runtimeEngine.getTaskService();
+
+
+        ProcessInstance processInstance = ksession.startProcess("humanTaskWithSuspendUntil");
+
+        assertProcessInstanceActive(processInstance.getId(), ksession);
+
+        // let john execute Task 1
+        List<TaskSummary> list = taskService.getTasksAssignedAsPotentialOwner("john", "en-UK");
+        TaskSummary task = list.get(0);
+        logger.info("John is executing task {}", task.getName());
+        taskService.start(task.getId(), "john");
+        logger.info("John is suspending task {}", task.getName());
+        taskService.suspend(task.getId(), "john"); 
+        taskService.resume(task.getId(), "Administrator"); // first count down. The second would be the timer.
+        taskService.complete(task.getId(), "john", null);
+
+        // we don't call resume on our own
+        Assert.assertFalse(latch.await(5, TimeUnit.SECONDS));
+
         assertProcessInstanceNotActive(processInstance.getId(), ksession);
     }
 }
