@@ -54,6 +54,7 @@ import org.jbpm.executor.impl.concurrent.ScheduleTaskTransactionSynchronization;
 import org.jbpm.executor.impl.event.ExecutorEventSupport;
 import org.jbpm.executor.impl.event.ExecutorEventSupportImpl;
 import org.kie.api.executor.CommandContext;
+import org.kie.api.executor.ExecutorService;
 import org.kie.api.executor.ExecutorStoreService;
 import org.kie.api.executor.STATUS;
 import org.kie.internal.executor.api.Executor;
@@ -330,7 +331,11 @@ public class ExecutorImpl implements Executor {
         if (ctx.getData("processInstanceId") != null) {
             requestInfo.setProcessInstanceId(((Number) ctx.getData("processInstanceId")).longValue());
         }
-        requestInfo.setOwner((String) ctx.getData("owner"));
+        if(ctx.getData("owner") != null) {
+            requestInfo.setOwner((String) ctx.getData("owner"));
+        } else {
+            requestInfo.setOwner(ExecutorService.EXECUTOR_ID);
+        }
         if (ctx.getData("retries") != null) {
             requestInfo.setRetries(Integer.valueOf(String.valueOf(ctx.getData("retries"))));
         } else {
