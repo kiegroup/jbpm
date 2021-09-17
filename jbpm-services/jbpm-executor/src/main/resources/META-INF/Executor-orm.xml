@@ -8,6 +8,11 @@
             Select r from RequestInfo as r where (r.status ='QUEUED' or r.status = 'RETRYING') and r.time &lt; :now ORDER BY r.time DESC
         </query>
     </named-query>
+    <named-query name="PendingRequestsScheduledAfterMark">
+        <query>
+            SELECT r FROM RequestInfo AS r WHERE (r.status ='QUEUED' or r.status = 'RETRYING') AND r.time &lt; :mark AND (r.owner = :owner or r.owner is null) ORDER BY r.time, priority DESC
+        </query>
+    </named-query>
     <named-query name="LoadPendingRequests">
         <query>
             Select new org.jbpm.executor.entities.RequestInfo(r.id, r.priority, r.time) from RequestInfo as r where (r.status ='QUEUED' or r.status = 'RETRYING') and (r.owner = :owner or r.owner is null) ORDER BY r.time, priority DESC
