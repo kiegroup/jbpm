@@ -16,6 +16,8 @@
 
 package org.jbpm.executor.impl.jpa;
 
+import java.time.Instant;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -116,9 +118,18 @@ public class JPAExecutorStoreService implements ExecutorStoreService {
 	}
 
     @Override
+    public List<RequestInfo> loadRequestsOlderThan(long olderThan) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("owner", ExecutorService.EXECUTOR_ID_GET.get());
+        // we compute current date minus how old a job should be. Then we load all task with schedule time above that 
+        params.put("mark", new Date(Instant.now().minusMillis(olderThan).toEpochMilli())); 
+        return commandService.execute(new QueryNameCommand<List<RequestInfo>>("PendingRequestsScheduledAfterMark", params));
+    }
+
+    @Override
     public List<RequestInfo> loadRequests() {
         Map<String, Object> params = new HashMap<String, Object>();
-        params.put("owner", ExecutorService.EXECUTOR_ID);
+        params.put("owner", ExecutorService.EXECUTOR_ID_GET.get());
         return commandService.execute(new QueryNameCommand<List<RequestInfo>>("LoadPendingRequests", params));
     }
 

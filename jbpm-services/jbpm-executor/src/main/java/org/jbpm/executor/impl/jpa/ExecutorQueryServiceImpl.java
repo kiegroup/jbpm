@@ -236,7 +236,7 @@ public class ExecutorQueryServiceImpl implements ExecutorQueryService {
 	    	params.put("now", new Date());
 	    	params.put("firstResult", 0);
 	    	params.put("maxResults", 1);
-	    	params.put("owner", ExecutorService.EXECUTOR_ID);
+	    	params.put("owner", ExecutorService.EXECUTOR_ID_GET.get());
 	    	params.put("deploymentId", getDeploymentIds());
 	    	RequestInfo request = null;
 	    	try {

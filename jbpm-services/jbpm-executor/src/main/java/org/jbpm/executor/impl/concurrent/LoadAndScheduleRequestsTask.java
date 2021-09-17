@@ -20,34 +20,38 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 import org.jbpm.executor.impl.AvailableJobsExecutor;
-import org.kie.api.executor.ExecutorStoreService;
 import org.kie.api.executor.RequestInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+
 
 public class LoadAndScheduleRequestsTask implements Runnable {
     
     private static final Logger logger = LoggerFactory.getLogger(LoadAndScheduleRequestsTask.class);
 
-    private ExecutorStoreService executorStoreService;
     private ScheduledExecutorService scheduler;
     private AvailableJobsExecutor jobProcessor;
+    private Supplier<List<RequestInfo>> taskLoader;
     
-    public LoadAndScheduleRequestsTask(ExecutorStoreService executorStoreService, ScheduledExecutorService scheduler, AvailableJobsExecutor jobProcessor) {
+
+    public LoadAndScheduleRequestsTask(ScheduledExecutorService scheduler, AvailableJobsExecutor jobProcessor, Supplier<List<RequestInfo>> taskLoader) {
         super();
-        this.executorStoreService = executorStoreService;
         this.scheduler = scheduler;
         this.jobProcessor = jobProcessor;
+        this.taskLoader = taskLoader;
     }
+
 
     @Override
     public void run() {
         try {
+            Date started = new Date();
+            List<RequestInfo> loaded = taskLoader.get();
 
-            List<RequestInfo> loaded = executorStoreService.loadRequests();
-            logger.info("Load of jobs from storage started at {} with size {}", new Date(), loaded.size());
             if (!loaded.isEmpty()) {
                 logger.info("Found {} jobs that are waiting for execution, scheduling them...", loaded.size());
                 int scheduledCounter = 0;
@@ -66,8 +70,8 @@ public class LoadAndScheduleRequestsTask implements Runnable {
                 }
                 logger.info("{} jobs have been successfully scheduled", scheduledCounter);
             }
-            
-            logger.info("Load of jobs from storage finished at {}", new Date());
+
+            logger.info("Load of jobs from storage started at {} and finished {} with size {}", started, new Date(), loaded.size());
         } catch (Throwable e) {
             logger.error("Unexpected error while synchronizing with data base for jobs", e);
         }
