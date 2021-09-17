@@ -16,11 +16,6 @@
 
 package org.jbpm.executor;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
 import java.util.Arrays;
@@ -37,11 +32,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.transaction.UserTransaction;
 
-import org.jbpm.executor.impl.ExecutorImpl;
 import org.jbpm.executor.impl.ExecutorServiceImpl;
 import org.jbpm.executor.impl.jpa.ExecutorJPAAuditService;
 import org.jbpm.executor.test.CountDownAsyncJobListener;
-import org.jbpm.executor.test.CountDownAsyncJobStartedListener;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,6 +46,12 @@ import org.kie.api.executor.STATUS;
 import org.kie.api.runtime.query.QueryContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public abstract class BasicExecutorBaseTest {
     
@@ -103,6 +102,7 @@ public abstract class BasicExecutorBaseTest {
         assertEquals(0, queuedRequests.size());
         List<RequestInfo> executedRequests = executorService.getCompletedRequests(new QueryContext());
         assertEquals(1, executedRequests.size());
+        assertNull(((org.jbpm.executor.entities.RequestInfo) executedRequests.get(0)).getOwner());
 
         assertEquals(1, executedRequests.get(0).getExecutions());
     }
