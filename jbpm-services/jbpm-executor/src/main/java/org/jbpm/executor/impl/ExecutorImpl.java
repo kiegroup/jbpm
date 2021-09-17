@@ -32,6 +32,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -54,6 +55,7 @@ import org.jbpm.executor.impl.concurrent.ScheduleTaskTransactionSynchronization;
 import org.jbpm.executor.impl.event.ExecutorEventSupport;
 import org.jbpm.executor.impl.event.ExecutorEventSupportImpl;
 import org.kie.api.executor.CommandContext;
+import org.kie.api.executor.ExecutorService;
 import org.kie.api.executor.ExecutorStoreService;
 import org.kie.api.executor.STATUS;
 import org.kie.internal.executor.api.Executor;
@@ -98,6 +100,8 @@ public class ExecutorImpl implements Executor {
     private int threadPoolSize = Integer.parseInt(System.getProperty("org.kie.executor.pool.size", "1"));
     private int retries = Integer.parseInt(System.getProperty("org.kie.executor.retry.count", "3"));
     private int interval = Integer.parseInt(System.getProperty("org.kie.executor.interval", "0"));
+    private long olderThan = Integer.parseInt(System.getProperty("org.kie.executor.olderThan", "0"));
+    private boolean setDefaultOwner = Boolean.getBoolean("org.kie.executor.setDefaultOwner");
     private TimeUnit timeunit = TimeUnit.valueOf(System.getProperty("org.kie.executor.timeunit", "SECONDS"));
     private boolean jobIdInHeader = Boolean.getBoolean("org.kie.executor.jms.jobHeader");
 
@@ -240,10 +244,11 @@ public class ExecutorImpl implements Executor {
     public void init() {
         if (!"true".equalsIgnoreCase(System.getProperty("org.kie.executor.disabled"))) {
             logger.info("Starting jBPM Executor Component ...\n" + 
+                        " \t - Default executor owner is set to {}\n" +
                         " \t - Thread Pool Size: {}" + "\n" + 
                         " \t - Retries per Request: {}\n" +
-                        " \t - Load from storage interval: {} {} (if less or equal 0 only initial sync with storage) \n",                         
-                        threadPoolSize, retries, interval, timeunit.toString());
+                        " \t - Load from storage interval: {} {} (if less or equal 0 only initial sync with storage) \n",
+                        ExecutorService.EXECUTOR_ID_GET.get(), threadPoolSize, retries, interval, timeunit.toString());
 
             scheduler = getScheduledExecutorService();
 
@@ -264,13 +269,17 @@ public class ExecutorImpl implements Executor {
                     useJMS = false;
                 }
             }
-            
-            LoadAndScheduleRequestsTask loadTask = new LoadAndScheduleRequestsTask(executorStoreService, scheduler, jobProcessor);
-            if (interval <= 0) {
-                scheduler.execute(loadTask);
+
+            // execute initially
+
+            if (interval > 0) {
+                logger.info("Interval ({} {}) is more than 0, scheduling periodic load of jobs older than {} {} from the storage", interval, timeunit, olderThan, timeunit);
+                Supplier<List<org.kie.api.executor.RequestInfo>> taskLoader = (olderThan <= 0) ? () -> executorStoreService.loadRequests() : () -> executorStoreService.loadRequestsOlderThan(TimeUnit.MILLISECONDS.convert(olderThan, timeunit));
+                Runnable loadTask = new LoadAndScheduleRequestsTask(scheduler, jobProcessor, taskLoader);
+                loadTaskFuture = scheduler.scheduleAtFixedRate(loadTask, interval, interval, timeunit);
             } else {
-                logger.info("Interval ({}) is more than 0, scheduling periodic load of jobs from the storage", interval);
-                loadTaskFuture = scheduler.scheduleAtFixedRate(loadTask, 0, interval, timeunit);
+                logger.info("Initial Load and schedule jobs in this node");
+                scheduler.execute(new LoadAndScheduleRequestsTask(scheduler, jobProcessor, () -> executorStoreService.loadRequests()));
             }
         } else {
             throw new ExecutorNotStartedException();
@@ -310,12 +319,7 @@ public class ExecutorImpl implements Executor {
         return scheduleRequest(commandId, null, ctx);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Long scheduleRequest(String commandId, Date date, CommandContext ctx) {
-
+    public RequestInfo buildRequestInfo(String commandId, Date date, CommandContext ctx) {
         if (ctx == null) {
             throw new IllegalStateException("A Context Must Be Provided! ");
         }
@@ -330,7 +334,13 @@ public class ExecutorImpl implements Executor {
         if (ctx.getData("processInstanceId") != null) {
             requestInfo.setProcessInstanceId(((Number) ctx.getData("processInstanceId")).longValue());
         }
-        requestInfo.setOwner((String) ctx.getData("owner"));
+
+        if(ctx.getData("owner") != null) {
+            requestInfo.setOwner((String) ctx.getData("owner"));
+        } else if(setDefaultOwner) {
+            requestInfo.setOwner(ExecutorService.EXECUTOR_ID_GET.get());
+        }
+
         if (ctx.getData("retries") != null) {
             requestInfo.setRetries(Integer.valueOf(String.valueOf(ctx.getData("retries"))));
         } else {
@@ -372,6 +382,15 @@ public class ExecutorImpl implements Executor {
                 requestInfo.setRequestData(null);
             }
         }
+        return requestInfo;
+    }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Long scheduleRequest(String commandId, Date date, CommandContext ctx) {
+        RequestInfo requestInfo = buildRequestInfo(commandId, date, ctx);
+
         eventSupport.fireBeforeJobScheduled(requestInfo, null);
         try {
             
@@ -382,7 +401,7 @@ public class ExecutorImpl implements Executor {
                     executorStoreService.persistRequest(requestInfo, null);
                     logger.debug("Sending JMS message to trigger job execution for job {}", requestInfo.getId());
                     // send JMS message to trigger processing
-                    sendMessage(String.valueOf(requestInfo.getId()), priority);
+                    sendMessage(String.valueOf(requestInfo.getId()), requestInfo.getPriority());
                 } else {
                     logger.debug("JMS message not sent for job {} as the job should not be executed immediately but at {}", requestInfo.getId(), date);
                     function = scheduleExecution(requestInfo, date);
