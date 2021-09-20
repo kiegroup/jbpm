@@ -765,6 +765,14 @@
                       <groupId>org.jboss.logging</groupId>
                       <artifactId>jboss-logging</artifactId>
                     </dependency>
+                    <dependency>
+                      <groupId>jakarta.ws.rs</groupId>
+                      <artifactId>jakarta.ws.rs-api</artifactId>
+                    </dependency>
+                    <dependency>
+                      <groupId>jakarta.xml.bind</groupId>
+                      <artifactId>jakarta.xml.bind-api</artifactId>
+                    </dependency>
                   </dependencies>
                 </container>
                 <configuration>
