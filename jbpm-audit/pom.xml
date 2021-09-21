@@ -152,6 +152,11 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.jboss</groupId>
+      <artifactId>jboss-transaction-spi-jakarta</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.jbpm</groupId>
       <artifactId>jbpm-query-jpa</artifactId>
       <type>test-jar</type>
