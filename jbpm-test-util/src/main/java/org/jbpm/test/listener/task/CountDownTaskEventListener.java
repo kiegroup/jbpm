@@ -292,6 +292,10 @@ public class CountDownTaskEventListener implements TaskLifeCycleEventListener {
         
     }
     
+    public long latchCount() {
+        return latch.getCount();
+    }
+    
     protected void countDown() {
         try {
             TransactionManager tm = TransactionManagerFactory.get().newTransactionManager();
