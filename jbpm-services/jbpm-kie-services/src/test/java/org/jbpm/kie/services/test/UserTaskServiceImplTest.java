@@ -950,7 +950,8 @@ private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentSe
         assertNotNull(auditTasks);
         assertEquals(3, auditTasks.size());
         assertEquals(TaskEvent.TaskEventType.ADDED, auditTasks.get(0).getType());
-        assertEquals("org.jbpm.writedocument", auditTasks.get(0).getUserId());
+        String defaultUserName = identityProvider.getName();
+        assertEquals(defaultUserName, auditTasks.get(0).getUserId());
         assertEquals(TaskEvent.TaskEventType.ACTIVATED, auditTasks.get(1).getType());
         assertEquals(TaskEvent.TaskEventType.STARTED, auditTasks.get(2).getType());
         assertEquals("salaboy", auditTasks.get(2).getUserId());
@@ -962,7 +963,7 @@ private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentSe
         assertNotNull(auditTasks);
         assertEquals(4, auditTasks.size());
         assertEquals(TaskEvent.TaskEventType.ADDED, auditTasks.get(0).getType());
-        assertEquals("org.jbpm.writedocument", auditTasks.get(0).getUserId());
+        assertEquals(defaultUserName, auditTasks.get(0).getUserId());
         assertEquals(TaskEvent.TaskEventType.ACTIVATED, auditTasks.get(1).getType());
         assertEquals(TaskEvent.TaskEventType.STARTED, auditTasks.get(2).getType());
         assertEquals("salaboy", auditTasks.get(2).getUserId());
@@ -977,7 +978,7 @@ private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentSe
         assertNotNull(auditTasks);
         assertEquals(5, auditTasks.size());
         assertEquals(TaskEvent.TaskEventType.ADDED, auditTasks.get(0).getType());
-        assertEquals("org.jbpm.writedocument", auditTasks.get(0).getUserId());
+        assertEquals(defaultUserName, auditTasks.get(0).getUserId());
         assertEquals(TaskEvent.TaskEventType.ACTIVATED, auditTasks.get(1).getType());
         assertEquals(TaskEvent.TaskEventType.STARTED, auditTasks.get(2).getType());
         assertEquals("salaboy", auditTasks.get(2).getUserId());
@@ -986,7 +987,7 @@ private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentSe
         assertEquals(TaskEvent.TaskEventType.UPDATED, auditTasks.get(4).getType());
         assertEquals("salaboy", auditTasks.get(4).getUserId());
     
-        identityProvider.setName("testUser");
+        identityProvider.setName(defaultUserName);
         processService.abortProcessInstance(processInstanceId);
         processInstanceId = null;
     
