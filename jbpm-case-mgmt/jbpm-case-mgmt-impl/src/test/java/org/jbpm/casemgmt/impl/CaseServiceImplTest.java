@@ -233,7 +233,7 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
             assertNotNull(vars);
             assertEquals(3, vars.size());
             Map<String, Object> mappedVars = vars.stream().collect(toMap(v -> v.getVariableId(), v -> v.getNewValue()));
-            assertEquals("my first case", mappedVars.get("caseFile_name"));
+            assertEquals("my first case", mappedVars.get("name"));
             assertEquals(FIRST_CASE_ID, mappedVars.get("CaseId"));
             assertEquals("john", mappedVars.get("initiator"));
 
@@ -1552,7 +1552,7 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
             assertNotNull(vars);
             assertEquals(3, vars.size());
             Map<String, Object> mappedVars = vars.stream().collect(toMap(v -> v.getVariableId(), v -> v.getNewValue()));
-            assertEquals("my first case", mappedVars.get("caseFile_name"));
+            assertEquals("my first case", mappedVars.get("name"));
             assertEquals(FIRST_CASE_ID, mappedVars.get("CaseId"));
             assertEquals("john", mappedVars.get("initiator"));
 
@@ -1584,7 +1584,7 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
             assertNotNull(vars);
             assertEquals(3, vars.size());
             mappedVars = vars.stream().collect(toMap(v -> v.getVariableId(), v -> v.getNewValue()));
-            assertEquals("my first case reopened", mappedVars.get("caseFile_name"));
+            assertEquals("my first case reopened", mappedVars.get("name"));
             assertEquals(FIRST_CASE_ID, mappedVars.get("CaseId"));
             assertEquals("john", mappedVars.get("initiator"));
             
@@ -1603,7 +1603,7 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
             assertNotNull(vars);
             assertEquals(3, vars.size());
             mappedVars = vars.stream().collect(toMap(v -> v.getVariableId(), v -> v.getNewValue()));
-            assertEquals("my first case updated", mappedVars.get("caseFile_name"));
+            assertEquals("my first case updated", mappedVars.get("name"));
             assertEquals(FIRST_CASE_ID, mappedVars.get("CaseId"));
             assertEquals("john", mappedVars.get("initiator"));
 
@@ -3752,7 +3752,7 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
             assertNotNull(vars);
             assertEquals(3, vars.size());
             Map<String, Object> mappedVars = vars.stream().collect(toMap(v -> v.getVariableId(), v -> v.getNewValue()));
-            assertEquals("my first case data bit too long", mappedVars.get("caseFile_name"));
+            assertEquals("my first case data bit too long", mappedVars.get("name"));
             assertEquals(FIRST_CASE_ID, mappedVars.get("CaseId"));
             assertEquals("john", mappedVars.get("initiator"));
             

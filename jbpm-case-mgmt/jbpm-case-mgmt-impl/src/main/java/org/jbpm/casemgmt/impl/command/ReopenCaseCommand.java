@@ -21,10 +21,13 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 
 import org.drools.core.common.InternalKnowledgeRuntime;
 import org.drools.core.event.ProcessEventSupport;
+import org.jbpm.casemgmt.api.CaseRuntimeDataService;
+import org.jbpm.casemgmt.api.model.CaseDefinition;
 import org.jbpm.casemgmt.api.model.instance.CaseFileInstance;
 import org.jbpm.casemgmt.impl.event.CaseEventSupport;
 import org.jbpm.casemgmt.impl.model.instance.CaseFileInstanceImpl;
@@ -61,14 +64,16 @@ public class ReopenCaseCommand extends CaseCommand<Void> {
     private Map<String, Object> data;
     
     private transient ProcessService processService;
+    private transient CaseRuntimeDataService caseRuntimeDataService;
 
-    public ReopenCaseCommand(IdentityProvider identityProvider, String caseId, String deploymentId, String caseDefinitionId, Map<String, Object> data, ProcessService processService) {
+    public ReopenCaseCommand(IdentityProvider identityProvider, String caseId, String deploymentId, String caseDefinitionId, Map<String, Object> data, ProcessService processService, CaseRuntimeDataService caseRuntimeDataService) {
         super(identityProvider);
         this.caseId = caseId;
         this.deploymentId = deploymentId;
         this.caseDefinitionId = caseDefinitionId;
         this.data = data;
         this.processService = processService;
+        this.caseRuntimeDataService = caseRuntimeDataService;
     }
 
     @Override
@@ -92,17 +97,22 @@ public class ReopenCaseCommand extends CaseCommand<Void> {
         // set case id to allow it to use CaseContext when creating runtime engine
         params.put(EnvironmentName.CASE_ID, caseId);
         final Map<String, Object> caseData = caseFile.getData();
+        caseEventSupport.fireAfterCaseDataAdded(caseFile.getCaseId(), caseFile, caseFile.getDefinitionId(), caseData);
         
-        
-        for (Map.Entry<String, Object> entry : caseData.entrySet()) {
-            params.put(VariableScope.CASE_FILE_PREFIX + entry.getKey(), entry.getValue());
+        CaseDefinition definition = caseRuntimeDataService.getCase(deploymentId, caseDefinitionId);
+        Set<String> varNames = definition.getProcessVariables();
+        Map<String, Object> parameters = new HashMap<>(caseData);
+        if(data != null) {
+            parameters.putAll(data);
         }
-        
-        if (data != null)   {
-            for (Map.Entry<String, Object> entry : data.entrySet()) {
+        for (Map.Entry<String, Object> entry : parameters.entrySet()) {
+            if(varNames.contains(entry.getKey())) {
+                params.put(entry.getKey(), entry.getValue());
+            } else {
                 params.put(VariableScope.CASE_FILE_PREFIX + entry.getKey(), entry.getValue());
             }
         }
+
 
         long processInstanceId = processService.startProcess(deploymentId, caseDefinitionId, correlationKey, params);
         
@@ -127,7 +137,7 @@ public class ReopenCaseCommand extends CaseCommand<Void> {
                         ProcessEventSupport processEventSupport = ((InternalProcessRuntime) ((InternalKnowledgeRuntime) ksession).getProcessRuntime()).getProcessEventSupport();
                         VariableScope variableScope = (VariableScope) pi.getContextContainer().getDefaultContext(VariableScope.VARIABLE_SCOPE);
                         for (Entry<String, Object> entry : caseData.entrySet()) {  
-                            String name = "caseFile_" + entry.getKey();
+                            String name = varNames.contains(entry.getKey()) ? entry.getKey() : VariableScope.CASE_FILE_PREFIX + entry.getKey();
                             List<String> tags = variableScope == null ? Collections.emptyList() : variableScope.tags(name);
                             processEventSupport.fireBeforeVariableChanged(
                                 name,

@@ -21,8 +21,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.drools.core.definitions.rule.impl.RuleImpl;
+import org.jbpm.casemgmt.api.CaseRuntimeDataService;
+import org.jbpm.casemgmt.api.model.CaseDefinition;
 import org.jbpm.casemgmt.api.model.instance.CaseFileInstance;
 import org.jbpm.casemgmt.impl.event.CaseEventSupport;
 import org.jbpm.casemgmt.impl.model.instance.CaseFileInstanceImpl;
@@ -63,14 +66,16 @@ public class StartCaseCommand extends CaseCommand<Void> {
     private CaseFileInstance caseFile;
 
     private transient ProcessService processService;
+    private transient CaseRuntimeDataService caseRuntimeDataService;
 
-    public StartCaseCommand(IdentityProvider identityProvider, String caseId, String deploymentId, String caseDefinitionId, CaseFileInstance caseFile, ProcessService processService) {
+    public StartCaseCommand(IdentityProvider identityProvider, String caseId, String deploymentId, String caseDefinitionId, CaseFileInstance caseFile, ProcessService processService, CaseRuntimeDataService caseRuntimeDataService) {
         super(identityProvider);
         this.caseId = caseId;
         this.deploymentId = deploymentId;
         this.caseDefinitionId = caseDefinitionId;
         this.caseFile = caseFile;
         this.processService = processService;
+        this.caseRuntimeDataService = caseRuntimeDataService;
     }
     
     @Override
@@ -125,8 +130,15 @@ public class StartCaseCommand extends CaseCommand<Void> {
         params.put(EnvironmentName.CASE_ID, caseId);
         final Map<String, Object> caseData = caseFile.getData();
 
+        CaseDefinition definition = caseRuntimeDataService.getCase(deploymentId, caseDefinitionId);
+        Set<String> varNames = definition.getProcessVariables();
         for (Map.Entry<String, Object> entry : caseData.entrySet()) {
-            params.put(VariableScope.CASE_FILE_PREFIX + entry.getKey(), entry.getValue());
+            
+            if(varNames.contains(entry.getKey())) {
+                params.put(entry.getKey(), entry.getValue());
+            } else {
+                params.put(VariableScope.CASE_FILE_PREFIX + entry.getKey(), entry.getValue());
+            }
         }
 
         final long processInstanceId = processService.startProcess(deploymentId, caseDefinitionId, correlationKey, params);

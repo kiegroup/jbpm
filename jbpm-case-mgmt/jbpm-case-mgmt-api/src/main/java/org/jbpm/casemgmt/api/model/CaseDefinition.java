@@ -88,4 +88,9 @@ public interface CaseDefinition {
      * Returns default case file data restrictions. 
      */
     Map<String, List<String>> getDataAccessRestrictions();
+
+    /**
+     * Return the process variables
+     */
+    Set<String> getProcessVariables();
 }

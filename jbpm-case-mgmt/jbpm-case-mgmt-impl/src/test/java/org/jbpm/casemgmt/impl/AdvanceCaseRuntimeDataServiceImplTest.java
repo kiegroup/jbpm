@@ -56,17 +56,17 @@ public class AdvanceCaseRuntimeDataServiceImplTest extends AbstractCaseServicesB
     @Test
     public void testSearchByVariable() {
         Map<String, Object> data = new HashMap<>();
-        data.put("name", "my first case");
+        data.put("s", "my first case");
 
         CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), EMPTY_CASE_P_ID, data);
 
         String caseId = caseService.startCase(deploymentUnit.getIdentifier(), EMPTY_CASE_P_ID, caseFile);
 
-        List<QueryParam> vars = list(equalsTo("name", "my first case"));
+        List<QueryParam> vars = list(equalsTo("s", "my first case"));
 
         List<ProcessInstanceWithVarsDesc> process = advanceCaseRuntimeDataService.queryCaseByVariables(emptyList(), vars, new QueryContext());
         assertEquals(1, process.size());
-        assertEquals("my first case", process.get(0).getExtraData().get("name"));
+        assertEquals("my first case", process.get(0).getExtraData().get("s"));
 
         assertNotNull(caseId);
         assertEquals(FIRST_CASE_ID, caseId);
