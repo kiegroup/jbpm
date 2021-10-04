@@ -26,6 +26,7 @@ import org.drools.persistence.api.TransactionManager;
 import org.drools.persistence.api.TransactionManagerFactory;
 import org.drools.persistence.api.TransactionManagerHelper;
 import org.drools.persistence.api.TransactionSynchronization;
+import org.jbpm.persistence.api.integration.EventManagerProvider;
 import org.jbpm.process.core.timer.GlobalSchedulerService;
 import org.jbpm.process.core.timer.TimerServiceRegistry;
 import org.jbpm.process.core.timer.impl.GlobalTimerService;
@@ -102,6 +103,8 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
 	protected CacheManager cacheManager = new CacheManagerImpl();
     
     protected boolean engineInitEager = Boolean.parseBoolean(System.getProperty("org.jbpm.rm.engine.eager", "false"));
+    
+    private static final String EMITTER_EAGER_PROP  = "org.kie.jbpm.event.emitters.eagerInit";
 
 	protected String identifier;
     
@@ -113,6 +116,9 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
     protected RuntimeManagerLockWatcherSingletonService watcher;
     
     public AbstractRuntimeManager(RuntimeEnvironment environment, String identifier) {
+        
+        
+        
         this.environment = environment;
         this.identifier = identifier;
         if (registry.isRegistered(identifier)) {
@@ -129,6 +135,9 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
         String eagerInit = (String)((SimpleRuntimeEnvironment)environment).getEnvironmentTemplate().get("RuntimeEngineEagerInit");
         if (eagerInit != null) {
         	engineInitEager = Boolean.parseBoolean(eagerInit);
+        }
+        if (Boolean.getBoolean(EMITTER_EAGER_PROP)) {
+            EventManagerProvider.getInstance();
         }
         ExecutionErrorStorage storage = (ExecutionErrorStorage) ((SimpleRuntimeEnvironment)environment).getEnvironmentTemplate().get("ExecutionErrorStorage");
         if (storage == null) {
