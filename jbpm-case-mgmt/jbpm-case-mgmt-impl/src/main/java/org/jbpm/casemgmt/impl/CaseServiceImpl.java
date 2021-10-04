@@ -199,7 +199,7 @@ public class CaseServiceImpl implements CaseService {
             ((CaseFileInstanceImpl)caseFile).assignOwner(newUser(identityProvider.getName()));
         }
 
-        processService.execute(deploymentId, CaseContext.get(caseId), new StartCaseCommand(identityProvider, caseId, deploymentId, caseDefinitionId, caseFile, processService));
+        processService.execute(deploymentId, CaseContext.get(caseId), new StartCaseCommand(identityProvider, caseId, deploymentId, caseDefinitionId, caseFile, processService, caseRuntimeDataService));
         
         return caseId;
     }
@@ -307,7 +307,7 @@ public class CaseServiceImpl implements CaseService {
         logger.debug("About to reopen case {} by starting process instance {} from deployment {} with additional data {}", 
                 caseId, caseDefinitionId, deploymentId, data);
         
-        processService.execute(deploymentId, CaseContext.get(caseId), new ReopenCaseCommand(identityProvider, caseId, deploymentId, caseDefinitionId, data, processService));
+        processService.execute(deploymentId, CaseContext.get(caseId), new ReopenCaseCommand(identityProvider, caseId, deploymentId, caseDefinitionId, data, processService, caseRuntimeDataService));
         
     }
 
@@ -458,7 +458,7 @@ public class CaseServiceImpl implements CaseService {
         
         Map<String, Object> parameters = new HashMap<>();
         parameters.put(name, value);
-        processService.execute(pi.getDeploymentId(), ProcessInstanceIdContext.get(pi.getId()), new AddDataCaseFileInstanceCommand(pi.getDeploymentId(), pi.getId(), identityProvider, parameters, accessRestriction, authorizationManager, processService));        
+        processService.execute(pi.getDeploymentId(), ProcessInstanceIdContext.get(pi.getId()), new AddDataCaseFileInstanceCommand(pi.getDeploymentId(), pi.getId(), identityProvider, parameters, accessRestriction, authorizationManager, processService, caseRuntimeDataService));
     }
 
     @Override
@@ -471,7 +471,7 @@ public class CaseServiceImpl implements CaseService {
             accessRestriction = Arrays.asList(restrictedTo);
         }
         
-        processService.execute(pi.getDeploymentId(), ProcessInstanceIdContext.get(pi.getId()), new AddDataCaseFileInstanceCommand(pi.getDeploymentId(), pi.getId(), identityProvider, data, accessRestriction, authorizationManager, processService));
+        processService.execute(pi.getDeploymentId(), ProcessInstanceIdContext.get(pi.getId()), new AddDataCaseFileInstanceCommand(pi.getDeploymentId(), pi.getId(), identityProvider, data, accessRestriction, authorizationManager, processService, caseRuntimeDataService));
     }
     
     @Override

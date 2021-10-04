@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import org.jbpm.casemgmt.api.model.AdHocFragment;
 import org.jbpm.casemgmt.api.model.CaseDefinition;
@@ -30,6 +31,7 @@ import org.jbpm.casemgmt.api.model.CaseMilestone;
 import org.jbpm.casemgmt.api.model.CaseRole;
 import org.jbpm.casemgmt.api.model.CaseStage;
 import org.jbpm.kie.services.impl.model.ProcessAssetDesc;
+import org.jbpm.process.core.context.variable.VariableScope;
 
 
 public class CaseDefinitionImpl implements CaseDefinition, Serializable {
@@ -115,6 +117,11 @@ public class CaseDefinitionImpl implements CaseDefinition, Serializable {
     @Override
     public String getVersion() {
         return processDef.getVersion();
+    }
+
+    @Override
+    public Set<String> getProcessVariables() {
+        return processDef.getProcessVariables().keySet().stream().filter(e -> !e.startsWith(VariableScope.CASE_FILE_PREFIX)).collect(Collectors.toSet());
     }
 
     @Override

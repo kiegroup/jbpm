@@ -200,8 +200,6 @@ public class StageCompletionConditionTest extends AbstractCaseServicesBaseTest {
         Long processInstanceId = ((CaseInstanceImpl) caseInstance).getProcessInstanceId();
         processService.setProcessVariable(processInstanceId, "continue", false);
 
-        caseService.addDataToCaseFile(caseId, "continue", true);
-
         List<TaskSummary> tasks = runtimeDataService.getTasksAssignedAsPotentialOwner(USER, new QueryFilter());
         assertThat(tasks).hasSize(1);
         TaskSummary insideTask = tasks.get(0);
