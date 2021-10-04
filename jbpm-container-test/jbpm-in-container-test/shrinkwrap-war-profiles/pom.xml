@@ -62,6 +62,11 @@
               <groupId>jakarta.transaction</groupId>
               <artifactId>jakarta.transaction-api</artifactId>
             </exclusion>
+            <!-- conflicts on WAS -->
+            <exclusion>
+              <groupId>jakarta.xml.bind</groupId>
+              <artifactId>jakarta.xml.bind-api</artifactId>
+            </exclusion>
           </exclusions>
         </dependency>
         <!-- AssertJ is only needed if we deploy tests (with jBPM engine) into a container -->
@@ -205,8 +210,8 @@
           <artifactId>idep-hibernate-core</artifactId>
           <exclusions>
             <exclusion>
-              <groupId>jakarta.transaction</groupId>
-              <artifactId>jakarta.transaction-api</artifactId>
+              <groupId>org.jboss.spec.javax.transaction</groupId>
+              <artifactId>jboss-transaction-api_1.2_spec</artifactId>
             </exclusion>
           </exclusions>
         </dependency>
@@ -251,27 +256,21 @@
           <artifactId>hibernate-entitymanager</artifactId>
           <exclusions>
             <exclusion>
-              <groupId>javax.persistence</groupId>
-              <artifactId>javax.persistence-api</artifactId>
-            </exclusion>
-            <exclusion>
               <groupId>org.jboss.spec.javax.transaction</groupId>
               <artifactId>jboss-transaction-api_1.2_spec</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>javax.persistence</groupId>
+              <artifactId>javax.persistence-api</artifactId>
             </exclusion>
             <exclusion>
               <groupId>org.hibernate.javax.persistence</groupId>
               <artifactId>hibernate-jpa-2.1-api</artifactId>
             </exclusion>
             <exclusion>
-              <groupId>xml-apis</groupId>
-              <artifactId>xml-apis</artifactId>
+              <groupId>org.apache.geronimo.specs</groupId>
+              <artifactId>geronimo-jta_1.1_spec</artifactId>
             </exclusion>
-          </exclusions>
-        </dependency>
-        <dependency>
-          <groupId>xerces</groupId>
-          <artifactId>xercesImpl</artifactId>
-          <exclusions><!-- conflicts on WAS -->
             <exclusion>
               <groupId>xml-apis</groupId>
               <artifactId>xml-apis</artifactId>
@@ -320,12 +319,12 @@
           <artifactId>hibernate-entitymanager</artifactId>
           <exclusions>
             <exclusion>
-              <groupId>javax.persistence</groupId>
-              <artifactId>javax.persistence-api</artifactId>
-            </exclusion>
-            <exclusion>
               <groupId>org.jboss.spec.javax.transaction</groupId>
               <artifactId>jboss-transaction-api_1.2_spec</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>javax.persistence</groupId>
+              <artifactId>javax.persistence-api</artifactId>
             </exclusion>
             <exclusion>
               <groupId>org.javassist</groupId>
@@ -334,6 +333,10 @@
              <exclusion>
               <groupId>org.hibernate.javax.persistence</groupId>
               <artifactId>hibernate-jpa-2.1-api</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>org.apache.geronimo.specs</groupId>
+              <artifactId>geronimo-jta_1.1_spec</artifactId>
             </exclusion>
             <exclusion>
               <groupId>xml-apis</groupId>
