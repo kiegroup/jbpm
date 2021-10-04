@@ -57,6 +57,7 @@ import org.slf4j.LoggerFactory;
  */
 public class TimerManager {
 
+    
     private static final Logger logger = LoggerFactory.getLogger(TimerManager.class);
 
     private long timerId = 0;
@@ -237,6 +238,8 @@ public class TimerManager {
 
     public static class ProcessTimerInputMarshaller implements TimersInputMarshaller {
 
+        private boolean disableInputMarshallerTimerRegistration = Boolean.getBoolean("org.jbpm.timer.disableUnmarshallerRegistration"); 
+
         public void deserialize(MarshallerReaderContext inCtx, Timer timer) {
             JBPMMessages.ProcessTimer ptimer = timer.getExtension(JBPMMessages.procTimer);
 
@@ -251,7 +254,7 @@ public class TimerManager {
             TimerManager tm = ((InternalProcessRuntime) inCtx.getWorkingMemory().getProcessRuntime()).getTimerManager();
 
             // check if the timer instance is not already registered to avoid duplicated timers
-            if (!tm.getTimerMap().containsKey(timerInstance.getId())) {
+            if (!tm.getTimerMap().containsKey(timerInstance.getId()) && !disableInputMarshallerTimerRegistration) {
                 ProcessJobContext pctx = new ProcessJobContext(timerInstance, trigger, processInstanceId,
                         inCtx.getWorkingMemory().getKnowledgeRuntime(), false);
                 Date date = trigger.hasNextFireTime();
