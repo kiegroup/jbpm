@@ -74,4 +74,12 @@ public interface GlobalSchedulerService extends SchedulerService, InternalSchedu
      * @return
      */
     boolean isValid(GlobalJobHandle jobHandle);
+
+    /** 
+     * Operations to be performed before the job is removed
+     * @param jobHandle job handle being invalidated
+     */
+    default void invalidate(JobHandle jobHandle) {
+        
+    }
 }
