@@ -127,6 +127,7 @@ public class GlobalTimerService implements TimerService, InternalSchedulerServic
         if (jobHandle == null) {
             return false;
         }
+        this.schedulerService.invalidate(jobHandle);
 
         if (startTimerJobs.contains(jobHandle)) {
             logger.debug("Start Job timer handle found {} removed", jobHandle.getId());
