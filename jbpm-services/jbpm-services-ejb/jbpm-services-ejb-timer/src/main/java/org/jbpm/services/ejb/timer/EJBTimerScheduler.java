@@ -62,11 +62,6 @@ public class EJBTimerScheduler {
 
 	private static final Logger logger = LoggerFactory.getLogger(EJBTimerScheduler.class);
 
-    private enum TimerExceptionPolicy {
-        RETRY,
-        PLATFORM
-    };
-
     private static final Long TIMER_RETRY_INTERVAL = Long.parseLong(System.getProperty("org.kie.jbpm.timer.retry.interval", "5000"));
 
     private static final Integer TIMER_RETRY_LIMIT = Integer.parseInt(System.getProperty("org.kie.jbpm.timer.retry.limit", "3"));
@@ -276,7 +271,8 @@ public class EJBTimerScheduler {
 	public boolean removeJob(JobHandle jobHandle) {
 		EjbGlobalJobHandle ejbHandle = (EjbGlobalJobHandle) jobHandle;
         if (USE_LOCAL_CACHE) {
-            localCache.remove(ejbHandle.getUuid());
+            boolean removedFromCache = localCache.remove(ejbHandle.getUuid()) != null;
+            logger.debug("Job handle {} is {} removed from cache ", jobHandle, removedFromCache ? "" : "not" );
         }
 		for (Timer timer : timerService.getTimers()) {
 			try {
@@ -304,6 +300,8 @@ public class EJBTimerScheduler {
 		logger.debug("Job handle {} does not match any timer on {} scheduler service", jobHandle, this);
 		return false;
 	}
+
+
 
 	public TimerJobInstance getTimerByName(String jobName) {
     	if (USE_LOCAL_CACHE) {
@@ -339,5 +337,10 @@ public class EJBTimerScheduler {
 
 		return found;
 	}
+
+    public void evictCache(JobHandle jobHandle) {
+        String jobName =  ((EjbGlobalJobHandle) jobHandle).getUuid();
+        logger.debug("Invalidate job {} with job name {} in cache", jobName, localCache.remove(jobName));
+    }
 
 }

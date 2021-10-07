@@ -76,13 +76,15 @@ public class EjbSchedulerService implements GlobalSchedulerService {
 		return jobHandle;
 	}
 
-	@Override
-	public boolean removeJob(JobHandle jobHandle) {
-		
-		boolean result = scheduler.removeJob(jobHandle);
-	
-		return result;
-	}
+    @Override
+    public boolean removeJob(JobHandle jobHandle) {
+        return scheduler.removeJob(jobHandle);
+    }
+
+    @Override
+    public void invalidate(JobHandle jobHandle) {
+        scheduler.evictCache(jobHandle);
+    }
 
 	@Override
 	public void internalSchedule(TimerJobInstance timerJobInstance) {
