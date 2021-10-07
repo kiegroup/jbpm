@@ -18,6 +18,7 @@ package org.jbpm.test.util;
 
 import org.jbpm.process.instance.impl.util.LoggingPrintStream;
 import org.jbpm.runtime.manager.impl.jpa.EntityManagerFactoryManager;
+import org.jbpm.services.task.impl.TaskDeadlinesServiceImpl;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -28,6 +29,7 @@ public abstract class AbstractExecutorBaseTest {
     @After
     public void cleanup() {
     	EntityManagerFactoryManager.get().clear();
+    	TaskDeadlinesServiceImpl.dispose();
     }
     
     @BeforeClass

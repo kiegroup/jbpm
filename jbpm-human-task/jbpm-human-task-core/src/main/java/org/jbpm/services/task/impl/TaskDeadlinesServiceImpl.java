@@ -60,6 +60,7 @@ public class TaskDeadlinesServiceImpl implements TaskDeadlinesService {
     private static final Logger logger = LoggerFactory.getLogger(TaskDeadlinesServiceImpl.class);
     // static instance so it can be used from background jobs
     protected static volatile CommandExecutor instance;
+    private static boolean started;
     
     protected static NotificationListener notificationListener;
 
@@ -89,7 +90,8 @@ public class TaskDeadlinesServiceImpl implements TaskDeadlinesService {
         String deploymentId = task.getTaskData().getDeploymentId();
 
         TimerService timerService = TimerServiceRegistry.getInstance().get(deploymentId + TimerServiceRegistry.TIMER_SERVICE_SUFFIX);
-        if (timerService != null && timerService instanceof GlobalTimerService) {
+        if (timerService instanceof GlobalTimerService) {
+            logger.debug("Scheduling in timer service of type {} for deployment {}, task {}, deadline {}, delay {} and type {}", timerService.getClass(), deploymentId, taskId, deadlineId, delay, type);
             TaskDeadlineJob deadlineJob = new TaskDeadlineJob(taskId, deadlineId, type, deploymentId, task.getTaskData().getProcessInstanceId());
             Trigger trigger = new IntervalTrigger( timerService.getCurrentTime(),
                     null,
@@ -100,10 +102,10 @@ public class TaskDeadlinesServiceImpl implements TaskDeadlinesService {
                     null,
                     null ) ;
             JobHandle handle = timerService.scheduleJob(deadlineJob, new TaskDeadlineJobContext(deadlineJob.getId(), task.getTaskData().getProcessInstanceId(), deploymentId), trigger);
-            logger.debug( "scheduling timer job for deadline {} and task {}  using timer service {}", deadlineJob.getId(), taskId, timerService);
             jobHandles.put(deadlineJob.getId(), handle);
 
         } else {
+            logger.debug("Scheduling in thread pool for deployment {}, task {}, deadline {}, delay {} and type {}", deploymentId, taskId, deadlineId, delay, type);
             ScheduledFuture<ScheduledTaskDeadline> scheduled = scheduler.schedule(new ScheduledTaskDeadline(taskId, deadlineId, type, deploymentId, task.getTaskData().getProcessInstanceId()), delay, TimeUnit.MILLISECONDS);
             
             List<ScheduledFuture<ScheduledTaskDeadline>> knownFutures = null;
@@ -454,17 +456,24 @@ public class TaskDeadlinesServiceImpl implements TaskDeadlinesService {
     public static synchronized void initialize(CommandExecutor instance) {
     	if (instance != null) {
     	    TaskDeadlinesServiceImpl.instance = instance;
-	        getInstance().execute(new InitDeadlinesCommand());
     	}        
+    }
+    
+    public static synchronized void start() {
+        if (!started && getInstance() != null) {
+            getInstance().execute(new InitDeadlinesCommand());
+            started = true;
+        }
     }
     
     public static synchronized void reset() {
     	dispose();
-        scheduler = new ScheduledThreadPoolExecutor(3);        
+        scheduler = new ScheduledThreadPoolExecutor(3);
     }
 
     public static synchronized void dispose() {
         try {
+            started = false;
             if (scheduler != null) {
                 scheduler.shutdownNow();
             }        
