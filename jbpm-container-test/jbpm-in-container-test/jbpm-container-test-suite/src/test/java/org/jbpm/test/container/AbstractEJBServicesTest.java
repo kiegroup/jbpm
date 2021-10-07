@@ -19,18 +19,20 @@ package org.jbpm.test.container;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.List;
+
 import javax.ejb.EJB;
 
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.TargetsContainer;
-import org.jbpm.test.container.archive.EJBService;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jbpm.services.api.model.DeploymentUnit;
 import org.jbpm.services.ejb.api.DeploymentServiceEJBLocal;
 import org.jbpm.services.ejb.api.RuntimeDataServiceEJBLocal;
+import org.jbpm.services.task.impl.TaskDeadlinesServiceImpl;
+import org.jbpm.test.container.archive.EJBService;
 import org.junit.After;
 import org.junit.Before;
 import org.slf4j.Logger;
@@ -95,6 +97,7 @@ public abstract class AbstractEJBServicesTest extends JbpmContainerTest {
                 new File(tempDir, file).delete();
             }
         }
+        TaskDeadlinesServiceImpl.dispose();
     }
  
     protected static Throwable catchRootCause(ThrowingCallable shouldRaiseThrowable) {

@@ -349,5 +349,4 @@ public class SingletonRuntimeManager extends AbstractRuntimeManager {
     public void setTaskServiceFactory(TaskServiceFactory taskServiceFactory) {
         this.taskServiceFactory = taskServiceFactory;
     }
-
 }

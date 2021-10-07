@@ -40,7 +40,6 @@ import org.kie.api.task.TaskService;
 import org.kie.api.task.UserGroupCallback;
 import org.kie.api.task.UserInfo;
 import org.kie.internal.task.api.EventService;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -160,11 +159,7 @@ public class HumanTaskConfigurator {
             if (AssignmentServiceProvider.get().isEnabled()) {
                 ((EventService<TaskLifeCycleEventListener>) service).registerTaskEventListener(new AssignmentTaskEventListener());
             }
-            
-            // initialize deadline service with command executor for processing
-            if (TaskDeadlinesServiceImpl.getInstance() == null) {
-            	TaskDeadlinesServiceImpl.initialize(commandExecutor);
-            }
+            TaskDeadlinesServiceImpl.setFallbackExecutor(commandExecutor);
         }
         return service;
    }

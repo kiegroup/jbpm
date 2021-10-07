@@ -15,16 +15,9 @@
  */
 package org.jbpm.runtime.manager.impl;
 
-import org.drools.core.time.TimerService;
-import org.jbpm.process.core.timer.GlobalSchedulerService;
-import org.jbpm.process.core.timer.TimerServiceRegistry;
-import org.jbpm.process.core.timer.impl.GlobalTimerService;
-import org.jbpm.runtime.manager.api.SchedulerProvider;
 import org.jbpm.runtime.manager.impl.factory.InMemorySessionFactory;
 import org.jbpm.runtime.manager.impl.factory.JPASessionFactory;
 import org.jbpm.runtime.manager.impl.factory.LocalTaskServiceFactory;
-import org.jbpm.runtime.manager.impl.tx.NoTransactionalTimerResourcesCleanupAwareSchedulerServiceInterceptor;
-import org.jbpm.runtime.manager.impl.tx.TransactionAwareSchedulerServiceInterceptor;
 import org.kie.api.runtime.manager.RuntimeEnvironment;
 import org.kie.api.runtime.manager.RuntimeManager;
 import org.kie.api.runtime.manager.RuntimeManagerFactory;
@@ -43,12 +36,10 @@ import org.kie.internal.runtime.manager.TaskServiceFactory;
  * <ul>
  *  <li>SessionFactory - depending if persistence is enabled will select appropriate instance</li>
  *  <li>TaskServiceFactory - depending if TaskServiceFactory gets injected will select appropriate instance</li>
- *  <li>TimerService - depending if <code>SchedulerService</code> is given will create <code>GlobalTimerService</code></li>
  * </ul>
  *
  */
 public class RuntimeManagerFactoryImpl implements RuntimeManagerFactory {
-    
 
     @Override
     public RuntimeManager newSingletonRuntimeManager(RuntimeEnvironment environment) {
@@ -61,9 +52,7 @@ public class RuntimeManagerFactoryImpl implements RuntimeManagerFactory {
         TaskServiceFactory taskServiceFactory = getTaskServiceFactory(environment);
         
         RuntimeManager manager = new SingletonRuntimeManager(environment, factory, taskServiceFactory, identifier);
-        initTimerService(environment, manager);
         ((AbstractRuntimeManager) manager).init();
-
         return manager;
     }
 
@@ -78,7 +67,6 @@ public class RuntimeManagerFactoryImpl implements RuntimeManagerFactory {
         TaskServiceFactory taskServiceFactory = getTaskServiceFactory(environment);
 
         RuntimeManager manager = new PerRequestRuntimeManager(environment, factory, taskServiceFactory, identifier);
-        initTimerService(environment, manager);
         ((AbstractRuntimeManager) manager).init();
         return manager;
     }
@@ -94,7 +82,6 @@ public class RuntimeManagerFactoryImpl implements RuntimeManagerFactory {
         TaskServiceFactory taskServiceFactory = getTaskServiceFactory(environment);
 
         RuntimeManager manager = new PerProcessInstanceRuntimeManager(environment, factory, taskServiceFactory, identifier);
-        initTimerService(environment, manager);
         ((AbstractRuntimeManager) manager).init();
         return manager;
     }
@@ -110,7 +97,6 @@ public class RuntimeManagerFactoryImpl implements RuntimeManagerFactory {
         TaskServiceFactory taskServiceFactory = getTaskServiceFactory(environment);
 
         RuntimeManager manager = new PerCaseRuntimeManager(environment, factory, taskServiceFactory, identifier);
-        initTimerService(environment, manager);
         ((AbstractRuntimeManager) manager).init();
         return manager;
     }
@@ -139,27 +125,4 @@ public class RuntimeManagerFactoryImpl implements RuntimeManagerFactory {
                
         return taskServiceFactory;
     }
-    
-    protected void initTimerService(RuntimeEnvironment environment, RuntimeManager manager) {
-        if (environment instanceof SchedulerProvider) {
-            GlobalSchedulerService schedulerService = ((SchedulerProvider) environment).getSchedulerService();  
-            if (schedulerService != null) {
-                TimerService globalTs = new GlobalTimerService(manager, schedulerService);
-                String timerServiceId = manager.getIdentifier()  + TimerServiceRegistry.TIMER_SERVICE_SUFFIX;
-                // and register it in the registry under 'default' key
-                TimerServiceRegistry.getInstance().registerTimerService(timerServiceId, globalTs);
-                ((SimpleRuntimeEnvironment)environment).addToConfiguration("drools.timerService", 
-                        "new org.jbpm.process.core.timer.impl.RegisteredTimerServiceDelegate(\""+timerServiceId+"\")");
-                
-                if (!schedulerService.isTransactional()) {
-                    schedulerService.setInterceptor(new TransactionAwareSchedulerServiceInterceptor(environment, manager, schedulerService));
-                } else {
-                    schedulerService.setInterceptor(new NoTransactionalTimerResourcesCleanupAwareSchedulerServiceInterceptor(environment, manager, schedulerService));
-                }
-            }
-        }
-    }
-    
-
-
 }

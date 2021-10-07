@@ -16,6 +16,13 @@
 
 package org.jbpm.services.task.commands;
 
+import java.util.Collections;
+import java.util.List;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import org.jbpm.services.task.utils.ClassUtil;
 import org.kie.api.runtime.Context;
 import org.kie.internal.task.api.TaskDeadlinesService;
@@ -25,20 +32,24 @@ import org.kie.internal.task.api.model.DeadlineSummary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
-import java.util.List;
-
 @XmlRootElement(name="init-deadlines-command")
 @XmlAccessorType(XmlAccessType.NONE)
 public class InitDeadlinesCommand extends TaskCommand<Void> {
 	
 	private static final long serialVersionUID = -8095766991770311489L;
 	private static final Logger logger = LoggerFactory.getLogger(InitDeadlinesCommand.class);
+	
+	private final String deploymentId;
+	private final Class<List<DeadlineSummary>> resultClass;
+	
+    public InitDeadlinesCommand() {
+        this(null);
+    }
 
-	public InitDeadlinesCommand() {		
-	}
+    public InitDeadlinesCommand(String deploymentId) {
+        this.deploymentId = deploymentId;
+        resultClass = ClassUtil.<List<DeadlineSummary>> castClass(List.class);
+    }
 
 	@Override
 	public Void execute(Context context) {
@@ -48,26 +59,21 @@ public class InitDeadlinesCommand extends TaskCommand<Void> {
 		TaskDeadlinesService deadlineService = ctx.getTaskDeadlinesService();
 		
         try {
-	        long now = System.currentTimeMillis();
-	        List<DeadlineSummary> resultList = persistenceContext.queryInTransaction("UnescalatedStartDeadlines",
-	        										ClassUtil.<List<DeadlineSummary>>castClass(List.class));
-	        for (DeadlineSummary summary : resultList) {
-	            long delay = summary.getDate().getTime() - now;
-	            deadlineService.schedule(summary.getTaskId(), summary.getDeadlineId(), delay, DeadlineType.START);
-	
-	        }
-	        
-	        resultList = persistenceContext.queryInTransaction("UnescalatedEndDeadlines",
-	        		ClassUtil.<List<DeadlineSummary>>castClass(List.class));
-	        for (DeadlineSummary summary : resultList) {
-	            long delay = summary.getDate().getTime() - now;
-	            deadlineService.schedule(summary.getTaskId(), summary.getDeadlineId(), delay, DeadlineType.END);
-	        }
+            processDeadlines("UnescalatedStartDeadlines", DeadlineType.START, persistenceContext, deadlineService);
+            processDeadlines("UnescalatedEndDeadlines", DeadlineType.END, persistenceContext, deadlineService);
         } catch (Exception e) {
-
         	logger.error("Error when executing deadlines", e);
         }
 		return null;
 	}
+	
+    private void processDeadlines(String queryName, DeadlineType deadlineType, TaskPersistenceContext persistenceContext, TaskDeadlinesService deadlineService) {
+        List<DeadlineSummary> resultList = deploymentId == null ? persistenceContext.queryInTransaction(queryName, resultClass)
+                : persistenceContext.queryWithParametersInTransaction(queryName + "ByDeployment", Collections.singletonMap("deploymentId", deploymentId), resultClass);
+        long now = System.currentTimeMillis();
+        for (DeadlineSummary summary : resultList) {
+            deadlineService.schedule(summary.getTaskId(), summary.getDeadlineId(), summary.getDate().getTime() - now, deadlineType);
+        }
+    }
 
 }

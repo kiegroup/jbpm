@@ -33,6 +33,7 @@ import org.jbpm.services.api.model.DeploymentUnit;
 import org.jbpm.services.api.query.QueryService;
 import org.jbpm.services.api.service.ServiceRegistry;
 import org.jbpm.services.api.utils.KieServiceConfigurator;
+import org.jbpm.services.task.impl.TaskDeadlinesServiceImpl;
 import org.junit.After;
 import org.junit.Before;
 import org.kie.internal.runtime.conf.DeploymentDescriptor;
@@ -97,6 +98,7 @@ public abstract class AbstractKieServicesTest extends AbstractServicesTest {
             serviceConfigurator.close();
         }
         EntityManagerFactoryManager.get().clear();
+        TaskDeadlinesServiceImpl.dispose();
         closeDataSource();
     }
 

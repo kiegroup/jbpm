@@ -16,6 +16,10 @@
 
 package org.jbpm.test.functional.timer;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,10 +32,6 @@ import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 /**
  * See JBPM-3170/JBPM-3391
@@ -55,9 +55,10 @@ public class InMemoryTimerPersistenceTest extends JbpmTestCase {
     }
     
     @Before
-    public void setup() { 
+    public void setup() throws Exception { 
         System.clearProperty(TIMER_FIRED_PROP);
         System.clearProperty(TIMER_FIRED_TIME_PROP);
+        super.setUp();
     }
     
     @Test

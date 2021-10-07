@@ -16,6 +16,11 @@
 
 package org.jbpm.test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
+
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
@@ -46,6 +51,7 @@ import org.jbpm.runtime.manager.impl.DefaultRegisterableItemsFactory;
 import org.jbpm.runtime.manager.impl.SimpleRegisterableItemsFactory;
 import org.jbpm.runtime.manager.impl.jpa.EntityManagerFactoryManager;
 import org.jbpm.services.task.identity.JBossUserGroupCallbackImpl;
+import org.jbpm.services.task.impl.TaskDeadlinesServiceImpl;
 import org.jbpm.test.persistence.processinstance.objects.TestEventEmitter;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 import org.junit.After;
@@ -79,11 +85,6 @@ import org.kie.internal.runtime.manager.context.EmptyContext;
 import org.kie.test.util.db.PoolingDataSourceWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
 
 /**
  * Base test case class that shall be used for jBPM related tests. It provides four sections:
@@ -543,6 +544,7 @@ public abstract class JbpmJUnitBaseTestCase extends AbstractBaseTest {
             manager.close();
             manager = null;
         }
+        TaskDeadlinesServiceImpl.dispose();
     }
 
     /**
