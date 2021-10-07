@@ -16,6 +16,9 @@
 
 package org.jbpm.test.functional.timer;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -41,6 +44,7 @@ import org.jbpm.process.core.timer.impl.GlobalTimerService;
 import org.jbpm.process.core.timer.impl.GlobalTimerService.GlobalJobHandle;
 import org.jbpm.process.core.timer.impl.QuartzSchedulerService;
 import org.jbpm.services.task.identity.JBossUserGroupCallbackImpl;
+import org.jbpm.services.task.impl.TaskDeadlinesServiceImpl;
 import org.jbpm.test.listener.process.NodeLeftCountDownProcessEventListener;
 import org.junit.After;
 import org.junit.Before;
@@ -75,9 +79,6 @@ import org.kie.internal.task.api.UserGroupCallback;
 import org.kie.internal.task.api.model.InternalOrganizationalEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 @RunWith(Parameterized.class)
 public class GlobalTimerServiceVolumeTest extends TimerBaseTest {
@@ -172,6 +173,7 @@ public class GlobalTimerServiceVolumeTest extends TimerBaseTest {
             }
             emf.close();
         }
+        TaskDeadlinesServiceImpl.dispose();
     }
 
     @Test(timeout=30000)

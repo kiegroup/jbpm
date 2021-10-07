@@ -16,6 +16,10 @@
 
 package org.jbpm.test.functional.timer;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,6 +42,7 @@ import org.jbpm.process.core.timer.GlobalSchedulerService;
 import org.jbpm.process.core.timer.impl.ThreadPoolSchedulerService;
 import org.jbpm.services.task.exception.PermissionDeniedException;
 import org.jbpm.services.task.identity.JBossUserGroupCallbackImpl;
+import org.jbpm.services.task.impl.TaskDeadlinesServiceImpl;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -64,10 +69,6 @@ import org.kie.internal.task.api.UserGroupCallback;
 import org.kie.internal.task.api.model.InternalOrganizationalEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
 
 public class ConcurrentGlobalTimerServiceTest extends TimerBaseTest {
     
@@ -109,6 +110,7 @@ public class ConcurrentGlobalTimerServiceTest extends TimerBaseTest {
             manager.close();
         }
         emf.close();
+        TaskDeadlinesServiceImpl.dispose();
     }
 	
     @Test

@@ -16,6 +16,11 @@
 
 package org.jbpm.test.functional.timer;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
@@ -46,6 +51,7 @@ import org.jbpm.runtime.manager.impl.AbstractRuntimeManager;
 import org.jbpm.runtime.manager.impl.SimpleRuntimeEnvironment;
 import org.jbpm.runtime.manager.impl.jpa.EntityManagerFactoryManager;
 import org.jbpm.services.task.identity.JBossUserGroupCallbackImpl;
+import org.jbpm.services.task.impl.TaskDeadlinesServiceImpl;
 import org.jbpm.services.task.persistence.JPATaskPersistenceContextManager;
 import org.jbpm.test.listener.process.NodeLeftCountDownProcessEventListener;
 import org.jbpm.workflow.instance.WorkflowProcessInstance;
@@ -82,11 +88,6 @@ import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 
 public abstract class GlobalTimerServiceBaseTest extends TimerBaseTest{
     
@@ -113,6 +114,7 @@ public abstract class GlobalTimerServiceBaseTest extends TimerBaseTest{
         if (emf != null && emf.isOpen()) {
             emf.close();
         }
+        TaskDeadlinesServiceImpl.dispose();
     }
 
     @Test(timeout=20000)
