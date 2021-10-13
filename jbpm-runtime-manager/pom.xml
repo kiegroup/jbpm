@@ -374,7 +374,8 @@
             </Import-Package>
             <Export-Package>
               org.jbpm.runtime.manager.api*,
-              org.jbpm.runtime.manager.impl*
+              org.jbpm.runtime.manager.impl*,
+              org.jbpm.runtime.manager.spi*
             </Export-Package>
           </instructions>
         </configuration>
