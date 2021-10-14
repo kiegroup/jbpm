@@ -158,9 +158,9 @@ public class TestPersistenceContextBase {
                     logger.debug("query {} ", command);
                     final PreparedStatement statement = preparedStatement(connection, command);
                     executeStatement(scriptFilter.hasOption(Option.THROW_ON_SCRIPT_ERROR), statement);
+                    connection.commit();
                 }
             }
-            connection.commit();
         } catch (SQLException ex) {
             connection.rollback();
             throw new RuntimeException(ex.getMessage(), ex);
