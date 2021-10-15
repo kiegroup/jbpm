@@ -64,7 +64,7 @@ public class ProcessAutoAckErrorCommand extends AutoAckErrorCommand {
             errorsToAck.addAll(processErrorsToAck);
 
             String findNodeErrorsQuery = "select error from ExecutionErrorInfo error where error.acknowledged =:acknowledged " +
-                                         "and CAST(error.initActivityId AS string) in (select nil.nodeInstanceId from NodeInstanceLog nil where nil.processInstanceId = error.processInstanceId and nil.nodeInstanceId = CAST(error.initActivityId AS string) and nil.type = '1')";
+                                         "and CAST(error.initActivityId AS string) in (select nil.nodeInstanceId from NodeInstanceLog nil where nil.processInstanceId = error.processInstanceId and nil.nodeInstanceId = CAST(error.initActivityId AS string) and nil.type = 1)";
 
             List<ExecutionErrorInfo> nodeErrorsToAck = em.createQuery(findNodeErrorsQuery, ExecutionErrorInfo.class)
                                                          .setParameter("acknowledged", new Short("0"))
