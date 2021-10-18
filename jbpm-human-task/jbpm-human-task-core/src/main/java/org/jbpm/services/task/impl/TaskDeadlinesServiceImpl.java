@@ -89,7 +89,10 @@ public class TaskDeadlinesServiceImpl implements TaskDeadlinesService {
         String deploymentId = task.getTaskData().getDeploymentId();
 
         TimerService timerService = TimerServiceRegistry.getInstance().get(deploymentId + TimerServiceRegistry.TIMER_SERVICE_SUFFIX);
-        if (timerService != null && timerService instanceof GlobalTimerService) {
+        if (timerService == null) {
+            return;
+        }
+        if (timerService instanceof GlobalTimerService) {
             TaskDeadlineJob deadlineJob = new TaskDeadlineJob(taskId, deadlineId, type, deploymentId, task.getTaskData().getProcessInstanceId());
             Trigger trigger = new IntervalTrigger( timerService.getCurrentTime(),
                     null,
