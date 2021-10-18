@@ -615,7 +615,7 @@ public class ProcessServiceImpl implements ProcessService, VariablesAware {
         RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstanceId));
         try {
             KieSession ksession = engine.getKieSession();
-            ProcessInstance processInstance = ksession.getProcessInstance(processInstanceId);
+            ProcessInstance processInstance = ksession.getProcessInstance(processInstanceId, true);
             Collection<String> activeSignals = new ArrayList<>();
 
             if (processInstance != null) {
