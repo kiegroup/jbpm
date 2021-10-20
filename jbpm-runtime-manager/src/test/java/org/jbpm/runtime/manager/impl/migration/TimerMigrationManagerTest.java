@@ -16,6 +16,13 @@
 
 package org.jbpm.runtime.manager.impl.migration;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.kie.api.runtime.process.ProcessInstance.STATE_ACTIVE;
+import static org.kie.api.runtime.process.ProcessInstance.STATE_COMPLETED;
+
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
@@ -32,6 +39,7 @@ import org.jbpm.runtime.manager.impl.DefaultRegisterableItemsFactory;
 import org.jbpm.runtime.manager.impl.jpa.EntityManagerFactoryManager;
 import org.jbpm.runtime.manager.util.TestUtil;
 import org.jbpm.services.task.identity.JBossUserGroupCallbackImpl;
+import org.jbpm.services.task.impl.TaskDeadlinesServiceImpl;
 import org.jbpm.test.listener.process.NodeLeftCountDownProcessEventListener;
 import org.jbpm.test.util.AbstractBaseTest;
 import org.junit.After;
@@ -58,13 +66,6 @@ import org.kie.internal.runtime.manager.context.EmptyContext;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 import org.kie.internal.task.api.UserGroupCallback;
 import org.kie.test.util.db.PoolingDataSourceWrapper;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.kie.api.runtime.process.ProcessInstance.STATE_ACTIVE;
-import static org.kie.api.runtime.process.ProcessInstance.STATE_COMPLETED;
 
 @RunWith(Parameterized.class)
 public class TimerMigrationManagerTest extends AbstractBaseTest {
@@ -143,6 +144,7 @@ public class TimerMigrationManagerTest extends AbstractBaseTest {
             managerV2.close();
         }
         EntityManagerFactoryManager.get().clear();
+        TaskDeadlinesServiceImpl.dispose();
         pds.close();
     }
     

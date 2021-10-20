@@ -160,12 +160,12 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
 	}
 	
 	protected void initTimerService() {
-        logger.trace("Initialize timer service for runtime {}", getIdentifier());
+        logger.trace("Initialize timer service for runtime {}", identifier);
         if (environment instanceof SchedulerProvider) {
             GlobalSchedulerService schedulerService = ((SchedulerProvider) environment).getSchedulerService();  
             if (schedulerService != null) {
                 TimerService globalTs = new GlobalTimerService(this, schedulerService);
-                String timerServiceId = getIdentifier()  + TimerServiceRegistry.TIMER_SERVICE_SUFFIX;
+                String timerServiceId = identifier  + TimerServiceRegistry.TIMER_SERVICE_SUFFIX;
                 // and register it in the registry under 'default' key
                 TimerServiceRegistry.getInstance().registerTimerService(timerServiceId, globalTs);
                 ((SimpleRuntimeEnvironment)environment).addToConfiguration("drools.timerService", 
@@ -178,8 +178,12 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
                 }
             }
         }
-        TaskDeadlinesServiceImpl.start();
+        scheduleDeadlines();
     }
+	
+	protected void scheduleDeadlines () {
+	    TaskDeadlinesServiceImpl.start(identifier);
+	}
  
 	protected void registerItems(RuntimeEngine runtime) {
         RegisterableItemsFactory factory = environment.getRegisterableItemsFactory();

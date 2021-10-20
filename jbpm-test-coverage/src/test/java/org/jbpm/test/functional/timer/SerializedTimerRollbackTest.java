@@ -16,6 +16,11 @@
 
 package org.jbpm.test.functional.timer;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -37,6 +42,7 @@ import org.drools.serialization.protobuf.ProtobufMarshaller;
 import org.jbpm.process.instance.InternalProcessRuntime;
 import org.jbpm.process.instance.timer.TimerInstance;
 import org.jbpm.process.instance.timer.TimerManager;
+import org.jbpm.services.task.impl.TaskDeadlinesServiceImpl;
 import org.jbpm.test.JbpmTestCase;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,11 +56,6 @@ import org.kie.internal.builder.KnowledgeBuilderFactory;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 public class SerializedTimerRollbackTest extends JbpmTestCase {
 
@@ -74,6 +75,7 @@ public class SerializedTimerRollbackTest extends JbpmTestCase {
             EntityManager em = getEmf().createEntityManager();
             em.createQuery("delete from SessionInfo").executeUpdate();
             em.close();
+            TaskDeadlinesServiceImpl.dispose();
             ut.commit();
         } catch (Exception e) {
             ut.rollback();

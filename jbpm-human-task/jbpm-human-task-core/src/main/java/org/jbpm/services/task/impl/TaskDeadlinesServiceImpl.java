@@ -59,9 +59,7 @@ public class TaskDeadlinesServiceImpl implements TaskDeadlinesService {
     
     private static final Logger logger = LoggerFactory.getLogger(TaskDeadlinesServiceImpl.class);
     // static instance so it can be used from background jobs
-    protected static volatile CommandExecutor instance;
-    private static boolean started;
-    
+    protected static CommandExecutor executorInstance; 
     protected static NotificationListener notificationListener;
 
 	// use single ThreadPoolExecutor for all instances of task services within same JVM
@@ -449,20 +447,19 @@ public class TaskDeadlinesServiceImpl implements TaskDeadlinesService {
         }
     }
 
-    public static CommandExecutor getInstance() {
-        return instance;
+    public static synchronized CommandExecutor getInstance() {
+        return executorInstance;
     }
 
-    public static synchronized void initialize(CommandExecutor instance) {
-    	if (instance != null) {
-    	    TaskDeadlinesServiceImpl.instance = instance;
-    	}        
+    public static synchronized void initialize(CommandExecutor executor) {
+        executorInstance = executor;
     }
     
-    public static synchronized void start() {
-        if (!started && getInstance() != null) {
-            getInstance().execute(new InitDeadlinesCommand());
-            started = true;
+    public static synchronized void start(String deploymentId) {
+        if (executorInstance != null) {
+            executorInstance.execute(new InitDeadlinesCommand(deploymentId));
+        } else {
+            logger.warn("Instance not initiliazed yet, ignoring!!!!");
         }
     }
     
@@ -473,7 +470,6 @@ public class TaskDeadlinesServiceImpl implements TaskDeadlinesService {
 
     public static synchronized void dispose() {
         try {
-            started = false;
             if (scheduler != null) {
                 scheduler.shutdownNow();
             }        
@@ -481,7 +477,7 @@ public class TaskDeadlinesServiceImpl implements TaskDeadlinesService {
             endScheduledTaskDeadlines.clear();
             jobHandles.clear();
             notificationListener = null;
-            TaskDeadlinesServiceImpl.instance = null;
+            executorInstance = null;
         } catch (Exception e) {
             logger.error("Error encountered when disposing TaskDeadlineService", e);
         }

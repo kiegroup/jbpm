@@ -16,6 +16,8 @@
 
 package org.jbpm.test.services;
 
+import static java.util.stream.Collectors.toMap;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -52,6 +54,7 @@ import org.jbpm.services.api.model.ProcessInstanceDesc;
 import org.jbpm.services.api.model.UserTaskDefinition;
 import org.jbpm.services.api.query.QueryService;
 import org.jbpm.services.api.service.ServiceRegistry;
+import org.jbpm.services.task.impl.TaskDeadlinesServiceImpl;
 import org.junit.After;
 import org.junit.Before;
 import org.kie.api.task.model.TaskSummary;
@@ -62,8 +65,6 @@ import org.kie.internal.runtime.conf.NamedObjectModel;
 import org.kie.internal.runtime.conf.ObjectModel;
 import org.kie.internal.runtime.conf.RuntimeStrategy;
 import org.kie.internal.runtime.manager.deploy.DeploymentDescriptorImpl;
-
-import static java.util.stream.Collectors.toMap;
 
 public abstract class AbstractCaseServicesTest extends AbstractServicesTest {
 
@@ -133,6 +134,7 @@ public abstract class AbstractCaseServicesTest extends AbstractServicesTest {
     protected void close() {
         caseConfigurator.close();
         EntityManagerFactoryManager.get().clear();
+        TaskDeadlinesServiceImpl.dispose();
         closeDataSource();
     }
 

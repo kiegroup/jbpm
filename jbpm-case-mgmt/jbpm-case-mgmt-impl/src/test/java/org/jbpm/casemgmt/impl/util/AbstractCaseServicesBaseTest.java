@@ -28,12 +28,11 @@ import org.jbpm.casemgmt.api.model.CaseStatus;
 import org.jbpm.casemgmt.api.model.instance.CaseInstance;
 import org.jbpm.casemgmt.api.model.instance.CommentInstance;
 import org.jbpm.casemgmt.impl.utils.DefaultCaseServiceConfigurator;
-import org.jbpm.runtime.manager.impl.jpa.EntityManagerFactoryManager;
 import org.jbpm.services.api.model.DeploymentUnit;
 import org.jbpm.test.services.AbstractCaseServicesTest;
-import org.kie.test.util.db.PoolingDataSourceWrapper;
 import org.kie.api.task.model.Status;
 import org.kie.api.task.model.TaskSummary;
+import org.kie.test.util.db.PoolingDataSourceWrapper;
 
 public abstract class AbstractCaseServicesBaseTest extends AbstractCaseServicesTest {
 
@@ -86,9 +85,7 @@ public abstract class AbstractCaseServicesBaseTest extends AbstractCaseServicesT
 
     protected void close() {
         DataSetCore.set(null);
-        caseConfigurator.close();
-        EntityManagerFactoryManager.get().clear();
-        closeDataSource();
+        super.close();
     }
 
     protected void prepareDocumentStorage() {
