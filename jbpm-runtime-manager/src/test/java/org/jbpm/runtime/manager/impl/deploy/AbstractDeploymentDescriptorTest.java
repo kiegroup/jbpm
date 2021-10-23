@@ -16,6 +16,8 @@
 
 package org.jbpm.runtime.manager.impl.deploy;
 
+import static org.kie.scanner.KieMavenRepository.getKieMavenRepository;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.List;
@@ -38,14 +40,13 @@ import org.kie.api.runtime.conf.ClockTypeOption;
 import org.kie.internal.io.ResourceFactory;
 import org.kie.scanner.KieMavenRepository;
 
-import static org.kie.scanner.KieMavenRepository.getKieMavenRepository;
-
 public abstract class AbstractDeploymentDescriptorTest extends AbstractBaseTest {
 
 	@After
 	public void cleanup() {
 		// always reset location of the default deployment descriptors after
 		// each test
+	    super.cleanup();
 		System.clearProperty("org.kie.deployment.desc.location");
 	}
 	
