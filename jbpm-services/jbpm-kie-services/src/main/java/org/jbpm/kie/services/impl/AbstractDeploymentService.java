@@ -43,6 +43,7 @@ import org.jbpm.services.api.ListenerSupport;
 import org.jbpm.services.api.RuntimeDataService;
 import org.jbpm.services.api.model.DeployedUnit;
 import org.jbpm.services.api.model.DeploymentUnit;
+import org.jbpm.services.task.commands.InitDeadlinesCommand;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.manager.RuntimeEnvironment;
 import org.kie.api.runtime.manager.RuntimeManager;
@@ -50,6 +51,7 @@ import org.kie.api.runtime.manager.RuntimeManagerFactory;
 import org.kie.internal.identity.IdentityProvider;
 import org.kie.internal.runtime.conf.DeploymentDescriptor;
 import org.kie.internal.runtime.manager.InternalRuntimeManager;
+import org.kie.internal.runtime.manager.context.EmptyContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -151,7 +153,7 @@ public abstract class AbstractDeploymentService implements DeploymentService, Li
                 if (!deployedUnit.isActive()) {
                     ((InternalRuntimeManager)manager).deactivate();
                 }                
-                
+                manager.getRuntimeEngine(EmptyContext.get()).getTaskService().execute(new InitDeadlinesCommand(unit.getIdentifier()));
                 ((InternalRuntimeManager)manager).setKieContainer(kieContainer);
                 deployedUnit.setRuntimeManager(manager);
                 DeploymentDescriptor descriptor = ((InternalRuntimeManager)manager).getDeploymentDescriptor();

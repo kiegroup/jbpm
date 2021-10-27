@@ -40,7 +40,6 @@ import org.jbpm.runtime.manager.impl.tx.TransactionAwareSchedulerServiceIntercep
 import org.jbpm.runtime.manager.spi.RuntimeManagerLock;
 import org.jbpm.runtime.manager.spi.RuntimeManagerLockStrategy;
 import org.jbpm.services.task.impl.TaskContentRegistry;
-import org.jbpm.services.task.impl.TaskDeadlinesServiceImpl;
 import org.jbpm.services.task.impl.command.CommandBasedTaskService;
 import org.jbpm.services.task.wih.ExternalTaskEventListener;
 import org.kie.api.event.process.ProcessEventListener;
@@ -178,13 +177,9 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
                 }
             }
         }
-        scheduleDeadlines();
     }
 	
-	protected void scheduleDeadlines () {
-	    TaskDeadlinesServiceImpl.start(identifier);
-	}
- 
+	
 	protected void registerItems(RuntimeEngine runtime) {
         RegisterableItemsFactory factory = environment.getRegisterableItemsFactory();
         KieSession ksession = ((InternalRuntimeEngine) runtime).internalGetKieSession();
@@ -320,7 +315,6 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
             ((CommandBasedTaskService) internalTaskService).getEnvironment().set(EnvironmentName.OBJECT_MARSHALLING_STRATEGIES, 
                                                                                  ((SimpleRuntimeEnvironment)environment).getEnvironmentTemplate().get(EnvironmentName.OBJECT_MARSHALLING_STRATEGIES));
         }
-        
         return internalTaskService;
     }
     

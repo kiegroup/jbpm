@@ -30,7 +30,6 @@ import org.jbpm.process.core.timer.GlobalSchedulerService;
 import org.jbpm.process.instance.ProcessRuntimeImpl;
 import org.jbpm.runtime.manager.api.SchedulerProvider;
 import org.jbpm.services.task.impl.TaskContentRegistry;
-import org.jbpm.services.task.impl.TaskDeadlinesServiceImpl;
 import org.kie.api.command.ExecutableCommand;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.Context;
@@ -350,10 +349,4 @@ public class SingletonRuntimeManager extends AbstractRuntimeManager {
     public void setTaskServiceFactory(TaskServiceFactory taskServiceFactory) {
         this.taskServiceFactory = taskServiceFactory;
     }
-    
-    @Override
-    protected void scheduleDeadlines() {
-        TaskDeadlinesServiceImpl.start(null);
-    }
-
 }
