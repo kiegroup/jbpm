@@ -68,7 +68,7 @@ public class PerRequestRuntimeManager extends AbstractRuntimeManager {
     };
     
     public PerRequestRuntimeManager(RuntimeEnvironment environment, SessionFactory factory, TaskServiceFactory taskServiceFactory, String identifier) {
-        super(environment, identifier);
+        super(environment, identifier, taskServiceFactory);
         this.factory = factory;
         this.taskServiceFactory = taskServiceFactory;
         this.registry.register(this);

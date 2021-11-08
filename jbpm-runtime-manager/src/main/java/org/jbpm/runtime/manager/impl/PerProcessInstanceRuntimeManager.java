@@ -95,7 +95,7 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
     private Mapper mapper;
     
     public PerProcessInstanceRuntimeManager(RuntimeEnvironment environment, SessionFactory factory, TaskServiceFactory taskServiceFactory, String identifier) {
-        super(environment, identifier);
+        super(environment, identifier, taskServiceFactory);
         this.factory = factory;
         this.taskServiceFactory = taskServiceFactory;
         this.mapper = ((org.kie.internal.runtime.manager.RuntimeEnvironment)environment).getMapper();

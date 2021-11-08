@@ -71,17 +71,15 @@ public class SingletonRuntimeManager extends AbstractRuntimeManager {
     
     private RuntimeEngine singleton;
     private SessionFactory factory;
-    private TaskServiceFactory taskServiceFactory;
 
     public SingletonRuntimeManager() {
-        super(null, null);
+        super(null, null, null);
         // no-op just for cdi, spring and other frameworks
     }
     
     public SingletonRuntimeManager(RuntimeEnvironment environment, SessionFactory factory, TaskServiceFactory taskServiceFactory, String identifier) {
-        super(environment, identifier);
+        super(environment, identifier, taskServiceFactory);
         this.factory = factory;
-        this.taskServiceFactory = taskServiceFactory;
         this.identifier = identifier;
 
         if (environment instanceof SchedulerProvider) {

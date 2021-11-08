@@ -97,7 +97,7 @@ public class PerCaseRuntimeManager extends AbstractRuntimeManager {
     private AbstractEventSupport<? extends EventListener> caseEventSupport;
 
     public PerCaseRuntimeManager(RuntimeEnvironment environment, SessionFactory factory, TaskServiceFactory taskServiceFactory, String identifier) {
-        super(environment, identifier);
+        super(environment, identifier, taskServiceFactory);
         this.factory = factory;
         this.taskServiceFactory = taskServiceFactory;
         this.mapper = ((org.kie.internal.runtime.manager.RuntimeEnvironment) environment).getMapper();

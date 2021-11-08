@@ -49,6 +49,7 @@ import org.jbpm.runtime.manager.impl.tx.NoTransactionalTimerResourcesCleanupAwar
 import org.jbpm.runtime.manager.impl.tx.TransactionAwareSchedulerServiceInterceptor;
 import org.jbpm.runtime.manager.spi.RuntimeManagerLock;
 import org.jbpm.runtime.manager.spi.RuntimeManagerLockStrategy;
+import org.jbpm.services.task.commands.InitDeadlinesCommand;
 import org.jbpm.services.task.events.WorkflowBridgeTaskLifeCycleEventListener;
 import org.jbpm.services.task.impl.TaskContentRegistry;
 import org.jbpm.services.task.impl.TaskDeadlinesServiceImpl;
@@ -112,7 +113,7 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
     protected KieContainer kieContainer;
     
 	protected CacheManager cacheManager = new CacheManagerImpl();
-    
+
     protected boolean engineInitEager = Boolean.parseBoolean(System.getProperty("org.jbpm.rm.engine.eager", "false"));
     
     private static final String EMITTER_EAGER_PROP  = "org.kie.jbpm.event.emitters.eagerInit";
@@ -125,17 +126,17 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
     protected ExecutionErrorManager executionErrorManager;
     protected RuntimeManagerLockStrategy runtimeManagerLockStrategy;
     protected RuntimeManagerLockWatcherSingletonService watcher;
-    
-    public AbstractRuntimeManager(RuntimeEnvironment environment, String identifier) {
+    protected TaskServiceFactory taskServiceFactory;
+
+    public AbstractRuntimeManager(RuntimeEnvironment environment, String identifier, TaskServiceFactory taskServiceFactory) {
         
         
-        
+        this.taskServiceFactory = taskServiceFactory;
         this.environment = environment;
         this.identifier = identifier;
         if (registry.isRegistered(identifier)) {
             throw new IllegalStateException("RuntimeManager with id " + identifier + " is already active");
         }
-
         // we start the reference and watcher
         watcher = RuntimeManagerLockWatcherSingletonService.reference();
 
@@ -200,6 +201,12 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
                     schedulerService.setInterceptor(new NoTransactionalTimerResourcesCleanupAwareSchedulerServiceInterceptor(environment, this, schedulerService));
                 }
             }
+        }
+
+        // initialize the deadlines for this
+        InternalTaskService internalTaskService = newTaskService(taskServiceFactory);
+        if (internalTaskService != null) {
+            internalTaskService.execute(new InitDeadlinesCommand(this.identifier));
         }
     }
 
