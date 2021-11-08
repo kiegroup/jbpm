@@ -3,7 +3,16 @@
   <bpmn2:itemDefinition id="_procVarItem" structureRef="String"/>
   <bpmn2:itemDefinition id="__44DF4E92-82D0-4F92-B9F0-35C7F1F38849_SkippableInputXItem" structureRef="Object"/>
   <bpmn2:process id="org.jbpm.test.functional.CorrelationKey" drools:packageName="org.jbpm.test.functional" drools:version="1.0" name="CorrelationKey" isExecutable="true">
-    <bpmn2:property id="procVar" itemSubjectRef="_procVarItem"/>
+    <bpmn2:property id="procVar" itemSubjectRef="_procVarItem">
+    <bpmn2:extensionElements>
+        <drools:metaData name="customTags">
+          <drools:metaValue><![CDATA[internal]]></drools:metaValue>
+        </drools:metaData>
+        <drools:metaData name="defaultValue">
+          <drools:metaValue><![CDATA[defaultProc]]></drools:metaValue>
+        </drools:metaData>
+      </bpmn2:extensionElements>
+     </bpmn2:property>
     <bpmn2:startEvent id="_949C725E-DC50-4701-A0A0-DAE77A5B55B6" drools:bgcolor="#9acd32" drools:selectable="true" name="">
       <bpmn2:outgoing>_D1410740-EA2E-46E4-9C4F-8768E2BA9B63</bpmn2:outgoing>
     </bpmn2:startEvent>
