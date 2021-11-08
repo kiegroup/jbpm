@@ -173,6 +173,7 @@ public class VariableScopeInstance extends AbstractContextInstance {
         VariableScope variableScope = getVariableScope();
         for (Variable variable : variableScope.getVariables()) {
             String name = variable.getName();
+			Object defaultValue = variable.getMetaData("defaultValue");
             if (variableScope.isRequired(name)) {  
                 // check case file if it is prefixed
                 if (name.startsWith(VariableScope.CASE_FILE_PREFIX)) {
@@ -186,6 +187,9 @@ public class VariableScopeInstance extends AbstractContextInstance {
                 }
                 
             }
+			if (defaultValue != null) {
+				variable.setValue(defaultValue);
+			}
         }
     }
     

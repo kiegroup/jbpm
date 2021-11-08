@@ -162,4 +162,20 @@ public class CorrelationKeyTest extends JbpmTestCase {
         ProcessInstance processInstance2 = ksession.startProcess(PROCESS, key2, null);
         assertProcessInstanceActive(processInstance2.getId());
     }
+    
+    @Test
+    public void testStartProcessWithDefaultValue() {
+        CorrelationKey key = keyFactory.newCorrelationKey(SIMPLE_KEY);
+
+        Map<String, Object> parameters = new HashMap<String, Object>();     
+        parameters.put(VARIABLE_ID, VARIABLE_VALUE);
+        
+        ProcessInstance processInstance = ksession.startProcess(PROCESS, key, parameters);
+        assertProcessInstanceActive(processInstance.getId());
+
+        List<? extends VariableInstanceLog> variables = getLogService().findVariableInstances(processInstance.getId());
+        Assertions.assertThat(variables).isNotEmpty();
+        Assertions.assertThat(variables.get(0).getVariableId()).isEqualTo(VARIABLE_ID);
+        Assertions.assertThat(variables.get(0).getValue()).isEqualTo(VARIABLE_VALUE);
+    }
 }
