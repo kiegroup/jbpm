@@ -24,10 +24,12 @@ import org.hibernate.service.ServiceRegistry;
 import org.hibernate.type.StandardBasicTypeTemplate;
 import org.hibernate.type.StandardBasicTypes;
 import org.hibernate.type.descriptor.java.PrimitiveByteArrayTypeDescriptor;
+import org.hibernate.type.descriptor.java.StringTypeDescriptor;
 import org.hibernate.type.descriptor.sql.BinaryTypeDescriptor;
+import org.hibernate.type.descriptor.sql.LongVarcharTypeDescriptor;
 
 
-public class PostgreSQLByteaTypeContributor implements TypeContributor {
+public class PostgreSQLLobTypeContributor implements TypeContributor {
 
     public class ByteaContributorType extends StandardBasicTypeTemplate<byte[]> {
 
@@ -39,11 +41,26 @@ public class PostgreSQLByteaTypeContributor implements TypeContributor {
 
     }
 
+    public class TextContributorType extends StandardBasicTypeTemplate<String> {
+
+        private static final long serialVersionUID = 1619875355308645967L;
+
+        public TextContributorType() {
+            super(LongVarcharTypeDescriptor.INSTANCE, StringTypeDescriptor.INSTANCE, StandardBasicTypes.MATERIALIZED_CLOB.getName());
+        }
+
+    }
+
     @Override
     public void contribute(TypeContributions typeContributions, ServiceRegistry serviceRegistry) {
         final Dialect dialect = serviceRegistry.getService(JdbcServices.class).getDialect();
-        if (dialect instanceof org.hibernate.dialect.PostgreSQL81Dialect && Boolean.getBoolean("org.kie.persistence.postgresql.useBytea")) {
-            typeContributions.contributeType(new ByteaContributorType());
+        if (dialect instanceof org.hibernate.dialect.PostgreSQL81Dialect) {
+            if (Boolean.getBoolean("org.kie.persistence.postgresql.useBytea")) {
+                typeContributions.contributeType(new ByteaContributorType());
+            }
+            if (Boolean.getBoolean("org.kie.persistence.postgresql.useText")) {
+                typeContributions.contributeType(new TextContributorType());
+            }
         }
 
     }
