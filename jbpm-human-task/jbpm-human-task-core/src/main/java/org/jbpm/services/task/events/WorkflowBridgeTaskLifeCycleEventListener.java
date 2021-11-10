@@ -47,17 +47,12 @@ public class WorkflowBridgeTaskLifeCycleEventListener extends DefaultTaskEventLi
         executeWork(event.getTask(), HumanTaskNodeInstance.ACTIVATE_SIGNAL);
     }
 
-    @Override
-    public void afterTaskExitedEvent(TaskEvent event) {
-        executeWork(event.getTask(), HumanTaskNodeInstance.ACTIVATE_SIGNAL);
-    }
-
     public void executeWork(Task task, String signal) {
         Long processInstanceId = task.getTaskData().getProcessInstanceId();
         InternalRuntimeEngine runtimeEngine = (InternalRuntimeEngine) runtimeManager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstanceId));
         try {
-            WorkItem workItem = ((org.drools.core.process.instance.WorkItemManager) runtimeEngine.internalGetKieSession().getWorkItemManager()).getWorkItem(task.getTaskData().getWorkItemId());
-            KieSession kieSession = runtimeEngine.internalGetKieSession();
+            KieSession kieSession = runtimeEngine.getKieSession();
+            WorkItem workItem = ((org.drools.core.process.instance.WorkItemManager) kieSession.getWorkItemManager()).getWorkItem(task.getTaskData().getWorkItemId());
             kieSession.signalEvent(signal, workItem, processInstanceId);
         } finally {
             runtimeManager.disposeRuntimeEngine(runtimeEngine);
