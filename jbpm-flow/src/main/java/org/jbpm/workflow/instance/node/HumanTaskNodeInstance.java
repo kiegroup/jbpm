@@ -146,12 +146,19 @@ public class HumanTaskNodeInstance extends WorkItemNodeInstance {
             return;
         }
         if (SUSPEND_SIGNAL.equals(type)) {
-            humanTaskSuspended();
+            createSuspendTimer();
         } else if (ACTIVATE_SIGNAL.equals(type)) {
-            humanTaskActivated();
+            removeSuspendTimer();
         }
     }
 
+    @Override
+    public void cancel(CancelType cancelType) {
+        if(suspendUntilTimerId != -1) {
+            removeSuspendTimer();
+        }
+        super.cancel(cancelType);
+    }
 
     private boolean ownsWorkItem(Object event) {
         if(!(event instanceof WorkItem)) {
@@ -161,7 +168,7 @@ public class HumanTaskNodeInstance extends WorkItemNodeInstance {
         return (getWorkItemId() == workItem.getId() || (getWorkItemId() == -1 && getWorkItem().getId() == workItem.getId())) ;
     }
 
-    private void humanTaskActivated() {
+    private void removeSuspendTimer() {
         if(this.suspendUntilTimerId == -1) {
             return;
         }
@@ -169,7 +176,7 @@ public class HumanTaskNodeInstance extends WorkItemNodeInstance {
         suspendUntilTimerId = -1;
     }
 
-    private void humanTaskSuspended() {
+    private void createSuspendTimer() {
         String suspendUntil = (String) getNode().getMetaData().get("suspendUntil"); // use metadata ?
         if (suspendUntil == null) {
             return;
