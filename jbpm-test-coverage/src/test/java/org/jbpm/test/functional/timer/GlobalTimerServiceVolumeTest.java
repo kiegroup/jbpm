@@ -173,7 +173,6 @@ public class GlobalTimerServiceVolumeTest extends TimerBaseTest {
             }
             emf.close();
         }
-        TaskDeadlinesServiceImpl.dispose();
     }
 
     @Test(timeout=30000)

@@ -75,7 +75,6 @@ public class SerializedTimerRollbackTest extends JbpmTestCase {
             EntityManager em = getEmf().createEntityManager();
             em.createQuery("delete from SessionInfo").executeUpdate();
             em.close();
-            TaskDeadlinesServiceImpl.dispose();
             ut.commit();
         } catch (Exception e) {
             ut.rollback();

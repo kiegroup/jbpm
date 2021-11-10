@@ -16,16 +16,9 @@
 package org.jbpm.services.task.impl;
 
 import java.io.Serializable;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.drools.core.common.InternalWorkingMemory;
 import org.drools.core.time.Job;
@@ -37,15 +30,11 @@ import org.drools.core.time.impl.IntervalTrigger;
 import org.jbpm.process.core.timer.NamedJobContext;
 import org.jbpm.process.core.timer.TimerServiceRegistry;
 import org.jbpm.process.core.timer.impl.GlobalTimerService;
+import org.jbpm.services.task.TaskServiceRegistry;
 import org.jbpm.services.task.commands.ExecuteDeadlinesCommand;
 import org.jbpm.services.task.deadlines.NotificationListener;
 import org.jbpm.services.task.utils.ClassUtil;
-import org.kie.api.runtime.CommandExecutor;
-import org.kie.api.runtime.manager.RuntimeEngine;
-import org.kie.api.runtime.manager.RuntimeManager;
 import org.kie.api.task.model.Task;
-import org.kie.internal.runtime.manager.RuntimeManagerRegistry;
-import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 import org.kie.internal.task.api.TaskDeadlinesService;
 import org.kie.internal.task.api.TaskPersistenceContext;
 import org.kie.internal.task.api.model.Deadline;
@@ -60,17 +49,10 @@ public class TaskDeadlinesServiceImpl implements TaskDeadlinesService {
     private static final Logger logger = LoggerFactory.getLogger(TaskDeadlinesServiceImpl.class);
     protected static NotificationListener notificationListener;
 
-    
-    private static AtomicReference<CommandExecutor> fallbackExecutor = new AtomicReference<>();
-	// use single ThreadPoolExecutor for all instances of task services within same JVM
-    private volatile static ScheduledThreadPoolExecutor scheduler = new ScheduledThreadPoolExecutor(3);
-    private volatile static Map<Long, List<ScheduledFuture<ScheduledTaskDeadline>>> startScheduledTaskDeadlines = new ConcurrentHashMap<Long, List<ScheduledFuture<ScheduledTaskDeadline>>>();
-    private volatile static Map<Long, List<ScheduledFuture<ScheduledTaskDeadline>>> endScheduledTaskDeadlines = new ConcurrentHashMap<Long, List<ScheduledFuture<ScheduledTaskDeadline>>>();
-    private volatile static Map<String, JobHandle> jobHandles = new ConcurrentHashMap<String, JobHandle>();
+    private static final Map<String, JobHandle> jobHandles = new ConcurrentHashMap<String, JobHandle>();
 
     private TaskPersistenceContext persistenceContext;
 
-    
     public TaskDeadlinesServiceImpl() {
     }
     
@@ -88,7 +70,7 @@ public class TaskDeadlinesServiceImpl implements TaskDeadlinesService {
         String deploymentId = task.getTaskData().getDeploymentId();
 
         TimerService timerService = TimerServiceRegistry.getInstance().get(deploymentId + TimerServiceRegistry.TIMER_SERVICE_SUFFIX);
-        if (timerService instanceof GlobalTimerService) {
+        if (timerService != null) {
             logger.debug("Scheduling in timer service of type {} for deployment {}, task {}, deadline {}, delay {} and type {}", timerService.getClass(), deploymentId, taskId, deadlineId, delay, type);
             TaskDeadlineJob deadlineJob = new TaskDeadlineJob(taskId, deadlineId, type, deploymentId, task.getTaskData().getProcessInstanceId());
             Trigger trigger = new IntervalTrigger( timerService.getCurrentTime(),
@@ -103,26 +85,7 @@ public class TaskDeadlinesServiceImpl implements TaskDeadlinesService {
             jobHandles.put(deadlineJob.getId(), handle);
 
         } else {
-            logger.debug("Scheduling in thread pool for deployment {}, task {}, deadline {}, delay {} and type {}", deploymentId, taskId, deadlineId, delay, type);
-            ScheduledFuture<ScheduledTaskDeadline> scheduled = scheduler.schedule(new ScheduledTaskDeadline(taskId, deadlineId, type, deploymentId, task.getTaskData().getProcessInstanceId()), delay, TimeUnit.MILLISECONDS);
-            
-            List<ScheduledFuture<ScheduledTaskDeadline>> knownFutures = null;
-            if (type == DeadlineType.START) {
-                knownFutures = startScheduledTaskDeadlines.get(taskId);
-            } else if (type == DeadlineType.END) {
-                knownFutures = endScheduledTaskDeadlines.get(taskId);
-            }
-            if (knownFutures == null) {
-                knownFutures = new CopyOnWriteArrayList<ScheduledFuture<ScheduledTaskDeadline>>();
-            }
-
-            knownFutures.add(scheduled);
-                        
-            if (type == DeadlineType.START) {
-                startScheduledTaskDeadlines.put(taskId, knownFutures);
-            } else if (type == DeadlineType.END) {
-                endScheduledTaskDeadlines.put(taskId, knownFutures);
-            }
+            logger.error("No scheduler found for deadline {}", deploymentId);
         }
 
     }
@@ -134,7 +97,7 @@ public class TaskDeadlinesServiceImpl implements TaskDeadlinesService {
         Deadlines deadlines = ((InternalTask)task).getDeadlines();
 
         TimerService timerService = TimerServiceRegistry.getInstance().get(deploymentId + TimerServiceRegistry.TIMER_SERVICE_SUFFIX);
-        if (timerService instanceof GlobalTimerService) {
+        if (timerService != null) {
  
             if (type == DeadlineType.START) {
                 List<Deadline> startDeadlines = deadlines.getStartDeadlines();
@@ -145,10 +108,13 @@ public class TaskDeadlinesServiceImpl implements TaskDeadlinesService {
                     TaskDeadlineJob deadlineJob = new TaskDeadlineJob(summary.getTaskId(), summary.getDeadlineId(), DeadlineType.START, deploymentId, task.getTaskData().getProcessInstanceId());
                     logger.debug("unscheduling timer job for deadline {} {} and task {}  using timer service {}", deadlineJob.getId(), summary.getDeadlineId(), taskId, timerService);
                     JobHandle jobHandle = jobHandles.remove(deadlineJob.getId()); 
-                    if (jobHandle == null) {        
+                    if (jobHandle == null && timerService instanceof GlobalTimerService) {
                         jobHandle = ((GlobalTimerService) timerService).buildJobHandleForContext(new TaskDeadlineJobContext(deadlineJob.getId(), task.getTaskData().getProcessInstanceId(), deploymentId));
                     }
-                    timerService.removeJob(jobHandle);
+
+                    if (jobHandle != null) {
+                        timerService.removeJob(jobHandle);
+                    }
                     // mark the deadlines so they won't be rescheduled again
                     for (Deadline deadline : startDeadlines) {
                         if (deadline.getId() == summary.getDeadlineId()) {
@@ -166,10 +132,12 @@ public class TaskDeadlinesServiceImpl implements TaskDeadlinesService {
                     TaskDeadlineJob deadlineJob = new TaskDeadlineJob(summary.getTaskId(), summary.getDeadlineId(), DeadlineType.END, deploymentId, task.getTaskData().getProcessInstanceId());
                     logger.debug("unscheduling timer job for deadline {} and task {}  using timer service {}", deadlineJob.getId(), taskId, timerService);
                     JobHandle jobHandle = jobHandles.remove(deadlineJob.getId()); 
-                    if (jobHandle == null) {        
+                    if (jobHandle == null && timerService instanceof GlobalTimerService) {
                         jobHandle = ((GlobalTimerService) timerService).buildJobHandleForContext(new TaskDeadlineJobContext(deadlineJob.getId(), task.getTaskData().getProcessInstanceId(), deploymentId));
                     }
-                    timerService.removeJob(jobHandle);
+                    if (jobHandle != null) {
+                        timerService.removeJob(jobHandle);
+                    }
                     // mark the deadlines so they won't be rescheduled again
                     for (Deadline deadline : endDeadlines) {
                         if (deadline.getId() == summary.getDeadlineId()) {
@@ -180,27 +148,7 @@ public class TaskDeadlinesServiceImpl implements TaskDeadlinesService {
             }
             
         } else {
-            List<ScheduledFuture<ScheduledTaskDeadline>> knownFutures = null;
-            if (type == DeadlineType.START) {
-                knownFutures = startScheduledTaskDeadlines.get(taskId);
-            } else if (type == DeadlineType.END) {
-                knownFutures = endScheduledTaskDeadlines.get(taskId);
-            }
-            if (knownFutures == null) {
-                return;
-            }
-            Iterator<ScheduledFuture<ScheduledTaskDeadline>> it = knownFutures.iterator();
-            while (it.hasNext()) {
-                ScheduledFuture<ScheduledTaskDeadline> scheduled = it.next();
-                try {
-                    if (!scheduled.isDone() && !scheduled.isCancelled()) {
-                        scheduled.cancel(true);
-                    }
-    
-                } catch (Exception e) {
-                    logger.error("Error while cancelling scheduled deadline task for Task with id {} -> {}", taskId, e);
-                }
-            }
+            logger.error("No scheduler found for deadline {}", deploymentId);
         }
     }
     
@@ -224,92 +172,8 @@ public class TaskDeadlinesServiceImpl implements TaskDeadlinesService {
         }
     }
 
-    public static class ScheduledTaskDeadline implements
-            Callable<ScheduledTaskDeadline>, Serializable {
-
-        private static final long serialVersionUID = 1L;
-
-        private long taskId;
-        private long deadlineId;
-        private DeadlineType type;
-        private String deploymentId;
-        private Long processInstanceId;
-        
-        public ScheduledTaskDeadline(long taskId,
-                long deadlineId, DeadlineType type, String deploymentId, Long processInstanceId) {
-            this.taskId = taskId;
-            this.deadlineId = deadlineId;
-            this.type = type;
-            this.deploymentId = deploymentId;
-            this.processInstanceId = processInstanceId;
-        }
-
-        public long getTaskId() {
-            return taskId;
-        }
-
-        public long getDeadlineId() {
-            return deadlineId;
-        }
-        
-        public DeadlineType getType() {
-            return this.type;
-        }
-
-        public String getDeploymentId() {
-            return deploymentId;
-        }
-        
-        public long getProcessInstanceId() {
-            return processInstanceId;
-        }
-        
-        public ScheduledTaskDeadline call() throws Exception {
-            schedule(deploymentId, processInstanceId, taskId, deadlineId, type);
-            return null;
-        }
-
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + (int) (deadlineId ^ (deadlineId >>> 32));
-            result = prime * result + (int) (taskId ^ (taskId >>> 32));
-            result = prime * result + type.hashCode();
-            return result;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (obj == null) {
-                return false;
-            }
-            if (!(obj instanceof ScheduledTaskDeadline)) {
-                return false;
-            }
-            ScheduledTaskDeadline other = (ScheduledTaskDeadline) obj;
-            if (deadlineId != other.deadlineId) {
-                return false;
-            }
-            if (taskId != other.taskId) {
-                return false;
-            }
-            if (type == null) {
-                if (other.getType() != null) {
-                    return false;
-                }
-            } else if (type.equals(other.getType())) {
-                return false;
-            }
-            return true;
-        }
-    }
-    
     @SuppressWarnings("unused")
-    private static class TaskDeadlineJob implements Job, Serializable {
+    private class TaskDeadlineJob implements Job, Serializable {
 
         private static final long serialVersionUID = -2453658968872574615L;
         private long taskId;
@@ -356,6 +220,12 @@ public class TaskDeadlinesServiceImpl implements TaskDeadlinesService {
         }
     }
     
+
+    private void schedule(String deploymentId, Long processInstanceId, long taskId, long deadlineId, DeadlineType type) {
+        ExecuteDeadlinesCommand command = new ExecuteDeadlinesCommand(taskId, deadlineId, type);
+        TaskServiceRegistry.instance().get(deploymentId).execute(command);
+    }
+
     private static class TaskDeadlineJobContext implements NamedJobContext {
 
         private static final long serialVersionUID = -6838102884655249845L;
@@ -400,46 +270,13 @@ public class TaskDeadlinesServiceImpl implements TaskDeadlinesService {
             return null;
         }
     }
-    
-    
-    private static void schedule(String deploymentId, Long processInstanceId, long taskId, long deadlineId, DeadlineType type) {
-        ExecuteDeadlinesCommand command = new ExecuteDeadlinesCommand(taskId, deadlineId, type);
-        if (deploymentId != null && processInstanceId != null) {
-            RuntimeManager runtimeManager = RuntimeManagerRegistry.get().getManager(deploymentId);
-            RuntimeEngine engine = runtimeManager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstanceId));
-            try {
-                engine.getTaskService().execute(command);
-            } finally {
-                runtimeManager.disposeRuntimeEngine(engine);
-            }
-        } else if (fallbackExecutor.get() != null) {
-            fallbackExecutor.get().execute(command);
-        } else {
-            logger.error("Cannot find an executor to dispatch deadline {} of type {} for deployment {} and processInstance {}", deadlineId, type, deploymentId, processInstanceId);
-        }
-    }
-    
-    public static void setFallbackExecutor (CommandExecutor executor) {
-        fallbackExecutor.set(executor);
-    }
-    
-    public static synchronized void reset() {
-    	dispose();
-        scheduler = new ScheduledThreadPoolExecutor(3);
-    }
 
-    public static synchronized void dispose() {
+    public void dispose() {
         try {
-            if (scheduler != null) {
-                scheduler.shutdownNow();
-            }        
-            startScheduledTaskDeadlines.clear();
-            endScheduledTaskDeadlines.clear();
             jobHandles.clear();
-            notificationListener = null;
-            fallbackExecutor.set(null);
         } catch (Exception e) {
             logger.error("Error encountered when disposing TaskDeadlineService", e);
         }
     }
+
 }

@@ -88,7 +88,6 @@ public class PerCaseRuntimeManager extends AbstractRuntimeManager {
     private boolean useLocking = Boolean.parseBoolean(System.getProperty("org.jbpm.runtime.manager.pc.lock", "true"));
 
     private SessionFactory factory;
-    private TaskServiceFactory taskServiceFactory;
 
     private static ThreadLocal<Map<Object, RuntimeEngine>> local = new ThreadLocal<Map<Object, RuntimeEngine>>();
 
@@ -99,7 +98,6 @@ public class PerCaseRuntimeManager extends AbstractRuntimeManager {
     public PerCaseRuntimeManager(RuntimeEnvironment environment, SessionFactory factory, TaskServiceFactory taskServiceFactory, String identifier) {
         super(environment, identifier, taskServiceFactory);
         this.factory = factory;
-        this.taskServiceFactory = taskServiceFactory;
         this.mapper = ((org.kie.internal.runtime.manager.RuntimeEnvironment) environment).getMapper();
         this.registry.register(this);
     }
@@ -130,10 +128,8 @@ public class PerCaseRuntimeManager extends AbstractRuntimeManager {
         }
         logger.debug("PerCaseRuntimeManager KieSessionId {} found for context {} and owner {}", ksessionId, context.getContextId(), getIdentifier());
         if (engineInitEager) {
-            InternalTaskService internalTaskService = newTaskService(taskServiceFactory);
-            runtime = new RuntimeEngineImpl(context, internalTaskService);
+            runtime = new RuntimeEngineImpl(context, getTaskService());
             ((RuntimeEngineImpl) runtime).setManager(this);
-            configureRuntimeOnTaskService(internalTaskService, runtime);
             KieSession ksession = initPerCaseKSession(ksessionId, context, this, runtime);
             ksessionId = ksession.getIdentifier();
         } else {
@@ -186,12 +182,10 @@ public class PerCaseRuntimeManager extends AbstractRuntimeManager {
 
         @Override
         public TaskService initTaskService(Context<?> context, InternalRuntimeManager manager, RuntimeEngine engine) {
-            InternalTaskService internalTaskService = newTaskService(taskServiceFactory);
-            if (internalTaskService != null) {
-                registerDisposeCallback(engine, new DisposeSessionTransactionSynchronization(manager, engine), ((CommandBasedTaskService) internalTaskService).getEnvironment());
-                configureRuntimeOnTaskService(internalTaskService, engine);
+            if (hasTaskService()) {
+                registerDisposeCallback(engine, new DisposeSessionTransactionSynchronization(manager, engine), ((CommandBasedTaskService) getTaskService()).getEnvironment());
             }
-            return internalTaskService;
+            return getTaskService();
         }
 
     }
@@ -349,14 +343,6 @@ public class PerCaseRuntimeManager extends AbstractRuntimeManager {
 
     @Override
     public void close() {
-        try {
-            if (!(taskServiceFactory instanceof LocalTaskServiceFactory)) {
-                // if it's CDI based (meaning single application scoped bean) we need to unregister context
-                removeRuntimeFromTaskService();
-            }
-        } catch (Exception e) {
-            // do nothing 
-        }
         super.close();
         factory.close();
     }
@@ -408,14 +394,6 @@ public class PerCaseRuntimeManager extends AbstractRuntimeManager {
 
     public void setFactory(SessionFactory factory) {
         this.factory = factory;
-    }
-
-    public TaskServiceFactory getTaskServiceFactory() {
-        return taskServiceFactory;
-    }
-
-    public void setTaskServiceFactory(TaskServiceFactory taskServiceFactory) {
-        this.taskServiceFactory = taskServiceFactory;
     }
 
     public Mapper getMapper() {

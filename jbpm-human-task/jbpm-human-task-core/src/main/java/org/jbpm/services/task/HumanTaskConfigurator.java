@@ -159,7 +159,7 @@ public class HumanTaskConfigurator {
             if (AssignmentServiceProvider.get().isEnabled()) {
                 ((EventService<TaskLifeCycleEventListener>) service).registerTaskEventListener(new AssignmentTaskEventListener());
             }
-            TaskDeadlinesServiceImpl.setFallbackExecutor(commandExecutor);
+
         }
         return service;
    }

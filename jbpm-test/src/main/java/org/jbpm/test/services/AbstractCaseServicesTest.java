@@ -134,7 +134,6 @@ public abstract class AbstractCaseServicesTest extends AbstractServicesTest {
     protected void close() {
         caseConfigurator.close();
         EntityManagerFactoryManager.get().clear();
-        TaskDeadlinesServiceImpl.dispose();
         closeDataSource();
     }
 

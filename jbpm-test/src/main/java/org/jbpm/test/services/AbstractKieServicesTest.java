@@ -98,7 +98,6 @@ public abstract class AbstractKieServicesTest extends AbstractServicesTest {
             serviceConfigurator.close();
         }
         EntityManagerFactoryManager.get().clear();
-        TaskDeadlinesServiceImpl.dispose();
         closeDataSource();
     }
 

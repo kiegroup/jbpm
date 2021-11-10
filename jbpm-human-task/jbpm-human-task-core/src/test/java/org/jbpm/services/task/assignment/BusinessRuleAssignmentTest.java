@@ -27,7 +27,11 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import org.assertj.core.api.Assertions;
 import org.drools.compiler.kie.builder.impl.InternalKieModule;
+import org.drools.core.time.TimerService;
+import org.drools.core.time.impl.JDKTimerService;
+import org.jbpm.process.core.timer.TimerServiceRegistry;
 import org.jbpm.services.task.HumanTaskServiceFactory;
+import org.jbpm.services.task.TaskServiceRegistry;
 import org.jbpm.services.task.assignment.impl.strategy.BusinessRuleAssignmentStrategy;
 import org.jbpm.services.task.impl.TaskDeadlinesServiceImpl;
 import org.jbpm.services.task.impl.factories.TaskFactory;
@@ -66,11 +70,19 @@ public class BusinessRuleAssignmentTest extends AbstractAssignmentTest {
 	private PoolingDataSourceWrapper pds;
 	private EntityManagerFactory emf;	
 
+    private String timerServiceId;
+
 	@Before
 	public void setup() {
+
 	    System.setProperty("org.jbpm.task.assignment.enabled", "true");
 	    System.setProperty("org.jbpm.task.assignment.strategy", "BusinessRule");
 	    System.setProperty("org.jbpm.task.assignment.rules.releaseId", GROUP_ID + ":" + ARTIFACT_ID +":" + VERSION);
+
+        TimerService globalTs = new JDKTimerService(3);
+        timerServiceId = "null" + TimerServiceRegistry.TIMER_SERVICE_SUFFIX;
+        // and register it in the registry under 'default' key
+        TimerServiceRegistry.getInstance().registerTimerService(timerServiceId, globalTs);
 
 	    buildKJar();
 	    
@@ -83,6 +95,7 @@ public class BusinessRuleAssignmentTest extends AbstractAssignmentTest {
 		this.taskService = (InternalTaskService) HumanTaskServiceFactory.newTaskServiceConfigurator()
 												.entityManagerFactory(emf)
 												.getTaskService();
+        TaskServiceRegistry.instance().registerTaskService(null, taskService);
 	
 	}
 	
@@ -92,9 +105,10 @@ public class BusinessRuleAssignmentTest extends AbstractAssignmentTest {
 	    System.clearProperty("org.jbpm.task.assignment.rules.releaseId");
 	    System.clearProperty("org.jbpm.task.assignment.rules.scan");
 	    System.clearProperty("org.jbpm.task.assignment.rules.query");
-	    
-	    TaskDeadlinesServiceImpl.reset();
-	    
+
+        TaskServiceRegistry.instance().remove(null);
+        TimerServiceRegistry.getInstance().remove(timerServiceId).shutdown();
+
 	    AssignmentServiceProvider.clear();
 		if (emf != null) {
 			emf.close();

@@ -544,7 +544,7 @@ public abstract class JbpmJUnitBaseTestCase extends AbstractBaseTest {
             manager.close();
             manager = null;
         }
-        TaskDeadlinesServiceImpl.dispose();
+
     }
 
     /**

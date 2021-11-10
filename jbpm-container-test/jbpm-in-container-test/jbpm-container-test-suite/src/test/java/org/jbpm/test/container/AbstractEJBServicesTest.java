@@ -97,7 +97,7 @@ public abstract class AbstractEJBServicesTest extends JbpmContainerTest {
                 new File(tempDir, file).delete();
             }
         }
-        TaskDeadlinesServiceImpl.dispose();
+
     }
  
     protected static Throwable catchRootCause(ThrowingCallable shouldRaiseThrowable) {

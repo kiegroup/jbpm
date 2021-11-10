@@ -97,7 +97,6 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
     public PerProcessInstanceRuntimeManager(RuntimeEnvironment environment, SessionFactory factory, TaskServiceFactory taskServiceFactory, String identifier) {
         super(environment, identifier, taskServiceFactory);
         this.factory = factory;
-        this.taskServiceFactory = taskServiceFactory;
         this.mapper = ((org.kie.internal.runtime.manager.RuntimeEnvironment)environment).getMapper();
         this.registry.register(this);
     }
@@ -136,7 +135,6 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
 			runtime = new RuntimeEngineImpl(ksession, internalTaskService);
 			((RuntimeEngineImpl) runtime).setManager(this);
 			((RuntimeEngineImpl) runtime).setContext(context);
-			configureRuntimeOnTaskService(internalTaskService, runtime);
 			registerDisposeCallback(runtime, new DisposeSessionTransactionSynchronization(this, runtime), ksession.getEnvironment());
 			registerItems(runtime);
 			attachManager(runtime);
@@ -333,14 +331,6 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
 
     public void setFactory(SessionFactory factory) {
         this.factory = factory;
-    }
-
-    public TaskServiceFactory getTaskServiceFactory() {
-        return taskServiceFactory;
-    }
-
-    public void setTaskServiceFactory(TaskServiceFactory taskServiceFactory) {
-        this.taskServiceFactory = taskServiceFactory;
     }
 
     public Mapper getMapper() {
@@ -599,13 +589,11 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
 
     	@Override
     	public TaskService initTaskService(Context<?> context, InternalRuntimeManager manager, RuntimeEngine engine) {
-    		
-    	    InternalTaskService internalTaskService = newTaskService(taskServiceFactory);
-    		if (internalTaskService != null) {
-        		registerDisposeCallback(engine, new DisposeSessionTransactionSynchronization(manager, engine), ((CommandBasedTaskService) internalTaskService).getEnvironment());
-                configureRuntimeOnTaskService(internalTaskService, engine);
+
+    		if (hasTaskService()) {
+        		registerDisposeCallback(engine, new DisposeSessionTransactionSynchronization(manager, engine), ((CommandBasedTaskService) getTaskService()).getEnvironment());
     		}
-    		return internalTaskService;
+    		return getTaskService();
     	}
 
     }
