@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.omg.org/bpmn20" xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:bpsim="http://www.bpsim.org/schemas/1.0" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:drools="http://www.jboss.org/drools" id="_qd6wkLNlEeSe3MiymD9o_Q" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd http://www.jboss.org/drools drools.xsd http://www.bpsim.org/schemas/1.0 bpsim.xsd" exporter="jBPM Designer" exporterVersion="6.2.0" expressionLanguage="http://www.mvel.org/2.0" targetNamespace="http://www.omg.org/bpmn20" typeLanguage="http://www.java.com/javaTypes">
   <bpmn2:itemDefinition id="_procVarItem" structureRef="String"/>
+  <bpmn2:itemDefinition id="_secondVarItem" structureRef="Integer"/>
+  <bpmn2:itemDefinition id="_complexVarItem" structureRef="org.jbpm.test.domain.Address"/>
   <bpmn2:itemDefinition id="__44DF4E92-82D0-4F92-B9F0-35C7F1F38849_SkippableInputXItem" structureRef="Object"/>
   <bpmn2:process id="org.jbpm.test.functional.CorrelationKey" drools:packageName="org.jbpm.test.functional" drools:version="1.0" name="CorrelationKey" isExecutable="true">
     <bpmn2:property id="procVar" itemSubjectRef="_procVarItem">
@@ -13,6 +15,33 @@
         </drools:metaData>
       </bpmn2:extensionElements>
      </bpmn2:property>
+    <bpmn2:property id="secondVar" itemSubjectRef="_secondVarItem">
+    <bpmn2:extensionElements>
+        <drools:metaData name="customTags">
+          <drools:metaValue><![CDATA[internal]]></drools:metaValue>
+        </drools:metaData>
+        <drools:metaData name="defaultValue">
+          <drools:metaValue><![CDATA[1]]></drools:metaValue>
+        </drools:metaData>
+      </bpmn2:extensionElements>
+    </bpmn2:property>
+    <bpmn2:property id="complexVar" itemSubjectRef="_complexVarItem">
+    <bpmn2:extensionElements>
+        <drools:metaData name="customTags">
+          <drools:metaValue><![CDATA[internal]]></drools:metaValue>
+        </drools:metaData>
+        <drools:metaData name="defaultValue">
+          <drools:metaValue>
+          	<![CDATA[
+          	<org.jbpm.test.domain.Address>
+          	<street>abc</street>
+						<number>29</number>
+						<city>def</city>
+						</org.jbpm.test.domain.Address>]]>
+					</drools:metaValue>
+        </drools:metaData>
+      </bpmn2:extensionElements>
+    </bpmn2:property>    
     <bpmn2:startEvent id="_949C725E-DC50-4701-A0A0-DAE77A5B55B6" drools:bgcolor="#9acd32" drools:selectable="true" name="">
       <bpmn2:outgoing>_D1410740-EA2E-46E4-9C4F-8768E2BA9B63</bpmn2:outgoing>
     </bpmn2:startEvent>

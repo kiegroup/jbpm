@@ -20,7 +20,9 @@ import java.util.Map;
 
 import org.drools.core.common.InternalKnowledgeRuntime;
 import org.jbpm.process.core.ContextContainer;
+import org.jbpm.process.core.context.variable.Variable;
 import org.jbpm.process.core.context.variable.VariableScope;
+import org.jbpm.process.core.datatype.DataType;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
 import org.kie.api.definition.process.Process;
 import org.kie.internal.process.CorrelationKey;
@@ -52,6 +54,16 @@ public abstract class AbstractProcessInstanceFactory implements ProcessInstanceF
         }
         // TODO: should be part of processInstanceImpl?
         VariableScope variableScope = (VariableScope) ((ContextContainer) process).getDefaultContext( VariableScope.VARIABLE_SCOPE );
+		if (variableScope != null) {
+			for (Variable variable : variableScope.getVariables()) {
+				DataType dataType = variable.getType();
+				Object defaultValue = variable.getMetaData("defaultValue");
+				if (defaultValue != null && defaultValue instanceof String && variable.getValue() == null) {
+					defaultValue = dataType.readValue((String) defaultValue);
+					variable.setValue(defaultValue);
+				}
+			}
+		}
         VariableScopeInstance variableScopeInstance = (VariableScopeInstance) processInstance.getContextInstance( VariableScope.VARIABLE_SCOPE );
         // set input parameters
         if ( parameters != null ) {
