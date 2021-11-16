@@ -23,6 +23,8 @@ import org.kie.api.runtime.manager.RuntimeManager;
 import org.kie.api.runtime.manager.RuntimeManagerFactory;
 import org.kie.internal.runtime.manager.SessionFactory;
 import org.kie.internal.runtime.manager.TaskServiceFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is the main entry point class for the RuntimeManager module responsible for delivering <code>RuntimeManager</code>
@@ -40,6 +42,8 @@ import org.kie.internal.runtime.manager.TaskServiceFactory;
  *
  */
 public class RuntimeManagerFactoryImpl implements RuntimeManagerFactory {
+
+    private static final Logger logger = LoggerFactory.getLogger(RuntimeManagerFactoryImpl.class);
 
     @Override
     public RuntimeManager newSingletonRuntimeManager(RuntimeEnvironment environment) {
@@ -125,4 +129,5 @@ public class RuntimeManagerFactoryImpl implements RuntimeManagerFactory {
                
         return taskServiceFactory;
     }
+
 }

@@ -1230,7 +1230,8 @@ public class PerProcessInstanceRuntimeManagerTest extends AbstractBaseTest {
         assertEquals(1, tasks2.size());
 
         Object data = "some data";
-
+        // flaky test this will cause the eager init of the runtime manager and avoid install disposable runtime manager
+        runtime1.getKieSession();
         runtime1.getTaskService().claim(tasks1.get(0), "john");
         runtime1.getTaskService().start(tasks1.get(0), "john");
         runtime1.getTaskService().complete(tasks1.get(0), "john", Collections.singletonMap("_output", data));

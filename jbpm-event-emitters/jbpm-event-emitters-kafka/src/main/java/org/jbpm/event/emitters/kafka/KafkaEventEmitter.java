@@ -19,14 +19,13 @@ import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.jbpm.persistence.api.integration.EventCollection;
@@ -38,6 +37,11 @@ import org.jbpm.persistence.api.integration.model.ProcessInstanceView;
 import org.jbpm.persistence.api.integration.model.TaskInstanceView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 /**
  * Kafka implementation of EventEmitter that simply pushes out data to several Kafka topics depending on InstanceView type. 
@@ -58,6 +62,8 @@ public class KafkaEventEmitter implements EventEmitter {
     protected static final String KAFKA_EMITTER_PREFIX = "org.kie.jbpm.event.emitters.kafka.";
 
     private ObjectMapper mapper;
+    
+    private KafkaSender sender;
 
     private Producer<String, byte[]> producer;
 
@@ -67,9 +73,10 @@ public class KafkaEventEmitter implements EventEmitter {
 
     KafkaEventEmitter(Producer<String, byte[]> producer) {
         this.producer = producer;
+        this.sender = Boolean.getBoolean(KAFKA_EMITTER_PREFIX+"sync") ? this::sendSync : this::sendAsync; 
         mapper = new ObjectMapper()
                 .setDateFormat(new SimpleDateFormat(System.getProperty(
-                        "org.kie.jbpm.event.emitters.kafka.date_format", System.getProperty(
+                        KAFKA_EMITTER_PREFIX+"date_format", System.getProperty(
                                 "org.kie.server.json.date_format",
                                 "yyyy-MM-dd'T'HH:mm:ss.SSSZ"))))
                 .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
@@ -114,16 +121,43 @@ public class KafkaEventEmitter implements EventEmitter {
                 logger.warn("Unsupported view type {}", view.getClass());
                 continue;
             }
-            try {
-                producer.send(new ProducerRecord<>(getTopic(topic), mapper.writeValueAsBytes(
-                        new CloudEventSpec1(type, String.format(SOURCE_FORMATTER, processId, processInstanceId),
-                                view))), (m, e) -> {
-                                    if (e != null) {
-                                        logError(view, e);
-                                    }
-                                });
-            } catch (Exception e) {
-                logError(view, e);
+            sender.send(topic, type, processId, processInstanceId, view);
+        }
+    }
+    
+    private interface KafkaSender {
+        void send (String topic, String type, String processId, long processInstanceId, InstanceView<?> view);
+    }
+
+    private byte[] viewToPayload(String type, String processId, long processInstanceId, InstanceView<?> view) throws JsonProcessingException {
+        return mapper.writeValueAsBytes(new CloudEventSpec1(type, String.format(SOURCE_FORMATTER, processId, processInstanceId), view));
+    }
+
+    private void sendAsync(String topic, String type, String processId, long processInstanceId, InstanceView<?> view) {
+        try {
+            producer.send(new ProducerRecord<>(getTopic(topic), viewToPayload(type, processId, processInstanceId, view)), (m, e) -> {
+                if (e != null) {
+                    logError(view, e);
+                }
+            });
+        } catch (Exception e) {
+            logError(view, e);
+        }
+    }
+
+    private void sendSync(String topic, String type, String processId, long processInstanceId, InstanceView<?> view) {
+        try {
+            producer.send(new ProducerRecord<>(getTopic(topic), viewToPayload(type, processId, processInstanceId, view))).get();
+        } catch (JsonProcessingException e) {
+            throw new IllegalArgumentException(e);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException(e);
+        } catch (ExecutionException e) {
+            if (e.getCause() instanceof RuntimeException) {
+                throw (RuntimeException) e.getCause();
+            } else {
+                throw new KafkaException(e.getCause());
             }
         }
     }

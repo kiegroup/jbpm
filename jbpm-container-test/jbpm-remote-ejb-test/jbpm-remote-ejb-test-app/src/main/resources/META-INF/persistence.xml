@@ -39,6 +39,7 @@ http://java.sun.com/xml/ns/persistence/orm http://java.sun.com/xml/ns/persistenc
 		<class>org.jbpm.persistence.correlation.CorrelationPropertyInfo</class>
 		<!-- manager -->
 		<class>org.jbpm.runtime.manager.impl.jpa.ContextMappingInfo</class>
+        <class>org.jbpm.runtime.manager.impl.jpa.TimerMappingInfo</class>
 		<!-- bam -->
 		<class>org.jbpm.process.audit.ProcessInstanceLog</class>
 		<class>org.jbpm.process.audit.NodeInstanceLog</class>

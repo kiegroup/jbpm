@@ -7,6 +7,7 @@ drop table CaseIdInfo if exists;
 drop table CaseRoleAssignmentLog if exists;
 drop table Content if exists;
 drop table ContextMappingInfo if exists;
+drop table TimerMappingInfo if exists;
 drop table CorrelationKeyInfo if exists;
 drop table CorrelationPropertyInfo if exists;
 drop table Deadline if exists;

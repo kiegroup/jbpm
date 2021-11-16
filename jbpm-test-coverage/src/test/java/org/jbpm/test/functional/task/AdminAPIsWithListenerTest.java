@@ -99,8 +99,8 @@ public class AdminAPIsWithListenerTest extends JbpmTestCase {
         ksession.addEventListener(new TaskCleanUpProcessEventListener(taskService));
         
         // let check how many listeners we have
-        assertEquals(2, ((EventService<TaskLifeCycleEventListener>)taskService).getTaskEventListeners().size());
-        assertEquals(2, ((EventService<TaskLifeCycleEventListener>)taskService).getTaskEventListeners().size());
+        assertEquals(3, ((EventService<TaskLifeCycleEventListener>)taskService).getTaskEventListeners().size());
+        assertEquals(3, ((EventService<TaskLifeCycleEventListener>)taskService).getTaskEventListeners().size());
 
         logger.info("### Starting process ###");
         Map<String, Object> parameters = new HashMap<String, Object>();
