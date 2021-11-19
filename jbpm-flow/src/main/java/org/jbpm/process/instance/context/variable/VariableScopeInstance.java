@@ -171,26 +171,25 @@ public class VariableScopeInstance extends AbstractContextInstance {
     
     public void enforceRequiredVariables() {
         VariableScope variableScope = getVariableScope();
-        for (Variable variable : variableScope.getVariables()) {
-            String name = variable.getName();
-			Object defaultValue = variable.getMetaData("defaultValue");
-            if (variableScope.isRequired(name)) {  
-                // check case file if it is prefixed
-                if (name.startsWith(VariableScope.CASE_FILE_PREFIX)) {
-                    if (!findCaseData(name)) {
-                        throw new VariableViolationException(getProcessInstance().getId(), name, "Case file item '" + name + "' is required but not set");
-                        
-                    }
-                    // otherwise check variables                    
-                } else if (!hasData(variables.get(name))) {
-                    throw new VariableViolationException(getProcessInstance().getId(), name, "Variable '" + name + "' is required but not set");
-                }
-                
-            }
-			if (defaultValue != null) {
-				variable.setValue(defaultValue);
+		for (Variable variable : variableScope.getVariables()) {
+			String name = variable.getName();
+			if (variableScope.isRequired(name)) {
+				// check case file if it is prefixed
+				if (name.startsWith(VariableScope.CASE_FILE_PREFIX)) {
+					if (!findCaseData(name)) {
+						throw new VariableViolationException(getProcessInstance().getId(), name,
+								"Case file item '" + name + "' is required but not set");
+
+					}
+					// otherwise check variables
+				} else if (!hasData(variables.get(name))) {
+					throw new VariableViolationException(getProcessInstance().getId(), name,
+							"Variable '" + name + "' is required but not set");
+				}
+
 			}
-        }
+
+		}
     }
     
     protected boolean findCaseData(String name) {

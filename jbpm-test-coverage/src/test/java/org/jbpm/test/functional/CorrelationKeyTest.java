@@ -182,10 +182,11 @@ public class CorrelationKeyTest extends JbpmTestCase {
     
     @Test
     public void testCreateProcessInstanceComplexTypeDefaultValue() {
-    	Address address = new Address();
-    	address.setCity("def");
-    	address.setNumber(29);
-    	address.setStreet("abc");
+       	String address = "<org.jbpm.test.domain.Address>\n"
+    			+ "          	   <street>abc</street>\n"
+    			+ "						   <number>29</number>\n"
+    			+ "						   <city>def</city>\n"
+    			+ "						</org.jbpm.test.domain.Address>";
         CorrelationKey key = keyFactory.newCorrelationKey(SIMPLE_KEY);
 
         Map<String, Object> parameters = new HashMap<String, Object>();            
