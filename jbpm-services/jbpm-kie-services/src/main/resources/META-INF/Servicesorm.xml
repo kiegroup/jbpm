@@ -1237,7 +1237,6 @@
         SELECT processInstanceId, processId, processName, processVersion, status, externalId, start_date, user_identity, correlationKey 
           FROM ProcessInstanceLog pil 
          WHERE processInstanceId IN (:idList) 
-      ORDER BY processInstanceId ASC 
     </query>
   </named-native-query>
   
@@ -1250,7 +1249,6 @@
                                          AND A1.variableInstanceId = A2.variableInstanceId 
                                          AND A2.id &gt; A1.id 
              WHERE A2.id IS NULL AND A1.processInstanceId IN (:idList) 
-          ORDER BY A1.processInstanceId ASC 
       </query>
   </named-native-query>
   <named-native-query name="GetTasksByIdList">
@@ -1263,7 +1261,6 @@
                 FROM Task task 
           INNER JOIN ProcessInstanceLog pilog ON pilog.processInstanceId = task.processInstanceId
                WHERE task.id IN (:idList)
-            ORDER BY task.id ASC 
       </query>
   </named-native-query>
   <named-native-query name="GetHistoryTasksByIdList">
@@ -1276,7 +1273,6 @@
                 FROM AuditTaskImpl task 
           INNER JOIN ProcessInstanceLog pilog ON pilog.processInstanceId = task.processInstanceId
                WHERE task.taskId IN (:idList)
-            ORDER BY task.taskId ASC 
       </query>
   </named-native-query>
   <named-native-query name="GetTaskVariablesByTaskIdList">
@@ -1284,7 +1280,6 @@
            SELECT taskId, type, name, value 
              FROM TaskVariableImpl 
             WHERE taskId IN (:idList) 
-         ORDER BY taskId ASC
       </query>
   </named-native-query>
   <named-native-query name="GetPotentialOwnersByTaskIdList">
@@ -1292,7 +1287,6 @@
              SELECT po.task_id, po.entity_id
               FROM PeopleAssignments_PotOwners po
              WHERE po.task_id IN(:idList)
-          ORDER BY po.task_id ASC 
       </query>
   </named-native-query>
   <named-native-query name="GetProcessVariablesByTaskIdList">
@@ -1306,7 +1300,6 @@
                                            AND A1.variableInstanceId = A2.variableInstanceId 
                                            AND A2.id &gt; A1.id
                WHERE A2.id IS NULL AND task.id IN (:idList)
-            ORDER BY task.id ASC
       </query>
   </named-native-query>
 </entity-mappings>
