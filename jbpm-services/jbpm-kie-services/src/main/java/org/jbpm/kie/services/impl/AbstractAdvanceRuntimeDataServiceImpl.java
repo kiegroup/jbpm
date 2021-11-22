@@ -16,7 +16,14 @@
 
 package org.jbpm.kie.services.impl;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonMap;
+import static java.util.stream.Collectors.toList;
+import static org.jbpm.services.api.query.model.QueryParam.all;
+
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -37,11 +44,6 @@ import org.jbpm.shared.services.impl.QueryManager;
 import org.jbpm.shared.services.impl.TransactionalCommandService;
 import org.jbpm.shared.services.impl.commands.QueryNameCommand;
 import org.kie.api.runtime.query.QueryContext;
-
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonMap;
-import static java.util.stream.Collectors.toList;
-import static org.jbpm.services.api.query.model.QueryParam.all;
 
 public abstract class AbstractAdvanceRuntimeDataServiceImpl {
 
@@ -65,11 +67,12 @@ public abstract class AbstractAdvanceRuntimeDataServiceImpl {
                                                                                                     int processType,
                                                                                                     String varPrefix,
                                                                                                     QueryContext queryContext) {
-        BiFunction<StringBuilder, StringBuilder, String> mainSQLProducer = (derivedTables, globalWhere) -> "SELECT DISTINCT pil.processInstanceId " +
+        setDefaultSorting (queryContext, "pil.processInstanceId");
+        BiFunction<StringBuilder, StringBuilder, String> mainSQLProducer = (derivedTables, globalWhere) -> getSelectFields("pil.processInstanceId", queryContext) +
                                                                                                            " FROM ProcessInstanceLog pil \n " +
                                                                                                            derivedTables +
                                                                                                            " WHERE  pil.processType = :processType " + globalWhere;
-        setDefaultSorting (queryContext, "pil.processInstanceId");
+        
         return queryProcessUserTasksByVariables(attributes, processVariables, emptyList(), null, processType, varPrefix, queryContext, mainSQLProducer, this::collectProcessData);
     }
 
@@ -91,21 +94,22 @@ public abstract class AbstractAdvanceRuntimeDataServiceImpl {
                                                                                                                   String varPrefix,
                                                                                                                   QueryContext queryContext) {
         BiFunction<StringBuilder, StringBuilder, String> mainSQLProducer;
+        setDefaultSorting (queryContext, "pil.processInstanceId");
         Optional<QueryParam> param = findQueryParamMode(attributes);
         if(param.isPresent() && param.get().getObjectValue().equals("HISTORY")) {
-            mainSQLProducer = (derivedTables, globalWhere) -> "SELECT DISTINCT pil.processInstanceId " +
+            mainSQLProducer = (derivedTables, globalWhere) -> getSelectFields("pil.processInstanceId", queryContext) +
                                                               " FROM AuditTaskImpl task " +
                                                               " INNER JOIN ProcessInstanceLog pil ON pil.processInstanceId = task.processInstanceId \n " +
                                                               derivedTables +
                                                               " WHERE  pil.processType = :processType " + globalWhere;
         } else {
-            mainSQLProducer = (derivedTables, globalWhere) -> "SELECT DISTINCT pil.processInstanceId " +
+            mainSQLProducer = (derivedTables, globalWhere) -> getSelectFields("pil.processInstanceId", queryContext) +
                                                               " FROM Task task " +
                                                               " INNER JOIN ProcessInstanceLog pil ON pil.processInstanceId = task.processInstanceId \n " +
                                                               derivedTables +
                                                               " WHERE  pil.processType = :processType " + globalWhere;
         }
-        setDefaultSorting (queryContext, "pil.processInstanceId");
+        
         return queryProcessUserTasksByVariables(attributes, processVariables, taskVariables, owners, processType, varPrefix, queryContext, mainSQLProducer, this::collectProcessData);
 
     }
@@ -139,25 +143,39 @@ public abstract class AbstractAdvanceRuntimeDataServiceImpl {
         Optional<QueryParam> param = findQueryParamMode(attributes);
         DataCollector<org.jbpm.services.api.model.UserTaskInstanceWithPotOwnerDesc> dataCollector;
         if(param.isPresent() && param.get().getObjectValue().equals("HISTORY")) {
-            mainSQLProducer = (derivedTables, globalWhere) -> "SELECT DISTINCT task.taskId as id " +
+            setDefaultSorting (queryContext, "task.taskId");
+            mainSQLProducer = (derivedTables, globalWhere) -> getSelectFields("task.taskId", queryContext) +
                                                               " FROM AuditTaskImpl task " +
                                                               " INNER JOIN ProcessInstanceLog pil ON pil.processInstanceId = task.processInstanceId \n " +
                                                               derivedTables +
                                                               " WHERE  pil.processType = :processType " + globalWhere;
             dataCollector = this::collectHistoryUserTaskData;
-            setDefaultSorting (queryContext, " task.taskId");
+            
 
         } else {
-            mainSQLProducer = (derivedTables, globalWhere) -> "SELECT DISTINCT task.id " +
+            setDefaultSorting (queryContext, "task.id");
+            mainSQLProducer = (derivedTables, globalWhere) -> getSelectFields("task.id", queryContext) +
                                                               " FROM Task task " +
                                                               " INNER JOIN ProcessInstanceLog pil ON pil.processInstanceId = task.processInstanceId \n " +
                                                               derivedTables +
                                                               " WHERE  pil.processType = :processType " + globalWhere;
             dataCollector = this::collectRuntimeUserTaskData;
-            setDefaultSorting (queryContext, "task.id");
         }
 
         return queryProcessUserTasksByVariables(attributes, processVariables, taskVariables, owners, processType, varPrefix, queryContext, mainSQLProducer, dataCollector);
+    }
+    
+    
+    protected static String getSelectFields(String idField, QueryContext queryContext) {
+        StringBuilder sb = new StringBuilder("SELECT DISTINCT ").append(idField);
+        String sortField = queryContext.getOrderBy().trim();
+        if (!idField.equalsIgnoreCase(sortField)) {
+            int indexOf = idField.indexOf(".");
+            if (indexOf == -1 || !idField.substring(indexOf + 1).equalsIgnoreCase(sortField)) {
+                sb.append(", ").append(sortField);
+            }
+        }
+        return sb.toString();
     }
 
     private void setDefaultSorting (QueryContext queryContext, String orderBy) {
@@ -240,12 +258,9 @@ public abstract class AbstractAdvanceRuntimeDataServiceImpl {
         attributes.removeIf(param -> param.getOperator().equals("MODE"));
         attributes.removeIf(param -> param.getOperator().equals("EXCLUDE"));
         attributes.stream().forEach((expr) -> globalWhere.append(" AND " + computeExpression(expr, expr.getColumn(), ":ATTR_" + expr.getColumn())));
+        globalWhere.append(" ORDER BY " + queryContext.getOrderBy() + (queryContext.isAscending().booleanValue() ? " ASC" : " DESC"));
 
         String procSQLString = mainSQLproducer.apply(derivedTables, globalWhere);
-
-
-        procSQLString += " ORDER BY " + queryContext.getOrderBy() + (queryContext.isAscending().booleanValue() ? " ASC" : " DESC");
-
         List<Number> ids = emptyList();
         EntityManager entityManager = emf.createEntityManager();
         try {
@@ -299,7 +314,7 @@ public abstract class AbstractAdvanceRuntimeDataServiceImpl {
 
             addPagination(query, queryContext);
 
-            ids = query.getResultList();
+            ids = (List<Number>) query.getResultList().stream().map(this::getId).collect(Collectors.toList());
             if (ids.isEmpty()) {
                 return emptyList();
             }
@@ -309,7 +324,10 @@ public abstract class AbstractAdvanceRuntimeDataServiceImpl {
             }
         }
         return dataCollector.apply(ids, varPrefix, attributesArg != null ? attributesArg : emptyList());
+    }
 
+    private Number getId(Object o) {
+        return o instanceof Number ? (Number) o : (Number) ((Object[]) o)[0];
     }
 
     private List<org.jbpm.services.api.model.ProcessInstanceWithVarsDesc> collectProcessData(List<Number> ids, String varPrefix, List<QueryParam> params) {
@@ -340,6 +358,7 @@ public abstract class AbstractAdvanceRuntimeDataServiceImpl {
             }
             data.add(pwv);
         }
+        Collections.sort(data, new ProcessComparator(ids));
         return data;
     }
 
@@ -497,7 +516,46 @@ public abstract class AbstractAdvanceRuntimeDataServiceImpl {
 
             data.add(pwv);
         }
+        Collections.sort(data, new TaskComparator(ids));
         return data;
+    }
+    
+    private abstract static class InMemoryIdComparator<T> implements Comparator<T> {
+
+        private List<Long> ids;
+
+        public InMemoryIdComparator(List<Number> ids) {
+            this.ids = ids.stream().map(Number::longValue).collect(Collectors.toList());
+        }
+
+        @Override
+        public int compare(T o1, T o2) {
+            return ids.indexOf(getId(o1)) - ids.indexOf(getId(o2));
+        }
+
+        protected abstract Long getId(T object);
+    }
+
+    protected static class TaskComparator extends InMemoryIdComparator<org.jbpm.services.api.model.UserTaskInstanceWithPotOwnerDesc> {
+
+        public TaskComparator(List<Number> ids) {
+            super(ids);
+        }
+
+        protected Long getId(org.jbpm.services.api.model.UserTaskInstanceWithPotOwnerDesc object) {
+            return object.getTaskId();
+        }
+    }
+
+    protected static class ProcessComparator extends InMemoryIdComparator<org.jbpm.services.api.model.ProcessInstanceWithVarsDesc> {
+
+        public ProcessComparator(List<Number> ids) {
+            super(ids);
+        }
+
+        protected Long getId(org.jbpm.services.api.model.ProcessInstanceWithVarsDesc object) {
+            return object.getId();
+        }
     }
 
     private UserTaskInstanceWithPotOwnerDesc toUserTaskInstanceWithPotOwnerDesc(Object[] row) {
