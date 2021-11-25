@@ -134,8 +134,8 @@ public class RuleFlowProcess extends WorkflowProcessImpl {
                             }
                         }
                     } else if (start.getTimer() != null) {
-
-                        if ("timer".equals(trigger)) {
+                        String name = "timer-"+ start.getMetaData("UniqueId");
+                        if (name.equals(trigger)) {
                             return start;
                         }
                     }

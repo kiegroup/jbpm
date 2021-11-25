@@ -51,6 +51,9 @@ public class StartEventTest extends JbpmTestCase {
     private static final String TIMER_DURATION = "org/jbpm/test/functional/event/StartEvent-timer-duration.bpmn2";
     private static final String TIMER_DURATION_ID = "org.jbpm.test.functional.event.StartEvent-timer-duration";
 
+    private static final String MULTIPLE_START_TIMER = "org/jbpm/test/functional/event/StartEvent-MultipleTimers.bpmn2";
+    private static final String MULTIPLE_START_TIMER_ID = "org.jbpm.test.functional.event.StartEvent-MultipleTimers";
+
     public StartEventTest() {
         super(false);
     }
@@ -190,6 +193,33 @@ public class StartEventTest extends JbpmTestCase {
         Assertions.assertThat(process.wasProcessStarted(TIMER_DURATION_ID)).isTrue();
         Assertions.assertThat(process.wasProcessCompleted(TIMER_DURATION_ID)).isTrue();
         process.clear();
+    }
+
+    @Test(timeout=30000)
+    public void testStartMultipleTimer() throws Exception {
+        KieSession ksession = createKSession(MULTIPLE_START_TIMER);
+
+        IterableProcessEventListener events = new IterableProcessEventListener();
+        TrackingProcessEventListener process = new TrackingProcessEventListener(2);
+        ksession.addEventListener(events);
+        ksession.addEventListener(process);
+
+        process.waitForProcessToComplete(4000L);
+
+        Assertions.assertThat(process.wasProcessStarted(MULTIPLE_START_TIMER_ID)).isTrue();
+        Assertions.assertThat(process.wasProcessCompleted(MULTIPLE_START_TIMER_ID)).isTrue();
+        assertProcessStarted(events, MULTIPLE_START_TIMER_ID);
+        assertNextNode(events, "2s");
+        assertNextNode(events, "Task2");
+        assertNextNode(events, "end1");
+        assertProcessCompleted(events, MULTIPLE_START_TIMER_ID);
+
+        assertProcessStarted(events, MULTIPLE_START_TIMER_ID);
+        assertNextNode(events, "3s");
+        assertNextNode(events, "Task1");
+        assertNextNode(events, "end2");
+        assertProcessCompleted(events, MULTIPLE_START_TIMER_ID);
+
     }
 
 }
