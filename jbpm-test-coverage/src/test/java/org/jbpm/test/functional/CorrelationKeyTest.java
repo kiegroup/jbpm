@@ -17,13 +17,15 @@
 package org.jbpm.test.functional;
 
 import static org.junit.Assert.assertEquals;
-
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.custommonkey.xmlunit.XMLUnit;
 import org.assertj.core.api.Assertions;
+import org.custommonkey.xmlunit.DetailedDiff;
 import org.jbpm.test.JbpmTestCase;
 import org.junit.Test;
 import org.kie.api.runtime.manager.audit.VariableInstanceLog;
@@ -33,7 +35,7 @@ import org.kie.internal.KieInternalServices;
 import org.kie.internal.process.CorrelationAwareProcessRuntime;
 import org.kie.internal.process.CorrelationKey;
 import org.kie.internal.process.CorrelationKeyFactory;
-import org.jbpm.test.domain.Address;
+import org.xml.sax.SAXException;
 
 public class CorrelationKeyTest extends JbpmTestCase {
 
@@ -50,7 +52,7 @@ public class CorrelationKeyTest extends JbpmTestCase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-
+        XMLUnit.setIgnoreWhitespace(true);
         keyFactory = KieInternalServices.Factory.get().newCorrelationKeyFactory();
         ksession = (CorrelationAwareProcessRuntime) createKSession("org/jbpm/test/functional/CorrelationKey.bpmn2");
     }
@@ -166,37 +168,55 @@ public class CorrelationKeyTest extends JbpmTestCase {
         ProcessInstance processInstance2 = ksession.startProcess(PROCESS, key2, null);
         assertProcessInstanceActive(processInstance2.getId());
     }
-    
+
     @Test
     public void testCreateProcessInstanceDefaultValue() {
         CorrelationKey key = keyFactory.newCorrelationKey(SIMPLE_KEY);
 
-        Map<String, Object> parameters = new HashMap<String, Object>();            
-       
-        WorkflowProcessInstance processInstance = (WorkflowProcessInstance) ksession.startProcess(PROCESS, key, parameters);  
-        
+        Map<String, Object> parameters = new HashMap<String, Object>();
+
+        WorkflowProcessInstance processInstance = (WorkflowProcessInstance) ksession.startProcess(PROCESS, key,
+                parameters);
+
         assertEquals("defaultProc", processInstance.getVariable("procVar"));
         assertEquals(Integer.valueOf(1), processInstance.getVariable("secondVar"));
-        
-    }    
-    
+
+    }
+
     @Test
-    public void testCreateProcessInstanceComplexTypeDefaultValue() {
-       	String address = "<org.jbpm.test.domain.Address>\n"
-    			+ "          	   <street>abc</street>\n"
-    			+ "						   <number>29</number>\n"
-    			+ "						   <city>def</city>\n"
-    			+ "						</org.jbpm.test.domain.Address>";
+    public void testCreateProcessInstanceWithDefaultValueAndParams() {
         CorrelationKey key = keyFactory.newCorrelationKey(SIMPLE_KEY);
 
-        Map<String, Object> parameters = new HashMap<String, Object>();            
-        
-        WorkflowProcessInstance processInstance = (WorkflowProcessInstance) ksession.startProcess(PROCESS, key, parameters);  
-        
-        assertEquals( address, processInstance.getVariable("complexVar"));        
-        
+        Map<String, Object> parameters = new HashMap<String, Object>();
+
+        parameters.put(VARIABLE_ID, VARIABLE_VALUE);
+        WorkflowProcessInstance processInstance = (WorkflowProcessInstance) ksession.startProcess(PROCESS, key,
+                parameters);
+       
+        assertEquals(VARIABLE_VALUE, processInstance.getVariable("procVar"));
+        assertEquals(Integer.valueOf(1), processInstance.getVariable("secondVar"));
+
     }
-    
-    
-    
+
+    @Test
+    public void testCreateProcessInstanceComplexTypeDefaultValue() throws SAXException, IOException {
+
+        String address = "<org.jbpm.test.domain.Address>\n" + "          	 <street>abc</street>\n"
+                + "						   <number>29</number>\n" + "						   <city>def</city>\n"
+                + "						</org.jbpm.test.domain.Address>";
+
+        CorrelationKey key = keyFactory.newCorrelationKey(SIMPLE_KEY);
+
+        Map<String, Object> parameters = new HashMap<String, Object>();
+
+        WorkflowProcessInstance processInstance = (WorkflowProcessInstance) ksession.startProcess(PROCESS, key,
+                parameters);
+
+        DetailedDiff diff = new DetailedDiff(
+                XMLUnit.compareXML(address, (String) processInstance.getVariable("complexVar")));
+        List<?> allDifferences = diff.getAllDifferences();
+        assertEquals("Differences found: " + diff.toString(), 0, allDifferences.size());
+
+    }
+
 }
