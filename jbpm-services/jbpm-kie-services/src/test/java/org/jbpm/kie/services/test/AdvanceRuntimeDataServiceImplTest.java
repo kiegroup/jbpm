@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -680,6 +681,212 @@ public class AdvanceRuntimeDataServiceImplTest extends AbstractKieServicesBaseTe
         assertEquals(data.get(0).getProcessVariables().get("var-a"), "a");
         processService.abortProcessInstance(processInstanceId);
 
+    }
+
+    @Test
+    public void testQueryProcessByVariablesSorted() {
+        List<QueryParam> variables = list(equalsTo("var_b", "1"));
+        List<QueryParam> attributes = list(in(PROCESS_ATTR_DEFINITION_ID, "test.test_A", "test.test_B"));
+        assertQueryProcessByVariablesSorted(attributes, variables);
+    }
+
+    @Test
+    public void testQueryProcessByVariablesSortedWithHistory(){
+        List<QueryParam> variables = list(equalsTo("var_b", "1"));
+        List<QueryParam> attributes = list(history());
+        assertQueryProcessByVariablesSorted(attributes, variables);
+    }
+
+    @Test
+    public void testQueryUserTaskByVariablesSorted() {
+        List<QueryParam> variables = list(equalsTo("task_in_a1", "a0"));
+        List<QueryParam> attributes = list(equalsTo(PROCESS_ATTR_DEPLOYMENT_ID, "org.jbpm.test:test-module:1.0.0"));
+        assertQueryUserTaskByVariablesSorted(attributes, variables);
+    }
+
+    @Test
+    public void testQueryUserTaskByVariablesSortedWithHistory() {
+        List<QueryParam> variables = list(equalsTo("task_in_a1", "a0"));
+        List<QueryParam> attributes = list(history());
+        assertQueryUserTaskByVariablesSorted(attributes, variables);
+    }
+
+    @Test
+    public void testQueryProcessByVariablesAndTaskSorted() {
+        List<QueryParam> variables = list(equalsTo("var_b", "1"));
+        List<QueryParam> attributes = list(in(PROCESS_ATTR_DEFINITION_ID, "test.test_A", "test.test_B"));
+        assertQueryProcessByVariablesAndTaskSorted(attributes, variables);
+    }
+
+    @Test
+    public void testQueryProcessByVariablesAndTaskSortedWithHistory() {
+        List<QueryParam> variables = list(equalsTo("var_b", "1"));
+        List<QueryParam> attributes = list(history());
+        assertQueryProcessByVariablesAndTaskSorted(attributes, variables);
+    }
+
+    private void assertQueryProcessByVariablesSorted(List<QueryParam> attributes, List<QueryParam> variables) {
+        List<ProcessInstanceWithVarsDesc> actualDataList = advanceVariableDataService.queryProcessByVariables(attributes, variables, new QueryContext());
+        List<Long> expectedProcessInstanceIdsList = actualDataList
+                .stream()
+                .map(ProcessInstanceWithVarsDesc::getId)
+                .collect(Collectors.toList());
+        List<Date> expectedStartDatesList = actualDataList
+                .stream()
+                .map(ProcessInstanceWithVarsDesc::getDataTimeStamp)
+                .collect(Collectors.toList());
+        assertThat(expectedProcessInstanceIdsList.size(), is(6));
+        assertThat(expectedStartDatesList.size(), is(6));
+
+        // Order by processInstanceId ascending
+        queryContext.setOrderBy("processInstanceId");
+        queryContext.setAscending(true);
+        assertSortedListByColumn(true,
+                                 expectedProcessInstanceIdsList,
+                                 advanceVariableDataService.queryProcessByVariables(attributes, variables, queryContext)
+                                         .stream()
+                                         .map(ProcessInstanceWithVarsDesc::getId)
+                                         .collect(Collectors.toList()));
+
+        // Order by processInstanceId descending
+        queryContext.setAscending(false);
+        assertSortedListByColumn(false,
+                                 expectedProcessInstanceIdsList,
+                                 advanceVariableDataService.queryProcessByVariables(attributes, variables, queryContext)
+                                         .stream()
+                                         .map(ProcessInstanceWithVarsDesc::getId)
+                                         .collect(Collectors.toList()));
+
+        // Order by start_date ascending
+        queryContext.setOrderBy("start_date");
+        queryContext.setAscending(true);
+        assertSortedListByColumn(true,
+                                 expectedStartDatesList,
+                                 advanceVariableDataService.queryProcessByVariables(attributes, variables, queryContext)
+                                         .stream()
+                                         .map(ProcessInstanceWithVarsDesc::getDataTimeStamp)
+                                         .collect(Collectors.toList()));
+
+        // Order by start_date descending
+        queryContext.setAscending(false);
+        assertSortedListByColumn(false,
+                                 expectedStartDatesList,
+                                 advanceVariableDataService.queryProcessByVariables(attributes, variables, queryContext)
+                                         .stream()
+                                         .map(ProcessInstanceWithVarsDesc::getDataTimeStamp)
+                                         .collect(Collectors.toList()));
+    }
+
+    private void assertQueryUserTaskByVariablesSorted(List<QueryParam> attributes, List<QueryParam> variables) {
+        List<UserTaskInstanceWithPotOwnerDesc> actualDataList = advanceVariableDataService.queryUserTasksByVariables(attributes, variables, emptyList(), emptyList(), new QueryContext());
+        List<Long> expectedTaskIdsList = actualDataList
+                .stream()
+                .map(UserTaskInstanceWithPotOwnerDesc::getTaskId)
+                .collect(Collectors.toList());
+        List<Date> expectedCreatedOnList = actualDataList
+                .stream()
+                .map(UserTaskInstanceWithPotOwnerDesc::getCreatedOn)
+                .collect(Collectors.toList());
+        assertThat(expectedTaskIdsList.size(), is(4));
+        assertThat(expectedCreatedOnList.size(), is(4));
+
+        // Order by taskId ascending
+        queryContext.setOrderBy("taskId");
+        queryContext.setAscending(true);
+        assertSortedListByColumn(true,
+                                 expectedTaskIdsList,
+                                 advanceVariableDataService.queryUserTasksByVariables(attributes, variables, emptyList(), emptyList(), queryContext)
+                                         .stream()
+                                         .map(UserTaskInstanceWithPotOwnerDesc::getTaskId)
+                                         .collect(Collectors.toList()));
+
+        // Order by taskId descending
+        queryContext.setAscending(false);
+        assertSortedListByColumn(false,
+                                 expectedTaskIdsList,
+                                 advanceVariableDataService.queryUserTasksByVariables(attributes, variables, emptyList(), emptyList(), queryContext)
+                                         .stream()
+                                         .map(UserTaskInstanceWithPotOwnerDesc::getTaskId)
+                                         .collect(Collectors.toList()));
+
+        // Order by createdOn ascending
+        queryContext.setOrderBy("createdOn");
+        queryContext.setAscending(true);
+        assertSortedListByColumn(true,
+                                 expectedCreatedOnList,
+                                 advanceVariableDataService.queryUserTasksByVariables(attributes, variables, emptyList(), emptyList(), queryContext)
+                                         .stream()
+                                         .map(UserTaskInstanceWithPotOwnerDesc::getCreatedOn)
+                                         .collect(Collectors.toList()));
+
+        // Order by createdOn descending
+        queryContext.setAscending(false);
+        assertSortedListByColumn(false,
+                                 expectedCreatedOnList,
+                                 advanceVariableDataService.queryUserTasksByVariables(attributes, variables, emptyList(), emptyList(), queryContext)
+                                         .stream()
+                                         .map(UserTaskInstanceWithPotOwnerDesc::getCreatedOn)
+                                         .collect(Collectors.toList()));
+    }
+
+    private void assertQueryProcessByVariablesAndTaskSorted(List<QueryParam> attributes, List<QueryParam> variables) {
+        List<ProcessInstanceWithVarsDesc> actualDataList = advanceVariableDataService.queryProcessByVariablesAndTask(attributes, variables, emptyList(), emptyList(), new QueryContext());
+
+        List<Long> expectedProcessInstanceIdsList = actualDataList
+                .stream()
+                .map(ProcessInstanceWithVarsDesc::getId)
+                .collect(Collectors.toList());
+        List<String> expectedCorrelationKeysList = actualDataList
+                .stream()
+                .map(ProcessInstanceWithVarsDesc::getCorrelationKey)
+                .collect(Collectors.toList());
+        assertThat(expectedProcessInstanceIdsList.size(), is(6));
+        assertThat(expectedCorrelationKeysList.size(), is(6));
+
+        // Order by processInstanceId ascending
+        queryContext.setOrderBy("processInstanceId");
+        queryContext.setAscending(true);
+        assertSortedListByColumn(true,
+                                 expectedProcessInstanceIdsList,
+                                 advanceVariableDataService.queryProcessByVariablesAndTask(attributes, variables, emptyList(), emptyList(), queryContext)
+                                         .stream()
+                                         .map(ProcessInstanceWithVarsDesc::getId)
+                                         .collect(Collectors.toList()));
+
+        // Order by processInstanceId descending
+        queryContext.setAscending(false);
+        assertSortedListByColumn(false,
+                                 expectedProcessInstanceIdsList,
+                                 advanceVariableDataService.queryProcessByVariablesAndTask(attributes, variables, emptyList(), emptyList(), queryContext)
+                                         .stream()
+                                         .map(ProcessInstanceWithVarsDesc::getId)
+                                         .collect(Collectors.toList()));
+
+        // Order by correlationKey ascending
+        queryContext.setOrderBy("correlationKey");
+        queryContext.setAscending(true);
+        assertSortedListByColumn(true,
+                                 expectedCorrelationKeysList,
+                                 advanceVariableDataService.queryProcessByVariablesAndTask(attributes, variables, emptyList(), emptyList(), queryContext)
+                                         .stream()
+                                         .map(ProcessInstanceWithVarsDesc::getCorrelationKey)
+                                         .collect(Collectors.toList()));
+
+        // Order by correlationKey descending
+        queryContext.setAscending(false);
+        assertSortedListByColumn(false,
+                                 expectedCorrelationKeysList,
+                                 advanceVariableDataService.queryProcessByVariablesAndTask(attributes, variables, emptyList(), emptyList(), queryContext)
+                                         .stream()
+                                         .map(ProcessInstanceWithVarsDesc::getCorrelationKey)
+                                         .collect(Collectors.toList()));
+    }
+
+    private <T extends Comparable<? super T>> void assertSortedListByColumn(boolean ascending, List<T> expectedSortedList, List<T> actualSortedList){
+        int count = queryContext.getCount() > 0 ? queryContext.getCount() : expectedSortedList.size();
+
+        expectedSortedList.sort(ascending ? null : Collections.reverseOrder());
+        assertEquals(expectedSortedList.subList(queryContext.getOffset(), count), actualSortedList);
     }
 
 }
