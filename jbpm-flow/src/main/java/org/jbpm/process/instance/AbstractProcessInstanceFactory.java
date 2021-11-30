@@ -65,17 +65,7 @@ public abstract class AbstractProcessInstanceFactory implements ProcessInstanceF
                 throw new IllegalArgumentException( "This process does not support parameters!" );
             }
         }
-        if (variableScope != null) {
-            for (Variable variable : variableScope.getVariables()) {
-                String name = variable.getName();
-                Object defaultValue = variable.getMetaData("defaultValue");
-                if (variableScopeInstance.getVariable(name) == null && defaultValue != null) {
-                    variableScopeInstance.setVariable(name,
-                            variableScope.validateVariable(process.getName(), name, defaultValue));
-
-                }
-            }
-        }
+        variableScopeInstance.setDefaultValue(process,variableScope,variableScopeInstance);
         variableScopeInstance.enforceRequiredVariables();
         
         return processInstance;

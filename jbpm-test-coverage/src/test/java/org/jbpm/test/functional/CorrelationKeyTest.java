@@ -201,9 +201,7 @@ public class CorrelationKeyTest extends JbpmTestCase {
     @Test
     public void testCreateProcessInstanceComplexTypeDefaultValue() throws SAXException, IOException {
 
-        String address = "<org.jbpm.test.domain.Address>\n" + "          	 <street>abc</street>\n"
-                + "						   <number>29</number>\n" + "						   <city>def</city>\n"
-                + "						</org.jbpm.test.domain.Address>";
+        String address = "<org.jbpm.test.domain.Address><street>abc</street><number>29</number><city>def</city></org.jbpm.test.domain.Address>";
 
         CorrelationKey key = keyFactory.newCorrelationKey(SIMPLE_KEY);
 
