@@ -15,7 +15,7 @@ AS
 		SELECT @sqlDroppingConstraint = 'ALTER TABLE SessionInfo DROP CONSTRAINT ' + @const_name
 		EXEC (@sqlDroppingConstraint)
 
-		SELECT @sqlAlterTableSessionInfo = 'ALTER TABLE SessionInfo ALTER COLUMN id numeric(19,0)'
+		SELECT @sqlAlterTableSessionInfo = 'ALTER TABLE SessionInfo ALTER COLUMN id bigint'
 		EXEC (@sqlAlterTableSessionInfo)
 
 		SELECT @sqlRecriateConstraint = 'ALTER TABLE SessionInfo ADD CONSTRAINT ' + @const_name + ' PRIMARY KEY CLUSTERED ([id] ASC)'
@@ -29,12 +29,12 @@ DROP PROCEDURE alter_table_session_info;
 -- Recriating the Index
 ALTER INDEX ALL ON SessionInfo REORGANIZE;
 
-ALTER TABLE AuditTaskImpl ALTER COLUMN processSessionId numeric(19,0);
+ALTER TABLE AuditTaskImpl ALTER COLUMN processSessionId bigint;
 ALTER TABLE AuditTaskImpl ALTER COLUMN activationTime datetime;
 ALTER TABLE AuditTaskImpl ALTER COLUMN createdOn datetime;
 ALTER TABLE AuditTaskImpl ALTER COLUMN dueDate datetime;
-ALTER TABLE ContextMappingInfo ALTER COLUMN KSESSION_ID numeric(19,0);
-ALTER TABLE Task ALTER COLUMN processSessionId numeric(19,0);
+ALTER TABLE ContextMappingInfo ALTER COLUMN KSESSION_ID bigint;
+ALTER TABLE Task ALTER COLUMN processSessionId bigint;
 
 CREATE TABLE DeploymentStore (
     id bigint identity not null,
@@ -60,10 +60,10 @@ UPDATE Task SET subject = (SELECT shortText FROM I18NText WHERE I18NText.Task_Su
 UPDATE Task SET description = (SELECT shortText FROM I18NText WHERE I18NText.Task_Descriptions_Id = Task.id);
 
 INSERT INTO AuditTaskImpl (activationTime, actualOwner, createdBy, createdOn, deploymentId, description, dueDate, name, parentId, priority, processId, processInstanceId, processSessionId, status, taskId)
-SELECT activationTime, actualOwner_id, createdBy_id, createdOn, deploymentId, description, expirationTime, name, parentId, priority,processId, processInstanceId, processSessionId, status, id 
+SELECT activationTime, actualOwner_id, createdBy_id, createdOn, deploymentId, description, expirationTime, name, parentId, priority,processId, processInstanceId, processSessionId, status, id
 FROM Task;
 
-ALTER TABLE TaskEvent ADD workItemId numeric(19,0);
-ALTER TABLE TaskEvent ADD processInstanceId numeric(19,0);
+ALTER TABLE TaskEvent ADD workItemId bigint;
+ALTER TABLE TaskEvent ADD processInstanceId bigint;
 UPDATE TaskEvent SET workItemId = (SELECT workItemId FROM Task WHERE Task.id = TaskEvent.taskId);
 UPDATE TaskEvent SET processInstanceId = (SELECT processInstanceId FROM Task WHERE Task.id = TaskEvent.taskId);

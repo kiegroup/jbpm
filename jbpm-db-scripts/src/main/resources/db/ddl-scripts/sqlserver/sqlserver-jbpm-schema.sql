@@ -1,47 +1,47 @@
     create table Attachment (
-        id numeric(19,0) identity not null,
+        id bigint identity not null,
         accessType int,
-        attachedAt datetime,
-        attachmentContentId numeric(19,0) not null,
+        attachedAt datetime2,
+        attachmentContentId bigint not null,
         contentType varchar(255),
         name varchar(255),
         attachment_size int,
         attachedBy_id varchar(255),
-        TaskData_Attachments_Id numeric(19,0),
+        TaskData_Attachments_Id bigint,
         primary key (id)
     );
 
     create table AuditTaskImpl (
-        id numeric(19,0) identity not null,
-        activationTime datetime,
+        id bigint identity not null,
+        activationTime datetime2,
         actualOwner varchar(255),
         createdBy varchar(255),
-        createdOn datetime,
+        createdOn datetime2,
         deploymentId varchar(255),
         description varchar(255),
-        dueDate datetime,
+        dueDate datetime2,
         name varchar(255),
-        parentId numeric(19,0) not null,
+        parentId bigint not null,
         priority int not null,
         processId varchar(255),
-        processInstanceId numeric(19,0) not null,
-        processSessionId numeric(19,0) not null,
+        processInstanceId bigint not null,
+        processSessionId bigint not null,
         status varchar(255),
-        taskId numeric(19,0),
-        workItemId numeric(19,0),
-        lastModificationDate datetime,
+        taskId bigint,
+        workItemId bigint,
+        lastModificationDate datetime2,
         primary key (id)
     );
 
     create table BAMTaskSummary (
-        pk numeric(19,0) identity not null,
-        createdDate datetime,
-        duration numeric(19,0),
-        endDate datetime,
-        processInstanceId numeric(19,0) not null,
-        startDate datetime,
+        pk bigint identity not null,
+        createdDate datetime2,
+        duration bigint,
+        endDate datetime2,
+        processInstanceId bigint not null,
+        startDate datetime2,
         status varchar(255),
-        taskId numeric(19,0) not null,
+        taskId bigint not null,
         taskName varchar(255),
         userId varchar(255),
         OPTLOCK int,
@@ -49,207 +49,207 @@
     );
 
     create table BooleanExpression (
-        id numeric(19,0) identity not null,
-        expression text,
+        id bigint identity not null,
+        expression varchar(MAX),
         type varchar(255),
-        Escalation_Constraints_Id numeric(19,0),
+        Escalation_Constraints_Id bigint,
         primary key (id)
     );
     
     create table CaseIdInfo (
-        id numeric(19,0) identity not null,
+        id bigint identity not null,
         caseIdPrefix varchar(255),
-        currentValue numeric(19,0),
+        currentValue bigint,
         primary key (id)
     );
     
     create table CaseFileDataLog (
-        id numeric(19,0) identity not null,
+        id bigint identity not null,
         caseDefId varchar(255),
         caseId varchar(255),
         itemName varchar(255),
         itemType varchar(255),
         itemValue varchar(255),
-        lastModified datetime,
+        lastModified datetime2,
         lastModifiedBy varchar(255),
         primary key (id)
     );
 
     create table CaseRoleAssignmentLog (
-        id numeric(19,0) identity not null,
+        id bigint identity not null,
         caseId varchar(255),
         entityId varchar(255),
-        processInstanceId numeric(19,0) not null,
+        processInstanceId bigint not null,
         roleName varchar(255),
         type int not null,
         primary key (id)
     );    
 
     create table Content (
-        id numeric(19,0) identity not null,
-        content image,
+        id bigint identity not null,
+        content varbinary(MAX),
         primary key (id)
     );
 
     create table ContextMappingInfo (
-        mappingId numeric(19,0) identity not null,
+        mappingId bigint identity not null,
         CONTEXT_ID varchar(255) not null,
-        KSESSION_ID numeric(19,0) not null,
+        KSESSION_ID bigint not null,
         OWNER_ID varchar(255),
         OPTLOCK int,
         primary key (mappingId)
     );
 
     create table TimerMappingInfo (
-    	id numeric(19,0) identity not null,
+    	id bigint identity not null, 
     	externalTimerId varchar(255), 
-    	kieSessionId numeric(19,0) not null, 
-    	timerId numeric(19,0) not null, 
+    	kieSessionId bigint not null, 
+    	timerId bigint not null, 
     	uuid varchar(255) not null, 
     	primary key (id)
     );
 
     create table CorrelationKeyInfo (
-        keyId numeric(19,0) identity not null,
+        keyId bigint identity not null,
         name varchar(255) not null,
-        processInstanceId numeric(19,0) not null,
+        processInstanceId bigint not null,
         OPTLOCK int,
         primary key (keyId)
     );
 
     create table CorrelationPropertyInfo (
-        propertyId numeric(19,0) identity not null,
+        propertyId bigint identity not null,
         name varchar(255),
         value varchar(255),
         OPTLOCK int,
-        correlationKey_keyId numeric(19,0),
+        correlationKey_keyId bigint,
         primary key (propertyId)
     );
 
     create table Deadline (
-        id numeric(19,0) identity not null,
-        deadline_date datetime,
+        id bigint identity not null,
+        deadline_date datetime2,
         escalated smallint,
-        Deadlines_StartDeadLine_Id numeric(19,0),
-        Deadlines_EndDeadLine_Id numeric(19,0),
+        Deadlines_StartDeadLine_Id bigint,
+        Deadlines_EndDeadLine_Id bigint,
         primary key (id)
     );
 
     create table Delegation_delegates (
-        task_id numeric(19,0) not null,
+        task_id bigint not null,
         entity_id varchar(255) not null
     );
 
     create table DeploymentStore (
-        id numeric(19,0) identity not null,
+        id bigint identity not null,
         attributes varchar(255),
         DEPLOYMENT_ID varchar(255),
-        deploymentUnit text,
+        deploymentUnit varchar(MAX),
         state int,
-        updateDate datetime,
+        updateDate datetime2,
         primary key (id)
     );
 
     create table ErrorInfo (
-        id numeric(19,0) identity not null,
+        id bigint identity not null,
         message varchar(255),
         stacktrace varchar(5000),
-        timestamp datetime,
-        REQUEST_ID numeric(19,0) not null,
+        timestamp datetime2,
+        REQUEST_ID bigint not null,
         primary key (id)
     );
 
     create table Escalation (
-        id numeric(19,0) identity not null,
+        id bigint identity not null,
         name varchar(255),
-        Deadline_Escalation_Id numeric(19,0),
+        Deadline_Escalation_Id bigint,
         primary key (id)
     );
 
     create table EventTypes (
-        InstanceId numeric(19,0) not null,
+        InstanceId bigint not null,
         element varchar(255)
     );
     
     create table ExecutionErrorInfo (
-        id numeric(19,0) identity not null,
+        id bigint identity not null,
         ERROR_ACK smallint,
-        ERROR_ACK_AT datetime,
+        ERROR_ACK_AT datetime2,
         ERROR_ACK_BY varchar(255),
-        ACTIVITY_ID numeric(19,0),
+        ACTIVITY_ID bigint,
         ACTIVITY_NAME varchar(255),
         DEPLOYMENT_ID varchar(255),
-        ERROR_INFO text,
-        ERROR_DATE datetime,
+        ERROR_INFO varchar(MAX),
+        ERROR_DATE datetime2,
         ERROR_ID varchar(255),
         ERROR_MSG varchar(255),
-        INIT_ACTIVITY_ID numeric(19,0),
-        JOB_ID numeric(19,0),
+        INIT_ACTIVITY_ID bigint,
+        JOB_ID bigint,
         PROCESS_ID varchar(255),
-        PROCESS_INST_ID numeric(19,0),
+        PROCESS_INST_ID bigint,
         ERROR_TYPE varchar(255),
         primary key (id)
     );
 
     create table I18NText (
-        id numeric(19,0) identity not null,
+        id bigint identity not null,
         language varchar(255),
         shortText varchar(255),
-        text text,
-        Task_Subjects_Id numeric(19,0),
-        Task_Names_Id numeric(19,0),
-        Task_Descriptions_Id numeric(19,0),
-        Reassignment_Documentation_Id numeric(19,0),
-        Notification_Subjects_Id numeric(19,0),
-        Notification_Names_Id numeric(19,0),
-        Notification_Documentation_Id numeric(19,0),
-        Notification_Descriptions_Id numeric(19,0),
-        Deadline_Documentation_Id numeric(19,0),
+        text varchar(MAX),
+        Task_Subjects_Id bigint,
+        Task_Names_Id bigint,
+        Task_Descriptions_Id bigint,
+        Reassignment_Documentation_Id bigint,
+        Notification_Subjects_Id bigint,
+        Notification_Names_Id bigint,
+        Notification_Documentation_Id bigint,
+        Notification_Descriptions_Id bigint,
+        Deadline_Documentation_Id bigint,
         primary key (id)
     );
 
     create table NodeInstanceLog (
-        id numeric(19,0) identity not null,
+        id bigint identity not null,
         connection varchar(255),
-        log_date datetime,
+        log_date datetime2,
         externalId varchar(255),
         nodeId varchar(255),
         nodeInstanceId varchar(255),
         nodeName varchar(255),
         nodeType varchar(255),
         processId varchar(255),
-        processInstanceId numeric(19,0) not null,
-        sla_due_date datetime,
+        processInstanceId bigint not null,
+        sla_due_date datetime2,
         slaCompliance int,
         type int not null,
-        workItemId numeric(19,0),
+        workItemId bigint,
         nodeContainerId varchar(255),
-        referenceId numeric(19,0),
+        referenceId bigint,
         observation varchar(255),
         primary key (id)
     );
 
     create table Notification (
         DTYPE varchar(31) not null,
-        id numeric(19,0) identity not null,
+        id bigint identity not null,
         priority int not null,
-        Escalation_Notifications_Id numeric(19,0),
+        Escalation_Notifications_Id bigint,
         primary key (id)
     );
 
     create table Notification_BAs (
-        task_id numeric(19,0) not null,
+        task_id bigint not null,
         entity_id varchar(255) not null
     );
 
     create table Notification_Recipients (
-        task_id numeric(19,0) not null,
+        task_id bigint not null,
         entity_id varchar(255) not null
     );
 
     create table Notification_email_header (
-        Notification_id numeric(19,0) not null,
-        emailHeaders_id numeric(19,0) not null,
+        Notification_id bigint not null,
+        emailHeaders_id bigint not null,
         mapkey varchar(255) not null,
         primary key (Notification_id, mapkey)
     );
@@ -261,67 +261,67 @@
     );
 
     create table PeopleAssignments_BAs (
-        task_id numeric(19,0) not null,
+        task_id bigint not null,
         entity_id varchar(255) not null
     );
 
     create table PeopleAssignments_ExclOwners (
-        task_id numeric(19,0) not null,
+        task_id bigint not null,
         entity_id varchar(255) not null
     );
 
     create table PeopleAssignments_PotOwners (
-        task_id numeric(19,0) not null,
+        task_id bigint not null,
         entity_id varchar(255) not null
     );
 
     create table PeopleAssignments_Recipients (
-        task_id numeric(19,0) not null,
+        task_id bigint not null,
         entity_id varchar(255) not null
     );
 
     create table PeopleAssignments_Stakeholders (
-        task_id numeric(19,0) not null,
+        task_id bigint not null,
         entity_id varchar(255) not null
     );
 
     create table ProcessInstanceInfo (
-        InstanceId numeric(19,0) identity not null,
-        lastModificationDate datetime,
-        lastReadDate datetime,
+        InstanceId bigint identity not null,
+        lastModificationDate datetime2,
+        lastReadDate datetime2,
         processId varchar(255),
-        processInstanceByteArray image,
-        startDate datetime,
+        processInstanceByteArray varbinary(MAX),
+        startDate datetime2,
         state int not null,
         OPTLOCK int,
         primary key (InstanceId)
     );
 
     create table ProcessInstanceLog (
-        id numeric(19,0) identity not null,
+        id bigint identity not null,
         correlationKey varchar(255),
-        duration numeric(19,0),
-        end_date datetime,
+        duration bigint,
+        end_date datetime2,
         externalId varchar(255),
         user_identity varchar(255),
         outcome varchar(255),
-        parentProcessInstanceId numeric(19,0),
+        parentProcessInstanceId bigint,
         processId varchar(255),
         processInstanceDescription varchar(255),
-        processInstanceId numeric(19,0) not null,
+        processInstanceId bigint not null,
         processName varchar(255),
         processType int,
         processVersion varchar(255),
-        sla_due_date datetime,
+        sla_due_date datetime2,
         slaCompliance int,
-        start_date datetime,
+        start_date datetime2,
         status int,
         primary key (id)
     );
 
     create table QueryDefinitionStore (
-        id numeric(19,0) identity not null,
-        qExpression text,
+        id bigint identity not null,
+        qExpression varchar(MAX),
         qName varchar(255),
         qSource varchar(255),
         qTarget varchar(255),
@@ -329,18 +329,18 @@
     );
 
     create table Reassignment (
-        id numeric(19,0) identity not null,
-        Escalation_Reassignments_Id numeric(19,0),
+        id bigint identity not null,
+        Escalation_Reassignments_Id bigint,
         primary key (id)
     );
 
     create table Reassignment_potentialOwners (
-        task_id numeric(19,0) not null,
+        task_id bigint not null,
         entity_id varchar(255) not null
     );
 
     create table RequestInfo (
-        id numeric(19,0) identity not null,
+        id bigint identity not null,
         commandName varchar(255),
         deploymentId varchar(255),
         executions int not null,
@@ -348,26 +348,26 @@
         message varchar(255),
         owner varchar(255),
         priority int not null,
-        processInstanceId numeric(19,0),
-        requestData image,
-        responseData image,
+        processInstanceId bigint,
+        requestData varbinary(MAX),
+        responseData varbinary(MAX),
         retries int not null,
         status varchar(255),
-        timestamp datetime,
+        timestamp datetime2,
         primary key (id)
     );
 
     create table SessionInfo (
-        id numeric(19,0) identity not null,
-        lastModificationDate datetime,
-        rulesByteArray image,
-        startDate datetime,
+        id bigint identity not null,
+        lastModificationDate datetime2,
+        rulesByteArray varbinary(MAX),
+        startDate datetime2,
         OPTLOCK int,
         primary key (id)
     );
 
     create table Task (
-        id numeric(19,0) identity not null,
+        id bigint identity not null,
         archived smallint,
         allowedToDelegate varchar(255),
         description varchar(255),
@@ -376,28 +376,28 @@
         priority int not null,
         subTaskStrategy varchar(255),
         subject varchar(255),
-        activationTime datetime,
-        createdOn datetime,
+        activationTime datetime2,
+        createdOn datetime2,
         deploymentId varchar(255),
         documentAccessType int,
-        documentContentId numeric(19,0) not null,
+        documentContentId bigint not null,
         documentType varchar(255),
-        expirationTime datetime,
+        expirationTime datetime2,
         faultAccessType int,
-        faultContentId numeric(19,0) not null,
+        faultContentId bigint not null,
         faultName varchar(255),
         faultType varchar(255),
         outputAccessType int,
-        outputContentId numeric(19,0) not null,
+        outputContentId bigint not null,
         outputType varchar(255),
-        parentId numeric(19,0) not null,
+        parentId bigint not null,
         previousStatus int,
         processId varchar(255),
-        processInstanceId numeric(19,0) not null,
-        processSessionId numeric(19,0) not null,
+        processInstanceId bigint not null,
+        processSessionId bigint not null,
         skipable bit not null,
         status varchar(255),
-        workItemId numeric(19,0) not null,
+        workItemId bigint not null,
         taskType varchar(255),
         OPTLOCK int,
         taskInitiator_id varchar(255),
@@ -407,22 +407,22 @@
     );
 
     create table TaskDef (
-        id numeric(19,0) identity not null,
+        id bigint identity not null,
         name varchar(255),
         priority int not null,
         primary key (id)
     );
 
     create table TaskEvent (
-        id numeric(19,0) identity not null,
-        logTime datetime,
+        id bigint identity not null,
+        logTime datetime2,
         message varchar(255),
-        processInstanceId numeric(19,0),
-        taskId numeric(19,0),
+        processInstanceId bigint,
+        taskId bigint,
         type varchar(255),
         userId varchar(255),
         OPTLOCK int,
-        workItemId numeric(19,0),
+        workItemId bigint,
         correlationKey varchar(255),
         processType int,
         currentOwner varchar(255),
@@ -430,24 +430,24 @@
     );
 
     create table TaskVariableImpl (
-        id numeric(19,0) identity not null,
-        modificationDate datetime,
+        id bigint identity not null,
+        modificationDate datetime2,
         name varchar(255),
         processId varchar(255),
-        processInstanceId numeric(19,0),
-        taskId numeric(19,0),
+        processInstanceId bigint,
+        taskId bigint,
         type int,
         value varchar(4000),
         primary key (id)
     );
 
     create table VariableInstanceLog (
-        id numeric(19,0) identity not null,
-        log_date datetime,
+        id bigint identity not null,
+        log_date datetime2,
         externalId varchar(255),
         oldValue varchar(255),
         processId varchar(255),
-        processInstanceId numeric(19,0) not null,
+        processInstanceId bigint not null,
         value varchar(255),
         variableId varchar(255),
         variableInstanceId varchar(255),
@@ -455,19 +455,19 @@
     );
 
     create table WorkItemInfo (
-        workItemId numeric(19,0) identity not null,
-        creationDate datetime,
+        workItemId bigint identity not null,
+        creationDate datetime2,
         name varchar(255),
-        processInstanceId numeric(19,0) not null,
-        state numeric(19,0) not null,
+        processInstanceId bigint not null,
+        state bigint not null,
         OPTLOCK int,
-        workItemByteArray image,
+        workItemByteArray varbinary(MAX),
         primary key (workItemId)
     );
 
     create table email_header (
-        id numeric(19,0) identity not null,
-        body text,
+        id bigint identity not null,
+        body varchar(MAX),
         fromAddress varchar(255),
         language varchar(255),
         replyToAddress varchar(255),
@@ -476,11 +476,11 @@
     );
 
     create table task_comment (
-        id numeric(19,0) identity not null,
-        addedAt datetime,
-        text text,
+        id bigint identity not null,
+        addedAt datetime2,
+        text varchar(MAX),
         addedBy_id varchar(255),
-        TaskData_Comments_Id numeric(19,0),
+        TaskData_Comments_Id bigint,
         primary key (id)
     );
 
@@ -492,6 +492,9 @@
 
     alter table QueryDefinitionStore 
         add constraint UK_4ry5gt77jvq0orfttsoghta2j unique (qName);
+        
+    alter table CaseIdInfo 
+        add constraint UK_CaseIdInfo_1 unique (caseIdPrefix);        
 
     alter table Attachment 
         add constraint FK_7ndpfa311i50bq7hy18q05va3 
@@ -507,9 +510,6 @@
         add constraint FK_394nf2qoc0k9ok6omgd6jtpso 
         foreign key (Escalation_Constraints_Id) 
         references Escalation;
-        
-    alter table CaseIdInfo 
-        add constraint UK_CaseIdInfo_1 unique (caseIdPrefix);        
 
     alter table CorrelationPropertyInfo 
         add constraint FK_hrmx1m882cejwj9c04ixh50i4 

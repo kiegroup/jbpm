@@ -30,7 +30,6 @@ public enum DatabaseType {
     ORACLE("oracle", "oracle"),
     POSTGRESQL("postgres", "postgresql"),
     SQLSERVER("sqlserver", "sqlserver"),
-    SQLSERVER2008("sqlserver", "sqlserver2008"),
     SYBASE("sybase", "sybase");
 
     private String scriptDatabasePrefix;

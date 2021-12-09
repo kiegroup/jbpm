@@ -124,7 +124,6 @@ public class GenerateDDLScriptsTests {
                       new ScriptFile("org.hibernate.dialect.PostgreSQLDialect", "postgresql", "postgresql", "", false),
                       new ScriptFile("org.hibernate.dialect.SQLServer2012Dialect", "sqlserver", "sqlserver", "", false),
                       new ScriptFile("org.hibernate.dialect.SQLServer2012Dialect", "sqlserver", "sqlserver", "springboot", true),
-                      new ScriptFile("org.hibernate.dialect.SQLServer2008Dialect", "sqlserver2008", "sqlserver2008", "", false),
                       new ScriptFile("org.hibernate.dialect.SybaseDialect", "sybase", "sybase", "", false)
             );
         } else {

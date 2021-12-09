@@ -1,9 +1,9 @@
     create table PlanningTask (
-        taskId numeric(19,0) not null,
+        taskId bigint not null,
         OPTLOCK int,
         assignedUser varchar(255),
         taskIndex int not null,
-        lastModificationDate datetime,
+        lastModificationDate datetime2,
         published smallint not null,
         primary key (taskId)
     );

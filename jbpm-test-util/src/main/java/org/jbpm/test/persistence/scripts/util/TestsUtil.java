@@ -115,9 +115,7 @@ public final class TestsUtil {
             return DatabaseType.ORACLE;
         } else if (sqlDialect.contains("Postgre")) {
             return DatabaseType.POSTGRESQL;
-        } else if (sqlDialect.contains("SQLServer2008Dialect") || sqlDialect.contains("SQLServer2012Dialect")) {
-            return DatabaseType.SQLSERVER2008;
-        } else if (sqlDialect.contains("SQLServerDialect") || sqlDialect.contains("SQLServer2005Dialect")) {
+        } else if (sqlDialect.contains("SQLServer2012Dialect")||sqlDialect.contains("SQLServer2008Dialect")) {
             return DatabaseType.SQLSERVER;
         } else if (sqlDialect.contains("SybaseASE157Dialect")){
             return DatabaseType.SYBASE;

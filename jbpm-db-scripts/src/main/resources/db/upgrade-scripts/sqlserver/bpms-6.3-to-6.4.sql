@@ -1,6 +1,6 @@
 
 -- These indexes were added later to the 6.3 install DDL SQL and may possibly already be present on your system 
-        
+
 -- create index IDX_VInstLog_pInstId on VariableInstanceLog(processInstanceId);
 -- create index IDX_VInstLog_varId on VariableInstanceLog(variableId);
 -- create index IDX_VInstLog_pId on VariableInstanceLog(processId);

@@ -28,7 +28,6 @@ import org.jbpm.test.persistence.scripts.DatabaseType;
 import static org.jbpm.test.persistence.scripts.DatabaseType.DB2;
 import static org.jbpm.test.persistence.scripts.DatabaseType.POSTGRESQL;
 import static org.jbpm.test.persistence.scripts.DatabaseType.SQLSERVER;
-import static org.jbpm.test.persistence.scripts.DatabaseType.SQLSERVER2008;
 import static org.jbpm.test.persistence.scripts.DatabaseType.SYBASE;
 
 /**
@@ -161,7 +160,7 @@ public final class SQLScriptUtil {
     private static String getDelimiterByFileAndDatabase(final File script, final DatabaseType databaseType) {
         String delimiter = DELIMITER_STANDARD;
         
-        if (databaseType == SQLSERVER || databaseType == SQLSERVER2008) {
+        if (databaseType == SQLSERVER) {
             if (script.getName().contains("quartz"))
                 delimiter = DELIMITER_MSSQL_SYBASE;
             if (script.getName().contains("jbpm-6.1-to-6.2") || script.getName().contains("bpms-6.0-to-6.1"))

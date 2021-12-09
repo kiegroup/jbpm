@@ -48,7 +48,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.jbpm.test.persistence.scripts.DatabaseType.SQLSERVER;
-import static org.jbpm.test.persistence.scripts.DatabaseType.SQLSERVER2008;
 import static org.jbpm.test.persistence.scripts.DatabaseType.SYBASE;
 
 /**
@@ -171,7 +170,7 @@ public class TestPersistenceContextBase {
 
     private PreparedStatement preparedStatement(final Connection conn, String command) throws SQLException {
         final PreparedStatement statement;
-        if (databaseType == SQLSERVER || databaseType == SQLSERVER2008 || databaseType == SYBASE) {
+        if (databaseType == SQLSERVER || databaseType == SYBASE) {
             statement = conn.prepareStatement(SQLCommandUtil.preprocessCommandSqlServer(command, dataSourceProperties));
         } else {
             statement = conn.prepareStatement(command);

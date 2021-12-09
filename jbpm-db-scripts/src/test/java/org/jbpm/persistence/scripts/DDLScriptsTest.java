@@ -84,13 +84,19 @@ public class DDLScriptsTest extends ScriptsBase {
                                                      filter("oracle-springboot-jbpm-drop-schema.sql",
                                                             "quartz_tables_drop_oracle.sql")};
 
+        ScriptFilter[] sbSqlServer = new ScriptFilter[]{filter("sqlserver-springboot-jbpm-schema.sql",
+                                                               "quartz_tables_sqlserver.sql").setSupportedDatabase(DatabaseType.SQLSERVER)
+                                                                                             .setOptions(Option.DISALLOW_EMPTY_RESULTS, Option.THROW_ON_SCRIPT_ERROR),
+                                                       filter("sqlserver-springboot-jbpm-drop-schema.sql",
+                                                              "quartz_tables_drop_sqlserver.sql")};
+
         ScriptFilter[] taskAssigningTables = new ScriptFilter[]{filter(Filter.OUT, "drop", "bytea", "springboot")
                                                                 .setOptions(Option.DISALLOW_EMPTY_RESULTS, Option.THROW_ON_SCRIPT_ERROR),
                                                                 filter("jbpm-drop-schema.sql",
                                                                        "quartz_tables_drop_",
                                                                        "task_assigning_tables_drop_")};
 
-        return asList(standard, sbPg, pqlBytea, pqlSpringBootBytea, sbOracle, taskAssigningTables);
+        return asList(standard, sbPg, pqlBytea, pqlSpringBootBytea, sbOracle, sbSqlServer, taskAssigningTables);
     }
 
     private ScriptFilter createScript;

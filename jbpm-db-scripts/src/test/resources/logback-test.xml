@@ -13,8 +13,10 @@
   <logger name="org.hibernate" level="warn"/>
   <logger name="org.hibernate.tool.hbm2ddl" level="error"/>
   <logger name="org.hibernate.ejb.internal" level="error"/>
+  <logger name="org.hibernate.SQL" level="debug"/>
+  <logger name="org.hibernate.type" level="trace"/>
 
-  <root level="info">
+  <root level="trace">
     <appender-ref ref="consoleAppender" />
   </root>
 

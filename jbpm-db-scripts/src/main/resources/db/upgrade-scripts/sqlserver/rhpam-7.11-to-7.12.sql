@@ -5,4 +5,3 @@ create index IDX_CaseFileDataLog_caseId on CaseFileDataLog(caseId);
 create index IDX_CaseFileDataLog_itemName on CaseFileDataLog(itemName);
 
 
-
