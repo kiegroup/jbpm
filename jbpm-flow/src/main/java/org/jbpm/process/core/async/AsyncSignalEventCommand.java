@@ -33,25 +33,24 @@ public class AsyncSignalEventCommand implements Command {
         if (deploymentId == null) {
             deploymentId = (String) ctx.getData("DeploymentId");
         }
-        Long processInstanceId = (Long) ctx.getData("processInstanceId");
+        Number processInstanceId = (Number) ctx.getData("processInstanceId");
         if (processInstanceId == null) {
-            processInstanceId = (Long) ctx.getData("ProcessInstanceId");
+            processInstanceId = (Number) ctx.getData("ProcessInstanceId");
         }
         String signal = (String) ctx.getData("Signal");
         Object event = ctx.getData("Event");
         
-        if (deploymentId == null || signal == null) {
-            throw new IllegalArgumentException("Deployment id and signal name is required");
+        if (deploymentId == null || signal == null || processInstanceId == null) {
+            throw new IllegalArgumentException("Deployment id, signal name and processInstanceId are required");
         }
         
         RuntimeManager runtimeManager = RuntimeManagerRegistry.get().getManager(deploymentId);
         if (runtimeManager == null) {
             throw new IllegalArgumentException("No runtime manager found for deployment id " + deploymentId);  
         }
-        RuntimeEngine engine = runtimeManager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstanceId));        
+        RuntimeEngine engine = runtimeManager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstanceId.longValue()));        
         try {
-            engine.getKieSession().signalEvent(signal, event, processInstanceId);
-            
+            engine.getKieSession().signalEvent(signal, event, processInstanceId.longValue());
             return new ExecutionResults();
         } finally {
             runtimeManager.disposeRuntimeEngine(engine);

@@ -63,7 +63,7 @@ public class AsyncWorkItemHandlerCmdCallback implements CommandCallback {
         
         // find the right runtime to do the complete
         RuntimeManager manager = getRuntimeManager(ctx);
-        RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get((Long) ctx.getData("processInstanceId")));
+        RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(((Number) ctx.getData("processInstanceId")).longValue()));
         try {
             engine.getKieSession().getWorkItemManager().completeWorkItem(workItem.getId(), results == null? null : results.getData());
         } finally {
@@ -74,7 +74,7 @@ public class AsyncWorkItemHandlerCmdCallback implements CommandCallback {
     @Override
     public void onCommandError(CommandContext ctx, final Throwable exception) {
         
-        final Long processInstanceId = (Long) ctx.getData("processInstanceId");
+        final Long processInstanceId = ((Number) ctx.getData("processInstanceId")).longValue();
         final WorkItem workItem = (WorkItem) ctx.getData("workItem");
         
         

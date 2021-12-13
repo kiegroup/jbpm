@@ -291,7 +291,9 @@ public abstract class AbstractAvailableJobsExecutor {
                 requestInfo.setTime(nextScheduleTime);
                 requestInfo.setMessage("Rescheduled reoccurring job");
                 requestInfo.setDeploymentId((String)ctx.getData("deploymentId"));
-                requestInfo.setProcessInstanceId((Long)ctx.getData("processInstanceId"));
+                if (ctx.getData("processInstanceId") != null) {
+                    requestInfo.setProcessInstanceId(((Number) ctx.getData("processInstanceId")).longValue());
+                }
                 requestInfo.setOwner((String)ctx.getData("owner"));
                 if (ctx.getData("retries") != null) {
                     requestInfo.setRetries(Integer.valueOf(String.valueOf(ctx.getData("retries"))));
