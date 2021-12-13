@@ -112,6 +112,7 @@ public abstract class AbstractAvailableJobsExecutor {
                         try {
                             in = new ClassLoaderObjectInputStream(cl, new ByteArrayInputStream(reqData));
                             ctx = (CommandContext) in.readObject();
+                            updateProcessInfoInContext(request, ctx);
                         } catch (IOException e) {                        
                             logger.warn("Exception while serializing context data", e);
                             return;
