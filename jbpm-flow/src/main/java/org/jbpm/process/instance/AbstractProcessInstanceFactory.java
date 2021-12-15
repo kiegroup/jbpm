@@ -20,7 +20,6 @@ import java.util.Map;
 
 import org.drools.core.common.InternalKnowledgeRuntime;
 import org.jbpm.process.core.ContextContainer;
-import org.jbpm.process.core.context.variable.Variable;
 import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
 import org.kie.api.definition.process.Process;
