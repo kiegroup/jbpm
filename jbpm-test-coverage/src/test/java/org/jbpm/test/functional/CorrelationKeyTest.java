@@ -27,6 +27,7 @@ import org.custommonkey.xmlunit.XMLUnit;
 import org.assertj.core.api.Assertions;
 import org.custommonkey.xmlunit.DetailedDiff;
 import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.domain.Address;
 import org.junit.Test;
 import org.kie.api.runtime.manager.audit.VariableInstanceLog;
 import org.kie.api.runtime.process.ProcessInstance;
@@ -42,6 +43,8 @@ public class CorrelationKeyTest extends JbpmTestCase {
     private static final String PROCESS = "org.jbpm.test.functional.CorrelationKey";
     private static final String VARIABLE_ID = "procVar";
     private static final String VARIABLE_VALUE = "procVarValue";
+    private static final String INT_VARIABLE_ID = "intVar";
+    private static final String COMPLEX_VARIABLE_ID = "complexVar";
 
     private static final String SIMPLE_KEY = "mySimpleCorrelationKey";
     private static final List<String> COMPOSED_KEY = Arrays.asList("firstPartOfKey", "secondPartOfKey");
@@ -178,8 +181,8 @@ public class CorrelationKeyTest extends JbpmTestCase {
         WorkflowProcessInstance processInstance = (WorkflowProcessInstance) ksession.startProcess(PROCESS, key,
                 parameters);
 
-        assertEquals("defaultProc", processInstance.getVariable("procVar"));
-        assertEquals(Integer.valueOf(1), processInstance.getVariable("secondVar"));
+        assertEquals("defaultProc", processInstance.getVariable(VARIABLE_ID));
+        assertEquals(Integer.valueOf(1), processInstance.getVariable(INT_VARIABLE_ID));
 
     }
 
@@ -193,27 +196,26 @@ public class CorrelationKeyTest extends JbpmTestCase {
         WorkflowProcessInstance processInstance = (WorkflowProcessInstance) ksession.startProcess(PROCESS, key,
                 parameters);
        
-        assertEquals(VARIABLE_VALUE, processInstance.getVariable("procVar"));
-        assertEquals(Integer.valueOf(1), processInstance.getVariable("secondVar"));
+        assertEquals(VARIABLE_VALUE, processInstance.getVariable(VARIABLE_ID));
+        assertEquals(Integer.valueOf(1), processInstance.getVariable(INT_VARIABLE_ID));
 
     }
 
     @Test
     public void testCreateProcessInstanceComplexTypeDefaultValue() throws SAXException, IOException {
-
-        String address = "<org.jbpm.test.domain.Address><street>abc</street><number>29</number><city>def</city></org.jbpm.test.domain.Address>";
-
+        
+        Address address = new Address();
+        address.setStreet("abc");
+        address.setNumber(29);
+        address.setCity("def");
+       
         CorrelationKey key = keyFactory.newCorrelationKey(SIMPLE_KEY);
 
         Map<String, Object> parameters = new HashMap<String, Object>();
-
+       
         WorkflowProcessInstance processInstance = (WorkflowProcessInstance) ksession.startProcess(PROCESS, key,
                 parameters);
-
-        DetailedDiff diff = new DetailedDiff(
-                XMLUnit.compareXML(address, (String) processInstance.getVariable("complexVar")));
-        List<?> allDifferences = diff.getAllDifferences();
-        assertEquals("Differences found: " + diff.toString(), 0, allDifferences.size());
+        assertEquals(address,processInstance.getVariable(COMPLEX_VARIABLE_ID));
 
     }
 

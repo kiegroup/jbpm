@@ -108,7 +108,7 @@ public class VariableScope extends AbstractContext {
                     throw new IllegalArgumentException("Variable '" + name + "' has incorrect data type expected:" + var
                             .getType().getStringType() + " actual:" + value.getClass().getName());
                 } else if (value instanceof String) {
-                    value = type.valueOf(value.toString());
+                    value = type.readValue(value.toString());
                 }
             }
         }
