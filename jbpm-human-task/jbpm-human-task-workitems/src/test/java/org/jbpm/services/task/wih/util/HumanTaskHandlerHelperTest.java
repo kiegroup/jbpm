@@ -16,6 +16,10 @@
 
 package org.jbpm.services.task.wih.util;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
@@ -36,10 +40,6 @@ import org.kie.internal.task.api.model.EmailNotificationHeader;
 import org.kie.internal.task.api.model.Language;
 import org.kie.internal.task.api.model.Notification;
 import org.kie.internal.task.api.model.Reassignment;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 public class HumanTaskHandlerHelperTest extends AbstractBaseTest {
 
@@ -1710,6 +1710,46 @@ public class HumanTaskHandlerHelperTest extends AbstractBaseTest {
 
 		assertEquals(4, roundExpirationTime(expirationTime));
 	}
+	
+	
+    @Test
+    public void testNotStartedNotifyMinimalWithBodyWithNewLineWithISOExpirationTimePeriodFormat() {
+        WorkItem workItem = new WorkItemImpl();
+        workItem.setParameter("NotStartedNotify", "[tousers:john|subject:Test of notification|body:viva er Beti\nabajo el Sevilla]@[PT4H]");
+
+        @SuppressWarnings("unchecked")
+        Deadlines deadlines = HumanTaskHandlerHelper.setDeadlines(workItem.getParameters(), Collections.EMPTY_LIST, null);
+        assertNotNull(deadlines);
+        assertEquals(1, deadlines.getStartDeadlines().size());
+        assertEquals(0, deadlines.getEndDeadlines().size());
+        assertEquals(1, deadlines.getStartDeadlines().get(0).getEscalations().size());
+        assertEquals(1, deadlines.getStartDeadlines().get(0).getEscalations().get(0).getNotifications().size());
+        assertEquals(0, deadlines.getStartDeadlines().get(0).getEscalations().get(0).getReassignments().size());
+
+        // verify notification
+        Notification notification = deadlines.getStartDeadlines().get(0).getEscalations().get(0).getNotifications().get(0);
+        assertNotNull(notification);
+        assertEquals(1, notification.getRecipients().size());
+        assertEquals("john", notification.getRecipients().get(0).getId());
+
+        assertEquals(1, notification.getSubjects().size());
+        assertEquals("Test of notification", notification.getSubjects().get(0).getText());
+
+        EmailNotification emailNotification = (EmailNotification) notification;
+        assertEquals(1, emailNotification.getEmailHeaders().size());
+        Language lang = TaskModelProvider.getFactory().newLanguage();
+        lang.setMapkey("en-UK");
+        EmailNotificationHeader header = emailNotification.getEmailHeaders().get(lang);
+        assertNotNull(header);
+        assertEquals("Test of notification", header.getSubject());
+        assertEquals(header.getBody(), "viva er Beti\nabajo el Sevilla");
+
+        // check deadline expiration time
+        assertNotNull(deadlines.getStartDeadlines().get(0).getDate());
+        long expirationTime = deadlines.getStartDeadlines().get(0).getDate().getTime() - System.currentTimeMillis();
+
+        assertEquals(4, roundExpirationTime(expirationTime));
+    }
 
 	@Test
 	public void testNotStartedNotifyMinimalWithHtmlWithISOExpirationTimePeriodFormatWithRepeatCount() {
