@@ -100,7 +100,7 @@ public class HumanTaskHandlerHelper {
         }
         
         for (String component : allComponents) {
-            Pattern pattern = Pattern.compile("\\[(.*)\\]@\\[(.*)\\]");
+            Pattern pattern = Pattern.compile("\\[(.*)\\]@\\[(.*)\\]", Pattern.DOTALL);
             Matcher matcher = pattern.matcher(component);
             if (!matcher.find()) {
                 logger.warn("Incorrect syntax of deadline property {}", deadlineInfo);
