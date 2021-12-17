@@ -110,7 +110,7 @@ public class VariableScope extends AbstractContext {
                             .getType().getStringType() + " actual:" + value.getClass().getName());
                 } else if (value instanceof String && (type.getClass() != obj.getClass())) {
                     value = type.valueOf(value.toString());
-				} else if (type.getClass() == obj.getClass()) {
+				} else if (value instanceof String && (type.getClass() == obj.getClass())) {
 					value = type.readValue(value.toString());
 				}
             }
