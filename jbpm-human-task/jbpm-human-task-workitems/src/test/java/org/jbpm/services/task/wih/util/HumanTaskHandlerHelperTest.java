@@ -1715,7 +1715,7 @@ public class HumanTaskHandlerHelperTest extends AbstractBaseTest {
     @Test
     public void testNotStartedNotifyMinimalWithBodyWithNewLineWithISOExpirationTimePeriodFormat() {
         WorkItem workItem = new WorkItemImpl();
-        workItem.setParameter("NotStartedNotify", "[tousers:john|subject:Test of notification|body:viva er Beti\nabajo el Sevilla]@[PT4H]");
+        workItem.setParameter("NotStartedNotify", "[tousers:john|subject:Test of notification|body:viva er Beti\nmanque pierda]@[PT4H]");
 
         @SuppressWarnings("unchecked")
         Deadlines deadlines = HumanTaskHandlerHelper.setDeadlines(workItem.getParameters(), Collections.EMPTY_LIST, null);
