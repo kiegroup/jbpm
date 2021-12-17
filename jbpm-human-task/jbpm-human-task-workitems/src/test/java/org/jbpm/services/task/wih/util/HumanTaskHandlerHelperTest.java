@@ -1742,7 +1742,7 @@ public class HumanTaskHandlerHelperTest extends AbstractBaseTest {
         EmailNotificationHeader header = emailNotification.getEmailHeaders().get(lang);
         assertNotNull(header);
         assertEquals("Test of notification", header.getSubject());
-        assertEquals(header.getBody(), "viva er Beti\nabajo el Sevilla");
+        assertEquals(header.getBody(), "viva er Beti\nmanque pierda");
 
         // check deadline expiration time
         assertNotNull(deadlines.getStartDeadlines().get(0).getDate());
