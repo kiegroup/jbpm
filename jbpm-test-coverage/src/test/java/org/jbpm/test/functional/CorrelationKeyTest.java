@@ -17,15 +17,13 @@
 package org.jbpm.test.functional;
 
 import static org.junit.Assert.assertEquals;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.custommonkey.xmlunit.XMLUnit;
 import org.assertj.core.api.Assertions;
-import org.custommonkey.xmlunit.DetailedDiff;
+
 import org.jbpm.test.JbpmTestCase;
 import org.jbpm.test.domain.Address;
 import org.junit.Test;
@@ -36,7 +34,6 @@ import org.kie.internal.KieInternalServices;
 import org.kie.internal.process.CorrelationAwareProcessRuntime;
 import org.kie.internal.process.CorrelationKey;
 import org.kie.internal.process.CorrelationKeyFactory;
-import org.xml.sax.SAXException;
 
 public class CorrelationKeyTest extends JbpmTestCase {
 
@@ -55,7 +52,6 @@ public class CorrelationKeyTest extends JbpmTestCase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        XMLUnit.setIgnoreWhitespace(true);
         keyFactory = KieInternalServices.Factory.get().newCorrelationKeyFactory();
         ksession = (CorrelationAwareProcessRuntime) createKSession("org/jbpm/test/functional/CorrelationKey.bpmn2");
     }
@@ -202,7 +198,7 @@ public class CorrelationKeyTest extends JbpmTestCase {
     }
 
     @Test
-    public void testCreateProcessInstanceComplexTypeDefaultValue() throws SAXException, IOException {
+    public void testCreateProcessInstanceComplexTypeDefaultValue() {
         
         Address address = new Address();
         address.setStreet("abc");
