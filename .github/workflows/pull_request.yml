@@ -17,11 +17,12 @@ jobs:
       cancel-in-progress: true
     strategy:
       matrix:
+        os: [ubuntu-latest]
         java-version: [8, 11]
         maven-version: ['3.8.1']
       fail-fast: true
-    runs-on: ubuntu-latest
-    name: Maven Build
+    runs-on: ${{ matrix.os }}
+    name: Maven - ${{ matrix.os }} - ${{ matrix.java-version }} - ${{ github.event_name }}
     steps:
       - name: Support long paths
         if: ${{ matrix.os == 'windows-latest' }}
