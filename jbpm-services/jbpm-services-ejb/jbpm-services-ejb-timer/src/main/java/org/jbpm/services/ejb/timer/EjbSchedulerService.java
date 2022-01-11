@@ -28,6 +28,10 @@ import org.drools.core.time.JobHandle;
 import org.drools.core.time.TimerService;
 import org.drools.core.time.Trigger;
 import org.drools.core.time.impl.TimerJobInstance;
+import org.drools.persistence.api.TransactionManager;
+import org.drools.persistence.api.TransactionManagerFactory;
+import org.drools.persistence.api.TransactionSynchronization;
+import org.drools.persistence.jta.JtaTransactionManager;
 import org.jbpm.process.core.timer.GlobalSchedulerService;
 import org.jbpm.process.core.timer.JobNameHelper;
 import org.jbpm.process.core.timer.NamedJobContext;
@@ -78,7 +82,25 @@ public class EjbSchedulerService implements GlobalSchedulerService {
 
     @Override
     public boolean removeJob(JobHandle jobHandle) {
-        return scheduler.removeJob(jobHandle);
+        JtaTransactionManager tm = (JtaTransactionManager) TransactionManagerFactory.get().newTransactionManager();
+        if (tm.getStatus() == TransactionManager.STATUS_ACTIVE) {
+            tm.registerTransactionSynchronization(new TransactionSynchronization() {
+                @Override
+                public void beforeCompletion() {
+                }
+
+                @Override
+                public void afterCompletion(int status) {
+                    if (status == TransactionManager.STATUS_COMMITTED) {
+                        scheduler.removeJob(jobHandle);
+                    }
+                }
+                
+            });
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override
