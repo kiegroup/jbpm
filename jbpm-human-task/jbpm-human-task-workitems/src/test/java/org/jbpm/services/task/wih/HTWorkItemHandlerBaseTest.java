@@ -15,6 +15,13 @@
  */
 package org.jbpm.services.task.wih;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -42,13 +49,6 @@ import org.kie.api.task.model.TaskSummary;
 import org.kie.internal.task.api.EventService;
 import org.kie.internal.task.api.model.AccessType;
 import org.kie.internal.task.api.model.InternalTaskData;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 
 public abstract class HTWorkItemHandlerBaseTest extends AbstractBaseTest {
@@ -509,7 +509,7 @@ public abstract class HTWorkItemHandlerBaseTest extends AbstractBaseTest {
         workItem.setName("Human Task");
         workItem.setParameter("NodeName", "TaskName");
         workItem.setParameter("Comment", "Comment");
-        workItem.setParameter("Priority", "10");
+        workItem.setParameter("Priority", 10);
         workItem.setParameter("ActorId", "DoesNotExist");
         workItem.setProcessInstanceId(10);
         

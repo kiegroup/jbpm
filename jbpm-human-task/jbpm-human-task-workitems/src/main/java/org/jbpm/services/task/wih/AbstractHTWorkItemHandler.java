@@ -128,11 +128,14 @@ public abstract class AbstractHTWorkItemHandler implements WorkItemHandler {
         
         task.setSubject(comment);
         
-        String priorityString = (String) workItem.getParameter("Priority");
+        
         int priority = 0;
-        if (priorityString != null) {
+        Object priorityObject = workItem.getParameter("Priority");
+        if (priorityObject instanceof Number) {
+            priority = ((Number) priorityObject).intValue();
+        } else if (priorityObject != null) {
             try {
-                priority = new Integer(priorityString);
+                priority = Integer.parseInt(priorityObject.toString());
             } catch (NumberFormatException e) {
                 // do nothing
             }
