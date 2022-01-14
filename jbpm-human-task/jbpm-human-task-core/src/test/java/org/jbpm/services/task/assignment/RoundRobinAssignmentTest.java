@@ -26,7 +26,6 @@ import org.jbpm.services.task.impl.factories.TaskFactory;
 import org.kie.test.util.db.PoolingDataSourceWrapper;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.kie.api.task.model.Task;
 import org.kie.internal.task.api.InternalTaskService;
@@ -58,6 +57,9 @@ public class RoundRobinAssignmentTest extends AbstractAssignmentTest {
             + " businessAdministrators = [new User('Administrator')], } ),";
 
     private static final String NO_USERS_IN_GROUP_ASSIGNMENTS = "peopleAssignments = (with (new PeopleAssignments()) { potentialOwners = [new Group('Nobodies')],"
+            + " businessAdministrators = [new User('Administrator')], } ),";
+    
+    private static final String NOT_EXISTING_GROUP_ASSIGNMENTS = "peopleAssignments = (with (new PeopleAssignments()) { potentialOwners = [new Group('Mandalorians')],"
             + " businessAdministrators = [new User('Administrator')], } ),";
 
     private static final String SINGLE_USER_ASSIGNMENTS = "peopleAssignments = (with (new PeopleAssignments()) { potentialOwners = [new User('Darth Vader')],"
@@ -91,6 +93,7 @@ public class RoundRobinAssignmentTest extends AbstractAssignmentTest {
     private static final String NOBODIES = "Nobodies";
     private static final String CRUSADERS = "Crusaders";
     private static final String WRONG_CRUSADERS = "Wrong Crusaders";
+    private static final String MANDALORIANS = "Mandalorians";
 
     private PoolingDataSourceWrapper pds;
     private EntityManagerFactory emf;
@@ -174,7 +177,6 @@ public class RoundRobinAssignmentTest extends AbstractAssignmentTest {
     }
 
     @Test
-    @Ignore("Waits forever")
     public void testNoPotentialOwners() {
         final String taskString = createTaskString(NO_POTENTIAL_OWNER_ASSIGNMENTS, "NoPotentialOwnersRoundRobinTask");
 
@@ -200,7 +202,14 @@ public class RoundRobinAssignmentTest extends AbstractAssignmentTest {
 
     @Test
     public void testNotExistingGroup() {
+        final String taskString = createTaskString(NOT_EXISTING_GROUP_ASSIGNMENTS, "NotExistingGroupRoundRobinTask");
 
+        Task task = TaskFactory.evalTask(new StringReader(taskString));
+        assertPotentialOwners(task, 1, MANDALORIANS);
+
+        taskService.addTask(task, Collections.emptyMap());
+        assertPotentialOwners(task, 0);
+        assertNoActualOwner(task);
     }
 
     @Test
