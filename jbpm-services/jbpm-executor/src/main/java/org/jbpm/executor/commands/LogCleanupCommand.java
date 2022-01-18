@@ -16,6 +16,7 @@
 
 package org.jbpm.executor.commands;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -170,6 +171,10 @@ public class LogCleanupCommand implements Command, Reoccurring {
                                                     .execute();
             logger.info("RequestInfoLogsRemoved {}", requestInfoLogsRemoved);
             executionResults.setData("RequestInfoLogsRemoved", requestInfoLogsRemoved);
+
+            long executionErrorInfoLogsRemoved = new ExecutionErrorCleanup(emf).cleanup(ctx);
+            logger.info("ExecutionErrorInfoLogsRemoved {}", executionErrorInfoLogsRemoved);
+            executionResults.setData("ExecutionErrorInfoLogsRemoved", executionErrorInfoLogsRemoved);
         }
 
         if (!skipTaskLog) {
@@ -254,6 +259,4 @@ public class LogCleanupCommand implements Command, Reoccurring {
 
         return executionResults;
     }
-
-
 }
