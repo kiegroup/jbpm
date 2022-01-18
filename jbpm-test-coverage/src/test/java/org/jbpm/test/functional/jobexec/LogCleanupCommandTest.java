@@ -28,15 +28,22 @@ import javax.persistence.EntityManagerFactory;
 import org.assertj.core.api.Assertions;
 import org.jbpm.executor.impl.ExecutorServiceImpl;
 import org.jbpm.process.audit.JPAAuditLogService;
+import org.jbpm.runtime.manager.impl.AbstractRuntimeManager;
 import org.jbpm.runtime.manager.impl.jpa.EntityManagerFactoryManager;
 import org.jbpm.services.task.audit.service.TaskJPAAuditService;
 import org.jbpm.test.JbpmAsyncJobTestCase;
 import org.jbpm.test.listener.CountDownAsyncJobListener;
+import org.jbpm.workflow.instance.WorkflowRuntimeException;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.task.TaskService;
 import org.kie.internal.executor.api.CommandContext;
+import org.kie.internal.runtime.error.ExecutionError;
+import org.kie.internal.runtime.error.ExecutionErrorManager;
+import org.kie.internal.runtime.error.ExecutionErrorStorage;
+
+import static org.junit.Assert.*;
 
 /**
  * BZ-TODO: SingleRun - only accepts "true"/"false" but is boolean type, other boolean types accept true/false.
@@ -48,6 +55,9 @@ public class LogCleanupCommandTest extends JbpmAsyncJobTestCase {
 
     public static final String HELLO_WORLD = "org/jbpm/test/functional/common/HelloWorldProcess1.bpmn";
     public static final String HELLO_WORLD_ID = "org.jbpm.test.functional.common.HelloWorldProcess1";
+
+    private static final String BROKEN_SCRIPT_TASK = "org/jbpm/test/functional/common/BrokenScriptTask.bpmn2";
+    private static final String BROKEN_SCRIPT_TASK_ID = "BrokenScriptTask";
 
     public static final String LOG_CLEANUP = "org/jbpm/test/functional/jobexec/LogCleanupCommand.bpmn2";
     public static final String LOG_CLEANUP_ID = "org.jbpm.test.functional.jobexec.LogCleanupCommand";
@@ -89,6 +99,55 @@ public class LogCleanupCommandTest extends JbpmAsyncJobTestCase {
         } finally {
             super.tearDown();
         }
+    }
+
+    @Test(timeout=10000)
+    public void notSkipExecutorLog() {
+        CountDownAsyncJobListener countDownListener = new CountDownAsyncJobListener(1);
+        ((ExecutorServiceImpl) getExecutorService()).addAsyncJobListener(countDownListener);
+
+        // Generate data
+        KieSession kieSession = createKSession(BROKEN_SCRIPT_TASK);
+        try {
+            startProcess(kieSession, BROKEN_SCRIPT_TASK_ID, 1);
+            fail("Start process should fail due to broken script");
+        } catch (WorkflowRuntimeException e) {
+            // expected
+        }
+
+        // Verify presence of data
+        ExecutionErrorManager errorManager = ((AbstractRuntimeManager) manager).getExecutionErrorManager();
+        ExecutionErrorStorage storage = errorManager.getStorage();
+
+        List<ExecutionError> errors = storage.list(0, 10);
+        assertNotNull(errors);
+        assertEquals(1, errors.size());
+        assertExecutionError(errors.get(0), "Process", "BrokenScriptTask", "Hello");
+
+        // Schedule cleanup job
+        scheduleLogCleanup(true, true, false, getTomorrow(), null, BROKEN_SCRIPT_TASK_ID);
+        countDownListener.waitTillCompleted();
+
+        // Verify that the logs had been cleaned up
+        errors = storage.list(0, 10);
+        assertNotNull(errors);
+        assertEquals(0, errors.size());
+    }
+
+    private void assertExecutionError(ExecutionError error, String type, String processId, String activityName) {
+        assertNotNull(error);
+        assertEquals(type, error.getType());
+        assertEquals(processId, error.getProcessId());
+        assertEquals(activityName, error.getActivityName());
+        assertEquals(manager.getIdentifier(), error.getDeploymentId());
+        assertNotNull(error.getError());
+        assertNotNull(error.getErrorMessage());
+        assertNotNull(error.getActivityId());
+        assertNotNull(error.getProcessInstanceId());
+
+        assertNull(error.getAcknowledgedAt());
+        assertNull(error.getAcknowledgedBy());
+        assertFalse(error.isAcknowledged());
     }
 
     @Test(timeout=10000)
