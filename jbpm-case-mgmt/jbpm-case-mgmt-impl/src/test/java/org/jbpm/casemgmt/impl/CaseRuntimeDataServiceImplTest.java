@@ -35,7 +35,9 @@ import org.jbpm.casemgmt.impl.util.AbstractCaseServicesBaseTest;
 import org.jbpm.services.api.model.NodeInstanceDesc;
 import org.jbpm.services.api.model.ProcessDefinition;
 import org.jbpm.services.api.model.ProcessInstanceDesc;
+import org.jbpm.services.task.impl.model.GroupImpl;
 import org.jbpm.services.task.impl.model.UserImpl;
+import org.jbpm.services.task.wih.util.PeopleAssignmentHelper;
 import org.junit.Test;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.query.QueryContext;
@@ -141,10 +143,10 @@ public class CaseRuntimeDataServiceImplTest extends AbstractCaseServicesBaseTest
         assertNotNull(instance.getStartedAt());
     }
 
-    @Test
-    public void testUserTasksInCase() {
+    private void assertTasksInCaseAsPotentialOwner(String actorGroup, OrganizationalEntity contact) {
         Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
         roleAssignments.put("owner", new UserImpl(USER));
+        roleAssignments.put("contact", contact);
 
         Map<String, Object> data = new HashMap<>();
         CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), USER_TASK_CASE_P_ID, data, roleAssignments);
@@ -164,7 +166,7 @@ public class CaseRuntimeDataServiceImplTest extends AbstractCaseServicesBaseTest
             assertEquals(0, tasks.size());
 
             Map<String, Object> taskInput = new HashMap<>();
-            taskInput.put("ActorId", "john");
+            taskInput.put(actorGroup, "contact");
             taskInput.put("Comment",
                     "Need to provide data");
             caseService.triggerAdHocFragment(caseId,
@@ -213,6 +215,16 @@ public class CaseRuntimeDataServiceImplTest extends AbstractCaseServicesBaseTest
     }
 
     @Test
+    public void testUserTasksInCaseAsPotentialOwners() {
+        assertTasksInCaseAsPotentialOwner(PeopleAssignmentHelper.ACTOR_ID, new UserImpl("john"));
+    }
+
+    @Test
+    public void testGroupTasksInCaseAsPotentialOwners() {
+        assertTasksInCaseAsPotentialOwner(PeopleAssignmentHelper.GROUP_ID, new GroupImpl("HR"));
+    }
+
+    @Test
     public void testUserTasksInCaseWithSubprocess() {
         Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
         roleAssignments.put("owner", new UserImpl(USER));
@@ -238,7 +250,7 @@ public class CaseRuntimeDataServiceImplTest extends AbstractCaseServicesBaseTest
             assertEquals(0, tasks.size());
 
             Map<String, Object> taskInput = new HashMap<>();
-            taskInput.put("ActorId", "john");
+            taskInput.put(PeopleAssignmentHelper.ACTOR_ID, "john");
             caseService.triggerAdHocFragment(caseId,
                     "Missing data",
                     taskInput);
@@ -274,10 +286,10 @@ public class CaseRuntimeDataServiceImplTest extends AbstractCaseServicesBaseTest
         }
     }
 
-    @Test
-    public void testUserTasksInCaseAdBusinessAdmin() {
+    private void assertTasksInCaseAsBusinessAdmin(String actorGroup, OrganizationalEntity contact) {
         Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
         roleAssignments.put("owner", new UserImpl(USER));
+        roleAssignments.put("contact", contact);
 
         Map<String, Object> data = new HashMap<>();
         CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), USER_TASK_CASE_P_ID, data, roleAssignments);
@@ -296,8 +308,7 @@ public class CaseRuntimeDataServiceImplTest extends AbstractCaseServicesBaseTest
             assertEquals(0, tasks.size());
 
             Map<String, Object> taskInput = new HashMap<>();
-            taskInput.put("ActorId",
-                    "john");
+            taskInput.put(actorGroup, "contact");
             caseService.triggerAdHocFragment(caseId,
                     "Missing data",
                     taskInput);
@@ -343,9 +354,19 @@ public class CaseRuntimeDataServiceImplTest extends AbstractCaseServicesBaseTest
     }
 
     @Test
-    public void testUserTasksInCaseAdStakeholder() {
+    public void testUserTasksInCaseAsBusinessAdmin() {
+        assertTasksInCaseAsBusinessAdmin(PeopleAssignmentHelper.BUSINESSADMINISTRATOR_ID, new UserImpl("john"));
+    }
+
+    @Test
+    public void testGroupTasksInCaseAsBusinessAdmin() {
+        assertTasksInCaseAsBusinessAdmin(PeopleAssignmentHelper.BUSINESSADMINISTRATOR_GROUP_ID, new GroupImpl("Administrators"));
+    }
+
+    private void assertTasksInCaseAsStakeholder(OrganizationalEntity contact) {
         Map<String, OrganizationalEntity> roleAssignments = new HashMap<>();
         roleAssignments.put("owner", new UserImpl(USER));
+        roleAssignments.put("contact", contact);
 
         Map<String, Object> data = new HashMap<>();
         CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), USER_TASK_CASE_P_ID, data, roleAssignments);
@@ -367,8 +388,8 @@ public class CaseRuntimeDataServiceImplTest extends AbstractCaseServicesBaseTest
             assertEquals(0, tasks.size());
 
             Map<String, Object> taskInput = new HashMap<>();
-            taskInput.put("ActorId", "mary");
-            taskInput.put("TaskStakeholderId", "john");
+            taskInput.put(PeopleAssignmentHelper.ACTOR_ID, "mary");
+            taskInput.put("TaskStakeholderId", "contact");
             caseService.triggerAdHocFragment(caseId, "Missing data", taskInput);
 
             tasks = caseRuntimeDataService.getCaseTasksAssignedAsStakeholder(caseId,
@@ -414,6 +435,16 @@ public class CaseRuntimeDataServiceImplTest extends AbstractCaseServicesBaseTest
                 caseService.cancelCase(caseId2);
             }
         }
+    }
+
+    @Test
+    public void testUserTasksInCaseAsStakeholder() {
+        assertTasksInCaseAsStakeholder(new UserImpl("john"));
+    }
+
+    @Test
+    public void testGroupTasksInCaseAsStakeholder() {
+        assertTasksInCaseAsStakeholder(new GroupImpl("HR"));
     }
 
     @Test
