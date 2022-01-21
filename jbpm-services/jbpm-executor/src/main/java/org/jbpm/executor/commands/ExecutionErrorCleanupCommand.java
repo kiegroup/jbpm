@@ -16,18 +16,13 @@
 
 package org.jbpm.executor.commands;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.persistence.EntityManagerFactory;
 
 import org.jbpm.process.core.timer.DateTimeUtils;
 import org.jbpm.runtime.manager.impl.jpa.EntityManagerFactoryManager;
-import org.jbpm.shared.services.impl.TransactionalCommandService;
-import org.jbpm.shared.services.impl.commands.UpdateStringCommand;
 import org.kie.api.executor.Command;
 import org.kie.api.executor.CommandContext;
 import org.kie.api.executor.ExecutionResults;
@@ -55,8 +50,7 @@ import org.slf4j.LoggerFactory;
 public class ExecutionErrorCleanupCommand implements Command, Reoccurring {
 	
 	private static final Logger logger = LoggerFactory.getLogger(ExecutionErrorCleanupCommand.class);
-	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
-	
+
 	private long nextScheduleTimeAdd = 24 * 60 * 60 * 1000; // one day in milliseconds
 
 	@Override

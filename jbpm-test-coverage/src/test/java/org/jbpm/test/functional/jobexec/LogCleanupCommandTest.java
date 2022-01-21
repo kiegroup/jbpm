@@ -43,7 +43,11 @@ import org.kie.internal.runtime.error.ExecutionError;
 import org.kie.internal.runtime.error.ExecutionErrorManager;
 import org.kie.internal.runtime.error.ExecutionErrorStorage;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 /**
  * BZ-TODO: SingleRun - only accepts "true"/"false" but is boolean type, other boolean types accept true/false.
