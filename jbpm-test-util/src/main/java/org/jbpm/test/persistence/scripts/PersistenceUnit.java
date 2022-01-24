@@ -21,6 +21,11 @@ package org.jbpm.test.persistence.scripts;
  */
 public enum PersistenceUnit {
     /**
+     * Persistence unit used for testing lob types
+     */
+    TEST_TYPES("testTypes", "jdbc/testDS1"),
+
+    /**
      * Persistence unit used for SQL scripts execution.
      */
     SCRIPT_RUNNER("scriptRunner", "jdbc/testDS1"),

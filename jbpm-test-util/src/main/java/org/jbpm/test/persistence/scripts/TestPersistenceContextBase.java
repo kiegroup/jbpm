@@ -67,6 +67,14 @@ public class TestPersistenceContextBase {
     protected Properties dataSourceProperties;
     protected final DatabaseType databaseType;
 
+    public EntityManagerFactory getEntityManagerFactory() {
+        return entityManagerFactory;
+    }
+
+    public JtaTransactionManager getTransactionManager() {
+        return transactionManager;
+    }
+
     public TestPersistenceContextBase() {
         this.dataSourceProperties = PersistenceUtil.getDatasourceProperties();
         this.databaseType = TestsUtil.getDatabaseType(dataSourceProperties);
