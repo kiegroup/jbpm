@@ -16,7 +16,6 @@
 
 package org.jbpm.executor.commands;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javax.persistence.EntityManagerFactory;
