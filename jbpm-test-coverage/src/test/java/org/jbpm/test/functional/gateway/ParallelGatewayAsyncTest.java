@@ -21,6 +21,7 @@ import java.util.Map;
 
 import org.jbpm.executor.ExecutorServiceFactory;
 import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.listener.process.ProcessCompletedCountDownProcessEventListener;
 import org.jbpm.test.wih.ListWorkItemHandler;
 import org.junit.After;
 import org.junit.Before;
@@ -42,9 +43,8 @@ public class ParallelGatewayAsyncTest extends JbpmTestCase {
     private ExecutorService executorService;
     private KieSession kieSession;
     private ListWorkItemHandler wih;
+    private final ProcessCompletedCountDownProcessEventListener listener = new ProcessCompletedCountDownProcessEventListener();
 
-    
-    
     public ParallelGatewayAsyncTest() {
         super(true, true);
     }
@@ -58,8 +58,9 @@ public class ParallelGatewayAsyncTest extends JbpmTestCase {
         executorService.init();
         addEnvironmentEntry("AsyncMode", "true");
         addEnvironmentEntry("ExecutorService", executorService);
-        wih = new ListWorkItemHandler(); 
+        wih = new ListWorkItemHandler(1);
         addWorkItemHandler("Human Task", wih);
+        addProcessEventListener(listener);
         kieSession = createKSession(PARALLEL_GATEWAY_ASYNC);
     }
 
@@ -81,10 +82,10 @@ public class ParallelGatewayAsyncTest extends JbpmTestCase {
         inputs.put("useHT", Boolean.TRUE);
         inputs.put("mode", "1");
         ProcessInstance pi = kieSession.startProcess(PARALLEL_GATEWAY_ASYNC_ID, inputs);
-        Thread.sleep(3000L);
+        wih.getCountDown().await();
         wih.getWorkItems().forEach(e -> kieSession.getWorkItemManager().completeWorkItem(e.getId(), e.getParameters()));
 
-        Thread.sleep(1000L);
+        listener.waitTillCompleted();
         assertNull(kieSession.getProcessInstance(pi.getId()));
 
     }

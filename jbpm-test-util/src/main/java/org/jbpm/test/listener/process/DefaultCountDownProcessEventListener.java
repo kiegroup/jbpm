@@ -47,7 +47,7 @@ public class DefaultCountDownProcessEventListener extends DefaultProcessEventLis
         try {
             latch.await();
         } catch (InterruptedException e) {
-            logger.debug("Interrputed thread while waiting for all triggers");
+            logger.debug("Interrupted thread while waiting for all triggers");
         }
     }
 
@@ -58,7 +58,7 @@ public class DefaultCountDownProcessEventListener extends DefaultProcessEventLis
         try {
             latch.await(timeOut, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
-            logger.debug("Interrputed thread while waiting for all triggers");
+            logger.debug("Interrupted thread while waiting for all triggers");
         }
     }
 

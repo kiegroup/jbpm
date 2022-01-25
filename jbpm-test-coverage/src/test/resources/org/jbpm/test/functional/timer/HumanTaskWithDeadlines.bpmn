@@ -18,7 +18,7 @@
       <bpmn2:dataInputAssociation id="_UFohY-VzEeKsrZongOSOzg">
         <bpmn2:targetRef>_4039FB8C-F6F4-4FF8-857C-7875598B7987_NotCompletedReassignInput</bpmn2:targetRef>
         <bpmn2:assignment id="_UFohZOVzEeKsrZongOSOzg">
-          <bpmn2:from xsi:type="bpmn2:tFormalExpression" id="_UFohZeVzEeKsrZongOSOzg"><![CDATA[[users:mary|groups:]@[6s]]]></bpmn2:from>
+          <bpmn2:from xsi:type="bpmn2:tFormalExpression" id="_UFohZeVzEeKsrZongOSOzg"><![CDATA[[users:mary|groups:]@[30s]]]></bpmn2:from>
           <bpmn2:to xsi:type="bpmn2:tFormalExpression" id="_UFohZuVzEeKsrZongOSOzg">_4039FB8C-F6F4-4FF8-857C-7875598B7987_NotCompletedReassignInput</bpmn2:to>
         </bpmn2:assignment>
       </bpmn2:dataInputAssociation>

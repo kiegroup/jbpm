@@ -79,7 +79,7 @@ public class GlobalQuartzRAMTimerServiceTest extends GlobalTimerServiceBaseTest 
         } else if (managerType == 3) {
         	manager = RuntimeManagerFactory.Factory.get().newPerProcessInstanceRuntimeManager(environment);
         } else {
-            throw new IllegalArgumentException("Invalid runtime maanger type");
+            throw new IllegalArgumentException("Invalid runtime manager type");
         }
     	if (waitOnStart) {
 	        // wait for the 2 seconds (default startup delay for quartz)

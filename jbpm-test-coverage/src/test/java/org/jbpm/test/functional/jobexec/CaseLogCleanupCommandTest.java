@@ -17,6 +17,7 @@
 package org.jbpm.test.functional.jobexec;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -44,6 +45,8 @@ import org.kie.internal.executor.api.CommandContext;
 import org.kie.internal.runtime.manager.deploy.DeploymentDescriptorImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static java.time.format.DateTimeFormatter.ofPattern;
 
 /**
  *
@@ -323,7 +326,7 @@ public class CaseLogCleanupCommandTest extends AbstractCaseServicesTest {
         commandContext.setData("EmfName", "org.jbpm.test.persistence");
         commandContext.setData("SingleRun", "true");
         commandContext.setData("DateFormat", dateFormat);
-        commandContext.setData("OlderThan", LocalDateTime.now().toString());
+        commandContext.setData("OlderThan", LocalDateTime.now().format(ofPattern(dateFormat)));
 
         Iterator<Map.Entry<String, Object>> iterator = parameters.entrySet().iterator();
         while (iterator.hasNext()) {

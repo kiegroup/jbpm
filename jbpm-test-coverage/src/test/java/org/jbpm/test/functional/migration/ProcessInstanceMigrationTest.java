@@ -23,6 +23,11 @@ import java.util.Map;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import javax.transaction.HeuristicMixedException;
+import javax.transaction.HeuristicRollbackException;
+import javax.transaction.NotSupportedException;
+import javax.transaction.RollbackException;
+import javax.transaction.SystemException;
 
 import org.jbpm.persistence.processinstance.ProcessInstanceInfo;
 import org.jbpm.test.JbpmTestCase;
@@ -47,6 +52,7 @@ import org.kie.internal.command.RegistryContext;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 public class ProcessInstanceMigrationTest extends JbpmTestCase {
 
@@ -335,25 +341,30 @@ public class ProcessInstanceMigrationTest extends JbpmTestCase {
     }
     
     @SuppressWarnings("unchecked")
-    private void assertDefinitionChanged(long pid, String sPid, boolean complete) throws InterruptedException {
+    private void assertDefinitionChanged(long pid, String sPid, boolean complete) {
         if(!complete) {
             assertEquals(sPid, ksession.getProcessInstance(pid).getProcessId());
         }
+        try {
+            transactionManager.begin(); // Need to be executed in a TX as Postgres stores LOB/CLOBs in multiple records
+            EntityManager em = getEmf().createEntityManager();
+            Query query = em.createQuery(
+                    "select p from ProcessInstanceInfo p where p.processInstanceId = :pid")
+                    .setParameter("pid", pid);
+            List<ProcessInstanceInfo> found = query.getResultList();
 
-        EntityManager em = getEmf().createEntityManager();
-        Query query = em.createQuery(
-                        "select p from ProcessInstanceInfo p where p.processInstanceId = :pid")
-                .setParameter("pid", pid);
-        List<ProcessInstanceInfo> found = query.getResultList();
+            int count = (complete) ? 0 : 1;
 
-        int count = (complete) ? 0 : 1;
-        
-        assertNotNull(found);
-        assertEquals(count, found.size());
+            assertNotNull(found);
+            assertEquals(count, found.size());
 
-        if(!complete) {
-            ProcessInstanceInfo instance = found.get(0);
-            assertEquals(sPid, instance.getProcessId());
+            if(!complete) {
+                ProcessInstanceInfo instance = found.get(0);
+                assertEquals(sPid, instance.getProcessId());
+            }
+            transactionManager.commit();
+        } catch (Exception  e) {
+            fail("Exception raised due to " + e.getMessage());
         }
 
         manager.disposeRuntimeEngine(engine);

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?> 
+<?xml version="1.0" encoding="UTF-8"?>
 <definitions id="Definition"
              targetNamespace="http://www.example.org/MinimalExample"
              typeLanguage="http://www.java.com/javaTypes"
@@ -23,7 +23,7 @@
     <startEvent id="_1" name="StartProcess" />
     <intermediateCatchEvent id="_3" name="timer" >
       <timerEventDefinition>
-        <timeCycle xsi:type="tFormalExpression">R3/PT1S</timeCycle>
+        <timeCycle xsi:type="tFormalExpression">#{x}</timeCycle>
       </timerEventDefinition>
     </intermediateCatchEvent>
     <endEvent id="_5" name="EndProcess" />

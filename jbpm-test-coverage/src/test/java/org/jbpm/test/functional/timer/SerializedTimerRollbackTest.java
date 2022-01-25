@@ -85,7 +85,7 @@ public class SerializedTimerRollbackTest extends JbpmTestCase {
     }
 
     @Test
-    public void testSerizliableTestsWithExternalRollback() {
+    public void testSerializableTestsWithExternalRollback() {
         try {
             createRuntimeManager("org/jbpm/test/functional/timer/HumanTaskWithBoundaryTimer.bpmn");
             RuntimeEngine runtimeEngine = getRuntimeEngine();
@@ -111,6 +111,7 @@ public class SerializedTimerRollbackTest extends JbpmTestCase {
             }
 
             Connection c = getDs().getConnection();
+            c.setAutoCommit(false);
             Statement st = c.createStatement();
             ResultSet rs = st.executeQuery("select rulesbytearray from sessioninfo");
             rs.next();
@@ -136,6 +137,9 @@ public class SerializedTimerRollbackTest extends JbpmTestCase {
 
             List<TaskSummary> tasks = taskService.getTasksAssignedAsPotentialOwner("john", "en-UK");
             assertEquals(0, tasks.size());
+
+            rs.close();
+            c.close();
         } catch (Exception e) {
             e.printStackTrace();
             fail("Exception thrown");
@@ -144,7 +148,7 @@ public class SerializedTimerRollbackTest extends JbpmTestCase {
     }
 
     @Test
-    public void testSerizliableTestsWithEngineRollback() {
+    public void testSerializableTestsWithEngineRollback() {
         try {
     
             createRuntimeManager("org/jbpm/test/functional/timer/HumanTaskWithBoundaryTimer.bpmn");
@@ -178,6 +182,7 @@ public class SerializedTimerRollbackTest extends JbpmTestCase {
             }
 
             Connection c = getDs().getConnection();
+            c.setAutoCommit(false);
             Statement st = c.createStatement();
             ResultSet rs = st.executeQuery("select rulesbytearray from sessioninfo");
             rs.next();
@@ -202,6 +207,9 @@ public class SerializedTimerRollbackTest extends JbpmTestCase {
             }
             List<TaskSummary> tasks = taskService.getTasksAssignedAsPotentialOwner("john", "en-UK");
             assertEquals(0, tasks.size());
+
+            rs.close();
+            c.close();
         } catch (Exception e) {
             e.printStackTrace();
             fail("Exception thrown");

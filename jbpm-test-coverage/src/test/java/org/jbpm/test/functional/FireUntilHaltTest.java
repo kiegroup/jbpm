@@ -80,14 +80,14 @@ public class FireUntilHaltTest extends JbpmTestCase {
             ksession.insert(p);
         }
         // wait for rule to fire
-        Thread.sleep(100);
+        Thread.sleep(1000);
         // 8 persons should be acknowledged - person detector rule fired
         Assertions.assertThat(listener.ruleFiredCount("person detector"))
                 .isEqualTo(wantedPersonsNum + unwantedPersonsNum);
 
         // we start defined process
         ksession.startProcess(PROCESS_ID);
-        Thread.sleep(100);
+        Thread.sleep(1000);
         Assertions.assertThat(listener.ruleFiredCount("initial actions")).isEqualTo(1);
         Assertions.assertThat(listener.ruleFiredCount("wanted person detector")).isEqualTo(wantedPersonsNum);
         Assertions.assertThat(listener.ruleFiredCount("change unwanted person to wanted")).isEqualTo(unwantedPersonsNum);

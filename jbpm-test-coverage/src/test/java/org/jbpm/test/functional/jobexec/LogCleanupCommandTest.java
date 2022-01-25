@@ -232,7 +232,7 @@ public class LogCleanupCommandTest extends JbpmAsyncJobTestCase {
 
         // Set to NOW if date was not provided
         if (date == null) {
-            date = new Date();
+            date = new Date(System.currentTimeMillis()+1000); // Adding 1 sec delay to avoid any issues when dealing with timestamps
         }
 
         // Schedule cleanup job
@@ -311,8 +311,8 @@ public class LogCleanupCommandTest extends JbpmAsyncJobTestCase {
         KieSession kieSession = createKSession(HELLO_WORLD);
         startProcess(kieSession, HELLO_WORLD_ID, 3);
 
-        // Advance time 1+ second forward
-        Thread.sleep(1010);
+        // Advance time 2+ second forward
+        Thread.sleep(2010);
 
         // Verify presence of data
         Assertions.assertThat(getProcessLogSize(HELLO_WORLD_ID)).isEqualTo(3);

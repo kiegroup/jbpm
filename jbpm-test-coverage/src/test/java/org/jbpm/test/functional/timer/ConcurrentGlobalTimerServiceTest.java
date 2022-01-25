@@ -61,7 +61,6 @@ import org.kie.api.task.model.Status;
 import org.kie.api.task.model.TaskSummary;
 import org.kie.api.task.model.User;
 import org.kie.internal.io.ResourceFactory;
-import org.kie.internal.runtime.manager.context.EmptyContext;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 import org.kie.internal.task.api.InternalTaskService;
 import org.kie.internal.task.api.TaskModelProvider;
@@ -77,7 +76,7 @@ public class ConcurrentGlobalTimerServiceTest extends TimerBaseTest {
     private long maxWaitTime = 60*1000; // max wait to complete operation is set to 60 seconds to avoid build hangs
 	
     private int nbThreadsProcess = 10;
-    private int nbThreadsTask = 10;
+    private int nbThreadsTask = 1 * 2 * 10; // 1 Human Task * 2 Times triggered * 10 processes
     private CountDownLatch completedStart = new CountDownLatch(nbThreadsProcess);
     private CountDownLatch completedTask = new CountDownLatch(nbThreadsTask);
     private int wait = 2;
@@ -125,7 +124,7 @@ public class ConcurrentGlobalTimerServiceTest extends TimerBaseTest {
 
         manager = RuntimeManagerFactory.Factory.get().newPerProcessInstanceRuntimeManager(environment);
         // prepare task service with users and groups
-        RuntimeEngine engine = manager.getRuntimeEngine(EmptyContext.get());
+        RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get());
         TaskService taskService = engine.getTaskService();
         
         Group grouphr = TaskModelProvider.getFactory().newGroup();
@@ -148,7 +147,7 @@ public class ConcurrentGlobalTimerServiceTest extends TimerBaseTest {
         }
         completedStart.await(10000L, TimeUnit.MILLISECONDS);
 
-        for (int i=0; i<nbThreadsTask; i++) {
+        for (int i=0; i<nbThreadsProcess; i++) {
             new Thread(new CompleteTaskPerProcessInstanceRunnable(manager, i)).start();
         }
 
@@ -157,7 +156,7 @@ public class ConcurrentGlobalTimerServiceTest extends TimerBaseTest {
         }
 
         //make sure all process instance were completed
-        engine = manager.getRuntimeEngine(EmptyContext.get());
+        engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get());
         AuditService logService = engine.getAuditService();
         //active
         List<? extends ProcessInstanceLog> logs = logService.findActiveProcessInstances("IntermediateCatchEvent");
@@ -200,13 +199,13 @@ public class ConcurrentGlobalTimerServiceTest extends TimerBaseTest {
 	}
 
 	
-	private boolean testCompleteTaskByProcessInstance(RuntimeManager manager, RuntimeEngine runtime, long piId) throws InterruptedException, Exception {
+	private boolean testCompleteTaskByProcessInstance(RuntimeEngine runtime, long piId) throws Exception {
         boolean result = false;
-        List<Status> statusses = new ArrayList<Status>();
-        statusses.add(Status.Reserved);
+        List<Status> statuses = new ArrayList<>();
+        statuses.add(Status.Reserved);
         
-        List<TaskSummary> tasks = null;
-        tasks = runtime.getTaskService().getTasksByStatusByProcessInstanceId(piId, statusses, "en-UK");
+        List<TaskSummary> tasks;
+        tasks = runtime.getTaskService().getTasksByStatusByProcessInstanceId(piId, statuses, "en-UK");
         if (tasks.isEmpty()) {
             logger.debug("Task thread found no tasks for piId {}", piId);
             Thread.sleep(1000);
@@ -237,13 +236,13 @@ public class ConcurrentGlobalTimerServiceTest extends TimerBaseTest {
         return result;
     }
 	
-	   private boolean testRetryCompleteTaskByProcessInstance(RuntimeManager manager, RuntimeEngine runtime, long piId) throws InterruptedException, Exception {
+	   private boolean testRetryCompleteTaskByProcessInstance(RuntimeEngine runtime, long piId) throws Exception {
 	        boolean result = false;
-	        List<Status> statusses = new ArrayList<Status>();
-	        statusses.add(Status.InProgress);
+	        List<Status> statuses = new ArrayList<>();
+	        statuses.add(Status.InProgress);
 	        
-	        List<TaskSummary> tasks = null;
-	        tasks = runtime.getTaskService().getTasksByStatusByProcessInstanceId(piId, statusses, "en-UK");
+	        List<TaskSummary> tasks;
+	        tasks = runtime.getTaskService().getTasksByStatusByProcessInstanceId(piId, statuses, "en-UK");
 	        if (tasks.isEmpty()) {
 	            logger.debug("Retry : Task thread found no tasks for piId {}", piId);
 	            Thread.sleep(1000);
@@ -256,15 +255,11 @@ public class ConcurrentGlobalTimerServiceTest extends TimerBaseTest {
                     logger.debug("Retry : Completed task {} piId {}", taskId, piId);
                     result = true;
        
-	                
 	            } catch (PermissionDeniedException e) {
 	                // TODO can we avoid these by doing it all in one transaction?
 	                logger.debug("Task thread was too late for starting task {} piId {}", taskId, piId);
-	            } catch (Exception e) {
-	                throw e;
 	            }
-
-	        }
+            }
 	        
 	        return result;
 	    }
@@ -298,35 +293,38 @@ public class ConcurrentGlobalTimerServiceTest extends TimerBaseTest {
         public void run() {
             try {
                 // wait for amount of time timer expires and plus 1s initially
-                Thread.sleep(wait * 1000 + 1000);
+                Thread.sleep(wait * 1000L + 1000);
                 long processInstanceId = counter+1;
+                int pendingTasks = 2;
 
-                for (int y = 0; y < wait; y++) {
-                	RuntimeEngine runtime = manager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstanceId));
-                	try {
-                        testCompleteTaskByProcessInstance(manager, runtime, processInstanceId);
+                while (pendingTasks > 0) {
+                    boolean isTaskCompleted;
+                    RuntimeEngine runtime = manager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstanceId));
+                    try {
+                        isTaskCompleted = testCompleteTaskByProcessInstance(runtime, processInstanceId);
                     } catch (Throwable e) {
-                        if (checkOptimiticLockException(e)) {
+                        if (checkOptimisticLockException(e)) {
                             logger.debug("{} retrying for process instance {}", counter, processInstanceId);
                             manager.disposeRuntimeEngine(runtime);
                             runtime = manager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstanceId));
-                            testRetryCompleteTaskByProcessInstance(manager, runtime, processInstanceId);
+                            isTaskCompleted = testRetryCompleteTaskByProcessInstance(runtime, processInstanceId);
                         } else {
                             throw e;
                         }
                     }
-                	manager.disposeRuntimeEngine(runtime);
+                    manager.disposeRuntimeEngine(runtime);
+                    if (isTaskCompleted) {
+                        completedTask.countDown();
+                        pendingTasks--;
+                    }
                 }
-
-                completedTask.countDown();
-
             } catch (Throwable t) {
                 t.printStackTrace();
             }
         }
     }
    
-   public static boolean checkOptimiticLockException(Throwable e) {
+   public static boolean checkOptimisticLockException(Throwable e) {
        Throwable rootCause = e.getCause();
        while (rootCause != null) {
            if ((rootCause instanceof OptimisticLockException || rootCause instanceof StaleObjectStateException) ){               
@@ -337,7 +335,7 @@ public class ConcurrentGlobalTimerServiceTest extends TimerBaseTest {
        }
        
        if (e instanceof InvocationTargetException) {
-           return checkOptimiticLockException(((InvocationTargetException) e).getTargetException());
+           return checkOptimisticLockException(((InvocationTargetException) e).getTargetException());
        }
        
        return false;

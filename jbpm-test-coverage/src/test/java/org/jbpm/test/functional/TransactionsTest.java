@@ -86,20 +86,14 @@ public class TransactionsTest extends JbpmTestCase {
             ut.begin();
 
             processId = startProcess(ksession);
-            assertProcessInstanceActive(processId);
+            assertProcessInstanceActive(processId, ksession);
         } finally {
             ut.rollback();
         }
 
-        System.out.println(ksession.getId() + " " + ksession.toString());
         ksession = restoreKSession(resources);
-        System.out.println(ksession.getId() + " " + ksession.toString());
-        try {
-            ProcessInstance pi = ksession.getProcessInstance(processId);
-            Assertions.assertThat(pi).isNull();
-        } catch (NullPointerException npe) {
-            logger.error("Non-XA database thrown NPE on process started before rollback", npe);
-        }
+        ProcessInstance pi = ksession.getProcessInstance(processId);
+        Assertions.assertThat(pi).isNull();
     }
 
     @Test(timeout = 60000)

@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 import org.kie.api.runtime.process.WorkItem;
 import org.kie.api.runtime.process.WorkItemHandler;
@@ -32,9 +33,20 @@ public class ListWorkItemHandler implements WorkItemHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(ListWorkItemHandler.class);
 
     private final List<WorkItem> workItems;
+    private final CountDownLatch latch;
 
     public ListWorkItemHandler() {
         workItems = Collections.synchronizedList(new ArrayList<WorkItem>());
+        latch = new CountDownLatch(0);
+    }
+
+    public ListWorkItemHandler(int threads) {
+        workItems = Collections.synchronizedList(new ArrayList<WorkItem>());
+        this.latch = new CountDownLatch(threads);
+    }
+
+    public CountDownLatch getCountDown() {
+        return this.latch;
     }
 
     public Collection<WorkItem> getWorkItems() {
@@ -46,13 +58,19 @@ public class ListWorkItemHandler implements WorkItemHandler {
     @Override
     public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
         LOGGER.debug("executing: " + workItem.getId());
-        workItems.add(workItem);
+        synchronized (workItems) {
+            workItems.add(workItem);
+            latch.countDown();
+        }
     }
 
     @Override
     public void abortWorkItem(WorkItem workItem, WorkItemManager manager) {
         LOGGER.debug("aborting: " + workItem.getId());
-        workItems.remove(workItem);
+        synchronized (workItems) {
+            workItems.remove(workItem);
+            latch.countDown();
+        }
     }
 
 }

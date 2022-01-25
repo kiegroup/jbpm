@@ -27,9 +27,10 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import org.assertj.core.api.Assertions;
 import org.jbpm.services.task.audit.service.TaskJPAAuditService;
 import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.persistence.scripts.DatabaseType;
+import org.jbpm.test.persistence.scripts.util.TestsUtil;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessInstance;
@@ -38,6 +39,9 @@ import org.kie.api.task.model.Status;
 import org.kie.api.task.model.Task;
 import org.kie.internal.task.api.AuditTask;
 import org.kie.internal.task.api.TaskVariable;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assume.assumeTrue;
 
 /**
  * Tests for:
@@ -63,16 +67,17 @@ public class TaskLogCleanTest extends JbpmTestCase {
     private static final String HUMAN_TASK_MULTIACTORS_ID =
             "org.jbpm.test.functional.common.HumanTaskWithMultipleActors";
 
-
     private KieSession kieSession;
     private List<ProcessInstance> processInstanceList;
     private TaskJPAAuditService taskAuditService;
+    private DatabaseType dbType; // @TODO To be removed once DDL scripts are in place for testing
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
         taskAuditService = new TaskJPAAuditService(getEmf());
         taskAuditService.clear();
+        dbType = TestsUtil.getDatabaseType();
     }
 
     @Override
@@ -80,7 +85,10 @@ public class TaskLogCleanTest extends JbpmTestCase {
         try {
             taskAuditService.clear();
             taskAuditService.dispose();
-            abortProcess(kieSession, processInstanceList);
+            if (processInstanceList != null && !processInstanceList.isEmpty()) {
+                abortProcess(kieSession, processInstanceList);
+                processInstanceList.clear();
+            }
         } finally {
             super.tearDown();
         }
@@ -97,8 +105,8 @@ public class TaskLogCleanTest extends JbpmTestCase {
                 .processId(HUMAN_TASK_ID)
                 .build()
                 .execute();
-        Assertions.assertThat(deletedLogs).isEqualTo(2);
-        Assertions.assertThat(getAllAuditTaskLogs()).hasSize(0);
+        assertThat(deletedLogs).isEqualTo(2);
+        assertThat(getAllAuditTaskLogs()).isEmpty();
     }
 
     @Test
@@ -112,15 +120,16 @@ public class TaskLogCleanTest extends JbpmTestCase {
                 .processInstanceId(processInstanceList.get(0).getId(), processInstanceList.get(1).getId())
                 .build()
                 .execute();
-        Assertions.assertThat(resultCount).isEqualTo(2);
+        assertThat(resultCount).isEqualTo(2);
 
         TaskService taskService = getRuntimeEngine().getTaskService();
         List<Long> taskIdList = taskService.getTasksByProcessInstanceId(processInstanceList.get(2).getId());
-        Assertions.assertThat(taskIdList).hasSize(1);
+        assertThat(taskIdList).hasSize(1);
     }
 
     @Test
     public void testDeleteLogsByDate() throws InterruptedException {
+        assumeTrue(!isMySQLorMariaDB());
         kieSession = createKSession(HUMAN_TASK);
 
         processInstanceList = startProcess(kieSession, HUMAN_TASK_ID, 4, 5);
@@ -131,10 +140,10 @@ public class TaskLogCleanTest extends JbpmTestCase {
         // Delete the last three task logs
         for (int i = processInstanceList.size() - 1; i > 0; i--) {
             List<Long> taskIdList = taskService.getTasksByProcessInstanceId(processInstanceList.get(i).getId());
-            Assertions.assertThat(taskIdList).hasSize(1);
+            assertThat(taskIdList).hasSize(1);
 
             Task task = taskService.getTaskById(taskIdList.get(0));
-            Assertions.assertThat(task).isNotNull();
+            assertThat(task).isNotNull();
 
             startDates.add(task.getTaskData().getCreatedOn());
         }
@@ -145,14 +154,13 @@ public class TaskLogCleanTest extends JbpmTestCase {
                                   .build()
                                   .execute())
                           .collect(Collectors.summingInt(Integer::intValue));
-            
-        Assertions.assertThat(resultCount).isEqualTo(3);
-        
+        assertThat(resultCount).isEqualTo(3);
     }
 
     @Test
     public void testDeleteLogsByDateRange() throws InterruptedException {
-        processInstanceList = new ArrayList<ProcessInstance>();
+        assumeTrue(!isMySQLorMariaDB());
+        processInstanceList = new ArrayList<>();
         kieSession = createKSession(HUMAN_TASK, INPUT_ASSOCIATION);
 
         Date date1 = new Date();
@@ -167,8 +175,8 @@ public class TaskLogCleanTest extends JbpmTestCase {
 
         // Delete tasks created from date1 to date2.
         int resultCount = deleteAuditTaskInstanceLogs(date1, date2);
-        Assertions.assertThat(resultCount).isEqualTo(3);
-        Assertions.assertThat(getAllAuditTaskLogs()).hasSize(2);
+        assertThat(resultCount).isEqualTo(3);
+        assertThat(getAllAuditTaskLogs()).hasSize(2);
     }
 
     private void testDeleteLogsByDateRange(Date startDate, Date endDate, boolean remove) throws InterruptedException {
@@ -180,8 +188,8 @@ public class TaskLogCleanTest extends JbpmTestCase {
 
         // Delete tasks created from date1 to date2.
         int resultCount = deleteAuditTaskInstanceLogs(startDate, endDate);
-        Assertions.assertThat(resultCount).isEqualTo(remove ? 5 : 0);
-        Assertions.assertThat(getAllAuditTaskLogs()).hasSize(remove ? 0 : 5);
+        assertThat(resultCount).isEqualTo(remove ? 5 : 0);
+        assertThat(getAllAuditTaskLogs()).hasSize(remove ? 0 : 5);
     }
 
     @Test
@@ -201,6 +209,7 @@ public class TaskLogCleanTest extends JbpmTestCase {
 
     @Test
     public void testDeleteTaskEventByDate() throws InterruptedException {
+        assumeTrue(!isMySQLorMariaDB());
         kieSession = createKSession(HUMAN_TASK_MULTIACTORS);
 
         Date startDate = new Date();
@@ -211,8 +220,8 @@ public class TaskLogCleanTest extends JbpmTestCase {
         Task task = taskService.getTaskById(
                 taskService.getTasksByProcessInstanceId(
                         processInstanceList.get(0).getId()).get(0));
-        Assertions.assertThat(task).isNotNull();
-        Assertions.assertThat(task.getTaskData().getStatus()).isEqualTo(Status.Ready);
+        assertThat(task).isNotNull();
+        assertThat(task.getTaskData().getStatus()).isEqualTo(Status.Ready);
 
         // Perform 2 operation on the task
         taskService.claim(task.getId(), "krisv");
@@ -234,7 +243,7 @@ public class TaskLogCleanTest extends JbpmTestCase {
         // 3) Ready -> Reserved (by claim)
         // 4) Reserved -> In Progress (by start)
         // 5) In Progress -> Completed (by complete)
-        Assertions.assertThat(resultCount).isEqualTo(5);
+        assertThat(resultCount).isEqualTo(5);
     }
     
     @Test
@@ -249,13 +258,13 @@ public class TaskLogCleanTest extends JbpmTestCase {
         Task task = taskService.getTaskById(
                 taskService.getTasksByProcessInstanceId(
                         processInstanceList.get(0).getId()).get(0));
-        Assertions.assertThat(task).isNotNull();
-        Assertions.assertThat(task.getTaskData().getStatus()).isEqualTo(Status.Reserved);
+        assertThat(task).isNotNull();
+        assertThat(task.getTaskData().getStatus()).isEqualTo(Status.Reserved);
         
         List<TaskVariable> vars = taskAuditService.taskVariableQuery()
                 .build()
                 .getResultList();
-        Assertions.assertThat(vars).hasSize(1);
+        assertThat(vars).hasSize(1);
 
         // Delete all task operation between dates
         int resultCount = taskAuditService.taskVariableInstanceLogDelete()
@@ -263,16 +272,17 @@ public class TaskLogCleanTest extends JbpmTestCase {
                 .dateRangeEnd(new Date())
                 .build()
                 .execute();
-        Assertions.assertThat(resultCount).isEqualTo(0);
+        assertThat(resultCount).isZero();
         
         vars = taskAuditService.taskVariableQuery()
                 .build()
                 .getResultList();
-        Assertions.assertThat(vars).hasSize(1);
+        assertThat(vars).hasSize(1);
     }
     
     @Test
     public void testDeleteTaskVariablesByDate() throws InterruptedException {
+        assumeTrue(!isMySQLorMariaDB());
         kieSession = createKSession(HUMAN_TASK_MULTIACTORS);
 
         Date startDate = new Date();
@@ -283,13 +293,13 @@ public class TaskLogCleanTest extends JbpmTestCase {
         Task task = taskService.getTaskById(
                 taskService.getTasksByProcessInstanceId(
                         processInstanceList.get(0).getId()).get(0));
-        Assertions.assertThat(task).isNotNull();
-        Assertions.assertThat(task.getTaskData().getStatus()).isEqualTo(Status.Ready);
+        assertThat(task).isNotNull();
+        assertThat(task.getTaskData().getStatus()).isEqualTo(Status.Ready);
         
         List<TaskVariable> vars = taskAuditService.taskVariableQuery()
                 .build()
                 .getResultList();
-        Assertions.assertThat(vars).hasSize(0);
+        assertThat(vars).isEmpty();
 
         // Perform 2 operation on the task
         taskService.claim(task.getId(), "krisv");
@@ -302,7 +312,7 @@ public class TaskLogCleanTest extends JbpmTestCase {
         vars = taskAuditService.taskVariableQuery()
                 .build()
                 .getResultList();
-        Assertions.assertThat(vars).hasSize(1);
+        assertThat(vars).hasSize(1);
 
         // Remove the instance from the running list as it has ended already.
         processInstanceList.clear();
@@ -313,7 +323,7 @@ public class TaskLogCleanTest extends JbpmTestCase {
                 .dateRangeEnd(new Date())
                 .build()
                 .execute();
-        Assertions.assertThat(resultCount).isEqualTo(1);
+        assertThat(resultCount).isEqualTo(1);
     }
 
     @Test
@@ -322,12 +332,12 @@ public class TaskLogCleanTest extends JbpmTestCase {
         processInstanceList = startProcess(kieSession, HUMAN_TASK_ID, 2);
         
         taskAuditService.clear();
-        Assertions.assertThat(getAllAuditTaskLogs()).hasSize(processInstanceList.size());
+        assertThat(getAllAuditTaskLogs()).hasSize(processInstanceList.size());
         
         abortProcess(kieSession, processInstanceList);
         
         taskAuditService.clear();
-        Assertions.assertThat(getAllAuditTaskLogs()).hasSize(0);
+        assertThat(getAllAuditTaskLogs()).isEmpty();
     }
 
     private int deleteAuditTaskInstanceLogs(Date startDate, Date endDate) {
@@ -385,5 +395,13 @@ public class TaskLogCleanTest extends JbpmTestCase {
 
     private List<ProcessInstance> startProcess(KieSession kieSession, String processId, int count) throws InterruptedException {
         return startProcess(kieSession, processId, count, 0);
+    }
+
+    // @TODO To be removed once DDL scripts are in place for testing
+    private boolean isMySQLorMariaDB() {
+        if (dbType == null) {
+            return false;
+        }
+        return dbType.name().toLowerCase().contains("mysql");
     }
 }

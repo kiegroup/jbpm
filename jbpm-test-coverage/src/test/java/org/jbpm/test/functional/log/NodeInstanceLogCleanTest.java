@@ -19,13 +19,14 @@ package org.jbpm.test.functional.log;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.assertj.core.api.Assertions;
 import org.jbpm.process.audit.JPAAuditLogService;
 import org.jbpm.test.JbpmTestCase;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.audit.NodeInstanceLog;
 import org.kie.api.runtime.process.ProcessInstance;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * TODO: Add deleteLogsByDate, deleteLogsByDateRange (however it is a bit redundant).
@@ -74,14 +75,14 @@ public class NodeInstanceLogCleanTest extends JbpmTestCase {
                 .build()
                 .execute();
         // There are two node types in the log (value NodeInstanceLog.TYPE_ENTER and NodeInstanceLog.TYPE_EXIT)
-        Assertions.assertThat(resultCount).isEqualTo(2);
+        assertThat(resultCount).isEqualTo(2);
 
         // Now check that all other node records are still present
         List<NodeInstanceLog> nodeList = auditService.nodeInstanceLogQuery()
                 .nodeName("Start", "End", "Hello world")
                 .build()
                 .getResultList();
-        Assertions.assertThat(nodeList)
+        assertThat(nodeList)
                 .hasSize(10)
                 .extracting("nodeName")
                 .containsOnly("Start", "End", "Hello world");
@@ -99,14 +100,14 @@ public class NodeInstanceLogCleanTest extends JbpmTestCase {
                 .nodeId("_3")
                 .build()
                 .execute();
-        Assertions.assertThat(resultCount).isEqualTo(4);
+        assertThat(resultCount).isEqualTo(4);
 
         // Now check that all other node records are still present
         List<NodeInstanceLog> nodeList = auditService.nodeInstanceLogQuery()
                 .nodeId("_1", "_2", "_3")
                 .build()
                 .getResultList();
-        Assertions.assertThat(nodeList)
+        assertThat(nodeList)
                 .hasSize(8)
                 .extracting("nodeName")
                 .containsOnly("Start", "Hello world");
@@ -122,20 +123,19 @@ public class NodeInstanceLogCleanTest extends JbpmTestCase {
 
             processInstanceList = startProcess(kieSession, HUMAN_TASK_LOCALE_ID, 1);
 
-            // Let's see how the code will manage Japan characters.
             List<NodeInstanceLog> nodeInstanceList = auditService.nodeInstanceLogQuery()
-                    .nodeName("空手")
+                    .nodeType("HumanTaskNode")
                     .build()
                     .getResultList();
             // We are expecting only NodeInstanceLog.TYPE_ENTERED as execution will be paused on the human task
-            Assertions.assertThat(nodeInstanceList).hasSize(1);
+            assertThat(nodeInstanceList).hasSize(1);
 
             // Delete node named "空手" based on it's id.
             int resultCount = auditService.nodeInstanceLogDelete()
                     .nodeInstanceId(nodeInstanceList.get(0).getNodeId())
                     .build()
                     .execute();
-            Assertions.assertThat(resultCount).isEqualTo(0);
+            assertThat(resultCount).isEqualTo(0);
         } finally {
             if (processInstanceList != null) {
                 abortProcess(kieSession, processInstanceList);
@@ -160,7 +160,7 @@ public class NodeInstanceLogCleanTest extends JbpmTestCase {
     }
 
     private List<ProcessInstance> startProcess(KieSession kieSession, String processId, int count) {
-        List<ProcessInstance> piList = new ArrayList<ProcessInstance>();
+        List<ProcessInstance> piList = new ArrayList<>();
         for (int i = 0; i < count; i++) {
             ProcessInstance pi = kieSession.startProcess(processId);
             if (pi != null) {

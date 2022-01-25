@@ -16,6 +16,7 @@
 
 package org.jbpm.test.functional.timer;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -176,7 +177,7 @@ public class GlobalTimerServiceVolumeTest extends TimerBaseTest {
         TaskDeadlinesServiceImpl.dispose();
     }
 
-    @Test(timeout=30000)
+    @Test(timeout=60000)
     public void testRuntimeManagerStrategyWithTimerService() throws Exception {
 
         // prepare task service with users and groups
@@ -211,6 +212,7 @@ public class GlobalTimerServiceVolumeTest extends TimerBaseTest {
         while (counter > 0) {
             new GlobalTimerServiceVolumeTest.StartProcessPerProcessInstanceRunnable(manager).run();
             counter--;
+            SECONDS.sleep(5); // Needed to avoid DB deadlocks on Quartz tables
         }
 
         Collection<TimerJobInstance> timers = null;
@@ -267,7 +269,7 @@ public class GlobalTimerServiceVolumeTest extends TimerBaseTest {
                 ut.begin();
                 logger.debug("Starting process on ksession {}", runtime.getKieSession().getIdentifier());
                 Map<String, Object> params = new HashMap<String, Object>();
-                params.put("x", "5s");
+                params.put("x", "2s");
                 ProcessInstance processInstance = runtime.getKieSession().startProcess("IntermediateCatchEvent", params);
                 logger.debug("Started process instance {} on ksession {}", processInstance.getId(), runtime.getKieSession().getIdentifier());
                 ut.commit();

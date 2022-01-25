@@ -20,18 +20,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 
 import javax.naming.InitialContext;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.LockModeType;
-import javax.persistence.PersistenceException;
 import javax.transaction.UserTransaction;
 
 import org.jbpm.services.task.HumanTaskConfigurator;
 import org.jbpm.services.task.HumanTaskServiceFactory;
-import org.jbpm.services.task.wih.ExternalTaskEventListener;
 import org.jbpm.test.JbpmTestCase;
 import org.junit.After;
 import org.junit.Before;
@@ -44,27 +41,18 @@ import org.kie.api.runtime.manager.RuntimeEnvironment;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.task.TaskLifeCycleEventListener;
 import org.kie.api.task.TaskService;
-import org.kie.api.task.model.Group;
 import org.kie.api.task.model.TaskSummary;
 import org.kie.api.task.model.User;
 import org.kie.internal.runtime.manager.InternalRuntimeManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 
 public class PessimisticLockTasksServiceTest extends JbpmTestCase {
 
     private static final Logger logger = LoggerFactory.getLogger(PessimisticLockTasksServiceTest.class);
     protected Map<String, User> users;
-    protected Map<String, Group> groups;
-
-    protected Properties conf;
-
-    protected ExternalTaskEventListener externalTaskEventListener;
-
 
     public PessimisticLockTasksServiceTest() {
         super(true, true);
@@ -190,7 +178,6 @@ public class PessimisticLockTasksServiceTest extends JbpmTestCase {
         t2.join();
 
         assertEquals(1, exceptions.size());
-        assertThat(exceptions.get(0), instanceOf(PersistenceException.class));
 
         taskService.start(salaboysTasks.get(0).getId(), "salaboy");
 

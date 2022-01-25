@@ -91,7 +91,7 @@ public class GlobalThreadPoolTimerServiceTest extends GlobalTimerServiceBaseTest
         } else if (managerType == 3) {
             return RuntimeManagerFactory.Factory.get().newPerProcessInstanceRuntimeManager(environment);
         } else {
-            throw new IllegalArgumentException("Invalid runtime maanger type");
+            throw new IllegalArgumentException("Invalid runtime manager type");
         }
     }
     

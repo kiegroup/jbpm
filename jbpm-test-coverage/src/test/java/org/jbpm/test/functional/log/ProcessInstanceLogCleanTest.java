@@ -25,15 +25,20 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import org.assertj.core.api.Assertions;
 import org.jbpm.process.audit.JPAAuditLogService;
 import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.listener.process.ProcessCompletedCountDownProcessEventListener;
+import org.jbpm.test.persistence.scripts.DatabaseType;
+import org.jbpm.test.persistence.scripts.util.TestsUtil;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.audit.ProcessInstanceLog;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.internal.runtime.manager.audit.query.ProcessInstanceLogDeleteBuilder;
 import org.kie.internal.runtime.manager.audit.query.ProcessInstanceLogQueryBuilder;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assume.assumeTrue;
 
 /**
  * TODO:
@@ -68,15 +73,16 @@ public class ProcessInstanceLogCleanTest extends JbpmTestCase {
             "org.jbpm.test.functional.common.HumanTask";
 
     private static final String HELLO_WORLD_P1NAME = "HelloWorldProcess1";
-    private static final String HELLO_WORLD_P2NAME = "HelloWorldProcess2";
 
     private JPAAuditLogService auditService;
+    private DatabaseType dbType; // @TODO To be removed once DDL scripts are in place for testing
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
         auditService = new JPAAuditLogService(getEmf());
         auditService.clear();
+        dbType = TestsUtil.getDatabaseType();
     }
 
     @Override
@@ -101,8 +107,8 @@ public class ProcessInstanceLogCleanTest extends JbpmTestCase {
                 .processVersion("1.0")
                 .build()
                 .getResultList();
-        Assertions.assertThat(resultList).hasSize(2);
-        Assertions.assertThat(resultList)
+        assertThat(resultList).hasSize(2);
+        assertThat(resultList)
                 .extracting("processName")
                 .containsExactly(HELLO_WORLD_P1NAME, HELLO_WORLD_P1NAME);
 
@@ -111,7 +117,7 @@ public class ProcessInstanceLogCleanTest extends JbpmTestCase {
                 .processName(HELLO_WORLD_P1NAME)
                 .build()
                 .execute();
-        Assertions.assertThat(resultCount).isEqualTo(2);
+        assertThat(resultCount).isEqualTo(2);
 
         // Check that all records are gone
         resultList = auditService.processInstanceLogQuery()
@@ -119,7 +125,7 @@ public class ProcessInstanceLogCleanTest extends JbpmTestCase {
                 .processVersion("1.0")
                 .build()
                 .getResultList();
-        Assertions.assertThat(resultList).hasSize(0);
+        assertThat(resultList).isEmpty();
     }
 
     @Test
@@ -134,8 +140,8 @@ public class ProcessInstanceLogCleanTest extends JbpmTestCase {
                 .processVersion("1.0")
                 .build()
                 .getResultList();
-        Assertions.assertThat(resultList).hasSize(3);
-        Assertions.assertThat(resultList)
+        assertThat(resultList).hasSize(3);
+        assertThat(resultList)
                 .extracting("processId")
                 .containsExactly(HELLO_WORLD_PROCESS_ID, HELLO_WORLD_PROCESS_ID, HELLO_WORLD_PROCESS_ID);
 
@@ -144,7 +150,7 @@ public class ProcessInstanceLogCleanTest extends JbpmTestCase {
                 .processId(HELLO_WORLD_PROCESS_ID)
                 .build()
                 .execute();
-        Assertions.assertThat(resultCount).isEqualTo(3);
+        assertThat(resultCount).isEqualTo(3);
 
         // Check that all records are gone
         resultList = auditService.processInstanceLogQuery()
@@ -152,7 +158,7 @@ public class ProcessInstanceLogCleanTest extends JbpmTestCase {
                 .processVersion("1.0")
                 .build()
                 .getResultList();
-        Assertions.assertThat(resultList).hasSize(0);
+        assertThat(resultList).isEmpty();
     }
 
     @Test
@@ -168,7 +174,7 @@ public class ProcessInstanceLogCleanTest extends JbpmTestCase {
                 .processInstanceLogDelete()
                 .processVersion("1.0");
         int deleteResult = deleteBuilder.build().execute();
-        Assertions.assertThat(deleteResult).isEqualTo(7);
+        assertThat(deleteResult).isEqualTo(7);
 
         // Make sure that the 1.1 version logs are gone
         List<ProcessInstanceLog> resultList = auditService
@@ -176,7 +182,7 @@ public class ProcessInstanceLogCleanTest extends JbpmTestCase {
                 .processVersion("1.0")
                 .build()
                 .getResultList();
-        Assertions.assertThat(resultList).hasSize(0);
+        assertThat(resultList).isEmpty();
 
         // Now check that 1.0 version logs are present
         resultList = auditService
@@ -184,8 +190,8 @@ public class ProcessInstanceLogCleanTest extends JbpmTestCase {
                 .processVersion("1.1")
                 .build()
                 .getResultList();
-        Assertions.assertThat(resultList).hasSize(2);
-        Assertions.assertThat(resultList).extracting("processVersion").containsExactly("1.1", "1.1");
+        assertThat(resultList).hasSize(2);
+        assertThat(resultList).extracting("processVersion").containsExactly("1.1", "1.1");
 
     }
 
@@ -202,15 +208,15 @@ public class ProcessInstanceLogCleanTest extends JbpmTestCase {
 
             ProcessInstanceLogDeleteBuilder deleteBuilder = auditService.processInstanceLogDelete().status(ProcessInstance.STATE_ACTIVE);
             int deleteResult = deleteBuilder.build().execute();
-            Assertions.assertThat(deleteResult).isEqualTo(5);
+            assertThat(deleteResult).isEqualTo(5);
 
             ProcessInstanceLogQueryBuilder queryBuilder = auditService.processInstanceLogQuery().status(ProcessInstance.STATE_COMPLETED);
             List<ProcessInstanceLog> queryList = queryBuilder.build().getResultList();
 
-            Assertions.assertThat(queryList).hasSize(3);
-            Assertions.assertThat(queryList).extracting("processId").containsExactly(HELLO_WORLD_PROCESS_ID, HELLO_WORLD_PROCESS_ID, HELLO_WORLD_PROCESS_ID);
-            Assertions.assertThat(queryList).extracting("processVersion").containsExactly("1.0", "1.0", "1.0");
-            Assertions.assertThat(queryList).extracting("status").containsExactly(ProcessInstance.STATE_COMPLETED, ProcessInstance.STATE_COMPLETED, ProcessInstance.STATE_COMPLETED);
+            assertThat(queryList).hasSize(3);
+            assertThat(queryList).extracting("processId").containsExactly(HELLO_WORLD_PROCESS_ID, HELLO_WORLD_PROCESS_ID, HELLO_WORLD_PROCESS_ID);
+            assertThat(queryList).extracting("processVersion").containsExactly("1.0", "1.0", "1.0");
+            assertThat(queryList).extracting("status").containsExactly(ProcessInstance.STATE_COMPLETED, ProcessInstance.STATE_COMPLETED, ProcessInstance.STATE_COMPLETED);
         } finally {
             if (instanceList2 != null) {
                 abortProcess(kieSession, instanceList2);
@@ -223,6 +229,7 @@ public class ProcessInstanceLogCleanTest extends JbpmTestCase {
 
     @Test
     public void deleteLogsByDate() throws InterruptedException {
+        assumeTrue(!isMySQLorMariaDB()); // Skip test as it might fail due to https://issues.redhat.com/browse/RHPAM-3716
         Date testStartDate = new Date();
 
         KieSession kieSession = createKSession(HELLO_WORLD_PROCESS);
@@ -233,7 +240,7 @@ public class ProcessInstanceLogCleanTest extends JbpmTestCase {
                 .startDateRangeStart(testStartDate)
                 .build()
                 .getResultList();
-        Assertions.assertThat(resultList)
+        assertThat(resultList)
                 .hasSize(4)
                 .extracting("processId")
                 .containsExactly(HELLO_WORLD_PROCESS_ID, HELLO_WORLD_PROCESS_ID,
@@ -250,56 +257,60 @@ public class ProcessInstanceLogCleanTest extends JbpmTestCase {
                         .execute())
                 .collect(Collectors.summingInt(Integer::intValue));
 
-        Assertions.assertThat(resultCount).isEqualTo(3);
+        assertThat(resultCount).isEqualTo(3);
 
         // Attempt to delete with a date later than end of all the instances
         resultCount = auditService.processInstanceLogDelete()
                 .startDate(new Date())
                 .build()
                 .execute();
-        Assertions.assertThat(resultCount).isEqualTo(0);
+        assertThat(resultCount).isZero();
 
         // Check the last instance
         List<ProcessInstanceLog> resultList2 = auditService.processInstanceLogQuery()
                 .startDateRangeStart(testStartDate)
                 .build()
                 .getResultList();
-        Assertions.assertThat(resultList2).hasSize(1);
-        Assertions.assertThat(resultList2.get(0)).isEqualTo(resultList.get(0));
+        assertThat(resultList2).hasSize(1);
+        assertThat(resultList2.get(0)).isEqualTo(resultList.get(0));
     }
 
     @Test
     public void deleteLogsByDateRange() throws InterruptedException {
+        assumeTrue(!isMySQLorMariaDB()); // Skip test as it might fail due to https://issues.redhat.com/browse/RHPAM-3716
+        ProcessCompletedCountDownProcessEventListener listener = new ProcessCompletedCountDownProcessEventListener(4);
+        addProcessEventListener(listener);
         KieSession kieSession = createKSession(PARENT_PROCESS_CALLER, PARENT_PROCESS_INFO, HELLO_WORLD_PROCESS);
 
         Date date1 = new Date();
         startProcess(kieSession, PARENT_PROCESS_CALLER_ID, 4);
         Date date2 = new Date();
-        Thread.sleep(1000);
+        listener.waitTillCompleted();
+
         startProcess(kieSession, HELLO_WORLD_PROCESS_ID, 2);
         Date date3 = new Date();
 
         int beforeSize = getProcessInstanceLogSize(getYesterday(), getTomorrow());
-        Assertions.assertThat(beforeSize).isEqualTo(10);
+        assertThat(beforeSize).isEqualTo(10);
 
         int resultCount = auditService.processInstanceLogDelete()
                 .startDateRangeStart(date1)
                 .startDateRangeEnd(date2)
                 .build()
                 .execute();
-        // 1 for ReussableSubprocess and 1 for ParentProcessInfo called by it
-        Assertions.assertThat(resultCount).isEqualTo(8);
+        // 1 for ReusableSubprocess and 1 for ParentProcessInfo called by it
+        assertThat(resultCount).isEqualTo(8);
 
         List<ProcessInstanceLog> resultList = auditService.processInstanceLogQuery()
                 .startDateRangeEnd(date3)
                 .build()
                 .getResultList();
-        Assertions.assertThat(resultList)
+        assertThat(resultList)
                 .hasSize(2)
                 .extracting("processId").containsExactly(HELLO_WORLD_PROCESS_ID, HELLO_WORLD_PROCESS_ID);
 
         int afterSize = getProcessInstanceLogSize(date1, date3);
-        Assertions.assertThat(afterSize).isEqualTo(2);
+        assertThat(afterSize).isEqualTo(2);
     }
 
     @Test
@@ -323,7 +334,7 @@ public class ProcessInstanceLogCleanTest extends JbpmTestCase {
         startProcess(kieSession, HELLO_WORLD_PROCESS_ID, 2);
 
         int beforeSize = getProcessInstanceLogSize(getYesterday(), getTomorrow());
-        Assertions.assertThat(beforeSize).isEqualTo(2);
+        assertThat(beforeSize).isEqualTo(2);
 
         int resultCount = auditService.processInstanceLogDelete()
                 .startDateRangeStart(startDate)
@@ -331,10 +342,10 @@ public class ProcessInstanceLogCleanTest extends JbpmTestCase {
                 .build()
                 .execute();
         // 1 for ReussableSubprocess and 1 for ParentProcessInfo called by it
-        Assertions.assertThat(resultCount).isEqualTo(expectRemoval ? 2 : 0);
+        assertThat(resultCount).isEqualTo(expectRemoval ? 2 : 0);
 
         int afterSize = getProcessInstanceLogSize(getYesterday(), getTomorrow());
-        Assertions.assertThat(afterSize).isEqualTo(expectRemoval ? 0 : 2);
+        assertThat(afterSize).isEqualTo(expectRemoval ? 0 : 2);
     }
 
 
@@ -388,6 +399,15 @@ public class ProcessInstanceLogCleanTest extends JbpmTestCase {
 
     private List<ProcessInstance> startProcess(KieSession kieSession, String processId, int count) throws InterruptedException {
         return this.startProcess(kieSession, processId, count, 0);
+    }
+
+    // @TODO To be removed once DDL scripts are in place for testing as some
+    //  issues are caused by https://issues.redhat.com/browse/RHPAM-3716
+    private boolean isMySQLorMariaDB() {
+        if (dbType == null) {
+            return false;
+        }
+        return dbType.name().toLowerCase().contains("mysql");
     }
 
 }
