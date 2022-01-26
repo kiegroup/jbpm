@@ -30,22 +30,21 @@ import org.jbpm.shared.services.impl.commands.UpdateStringCommand;
 import org.kie.api.executor.CommandContext;
 import org.kie.api.runtime.process.ProcessInstance;
 
-class ExecutionErrorCleanup {
+final class ExecutionErrorCleanupHelper {
 
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    private static final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd";
 
-    private final EntityManagerFactory emf;
-
-    ExecutionErrorCleanup(EntityManagerFactory emf) {
-        this.emf = emf;
+    private ExecutionErrorCleanupHelper() {
     }
 
-    int cleanup(CommandContext ctx) throws ParseException {
-        SimpleDateFormat formatToUse = dateFormat;
+    static int cleanup(CommandContext ctx, EntityManagerFactory emf) throws ParseException {
+        SimpleDateFormat formatToUse;
 
         String dataFormat = (String) ctx.getData("DateFormat");
         if (dataFormat != null) {
             formatToUse = new SimpleDateFormat(dataFormat);
+        } else {
+            formatToUse = new SimpleDateFormat(DEFAULT_DATE_FORMAT);
         }
 
         // collect parameters
