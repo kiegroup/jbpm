@@ -86,7 +86,7 @@ public class ExecutionErrorCleanupCommand implements Command, Reoccurring {
 		// get hold of persistence and create instance of audit service
 		EntityManagerFactory emf = EntityManagerFactoryManager.get().getOrCreate(emfName);
 
-		int deletedErrors = new ExecutionErrorCleanup(emf).cleanup(ctx);
+		int deletedErrors = ExecutionErrorCleanupHelper.cleanup(ctx, emf);
 		logger.debug("Number of Execution errors deleted {}", deletedErrors);
 		
 		executionResults.setData("ErrorsDeleted", deletedErrors);

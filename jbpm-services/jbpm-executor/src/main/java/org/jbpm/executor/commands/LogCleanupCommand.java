@@ -171,7 +171,7 @@ public class LogCleanupCommand implements Command, Reoccurring {
             logger.info("RequestInfoLogsRemoved {}", requestInfoLogsRemoved);
             executionResults.setData("RequestInfoLogsRemoved", requestInfoLogsRemoved);
 
-            long executionErrorInfoLogsRemoved = new ExecutionErrorCleanup(emf).cleanup(ctx);
+            long executionErrorInfoLogsRemoved = ExecutionErrorCleanupHelper.cleanup(ctx, emf);
             logger.info("ExecutionErrorInfoLogsRemoved {}", executionErrorInfoLogsRemoved);
             executionResults.setData("ExecutionErrorInfoLogsRemoved", executionErrorInfoLogsRemoved);
         }
