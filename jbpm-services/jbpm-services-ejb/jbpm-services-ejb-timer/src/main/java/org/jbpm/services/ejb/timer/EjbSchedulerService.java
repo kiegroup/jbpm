@@ -40,10 +40,13 @@ import org.jbpm.process.core.timer.impl.DelegateSchedulerServiceInterceptor;
 import org.jbpm.process.core.timer.impl.GlobalTimerService;
 import org.jbpm.process.core.timer.impl.GlobalTimerService.GlobalJobHandle;
 import org.jbpm.process.instance.timer.TimerManager.ProcessJobContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class EjbSchedulerService implements GlobalSchedulerService {
-    
+    private static final Logger logger = LoggerFactory.getLogger(EjbSchedulerService.class);
+
     private static final Boolean TRANSACTIONAL = Boolean.parseBoolean(System.getProperty("org.jbpm.ejb.timer.tx", "true"));
 
 	private AtomicLong idCounter = new AtomicLong();
@@ -83,7 +86,7 @@ public class EjbSchedulerService implements GlobalSchedulerService {
     @Override
     public boolean removeJob(JobHandle jobHandle) {
         JtaTransactionManager tm = (JtaTransactionManager) TransactionManagerFactory.get().newTransactionManager();
-        if (tm.getStatus() == TransactionManager.STATUS_ACTIVE) {
+        try {
             tm.registerTransactionSynchronization(new TransactionSynchronization() {
                 @Override
                 public void beforeCompletion() {
@@ -92,14 +95,17 @@ public class EjbSchedulerService implements GlobalSchedulerService {
                 @Override
                 public void afterCompletion(int status) {
                     if (status == TransactionManager.STATUS_COMMITTED) {
+                        logger.debug("remove job {} after commited", jobHandle);
                         scheduler.removeJob(jobHandle);
                     }
                 }
                 
             });
+            logger.debug("register tx to remove job {}", jobHandle);
             return true;
-        } else {
-            return false;
+        } catch (Exception e) {
+            logger.debug("remove job {} outside tx", jobHandle);
+            return scheduler.removeJob(jobHandle);
         }
     }
 
