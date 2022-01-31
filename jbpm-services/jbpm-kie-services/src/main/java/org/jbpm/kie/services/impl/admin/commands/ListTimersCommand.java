@@ -67,6 +67,14 @@ public class ListTimersCommand implements ExecutableCommand<List<TimerInstance>>
         	throw new ProcessInstanceNotFoundException("No process instance can be found for id " + processInstanceId);
         }
 
+        Long processSlaTimer = wfp.getSlaTimerId();
+        if (processSlaTimer != null && processSlaTimer != -1L) {
+            TimerInstanceImpl details = buildTimer(tm.getTimerMap().get(processSlaTimer));
+            details.setTimerName("[SLA-Process] " + wfp.getProcessName());
+            timers.add(details);
+        }
+
+
         processNodeInstance(tm, wfp, timers);
         
         return timers;

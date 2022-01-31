@@ -87,6 +87,7 @@ public class ProcessInstanceAdminServiceImplTest extends AbstractKieServicesBase
         processes.add("repo/processes/errors/BPMN2-BrokenScriptTask.bpmn2");
         processes.add("repo/processes/errors/BPMN2-UserTaskWithRollback.bpmn2");
         processes.add("repo/processes/general/AdHocSubProcess.bpmn2");
+        processes.add("repo/processes/general/BPMN2-ProcessSLA.bpmn2");
 
         InternalKieModule kJar1 = createKieJar(ks, releaseId, processes);
         File pom = new File("target/admin", "pom.xml");
@@ -159,7 +160,16 @@ public class ProcessInstanceAdminServiceImplTest extends AbstractKieServicesBase
         assertEquals("ActionNode", mappedNodes.get("Report"));
         assertEquals("EndNode", mappedNodes.get("End"));
     }
+
     
+    @Test
+    public void testQuerySlaProcess() {
+        processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "test.processSQLquery");
+        Collection<TimerInstance> timers = processAdminService.getTimerInstances(processInstanceId);
+        assertEquals(1, timers.size());
+        processService.abortProcessInstance(processInstanceId);
+    }
+
     @Test
     public void testCancelAndTrigger() {
         processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument");
