@@ -27,31 +27,38 @@ import javax.ejb.Timer;
 import javax.ejb.TimerService;
 
 import org.drools.core.time.impl.TimerJobInstance;
+import org.jbpm.persistence.timer.GlobalJpaTimerJobInstance;
+import org.junit.Before;
 import org.junit.Test;
 
 
 public class EJBTimerSchedulerTest {
 
-    @Test
-    public void testEjbTimerSchedulerTestOnTimerLoop() {
-        
-        Collection<Timer> timers = new ArrayList<>();
-        
+    private Collection<Timer> timers = new ArrayList<>();
+    private Timer timer1 = mock(Timer.class);
+    private EjbGlobalJobHandle ejbGlobalJobHandle1;
+    private EJBTimerScheduler scheduler;
+    
+    @Before
+    public void setup() {
         TimerService timerService = mock(TimerService.class);
         when(timerService.getTimers()).thenReturn(timers);
         
-        TimerJobInstance timerJobInstance1 = mock(TimerJobInstance.class);
-        EjbGlobalJobHandle ejbGlobalJobHandle1 = new EjbGlobalJobHandle(1L, "test job", "test");
+        GlobalJpaTimerJobInstance timerJobInstance1 = mock(GlobalJpaTimerJobInstance.class);
+        ejbGlobalJobHandle1 = new EjbGlobalJobHandle(1L, "test job", "test");
         ejbGlobalJobHandle1.setTimerJobInstance(timerJobInstance1);
         when(timerJobInstance1.getJobHandle()).thenReturn(ejbGlobalJobHandle1);
         
-        Timer timer1 = mock(Timer.class);
         when(timer1.getInfo()).thenReturn(new EjbTimerJob(timerJobInstance1));
         
         timers.add(timer1);
         
-        EJBTimerScheduler scheduler = new EJBTimerScheduler();
+        scheduler = new EJBTimerScheduler();
         scheduler.timerService = timerService;
+    }
+    
+    @Test
+    public void testEjbTimerSchedulerTestOnTimerLoop() {
         // first call to go over list of timers should not add anything to the cache as there is no matching timers
         TimerJobInstance jobInstance = scheduler.getTimerByName("not existing");
         assertNull(jobInstance);
@@ -61,6 +68,28 @@ public class EJBTimerSchedulerTest {
         // calling for existing timer should return it as it matches and thus also add it to cache
         jobInstance = scheduler.getTimerByName("test job");
         assertNotNull(jobInstance);
+        
+        //Remove job from cache and quit the timer from the getTimers mock call
+        scheduler.removeJob(ejbGlobalJobHandle1);
+        timers.remove(timer1);
+        jobInstance = scheduler.getTimerByName("test job");
+        assertNull(jobInstance);
     }
 
+    @Test
+    public void evictCacheForEjbTimerSchedulerTest() {
+        // calling for existing timer should return it as it matches and thus also add it to cache
+        TimerJobInstance jobInstance = scheduler.getTimerByName("test job");
+        assertNotNull(jobInstance);
+        
+        //Timer is removed but still found in cache
+        timers.remove(timer1);
+        jobInstance = scheduler.getTimerByName("test job");
+        assertNotNull(jobInstance);
+        
+        //After evicting cache, timer is completely removed
+        scheduler.evictCache(ejbGlobalJobHandle1);
+        jobInstance = scheduler.getTimerByName("test job");
+        assertNull(jobInstance);
+    }
 }
