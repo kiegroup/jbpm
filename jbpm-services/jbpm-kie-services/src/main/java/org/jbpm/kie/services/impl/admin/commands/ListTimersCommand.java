@@ -35,6 +35,7 @@ import org.jbpm.services.api.admin.TimerInstance;
 import org.jbpm.util.PatternConstants;
 import org.jbpm.workflow.instance.NodeInstanceContainer;
 import org.jbpm.workflow.instance.impl.NodeInstanceImpl;
+import org.jbpm.workflow.instance.node.HumanTaskNodeInstance;
 import org.jbpm.workflow.instance.node.StateBasedNodeInstance;
 import org.jbpm.workflow.instance.node.TimerNodeInstance;
 import org.kie.api.command.ExecutableCommand;
@@ -127,7 +128,15 @@ public class ListTimersCommand implements ExecutableCommand<List<TimerInstance>>
                         timers.add(details);
                     }
             	}
-                
+
+                if (nodeInstance instanceof HumanTaskNodeInstance) {
+                    HumanTaskNodeInstance htni = (HumanTaskNodeInstance) nodeInstance;
+                    if (htni.getSuspendUntilTimerId() >= 0) {
+                        TimerInstanceImpl details = buildTimer(tm.getTimerMap().get(htni.getSuspendUntilTimerId()));
+                        details.setTimerName("[SuspendUntil] " + resolveVariable(htni.getNodeName(), htni));
+                        timers.add(details);
+                    }
+                }
             }
             
             if (nodeInstance instanceof NodeInstanceContainer) {
