@@ -27,7 +27,6 @@ import org.jbpm.bpmn2.core.Message;
 import org.jbpm.bpmn2.handler.SendMessageAction;
 import org.jbpm.bpmn2.handler.SendSignalAction;
 import org.jbpm.compiler.xml.ProcessBuildData;
-import org.jbpm.process.core.context.variable.Variable;
 import org.jbpm.process.core.impl.DataTransformerRegistry;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
 import org.jbpm.workflow.core.Node;
@@ -241,9 +240,7 @@ public class IntermediateThrowEventHandler extends AbstractNodeHandler {
 							"Could not find message " + messageRef);
 				}
                 message.addOutgoingNode(node);
-                String mappingVariable = (String) actionNode.getMetaData("MappingVariable");
-                Variable v = (Variable) ((ProcessBuildData) parser.getData()).getMetaData("Variable");
-                String varName = v != null ? (String) v.getMetaData(mappingVariable) : mappingVariable;
+                String varName = (String) actionNode.getMetaData("MappingVariable");
                 actionNode.setMetaData("MessageType", message.getType());
                 actionNode.setAction(new JavaDroolsAction(new SendMessageAction(varName, message)));
 			}
