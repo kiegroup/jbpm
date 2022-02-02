@@ -296,15 +296,19 @@ public class EJBTimerScheduler {
 
         // small speed improvement using the ejb serializable info handler
         GlobalJpaTimerJobInstance timerJobInstance = (GlobalJpaTimerJobInstance) ejbHandle.getTimerJobInstance();
-        Object ejbTimerHandle =  timerJobInstance.getTimerInfo();
-        if(ejbTimerHandle instanceof TimerHandle) {
-            try {
-                ((TimerHandle) ejbTimerHandle).getTimer().cancel();
-            } catch (Throwable e) {
-                logger.debug("Timer cancel error due to {}", e.getMessage());
-                return false;
+        if (timerJobInstance != null) {
+            Object ejbTimerHandle =  timerJobInstance.getTimerInfo();
+            if(ejbTimerHandle instanceof TimerHandle) {
+                try {
+                    ((TimerHandle) ejbTimerHandle).getTimer().cancel();
+                } catch (Throwable e) {
+                    logger.debug("Timer cancel error due to {}", e.getMessage());
+                    return false;
+                }
+                return true;
             }
-            return true;
+        } else {
+            logger.warn("No timerJobInstance available for {}", ejbHandle);
         }
 
 		for (Timer timer : timerService.getTimers()) {
