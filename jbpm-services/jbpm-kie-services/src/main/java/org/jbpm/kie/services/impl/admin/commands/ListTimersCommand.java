@@ -35,6 +35,7 @@ import org.jbpm.services.api.admin.TimerInstance;
 import org.jbpm.util.PatternConstants;
 import org.jbpm.workflow.instance.NodeInstanceContainer;
 import org.jbpm.workflow.instance.impl.NodeInstanceImpl;
+import org.jbpm.workflow.instance.node.HumanTaskNodeInstance;
 import org.jbpm.workflow.instance.node.StateBasedNodeInstance;
 import org.jbpm.workflow.instance.node.TimerNodeInstance;
 import org.kie.api.command.ExecutableCommand;
@@ -65,6 +66,14 @@ public class ListTimersCommand implements ExecutableCommand<List<TimerInstance>>
         if (wfp == null) {
         	throw new ProcessInstanceNotFoundException("No process instance can be found for id " + processInstanceId);
         }
+
+        Long processSlaTimer = wfp.getSlaTimerId();
+        if (processSlaTimer != null && processSlaTimer != -1L) {
+            TimerInstanceImpl details = buildTimer(tm.getTimerMap().get(processSlaTimer));
+            details.setTimerName("[SLA-Process] " + wfp.getProcessName());
+            timers.add(details);
+        }
+
 
         processNodeInstance(tm, wfp, timers);
         
@@ -127,7 +136,15 @@ public class ListTimersCommand implements ExecutableCommand<List<TimerInstance>>
                         timers.add(details);
                     }
             	}
-                
+
+                if (nodeInstance instanceof HumanTaskNodeInstance) {
+                    HumanTaskNodeInstance htni = (HumanTaskNodeInstance) nodeInstance;
+                    if (htni.getSuspendUntilTimerId() >= 0) {
+                        TimerInstanceImpl details = buildTimer(tm.getTimerMap().get(htni.getSuspendUntilTimerId()));
+                        details.setTimerName("[SuspendUntil] " + resolveVariable(htni.getNodeName(), htni));
+                        timers.add(details);
+                    }
+                }
             }
             
             if (nodeInstance instanceof NodeInstanceContainer) {
