@@ -31,6 +31,7 @@ import org.jbpm.services.task.audit.service.TaskJPAAuditService;
 import org.kie.api.executor.STATUS;
 import org.kie.internal.runtime.manager.audit.query.ErrorInfoDeleteBuilder;
 import org.kie.internal.runtime.manager.audit.query.ErrorInfoQueryBuilder;
+import org.kie.internal.runtime.manager.audit.query.ExecutionErrorInfoDeleteBuilder;
 import org.kie.internal.runtime.manager.audit.query.RequestInfoLogDeleteBuilder;
 import org.kie.internal.runtime.manager.audit.query.RequestInfoQueryBuilder;
 
@@ -69,6 +70,10 @@ public class ExecutorJPAAuditService extends TaskJPAAuditService {
 	public RequestInfoLogDeleteBuilder requestInfoLogDeleteBuilder() {
 		return new RequestInfoDeleteBuilderImpl(this);
 	}
+
+    public ExecutionErrorInfoDeleteBuilder executionErrorInfoDeleteBuilder() {
+        return new ExecutionErrorInfoDeleteBuilderImpl(this);
+    }
 
 	// Query Query API -----------------------------------------------------------------------------------------------------------
 	

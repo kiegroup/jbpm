@@ -16,12 +16,17 @@
 
 package org.jbpm.executor.commands;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.persistence.EntityManagerFactory;
 
 import org.jbpm.process.core.timer.DateTimeUtils;
 import org.jbpm.runtime.manager.impl.jpa.EntityManagerFactoryManager;
+import org.jbpm.shared.services.impl.TransactionalCommandService;
+import org.jbpm.shared.services.impl.commands.UpdateStringCommand;
 import org.kie.api.executor.Command;
 import org.kie.api.executor.CommandContext;
 import org.kie.api.executor.ExecutionResults;
@@ -49,7 +54,8 @@ import org.slf4j.LoggerFactory;
 public class ExecutionErrorCleanupCommand implements Command, Reoccurring {
 	
 	private static final Logger logger = LoggerFactory.getLogger(ExecutionErrorCleanupCommand.class);
-
+	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
+	
 	private long nextScheduleTimeAdd = 24 * 60 * 60 * 1000; // one day in milliseconds
 
 	@Override
@@ -68,6 +74,13 @@ public class ExecutionErrorCleanupCommand implements Command, Reoccurring {
 
 	@Override
 	public ExecutionResults execute(CommandContext ctx) throws Exception {
+		SimpleDateFormat formatToUse = DATE_FORMAT;
+		
+		String dataFormat = (String) ctx.getData("DateFormat");
+		if (dataFormat != null) {
+			formatToUse = new SimpleDateFormat(dataFormat);
+		}
+		
 		ExecutionResults executionResults = new ExecutionResults();
 		String emfName = (String)ctx.getData("EmfName");
 		if (emfName == null) {
@@ -86,7 +99,44 @@ public class ExecutionErrorCleanupCommand implements Command, Reoccurring {
 		// get hold of persistence and create instance of audit service
 		EntityManagerFactory emf = EntityManagerFactoryManager.get().getOrCreate(emfName);
 
-		int deletedErrors = ExecutionErrorCleanupHelper.cleanup(ctx, emf);
+		// collect parameters
+		String olderThan = (String)ctx.getData("OlderThan");
+		String olderThanPeriod = (String)ctx.getData("OlderThanPeriod");
+		String forProcess = (String)ctx.getData("ForProcess");
+		String forProcessInstance = (String)ctx.getData("ForProcessInstance");
+		String forDeployment = (String)ctx.getData("ForDeployment");
+		
+		if (olderThanPeriod != null) {
+			long olderThanDuration = DateTimeUtils.parseDateAsDuration(olderThanPeriod);
+			Date olderThanDate = new Date(System.currentTimeMillis() - olderThanDuration);
+			
+			olderThan = formatToUse.format(olderThanDate);
+		}
+		Map<String, Object> parameters = new HashMap<>();
+        StringBuilder cleanUpErrorsQuery = new StringBuilder();
+        
+        cleanUpErrorsQuery.append("delete from ExecutionErrorInfo where processInstanceId in "
+                + "(select processInstanceId from ProcessInstanceLog where status in (2,3))");
+        if (olderThan != null && !olderThan.isEmpty()) {            
+            cleanUpErrorsQuery.append(" and errorDate < :olderThan");
+            parameters.put("olderThan", formatToUse.parse(olderThan));
+        }
+        if (forProcess != null && !forProcess.isEmpty()) {            
+            cleanUpErrorsQuery.append(" and processId = :forProcess");
+            parameters.put("forProcess", forProcess);
+        }
+        if (forProcessInstance != null && !forProcessInstance.isEmpty()) {            
+            cleanUpErrorsQuery.append(" and processInstanceId = :forProcessInstance");
+            parameters.put("forProcessInstance", Long.parseLong(forProcessInstance));
+        }
+        if (forDeployment != null && !forDeployment.isEmpty()) {            
+            cleanUpErrorsQuery.append(" and deploymentId = :forDeployment");
+            parameters.put("forDeployment", forDeployment);
+        }
+        
+        TransactionalCommandService commandService = new TransactionalCommandService(emf);
+        
+        int deletedErrors = commandService.execute(new UpdateStringCommand(cleanUpErrorsQuery.toString(), parameters));
 		logger.debug("Number of Execution errors deleted {}", deletedErrors);
 		
 		executionResults.setData("ErrorsDeleted", deletedErrors);
