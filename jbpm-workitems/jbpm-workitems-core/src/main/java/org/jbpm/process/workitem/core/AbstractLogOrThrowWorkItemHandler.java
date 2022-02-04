@@ -18,6 +18,8 @@ package org.jbpm.process.workitem.core;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.persistence.PersistenceException;
+
 import org.jbpm.bpmn2.handler.WorkItemHandlerRuntimeException;
 import org.jbpm.workflow.instance.node.WorkItemNodeInstance;
 import org.kie.api.runtime.process.NodeInstance;
@@ -48,11 +50,12 @@ public abstract class AbstractLogOrThrowWorkItemHandler implements WorkItemHandl
 
     protected void handleException(Throwable cause,
                                    Map<String, Object> handlerInfoMap) {
-        if (handlingProcessId != null && handlingStrategy != null) {
+
+        // we check first if the exception should be handle or not.
+        if (canExceptionTriggerSubprocess(cause) && handlingProcessId != null && handlingStrategy != null) {
             throw new ProcessWorkItemHandlerException(handlingProcessId, handlingStrategy, cause, retries);
         }
-        
-        
+
         String service = (String) handlerInfoMap.get("Interface");
         String operation = (String) handlerInfoMap.get("Operation");
 
@@ -75,6 +78,13 @@ public abstract class AbstractLogOrThrowWorkItemHandler implements WorkItemHandl
                                  this.getClass().getSimpleName());
             throw wihRe;
         }
+    }
+
+    private boolean canExceptionTriggerSubprocess(Throwable cause) {
+        while (cause != null && !(cause instanceof PersistenceException)) {
+            cause = cause.getCause();
+        }
+        return !(cause instanceof PersistenceException);
     }
 
     protected WorkItemNodeInstance findNodeInstance(long workItemId,
