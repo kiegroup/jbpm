@@ -509,14 +509,24 @@ public class UserTaskServiceImpl implements UserTaskService, VariablesAware {
 			disposeRuntimeEngine(manager, engine);
 		}
 	}
-	
-	@Override
+
+    @Override
     public void suspend(Long taskId, String userId) {
-	    suspend(null, taskId, userId);
-	}
+        suspend(taskId, userId, Collections.emptyMap());
+    }
+
+    @Override
+    public void suspend(Long taskId, String userId, Map<String, Object> parameters) {
+        suspend(null, taskId, userId, parameters);
+    }
+
+    @Override
+    public void suspend(String deploymentId, Long taskId, String userId) {
+        suspend(deploymentId, taskId, userId, Collections.emptyMap());
+    }
 
 	@Override
-	public void suspend(String deploymentId, Long taskId, String userId) {
+	public void suspend(String deploymentId, Long taskId, String userId, Map<String, Object> parameters) {
 		UserTaskInstanceDesc task = dataService.getTaskById(taskId);
 		validateTask(deploymentId, taskId, task);
 
@@ -529,7 +539,7 @@ public class UserTaskServiceImpl implements UserTaskService, VariablesAware {
 		try {
 			TaskService taskService = engine.getTaskService();
 			// perform actual operation
-			taskService.suspend(taskId, userId);
+			taskService.suspend(taskId, userId, parameters);
 		} catch(PermissionDeniedException e){
             throw new TaskNotFoundException(e.getMessage());
         } finally {
