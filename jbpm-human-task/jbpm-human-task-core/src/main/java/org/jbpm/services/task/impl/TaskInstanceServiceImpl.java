@@ -317,7 +317,11 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
     }
 
     public void suspend(long taskId, String userId) {
-        lifeCycleManager.taskOperation(Operation.Suspend, taskId, userId, null, null, toGroups(null));
+        this.suspend(taskId, userId, Collections.emptyMap());
+    }
+
+    public void suspend(long taskId, String userId, Map<String, Object> parameters) {
+        lifeCycleManager.taskOperation(Operation.Suspend, taskId, userId, null, parameters, toGroups(null));
     }
 
     public void nominate(long taskId, String userId, List<OrganizationalEntity> potentialOwners) {      

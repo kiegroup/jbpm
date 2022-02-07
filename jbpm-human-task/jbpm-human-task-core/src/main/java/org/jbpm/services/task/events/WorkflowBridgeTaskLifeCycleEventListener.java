@@ -39,20 +39,23 @@ public class WorkflowBridgeTaskLifeCycleEventListener extends DefaultTaskEventLi
 
     @Override
     public void afterTaskSuspendedEvent(TaskEvent event) {
-        executeWork(event.getTask(), HumanTaskNodeInstance.SUSPEND_SIGNAL);
+        String suspendUntilExpression = (String) event.getMetadata().get(HumanTaskNodeInstance.SUSPEND_UNTIL_PARAMETER);
+        executeWork(event.getTask(), suspendUntilExpression, HumanTaskNodeInstance.SUSPEND_SIGNAL);
     }
 
     @Override
     public void afterTaskResumedEvent(TaskEvent event) {
-        executeWork(event.getTask(), HumanTaskNodeInstance.ACTIVATE_SIGNAL);
+        String suspendUntilExpression = (String) event.getMetadata().get(HumanTaskNodeInstance.SUSPEND_UNTIL_PARAMETER);
+        executeWork(event.getTask(), suspendUntilExpression, HumanTaskNodeInstance.ACTIVATE_SIGNAL);
     }
 
-    public void executeWork(Task task, String signal) {
+    public void executeWork(Task task, String suspendUntilExpression, String signal) {
         Long processInstanceId = task.getTaskData().getProcessInstanceId();
         InternalRuntimeEngine runtimeEngine = (InternalRuntimeEngine) runtimeManager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstanceId));
         try {
             KieSession kieSession = runtimeEngine.getKieSession();
             WorkItem workItem = ((org.drools.core.process.instance.WorkItemManager) kieSession.getWorkItemManager()).getWorkItem(task.getTaskData().getWorkItemId());
+            workItem.getParameters().put(HumanTaskNodeInstance.SUSPEND_UNTIL_PARAMETER, suspendUntilExpression);
             kieSession.signalEvent(signal, workItem, processInstanceId);
         } finally {
             runtimeManager.disposeRuntimeEngine(runtimeEngine);

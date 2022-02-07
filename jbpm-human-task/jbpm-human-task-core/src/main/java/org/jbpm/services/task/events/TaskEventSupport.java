@@ -105,9 +105,10 @@ public class TaskEventSupport extends AbstractEventSupport<TaskLifeCycleEventLis
         }
     }
     
-    public void fireBeforeTaskSuspended(final Task task, TaskContext context) {
+    public void fireBeforeTaskSuspended(final Task task, TaskContext context, Map<String, Object> parameters) {
         if ( hasListeners() ) {
             final TaskEventImpl event = new TaskEventImpl(task, context);
+            event.getMetadata().putAll(parameters);
             notifyAllListeners( event, ( l, e ) -> l.beforeTaskSuspendedEvent( e ) );
         }
     }
@@ -263,9 +264,10 @@ public class TaskEventSupport extends AbstractEventSupport<TaskLifeCycleEventLis
         }
     }
     
-    public void fireAfterTaskSuspended(final Task task, TaskContext context) {
+    public void fireAfterTaskSuspended(final Task task, TaskContext context, Map<String, Object> parameters) {
         if ( hasListeners() ) {
             final TaskEventImpl event = new TaskEventImpl(task, context);
+            event.getMetadata().putAll(parameters);
             notifyAllListeners( event, ( l, e ) -> l.afterTaskSuspendedEvent(e) );
         }
     }

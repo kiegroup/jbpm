@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 public class HumanTaskNodeInstance extends WorkItemNodeInstance {
     public static final String ADMINISTRATOR_USER = System.getProperty("org.jbpm.ht.admin.user", "Administrator");
+    public static final String SUSPEND_UNTIL_PARAMETER = "suspendUntil";
     public static final String SUSPEND_SIGNAL = "humanTaskNodeInstance:suspended";
     public static final String ACTIVATE_SIGNAL = "humanTaskNodeInstance:activated";
 
@@ -146,7 +147,7 @@ public class HumanTaskNodeInstance extends WorkItemNodeInstance {
             return;
         }
         if (SUSPEND_SIGNAL.equals(type)) {
-            createSuspendTimer();
+            createSuspendTimer((WorkItem) event);
         } else if (ACTIVATE_SIGNAL.equals(type)) {
             removeSuspendTimer();
         }
@@ -176,8 +177,14 @@ public class HumanTaskNodeInstance extends WorkItemNodeInstance {
         suspendUntilTimerId = -1;
     }
 
-    private void createSuspendTimer() {
-        String suspendUntil = (String) getNode().getMetaData().get("suspendUntil"); // use metadata ?
+    private void createSuspendTimer(WorkItem workItem) {
+        // parameters takes priority over metadata
+        String suspendUntil = (String) workItem.getParameter(SUSPEND_UNTIL_PARAMETER);
+
+        if (suspendUntil == null) {
+            suspendUntil = (String) getNode().getMetaData().get(SUSPEND_UNTIL_PARAMETER);
+        } 
+
         if (suspendUntil == null) {
             return;
         }

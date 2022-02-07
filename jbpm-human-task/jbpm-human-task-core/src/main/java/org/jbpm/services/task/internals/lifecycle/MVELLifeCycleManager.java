@@ -383,7 +383,7 @@ public class MVELLifeCycleManager implements LifeCycleManager {
                     break;
                 }
                 case Suspend: {
-                	taskEventSupport.fireBeforeTaskSuspended(task, context);
+                	taskEventSupport.fireBeforeTaskSuspended(task, context, data);
                     break;
                 }
 
@@ -457,7 +457,7 @@ public class MVELLifeCycleManager implements LifeCycleManager {
                     break;
                 }    
                 case Suspend: {
-                	taskEventSupport.fireAfterTaskSuspended(task, context);
+                	taskEventSupport.fireAfterTaskSuspended(task, context, data);
                     break;
                 }
                 

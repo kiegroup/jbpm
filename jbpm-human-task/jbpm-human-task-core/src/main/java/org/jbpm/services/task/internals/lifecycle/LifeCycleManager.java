@@ -32,6 +32,7 @@ import org.kie.internal.task.exception.TaskException;
  *
  */
 public interface LifeCycleManager {
+
     public void taskOperation(final Operation operation, final long taskId, final String userId,
                               final String targetEntityId, final Map<String, Object> data,
                               List<String> groupIds, OrganizationalEntity...entities) throws TaskException;
