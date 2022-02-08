@@ -15,6 +15,7 @@
  */
 package org.jbpm.services.task.commands;
 
+import org.drools.core.xml.jaxb.util.JaxbMapAdapter;
 import org.kie.api.runtime.Context;
 
 import java.util.Map;
@@ -23,6 +24,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
  * Operation.Suspend : [ new OperationCommand().{ status = [ Status.Ready ],
@@ -38,6 +40,7 @@ public class SuspendTaskCommand extends UserGroupCallbackTaskCommand<Void> {
 	private static final long serialVersionUID = 5486559063221608125L;
 
     @XmlElement(name="parameters")
+    @XmlJavaTypeAdapter(JaxbMapAdapter.class)
     private Map<String, Object> parameters;
 
 	public SuspendTaskCommand() {
