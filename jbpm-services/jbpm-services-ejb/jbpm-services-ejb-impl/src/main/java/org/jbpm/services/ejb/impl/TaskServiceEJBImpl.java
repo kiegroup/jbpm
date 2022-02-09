@@ -373,6 +373,11 @@ public class TaskServiceEJBImpl implements InternalTaskService, TaskService, Tas
 		unsupported(Void.class);
 	}
 
+    @Override
+    public void suspend(long taskId, String userId, Map<String, Object> parameters) {
+        unsupported(Void.class);
+    }
+
 	@Override
 	public void nominate(long taskId, String userId, List<OrganizationalEntity> potentialOwners) {
 		unsupported(Void.class);
@@ -718,4 +723,6 @@ public class TaskServiceEJBImpl implements InternalTaskService, TaskService, Tas
     public long addContentFromUser(long taskId, String userId, Map<String, Object> params) {
         return delegate.addContentFromUser(taskId, userId, params);
     }
+
+
 }

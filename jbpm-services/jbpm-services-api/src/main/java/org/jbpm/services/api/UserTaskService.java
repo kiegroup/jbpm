@@ -334,6 +334,16 @@ public interface UserTaskService {
 	void suspend(Long taskId, String userId);
 	
 	/**
+     * Suspend a claimed task with given parameters
+     * 
+     * @param taskId
+     * @param userId
+     * @param parameters
+     * @throws TaskNotFoundException in case task with given id was not found
+     */
+    void suspend(Long taskId, String userId, Map<String, Object> parameters);
+
+	/**
      * Suspend a claimed task.
      * 
      * @param deploymentId
@@ -342,6 +352,17 @@ public interface UserTaskService {
      * @throws TaskNotFoundException in case task with given id was not found or is not associated with given deployment id
      */
     void suspend(String deploymentId, Long taskId, String userId);
+
+    /**
+     * Suspend a claimed task.
+     * 
+     * @param deploymentId
+     * @param taskId
+     * @param userId
+     * @param parameters
+     * @throws TaskNotFoundException in case task with given id was not found or is not associated with given deployment id
+     */
+    void suspend(String deploymentId, Long taskId, String userId, Map<String, Object> parameters);
 
 	/**
 	 * Nominate a task to be handled by potentialOwners

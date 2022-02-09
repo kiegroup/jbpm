@@ -544,6 +544,13 @@ public class SynchronizedTaskService
     }
 
     @Override
+    public void suspend(long taskId, String userId, Map<String, Object> parameters) {
+        synchronized (ksession) {
+            taskService.suspend(taskId, userId, parameters);
+        }
+    }
+
+    @Override
     public void undeployTaskDef(String id) {
         synchronized (ksession) {
             taskService.undeployTaskDef(id);

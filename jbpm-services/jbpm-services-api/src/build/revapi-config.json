@@ -53,7 +53,26 @@
                   "methodName": "queryUserTasksByVariables",
                   "elementKind": "method",
                   "justification": "[JBPM-9675] Allow query by potential owners with ALL or ANY operands"
-                }
+                },
+                {
+                   "code": "java.method.addedToInterface",
+                   "new": "method void org.jbpm.services.api.UserTaskService::suspend(java.lang.Long, java.lang.String, java.util.Map<java.lang.String, java.lang.Object>)",
+                   "package": "org.jbpm.services.api",
+                   "classSimpleName": "UserTaskService",
+                   "methodName": "suspend",
+                   "elementKind": "method",
+                   "justification": "[JBPM-10015] Allow to set suspendUntil during user task suspend operation as parameter."
+                 },
+                 {
+                   "code": "java.method.addedToInterface",
+                   "new": "method void org.jbpm.services.api.UserTaskService::suspend(java.lang.String, java.lang.Long, java.lang.String, java.util.Map<java.lang.String, java.lang.Object>)",
+                   "package": "org.jbpm.services.api",
+                   "classSimpleName": "UserTaskService",
+                   "methodName": "suspend",
+                   "elementKind": "method",
+                   "justification": "[JBPM-10015] Allow to set suspendUntil during user task suspend operation as parameter."
+                 }
+                
             ]
         }
     }

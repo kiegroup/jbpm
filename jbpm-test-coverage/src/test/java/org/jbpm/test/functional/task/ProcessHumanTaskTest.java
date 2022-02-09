@@ -322,6 +322,45 @@ public class ProcessHumanTaskTest extends JbpmTestCase {
     }
 
     @Test
+    public void testHumanTaskWithSuspendUntilWithParameter() throws Exception {
+        CountDownLatch latch = new CountDownLatch(1);
+        
+        addTaskEventListener(new DefaultTaskEventListener() {
+            @Override
+            public void afterTaskResumedEvent(TaskEvent event) {
+                latch.countDown();
+            }
+        });
+        sessionPersistence = true; // so JPAProcessInstanceManager is used
+        createRuntimeManager("org/jbpm/test/functional/task/HumanTaskWithSuspendUntil.bpmn2");
+        RuntimeEngine runtimeEngine = getRuntimeEngine();
+        KieSession ksession = runtimeEngine.getKieSession();
+
+        TaskService taskService = runtimeEngine.getTaskService();
+
+
+        ProcessInstance processInstance = ksession.startProcess("humanTaskWithSuspendUntil");
+
+        assertProcessInstanceActive(processInstance.getId(), ksession);
+
+        // let john execute Task 1
+        List<TaskSummary> list = taskService.getTasksAssignedAsPotentialOwner("john", "en-UK");
+        TaskSummary task = list.get(0);
+        logger.info("John is executing task {}", task.getName());
+        taskService.start(task.getId(), "john");
+        logger.info("John is suspending task {}", task.getName());
+        long start = System.currentTimeMillis();
+        taskService.suspend(task.getId(), "john", Collections.singletonMap("suspendUntil", "PT3S")); 
+        latch.await();
+        long total = System.currentTimeMillis() - start;
+        // it has to be beyond 10 seconds to check the override
+        Assert.assertTrue(total >= 3*1000L);
+        taskService.complete(task.getId(), "john", null);
+
+        assertProcessInstanceNotActive(processInstance.getId(), ksession);
+    }
+
+    @Test
     public void testHumanTaskWithSuspendUntilRemoveTimer() throws Exception {
         CountDownLatch latch = new CountDownLatch(2);
         addTaskEventListener(new DefaultTaskEventListener() {

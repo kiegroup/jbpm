@@ -15,11 +15,16 @@
  */
 package org.jbpm.services.task.commands;
 
+import org.drools.core.xml.jaxb.util.JaxbMapAdapter;
 import org.kie.api.runtime.Context;
+
+import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
  * Operation.Suspend : [ new OperationCommand().{ status = [ Status.Ready ],
@@ -34,12 +39,25 @@ public class SuspendTaskCommand extends UserGroupCallbackTaskCommand<Void> {
 	
 	private static final long serialVersionUID = 5486559063221608125L;
 
+    @XmlElement(name="parameters")
+    @XmlJavaTypeAdapter(JaxbMapAdapter.class)
+    private Map<String, Object> parameters;
+
 	public SuspendTaskCommand() {
 	}
 
-    public SuspendTaskCommand(long taskId, String userId) {
+	public Map<String, Object> getParameters() {
+        return parameters;
+    }
+
+    public void setParameters(Map<String, Object> parameters) {
+        this.parameters = parameters;
+    }
+
+    public SuspendTaskCommand(long taskId, String userId, Map<String, Object> parameters) {
         this.taskId = taskId;
         this.userId = userId;
+        this.parameters = parameters;
     }
 
     public Void execute(Context cntxt) {
@@ -47,7 +65,7 @@ public class SuspendTaskCommand extends UserGroupCallbackTaskCommand<Void> {
         doCallbackUserOperation(userId, context, true);
         groupIds = doUserGroupCallbackOperation(userId, null, context);
         context.set("local:groups", groupIds);
-    	context.getTaskInstanceService().suspend(taskId, userId);
+    	context.getTaskInstanceService().suspend(taskId, userId, parameters);
     	return null;        
     }
 }
