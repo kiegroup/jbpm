@@ -15,10 +15,14 @@
  */
 package org.jbpm.executor.impl.jpa;
 
+import java.util.Date;
+
 import org.jbpm.process.audit.JPAAuditLogService;
 import org.jbpm.process.audit.query.AbstractAuditDeleteBuilderImpl;
 import org.jbpm.runtime.manager.impl.jpa.ExecutionErrorInfo;
 import org.kie.internal.runtime.manager.audit.query.ExecutionErrorInfoDeleteBuilder;
+
+import static org.kie.internal.query.QueryParameterIdentifiers.ERROR_DATE_LIST;
 
 public class ExecutionErrorInfoDeleteBuilderImpl extends AbstractAuditDeleteBuilderImpl<ExecutionErrorInfoDeleteBuilder> implements ExecutionErrorInfoDeleteBuilder {
 
@@ -37,5 +41,15 @@ public class ExecutionErrorInfoDeleteBuilderImpl extends AbstractAuditDeleteBuil
     @Override
     protected String getQueryTable() {
         return EXECUTION_ERROR_INFO_LOG_DELETE;
+    }
+
+    @Override
+    public ExecutionErrorInfoDeleteBuilder dateRangeEnd(Date rangeEnd) {
+        if (checkIfNull(rangeEnd)) {
+            return this;
+        }
+        rangeEnd = ensureDateNotTimestamp(rangeEnd)[0];
+        addRangeParameter(ERROR_DATE_LIST, "date range end", rangeEnd, false);
+        return this;
     }
 }

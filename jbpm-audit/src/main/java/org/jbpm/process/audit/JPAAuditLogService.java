@@ -56,6 +56,7 @@ import static org.kie.internal.query.QueryParameterIdentifiers.CORRELATION_KEY_L
 import static org.kie.internal.query.QueryParameterIdentifiers.DATE_LIST;
 import static org.kie.internal.query.QueryParameterIdentifiers.DURATION_LIST;
 import static org.kie.internal.query.QueryParameterIdentifiers.END_DATE_LIST;
+import static org.kie.internal.query.QueryParameterIdentifiers.ERROR_DATE_LIST;
 import static org.kie.internal.query.QueryParameterIdentifiers.EXTERNAL_ID_LIST;
 import static org.kie.internal.query.QueryParameterIdentifiers.FILTER;
 import static org.kie.internal.query.QueryParameterIdentifiers.FIRST_RESULT;
@@ -397,7 +398,9 @@ public class JPAAuditLogService extends JPAService implements AuditLogService {
         addCriteria(SUBQUERY_STATUS, "spl.status", Integer.class);
         addCriteria(SUBQUERY_DEPLOYMENT, "spl.externalId", String.class);
         addCriteria(SUBQUERY_CASE, "spl.processId", String.class);
-       
+
+        // execution error info
+        addCriteria(ERROR_DATE_LIST, "l.errorDate", Date.class);
     }
    
     protected static void addCriteria(String listId, String fieldName, Class<?> type) {
