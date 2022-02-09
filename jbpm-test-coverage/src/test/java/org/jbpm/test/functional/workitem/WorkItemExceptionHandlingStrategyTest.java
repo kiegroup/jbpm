@@ -15,7 +15,9 @@
  */
 package org.jbpm.test.functional.workitem;
 
+import org.assertj.core.api.Assertions;
 import org.jbpm.test.JbpmTestCase;
+import org.jbpm.workflow.instance.WorkflowRuntimeException;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.RuntimeEngine;
@@ -34,12 +36,7 @@ public class WorkItemExceptionHandlingStrategyTest extends JbpmTestCase {
 
     @Test
     public void exceptionHandlingAbortProcess() {
-        manager = createRuntimeManager(Strategy.PROCESS_INSTANCE, (String) null, 
-                                       "org/jbpm/test/functional/workitem/BPMN2-UserTaskWithBooleanOutputWaitSignal.bpmn2", 
-                                       "org/jbpm/test/functional/workitem/BPMN2-WaitSignal.bpmn2" 
-        );
-        RuntimeEngine runtimeEngine = getRuntimeEngine( ProcessInstanceIdContext.get() );
-        KieSession kieSession = runtimeEngine.getKieSession();
+        KieSession kieSession = createSession();
 
         kieSession.getWorkItemManager().registerWorkItemHandler( "Human Task", new ExceptionWorkItemHandler(EXCEPTION_HANDLING_PROCESS_ID, HandlingStrategy.ABORT.name()) );
         ProcessInstance pi = kieSession.startProcess( FAILING_PROCESS_ID );
@@ -48,6 +45,24 @@ public class WorkItemExceptionHandlingStrategyTest extends JbpmTestCase {
         kieSession.abortProcessInstance(pi.getId());
         assertProcessInstanceAborted( pi.getId() );
 
+    }
+    
+    @Test
+    public void exceptionHandlingNotTriggeringSubprocessWhenPersistentException() {
+        KieSession kieSession = createSession();
+
+        kieSession.getWorkItemManager().registerWorkItemHandler( "Human Task", new PersistentExceptionWorkItemHandler(EXCEPTION_HANDLING_PROCESS_ID, HandlingStrategy.ABORT.name()) );
+        Assertions.assertThatThrownBy(() -> kieSession.startProcess( FAILING_PROCESS_ID )).isInstanceOf(WorkflowRuntimeException.class);
+    }
+
+    private KieSession createSession() {
+        manager = createRuntimeManager(Strategy.PROCESS_INSTANCE, (String) null, 
+                                       "org/jbpm/test/functional/workitem/BPMN2-UserTaskWithBooleanOutputWaitSignal.bpmn2", 
+                                       "org/jbpm/test/functional/workitem/BPMN2-WaitSignal.bpmn2" 
+        );
+        RuntimeEngine runtimeEngine = getRuntimeEngine( ProcessInstanceIdContext.get() );
+        KieSession kieSession = runtimeEngine.getKieSession();
+        return kieSession;
     }
 
 }
