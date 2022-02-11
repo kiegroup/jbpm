@@ -144,7 +144,7 @@ public class StateNodeInstance extends CompositeContextNodeInstance implements E
 	            String constraintName =  getActivationEventType() + "-"
 	            	+ connection.getTo().getId() + "-" + connection.getToType();
 	            if (constraintName.equals(event.getMatch().getRule().getName())
-	            		&& checkProcessInstance((Activation) event.getMatch())) {
+	            		&& checkProcessInstance(event.getMatch())) {
 	            	selected = connection;
 	            }
             }

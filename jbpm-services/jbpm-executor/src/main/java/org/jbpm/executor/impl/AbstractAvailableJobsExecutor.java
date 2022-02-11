@@ -28,6 +28,7 @@ import java.util.Map;
 
 import org.apache.commons.io.input.ClassLoaderObjectInputStream;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.drools.core.common.DroolsObjectInputStream;
 import org.jbpm.executor.AsyncJobException;
 import org.jbpm.executor.entities.ErrorInfo;
 import org.jbpm.executor.entities.RequestInfo;
@@ -110,7 +111,7 @@ public abstract class AbstractAvailableJobsExecutor {
                     if (reqData != null) {
                         ObjectInputStream in = null;
                         try {
-                            in = new ClassLoaderObjectInputStream(cl, new ByteArrayInputStream(reqData));
+                            in = new DroolsObjectInputStream(new ByteArrayInputStream(reqData), cl);
                             ctx = (CommandContext) in.readObject();
                             updateProcessInfoInContext(request, ctx);
                         } catch (IOException e) {                        

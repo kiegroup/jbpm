@@ -18,15 +18,19 @@ package org.jbpm.workflow.instance.node;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 
 import org.drools.core.common.InternalAgenda;
+import org.drools.core.event.rule.impl.SerializableActivation;
 import org.drools.core.impl.StatefulKnowledgeSessionImpl;
 import org.drools.core.rule.Declaration;
 import org.drools.core.spi.Activation;
@@ -470,15 +474,25 @@ public abstract class StateBasedNodeInstance extends ExtendedNodeInstanceImpl im
         getProcessInstance().removeEventListener(getActivationType(), this, true);
     }
 
-    protected boolean checkProcessInstance(Activation activation) {
-        final Map<?, ?> declarations = activation.getSubRule().getOuterDeclarations();
-        for (Iterator<?> it = declarations.values().iterator(); it.hasNext(); ) {
-            Declaration declaration = (Declaration) it.next();
+    protected boolean checkProcessInstance(Match match) {
+        if (match instanceof Activation) {
+            Activation activation = (Activation) match;
+            return checkProcessInstance( activation.getSubRule().getOuterDeclarations().values(), d -> activation.getTuple().get(d).getObject());
+        }
+        if (match instanceof SerializableActivation) {
+            SerializableActivation activation = (SerializableActivation) match;
+            return checkProcessInstance( activation.getDeclarations(), activation::getObject );
+        }
+        throw new UnsupportedOperationException();
+    }
+
+    private boolean checkProcessInstance(Collection<Declaration> declarations, Function<Declaration, Object> objectExtractor) {
+        for (Declaration declaration : declarations) {
             if ("processInstance".equals(declaration.getIdentifier())
                     || "org.kie.api.runtime.process.WorkflowProcessInstance".equals(declaration.getTypeName())) {
                 Object value = declaration.getValue(
                         ((StatefulKnowledgeSessionImpl) getProcessInstance().getKnowledgeRuntime()).getInternalWorkingMemory(),
-                        activation.getTuple().get(declaration).getObject());
+                        objectExtractor.apply(declaration));
                 if (value instanceof ProcessInstance) {
                     return ((ProcessInstance) value).getId() == getProcessInstance().getId();
                 }
