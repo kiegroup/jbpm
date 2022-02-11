@@ -16,21 +16,28 @@
 
 package org.jbpm.persistence.processinstance;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.drools.core.common.InternalKnowledgeRuntime;
 import org.jbpm.persistence.api.ProcessPersistenceContext;
 import org.jbpm.persistence.api.ProcessPersistenceContextManager;
 import org.jbpm.process.core.async.AsyncSignalEventCommand;
+import org.jbpm.process.core.async.BatchAsyncSignalEventCommand;
 import org.jbpm.process.instance.event.DefaultSignalManager;
 import org.kie.api.executor.CommandContext;
 import org.kie.api.executor.ExecutorService;
 import org.kie.api.runtime.EnvironmentName;
+import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.RuntimeManager;
+import org.kie.internal.runtime.manager.InternalRuntimeManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class JPASignalManager extends DefaultSignalManager {
+
+    private final long BATCH_THREASHOLD = Long.getLong("org.kie.jbpm.signal.batch.threshold", 0L);
+    private final long BATCH_SIZE = Long.getLong("org.kie.jbpm.signal.batch.size", 50L);
 
     private static final String ASYNC_SIGNAL_PREFIX = "ASYNC-";
     private static final Logger logger = LoggerFactory.getLogger(JPASignalManager.class);
@@ -38,49 +45,124 @@ public class JPASignalManager extends DefaultSignalManager {
     public JPASignalManager(InternalKnowledgeRuntime kruntime) {
         super(kruntime);
     }
-    
-    public void signalEvent(String type, Object event) {
-        String actualSignalType = type.replaceFirst(ASYNC_SIGNAL_PREFIX, "");
-        
-        ProcessPersistenceContextManager contextManager 
-            = (ProcessPersistenceContextManager) getKnowledgeRuntime().getEnvironment().get( EnvironmentName.PERSISTENCE_CONTEXT_MANAGER );
+
+    private boolean isAsync(String signalName, Object event) {
+        if (!signalName.startsWith(ASYNC_SIGNAL_PREFIX)) {
+            return false;
+        }
+
+        String actualSignalType = signalName.replaceFirst(ASYNC_SIGNAL_PREFIX, "");
+
+        ProcessPersistenceContextManager contextManager = (ProcessPersistenceContextManager) getKnowledgeRuntime().getEnvironment().get(EnvironmentName.PERSISTENCE_CONTEXT_MANAGER);
         ProcessPersistenceContext context = contextManager.getProcessPersistenceContext();
+
         List<Long> processInstancesToSignalList = context.getProcessInstancesWaitingForEvent(actualSignalType);
         // handle signal asynchronously
-        if (type.startsWith(ASYNC_SIGNAL_PREFIX)) {
-            RuntimeManager runtimeManager = ((RuntimeManager)getKnowledgeRuntime().getEnvironment().get("RuntimeManager"));
+        if (signalName.startsWith(ASYNC_SIGNAL_PREFIX)) {
+
+            RuntimeManager runtimeManager = ((RuntimeManager) getKnowledgeRuntime().getEnvironment().get("RuntimeManager"));
             ExecutorService executorService = (ExecutorService) getKnowledgeRuntime().getEnvironment().get("ExecutorService");
             if (runtimeManager != null && executorService != null) {
-                
+
                 for (Long processInstanceId : processInstancesToSignalList) {
+                    logger.info("About to create an async signal {} to {} for deployment ", signalName, processInstanceId, runtimeManager.getIdentifier());
                     CommandContext ctx = new CommandContext();
                     ctx.setData("deploymentId", runtimeManager.getIdentifier());
                     ctx.setData("processInstanceId", processInstanceId);
                     ctx.setData("Signal", actualSignalType);
-                    ctx.setData("Event", event);                    
-                    
+                    ctx.setData("Event", event);
                     executorService.scheduleRequest(AsyncSignalEventCommand.class.getName(), ctx);
                 }
-                
-                return;
+
+                return true;
             } else {
                 logger.warn("Signal should be sent asynchronously but there is no executor service available, continuing sync...");
             }
-        }
 
-
-        for ( long id : processInstancesToSignalList ) {
-            try {
-                getKnowledgeRuntime().getProcessInstance( id );
-            } catch (IllegalStateException e) {
-                // IllegalStateException can be thrown when using RuntimeManager
-                // and invalid ksession was used for given context
-            } catch (RuntimeException e) {
-                logger.warn("Exception when loading process instance for signal '{}', instance with id {} will not be signaled", e.getMessage(), id);
+        } else if (BATCH_THREASHOLD > 0 && processInstancesToSignalList.size() >= BATCH_THREASHOLD) {
+            int currentIndex = 0;
+            RuntimeManager runtimeManager = ((RuntimeManager) getKnowledgeRuntime().getEnvironment().get("RuntimeManager"));
+            ExecutorService executorService = (ExecutorService) getKnowledgeRuntime().getEnvironment().get("ExecutorService");
+            if (runtimeManager != null && executorService != null) {
+                for (currentIndex = 0; currentIndex < processInstancesToSignalList.size(); currentIndex += BATCH_SIZE) {
+                    List<Long> batch = processInstancesToSignalList.subList(currentIndex, Math.min(processInstancesToSignalList.size(), (int) (currentIndex + BATCH_SIZE)));
+                    logger.info("About to create an batched signal {} to {} for deployment ", signalName, batch, runtimeManager.getIdentifier());
+                    CommandContext ctx = new CommandContext();
+                    ctx.setData("deploymentId", runtimeManager.getIdentifier());
+                    ctx.setData("processInstanceIds", new ArrayList<>(batch));
+                    ctx.setData("Signal", actualSignalType);
+                    ctx.setData("Event", event);
+                    executorService.scheduleRequest(BatchAsyncSignalEventCommand.class.getName(), ctx);
+                }
             }
+            return true;
         }
-        super.signalEvent( actualSignalType,  event );
-
+        return false;
     }
 
+    public void signalEvent(String type, Object event) {
+        String actualSignalType = type.replaceFirst(ASYNC_SIGNAL_PREFIX, "");
+        super.signalEventStart(actualSignalType, event);
+
+        if (isAsync(type, event)) {
+            return;
+        }
+
+
+        InternalRuntimeManager runtimeManager = ((InternalRuntimeManager) getKnowledgeRuntime().getEnvironment().get("RuntimeManager"));
+        if (runtimeManager != null) {
+            sendSignalKieSessionScope(runtimeManager, (KieSession) getKnowledgeRuntime(), actualSignalType, event);
+        } else {
+            ProcessPersistenceContextManager contextManager = (ProcessPersistenceContextManager) getKnowledgeRuntime().getEnvironment().get(EnvironmentName.PERSISTENCE_CONTEXT_MANAGER);
+            ProcessPersistenceContext context = contextManager.getProcessPersistenceContext();
+
+            List<Long> processInstancesToSignalList = context.getProcessInstancesWaitingForEvent(actualSignalType);
+
+            for (long id : processInstancesToSignalList) {
+                logger.info("About to signal event {} to process instance id {} for kieSession {}", type, id, getKnowledgeRuntime());
+                try {
+                    getKnowledgeRuntime().getProcessInstance(id);
+                    super.signalEvent(id, actualSignalType, event);
+                } catch (IllegalStateException e) {
+                    // IllegalStateException can be thrown when using RuntimeManager
+                    // and invalid ksession was used for given context
+                } catch (RuntimeException e) {
+                    logger.warn("Exception when loading process instance for signal '{}', instance with id {} will not be signaled", type, id);
+                }
+            }
+        }
+
+        logger.info("About to signal as a start event {} jpa", type);
+        // this will include start events and cannot be avoided probably
+        // given that is after execution all process Instance Id only start event will be executed (no duplications)
+        super.signalEventStart(actualSignalType, event);
+    }
+
+    @Override
+    public void sendSignalKieSessionScope(InternalRuntimeManager runtimeManager, KieSession kieSession, String type, Object event) {
+        if (isAsync(type, event)) {
+            return;
+        }
+        String actualSignalType = type.replaceFirst(ASYNC_SIGNAL_PREFIX, "");
+        super.sendSignalKieSessionScope(runtimeManager, kieSession, actualSignalType, event);
+    }
+
+    @Override
+    public void sendSignalProcessInstanceScope(InternalRuntimeManager runtimeManager, long processInstanceId, String type, Object event) {
+        if (isAsync(type, event)) {
+            return;
+        }
+        String actualSignalType = type.replaceFirst(ASYNC_SIGNAL_PREFIX, "");
+        super.sendSignalProcessInstanceScope(runtimeManager, processInstanceId, actualSignalType, event);
+    }
+    
+
+    @Override
+    public void sendSignalRuntimeManagerScope(InternalRuntimeManager runtimeManager, String type, Object event) {
+        if (isAsync(type, event)) {
+            return;
+        }
+        String actualSignalType = type.replaceFirst(ASYNC_SIGNAL_PREFIX, "");
+        super.sendSignalRuntimeManagerScope(runtimeManager, actualSignalType, event);
+    }
 }

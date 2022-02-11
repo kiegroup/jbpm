@@ -43,6 +43,7 @@ import org.jbpm.process.core.event.EventTypeFilter;
 import org.jbpm.process.core.timer.BusinessCalendar;
 import org.jbpm.process.core.timer.DateTimeUtils;
 import org.jbpm.process.core.timer.Timer;
+import org.jbpm.process.instance.event.DefaultSignalManager;
 import org.jbpm.process.instance.event.SignalManager;
 import org.jbpm.process.instance.event.SignalManagerFactory;
 import org.jbpm.process.instance.timer.TimerInstance;
@@ -74,6 +75,7 @@ import org.kie.api.runtime.rule.AgendaFilter;
 import org.kie.internal.command.RegistryContext;
 import org.kie.internal.process.CorrelationKey;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
+import org.kie.internal.runtime.manager.InternalRuntimeManager;
 import org.kie.internal.runtime.manager.context.CaseContext;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 import org.kie.internal.utils.CompositeClassLoader;
@@ -385,8 +387,7 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
                                                                                                         filters,
                                                                                                         trigger.getInMappings(),
                                                                                                         startNode.getEventTransformer());
-                                    signalManager.addEventListener( type,
-                                                                    listener );
+                                    signalManager.addEventStartListener( type, listener );
                                     ((RuleFlowProcess) process).getRuntimeMetaData().put("StartProcessEventType", type);
                                     ((RuleFlowProcess) process).getRuntimeMetaData().put("StartProcessEventListener", listener);
                                 }
@@ -499,7 +500,6 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
                     String ruleName = event.getMatch().getRule().getName();
                     if ( ruleName.startsWith( "RuleFlow-Start-" )) {
                         String processId = ruleName.replace("RuleFlow-Start-", "");
-                        
                         startProcessWithParamsAndTrigger(processId, null, "conditional", true);      
                     }
                 }
@@ -509,11 +509,15 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
         kruntime.addEventListener(new DefaultAgendaEventListener() {
             public void afterRuleFlowGroupDeactivated(final RuleFlowGroupDeactivatedEvent event) {
             	if (kruntime instanceof StatefulKnowledgeSession) {
-                    signalManager.signalEvent( "RuleFlowGroup_" + event.getRuleFlowGroup().getName() + "_" + ((StatefulKnowledgeSession) kruntime).getIdentifier(),
-                            null );
+            	    String signalName = "RuleFlowGroup_" + event.getRuleFlowGroup().getName() + "_" + ((StatefulKnowledgeSession) kruntime).getIdentifier();
+            	    InternalRuntimeManager manager = (InternalRuntimeManager) kruntime.getEnvironment().get(EnvironmentName.RUNTIME_MANAGER);
+            	    if (manager != null) {
+            	        signalManager.sendSignalKieSessionScope(null, (KieSession) kruntime, signalName, null);
+            	    } else {
+            	        signalManager.signalEvent(signalName, null );
+            	    }
             	} else {
-                    signalManager.signalEvent( "RuleFlowGroup_" + event.getRuleFlowGroup().getName(),
-                            null );
+                    signalManager.signalEvent( "RuleFlowGroup_" + event.getRuleFlowGroup().getName(), null );
             	}
             }
         } );
@@ -579,12 +583,22 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
 		return kruntime.getWorkItemManager();
 	}
 
-	public void signalEvent(String type, Object event) {
-		signalManager.signalEvent(type, event);
-	}
+    public void signalEvent(String type, Object event) {
+        InternalRuntimeManager manager = (InternalRuntimeManager) kruntime.getEnvironment().get(EnvironmentName.RUNTIME_MANAGER);
+        if (manager != null) {
+            signalManager.sendSignalRuntimeManagerScope(manager, type, event);
+        } else {
+            signalManager.signalEvent(type, event);
+        }
+    }
 
 	public void signalEvent(String type, Object event, long processInstanceId) {
-		signalManager.signalEvent(processInstanceId, type, event);
+        InternalRuntimeManager manager = (InternalRuntimeManager) kruntime.getEnvironment().get(EnvironmentName.RUNTIME_MANAGER);
+        if (manager != null) {
+            signalManager.sendSignalProcessInstanceScope(manager, processInstanceId, type, event);
+        } else {
+            signalManager.signalEvent(processInstanceId, type, event);
+        }
 	}
 	
 	public void setProcessEventSupport(ProcessEventSupport processEventSupport) {
@@ -758,6 +772,36 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
             return null;
         }
         
+    }
+
+    @Override
+    public void signalEventRuntimeManagerScope(String type, Object event) {
+        InternalRuntimeManager runtimeManager = (InternalRuntimeManager) kruntime.getEnvironment().get("RuntimeManager");
+        if (runtimeManager != null) {
+            getSignalManager().sendSignalRuntimeManagerScope(runtimeManager, type, event);
+        } else {
+            getSignalManager().signalEvent(type, event);
+        }
+    }
+
+    @Override
+    public void signalEventKieSessionScope(String type, Object event) {
+        InternalRuntimeManager runtimeManager = (InternalRuntimeManager) kruntime.getEnvironment().get("RuntimeManager");
+        if (runtimeManager != null) {
+            getSignalManager().sendSignalKieSessionScope(runtimeManager, (KieSession) kruntime, type, event);
+        } else {
+            getSignalManager().signalEvent(type, event);
+        }
+    }
+
+    @Override
+    public void signalEventProcessInstanceScope(long processInstanceId, String type, Object event) {
+        InternalRuntimeManager runtimeManager = (InternalRuntimeManager) kruntime.getEnvironment().get("RuntimeManager");
+        if (runtimeManager != null) {
+            getSignalManager().sendSignalProcessInstanceScope(runtimeManager, processInstanceId, type, event);
+        } else {
+            getSignalManager().signalEvent(processInstanceId, type, event);
+        }
     }
 
 

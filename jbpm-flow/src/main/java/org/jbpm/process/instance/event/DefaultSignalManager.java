@@ -32,191 +32,300 @@ import org.drools.core.marshalling.impl.MarshallerWriteContext;
 import org.drools.core.phreak.PropagationEntry;
 import org.drools.serialization.protobuf.ProtobufMessages.ActionQueue.Action;
 import org.jbpm.process.instance.InternalProcessRuntime;
+import org.kie.api.runtime.KieSession;
+import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.runtime.process.EventListener;
 import org.kie.api.runtime.process.ProcessInstance;
+import org.kie.internal.runtime.manager.InternalRuntimeManager;
+import org.kie.internal.runtime.manager.SessionNotFoundException;
+import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DefaultSignalManager implements SignalManager {
-	
-	private Map<String, List<EventListener>> processEventListeners = new ConcurrentHashMap<String, List<EventListener>>();
-	private InternalKnowledgeRuntime kruntime;
-	
-	public DefaultSignalManager(InternalKnowledgeRuntime kruntime) {
-		this.kruntime = kruntime;
-	}
-	
-	public InternalKnowledgeRuntime getKnowledgeRuntime() {
-		return kruntime;
-	}
 
-	public void addEventListener(String type, EventListener eventListener) {
-		List<EventListener> eventListeners = processEventListeners.get(type);
-		//this first "if" is not pretty, but allows to synchronize only when needed
-		if (eventListeners == null) {
-			synchronized(processEventListeners){
-				eventListeners = processEventListeners.get(type);
-				if(eventListeners==null){
-					eventListeners = new CopyOnWriteArrayList<EventListener>();
-					processEventListeners.put(type, eventListeners);
-				}
-			}
-		}		
-		eventListeners.add(eventListener);
-	}
-	
-	public void removeEventListener(String type, EventListener eventListener) {
-		if (processEventListeners != null) {
-			List<EventListener> eventListeners = processEventListeners.get(type);
-			if (eventListeners != null) {
-				eventListeners.remove(eventListener);
-				if (eventListeners.isEmpty()) {
-					processEventListeners.remove(type);
-					eventListeners = null;
-				}
-			}
-		}
-	}
-	
-	public void signalEvent(String type, Object event) {
-	    ((DefaultSignalManager) ((InternalProcessRuntime) kruntime.getProcessRuntime()).getSignalManager()).internalSignalEvent(type, event);
-	}
-	
-	public void internalSignalEvent(String type, Object event) {
-		if (processEventListeners != null) {
-			List<EventListener> eventListeners = processEventListeners.get(type);
-			if (eventListeners != null) {
-				for (EventListener eventListener: eventListeners) {
-					eventListener.signalEvent(type, event);
-				}
-			}
-		}
-	}
-	public void signalEvent(long processInstanceId, String type, Object event) {
-		ProcessInstance processInstance = kruntime.getProcessInstance(processInstanceId);
-		if (processInstance != null) {
-		    processInstance.signalEvent(type, event);
-		}
-	}
-	
-	public static class SignalProcessInstanceAction extends PropagationEntry.AbstractPropagationEntry implements WorkingMemoryAction {
+    private static final Logger logger = LoggerFactory.getLogger(DefaultSignalManager.class);
 
-		private long processInstanceId;
-		private String type;
-		private Object event;
-		
-		public SignalProcessInstanceAction(long processInstanceId, String type, Object event) {
-			this.processInstanceId = processInstanceId;
-			this.type = type;
-			this.event = event;
-			
-		}
-		
-		public SignalProcessInstanceAction(MarshallerReaderContext context) throws IOException, ClassNotFoundException {
-			processInstanceId = context.readLong();
-			type = context.readUTF();
-			if (context.readBoolean()) {
-				event = context.readObject();
-			}
-		}
-		
-		public void execute(InternalWorkingMemory workingMemory) {
-			ProcessInstance processInstance = workingMemory.getProcessInstance(processInstanceId);
-			if (processInstance != null) {
-				processInstance.signalEvent(type, event);
-			}
-		}
+    private Map<String, List<EventListener>> processEventListeners = new ConcurrentHashMap<String, List<EventListener>>();
 
-		public void execute(InternalKnowledgeRuntime kruntime) {
-			ProcessInstance processInstance = kruntime.getProcessInstance(processInstanceId);
-			if (processInstance != null) {
-				processInstance.signalEvent(type, event);
-			}
-		}
+    private Map<String, List<EventListener>> startProcessEventListeners = new ConcurrentHashMap<String, List<EventListener>>();
 
-		public void write(MarshallerWriteContext context) throws IOException {
-			context.writeInt( WorkingMemoryAction.SignalProcessInstanceAction );
-			context.writeLong(processInstanceId);
-			context.writeUTF(type);
-			context.writeBoolean(event != null);
-			if (event != null) {
-				context.writeObject(event);
-			}
-		}
+    private InternalKnowledgeRuntime kruntime;
 
-		public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-			processInstanceId = in.readLong();
-			type = in.readUTF();
-			if (in.readBoolean()) {
-				event = in.readObject();
-			}
-		}
+    public DefaultSignalManager(InternalKnowledgeRuntime kruntime) {
+        this.kruntime = kruntime;
+    }
 
-		public void writeExternal(ObjectOutput out) throws IOException {
-			out.writeLong(processInstanceId);
-			out.writeUTF(type);
-			out.writeBoolean(event != null);
-			if (event != null) {
-				out.writeObject(event);
-			}
-		}
+    public InternalKnowledgeRuntime getKnowledgeRuntime() {
+        return kruntime;
+    }
 
-        public Action serialize(MarshallerWriteContext context) throws IOException {
-            // TODO Auto-generated method stub
-            return null;
+    @Override
+    public void addEventStartListener(String type, EventListener eventListener) {
+        internalAddEventListener(startProcessEventListeners, type, eventListener);
+    }
+
+    public void addEventListener(String type, EventListener eventListener) {
+        internalAddEventListener(processEventListeners, type, eventListener);
+    }
+
+    private void internalAddEventListener(Map<String, List<EventListener>> processEventListeners, String type, EventListener eventListener) {
+        List<EventListener> eventListeners = processEventListeners.get(type);
+        //this first "if" is not pretty, but allows to synchronize only when needed
+        if (eventListeners == null) {
+            synchronized (processEventListeners) {
+                eventListeners = processEventListeners.get(type);
+                if (eventListeners == null) {
+                    eventListeners = new CopyOnWriteArrayList<EventListener>();
+                    processEventListeners.put(type, eventListeners);
+                }
+            }
         }
-	}
-	
-	public static class SignalAction extends PropagationEntry.AbstractPropagationEntry implements WorkingMemoryAction {
+        eventListeners.add(eventListener);
+    }
 
-		private String type;
-		private Object event;
-		
-		public SignalAction(String type, Object event) {
-			this.type = type;
-			this.event = event;
-		}
-		
-		public SignalAction(MarshallerReaderContext context) throws IOException, ClassNotFoundException {
-			type = context.readUTF();
-			if (context.readBoolean()) {
-				event = context.readObject();
-			}
-		}
-		
-		public void execute(InternalWorkingMemory workingMemory) {
-			((DefaultSignalManager) ((InternalProcessRuntime) workingMemory.getProcessRuntime()).getSignalManager()).internalSignalEvent(type, event);
-		}
+    public void removeEventListener(String type, EventListener eventListener) {
+        this.internalRemoveEventListener(processEventListeners, type, eventListener);
+        this.internalRemoveEventListener(startProcessEventListeners, type, eventListener);
+    }
+
+    private void internalRemoveEventListener(Map<String, List<EventListener>> processEventListeners, String type, EventListener eventListener) {
+        if (processEventListeners != null) {
+            List<EventListener> eventListeners = processEventListeners.get(type);
+            if (eventListeners != null) {
+                eventListeners.remove(eventListener);
+                if (eventListeners.isEmpty()) {
+                    processEventListeners.remove(type);
+                    eventListeners = null;
+                }
+            }
+        }
+    }
+
+    public void signalEvent(String type, Object event) {
+        ((DefaultSignalManager) ((InternalProcessRuntime) kruntime.getProcessRuntime()).getSignalManager()).internalSignalEvent(type, event);
+    }
+
+    @Override
+    public void signalEventStart(String type, Object event) {
+        ((DefaultSignalManager) ((InternalProcessRuntime) kruntime.getProcessRuntime()).getSignalManager()).internalSignalEventStart(type, event);
+    }
+
+    public void internalSignalEvent(String type, Object event) {
+        this.internalSignalEvent(processEventListeners, type, event);
+        this.internalSignalEvent(startProcessEventListeners, type, event);
+    }
+
+    public void internalSignalEventStart(String type, Object event) {
+        this.internalSignalEvent(startProcessEventListeners, type, event);
+    }
+
+    public void internalSignalEvent(Map<String, List<EventListener>> processEventListeners, String type, Object event) {
+        if (processEventListeners != null) {
+            List<EventListener> eventListeners = processEventListeners.get(type);
+            if (eventListeners != null) {
+                for (EventListener eventListener : eventListeners) {
+                    eventListener.signalEvent(type, event);
+                }
+            }
+        }
+    }
+
+    public void signalEvent(long processInstanceId, String type, Object event) {
+        ProcessInstance processInstance = kruntime.getProcessInstance(processInstanceId);
+        if (processInstance != null) {
+            logger.info("About to signal deprecated process instance scope '{}' event '{}' to process instance id '{}'", type, event, processInstance.getId());
+            processInstance.signalEvent(type, event);
+        }
+    }
+
+    // sending signals for narrow scope to broader scope
+
+    public void internalSendSignalProcessInstanceScope(InternalRuntimeManager runtimeManager, long processInstanceId, String type, Object event) {
+        RuntimeEngine runtimeEngine = runtimeManager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstanceId));
+        try {
+            runtimeEngine.getKieSession().signalEvent(type, event, processInstanceId);
+        } catch (SessionNotFoundException e) {
+            logger.warn("Process instance '{}' not found for runtime manager '{}' for signal '{}', instan will not be signaled", processInstanceId, runtimeManager.getIdentifier(), type);
+        } catch (IllegalStateException e) {
+            logger.debug("Incorrect runtime manager process instance for signal '{}', instance with id {} will not be signaled", type, processInstanceId, e);
+            // IllegalStateException can be thrown when using RuntimeManager
+            // and invalid ksession was used for given context
+        } catch (RuntimeException e) {
+            logger.warn("Exception when loading process instance from runtime manager for signal '{}', instance with id {} will not be signaled", type, processInstanceId);
+            throw e;
+        } finally {
+            if (runtimeManager != null) {
+                runtimeManager.disposeRuntimeEngine(runtimeEngine);
+            }
+        }
+        logger.info("About to signal as a start event {} in process instance scope", type);
+    }
+
+    @Override
+    public void sendSignalProcessInstanceScope(InternalRuntimeManager runtimeManager, long processInstanceId, String type, Object event) {
+        logger.info("About to signal process instance scope '{}' event '{}' owned by '{}'", type, event,  runtimeManager.getIdentifier());
+        internalSendSignalProcessInstanceScope(runtimeManager, processInstanceId, type, event);
+        logger.info("About to signal as a start event {} in process instance scope", type);
+        // this will include start events and cannot be avoided probably
+        // given that is after execution all process Instance Id only start event will be executed (no duplications)
+        signalEventStart(type, event);
+    }
+
+    @Override
+    public void sendSignalKieSessionScope(InternalRuntimeManager runtimeManager, KieSession kieSession, String type, Object event) {
+        List<Long> processInstanceIdForkieSession = runtimeManager.findProcessInstancesForKieSession(kieSession.getIdentifier());
+        logger.info("About to signal kie session scope '{}' event '{}' to kie session {} owned by '{}'", type, event,  kieSession.getIdentifier(), runtimeManager.getIdentifier());
+        processInstanceIdForkieSession.forEach(processInstanceId -> {
+            internalSendSignalProcessInstanceScope(runtimeManager, processInstanceId, type, event);
+        });
+        logger.info("About to signal as a start event {} in kie session scope", type);
+        // this will include start events and cannot be avoided probably
+        // given that is after execution all process Instance Id only start event will be executed (no duplications)
+        signalEventStart(type, event);
+    }
+
+    @Override
+    public void sendSignalRuntimeManagerScope(InternalRuntimeManager runtimeManager, String type, Object event) {
+        List<Long> processInstanceForRuntime = runtimeManager.findProcessInstances();
+        sendSignalRuntimeManagerScope(runtimeManager, processInstanceForRuntime, type, event);
+    }
+
+    protected void sendSignalRuntimeManagerScope(InternalRuntimeManager runtimeManager, List<Long> processInstancesToSignalList, String type, Object event) {
+        logger.info("About to signal runtime manager scope '{}' event '{}' owned by '{}'", type, event, runtimeManager.getIdentifier());
+
+        for (long id : processInstancesToSignalList) {
+            internalSendSignalProcessInstanceScope(runtimeManager, id, type, event);
+        }
+
+        logger.info("About to signal as a start event {} ", type);
+        // this will include start events and cannot be avoided probably
+        // given that is after execution all process Instance Id only start event will be executed (no duplications)
+        signalEventStart(type, event);
+    }
+
+    public static class SignalProcessInstanceAction extends PropagationEntry.AbstractPropagationEntry implements WorkingMemoryAction {
+
+        private long processInstanceId;
+        private String type;
+        private Object event;
+
+        public SignalProcessInstanceAction(long processInstanceId, String type, Object event) {
+            this.processInstanceId = processInstanceId;
+            this.type = type;
+            this.event = event;
+
+        }
+
+        public SignalProcessInstanceAction(MarshallerReaderContext context) throws IOException, ClassNotFoundException {
+            processInstanceId = context.readLong();
+            type = context.readUTF();
+            if (context.readBoolean()) {
+                event = context.readObject();
+            }
+        }
+
+        public void execute(InternalWorkingMemory workingMemory) {
+            ProcessInstance processInstance = workingMemory.getProcessInstance(processInstanceId);
+            if (processInstance != null) {
+                processInstance.signalEvent(type, event);
+            }
+        }
 
         public void execute(InternalKnowledgeRuntime kruntime) {
-        	((DefaultSignalManager) ((InternalProcessRuntime) kruntime.getProcessRuntime()).getSignalManager()).internalSignalEvent(type, event);
+            ProcessInstance processInstance = kruntime.getProcessInstance(processInstanceId);
+            if (processInstance != null) {
+                processInstance.signalEvent(type, event);
+            }
         }
-		public void write(MarshallerWriteContext context) throws IOException {
-			context.writeInt( WorkingMemoryAction.SignalAction );
-			context.writeUTF(type);
-			context.writeBoolean(event != null);
-			if (event != null) {
-				context.writeObject(event);
-			}
-		}
 
-		public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-			type = in.readUTF();
-			if (in.readBoolean()) {
-				event = in.readObject();
-			}
-		}
+        public void write(MarshallerWriteContext context) throws IOException {
+            context.writeInt(WorkingMemoryAction.SignalProcessInstanceAction);
+            context.writeLong(processInstanceId);
+            context.writeUTF(type);
+            context.writeBoolean(event != null);
+            if (event != null) {
+                context.writeObject(event);
+            }
+        }
 
-		public void writeExternal(ObjectOutput out) throws IOException {
-			out.writeUTF(type);
-			out.writeBoolean(event != null);
-			if (event != null) {
-				out.writeObject(event);
-			}
-		}
+        public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+            processInstanceId = in.readLong();
+            type = in.readUTF();
+            if (in.readBoolean()) {
+                event = in.readObject();
+            }
+        }
+
+        public void writeExternal(ObjectOutput out) throws IOException {
+            out.writeLong(processInstanceId);
+            out.writeUTF(type);
+            out.writeBoolean(event != null);
+            if (event != null) {
+                out.writeObject(event);
+            }
+        }
 
         public Action serialize(MarshallerWriteContext context) throws IOException {
             // TODO Auto-generated method stub
             return null;
         }
-		
-	}	
+    }
+
+    public static class SignalAction extends PropagationEntry.AbstractPropagationEntry implements WorkingMemoryAction {
+
+        private String type;
+        private Object event;
+
+        public SignalAction(String type, Object event) {
+            this.type = type;
+            this.event = event;
+        }
+
+        public SignalAction(MarshallerReaderContext context) throws IOException, ClassNotFoundException {
+            type = context.readUTF();
+            if (context.readBoolean()) {
+                event = context.readObject();
+            }
+        }
+
+        public void execute(InternalWorkingMemory workingMemory) {
+            ((DefaultSignalManager) ((InternalProcessRuntime) workingMemory.getProcessRuntime()).getSignalManager()).internalSignalEvent(type, event);
+        }
+
+        public void execute(InternalKnowledgeRuntime kruntime) {
+            ((DefaultSignalManager) ((InternalProcessRuntime) kruntime.getProcessRuntime()).getSignalManager()).internalSignalEvent(type, event);
+        }
+
+        public void write(MarshallerWriteContext context) throws IOException {
+            context.writeInt(WorkingMemoryAction.SignalAction);
+            context.writeUTF(type);
+            context.writeBoolean(event != null);
+            if (event != null) {
+                context.writeObject(event);
+            }
+        }
+
+        public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+            type = in.readUTF();
+            if (in.readBoolean()) {
+                event = in.readObject();
+            }
+        }
+
+        public void writeExternal(ObjectOutput out) throws IOException {
+            out.writeUTF(type);
+            out.writeBoolean(event != null);
+            if (event != null) {
+                out.writeObject(event);
+            }
+        }
+
+        public Action serialize(MarshallerWriteContext context) throws IOException {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+    }
+
 }

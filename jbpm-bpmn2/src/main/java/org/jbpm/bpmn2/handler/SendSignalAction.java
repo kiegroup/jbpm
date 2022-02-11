@@ -53,8 +53,7 @@ public class SendSignalAction implements JavaAction {
         if ("processInstance".equalsIgnoreCase(scope)) {
             kcontext.getProcessInstance().signalEvent(signalType, tVariable);
         } else if ("runtimeManager".equalsIgnoreCase(scope) || "project".equalsIgnoreCase(scope)) {
-            ((RuntimeManager) kcontext.getKieRuntime().getEnvironment().get("RuntimeManager")).signalEvent(signalType,
-                    tVariable);
+            ((RuntimeManager) kcontext.getKieRuntime().getEnvironment().get("RuntimeManager")).signalEvent(signalType, tVariable);
         } else if ("external".equalsIgnoreCase(scope)) {
             WorkItemImpl workItem = new WorkItemImpl();
             workItem.setName("External Send Task");

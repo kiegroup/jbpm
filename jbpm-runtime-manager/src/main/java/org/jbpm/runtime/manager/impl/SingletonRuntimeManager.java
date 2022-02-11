@@ -21,6 +21,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.List;
+
+import javax.persistence.EntityManager;
 
 import org.apache.commons.lang3.SystemUtils;
 import org.drools.core.common.InternalKnowledgeRuntime;
@@ -196,15 +199,6 @@ public class SingletonRuntimeManager extends AbstractRuntimeManager {
     }
 
     @Override
-    public void signalEvent(String type, Object event) {
-        if (isClosed()) {
-            throw new IllegalStateException("Runtime manager " + identifier + " is already closed");
-        }
-        
-        this.singleton.getKieSession().signalEvent(type, event);
-    }
-
-    @Override
     public void validate(KieSession ksession, Context<?> context) throws IllegalStateException {
     	if (isClosed()) {
     		throw new IllegalStateException("Runtime manager " + identifier + " is already closed");
@@ -349,4 +343,28 @@ public class SingletonRuntimeManager extends AbstractRuntimeManager {
     public void setTaskServiceFactory(TaskServiceFactory taskServiceFactory) {
         this.taskServiceFactory = taskServiceFactory;
     }
+
+    @Override
+    public List<Long> findProcessInstances() {
+        // there is no mapping information in the case of singleton so we go directly to the table
+        EntityManager entityManager = this.getEntityManager(this);
+        try {
+            return entityManager.createQuery("SELECT p.id FROM ProcessInstanceInfo p").getResultList();
+        } finally {
+            entityManager.close();
+        }
+    }
+
+    @Override
+    public List<Long> findProcessInstancesForKieSession(long kieSessionId) {
+        List<Long> processInstanceIds = findProcessInstances();
+        logger.info("Find process Instances for Kie session {} are {}", kieSessionId, processInstanceIds);
+        return processInstanceIds;
+    }
+
+    @Override
+    public boolean hasMultipleProcessIntancePerKieSession() {
+        return true;
+    }
+
 }

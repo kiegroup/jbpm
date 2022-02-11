@@ -16,6 +16,7 @@
 package org.jbpm.runtime.manager.impl;
 
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -23,6 +24,7 @@ import java.util.Map.Entry;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
+import org.drools.core.command.runtime.process.SignalEventRuntimeScopeCommand;
 import org.drools.core.time.JobHandle;
 import org.drools.core.time.TimerService;
 import org.drools.persistence.api.OrderedTransactionSynchronization;
@@ -35,8 +37,8 @@ import org.jbpm.persistence.timer.GlobalJpaTimerJobInstance;
 import org.jbpm.process.core.timer.GlobalSchedulerService;
 import org.jbpm.process.core.timer.TimerServiceRegistry;
 import org.jbpm.process.core.timer.impl.GlobalTimerService;
-import org.jbpm.process.core.timer.impl.TimerServiceListener;
 import org.jbpm.process.core.timer.impl.GlobalTimerService.GlobalJobHandle;
+import org.jbpm.process.core.timer.impl.TimerServiceListener;
 import org.jbpm.runtime.manager.api.SchedulerProvider;
 import org.jbpm.runtime.manager.impl.error.DefaultExecutionErrorStorage;
 import org.jbpm.runtime.manager.impl.error.ExecutionErrorManagerImpl;
@@ -51,7 +53,6 @@ import org.jbpm.runtime.manager.spi.RuntimeManagerLock;
 import org.jbpm.runtime.manager.spi.RuntimeManagerLockStrategy;
 import org.jbpm.services.task.events.WorkflowBridgeTaskLifeCycleEventListener;
 import org.jbpm.services.task.impl.TaskContentRegistry;
-import org.jbpm.services.task.impl.TaskDeadlinesServiceImpl;
 import org.jbpm.services.task.impl.command.CommandBasedTaskService;
 import org.jbpm.services.task.wih.ExternalTaskEventListener;
 import org.kie.api.event.process.ProcessEventListener;
@@ -268,7 +269,7 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
         });
     }
 
-    private EntityManager getEntityManager(RuntimeManager manager) {
+    protected EntityManager getEntityManager(RuntimeManager manager) {
         try {
             if(manager == null) {
                 return null;
@@ -646,6 +647,57 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
     public ExecutionErrorManager getExecutionErrorManager() {
         return executionErrorManager;
     }
+
+    @Override
+    public List<Long> findProcessInstancesForKieSession(long kieSessionId) {
+        List<Long> processInstancesPerKieSession = new ArrayList<>();
+        Object map = getEnvironment().getMapper().findContextId(kieSessionId, getIdentifier());
+        if (map instanceof String) {
+            try {
+                processInstancesPerKieSession.add(Long.parseLong((String) map));
+            } catch (NumberFormatException e) {
+                // do nothing
+            }
+        } else if (map instanceof List) {
+            for (String pid : (List<String>) map) {
+                try {
+                    processInstancesPerKieSession.add(Long.parseLong((String) pid));
+                } catch (NumberFormatException e) {
+                    // do nothing
+                }
+            }
+        }
+        return processInstancesPerKieSession;
+    }
+
+    @Override
+    public List<Long> findProcessInstances() {
+        List<Long> processInstanceIds = new ArrayList<>();
+
+        for (String contextId : getEnvironment().getMapper().findMapping(this.getIdentifier())) {
+            try {
+                processInstanceIds.add(Long.parseLong(contextId));
+            } catch (NumberFormatException e) {
+                // do nothing
+            }
+        }
+
+        return processInstanceIds;
+    }
+
+
+    @Override
+    public void signalEvent(String type, Object event) {
+        RuntimeEngine runtimeEngine = getRuntimeEngine(ProcessInstanceIdContext.get());
+        try {
+            runtimeEngine.getKieSession().execute(new SignalEventRuntimeScopeCommand(type, event));
+        } finally {
+            if(runtimeEngine != null) {
+                disposeRuntimeEngine(runtimeEngine);
+            }
+        }
+    }
+
 
     public abstract SessionFactory getFactory();
 }

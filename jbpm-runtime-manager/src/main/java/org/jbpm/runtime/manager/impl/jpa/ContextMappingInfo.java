@@ -47,6 +47,7 @@ import javax.persistence.Version;
     {@NamedQuery(name="FindContextMapingByContextId", query="from ContextMappingInfo where contextId = :contextId and ownerId = :ownerId"),
      @NamedQuery(name="FindContextMapingByAuditContextId", query="select o from ContextMappingInfo o join ProcessInstanceLog log on log.correlationKey = o.contextId where CAST(log.processInstanceId as string) = :contextId and o.ownerId = :ownerId"),
      @NamedQuery(name="FindContextMapingByKSessionId", query="from ContextMappingInfo where ksessionId = :ksessionId and ownerId = :ownerId"),
+     @NamedQuery(name="FindContextMapingByOwner", query="from ContextMappingInfo where ownerId = :ownerId"),
      @NamedQuery(name="FindKSessionToInit", query="select cmInfo.ksessionId from ContextMappingInfo cmInfo, "
                 		+ "ProcessInstanceInfo processInstanceInfo join processInstanceInfo.eventTypes eventTypes"
                 		+ " where eventTypes = 'timer' and cmInfo.contextId = cast(processInstanceInfo.processInstanceId as string)"

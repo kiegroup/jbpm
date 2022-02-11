@@ -23,11 +23,13 @@ import org.jbpm.process.instance.timer.TimerManager;
 public interface InternalProcessRuntime extends org.drools.core.runtime.process.InternalProcessRuntime {
 	
 	ProcessInstanceManager getProcessInstanceManager();
-	
+
 	SignalManager getSignalManager();
-	
+
 	TimerManager getTimerManager();
-	
+
 	ProcessEventSupport getProcessEventSupport();
+
+
 
 }

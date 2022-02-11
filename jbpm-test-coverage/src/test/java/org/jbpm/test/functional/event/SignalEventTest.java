@@ -165,6 +165,7 @@ public class SignalEventTest extends JbpmTestCase {
         getKieSession().startProcess(throwingProcessId);
 
         List<? extends ProcessInstanceLog> instances = getRuntimeEngine().getAuditService().findProcessInstances();
+        instances.forEach(e -> System.out.println(e + " " + e.getStatus()));
         Assertions.assertThat(instances).hasSize(2);
 
         Assertions.assertThat(instances.get(0).getProcessId()).isEqualTo(INTERMEDIATE_CATCH_ID);
@@ -259,6 +260,7 @@ public class SignalEventTest extends JbpmTestCase {
         Assertions.assertThat(instances.get(2).getProcessId()).isEqualTo(throwingProcessId);
 
         if (strategy == Strategy.SINGLETON) {
+            instances.stream().forEach(e -> System.out.println(e + " " + e.getStatus()));
             Assertions.assertThat(instances.get(0).getStatus()).isEqualTo(scope == Scope.PROCESS_INSTANCE ?
                     ProcessInstance.STATE_ACTIVE : ProcessInstance.STATE_COMPLETED);
             Assertions.assertThat(instances.get(1).getStatus()).isEqualTo(scope == Scope.PROCESS_INSTANCE ?

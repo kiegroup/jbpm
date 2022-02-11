@@ -34,6 +34,6 @@ public interface ProcessPersistenceContext
     void remove(PersistentProcessInstance processInstanceInfo);
 
     List<Long> getProcessInstancesWaitingForEvent(String type);
-    
+
     Long getProcessInstanceByCorrelationKey(CorrelationKey correlationKey);
 }

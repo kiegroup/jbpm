@@ -16,17 +16,31 @@
 
 package org.jbpm.process.instance.event;
 
+import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.EventListener;
+import org.kie.internal.runtime.manager.InternalRuntimeManager;
 
 
 public interface SignalManager {
-	
-	void signalEvent(String type, Object event);
-	
-	void signalEvent(long processInstanceId, String type, Object event);
-	
-	void addEventListener(String type, EventListener eventListener);
-	
-	void removeEventListener(String type, EventListener eventListener);
 
+    void signalEventStart(String type, Object event);
+
+    // signal event default scope which is kie session
+	void signalEvent(String type, Object event);
+
+	@Deprecated
+	void signalEvent(long processInstanceId, String type, Object event);
+
+    void sendSignalProcessInstanceScope(InternalRuntimeManager runtimeManager, long processInstanceId, String type, Object event);
+
+    void sendSignalKieSessionScope(InternalRuntimeManager runtimeManager, KieSession kieSession, String type, Object event);
+
+    void sendSignalRuntimeManagerScope(InternalRuntimeManager runtimeManager, String type, Object event);
+
+
+    void addEventStartListener(String type, EventListener listener);
+
+    void addEventListener(String type, EventListener eventListener);
+    
+    void removeEventListener(String type, EventListener eventListener);
 }

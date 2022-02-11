@@ -76,6 +76,7 @@ import org.kie.api.definition.process.NodeContainer;
 import org.kie.api.definition.process.WorkflowProcess;
 import org.kie.api.runtime.EnvironmentName;
 import org.kie.api.runtime.KieRuntime;
+import org.kie.api.runtime.manager.Context;
 import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.runtime.manager.RuntimeManager;
 import org.kie.api.runtime.process.EventListener;
@@ -461,20 +462,14 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
             processRuntime.getProcessEventSupport().fireAfterProcessCompleted(this, kruntime);
 
             if (isSignalCompletion()) {
-                RuntimeManager manager = (RuntimeManager) kruntime.getEnvironment().get(EnvironmentName.RUNTIME_MANAGER);
+                String signalProcessInstanceCompleted =  "processInstanceCompleted:" + getId();
+                InternalRuntimeManager manager = (InternalRuntimeManager) kruntime.getEnvironment().get(EnvironmentName.RUNTIME_MANAGER);
                 if (getParentProcessInstanceId() > 0 && manager != null) {
-
-                    org.kie.api.runtime.manager.Context<?> context = ProcessInstanceIdContext.get(getParentProcessInstanceId());
-                    String caseId = (String) kruntime.getEnvironment().get(EnvironmentName.CASE_ID);
-                    if (caseId != null) {
-                        context = CaseContext.get(caseId);
-                    }
-
                     RuntimeEngine runtime = null;
+                    Context<?> context = findParentContext(kruntime);
                     try {
                         runtime = manager.getRuntimeEngine(context);
-                        KieRuntime managedkruntime = runtime.getKieSession();
-                        managedkruntime.signalEvent("processInstanceCompleted:" + getId(), this);
+                        processRuntime.getSignalManager().sendSignalKieSessionScope(manager, runtime.getKieSession(), signalProcessInstanceCompleted ,this);
                     } catch (SessionNotFoundException e) {
                         logger.debug("Could not found find parent process instance id {} for signaling completion", context.getContextId());
                     } finally {
@@ -484,7 +479,11 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
                     }
 
                 } else {
-                    processRuntime.getSignalManager().signalEvent("processInstanceCompleted:" + getId(), this);
+                    if (manager != null) {
+                        processRuntime.getSignalManager().sendSignalRuntimeManagerScope(manager, signalProcessInstanceCompleted, this);
+                    } else {
+                        processRuntime.getSignalManager().signalEvent(signalProcessInstanceCompleted, this);
+                    }
                 }
             }
         } else {
@@ -492,6 +491,14 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
         }
     }
 
+    private Context<?> findParentContext(InternalKnowledgeRuntime kruntime) {
+        Context<?> context = ProcessInstanceIdContext.get(getParentProcessInstanceId());
+        String caseId = (String) kruntime.getEnvironment().get(EnvironmentName.CASE_ID);
+        if (caseId != null) {
+            context = CaseContext.get(caseId);
+        }
+        return context;
+    }
     @Override
     public void setState(final int state) {
         setState(state, null);
@@ -673,7 +680,7 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
     @Override
     @SuppressWarnings("unchecked")
     public void signalEvent(String type, Object event) {
-        logger.debug("Signal {} received with data {} in process instance {}", type, event, getId());
+        logger.info("Process receiving Signal {} received with data {} in process instance {}", type, event, getId());
         synchronized (this) {
             if (getState() != ProcessInstance.STATE_ACTIVE) {
                 return;

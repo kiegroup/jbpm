@@ -15,6 +15,7 @@
  */
 package org.jbpm.runtime.manager.impl.mapper;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,6 +29,7 @@ import org.jbpm.runtime.manager.impl.jpa.ContextMappingInfo;
 import org.kie.api.runtime.Environment;
 import org.kie.api.runtime.EnvironmentName;
 import org.kie.api.runtime.manager.Context;
+import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.internal.process.CorrelationKey;
 import org.kie.internal.runtime.manager.context.CorrelationKeyContext;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
@@ -135,6 +137,7 @@ public class JPAMapper extends InternalMapper {
         
         return orig;
     }
+
     
     protected ContextMappingInfo findContextByContextId(Context context, String ownerId, EntityManager em) {
         try {
@@ -174,11 +177,13 @@ public class JPAMapper extends InternalMapper {
         EntityManagerInfo info = getEntityManager(null);
     	EntityManager em = info.getEntityManager();
         try {
+
             Query findQuery = em.createNamedQuery("FindContextMapingByKSessionId")
             		.setParameter("ksessionId", ksessionId)
             		.setParameter("ownerId", ownerId);
             @SuppressWarnings("unchecked")
             List<ContextMappingInfo> contextMapping = findQuery.getResultList();
+            System.out.println(contextMapping);
             if (contextMapping.isEmpty()) {
                 return null;
             } else if (contextMapping.size() == 1) {
@@ -196,7 +201,26 @@ public class JPAMapper extends InternalMapper {
         	}
         }
     }
-    
+
+    @Override
+    public List<String> findMapping(String ownerId) {
+        EntityManagerInfo info = getEntityManager(null);
+        EntityManager em = info.getEntityManager();
+        try {
+            Query findQuery = em.createNamedQuery("FindContextMapingByOwner")
+                    .setParameter("ownerId", ownerId);
+            @SuppressWarnings("unchecked")
+            List<ContextMappingInfo> contextMapping = findQuery.getResultList();
+            return contextMapping.stream().map(ContextMappingInfo::getContextId).collect(Collectors.toList());
+        } catch (Exception e) {
+            return Collections.emptyList();
+        } finally {
+            if (!info.isShared()) {
+                em.close();
+            }
+        }
+    }
+
     private EntityManagerInfo getEntityManager(Context context) {
     	Environment env = null;
     	if (context instanceof EnvironmentAwareProcessInstanceContext){

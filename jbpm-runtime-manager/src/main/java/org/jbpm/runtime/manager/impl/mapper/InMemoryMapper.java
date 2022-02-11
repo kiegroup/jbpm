@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import org.kie.api.runtime.manager.Context;
 
@@ -73,5 +74,10 @@ public class InMemoryMapper extends InternalMapper {
             }
         }
         return contextIds;
+    }
+
+    @Override
+    public List<String> findMapping(String ownerId) {
+        return this.mapping.keySet().stream().map(String.class::cast).collect(Collectors.toList());
     }
 }

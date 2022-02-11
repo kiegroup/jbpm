@@ -247,44 +247,6 @@ public class PerCaseRuntimeManager extends AbstractRuntimeManager {
     }
 
     @Override
-    public void signalEvent(String type, Object event) {
-
-        // first signal with new context in case there are start event with signal
-        RuntimeEngine runtimeEngine = getRuntimeEngine(ProcessInstanceIdContext.get());
-        try {
-            runtimeEngine.getKieSession().signalEvent(type, event);
-        } finally {
-            if (canDispose(runtimeEngine)) {
-                disposeRuntimeEngine(runtimeEngine);
-            }
-        }
-        // next find out all instances waiting for given event type
-        List<String> processInstances = ((InternalMapper) mapper).findContextIdForEvent(type, getIdentifier());
-        for (String piId : processInstances) {
-            runtimeEngine = getRuntimeEngine(ProcessInstanceIdContext.get(Long.parseLong(piId)));
-            try {
-                runtimeEngine.getKieSession().signalEvent(type, event);
-            } finally {
-                if (canDispose(runtimeEngine)) {
-                    disposeRuntimeEngine(runtimeEngine);
-                }
-            }
-        }
-
-        // process currently active runtime engines
-        Map<Object, RuntimeEngine> currentlyActive = local.get();
-        if (currentlyActive != null && !currentlyActive.isEmpty()) {
-            RuntimeEngine[] activeEngines = currentlyActive.values().toArray(new RuntimeEngine[currentlyActive.size()]);
-            for (RuntimeEngine engine : activeEngines) {
-                Context<?> context = ((RuntimeEngineImpl) engine).getContext();
-                if (context != null && context instanceof ProcessInstanceIdContext && ((ProcessInstanceIdContext) context).getContextId() != null) {
-                    engine.getKieSession().signalEvent(type, event, ((ProcessInstanceIdContext) context).getContextId());
-                }
-            }
-        }
-    }
-
-    @Override
     public void validate(KieSession ksession, Context<?> context) throws IllegalStateException {
         if (isClosed()) {
             throw new IllegalStateException("Runtime manager " + identifier + " is already closed");

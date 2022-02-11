@@ -32,7 +32,6 @@ import org.jbpm.process.core.timer.impl.GlobalTimerService;
 import org.jbpm.runtime.manager.impl.factory.LocalTaskServiceFactory;
 import org.jbpm.runtime.manager.impl.mapper.EnvironmentAwareProcessInstanceContext;
 import org.jbpm.runtime.manager.impl.mapper.InMemoryMapper;
-import org.jbpm.runtime.manager.impl.mapper.InternalMapper;
 import org.jbpm.runtime.manager.impl.mapper.JPAMapper;
 import org.jbpm.runtime.manager.impl.tx.DestroySessionTransactionSynchronization;
 import org.jbpm.runtime.manager.impl.tx.DisposeSessionTransactionSynchronization;
@@ -158,46 +157,7 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
         return runtime;
     }
     
-    @Override
-    public void signalEvent(String type, Object event) {
-        
-        // first signal with new context in case there are start event with signal
-        RuntimeEngine runtimeEngine = getRuntimeEngine(ProcessInstanceIdContext.get());
-        try {
-            // signal execution can rise errors
-            runtimeEngine.getKieSession().signalEvent(type, event);
-        } finally {
-            // ensure we clean up
-            disposeRuntimeEngine(runtimeEngine);
-        }
-    
-        // next find out all instances waiting for given event type
-        List<String> processInstances = ((InternalMapper) mapper).findContextIdForEvent(type, getIdentifier());
-        for (String piId : processInstances) {
-            runtimeEngine = getRuntimeEngine(ProcessInstanceIdContext.get(Long.parseLong(piId)));
-            try {
-                // signal execution can rise errors
-                runtimeEngine.getKieSession().signalEvent(type, event);
-            } finally {
-                // ensure we clean up
-                disposeRuntimeEngine(runtimeEngine);
-            }
-        }
-        
-        // process currently active runtime engines
-        Map<Object, RuntimeEngine> currentlyActive = local.get();
-        if (currentlyActive != null && !currentlyActive.isEmpty()) {
-            RuntimeEngine[] activeEngines = currentlyActive.values().toArray(new RuntimeEngine[currentlyActive.size()]);
-            for (RuntimeEngine engine : activeEngines) {
-                Context<?> context = ((RuntimeEngineImpl) engine).getContext();
-                if (context != null && context instanceof ProcessInstanceIdContext 
-                        && ((ProcessInstanceIdContext) context).getContextId() != null) {
-                    engine.getKieSession().signalEvent(type, event, ((ProcessInstanceIdContext) context).getContextId());
-                }
-            }
-        }
-    }
-    
+
 
     @Override
     public void validate(KieSession ksession, Context<?> context) throws IllegalStateException {

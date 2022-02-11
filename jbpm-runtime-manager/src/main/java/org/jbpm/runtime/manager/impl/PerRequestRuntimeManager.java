@@ -108,18 +108,6 @@ public class PerRequestRuntimeManager extends AbstractRuntimeManager {
 
         return runtime;
     }
-    
-    @Override
-    public void signalEvent(String type, Object event) {
-        RuntimeEngine runtimeEngine = getRuntimeEngine(EmptyContext.get());
-        
-        runtimeEngine.getKieSession().signalEvent(type, event);
-        
-        if (canDispose(runtimeEngine)) {
-            disposeRuntimeEngine(runtimeEngine);
-        }
-    }
-    
 
     @Override
     public void validate(KieSession ksession, Context<?> context) throws IllegalStateException {
