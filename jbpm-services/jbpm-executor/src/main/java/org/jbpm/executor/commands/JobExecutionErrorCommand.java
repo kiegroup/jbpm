@@ -31,10 +31,15 @@ public class JobExecutionErrorCommand implements Command{
     
     private static final Logger logger = LoggerFactory.getLogger(JobExecutionErrorCommand.class);
 
-    public ExecutionResults execute(CommandContext ctx) {    	
-    	ctx = null; //Assigning null value to throw null pointer exception   	 		
-    	logger.info("Command executed on executor with data {}", ctx.getData());    	
-    	        
+    @SuppressWarnings("null")
+	public ExecutionResults execute(CommandContext ctx) {    	
+    	ctx = null; //Assigning null value to throw null pointer exception
+		try {
+			logger.info("Command executed on executor with data {}", ctx.getData());
+		} catch (NullPointerException e) {
+
+		}
+    	
     	ExecutionResults executionResults = new ExecutionResults();
         return executionResults;
     }    
