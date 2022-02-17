@@ -19,29 +19,16 @@ package org.jbpm.executor.commands;
 import org.kie.api.executor.Command;
 import org.kie.api.executor.CommandContext;
 import org.kie.api.executor.ExecutionResults;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
- * Simple command to throw execution error. 
+ * Simple command to throw runtime exception 
  * Just for testing purpose.
  * 
  */
-public class JobExecutionErrorCommand implements Command{
-    
-    private static final Logger logger = LoggerFactory.getLogger(JobExecutionErrorCommand.class);
+public class JobExecutionErrorCommand implements Command{     
 
-    @SuppressWarnings("null")
-	public ExecutionResults execute(CommandContext ctx) {    	
-    	ctx = null; //Assigning null value to throw null pointer exception
-		try {
-			logger.info("Command executed on executor with data {}", ctx.getData());
-		} catch (NullPointerException e) {
-
-		}
-    	
-    	ExecutionResults executionResults = new ExecutionResults();
-        return executionResults;
-    }    
+	public ExecutionResults execute(CommandContext ctx) {
+		throw new RuntimeException("Throwing error for testing purpose");
+	}   
    
 }
