@@ -25,6 +25,7 @@ import org.jbpm.bpmn2.objects.TestWorkItemHandler;
 import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.workflow.instance.WorkflowRuntimeException;
 import org.jbpm.workflow.instance.node.WorkItemNodeInstance;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -59,6 +60,11 @@ public class WorkItemHandlerExceptionHandlingTest extends JbpmBpmn2TestCase {
     public static void clean() throws Exception {        
         VariableScope.setVariableStrictOption(strictVariableSetting);
         WorkItemNodeInstance.setVariableStrictOption(strictVariableSetting);
+    }
+    
+    @After
+    public void cleanUp() {
+    	System.clearProperty("org.jbpm.exception.handling_strategy.retry.count");
     }
 
     @Test
@@ -210,6 +216,7 @@ public class WorkItemHandlerExceptionHandlingTest extends JbpmBpmn2TestCase {
 
     @Test
     public void testErrornousHandlerWithStrategyMultipleRetry() throws Exception {
+    	System.setProperty("org.jbpm.exception.handling_strategy.retry.count", "4");
         KieBase kbase = createKnowledgeBaseWithoutDumper("handler/BPMN2-UserTaskWithBooleanOutput.bpmn2", "handler/BPMN2-ScriptTask.bpmn2");
 
         KieSession ksession = createKnowledgeSession(kbase);
@@ -221,6 +228,7 @@ public class WorkItemHandlerExceptionHandlingTest extends JbpmBpmn2TestCase {
         ProcessInstance processInstance = ksession.startProcess("com.sample.boolean", params);
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
         assertProcessVarValue(processInstance, "isChecked", "true");
-        assertEquals(3, workItemHandler.getCounter());
+        assertEquals(4, workItemHandler.getCounter());
     }
+
 }
