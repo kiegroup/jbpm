@@ -37,7 +37,7 @@ public abstract class AbstractLogOrThrowWorkItemHandler implements WorkItemHandl
     protected String handlingProcessId;
     protected String handlingStrategy;
 
-    protected int retries = 3;
+    protected int retries = Integer.parseInt(System.getProperty("org.jbpm.exception.handling_strategy.retry.count", "3"));
 
     public void setLogThrownException(boolean logException) {
         this.logThrownException = logException;

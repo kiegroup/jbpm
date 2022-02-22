@@ -40,9 +40,10 @@ public class RetryMultipleWorkItemHandler implements WorkItemHandler {
     @Override
     public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
         this.workItem = workItem;
+        int retries = Integer.parseInt(System.getProperty("org.jbpm.exception.handling_strategy.retry.count"));
         if (processId != null && strategy != null) {
             
-            if (counter >= 3) {
+            if (counter >= retries) {
                 manager.completeWorkItem(workItem.getId(), workItem.getParameters());
             } else {
                 counter++;
