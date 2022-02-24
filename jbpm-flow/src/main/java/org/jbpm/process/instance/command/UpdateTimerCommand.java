@@ -33,6 +33,7 @@ import org.jbpm.process.instance.timer.TimerInstance;
 import org.jbpm.process.instance.timer.TimerManager;
 import org.jbpm.ruleflow.instance.RuleFlowProcessInstance;
 import org.jbpm.workflow.instance.impl.NodeInstanceImpl;
+import org.jbpm.workflow.instance.node.HumanTaskNodeInstance;
 import org.jbpm.workflow.instance.node.StateBasedNodeInstance;
 import org.jbpm.workflow.instance.node.TimerNodeInstance;
 import org.kie.api.command.ExecutableCommand;
@@ -102,7 +103,7 @@ public class UpdateTimerCommand implements ExecutableCommand<Void>, ProcessInsta
 
     public UpdateTimerCommand(long processInstanceId, long timerId, long delay, long period, int repeatLimit) {
         this.processInstanceId = processInstanceId;
-        this.timerId = timerId;
+        this.timerId =  timerId;
         this.delay = delay;
         this.period = period;
         this.repeatLimit = repeatLimit;
@@ -132,6 +133,7 @@ public class UpdateTimerCommand implements ExecutableCommand<Void>, ProcessInsta
                 logger.debug("New SLA timer {} successfully registered", newTimer);
                 break;
             }
+
             if (nodeInstance instanceof TimerNodeInstance) {
                 TimerNodeInstance tni = (TimerNodeInstance) nodeInstance;
                 if (tni.getTimerId() == timerId || (tni.getNodeName() != null && tni.getNodeName().equals(timerName))) {
@@ -145,7 +147,9 @@ public class UpdateTimerCommand implements ExecutableCommand<Void>, ProcessInsta
 
                     break;
                 }
-            } else if (nodeInstance instanceof StateBasedNodeInstance) {
+            }
+
+            if (nodeInstance instanceof StateBasedNodeInstance) {
                 StateBasedNodeInstance sbni = (StateBasedNodeInstance) nodeInstance;
                 List<Long> timerList = sbni.getTimerInstances();
                 if ((timerList != null && timerList.contains(timerId)) || (sbni.getNodeName() != null && sbni.getNodeName().equals(timerName))) {
@@ -164,6 +168,17 @@ public class UpdateTimerCommand implements ExecutableCommand<Void>, ProcessInsta
                     
                     }
                     break;
+                }
+            }
+            if (nodeInstance instanceof HumanTaskNodeInstance) {
+                HumanTaskNodeInstance htni = (HumanTaskNodeInstance) nodeInstance;
+                if (htni.getSuspendUntilTimerId() != -1 && htni.getSuspendUntilTimerId() == this.timerId) {
+                    TimerInstance timer = tm.getTimerMap().get(this.timerId);
+                    TimerInstance newTimer = rescheduleTimer(timer, tm);
+                    logger.debug("New timer {} about to be registered", newTimer);
+                    tm.registerTimer(newTimer, wfp); 
+                    htni.setSuspendUntilTimerId(newTimer.getId());
+                    logger.debug("New timer {} successfully registered", newTimer);
                 }
             }
         }
