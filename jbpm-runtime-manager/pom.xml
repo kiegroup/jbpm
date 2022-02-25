@@ -323,6 +323,7 @@
               org.jbpm.process.instance.impl,
               org.jbpm.process.instance.timer,
               org.jbpm.services.task,
+              org.jbpm.services.task.events,
               org.jbpm.services.task.impl,
               org.jbpm.services.task.impl.command,
               org.jbpm.services.task.audit;resolution:=optional,
