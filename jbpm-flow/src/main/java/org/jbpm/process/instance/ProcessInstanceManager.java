@@ -23,6 +23,8 @@ import org.kie.api.runtime.process.ProcessInstance;
 
 public interface ProcessInstanceManager {
 
+    Collection<ProcessInstance> loadKnowledgeRuntimeProcessInstances();
+
     ProcessInstance getProcessInstance(long id);
     
     ProcessInstance getProcessInstance(long id, boolean readOnly);

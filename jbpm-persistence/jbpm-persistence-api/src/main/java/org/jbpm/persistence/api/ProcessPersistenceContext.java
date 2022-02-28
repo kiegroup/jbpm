@@ -25,6 +25,8 @@ public interface ProcessPersistenceContext
     extends
     PersistenceContext {
 
+    List<Long> findAllProcessInstanceInfo();
+
     PersistentProcessInstance persist(PersistentProcessInstance processInstanceInfo);
     
     PersistentCorrelationKey persist(PersistentCorrelationKey correlationKeyInfo);

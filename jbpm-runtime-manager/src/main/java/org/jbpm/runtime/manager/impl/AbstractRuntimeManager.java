@@ -648,4 +648,8 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
     }
 
     public abstract SessionFactory getFactory();
+
+    public boolean hasMultipleProcessPerSession() {
+        return false;
+    }
 }

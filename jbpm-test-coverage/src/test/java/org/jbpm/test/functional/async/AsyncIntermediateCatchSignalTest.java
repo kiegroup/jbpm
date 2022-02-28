@@ -152,7 +152,7 @@ public class AsyncIntermediateCatchSignalTest extends JbpmTestCase {
 
         MyFact myFact = new MyFact();
         myFact.setConditionA(true);
-        rm.signalEvent("ASYNC-signalA", myFact);
+        rm.signalEvent("signalA", myFact);
 
         latch.await();
         for (long p : pids) {

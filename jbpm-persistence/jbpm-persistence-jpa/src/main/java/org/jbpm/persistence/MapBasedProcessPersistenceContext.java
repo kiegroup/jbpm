@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.drools.persistence.map.MapBasedPersistenceContext;
 import org.jbpm.persistence.api.PersistentCorrelationKey;
@@ -96,5 +97,10 @@ public class MapBasedProcessPersistenceContext extends MapBasedPersistenceContex
     public Long getProcessInstanceByCorrelationKey(CorrelationKey correlationKey) {
     	PersistentProcessInstance piInfo = this.processInstancesByBusinessKey.get(correlationKey);
         return piInfo.getId();
+    }
+
+    @Override
+    public List<Long> findAllProcessInstanceInfo() {
+        return processInstancesByBusinessKey.values().stream().map(PersistentProcessInstance::getId).collect(Collectors.toCollection(ArrayList::new));
     }
 }
