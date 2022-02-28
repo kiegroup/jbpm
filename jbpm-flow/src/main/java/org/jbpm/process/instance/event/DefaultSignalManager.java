@@ -32,6 +32,7 @@ import org.drools.core.marshalling.impl.MarshallerWriteContext;
 import org.drools.core.phreak.PropagationEntry;
 import org.drools.serialization.protobuf.ProtobufMessages.ActionQueue.Action;
 import org.jbpm.process.instance.InternalProcessRuntime;
+import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.EventListener;
 import org.kie.api.runtime.process.ProcessInstance;
 
@@ -96,7 +97,14 @@ public class DefaultSignalManager implements SignalManager {
 		    processInstance.signalEvent(type, event);
 		}
 	}
-	
+
+	@Override
+	public void signalEventKieSession(KieSession kieSession, String type, Object event) {
+	    for (ProcessInstance processInstance : kruntime.getProcessInstances()) {
+	           processInstance.signalEvent(type, event);
+	    }
+	}
+
 	public static class SignalProcessInstanceAction extends PropagationEntry.AbstractPropagationEntry implements WorkingMemoryAction {
 
 		private long processInstanceId;

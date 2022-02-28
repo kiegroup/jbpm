@@ -33,6 +33,11 @@ public class DefaultProcessInstanceManager implements ProcessInstanceManager {
     private Map<CorrelationKey, ProcessInstance> processInstancesByCorrelationKey = new ConcurrentHashMap<>();
     private AtomicLong processCounter = new AtomicLong(0);
 
+    @Override
+    public Collection<ProcessInstance> loadKnowledgeRuntimeProcessInstances() {
+        return processInstances.values();
+    }
+
     public void addProcessInstance(ProcessInstance processInstance, CorrelationKey correlationKey) {
         ((org.jbpm.process.instance.ProcessInstance) processInstance).setId(processCounter.incrementAndGet());
         internalAddProcessInstance(processInstance);
