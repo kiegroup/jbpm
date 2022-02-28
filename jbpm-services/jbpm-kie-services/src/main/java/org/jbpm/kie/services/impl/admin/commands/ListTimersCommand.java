@@ -21,6 +21,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 
 import org.drools.core.command.SingleSessionCommandService;
@@ -69,8 +71,7 @@ public class ListTimersCommand implements ExecutableCommand<List<TimerInstance>>
 
         Long processSlaTimer = wfp.getSlaTimerId();
         if (processSlaTimer != null && processSlaTimer != -1L) {
-            TimerInstanceImpl details = buildTimer(tm.getTimerMap().get(processSlaTimer));
-            details.setTimerName("[SLA-Process] " + wfp.getProcessName());
+            TimerInstanceImpl details = buildTimer(tm.getTimerMap().get(processSlaTimer), () -> "[SLA-Process] " + wfp.getProcessName());
             timers.add(details);
         }
 
@@ -89,7 +90,7 @@ public class ListTimersCommand implements ExecutableCommand<List<TimerInstance>>
         return ((InternalProcessRuntime) ((StatefulKnowledgeSessionImpl) internal).getProcessRuntime()).getTimerManager();
     }
 
-    private TimerInstanceImpl buildTimer(org.jbpm.process.instance.timer.TimerInstance timerInstance) {
+    private TimerInstanceImpl buildTimer(org.jbpm.process.instance.timer.TimerInstance timerInstance, Supplier<String> resolveName) {
         TimerInstanceImpl timer = new TimerInstanceImpl();
 
         if (timerInstance != null) {
@@ -103,6 +104,7 @@ public class ListTimersCommand implements ExecutableCommand<List<TimerInstance>>
             timer.setTimerId(timerInstance.getTimerId());
             timer.setProcessInstanceId(timerInstance.getProcessInstanceId());
             timer.setSessionId(timerInstance.getSessionId());
+            timer.setTimerName(resolveName.get());
         }
 
         return timer;
@@ -112,16 +114,13 @@ public class ListTimersCommand implements ExecutableCommand<List<TimerInstance>>
     	for (NodeInstance nodeInstance : container.getNodeInstances()) {
             if (((NodeInstanceImpl) nodeInstance).getSlaTimerId() != -1) {
                 org.jbpm.process.instance.timer.TimerInstance timer = tm.getTimerMap().get(((NodeInstanceImpl) nodeInstance).getSlaTimerId());
-                TimerInstanceImpl details = buildTimer(timer);
-                details.setTimerName("[SLA]" + resolveVariable(nodeInstance.getNodeName(), nodeInstance));
+                TimerInstanceImpl details = buildTimer(timer, () -> "[SLA]" + resolveVariable(nodeInstance.getNodeName(), nodeInstance));
                 timers.add(details);
             }
             if (nodeInstance instanceof TimerNodeInstance) {
                 TimerNodeInstance tni = (TimerNodeInstance) nodeInstance;
             	org.jbpm.process.instance.timer.TimerInstance timer = tm.getTimerMap().get(tni.getTimerId());
-            	TimerInstanceImpl details = buildTimer(timer);
-                details.setTimerName(resolveVariable(timer.getName(), tni));
-                
+            	TimerInstanceImpl details = buildTimer(timer, () -> resolveVariable(timer.getName(), tni));
                 timers.add(details);
             
             } else if (nodeInstance instanceof StateBasedNodeInstance) {
@@ -131,8 +130,7 @@ public class ListTimersCommand implements ExecutableCommand<List<TimerInstance>>
             	if (timerList != null) {
                     for (Long timerId : timerList) {
                         org.jbpm.process.instance.timer.TimerInstance timer = tm.getTimerMap().get(timerId);
-                        TimerInstanceImpl details = buildTimer(timer);
-                        details.setTimerName(resolveVariable(timer.getName(), sbni));
+                        TimerInstanceImpl details = buildTimer(timer, () -> resolveVariable(timer.getName(), sbni));
                         timers.add(details);
                     }
             	}
@@ -140,8 +138,7 @@ public class ListTimersCommand implements ExecutableCommand<List<TimerInstance>>
                 if (nodeInstance instanceof HumanTaskNodeInstance) {
                     HumanTaskNodeInstance htni = (HumanTaskNodeInstance) nodeInstance;
                     if (htni.getSuspendUntilTimerId() >= 0) {
-                        TimerInstanceImpl details = buildTimer(tm.getTimerMap().get(htni.getSuspendUntilTimerId()));
-                        details.setTimerName("[SuspendUntil] " + resolveVariable(htni.getNodeName(), htni));
+                        TimerInstanceImpl details = buildTimer(tm.getTimerMap().get(htni.getSuspendUntilTimerId()), () -> "[SuspendUntil] " + resolveVariable(htni.getNodeName(), htni));
                         timers.add(details);
                     }
                 }
