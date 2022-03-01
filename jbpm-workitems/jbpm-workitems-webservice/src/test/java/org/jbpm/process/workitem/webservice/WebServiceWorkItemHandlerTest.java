@@ -236,6 +236,50 @@ public class WebServiceWorkItemHandlerTest {
     }
     
     @Test
+    public void testExecuteSyncOperationWithBasicAuthWithParameter() {
+
+        HTTPConduit http = Mockito.mock(HTTPConduit.class,
+                                        Mockito.CALLS_REAL_METHODS);
+
+        when(client.getConduit()).thenReturn(http);
+
+        TestWorkItemManager manager = new TestWorkItemManager();
+        WorkItemImpl workItem = new WorkItemImpl();
+        workItem.setParameter("Interface",
+                              "someInterface");
+        workItem.setParameter("Operation",
+                              "someOperation");
+        workItem.setParameter("Parameter",
+                              "myParam");
+        workItem.setParameter("Mode",
+                              "SYNC");
+        workItem.setParameter("Username",
+                              "testusername");
+        workItem.setParameter("Password",
+                              "testpassword");
+
+        WebServiceWorkItemHandler handler = new WebServiceWorkItemHandler(kieSession);
+                                                                          
+        handler.setClients(clients);
+
+        handler.executeWorkItem(workItem,
+                                manager);
+        assertNotNull(manager.getResults());
+        assertEquals(1,
+                     manager.getResults().size());
+        assertTrue(manager.getResults().containsKey(workItem.getId()));
+
+        assertNotNull(http.getAuthorization());
+        AuthorizationPolicy authorizationPolicy = http.getAuthorization();
+        assertEquals("Basic",
+                     authorizationPolicy.getAuthorizationType());
+        assertEquals("testusername",
+                     authorizationPolicy.getUserName());
+        assertEquals("testpassword",
+                     authorizationPolicy.getPassword());
+    }
+    
+    @Test
     public void testExecuteSyncOperationHandlingException() throws Exception {
         when(clients.computeIfAbsent(any(), any())).thenReturn(null);
         TestWorkItemManager manager = new TestWorkItemManager();
