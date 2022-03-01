@@ -94,7 +94,9 @@ import org.slf4j.LoggerFactory;
                 @WidParameter(name = "Endpoint"),
                 @WidParameter(name = "Parameter"),
                 @WidParameter(name = "Mode"),
-                @WidParameter(name = "Wrapped")
+                @WidParameter(name = "Wrapped"),
+                @WidParameter(name = "Username"),
+                @WidParameter(name = "Password")
         },
         results = {
                 @WidResult(name = "Result", runtimeType = "java.lang.Object")
@@ -369,7 +371,13 @@ public class WebServiceWorkItemHandler extends AbstractLogOrThrowWorkItemHandler
             }
 
             // apply authorization if needed
-            applyAuthorization(username, password, client);
+            String u = (String) workItem.getParameter("Username");
+            String p = (String) workItem.getParameter("Password");
+            if (u == null || p == null) {
+                u = this.username;
+                p = this.password;
+            }
+            applyAuthorization(u, p, client);
 
             //Remove interceptors if using wrapped mode
             if (wrapped) {
