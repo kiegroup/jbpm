@@ -75,7 +75,7 @@ public class JPAProcessInstanceManager
     public Collection<ProcessInstance> loadKnowledgeRuntimeProcessInstances() {
         InternalRuntimeManager manager = (InternalRuntimeManager) kruntime.getEnvironment().get(EnvironmentName.RUNTIME_MANAGER);
         List<Long> ids = null;
-        if (manager != null) {
+        if (manager != null && manager.useContextMapping()) {
            ids = toLong(manager.getEnvironment().getMapper().findContextId(((KieSession) kruntime).getIdentifier(), manager.getIdentifier()));
         } else {
             // there is no mapping info in this case so we can only check during getProcessInstance if it belongs or not to the kruntime
@@ -96,7 +96,6 @@ public class JPAProcessInstanceManager
         });
         return processInstances.values();
     }
-
 
     private List<Long> toLong(Object value) {
         if (value instanceof String ) {
