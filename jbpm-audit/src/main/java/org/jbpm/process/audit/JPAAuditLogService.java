@@ -16,40 +16,6 @@
 
 package org.jbpm.process.audit;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.TreeMap;
-import java.util.function.Consumer;
-
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.FlushModeType;
-import javax.persistence.NoResultException;
-import javax.persistence.Query;
-
-import org.jbpm.process.audit.query.NodeInstLogQueryBuilderImpl;
-import org.jbpm.process.audit.query.NodeInstanceLogDeleteBuilderImpl;
-import org.jbpm.process.audit.query.ProcInstLogQueryBuilderImpl;
-import org.jbpm.process.audit.query.ProcessInstanceLogDeleteBuilderImpl;
-import org.jbpm.process.audit.query.VarInstLogQueryBuilderImpl;
-import org.jbpm.process.audit.query.VarInstanceLogDeleteBuilderImpl;
-import org.jbpm.process.audit.strategy.PersistenceStrategyType;
-import org.jbpm.query.jpa.data.QueryWhere;
-import org.jbpm.query.jpa.impl.QueryCriteriaUtil;
-import org.kie.api.runtime.Environment;
-import org.kie.internal.runtime.manager.audit.query.NodeInstanceLogDeleteBuilder;
-import org.kie.internal.runtime.manager.audit.query.NodeInstanceLogQueryBuilder;
-import org.kie.internal.runtime.manager.audit.query.ProcessInstanceLogDeleteBuilder;
-import org.kie.internal.runtime.manager.audit.query.ProcessInstanceLogQueryBuilder;
-import org.kie.internal.runtime.manager.audit.query.VariableInstanceLogDeleteBuilder;
-import org.kie.internal.runtime.manager.audit.query.VariableInstanceLogQueryBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import static org.jbpm.query.jpa.impl.QueryCriteriaUtil.convertListToInterfaceList;
 import static org.kie.internal.query.QueryParameterIdentifiers.CASE_FILE_DATA_LOG_LASTMODIFIED;
 import static org.kie.internal.query.QueryParameterIdentifiers.CORRELATION_KEY_LIST;
@@ -84,6 +50,40 @@ import static org.kie.internal.query.QueryParameterIdentifiers.VALUE_LIST;
 import static org.kie.internal.query.QueryParameterIdentifiers.VARIABLE_ID_LIST;
 import static org.kie.internal.query.QueryParameterIdentifiers.VARIABLE_INSTANCE_ID_LIST;
 import static org.kie.internal.query.QueryParameterIdentifiers.WORK_ITEM_ID_LIST;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.TreeMap;
+import java.util.function.Consumer;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.FlushModeType;
+import javax.persistence.NoResultException;
+import javax.persistence.Query;
+
+import org.jbpm.process.audit.query.NodeInstLogQueryBuilderImpl;
+import org.jbpm.process.audit.query.NodeInstanceLogDeleteBuilderImpl;
+import org.jbpm.process.audit.query.ProcInstLogQueryBuilderImpl;
+import org.jbpm.process.audit.query.ProcessInstanceLogDeleteBuilderImpl;
+import org.jbpm.process.audit.query.VarInstLogQueryBuilderImpl;
+import org.jbpm.process.audit.query.VarInstanceLogDeleteBuilderImpl;
+import org.jbpm.process.audit.strategy.PersistenceStrategyType;
+import org.jbpm.query.jpa.data.QueryWhere;
+import org.jbpm.query.jpa.impl.QueryCriteriaUtil;
+import org.kie.api.runtime.Environment;
+import org.kie.internal.runtime.manager.audit.query.NodeInstanceLogDeleteBuilder;
+import org.kie.internal.runtime.manager.audit.query.NodeInstanceLogQueryBuilder;
+import org.kie.internal.runtime.manager.audit.query.ProcessInstanceLogDeleteBuilder;
+import org.kie.internal.runtime.manager.audit.query.ProcessInstanceLogQueryBuilder;
+import org.kie.internal.runtime.manager.audit.query.VariableInstanceLogDeleteBuilder;
+import org.kie.internal.runtime.manager.audit.query.VariableInstanceLogQueryBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JPAAuditLogService extends JPAService implements AuditLogService {
 
@@ -419,7 +419,7 @@ public class JPAAuditLogService extends JPAService implements AuditLogService {
                                Map<String, Object> queryParams,
                                int chunkSize) {
         EntityManager em = getEntityManager();
-        Object newTx = joinTransaction(em);
+        Object newTx = newTransaction(em);
         try {
             Query query = em.createQuery(QueryHelper.createQueryWithSubQuery(
                     String.format("SELECT l.id FROM %s l", queryTable), queryData, queryParams, subQuery).toSQL());

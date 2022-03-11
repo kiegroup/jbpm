@@ -146,6 +146,10 @@ public class JPAService {
         return persistenceStrategy.joinTransaction(em);
     }
 
+    protected Object newTransaction(EntityManager em) {
+        return persistenceStrategy.newTransaction(em);
+    }
+
     // DO NOT MAKE THIS METHOD PUBLIC!
     // This is an internal method, and we do NOT want to expose the entity
     // manager to users or other logic!

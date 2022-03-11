@@ -52,7 +52,16 @@ public class StandaloneJtaStrategy implements PersistenceStrategy {
     }
 
     @Override
+    public Object newTransaction(EntityManager em) {
+        return joinTransaction(em, true);
+    }
+
+    @Override
     public Object joinTransaction(EntityManager em) {
+        return joinTransaction(em, false);
+    }
+
+    private Object joinTransaction (EntityManager em, boolean forceNew) {
         boolean newTx = false;
         
         TransactionManager txm = TransactionManagerFactory.get().newTransactionManager();
@@ -61,7 +70,7 @@ public class StandaloneJtaStrategy implements PersistenceStrategy {
             throw new IllegalStateException("Unable to find JTA transaction." );
         }
         try {
-            if( txm.getStatus() == TransactionManager.STATUS_NO_TRANSACTION ) { 
+            if( txm.getStatus() == TransactionManager.STATUS_NO_TRANSACTION || forceNew) { 
                 txm.begin();
                 newTx = true;
                 // since new transaction was started em must join it

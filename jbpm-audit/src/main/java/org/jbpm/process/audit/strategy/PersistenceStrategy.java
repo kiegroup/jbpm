@@ -22,6 +22,10 @@ public interface PersistenceStrategy {
 
    public EntityManager getEntityManager();
    
+   default Object newTransaction(EntityManager em) {
+       return joinTransaction(em);
+   }
+   
    public Object joinTransaction(EntityManager em);
   
    public void leaveTransaction(EntityManager em, Object transaction);

@@ -48,6 +48,14 @@ public class SpringStandaloneJtaSharedEntityManagerStrategy extends StandaloneJt
         	commitTransaction(transaction);
         }
     }
+    
+    @Override 
+    public Object newTransaction(EntityManager em) {
+        if (manageTx) {
+            return super.newTransaction(em);
+        }
+        return manageTx;
+    }
 
 	@Override
 	public Object joinTransaction(EntityManager em) {
