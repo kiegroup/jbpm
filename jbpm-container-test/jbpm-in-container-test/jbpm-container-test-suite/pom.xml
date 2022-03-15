@@ -184,7 +184,7 @@
       <artifactId>jbpm-bpmn2</artifactId>
     </dependency>
     <dependency> <!-- Dynamic dependency -->
-      <groupId>com.sun.xml.bind</groupId>
+      <groupId>org.glassfish.jaxb</groupId>
       <artifactId>jaxb-xjc</artifactId>
       <scope>test</scope>
     </dependency>
@@ -358,13 +358,6 @@
     <dependency>
       <groupId>jakarta.activation</groupId>
       <artifactId>jakarta.activation-api</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <!-- Needed for JDK 11 -->
-    <dependency>
-      <groupId>com.sun.xml.bind</groupId>
-      <artifactId>jaxb-impl</artifactId>
       <scope>test</scope>
     </dependency>
 
