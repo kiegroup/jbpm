@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2022 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,21 @@
  * limitations under the License.
  */
 
-package org.jbpm.process.instance.event;
+package org.jbpm.executor.commands;
 
-import org.kie.api.runtime.KieSession;
-import org.kie.api.runtime.process.EventListener;
+import org.kie.api.executor.Command;
+import org.kie.api.executor.CommandContext;
+import org.kie.api.executor.ExecutionResults;
 
+/**
+ * Simple command to throw runtime exception 
+ * Just for testing purpose.
+ * 
+ */
+public class JobExecutionErrorCommand implements Command{     
 
-public interface SignalManager {
-	
-	void signalEvent(String type, Object event);
-	
-	void signalEvent(long processInstanceId, String type, Object event);
-
-    void signalEventKieSession(KieSession kieSession, String type, Object event);
-
-	void addEventListener(String type, EventListener eventListener);
-	
-	void removeEventListener(String type, EventListener eventListener);
-
-
-
-
+	public ExecutionResults execute(CommandContext ctx) {
+		throw new RuntimeException("Throwing error for testing purpose");
+	}   
+   
 }

@@ -15,7 +15,7 @@
   <properties>
     <version.org.kie>${archetypeVersion}</version.org.kie>
     <version.org.powermock>1.7.4</version.org.powermock>
-    <version.junit>4.12</version.junit>
+    <version.junit>4.13.1</version.junit>
     <version.org.slf4j>1.7.26</version.org.slf4j>
     <java.module.name>${project.name}</java.module.name>
   </properties>

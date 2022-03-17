@@ -20,8 +20,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.ConcurrentModificationException;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import org.drools.core.common.InternalKnowledgeRuntime;
 import org.drools.persistence.api.TransactionManager;
@@ -68,6 +70,54 @@ public class JPAProcessInstanceManager
     public void setKnowledgeRuntime(InternalKnowledgeRuntime kruntime) {
         this.kruntime = kruntime;
     }
+
+    @Override
+    public Collection<ProcessInstance> loadKnowledgeRuntimeProcessInstances() {
+        InternalRuntimeManager manager = (InternalRuntimeManager) kruntime.getEnvironment().get(EnvironmentName.RUNTIME_MANAGER);
+        List<Long> ids = null;
+        if (manager != null && manager.useContextMapping()) {
+           ids = toLong(manager.getEnvironment().getMapper().findContextId(((KieSession) kruntime).getIdentifier(), manager.getIdentifier()));
+        } else {
+            // there is no mapping info in this case so we can only check during getProcessInstance if it belongs or not to the kruntime
+            ProcessPersistenceContext context = ((ProcessPersistenceContextManager) this.kruntime.getEnvironment()
+                            .get(EnvironmentName.PERSISTENCE_CONTEXT_MANAGER))
+                            .getProcessPersistenceContext();
+            ids = context.findAllProcessInstanceInfo();
+
+        }
+        List<Long> loaded = processInstances.keySet().stream().collect(Collectors.toCollection(ArrayList::new));
+        ids.removeAll(loaded);
+        ids.forEach(id -> { 
+            try {
+                getProcessInstance(id);
+            } catch (Exception e) {
+                // do nothing
+            }
+        });
+        return processInstances.values();
+    }
+
+    private List<Long> toLong(Object value) {
+        if (value instanceof String ) {
+            return toLong(Collections.singletonList((String) value));
+        } else if (value instanceof List) {
+            return toLong((List<String>) value);
+        }
+        return Collections.emptyList();
+    }
+
+    private List<Long> toLong(List<String> items) {
+        List<Long> longList = new ArrayList<>();
+        for (String item : items) {
+            try {
+                longList.add(Long.parseLong(item));
+            } catch (NumberFormatException e) {
+                // do nothing
+            }
+        }
+        return longList;
+    }
+
 
     public void addProcessInstance(ProcessInstance processInstance, CorrelationKey correlationKey) {
         ProcessInstanceInfo processInstanceInfo = new ProcessInstanceInfo( processInstance, this.kruntime.getEnvironment() );

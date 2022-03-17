@@ -147,5 +147,11 @@ public class JpaProcessPersistenceContext extends JpaPersistenceContext
             return null;
         }
     }
-    
+
+    @Override
+    public List<Long> findAllProcessInstanceInfo() {
+        EntityManager em = getEntityManager();
+        return em.createQuery("SELECT o.id FROM ProcessInstanceInfo o", Long.class).getResultList();
+    }
+
 }
