@@ -19,6 +19,7 @@ package org.jbpm.kie.services.test;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -437,7 +438,6 @@ public class RuntimeDataServiceImplTest extends AbstractKieServicesBaseTest {
     	assertNotNull(instances);
     	assertEquals(1, instances.size());
     	assertEquals(3, (int)instances.iterator().next().getState());
-
         deploymentUnit.setVersion(origVer);
     }
 
@@ -446,6 +446,43 @@ public class RuntimeDataServiceImplTest extends AbstractKieServicesBaseTest {
         runtimeDataService.getProcessInstancesByDeploymentId(null, Collections.<Integer>emptyList(), new QueryContext());
     }
 
+	@Test(expected = NullPointerException.class)
+	public void testCountProcessInstancesByDeploymentIdNull() {
+		runtimeDataService.countProcessInstancesByDeploymentId(null, Collections.<Integer>emptyList());
+	}
+
+
+	@Test
+	public void testCountProcessInstancesByDeploymentIdAndState() {
+		assertEquals(Long.valueOf(0), runtimeDataService.countProcessInstancesByDeploymentId(deploymentUnit.getIdentifier(), Collections.emptyList()));
+		
+		List<Long> pids = new ArrayList<>();
+		int total = 10;
+		for(int i = 0; i < total; i++) {
+			pids.add(processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument"));
+		}
+		assertEquals(Long.valueOf(0), runtimeDataService.countProcessInstancesByDeploymentId(deploymentUnit.getIdentifier(), null));
+		assertEquals(Long.valueOf(0), runtimeDataService.countProcessInstancesByDeploymentId(deploymentUnit.getIdentifier(), Collections.emptyList()));
+		assertEquals(Long.valueOf(total), runtimeDataService.countProcessInstancesByDeploymentId(deploymentUnit.getIdentifier(), Arrays.asList(ProcessInstance.STATE_ACTIVE)));
+		assertEquals(Long.valueOf(0), runtimeDataService.countProcessInstancesByDeploymentId(deploymentUnit.getIdentifier(), Arrays.asList(ProcessInstance.STATE_ABORTED)));
+		assertEquals(Long.valueOf(total), runtimeDataService.countProcessInstancesByDeploymentId(deploymentUnit.getIdentifier(), Arrays.asList(ProcessInstance.STATE_ACTIVE, ProcessInstance.STATE_ABORTED)));
+
+		int suspended = 5;
+		for(int i = 0; i < suspended; i++) {
+			processService.abortProcessInstance(pids.get(i));
+		}
+		assertEquals(Long.valueOf(total - suspended), runtimeDataService.countProcessInstancesByDeploymentId(deploymentUnit.getIdentifier(), Arrays.asList(ProcessInstance.STATE_ACTIVE)));
+		assertEquals(Long.valueOf(suspended), runtimeDataService.countProcessInstancesByDeploymentId(deploymentUnit.getIdentifier(), Arrays.asList(ProcessInstance.STATE_ABORTED)));
+		assertEquals(Long.valueOf(total), runtimeDataService.countProcessInstancesByDeploymentId(deploymentUnit.getIdentifier(), Arrays.asList(ProcessInstance.STATE_ACTIVE, ProcessInstance.STATE_ABORTED)));
+		
+		for(int i = suspended; i < total; i++) {
+			processService.abortProcessInstance(pids.get(i));
+		}
+		assertEquals(Long.valueOf(0), runtimeDataService.countProcessInstancesByDeploymentId(deploymentUnit.getIdentifier(), Arrays.asList(ProcessInstance.STATE_ACTIVE)));
+		assertEquals(Long.valueOf(total), runtimeDataService.countProcessInstancesByDeploymentId(deploymentUnit.getIdentifier(), Arrays.asList(ProcessInstance.STATE_ABORTED)));
+		assertEquals(Long.valueOf(total), runtimeDataService.countProcessInstancesByDeploymentId(deploymentUnit.getIdentifier(), Arrays.asList(ProcessInstance.STATE_ACTIVE, ProcessInstance.STATE_ABORTED)));
+	}
+	
     @Test
     public void testGetProcessInstancesByProcessId() {
     	Collection<ProcessInstanceDesc> instances = runtimeDataService.getProcessInstances(new QueryContext());
