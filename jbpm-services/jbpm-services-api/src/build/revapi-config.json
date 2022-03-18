@@ -71,7 +71,16 @@
                    "methodName": "suspend",
                    "elementKind": "method",
                    "justification": "[JBPM-10015] Allow to set suspendUntil during user task suspend operation as parameter."
-                 }
+                 },
+                 {
+                   "code": "java.method.addedToInterface",
+                   "new": "method java.lang.Long org.jbpm.services.api.RuntimeDataService::countProcessInstancesByDeploymentId(java.lang.String, java.util.List<java.lang.Integer>)",
+                   "package": "org.jbpm.services.api",
+                   "classSimpleName": "RuntimeDataService",
+                   "methodName": "countProcessInstancesByDeploymentId",
+                   "elementKind": "method",
+                   "justification": "[RHPAM-4028] Allow to count process instances by deploymentId and states."
+                }
                 
             ]
         }
