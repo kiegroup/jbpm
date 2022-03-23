@@ -16,62 +16,8 @@
     },
     "ignores": {
         "revapi": {
-            "_comment": "Changes between 7.52.0.Final and the current branch. These changes are desired and thus ignored.",
+            "_comment": "Changes between 7.67.0.Final and the current branch. These changes are desired and thus ignored.",
             "ignore": [
-                {
-                    "code": "java.method.addedToInterface",
-                    "new": "method java.util.Map<java.lang.String, java.util.Set<java.lang.String>> org.jbpm.services.api.model.ProcessDefinition::getTagsInfo()",
-                    "package": "org.jbpm.services.api.model",
-                    "classSimpleName": "ProcessDefinition",
-                    "methodName": "getTagsInfo",
-                    "elementKind": "method",
-                    "justification": "[AF-2811] Required Process Variable Tags shouldn't be accepted in forms when empty"
-                },
-                {
-                    "code": "java.method.addedToInterface",
-                    "new": "method void org.jbpm.services.api.UserTaskService::claim(java.lang.String, java.util.Collection<java.lang.Long>, java.lang.String)",
-                    "package": "org.jbpm.services.api",
-                    "classSimpleName": "UserTaskService",
-                    "methodName": "claim",
-                    "elementKind": "method",
-                    "justification": "https://issues.redhat.com/browse/JBPM-9786"
-                },
-                {
-                  "code": "java.method.addedToInterface",
-                  "new": "method java.util.List<org.jbpm.services.api.model.ProcessInstanceWithVarsDesc> org.jbpm.services.api.AdvanceRuntimeDataService::queryProcessByVariablesAndTask(java.util.List<org.jbpm.services.api.query.model.QueryParam>, java.util.List<org.jbpm.services.api.query.model.QueryParam>, java.util.List<org.jbpm.services.api.query.model.QueryParam>, org.jbpm.services.api.query.model.QueryParam, org.kie.api.runtime.query.QueryContext)",
-                  "package": "org.jbpm.services.api",
-                  "classSimpleName": "AdvanceRuntimeDataService",
-                  "methodName": "queryProcessByVariablesAndTask",
-                  "elementKind": "method",
-                  "justification": "[JBPM-9675] Allow query by potential owners with ALL or ANY operands"
-                },
-                {
-                  "code": "java.method.addedToInterface",
-                  "new": "method java.util.List<org.jbpm.services.api.model.UserTaskInstanceWithPotOwnerDesc> org.jbpm.services.api.AdvanceRuntimeDataService::queryUserTasksByVariables(java.util.List<org.jbpm.services.api.query.model.QueryParam>, java.util.List<org.jbpm.services.api.query.model.QueryParam>, java.util.List<org.jbpm.services.api.query.model.QueryParam>, org.jbpm.services.api.query.model.QueryParam, org.kie.api.runtime.query.QueryContext)",
-                  "package": "org.jbpm.services.api",
-                  "classSimpleName": "AdvanceRuntimeDataService",
-                  "methodName": "queryUserTasksByVariables",
-                  "elementKind": "method",
-                  "justification": "[JBPM-9675] Allow query by potential owners with ALL or ANY operands"
-                },
-                {
-                   "code": "java.method.addedToInterface",
-                   "new": "method void org.jbpm.services.api.UserTaskService::suspend(java.lang.Long, java.lang.String, java.util.Map<java.lang.String, java.lang.Object>)",
-                   "package": "org.jbpm.services.api",
-                   "classSimpleName": "UserTaskService",
-                   "methodName": "suspend",
-                   "elementKind": "method",
-                   "justification": "[JBPM-10015] Allow to set suspendUntil during user task suspend operation as parameter."
-                 },
-                 {
-                   "code": "java.method.addedToInterface",
-                   "new": "method void org.jbpm.services.api.UserTaskService::suspend(java.lang.String, java.lang.Long, java.lang.String, java.util.Map<java.lang.String, java.lang.Object>)",
-                   "package": "org.jbpm.services.api",
-                   "classSimpleName": "UserTaskService",
-                   "methodName": "suspend",
-                   "elementKind": "method",
-                   "justification": "[JBPM-10015] Allow to set suspendUntil during user task suspend operation as parameter."
-                 },
                  {
                    "code": "java.method.addedToInterface",
                    "new": "method java.lang.Long org.jbpm.services.api.RuntimeDataService::countProcessInstancesByDeploymentId(java.lang.String, java.util.List<java.lang.Integer>)",
@@ -81,7 +27,6 @@
                    "elementKind": "method",
                    "justification": "[RHPAM-4028] Allow to count process instances by deploymentId and states."
                 }
-                
             ]
         }
     }
