@@ -81,6 +81,11 @@ public class JpaProcessPersistenceContext extends JpaPersistenceContext
         }
     }
 
+    @Override
+    public void evict(PersistentProcessInstance processInstanceInfo) {
+        getEntityManager().detach(processInstanceInfo);
+    }
+
     /**
      * This method is used by the {@link JPASignalManager} in order to load {@link ProcessInstance} instances
      * into the {@link ProcessInstanceManager} cache so that they can then be signalled. 

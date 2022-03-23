@@ -192,9 +192,7 @@ public class ProcessInstanceInfo implements PersistentProcessInstance {
                 }
                 context.close();
             } catch ( IOException e ) {
-                e.printStackTrace();
-                throw new IllegalArgumentException( "IOException while loading process instance: " + e.getMessage(),
-                                                    e );
+                throw new IllegalArgumentException( "IOException while loading process instance: " + e.getMessage(), e);
             }
         }
         ((WorkflowProcessInstanceImpl) processInstance).internalSetStartDate(this.startDate);

@@ -167,6 +167,7 @@ public class JPAProcessInstanceManager
         org.jbpm.process.instance.ProcessInstance processInstance = null;
         processInstance = (org.jbpm.process.instance.ProcessInstance) this.processInstances.get(id);
         if (processInstance != null) {
+            
             if (((WorkflowProcessInstanceImpl) processInstance).isPersisted() && !readOnly) {
             	ProcessPersistenceContextManager ppcm 
         	    = (ProcessPersistenceContextManager) this.kruntime.getEnvironment().get( EnvironmentName.PERSISTENCE_CONTEXT_MANAGER );
@@ -181,7 +182,6 @@ public class JPAProcessInstanceManager
                 
 
                 EventManagerProvider.getInstance().get().update(getInstanceViewFor(processInstance));
-  
             }
         	return processInstance;
         }
@@ -222,6 +222,7 @@ public class JPAProcessInstanceManager
 
             if (readOnly) {
                 internalRemoveProcessInstance(processInstance);
+                context.evict(processInstanceInfo);
             }
             return processInstance;
         } finally {
