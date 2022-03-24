@@ -20,14 +20,19 @@ import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import org.jbpm.services.task.assignment.impl.strategy.PotentialOwnerBusynessAssignmentStrategy;
 import org.jbpm.services.task.utils.LdapSearcher;
 import org.kie.api.task.model.Group;
 import org.kie.api.task.model.OrganizationalEntity;
 import org.kie.api.task.model.User;
 import org.kie.internal.task.api.TaskModelProvider;
 import org.kie.internal.task.api.UserInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LDAPUserInfoImpl extends AbstractLDAPUserGroupInfo implements UserInfo {
+
+    private static final Logger logger = LoggerFactory.getLogger(LDAPUserInfoImpl.class);
 
     private static final String DEFAULT_PROPERTIES_NAME = "jbpm.user.info";
 
@@ -89,6 +94,7 @@ public class LDAPUserInfoImpl extends AbstractLDAPUserGroupInfo implements UserI
 
         String entityId = extractEntityId(group);
 
+        logger.debug("getMembersForGroup: roleContext {}, roleFilter {}, roleAttrId {}, entityId {}", roleContext, roleFilter, roleAttrId, entityId);
         List<String> memberIds = ldapSearcher.search(roleContext, roleFilter, entityId).getAttributeResults(roleAttrId);
         return memberIds.stream()
                 .filter(memberId -> memberId != null)

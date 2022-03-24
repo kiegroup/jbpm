@@ -114,7 +114,11 @@ public class LdapSearcher {
 
     public List<String> getAttributeResults(String attributeId) {
         return searchResults.stream()
-                .map(searchResult -> getAttribute(searchResult, attributeId))
+                .map(searchResult -> {
+                    String attr = getAttribute(searchResult, attributeId);
+                    log.debug("search result {} extract attr {} with value {}", searchResult, attributeId, attr);
+                    return attr;
+                })
                 .collect(Collectors.toList());
     }
 
