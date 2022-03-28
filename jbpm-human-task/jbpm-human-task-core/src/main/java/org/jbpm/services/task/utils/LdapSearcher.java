@@ -44,8 +44,6 @@ public class LdapSearcher {
     private static final String DEFAULT_INITIAL_CONTEXT_FACTORY = "com.sun.jndi.ldap.LdapCtxFactory";
     private static final String DEFAULT_SECURITY_AUTHENTICATION = "simple";
 
-    private final List<SearchResult> searchResults = new ArrayList<>();
-
     private final Properties config;
 
     /**
@@ -66,8 +64,8 @@ public class LdapSearcher {
      * array is used.
      * @return this
      */
-    public LdapSearcher search(String context, String filterExpr, Object... filterArgs) {
-        searchResults.clear();
+    public LdapResults search(String context, String filterExpr, Object... filterArgs) {
+        List<SearchResult> searchResults = new ArrayList<>();
 
         LdapContext ldapContext = null;
         NamingEnumeration<SearchResult> ldapResult = null;
@@ -96,46 +94,7 @@ public class LdapSearcher {
             }
         }
 
-        return this;
-    }
-
-    public SearchResult getSingleSearchResult() {
-        return searchResults.isEmpty() ? null : searchResults.get(0);
-    }
-
-    public List<SearchResult> getSearchResults() {
-        return searchResults;
-    }
-
-    public String getSingleAttributeResult(String attributeId) {
-        List<String> attributeResults = getAttributeResults(attributeId);
-        return attributeResults.isEmpty() ? null : attributeResults.get(0);
-    }
-
-    public List<String> getAttributeResults(String attributeId) {
-        return searchResults.stream()
-                .map(searchResult -> getAttribute(searchResult, attributeId))
-                .collect(Collectors.toList());
-    }
-
-    private String getAttribute(SearchResult searchResult, String attributeId) {
-        if (searchResult == null) {
-            return null;
-        }
-
-        Attribute entry = searchResult.getAttributes().get(attributeId);
-
-        if (entry == null) {
-            log.warn("The attribute with ID '{}' has not been found.", attributeId);
-            return null;
-        }
-
-        try {
-            return entry.get().toString();
-        } catch (NamingException ex) {
-            log.error("Failed to get attribute value", ex);
-            return null;
-        }
+        return new LdapResults(searchResults);
     }
 
     private LdapContext buildLdapContext() throws NamingException {
@@ -188,4 +147,51 @@ public class LdapSearcher {
         OBJECT_SCOPE, ONELEVEL_SCOPE, SUBTREE_SCOPE
     }
 
+    public class LdapResults {
+        
+        private final List<SearchResult> searchResults;
+        
+        public LdapResults(List<SearchResult> searchResults) {
+            this.searchResults = searchResults;
+        }
+
+        public SearchResult getSingleSearchResult() {
+            return searchResults.isEmpty() ? null : searchResults.get(0);
+        }
+
+        public List<SearchResult> getSearchResults() {
+            return searchResults;
+        }
+
+        public final String getSingleAttributeResult(String attributeId) {
+            List<String> attributeResults = getAttributeResults(attributeId);
+            return attributeResults.isEmpty() ? null : attributeResults.get(0);
+        }
+
+        public final List<String> getAttributeResults(String attributeId) {
+            return searchResults.stream()
+                    .map(searchResult -> getAttribute(searchResult, attributeId))
+                    .collect(Collectors.toList());
+        }
+
+        private String getAttribute(SearchResult searchResult, String attributeId) {
+            if (searchResult == null) {
+                return null;
+            }
+
+            final Attribute entry = searchResult.getAttributes().get(attributeId);
+
+            if (entry == null) {
+                log.warn("The attribute with ID '{}' has not been found.", attributeId);
+                return null;
+            }
+
+            try {
+                return entry.get().toString();
+            } catch (NamingException ex) {
+                log.error("Failed to get attribute value", ex);
+                return null;
+            }
+        }
+    }
 }
