@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
-import org.jbpm.services.task.utils.LdapSearcher;
+import org.jbpm.services.task.utils.LdapSearcher.LdapResults;
 import org.kie.api.task.model.Group;
 import org.kie.api.task.model.OrganizationalEntity;
 import org.kie.api.task.model.User;
@@ -178,7 +178,7 @@ public class LDAPUserInfoImpl extends AbstractLDAPUserGroupInfo implements UserI
         String context = getConfigProperty(USER_CTX);
         String filter = getConfigProperty(EMAIL_FILTER);
         String attributeId = getConfigProperty(USER_ATTR_ID, DEFAULT_USER_ATTR_ID);
-        LdapSearcher searcher = ldapSearcher.search(context, filter, email);
+        LdapResults searcher = ldapSearcher.search(context, filter, email);
 
         if (searcher.getSearchResults().isEmpty()) {
             return null;
