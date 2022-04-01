@@ -32,6 +32,10 @@ public class UserTaskInstanceWithVarsDesc extends UserTaskInstanceDesc implement
         super(taskId, status, activationTime, name, description, priority, actualOwner, createdBy, deploymentId, processId, processInstanceId, createdOn, dueDate);
     }
 
+    public UserTaskInstanceWithVarsDesc(Long taskId, String status, Date activationTime, String name, String description, Integer priority, String actualOwner, String createdBy, String deploymentId, String processId, Long processInstanceId, Date createdOn, Date dueDate, Date slaDueDate) {
+        super(taskId, status, activationTime, name, description, priority, actualOwner, createdBy, deploymentId, processId, processInstanceId, createdOn, dueDate, slaDueDate);
+    }
+
     @Override
     public Map<String, Object> getVariables() {
         return variables;
