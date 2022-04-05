@@ -97,7 +97,11 @@ public class UserTaskInstanceWithCustomVarsQueryMapper extends AbstractQueryMapp
                 getColumnLongValue(dataSetResult, COLUMN_TASK_PROCESSINSTANCEID, index),//processInstanceId,
                 getColumnDateValue(dataSetResult, COLUMN_CREATEDON, index),//createdOn,
                 getColumnDateValue(dataSetResult, COLUMN_DUEDATE, index),//dueDate
-                getColumnDateValue(dataSetResult, COLUMN_TASK_SLA_DUE_DATE, index)//slaDueDate
+                getColumnStringValue(dataSetResult, COLUMN_SUBJECT, index),//subject
+                getColumnStringValue(dataSetResult, COLUMN_CORRELATIONKEY, index),//correlationKey
+                getColumnIntValue(dataSetResult, COLUMN_PROCESSTYPE, index),//processType
+                getColumnDateValue(dataSetResult, COLUMN_TASK_SLA_DUE_DATE, index),//slaDueDate
+                getColumnIntValue(dataSetResult, COLUMN_TASK_SLA_COMPLIANCE, index)//slaCompliance
                 );
         return userTask;
     }
