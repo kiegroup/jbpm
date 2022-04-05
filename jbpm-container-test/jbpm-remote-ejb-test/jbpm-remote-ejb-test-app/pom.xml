@@ -145,7 +145,7 @@
 
     <!-- JDK11 dependency -->
     <dependency>
-      <groupId>com.sun.xml.bind</groupId>
+      <groupId>org.glassfish.jaxb</groupId>
       <artifactId>jaxb-xjc</artifactId>
       <scope>runtime</scope>
     </dependency>
