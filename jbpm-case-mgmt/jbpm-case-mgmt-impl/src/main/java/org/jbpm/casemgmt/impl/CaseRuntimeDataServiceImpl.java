@@ -702,6 +702,11 @@ public class CaseRuntimeDataServiceImpl implements CaseRuntimeDataService, Deplo
                 status = StageStatus.Completed;
             }
             Collection<org.jbpm.services.api.model.NodeInstanceDesc> activeNodes = getActiveNodesForCaseAndStage(caseId, n.getNodeId(), new QueryContext(0, 100));
+
+            if ((activeNodes == null || activeNodes.size() == 0) && ((CaseStageImpl) stagesByName.get(n.getNodeId())).isAutoComplete()) {
+                status = StageStatus.Completed;
+            }
+
             return new CaseStageInstanceImpl(n.getNodeId(), n.getName(), stagesByName.get(n.getNodeId()).getAdHocFragments(), activeNodes, status);
             })
         .forEach(csi -> {
@@ -793,10 +798,14 @@ public class CaseRuntimeDataServiceImpl implements CaseRuntimeDataService, Deplo
             if (node instanceof DynamicNode) {
                 DynamicNode dynamicNode = (DynamicNode) node;
                 Collection<AdHocFragment> adHocFragments = collectAdHocFragments(dynamicNode);
-                
+
+                boolean isAutoComplete = false;
+                if (dynamicNode.getCompletionExpression() != null) {
+                    isAutoComplete = dynamicNode.getCompletionExpression().equals("autocomplete");
+                }
                 result.add(new CaseStageImpl((String) ((DynamicNode) node).getMetaData("UniqueId"),
                                              node.getName(),
-                                             adHocFragments));
+                                             adHocFragments, isAutoComplete));
             }
         }
         return result;

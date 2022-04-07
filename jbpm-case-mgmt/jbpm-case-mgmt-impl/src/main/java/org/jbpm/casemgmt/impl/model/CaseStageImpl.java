@@ -31,6 +31,7 @@ public class CaseStageImpl implements CaseStage, Serializable {
     private String id;
     private String name; 
     private Collection<AdHocFragment> adHocFragments;
+    private boolean autoComplete = true;
     
     public CaseStageImpl() {
         
@@ -41,7 +42,22 @@ public class CaseStageImpl implements CaseStage, Serializable {
         this.name = name;
         this.adHocFragments = adHocFragments == null ? Collections.emptyList() : adHocFragments;
     }
-    
+
+    public CaseStageImpl(String id, String name, Collection<AdHocFragment> adHocFragments, boolean autoComplete) {
+        this.id = id;
+        this.name = name;
+        this.adHocFragments = adHocFragments == null ? Collections.emptyList() : adHocFragments;
+        this.autoComplete = autoComplete;
+    }
+
+    public boolean isAutoComplete() {
+        return autoComplete;
+    }
+
+    public void setAutoComplete(boolean autoComplete) {
+        this.autoComplete = autoComplete;
+    }
+
     @Override
     public String getId() {
         return id;
