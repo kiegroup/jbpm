@@ -111,12 +111,14 @@ public class ScriptFilter {
 
         Predicate<File> filterBytea = file -> !file.getName().toLowerCase().contains("bytea");
 
+        Predicate<File> filterCluster = file -> !file.getName().toLowerCase().contains("cluster");
+
         Predicate<File> filterName = file -> file.getName().contains("drop");
         filterName = !create ? filterName : filterName.negate();
 
         Predicate<File> filterTaskAssigningTables = file -> !file.getName().toLowerCase().contains("task_assigning_tables");
 
-        ScriptFilter filter = new ScriptFilter(filterExtension, filterName, filterSpringboot, filterBytea, filterTaskAssigningTables);
+        ScriptFilter filter = new ScriptFilter(filterExtension, filterName, filterSpringboot, filterBytea, filterCluster, filterTaskAssigningTables);
         if (create) {
             filter.setOptions(Option.DISALLOW_EMPTY_RESULTS, Option.THROW_ON_SCRIPT_ERROR);
         }

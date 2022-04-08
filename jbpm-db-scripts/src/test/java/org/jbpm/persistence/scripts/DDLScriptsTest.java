@@ -53,14 +53,11 @@ public class DDLScriptsTest extends ScriptsBase {
         ScriptFilter[] standard = new ScriptFilter[]{ScriptFilter.init(false, true),
                                                      ScriptFilter.init(false, false)};
 
-
-
         ScriptFilter[] sbPg = new ScriptFilter[]{filter("postgresql-springboot-jbpm-schema.sql",
                                                         "quartz_tables_postgres.sql").setSupportedDatabase(DatabaseType.POSTGRESQL)
                                                                                      .setOptions(Option.DISALLOW_EMPTY_RESULTS, Option.THROW_ON_SCRIPT_ERROR),
                                                  filter("postgresql-springboot-jbpm-drop-schema.sql",
                                                         "quartz_tables_drop_postgres.sql")};
-
 
         ScriptFilter[] pqlBytea = new ScriptFilter[]{filter("postgresql-bytea-jbpm-schema.sql",
                                                             "quartz_tables_postgres.sql")
@@ -84,13 +81,19 @@ public class DDLScriptsTest extends ScriptsBase {
                                                      filter("oracle-springboot-jbpm-drop-schema.sql",
                                                             "quartz_tables_drop_oracle.sql")};
 
-        ScriptFilter[] taskAssigningTables = new ScriptFilter[]{filter(Filter.OUT, "drop", "bytea", "springboot")
+        ScriptFilter[] mySqlCluster = new ScriptFilter[]{filter("mysql-innodb-cluster-jbpm-schema.sql",
+                                                            "quartz_tables_mysql_innodb.sql").setSupportedDatabase(DatabaseType.MYSQLINNODB)
+                                                                                       .setOptions(Option.DISALLOW_EMPTY_RESULTS, Option.THROW_ON_SCRIPT_ERROR),
+                                                     filter("mysql-innodb-jbpm-drop-schema.sql",
+                                                               "quartz_tables_drop_mysql_innodb.sql")};
+
+        ScriptFilter[] taskAssigningTables = new ScriptFilter[]{filter(Filter.OUT, "drop", "bytea", "springboot", "cluster")
                                                                 .setOptions(Option.DISALLOW_EMPTY_RESULTS, Option.THROW_ON_SCRIPT_ERROR),
                                                                 filter("jbpm-drop-schema.sql",
                                                                        "quartz_tables_drop_",
                                                                        "task_assigning_tables_drop_")};
 
-        return asList(standard, sbPg, pqlBytea, pqlSpringBootBytea, sbOracle, taskAssigningTables);
+        return asList(standard, sbPg, pqlBytea, pqlSpringBootBytea, sbOracle, mySqlCluster, taskAssigningTables);
     }
 
     private ScriptFilter createScript;
