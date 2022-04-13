@@ -153,6 +153,10 @@ public class CaseRuntimeDataServiceImpl implements CaseRuntimeDataService, Deplo
     public void setIdentityProvider(IdentityProvider identityProvider) {
         this.identityProvider = identityProvider;
     }
+
+    public void setUserGroupCallback(UserGroupCallback userGroupCallback) {
+        this.userGroupCallback = userGroupCallback;
+    }
     
     public void setDeploymentRolesManager(DeploymentRolesManager deploymentRolesManager) {
         this.deploymentRolesManager = deploymentRolesManager;
