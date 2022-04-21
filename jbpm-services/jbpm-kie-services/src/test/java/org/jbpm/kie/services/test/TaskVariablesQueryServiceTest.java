@@ -59,8 +59,7 @@ import org.kie.test.util.db.DataSourceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 import static org.kie.scanner.KieMavenRepository.getKieMavenRepository;
 /**
  * This test should not be seen as part of the regular test suite... at least not for now
@@ -661,11 +660,11 @@ public class TaskVariablesQueryServiceTest extends AbstractKieServicesBaseTest {
                 QueryParam.equalsTo("productCode", "EAP"));
 
         UserTaskInstanceWithVarsDesc taskInstanceResult = taskInstanceLogs.get(0);
-        assertTrue(taskInstanceResult.getSubject() != null);
-        assertTrue(taskInstanceResult.getCorrelationKey() != null);
-        assertTrue(taskInstanceResult.getProcessType() != null);
-        assertTrue(taskInstanceResult.getSlaDueDate() != null);
-        assertTrue(taskInstanceResult.getSlaCompliance() != null);
+        assertNotNull(taskInstanceResult.getSubject());
+        assertNotNull(taskInstanceResult.getCorrelationKey());
+        assertNotNull(taskInstanceResult.getProcessType());
+        assertNotNull(taskInstanceResult.getSlaDueDate());
+        assertNotNull(taskInstanceResult.getSlaCompliance());
     }
 
     protected void setFieldValue(Object instance, String fieldName, Object value) {
