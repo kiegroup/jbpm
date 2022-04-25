@@ -59,7 +59,8 @@ import org.kie.test.util.db.DataSourceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.kie.scanner.KieMavenRepository.getKieMavenRepository;
 /**
  * This test should not be seen as part of the regular test suite... at least not for now
@@ -648,11 +649,8 @@ public class TaskVariablesQueryServiceTest extends AbstractKieServicesBaseTest {
 
             logger.debug("Params : " + params);
             processService.startProcess(deploymentUnitSalesId, "product-sale.sale-product", params);
-
-
         }
-        logger.info("Generated {} process instances... doing searches now", i);
-        logger.info("let's find tasks for product EAP only");
+
         long timestamp = System.currentTimeMillis();
 
         List<UserTaskInstanceWithVarsDesc> taskInstanceLogs = queryService.query(query.getName(),
