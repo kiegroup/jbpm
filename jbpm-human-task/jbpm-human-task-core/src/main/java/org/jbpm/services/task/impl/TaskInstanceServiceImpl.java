@@ -20,12 +20,16 @@
  */
 package org.jbpm.services.task.impl;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -106,7 +110,7 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
 
    
     public long addTask(Task task, Map<String, Object> params) {    	
-    	taskEventSupport.fireBeforeTaskAdded(task, context);
+        fireWithStatus (task, null, this::fireBeforeTaskAdded);
     	
     	persistenceContext.persistTask(task);
     	
@@ -124,14 +128,12 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
 			
 			taskEventSupport.fireAfterTaskInputVariablesChanged(task, context, params);
 		}
-
-		
-		taskEventSupport.fireAfterTaskAdded(task, context);
+        fireEvents(task);
 		return task.getId();
     }
 
     public long addTask(Task task, ContentData contentData) {
-    	taskEventSupport.fireBeforeTaskAdded(task, context);  
+    	fireWithStatus (task, null, this::fireBeforeTaskAdded);  
     	
     	persistenceContext.persistTask(task);
     	
@@ -143,10 +145,72 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
             persistenceContext.persistContent(content);
             persistenceContext.setDocumentToTask(content, contentData, task);
         }
-        
-        
-        taskEventSupport.fireAfterTaskAdded(task, context);
+        fireEvents(task);
         return task.getId();
+    }
+
+    private void fireEvents(Task task) {
+        fireWithStatus(task, Status.Created, this::fireAfterTaskAdded);
+        if (task.getTaskData().getStatus() != Status.Created) {
+            fireWithStatus(task, Status.Created, this::fireBeforeTaskActivated);
+            fireAfterTaskActivated(task);
+        }
+    }
+
+    private void fireWithStatus(Task task, Status eventStatus, Consumer<Task> consumer) {
+        if (task.getTaskData().getStatus() == eventStatus) {
+            consumer.accept(task);
+        } else {
+            consumer.accept(createProxy(new InterceptorInvocationHandler<>(task, createProxy(new InterceptorInvocationHandler<>(task.getTaskData(), eventStatus, "getStatus")),
+                                                                                       "getTaskData")));
+        }
+    }
+    
+    private void fireBeforeTaskAdded (Task task) {
+        taskEventSupport.fireBeforeTaskAdded(task, context);
+    }
+
+    private void fireAfterTaskAdded(Task task) {
+        taskEventSupport.fireAfterTaskAdded(task, context);
+    }
+
+    private void fireBeforeTaskActivated(Task task) {
+        taskEventSupport.fireBeforeTaskActivated(task, context);
+    }
+    
+    private void fireAfterTaskActivated(Task task) {
+        taskEventSupport.fireAfterTaskActivated(task, context);
+    }
+
+    private static <P> P createProxy(InterceptorInvocationHandler<P, ?> interceptor) {
+        Class<?> objectClass = interceptor.getObject().getClass();
+        return (P) Proxy.newProxyInstance(objectClass.getClassLoader(), objectClass.getInterfaces(), interceptor);
+    }
+
+    private static class InterceptorInvocationHandler<P, T> implements InvocationHandler {
+
+        private final P proxied;
+        private final T value;
+        private final String methodName;
+
+        public InterceptorInvocationHandler(P proxied, T value, String methodName) {
+            this.proxied = proxied;
+            this.value = value;
+            this.methodName = methodName;
+        }
+
+        public P getObject() {
+            return proxied;
+        }
+
+        @Override
+        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+            if (method.getName().equals(methodName)) {
+                return value;
+            } else {
+                return method.invoke(proxied, args);
+            }
+        }
     }
 
     public void activate(long taskId, String userId) {
