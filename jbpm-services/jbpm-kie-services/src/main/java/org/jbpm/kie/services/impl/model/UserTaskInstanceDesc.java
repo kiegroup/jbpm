@@ -126,7 +126,7 @@ public class UserTaskInstanceDesc implements org.jbpm.services.api.model.UserTas
         this.deploymentId = deploymentId;
         this.dueDate = dueDate;
     }
-
+    
 	@Override
 	public Long getTaskId() {
 		
