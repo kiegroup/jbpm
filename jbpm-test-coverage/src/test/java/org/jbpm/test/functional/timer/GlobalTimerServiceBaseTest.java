@@ -114,7 +114,6 @@ public abstract class GlobalTimerServiceBaseTest extends TimerBaseTest{
         if (emf != null && emf.isOpen()) {
             emf.close();
         }
-        TaskDeadlinesServiceImpl.dispose();
     }
 
     @Test(timeout=20000)

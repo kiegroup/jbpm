@@ -110,7 +110,6 @@ public class ConcurrentGlobalTimerServiceTest extends TimerBaseTest {
             manager.close();
         }
         emf.close();
-        TaskDeadlinesServiceImpl.dispose();
     }
 	
     @Test

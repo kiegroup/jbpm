@@ -18,38 +18,50 @@ package org.jbpm.services.task;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
+import org.drools.core.time.TimerService;
+import org.drools.core.time.impl.JDKTimerService;
+import org.jbpm.process.core.timer.TimerServiceRegistry;
 import org.jbpm.services.task.deadlines.notifications.impl.MockNotificationListener;
-import org.jbpm.services.task.impl.TaskDeadlinesServiceImpl;
-import org.kie.test.util.db.PoolingDataSourceWrapper;
 import org.junit.After;
 import org.junit.Before;
 import org.kie.internal.task.api.InternalTaskService;
+import org.kie.test.util.db.PoolingDataSourceWrapper;
 
 public class DeadlinesLocalTest extends DeadlinesBaseTest {
 
-	private PoolingDataSourceWrapper pds;
-	private EntityManagerFactory emf;
-	
-	@Before
-	public void setup() {
-		this.notificationListener = new MockNotificationListener();
-		pds = setupPoolingDataSource();
-		emf = Persistence.createEntityManagerFactory( "org.jbpm.services.task" );
-		this.taskService = (InternalTaskService) HumanTaskServiceFactory.newTaskServiceConfigurator()
-												.entityManagerFactory(emf)
-												.getTaskService();
-	}
-	
-	@After
-	public void clean() {
-		TaskDeadlinesServiceImpl.reset();
-		super.tearDown();
-		if (emf != null) {
-			emf.close();
-		}
-		if (pds != null) {
-			pds.close();
-		}
-	}
+    private PoolingDataSourceWrapper pds;
+    private EntityManagerFactory emf;
+
+    private String timerServiceId;
+
+    @Before
+    public void setup() {
+
+        TimerService globalTs = new JDKTimerService(3);
+        timerServiceId = "null" + TimerServiceRegistry.TIMER_SERVICE_SUFFIX;
+        // and register it in the registry under 'default' key
+        TimerServiceRegistry.getInstance().registerTimerService(timerServiceId, globalTs);
+
+        this.notificationListener = new MockNotificationListener();
+        pds = setupPoolingDataSource();
+        emf = Persistence.createEntityManagerFactory("org.jbpm.services.task");
+        this.taskService = (InternalTaskService) HumanTaskServiceFactory.newTaskServiceConfigurator()
+                .entityManagerFactory(emf)
+                .getTaskService();
+        TaskServiceRegistry.instance().registerTaskService(null, taskService);
+    }
+
+    @After
+    public void clean() {
+        TaskServiceRegistry.instance().remove(null);
+        TimerServiceRegistry.getInstance().remove(timerServiceId).shutdown();
+        super.tearDown();
+        if (emf != null) {
+            emf.close();
+        }
+        if (pds != null) {
+            pds.close();
+        }
+    }
 
 }

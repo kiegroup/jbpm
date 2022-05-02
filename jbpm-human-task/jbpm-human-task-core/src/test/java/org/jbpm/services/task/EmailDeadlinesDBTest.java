@@ -20,17 +20,20 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Properties;
+
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
+import org.drools.core.time.TimerService;
+import org.drools.core.time.impl.JDKTimerService;
+import org.jbpm.process.core.timer.TimerServiceRegistry;
 import org.jbpm.services.task.identity.DBUserInfoImpl;
-import org.jbpm.services.task.impl.TaskDeadlinesServiceImpl;
-import org.kie.test.util.db.PoolingDataSourceWrapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.kie.internal.task.api.InternalTaskService;
+import org.kie.test.util.db.PoolingDataSourceWrapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class EmailDeadlinesDBTest extends EmailDeadlinesBaseTest {
@@ -45,7 +48,8 @@ public class EmailDeadlinesDBTest extends EmailDeadlinesBaseTest {
     private PoolingDataSourceWrapper pds;
     private EntityManagerFactory emf;
     
-    
+    private String timerServiceId;
+
     @Before
     public void setup() {
         pds = setupPoolingDataSource();
@@ -70,11 +74,19 @@ public class EmailDeadlinesDBTest extends EmailDeadlinesBaseTest {
                                                 .entityManagerFactory(emf)
                                                 .userInfo(userInfo)
                                                 .getTaskService();
+
+        TimerService globalTs = new JDKTimerService(3);
+        timerServiceId = "null" + TimerServiceRegistry.TIMER_SERVICE_SUFFIX;
+        // and register it in the registry under 'default' key
+        TimerServiceRegistry.getInstance().registerTimerService(timerServiceId, globalTs);
+        TaskServiceRegistry.instance().registerTaskService(null, taskService);
     }
     
     @After
     public void clean() {
-        TaskDeadlinesServiceImpl.reset();
+        TaskServiceRegistry.instance().remove(null);
+        TimerServiceRegistry.getInstance().remove(timerServiceId).shutdown();
+
         super.tearDown();
         executeStatement(DROP_USERS);
         executeStatement(DROP_GROUPS);

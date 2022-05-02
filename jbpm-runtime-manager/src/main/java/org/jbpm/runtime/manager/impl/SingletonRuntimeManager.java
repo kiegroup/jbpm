@@ -71,17 +71,15 @@ public class SingletonRuntimeManager extends AbstractRuntimeManager {
     
     private RuntimeEngine singleton;
     private SessionFactory factory;
-    private TaskServiceFactory taskServiceFactory;
 
     public SingletonRuntimeManager() {
-        super(null, null);
+        super(null, null, null);
         // no-op just for cdi, spring and other frameworks
     }
     
     public SingletonRuntimeManager(RuntimeEnvironment environment, SessionFactory factory, TaskServiceFactory taskServiceFactory, String identifier) {
-        super(environment, identifier);
+        super(environment, identifier, taskServiceFactory);
         this.factory = factory;
-        this.taskServiceFactory = taskServiceFactory;
         this.identifier = identifier;
 
         if (environment instanceof SchedulerProvider) {
@@ -108,8 +106,7 @@ public class SingletonRuntimeManager extends AbstractRuntimeManager {
         // TODO should we proxy/wrap the ksession so we capture dispose.destroy method calls?
         String location = getLocation();
         Long knownSessionId = getPersistedSessionId(location, identifier);
-        InternalTaskService internalTaskService = newTaskService(taskServiceFactory);
-        
+
         boolean owner = false;
         TransactionManager tm = null;
         if (environment.usePersistence()) {
@@ -119,7 +116,7 @@ public class SingletonRuntimeManager extends AbstractRuntimeManager {
         try {
             if (knownSessionId > 0) {
                 try {
-                    this.singleton = new SynchronizedRuntimeImpl(this, factory.findKieSessionById(knownSessionId), internalTaskService);
+                    this.singleton = new SynchronizedRuntimeImpl(this, factory.findKieSessionById(knownSessionId), getTaskService());
                 } catch (RuntimeException e) {
                     // in case session with known id was found
                 }
@@ -127,13 +124,12 @@ public class SingletonRuntimeManager extends AbstractRuntimeManager {
             
             if (this.singleton == null) {
                 
-                this.singleton = new SynchronizedRuntimeImpl(this, factory.newKieSession(), internalTaskService);            
+                this.singleton = new SynchronizedRuntimeImpl(this, factory.newKieSession(), getTaskService());
                 persistSessionId(location, identifier, singleton.getKieSession().getIdentifier());
             }
             ((RuntimeEngineImpl) singleton).setManager(this);
             TaskContentRegistry.get().addMarshallerContext(getIdentifier(), 
         			new ContentMarshallerContext(environment.getEnvironment(), environment.getClassLoader()));
-            configureRuntimeOnTaskService(internalTaskService, singleton);
             registerItems(this.singleton);
             attachManager(this.singleton);
             this.registry.register(this);
@@ -230,12 +226,6 @@ public class SingletonRuntimeManager extends AbstractRuntimeManager {
             return;
         }
         super.close();
-        // dispose singleton session only when manager is closing
-        try {
-        	removeRuntimeFromTaskService();
-        } catch (UnsupportedOperationException e) {
-        	logger.debug("Exception while closing task service, was it initialized? {}", e.getMessage());
-        }
         if (this.singleton instanceof Disposable) {
             ((Disposable) this.singleton).dispose();
         }
@@ -347,11 +337,4 @@ public class SingletonRuntimeManager extends AbstractRuntimeManager {
         this.factory = factory;
     }
 
-    public TaskServiceFactory getTaskServiceFactory() {
-        return taskServiceFactory;
-    }
-
-    public void setTaskServiceFactory(TaskServiceFactory taskServiceFactory) {
-        this.taskServiceFactory = taskServiceFactory;
-    }
 }

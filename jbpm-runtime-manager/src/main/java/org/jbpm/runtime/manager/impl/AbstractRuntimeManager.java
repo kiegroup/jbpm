@@ -16,6 +16,7 @@
 package org.jbpm.runtime.manager.impl;
 
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -35,11 +36,13 @@ import org.jbpm.persistence.timer.GlobalJpaTimerJobInstance;
 import org.jbpm.process.core.timer.GlobalSchedulerService;
 import org.jbpm.process.core.timer.TimerServiceRegistry;
 import org.jbpm.process.core.timer.impl.GlobalTimerService;
-import org.jbpm.process.core.timer.impl.TimerServiceListener;
 import org.jbpm.process.core.timer.impl.GlobalTimerService.GlobalJobHandle;
+import org.jbpm.process.core.timer.impl.ThreadPoolSchedulerService;
+import org.jbpm.process.core.timer.impl.TimerServiceListener;
 import org.jbpm.runtime.manager.api.SchedulerProvider;
 import org.jbpm.runtime.manager.impl.error.DefaultExecutionErrorStorage;
 import org.jbpm.runtime.manager.impl.error.ExecutionErrorManagerImpl;
+import org.jbpm.runtime.manager.impl.factory.LocalTaskServiceFactory;
 import org.jbpm.runtime.manager.impl.jpa.EntityManagerFactoryManager;
 import org.jbpm.runtime.manager.impl.jpa.TimerMappingInfo;
 import org.jbpm.runtime.manager.impl.lock.RuntimeManagerLockStrategyFactory;
@@ -49,9 +52,11 @@ import org.jbpm.runtime.manager.impl.tx.NoTransactionalTimerResourcesCleanupAwar
 import org.jbpm.runtime.manager.impl.tx.TransactionAwareSchedulerServiceInterceptor;
 import org.jbpm.runtime.manager.spi.RuntimeManagerLock;
 import org.jbpm.runtime.manager.spi.RuntimeManagerLockStrategy;
+import org.jbpm.services.task.HumanTaskServiceFactory;
+import org.jbpm.services.task.TaskServiceRegistry;
+import org.jbpm.services.task.commands.InitDeadlinesCommand;
 import org.jbpm.services.task.events.WorkflowBridgeTaskLifeCycleEventListener;
 import org.jbpm.services.task.impl.TaskContentRegistry;
-import org.jbpm.services.task.impl.TaskDeadlinesServiceImpl;
 import org.jbpm.services.task.impl.command.CommandBasedTaskService;
 import org.jbpm.services.task.wih.ExternalTaskEventListener;
 import org.kie.api.event.process.ProcessEventListener;
@@ -112,7 +117,7 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
     protected KieContainer kieContainer;
     
 	protected CacheManager cacheManager = new CacheManagerImpl();
-    
+
     protected boolean engineInitEager = Boolean.parseBoolean(System.getProperty("org.jbpm.rm.engine.eager", "false"));
     
     private static final String EMITTER_EAGER_PROP  = "org.kie.jbpm.event.emitters.eagerInit";
@@ -125,19 +130,25 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
     protected ExecutionErrorManager executionErrorManager;
     protected RuntimeManagerLockStrategy runtimeManagerLockStrategy;
     protected RuntimeManagerLockWatcherSingletonService watcher;
-    
-    public AbstractRuntimeManager(RuntimeEnvironment environment, String identifier) {
-        
-        
-        
+
+    private TaskServiceFactory taskServiceFactory;
+
+
+    public AbstractRuntimeManager(RuntimeEnvironment environment, String identifier, TaskServiceFactory taskServiceFactory) {
+
         this.environment = environment;
         this.identifier = identifier;
         if (registry.isRegistered(identifier)) {
             throw new IllegalStateException("RuntimeManager with id " + identifier + " is already active");
         }
-
         // we start the reference and watcher
         watcher = RuntimeManagerLockWatcherSingletonService.reference();
+
+        // setup configure task service // this belongs to the runtime manager
+        this.taskServiceFactory = taskServiceFactory;
+        InternalTaskService taskService = (InternalTaskService) taskServiceFactory.newTaskService();
+        configureRuntimeOnTaskService(taskService);
+        TaskServiceRegistry.instance().registerTaskService(identifier, taskService);
 
         ((SimpleRuntimeEnvironment)environment).getEnvironmentTemplate().set(EnvironmentName.DEPLOYMENT_ID, this.getIdentifier());
         internalSetDeploymentDescriptor();
@@ -183,24 +194,51 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
         logger.trace("Initialize timer service for runtime {}", identifier);
         if (environment instanceof SchedulerProvider) {
             GlobalSchedulerService schedulerService = ((SchedulerProvider) environment).getSchedulerService();  
-            if (schedulerService != null) {
-                GlobalTimerService globalTs = new GlobalTimerService(this, schedulerService);
-                String timerServiceId = identifier  + TimerServiceRegistry.TIMER_SERVICE_SUFFIX;
-                // and register it in the registry under 'default' key
-                TimerServiceRegistry.getInstance().registerTimerService(timerServiceId, globalTs);
-                ((SimpleRuntimeEnvironment)environment).addToConfiguration("drools.timerService", 
-                        "new org.jbpm.process.core.timer.impl.RegisteredTimerServiceDelegate(\""+timerServiceId+"\")");
-                
-                if(environment.usePersistence() && schedulerService.isTransactional()) {
-                    installPersistentTimerMapping(this, globalTs);
-                }
-                if (!schedulerService.isTransactional()) {
-                    schedulerService.setInterceptor(new TransactionAwareSchedulerServiceInterceptor(environment, this, schedulerService));
-                } else {
-                    schedulerService.setInterceptor(new NoTransactionalTimerResourcesCleanupAwareSchedulerServiceInterceptor(environment, this, schedulerService));
-                }
+            if (schedulerService == null) {
+                // we rewire the scheduler service to a thread pool service
+                schedulerService = new ThreadPoolSchedulerService(3);
+                ((SimpleRuntimeEnvironment) environment).setSchedulerService(schedulerService);
             }
+
+            GlobalTimerService globalTs = new GlobalTimerService(this, schedulerService);
+            String timerServiceId = identifier  + TimerServiceRegistry.TIMER_SERVICE_SUFFIX;
+            // and register it in the registry under 'default' key
+            TimerServiceRegistry.getInstance().registerTimerService(timerServiceId, globalTs);
+            ((SimpleRuntimeEnvironment)environment).addToConfiguration("drools.timerService", 
+                    "new org.jbpm.process.core.timer.impl.RegisteredTimerServiceDelegate(\""+timerServiceId+"\")");
+            
+            if(environment.usePersistence() && schedulerService.isTransactional()) {
+                installPersistentTimerMapping(this, globalTs);
+            }
+            if (!schedulerService.isTransactional()) {
+                schedulerService.setInterceptor(new TransactionAwareSchedulerServiceInterceptor(environment, this, schedulerService));
+            } else {
+                schedulerService.setInterceptor(new NoTransactionalTimerResourcesCleanupAwareSchedulerServiceInterceptor(environment, this, schedulerService));
+            }
+
         }
+
+        // initialize the deadlines for this
+        InternalTaskService internalTaskService = newTaskService(taskServiceFactory);
+        if (internalTaskService != null) {
+            internalTaskService.execute(new InitDeadlinesCommand(this.identifier));
+        }
+    }
+
+    public TaskServiceFactory getTaskServiceFactory() {
+        return taskServiceFactory;
+    }
+
+    public void setTaskServiceFactory(TaskServiceFactory taskServiceFactory) {
+        this.taskServiceFactory = taskServiceFactory;
+    }
+
+    public boolean hasTaskService() {
+        return TaskServiceRegistry.instance().get(this.identifier) != null;
+    }
+
+    public InternalTaskService getTaskService() {
+        return TaskServiceRegistry.instance().get(this.identifier);
     }
 
     private void installPersistentTimerMapping (RuntimeManager manager, GlobalTimerService globalTs) {
@@ -376,6 +414,15 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
     @Override
     public void close() {
         close(false);
+
+        try {
+            if (!(taskServiceFactory instanceof LocalTaskServiceFactory)) {
+                // if it's CDI based (meaning single application scoped bean) we need to unregister context
+                removeRuntimeFromTaskService();
+            }
+        } catch (Exception e) {
+            // do nothing 
+        }
     }
     
     public void close(boolean removeJobs) {
@@ -404,6 +451,7 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
                 TimerServiceRegistry.getInstance().remove(getIdentifier() + TimerServiceRegistry.TIMER_SERVICE_SUFFIX);
             }
         }
+        TaskServiceRegistry.instance().remove(this.identifier);
         this.closed = true;
     }
 
@@ -434,7 +482,7 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
     }
     
     @SuppressWarnings({ "unchecked"})
-    protected void configureRuntimeOnTaskService(InternalTaskService internalTaskService, RuntimeEngine engine) {
+    protected void configureRuntimeOnTaskService(InternalTaskService internalTaskService) {
 
         if (internalTaskService != null) {
 
@@ -444,7 +492,8 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
             }
 
             // register task listeners if any  
-            RegisterableItemsFactory factory = environment.getRegisterableItemsFactory();
+            InternalRegisterableItemsFactory factory = (InternalRegisterableItemsFactory) environment.getRegisterableItemsFactory();
+            factory.setRuntimeManager(this);
             for (TaskLifeCycleEventListener taskListener : factory.getTaskListeners()) {
                 ((EventService<TaskLifeCycleEventListener>) internalTaskService).registerTaskEventListener(taskListener);
             }

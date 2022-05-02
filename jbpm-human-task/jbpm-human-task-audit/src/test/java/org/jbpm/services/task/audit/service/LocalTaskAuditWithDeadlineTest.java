@@ -30,9 +30,13 @@ import java.util.Map;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
+import org.drools.core.time.TimerService;
+import org.drools.core.time.impl.JDKTimerService;
+import org.jbpm.process.core.timer.TimerServiceRegistry;
 import org.jbpm.services.task.HumanTaskServiceFactory;
 import org.jbpm.services.task.HumanTaskServicesBaseTest;
 import org.jbpm.services.task.MvelFilePath;
+import org.jbpm.services.task.TaskServiceRegistry;
 import org.jbpm.services.task.audit.JPATaskLifeCycleEventListener;
 import org.jbpm.services.task.audit.TaskAuditServiceFactory;
 import org.jbpm.services.task.impl.TaskDeadlinesServiceImpl;
@@ -58,9 +62,11 @@ public class LocalTaskAuditWithDeadlineTest extends HumanTaskServicesBaseTest {
 	
 	protected TaskAuditService taskAuditService;
 	
+    private String timerServiceId;
+
 	@Before
 	public void setup() {
-	    TaskDeadlinesServiceImpl.reset();
+
 	    pds = setupPoolingDataSource();
 		emf = Persistence.createEntityManagerFactory( "org.jbpm.services.task" );
 
@@ -71,11 +77,18 @@ public class LocalTaskAuditWithDeadlineTest extends HumanTaskServicesBaseTest {
 												.getTaskService();
                 
         this.taskAuditService = TaskAuditServiceFactory.newTaskAuditServiceConfigurator().setTaskService(taskService).getTaskAuditService();
+        TimerService globalTs = new JDKTimerService(3);
+        timerServiceId = "null" + TimerServiceRegistry.TIMER_SERVICE_SUFFIX;
+        // and register it in the registry under 'default' key
+        TimerServiceRegistry.getInstance().registerTimerService(timerServiceId, globalTs);
+        TaskServiceRegistry.instance().registerTaskService(null, taskService);
 	}
 	
 	@After
 	public void clean() {
-	    
+        TaskServiceRegistry.instance().remove(null);
+        TimerServiceRegistry.getInstance().remove(timerServiceId).shutdown();
+
 		if (emf != null) {
 			emf.close();
 		}

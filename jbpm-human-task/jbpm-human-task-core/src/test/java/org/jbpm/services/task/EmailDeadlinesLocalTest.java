@@ -18,11 +18,13 @@ package org.jbpm.services.task;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
-import org.jbpm.services.task.impl.TaskDeadlinesServiceImpl;
-import org.kie.test.util.db.PoolingDataSourceWrapper;
+import org.drools.core.time.TimerService;
+import org.drools.core.time.impl.JDKTimerService;
+import org.jbpm.process.core.timer.TimerServiceRegistry;
 import org.junit.After;
 import org.junit.Before;
 import org.kie.internal.task.api.InternalTaskService;
+import org.kie.test.util.db.PoolingDataSourceWrapper;
 
 
 public class EmailDeadlinesLocalTest extends EmailDeadlinesBaseTest {
@@ -30,6 +32,8 @@ public class EmailDeadlinesLocalTest extends EmailDeadlinesBaseTest {
 	private PoolingDataSourceWrapper pds;
 	private EntityManagerFactory emf;
 	
+    private String timerServiceId;
+
 	@Before
 	public void setup() {
 		pds = setupPoolingDataSource();
@@ -38,12 +42,20 @@ public class EmailDeadlinesLocalTest extends EmailDeadlinesBaseTest {
 		this.taskService = (InternalTaskService) HumanTaskServiceFactory.newTaskServiceConfigurator()
 												.entityManagerFactory(emf)
 												.getTaskService();
+        TimerService globalTs = new JDKTimerService(3);
+        timerServiceId = "null" + TimerServiceRegistry.TIMER_SERVICE_SUFFIX;
+        // and register it in the registry under 'default' key
+        TimerServiceRegistry.getInstance().registerTimerService(timerServiceId, globalTs);
+        TaskServiceRegistry.instance().registerTaskService(null, taskService);
 	}
 	
 	@After
 	public void clean() {
-		TaskDeadlinesServiceImpl.reset();
-		super.tearDown();
+
+        TaskServiceRegistry.instance().remove(null);
+        TimerServiceRegistry.getInstance().remove(timerServiceId).shutdown();
+
+ 		super.tearDown();
 		if (emf != null) {
 			emf.close();
 		}
