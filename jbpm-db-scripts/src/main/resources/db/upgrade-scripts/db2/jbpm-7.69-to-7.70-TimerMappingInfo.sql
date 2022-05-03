@@ -1,0 +1,1 @@
+ALTER TABLE TimerMappingInfo ADD COLUMN info blob(2147483647);

@@ -132,8 +132,6 @@ public class GlobalTimerService implements TimerService, InternalSchedulerServic
         }
         this.schedulerService.invalidate(jobHandle);
 
-        listeners.forEach(listener -> listener.fireTimerCancelled(jobHandle));
-
         if (startTimerJobs.contains(jobHandle)) {
             logger.debug("Start Job timer handle found {} removed", jobHandle.getId());
             return unregisterJobHandle(jobHandle);
@@ -166,7 +164,9 @@ public class GlobalTimerService implements TimerService, InternalSchedulerServic
     }
 
     private boolean unregisterJobHandle(JobHandle jobHandle) {
-        return this.schedulerService.removeJob(jobHandle);
+        boolean jobRemoved = this.schedulerService.removeJob(jobHandle);
+        listeners.forEach(listener -> listener.fireTimerCancelled(jobHandle));
+        return jobRemoved;
     }
 
     @Override
