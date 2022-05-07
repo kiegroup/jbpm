@@ -19,12 +19,15 @@ package org.jbpm.process.core.datatype.impl.type;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.time.format.DateTimeParseException;
 import java.util.Map;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.security.ExplicitTypePermission;
 import org.drools.reflective.classloader.ProjectClassLoader;
 import org.jbpm.process.core.datatype.DataType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.kie.soup.xstream.XStreamUtils.createTrustingXStream;
 
@@ -32,6 +35,8 @@ import static org.kie.soup.xstream.XStreamUtils.createTrustingXStream;
  * Representation of an object datatype.
  */
 public class ObjectDataType implements DataType {
+
+    protected static final transient Logger logger = LoggerFactory.getLogger(ObjectDataType.class);
 
     private static final long serialVersionUID = 510l;
 
@@ -81,6 +86,11 @@ public class ObjectDataType implements DataType {
         }
         try {
             Class<?> clazz = Class.forName(className, true, value.getClass().getClassLoader());
+            if ("java.time.LocalDateTime".equals(className)) {
+                if (clazz.isInstance(parseDateObject(value))) {
+                    return true;
+                }
+            }
             if (clazz.isInstance(value)) {
                 return true;
             }
@@ -88,6 +98,18 @@ public class ObjectDataType implements DataType {
             return false;
         }
         return false;
+    }
+
+    private Object parseDateObject(Object value) {
+        if (value instanceof java.time.LocalDateTime) {
+            return value;
+        }
+        try {
+            value = java.time.LocalDateTime.parse(value.toString());
+        } catch (DateTimeParseException exception) {
+            logger.warn(exception.getMessage());
+        }
+        return value;
     }
 
     public Object readValue(String value) {
