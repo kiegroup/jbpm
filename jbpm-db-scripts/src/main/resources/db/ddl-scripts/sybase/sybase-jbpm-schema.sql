@@ -114,6 +114,7 @@
     	kieSessionId numeric(19,0) not null, 
     	timerId numeric(19,0) not null, 
     	uuid varchar(255) not null, 
+    	info image null,
     	primary key (id)
     )
     go

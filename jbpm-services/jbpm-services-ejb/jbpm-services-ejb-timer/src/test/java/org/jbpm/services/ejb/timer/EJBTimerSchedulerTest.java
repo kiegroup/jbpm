@@ -54,6 +54,7 @@ public class EJBTimerSchedulerTest {
         timers.add(timer1);
         
         scheduler = new EJBTimerScheduler();
+        scheduler.setUseLocalCache(true);
         scheduler.timerService = timerService;
     }
     
@@ -70,7 +71,7 @@ public class EJBTimerSchedulerTest {
         assertNotNull(jobInstance);
         
         //Remove job from cache and quit the timer from the getTimers mock call
-        scheduler.removeJob(ejbGlobalJobHandle1);
+        scheduler.removeJob(ejbGlobalJobHandle1, (Timer) null);
         timers.remove(timer1);
         jobInstance = scheduler.getTimerByName("test job");
         assertNull(jobInstance);
