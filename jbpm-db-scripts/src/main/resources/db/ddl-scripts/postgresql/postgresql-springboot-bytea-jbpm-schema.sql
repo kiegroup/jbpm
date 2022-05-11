@@ -75,7 +75,7 @@ create table task_comment (id int8 not null, addedAt timestamp, text text, added
 create table TaskDef (id int8 not null, name varchar(255), priority int4 not null, primary key (id));
 create table TaskEvent (id int8 not null, correlationKey varchar(255), logTime timestamp, message varchar(255), processInstanceId int8, processType int4, taskId int8, type varchar(255), userId varchar(255), OPTLOCK int4, workItemId int8, currentOwner varchar(255), primary key (id));
 create table TaskVariableImpl (id int8 not null, modificationDate timestamp, name varchar(255), processId varchar(255), processInstanceId int8, taskId int8, type int4, value varchar(4000), primary key (id));
-create table TimerMappingInfo (id int8 not null, externalTimerId varchar(255), kieSessionId int8 not null, timerId int8 not null, uuid varchar(255) not null, primary key (id));
+create table TimerMappingInfo (id int8 not null, externalTimerId varchar(255), kieSessionId int8 not null, timerId int8 not null, uuid varchar(255) not null, info bytea, primary key (id));
 create table VariableInstanceLog (id int8 not null, log_date timestamp, externalId varchar(255), oldValue varchar(255), processId varchar(255), processInstanceId int8 not null, value varchar(255), variableId varchar(255), variableInstanceId varchar(255), primary key (id));
 create table WorkItemInfo (workItemId int8 not null, creationDate timestamp, name varchar(255), processInstanceId int8 not null, state int8 not null, OPTLOCK int4, workItemByteArray bytea, primary key (workItemId));
 create index IDX_Attachment_Id on Attachment (attachedBy_id);
