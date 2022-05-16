@@ -7,6 +7,7 @@ create table TimerMappingInfo (
 	kieSessionId number(19,0) not null, 
 	timerId number(19,0) not null, 
 	uuid varchar2(255 char) not null, 
+	info blob, 
 	primary key (id)
 );
 

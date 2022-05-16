@@ -105,7 +105,8 @@
     	externalTimerId varchar(255), 
     	kieSessionId int8 not null, 
     	timerId int8 not null, 
-    	uuid varchar(255) not null, 
+    	uuid varchar(255) not null,
+    	info oid,
     	primary key (id)
     );
 

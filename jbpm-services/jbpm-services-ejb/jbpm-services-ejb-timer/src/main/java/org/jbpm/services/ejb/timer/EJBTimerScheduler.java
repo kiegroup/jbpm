@@ -71,7 +71,7 @@ public class EJBTimerScheduler {
 
 	private static final Integer OVERDUE_WAIT_TIME = Integer.parseInt(System.getProperty("org.jbpm.overdue.timer.wait", "20000"));
 
-	private static final boolean USE_LOCAL_CACHE = Boolean.parseBoolean(System.getProperty("org.jbpm.ejb.timer.local.cache", "true"));
+	private boolean useLocalCache = Boolean.parseBoolean(System.getProperty("org.jbpm.ejb.timer.local.cache", "false"));
 
 	private ConcurrentMap<String, TimerJobInstance> localCache = new ConcurrentHashMap<String, TimerJobInstance>();
 
@@ -81,11 +81,15 @@ public class EJBTimerScheduler {
     @Resource
     protected UserTransaction utx;
 
+    public void setUseLocalCache(boolean useLocalCache) {
+        this.useLocalCache = useLocalCache;
+    }
+
 	@PostConstruct
 	public void setup() {
 	    // disable auto init of timers since ejb timer service supports persistence of timers
 	    System.setProperty("org.jbpm.rm.init.timer", "false");
-	    logger.info("Using local cache for EJB timers: {}", USE_LOCAL_CACHE);
+	    logger.info("Using local cache for EJB timers: {}", useLocalCache);
 	}
 
 	@Timeout
@@ -116,9 +120,9 @@ public class EJBTimerScheduler {
             transaction(this::executeTimerJobInstance, timerJobInstance);
         } catch (SessionNotFoundException e) {
             logger.warn("Process instance is not found. More likely already completed. Timer {} won't be recovered", timerJobInstance, e);
-            removeUnrecoverableTimer(timerJob);
+            removeUnrecoverableTimer(timerJob, timer);
         } catch (Exception e) {
-            recoverTimerJobInstance(timerJob, e);
+            recoverTimerJobInstance(timerJob, timer, e);
         }
     }
 
@@ -130,10 +134,10 @@ public class EJBTimerScheduler {
         }
     }
 
-    private void removeUnrecoverableTimer(EjbTimerJob ejbTimerJob) {
+    private void removeUnrecoverableTimer(EjbTimerJob ejbTimerJob, Timer timer) {
         try {
             Transaction<TimerJobInstance> tx = timerJobInstance -> {
-                if (!this.removeJob(timerJobInstance.getJobHandle())) {
+                if (!this.removeJob(timerJobInstance.getJobHandle(), timer)) {
                     logger.warn("Session not found for timer {}. Timer could not removed.", ejbTimerJob.getTimerJobInstance());
                 }
             };
@@ -143,12 +147,12 @@ public class EJBTimerScheduler {
         }
     }
 
-    private void recoverTimerJobInstance(EjbTimerJob ejbTimerJob, Exception e) {
+    private void recoverTimerJobInstance(EjbTimerJob ejbTimerJob, Timer timer, Exception e) {
         if (isSessionNotFound(e)) {
             logger.warn("Trying to recover timer. Not possible due to process instance is not found. More likely already completed. Timer {} won't be recovered", ejbTimerJob.getTimerJobInstance(), e);
             // if session is not found means the process has already finished. In this case we just need to remove
             // the timer and avoid any recovery as it should not trigger any more timers.
-            removeUnrecoverableTimer(ejbTimerJob);
+            removeUnrecoverableTimer(ejbTimerJob, timer);
             return;
         }
 
@@ -159,7 +163,7 @@ public class EJBTimerScheduler {
                
                 logger.warn("Execution of time failed Interval Trigger failed. Skipping {}", ejbTimerJob.getTimerJobInstance());
                 Transaction<TimerJobInstance> tx = timerJobInstance -> {
-                    if (this.removeJob(timerJobInstance.getJobHandle())) {
+                    if (this.removeJob(timerJobInstance.getJobHandle(), null)) {
                         this.internalSchedule(timerJobInstance);
                     } else {
                         logger.debug("Interval trigger {} was removed before rescheduling", ejbTimerJob.getTimerJobInstance());
@@ -188,10 +192,10 @@ public class EJBTimerScheduler {
                 return;
             }
             TimerConfig config = new TimerConfig(info, true);
-            Timer timer = timerService.createSingleActionTimer(Date.from(nextRetry.toInstant()), config);
-            TimerHandle handler = timer.getHandle();
+            Timer newTimer = timerService.createSingleActionTimer(Date.from(nextRetry.toInstant()), config);
+            TimerHandle handler = newTimer.getHandle();
             ((GlobalJpaTimerJobInstance) ejbTimerJob.getTimerJobInstance()).setTimerInfo(handler);
-            ((GlobalJpaTimerJobInstance) ejbTimerJob.getTimerJobInstance()).setExternalTimerId(getPlatformTimerId(timer));
+            ((GlobalJpaTimerJobInstance) ejbTimerJob.getTimerJobInstance()).setExternalTimerId(getPlatformTimerId(newTimer));
         };
         try {
             transaction(operation, ejbTimerJob.getTimerJobInstance());
@@ -251,7 +255,7 @@ public class EJBTimerScheduler {
             ((GlobalJpaTimerJobInstance) timerJobInstance).setTimerInfo(handle);
             logger.debug("Timer scheduled {} on {} scheduler service", timerJobInstance);
             ((GlobalJpaTimerJobInstance) timerJobInstance).setExternalTimerId(getPlatformTimerId(timer));
-            if (USE_LOCAL_CACHE) {
+            if (useLocalCache) {
                 localCache.putIfAbsent(((EjbGlobalJobHandle) timerJobInstance.getJobHandle()).getUuid(), timerJobInstance);
             }
         } else {
@@ -287,11 +291,21 @@ public class EJBTimerScheduler {
         return info;
     }
 
-	public boolean removeJob(JobHandle jobHandle) {
+	public boolean removeJob(JobHandle jobHandle, Timer ejbTimer) {
 		EjbGlobalJobHandle ejbHandle = (EjbGlobalJobHandle) jobHandle;
-        if (USE_LOCAL_CACHE) {
+        if (useLocalCache) {
             boolean removedFromCache = localCache.remove(ejbHandle.getUuid()) != null;
             logger.debug("Job handle {} is {} removed from cache ", jobHandle, removedFromCache ? "" : "not" );
+        }
+
+        if (ejbTimer != null) {
+            try {
+                ejbTimer.cancel();
+                return true;
+            } catch (Throwable e) {
+                logger.debug("Timer cancel error due to {}", e.getMessage());
+                return false;
+            }
         }
 
         // small speed improvement using the ejb serializable info handler
@@ -341,7 +355,7 @@ public class EJBTimerScheduler {
 
 
 	public TimerJobInstance getTimerByName(String jobName) {
-    	if (USE_LOCAL_CACHE) {
+    	if (useLocalCache) {
     		if (localCache.containsKey(jobName)) {
     			logger.debug("Found job {} in cache returning", jobName);
     			return localCache.get(jobName);
@@ -359,7 +373,7 @@ public class EJBTimerScheduler {
 
     				if (handle.getUuid().equals(jobName)) {
     					found = handle.getTimerJobInstance();
-							if (USE_LOCAL_CACHE) {
+							if (useLocalCache) {
     					    localCache.putIfAbsent(jobName, found);
 						  }
     					logger.debug("Job {} does match timer and is going to be returned {}", jobName, found);

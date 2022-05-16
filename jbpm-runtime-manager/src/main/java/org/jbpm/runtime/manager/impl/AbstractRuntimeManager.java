@@ -16,6 +16,9 @@
 package org.jbpm.runtime.manager.impl;
 
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -35,8 +38,8 @@ import org.jbpm.persistence.timer.GlobalJpaTimerJobInstance;
 import org.jbpm.process.core.timer.GlobalSchedulerService;
 import org.jbpm.process.core.timer.TimerServiceRegistry;
 import org.jbpm.process.core.timer.impl.GlobalTimerService;
-import org.jbpm.process.core.timer.impl.TimerServiceListener;
 import org.jbpm.process.core.timer.impl.GlobalTimerService.GlobalJobHandle;
+import org.jbpm.process.core.timer.impl.TimerServiceListener;
 import org.jbpm.runtime.manager.api.SchedulerProvider;
 import org.jbpm.runtime.manager.impl.error.DefaultExecutionErrorStorage;
 import org.jbpm.runtime.manager.impl.error.ExecutionErrorManagerImpl;
@@ -51,7 +54,6 @@ import org.jbpm.runtime.manager.spi.RuntimeManagerLock;
 import org.jbpm.runtime.manager.spi.RuntimeManagerLockStrategy;
 import org.jbpm.services.task.events.WorkflowBridgeTaskLifeCycleEventListener;
 import org.jbpm.services.task.impl.TaskContentRegistry;
-import org.jbpm.services.task.impl.TaskDeadlinesServiceImpl;
 import org.jbpm.services.task.impl.command.CommandBasedTaskService;
 import org.jbpm.services.task.wih.ExternalTaskEventListener;
 import org.kie.api.event.process.ProcessEventListener;
@@ -217,11 +219,11 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
 
                 GlobalJobHandle globalJobHandle = (GlobalJobHandle) jobHandle;
 
-
                 try {
                     if(!em.isJoinedToTransaction()) {
                         return;
                     }
+
                     List<TimerMappingInfo> tmi = em.createQuery("SELECT o FROM TimerMappingInfo o WHERE o.kieSessionId = :kieSessionId AND o.uuid = :uuid", TimerMappingInfo.class)
                         .setParameter("kieSessionId", globalJobHandle.getSessionId())
                         .setParameter("uuid", globalJobHandle.getUuid())
@@ -232,6 +234,16 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
                     }
                     GlobalJpaTimerJobInstance dtji = (GlobalJpaTimerJobInstance) globalJobHandle.getTimerJobInstance();
                     TimerMappingInfo info = new TimerMappingInfo(globalJobHandle.getId(), dtji.getExternalTimerId(), globalJobHandle.getSessionId(), globalJobHandle.getUuid());
+                    if(dtji.getTimerInfo() != null) {
+                        try {
+                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                            ObjectOutputStream os = new ObjectOutputStream(baos);
+                            os.writeObject(dtji.getTimerInfo());
+                            info.setInfo(baos.toByteArray());
+                        } catch (IOException e) {
+                            logger.debug("It was not possible to serialize TimerHandler for {}", info);
+                        }
+                    }
                     em.persist(info);
                     logger.debug("Created Timer Mapping Info for {}", info);
                 } finally {
