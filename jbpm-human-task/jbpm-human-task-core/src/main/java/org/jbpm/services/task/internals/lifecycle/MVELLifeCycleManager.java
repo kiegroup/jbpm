@@ -414,6 +414,7 @@ public class MVELLifeCycleManager implements LifeCycleManager {
                 case Delegate: {                	
                     // This is a really bad hack to execut the correct behavior
                     ((InternalTaskData) task.getTaskData()).setStatus(Status.Reserved);
+                    persistenceContext.updateTask(task);
                     taskEventSupport.fireAfterTaskDelegated(task, context);
                     break;
                 }
