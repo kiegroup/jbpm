@@ -540,7 +540,7 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
         if (_instance.getSlaDueDate() > 0) {
             processInstance.internalSetSlaDueDate(new Date(_instance.getSlaDueDate()));
         }
-        processInstance.internalSetSlaTimerId(_instance.getSlaTimerId());
+        processInstance.internalSetSlaTimerId(_instance.getSlaTimerId() > 0 ? _instance.getSlaTimerId() : -1);
         
         long nodeInstanceCounter = _instance.getNodeInstanceCounter();
         processInstance.setKnowledgeRuntime( wm.getKnowledgeRuntime() );
@@ -622,7 +622,8 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
         if (_node.getSlaDueDate() > 0) {
             nodeInstance.internalSetSlaDueDate(new Date(_node.getSlaDueDate()));
         }
-        nodeInstance.internalSetSlaTimerId(_node.getSlaTimerId());
+
+        nodeInstance.internalSetSlaTimerId(_node.getSlaTimerId() > 0 ? _node.getSlaTimerId() : -1) ;
 
         switch ( _node.getContent().getType() ) {
             case COMPOSITE_CONTEXT_NODE :
