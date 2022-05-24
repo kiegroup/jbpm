@@ -1,1 +1,1 @@
-ALTER TABLE TimerMappingInfo ADD COLUMN info blob;
+ALTER TABLE TimerMappingInfo ADD info blob;
