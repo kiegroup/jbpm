@@ -1,1 +1,1 @@
-ALTER TABLE TimerMappingInfo ADD COLUMN info varbinary(MAX);
+ALTER TABLE TimerMappingInfo ADD info varbinary(MAX);
