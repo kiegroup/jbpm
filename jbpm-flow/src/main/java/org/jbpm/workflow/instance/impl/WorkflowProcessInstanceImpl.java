@@ -453,7 +453,7 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
                 }
             }
             if (this.slaTimerId > -1) {
-                processRuntime.getTimerManager().cancelTimer(this.slaTimerId);
+                processRuntime.getTimerManager().cancelTimer(this.getId(), this.slaTimerId);
                 logger.debug("SLA Timer {} has been canceled", this.slaTimerId);
             }
             removeEventListeners();
@@ -615,7 +615,7 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
     }
 
     public void cancelTimer(long timerId) {
-        ((InternalProcessRuntime) getKnowledgeRuntime().getProcessRuntime()).getTimerManager().cancelTimer(timerId);
+        ((InternalProcessRuntime) getKnowledgeRuntime().getProcessRuntime()).getTimerManager().cancelTimer(this.getId(), timerId);
     }
 
     protected void registerExternalEventNodeListeners() {
