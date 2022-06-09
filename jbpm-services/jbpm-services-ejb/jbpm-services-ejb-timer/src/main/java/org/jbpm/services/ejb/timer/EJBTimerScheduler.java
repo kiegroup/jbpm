@@ -26,6 +26,7 @@ import java.lang.reflect.Method;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -45,6 +46,8 @@ import javax.ejb.TimerConfig;
 import javax.ejb.TimerHandle;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import javax.transaction.RollbackException;
 import javax.transaction.UserTransaction;
 
@@ -52,6 +55,9 @@ import org.drools.core.time.JobHandle;
 import org.drools.core.time.impl.TimerJobInstance;
 import org.jbpm.persistence.timer.GlobalJpaTimerJobInstance;
 import org.jbpm.process.core.timer.TimerServiceRegistry;
+import org.jbpm.runtime.manager.impl.jpa.EntityManagerFactoryManager;
+import org.jbpm.runtime.manager.impl.jpa.TimerMappingInfo;
+import org.kie.internal.runtime.manager.InternalRuntimeManager;
 import org.kie.internal.runtime.manager.SessionNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -388,6 +394,36 @@ public class EJBTimerScheduler {
 
 		return found;
 	}
+
+    public Timer getEjbTimer(InternalRuntimeManager manager, String uuid) {
+        try {
+            TimerMappingInfo timerMappingInfo = getTimerMappinInfo(manager, uuid);
+            if(timerMappingInfo == null || timerMappingInfo.getInfo() == null) {
+                return null;
+            }
+            byte[] data = timerMappingInfo.getInfo();
+            return ((TimerHandle) new ObjectInputStream(new ByteArrayInputStream(data)).readObject()).getTimer();
+        } catch (Exception e) {
+            logger.warn("wast not able to deserialize info field from timer info for uuid: {}", uuid);
+            return null;
+        }
+    }
+
+    private TimerMappingInfo getTimerMappinInfo(InternalRuntimeManager manager, String uuid) {
+        String pu = ((InternalRuntimeManager) manager).getDeploymentDescriptor().getPersistenceUnit();
+        EntityManagerFactory emf = EntityManagerFactoryManager.get().getOrCreate(pu);
+        EntityManager em = emf.createEntityManager();
+        try {
+            List<TimerMappingInfo> info = em.createQuery("SELECT o FROM TimerMappingInfo o WHERE o.uuid = :uuid", TimerMappingInfo.class).setParameter("uuid", uuid).getResultList();
+            if (!info.isEmpty()) {
+                return info.get(0);
+            } else {
+                return null;
+            }
+        } finally {
+            em.close();
+        }
+    }
 
     public void evictCache(JobHandle jobHandle) {
         String jobName =  ((EjbGlobalJobHandle) jobHandle).getUuid();

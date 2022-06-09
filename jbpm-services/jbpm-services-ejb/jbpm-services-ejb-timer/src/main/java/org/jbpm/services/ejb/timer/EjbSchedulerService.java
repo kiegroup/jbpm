@@ -101,12 +101,17 @@ public class EjbSchedulerService implements GlobalSchedulerService {
     @Override
     public boolean removeJob(JobHandle jobHandle) {
         String uuid = ((EjbGlobalJobHandle) jobHandle).getUuid();
-        final Timer ejbTimer = getEjbTimer(getTimerMappinInfo(uuid));
+        InternalRuntimeManager manager = ((GlobalTimerService) globalTimerService).getRuntimeManager();
+        final Timer ejbTimer = scheduler.getEjbTimer(manager, uuid);
         if (TRANSACTIONAL && ejbTimer == null) {
             // this situation needs to be avoided as it should not happen
+            logger.debug("ejbTimer not found for {} and tx. This should not be possible.", jobHandle);
             return false;
         }
+
         JtaTransactionManager tm = (JtaTransactionManager) TransactionManagerFactory.get().newTransactionManager();
+        logger.debug("Found ejbTimer in TimerMappingInfo {}, removing it. tx status is {}", ejbTimer, tm.getStatus());
+
         try {
             tm.registerTransactionSynchronization(new TransactionSynchronization() {
                 @Override
@@ -196,6 +201,7 @@ public class EjbSchedulerService implements GlobalSchedulerService {
             return null;
         }
     }
+
 
     @Override
     public void invalidate(JobHandle jobHandle) {
