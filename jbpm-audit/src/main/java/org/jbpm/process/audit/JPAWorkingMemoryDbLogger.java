@@ -37,11 +37,15 @@ import org.jbpm.process.audit.variable.ProcessIndexerManager;
 import org.jbpm.process.instance.ProcessInstance;
 import org.jbpm.workflow.instance.NodeInstance;
 import org.jbpm.workflow.instance.impl.NodeInstanceImpl;
+import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 import org.kie.api.event.KieRuntimeEvent;
+import org.jbpm.process.core.context.variable.Variable;
+import org.jbpm.process.core.context.variable.VariableScope;
+import org.jbpm.process.core.impl.ProcessImpl;
+import org.kie.api.event.process.ProcessAsyncNodeScheduledEvent;
 import org.kie.api.event.process.ProcessCompletedEvent;
 import org.kie.api.event.process.ProcessEventListener;
 import org.kie.api.event.process.ProcessNodeLeftEvent;
-import org.kie.api.event.process.ProcessAsyncNodeScheduledEvent;
 import org.kie.api.event.process.ProcessNodeTriggeredEvent;
 import org.kie.api.event.process.ProcessStartedEvent;
 import org.kie.api.event.process.ProcessVariableChangedEvent;
@@ -147,6 +151,27 @@ public class JPAWorkingMemoryDbLogger extends AbstractAuditLoggerAdapter impleme
         List<org.kie.api.runtime.manager.audit.VariableInstanceLog> variables = indexManager.index(getBuilder(), event);
         setProcessInstanceMetadata(event.getProcessInstance(), METADATA_VARIABLEINSTANCE_LOG, variables);
         variables.forEach(log -> persist(log, event));
+
+        // we check if there is a need to flush the description
+        VariableScope variableScope = (VariableScope) ((ProcessImpl) event.getProcessInstance().getProcess()).getDefaultContext(VariableScope.VARIABLE_SCOPE);
+        Variable variable = variableScope.findVariable(event.getVariableId());
+        if (variable != null && variable.hasTag("process_description")) {
+            EntityManager em = getEntityManager(event);
+            Object tx = joinTransaction(em);
+
+            List<ProcessInstanceLog> result = em.createQuery("from ProcessInstanceLog as log where log.processInstanceId = :piId and log.end is null")
+                    .setParameter("piId", event.getProcessInstance().getId())
+                    .getResultList();
+
+            if (result != null && !result.isEmpty()) {
+                ProcessInstanceLog log = result.get(0);
+                WorkflowProcessInstanceImpl workflow = (WorkflowProcessInstanceImpl) event.getProcessInstance();
+                workflow.setDescription(null);
+                log.setProcessInstanceDescription(workflow.getDescription());
+                em.merge(log);
+            }
+            leaveTransaction(em, tx);
+        }
     }
 
     @Override
@@ -166,7 +191,8 @@ public class JPAWorkingMemoryDbLogger extends AbstractAuditLoggerAdapter impleme
         ProcessInstanceLog log = (ProcessInstanceLog) getProcessInstanceMetadata(event.getProcessInstance(), METADATA_PROCESSINTANCE_LOG);
         if (log == null) {
             List<ProcessInstanceLog> result = em.createQuery("from ProcessInstanceLog as log where log.processInstanceId = :piId and log.end is null")
-                                                .setParameter("piId", processInstanceId).getResultList();
+                                                .setParameter("piId", processInstanceId)
+                                                .getResultList();
             if (result != null && result.size() != 0) {
                 log = result.get(result.size() - 1);
             }

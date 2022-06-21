@@ -16,17 +16,23 @@
 
 package org.jbpm.test.functional.task;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.naming.InitialContext;
 import javax.transaction.UserTransaction;
 
+import org.drools.core.command.runtime.process.SetProcessInstanceVariablesCommand;
+import org.jbpm.process.audit.ProcessInstanceLog;
 import org.jbpm.test.JbpmTestCase;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.task.TaskService;
+import org.kie.api.task.model.Task;
 import org.kie.api.task.model.TaskSummary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +52,35 @@ public class ProcessPersistenceHumanTaskTest extends JbpmTestCase {
         super(true, true);
     }
 
+    @Test
+    public void testProcessWithMutableDescription() {
+        createRuntimeManager("org/jbpm/test/functional/task/ProcessWithMutableDescription.bpmn2");
+        RuntimeEngine runtimeEngine = getRuntimeEngine();
+        KieSession ksession = runtimeEngine.getKieSession();
+        TaskService taskService = runtimeEngine.getTaskService();
+
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("processHTInput", "start");
+        ProcessInstance processInstance = ksession.startProcess("processWithMutableDescription", parameters);
+
+        ProcessInstanceLog log = (ProcessInstanceLog) this.getLogService().findProcessInstance(processInstance.getId());
+        assertEquals("updated::start", log.getProcessInstanceDescription());
+
+        parameters.put("processHTInput", "end");
+        ksession.execute(new SetProcessInstanceVariablesCommand(processInstance.getId(), parameters));
+
+        log = (ProcessInstanceLog) this.getLogService().findProcessInstance(processInstance.getId());
+        assertEquals("updated::end", log.getProcessInstanceDescription());
+        List<Long> listIds = taskService.getTasksByProcessInstanceId(processInstance.getId());
+        List<Task> list = listIds.stream().map(taskService::getTaskById).collect(Collectors.toList());
+        Task task = list.get(0);
+
+        taskService.start(task.getId(), "john");
+        taskService.complete(task.getId(), "john", null);
+        assertProcessInstanceNotActive(processInstance.getId(), ksession);
+
+    }
+ 
     @Test
     public void testProcess() throws Exception {
         createRuntimeManager("org/jbpm/test/functional/task/humantask.bpmn");
