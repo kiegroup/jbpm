@@ -166,6 +166,10 @@ public class RuntimeEngineImpl implements InternalRuntimeEngine, Disposable {
         return this.ksession;
 	}
 
+	public boolean isInitialized() {
+	    return ksession != null;
+	}
+
 	public void internalSetKieSession(KieSession ksession) {
 		this.ksession = ksession;
 		this.kieSessionId = ksession.getIdentifier();
