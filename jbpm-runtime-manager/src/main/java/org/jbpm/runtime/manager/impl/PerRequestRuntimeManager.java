@@ -18,6 +18,8 @@ package org.jbpm.runtime.manager.impl;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.persistence.EntityNotFoundException;
+
 import org.drools.core.time.TimerService;
 import org.jbpm.process.core.timer.TimerServiceRegistry;
 import org.jbpm.process.core.timer.impl.GlobalTimerService;
@@ -25,6 +27,7 @@ import org.jbpm.runtime.manager.impl.factory.LocalTaskServiceFactory;
 import org.jbpm.runtime.manager.impl.tx.DestroySessionTransactionSynchronization;
 import org.jbpm.runtime.manager.impl.tx.DisposeSessionTransactionSynchronization;
 import org.jbpm.services.task.impl.TaskContentRegistry;
+import org.kie.api.runtime.Environment;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.Context;
 import org.kie.api.runtime.manager.RuntimeEngine;
@@ -134,44 +137,63 @@ public class PerRequestRuntimeManager extends AbstractRuntimeManager {
 
     @Override
     public void disposeRuntimeEngine(RuntimeEngine runtime) {
-    	if (isClosed()) {
+        if (isClosed()) {
             logger.warn("Runtime manager {} is already closed", identifier);
             return;
-    	}
-    	try {
-        	if (canDispose(runtime)) {
-        	    local.get().remove(identifier);
-                try {
-                    Long ksessionId = ((RuntimeEngineImpl)runtime).getKieSessionId();
-                    factory.onDispose(ksessionId);
-                    if (canDestroy(runtime)) {
-                        runtime.getKieSession().destroy();
-                    } else {
-                        if (runtime instanceof Disposable) {
-                            ((Disposable) runtime).dispose();
-                        }
-                    }
-                    if (ksessionId != null) {
-                        TimerService timerService = TimerServiceRegistry.getInstance().get(getIdentifier() + TimerServiceRegistry.TIMER_SERVICE_SUFFIX);
-                        if (timerService != null) {
-                            if (timerService instanceof GlobalTimerService) {
-                                ((GlobalTimerService) timerService).clearTimerJobInstances(ksessionId);
-                            }
-                        }
-                    }
-                } catch (Exception e) {
-                    // do nothing
-                    if (runtime instanceof Disposable) {
-                        ((Disposable) runtime).dispose();
-                    }
-                }
-                
-                
-        	}
-    	} catch (Exception e) {
-    	    local.get().remove(identifier);
-    	    throw new RuntimeException(e);
-    	}
+        }
+
+        logger.debug("Trying to dispose PerRequestRuntimeEngine {}", identifier);
+        try {
+            if (!canDispose(runtime)) {
+                logger.debug("Cannot dispose per request runtime engine {}", identifier);
+                return;
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        try {
+            if (!((RuntimeEngineImpl) runtime).isInitialized()) {
+                logger.debug("ksession {} was not created for this request", identifier);
+                internalDisposeRuntimeEngine(runtime);
+                return; // nothing else to do here
+            }
+
+            // if it is initialized it should exists the ksession id
+            Long ksessionId = ((RuntimeEngineImpl) runtime).getKieSessionId();
+            factory.onDispose(ksessionId);
+   
+            if (canDestroy(runtime)) {
+                runtime.getKieSession().destroy();
+            } else {
+                internalDisposeRuntimeEngine(runtime);
+            }
+
+            TimerService timerService = TimerServiceRegistry.getInstance().get(getIdentifier() + TimerServiceRegistry.TIMER_SERVICE_SUFFIX);
+            if (timerService instanceof GlobalTimerService) {
+                ((GlobalTimerService) timerService).clearTimerJobInstances(ksessionId);
+            }
+        } catch (Exception e) {
+            logger.error("error during disposal", e);
+            internalDisposeRuntimeEngine(runtime);
+        } finally {
+            local.get().remove(identifier);
+        }
+    }
+
+    private void internalDisposeRuntimeEngine(RuntimeEngine runtimeEngine) {
+        // do nothing
+        if (runtimeEngine instanceof Disposable) {
+            ((Disposable) runtimeEngine).dispose();
+        }
+    }
+
+    @Override
+    protected Environment getEnvironment(RuntimeEngine runtimeEngine) {
+        if (runtimeEngine instanceof RuntimeEngineImpl && ((RuntimeEngineImpl) runtimeEngine).isInitialized()) {
+            return super.getEnvironment(runtimeEngine);
+        }
+        return this.environment.getEnvironment();
     }
 
     @Override
@@ -220,7 +242,6 @@ public class PerRequestRuntimeManager extends AbstractRuntimeManager {
     
     private class PerRequestInitializer implements RuntimeEngineInitlializer {
 
-    	
     	@Override
     	public KieSession initKieSession(Context<?> context, InternalRuntimeManager manager, RuntimeEngine engine) {
     		RuntimeEngine inUse = local.get().get(identifier);
