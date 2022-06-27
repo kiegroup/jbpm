@@ -104,7 +104,8 @@
     	id int8 not null, 
     	externalTimerId varchar(255), 
     	kieSessionId int8 not null, 
-    	timerId int8 not null, 
+    	processInstanceId int8,
+    	timerId int8, 
     	uuid varchar(255) not null,
     	info oid,
     	primary key (id)

@@ -104,7 +104,8 @@
     	id number(19,0) not null, 
     	externalTimerId varchar2(255 char), 
     	kieSessionId number(19,0) not null, 
-    	timerId number(19,0) not null, 
+    	processInstanceId number(19,0), 
+    	timerId number(19,0), 
     	uuid varchar2(255 char) not null, 
     	info blob,
     	primary key (id)
