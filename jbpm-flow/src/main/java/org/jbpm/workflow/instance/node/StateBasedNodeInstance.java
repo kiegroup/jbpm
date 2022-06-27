@@ -448,7 +448,7 @@ public abstract class StateBasedNodeInstance extends ExtendedNodeInstanceImpl im
             TimerManager timerManager = ((InternalProcessRuntime)
                     getProcessInstance().getKnowledgeRuntime().getProcessRuntime()).getTimerManager();
             for (Long id : timerInstances) {
-                timerManager.cancelTimer(id);
+                timerManager.cancelTimer(this.getProcessInstance().getId(), id);
             }
         }
     }
@@ -457,7 +457,7 @@ public abstract class StateBasedNodeInstance extends ExtendedNodeInstanceImpl im
         if (this.slaTimerId > -1) {
             TimerManager timerManager = ((InternalProcessRuntime)
                     getProcessInstance().getKnowledgeRuntime().getProcessRuntime()).getTimerManager();
-            timerManager.cancelTimer(this.slaTimerId);
+            timerManager.cancelTimer(this.getProcessInstance().getId(), this.slaTimerId);
             logger.debug("SLA Timer {} has been canceled", this.slaTimerId);
         }
     }

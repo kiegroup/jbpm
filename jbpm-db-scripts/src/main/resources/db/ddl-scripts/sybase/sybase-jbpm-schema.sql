@@ -112,7 +112,8 @@
     	id numeric(19,0) identity not null, 
     	externalTimerId varchar(255), 
     	kieSessionId numeric(19,0) not null, 
-    	timerId numeric(19,0) not null, 
+    	processInstanceId numeric(19,0), 
+    	timerId numeric(19,0), 
     	uuid varchar(255) not null, 
     	info image null,
     	primary key (id)

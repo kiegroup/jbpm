@@ -42,6 +42,7 @@ import org.drools.core.time.impl.CronTrigger;
 import org.drools.core.time.impl.IntervalTrigger;
 import org.jbpm.marshalling.impl.JBPMMessages;
 import org.jbpm.marshalling.impl.ProtobufProcessMarshaller;
+import org.jbpm.process.core.timer.impl.GlobalTimerService;
 import org.jbpm.process.core.timer.impl.RegisteredTimerServiceDelegate;
 import org.jbpm.process.instance.InternalProcessRuntime;
 import org.jbpm.process.instance.ProcessInstance;
@@ -162,13 +163,19 @@ public class TimerManager {
         timers.put(timer.getId(), timer);
     }
 
-    public void cancelTimer(long timerId) {
+    public void cancelTimer(long processInstnaceId, long timerId) {
 		try {
 			kruntime.startOperation();
 
 			TimerInstance timer = timers.remove(timerId);
 			if (timer != null) {
 				timerService.removeJob(timer.getJobHandle());
+			} else if (timerService instanceof GlobalTimerService){
+			    // second try if the cache here is not in sync
+			    ((GlobalTimerService) timerService).removeJobByTimerId(processInstnaceId, timerId);
+			} else if (timerService instanceof RegisteredTimerServiceDelegate) {
+	             // second try if it is wrapped and the cache is not in sync
+	             ((GlobalTimerService) ((RegisteredTimerServiceDelegate) timerService).getTimerService()).removeJobByTimerId(processInstnaceId, timerId);
 			}
 		} finally {
 			kruntime.endOperation();

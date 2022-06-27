@@ -21,6 +21,7 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Function;
 
 import javax.ejb.Timer;
 import javax.ejb.TimerHandle;
@@ -100,7 +101,7 @@ public class EjbSchedulerService implements GlobalSchedulerService {
     @Override
     public boolean removeJob(JobHandle jobHandle) {
         String uuid = ((EjbGlobalJobHandle) jobHandle).getUuid();
-        final Timer ejbTimer = getEjbTimer(uuid);
+        final Timer ejbTimer = getEjbTimer(getTimerMappinInfo(uuid));
         if (TRANSACTIONAL && ejbTimer == null) {
             // this situation needs to be avoided as it should not happen
             return false;
@@ -130,8 +131,60 @@ public class EjbSchedulerService implements GlobalSchedulerService {
     }
 
     private TimerJobInstance getTimerJobInstance (String uuid) {
+        return unwrapTimerJobInstance(getEjbTimer(getTimerMappinInfo(uuid)));
+    }
+
+
+    @Override
+    public TimerJobInstance getTimerJobInstance(long processInstanceId, long timerId) {
+        return unwrapTimerJobInstance(getEjbTimer(getTimerMappinInfo(processInstanceId, timerId)));
+    }
+
+    private Timer getEjbTimer(TimerMappingInfo timerMappingInfo) {
         try {
-            Timer timer = getEjbTimer(uuid);
+            if(timerMappingInfo == null || timerMappingInfo.getInfo() == null) {
+                return null;
+            }
+            byte[] data = timerMappingInfo.getInfo();
+            return ((TimerHandle) new ObjectInputStream(new ByteArrayInputStream(data)).readObject()).getTimer();
+        } catch (Exception e) {
+            logger.warn("wast not able to deserialize info field from timer info for uuid");
+            return null;
+        }
+    }
+
+    private TimerMappingInfo getTimerMappinInfo(String uuid) {
+        return getTimerMappingInfo(em -> em.createQuery("SELECT o FROM TimerMappingInfo o WHERE o.uuid = :uuid", TimerMappingInfo.class).setParameter("uuid", uuid).getResultList());
+    }
+
+    private TimerMappingInfo getTimerMappinInfo(long processInstanceId, long timerId) {
+        return getTimerMappingInfo(em -> 
+            em.createQuery("SELECT o FROM TimerMappingInfo o WHERE o.timerId = :timerId AND o.processInstanceId = :processInstanceId", TimerMappingInfo.class)
+                .setParameter("processInstanceId", processInstanceId)
+                .setParameter("timerId", timerId)
+                .getResultList()
+        );
+    }
+
+    private TimerMappingInfo getTimerMappingInfo(Function<EntityManager, List<TimerMappingInfo>> func) {
+        InternalRuntimeManager manager = ((GlobalTimerService) globalTimerService).getRuntimeManager();
+        String pu = ((InternalRuntimeManager) manager).getDeploymentDescriptor().getPersistenceUnit();
+        EntityManagerFactory emf = EntityManagerFactoryManager.get().getOrCreate(pu);
+        EntityManager em = emf.createEntityManager();
+        try {
+            List<TimerMappingInfo> info = func.apply(em);
+            if (!info.isEmpty()) {
+                return info.get(0);
+            } else {
+                return null;
+            }
+        } finally {
+            em.close();
+        }
+    }
+
+    private TimerJobInstance unwrapTimerJobInstance(Timer timer) {
+        try {
             if (timer == null) {
                 return null;
             }
@@ -144,36 +197,6 @@ public class EjbSchedulerService implements GlobalSchedulerService {
         }
     }
 
-    private Timer getEjbTimer(String uuid) {
-        try {
-            TimerMappingInfo timerMappingInfo = getTimerMappinInfo(uuid);
-            if(timerMappingInfo == null || timerMappingInfo.getInfo() == null) {
-                return null;
-            }
-            byte[] data = timerMappingInfo.getInfo();
-            return ((TimerHandle) new ObjectInputStream(new ByteArrayInputStream(data)).readObject()).getTimer();
-        } catch (Exception e) {
-            logger.warn("wast not able to deserialize info field from timer info for uuid: {}", uuid);
-            return null;
-        }
-    }
-
-    private TimerMappingInfo getTimerMappinInfo(String uuid) {
-        InternalRuntimeManager manager = ((GlobalTimerService) globalTimerService).getRuntimeManager();
-        String pu = ((InternalRuntimeManager) manager).getDeploymentDescriptor().getPersistenceUnit();
-        EntityManagerFactory emf = EntityManagerFactoryManager.get().getOrCreate(pu);
-        EntityManager em = emf.createEntityManager();
-        try {
-            List<TimerMappingInfo> info = em.createQuery("SELECT o FROM TimerMappingInfo o WHERE o.uuid = :uuid", TimerMappingInfo.class).setParameter("uuid", uuid).getResultList();
-            if (!info.isEmpty()) {
-                return info.get(0);
-            } else {
-                return null;
-            }
-        } finally {
-            em.close();
-        }
-    }
     @Override
     public void invalidate(JobHandle jobHandle) {
         scheduler.evictCache(jobHandle);
