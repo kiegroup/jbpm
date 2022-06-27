@@ -49,6 +49,8 @@ import javax.ejb.TransactionManagementType;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.transaction.RollbackException;
+import javax.transaction.Transactional;
+import javax.transaction.Transactional.TxType;
 import javax.transaction.UserTransaction;
 
 import org.drools.core.time.JobHandle;
@@ -395,6 +397,7 @@ public class EJBTimerScheduler {
 		return found;
 	}
 
+	@Transactional(value = TxType.REQUIRES_NEW)
     public Timer getEjbTimer(InternalRuntimeManager manager, String uuid) {
         try {
             TimerMappingInfo timerMappingInfo = getTimerMappinInfo(manager, uuid);
