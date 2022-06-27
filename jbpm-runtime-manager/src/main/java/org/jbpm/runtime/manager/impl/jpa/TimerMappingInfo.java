@@ -16,6 +16,8 @@
 package org.jbpm.runtime.manager.impl.jpa;
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -41,11 +43,13 @@ public class TimerMappingInfo implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO, generator="timerMappingInfoIdSeq")
     private Long id;
 
-    private long timerId;
+    private Long timerId;
 
     private String externalTimerId;
 
     private long kieSessionId;
+
+    private Long processInstanceId;
 
     @Column(nullable = false)
     private String uuid;
@@ -58,7 +62,7 @@ public class TimerMappingInfo implements Serializable {
 
     }
 
-    public TimerMappingInfo(long timerId, String externalTimerId, long kieSessionId, String uuid) {
+    public TimerMappingInfo(Long timerId, String externalTimerId, long kieSessionId, String uuid) {
         this.timerId = timerId;
         this.externalTimerId = externalTimerId;
         this.kieSessionId = kieSessionId;
@@ -97,11 +101,11 @@ public class TimerMappingInfo implements Serializable {
         this.kieSessionId = kieSessionId;
     }
 
-    public long getTimerId() {
+    public Long getTimerId() {
         return timerId;
     }
 
-    public void setTimerId(long timerId) {
+    public void setTimerId(Long timerId) {
         this.timerId = timerId;
     }
 
@@ -113,15 +117,20 @@ public class TimerMappingInfo implements Serializable {
         this.info = info;
     }
 
+    public Long getProcessInstanceId() {
+        return processInstanceId;
+    }
+
+    public void setProcessInstanceId(Long processInstanceId) {
+        this.processInstanceId = processInstanceId;
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((externalTimerId == null) ? 0 : externalTimerId.hashCode());
-        result = prime * result + ((id == null) ? 0 : id.hashCode());
-        result = prime * result + (int) (kieSessionId ^ (kieSessionId >>> 32));
-        result = prime * result + (int) (timerId ^ (timerId >>> 32));
-        result = prime * result + ((uuid == null) ? 0 : uuid.hashCode());
+        result = prime * result + Arrays.hashCode(info);
+        result = prime * result + Objects.hash(externalTimerId, id, kieSessionId, processInstanceId, timerId, uuid);
         return result;
     }
 
@@ -134,31 +143,16 @@ public class TimerMappingInfo implements Serializable {
         if (getClass() != obj.getClass())
             return false;
         TimerMappingInfo other = (TimerMappingInfo) obj;
-        if (externalTimerId == null) {
-            if (other.externalTimerId != null)
-                return false;
-        } else if (!externalTimerId.equals(other.externalTimerId))
-            return false;
-        if (id == null) {
-            if (other.id != null)
-                return false;
-        } else if (!id.equals(other.id))
-            return false;
-        if (kieSessionId != other.kieSessionId)
-            return false;
-        if (timerId != other.timerId)
-            return false;
-        if (uuid == null) {
-            if (other.uuid != null)
-                return false;
-        } else if (!uuid.equals(other.uuid))
-            return false;
-        return true;
+        return Objects.equals(externalTimerId, other.externalTimerId) && Objects.equals(id, other.id) && Arrays.equals(info, other.info) && kieSessionId == other.kieSessionId
+                && Objects.equals(processInstanceId, other.processInstanceId) && Objects.equals(timerId, other.timerId) && Objects.equals(uuid, other.uuid);
     }
 
     @Override
     public String toString() {
-        return "TimerMappingInfo [id=" + id + ", timerId=" + timerId + ", externalTimerId=" + externalTimerId + ", kieSessionId=" + kieSessionId + ", uuid=" + uuid + "]";
+        return "TimerMappingInfo [id=" + id + ", timerId=" + timerId + ", externalTimerId=" + externalTimerId + ", kieSessionId=" + kieSessionId + ", processInstanceId=" + processInstanceId
+                + ", uuid=" + uuid + ", info=" + Arrays.toString(info) + "]";
     }
+
+
 
 }

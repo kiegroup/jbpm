@@ -104,7 +104,8 @@
     	id bigint identity not null, 
     	externalTimerId varchar(255), 
     	kieSessionId bigint not null, 
-    	timerId bigint not null, 
+    	processInstanceId bigint, 
+    	timerId bigint, 
     	uuid varchar(255) not null, 
     	info varbinary(MAX),
     	primary key (id)
