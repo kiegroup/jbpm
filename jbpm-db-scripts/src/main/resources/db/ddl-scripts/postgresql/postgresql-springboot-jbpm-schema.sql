@@ -114,7 +114,7 @@ alter table DeploymentStore add constraint UK85rgskt09thd8mkkfl3tb0y81 unique (D
 create index IDX_ErrorInfo_Id on ErrorInfo (REQUEST_ID);
 create index IDX_Escalation_Id on Escalation (Deadline_Escalation_Id);
 create index IDX_EventTypes_Id on EventTypes (InstanceId);
-create index IDX_EventTypes_element on EventTypes (element);
+create index IDX_EventTypes_IdElement ON EventTypes(InstanceId,element);
 create index IDX_ErrorInfo_pInstId on ExecutionErrorInfo (PROCESS_INST_ID);
 create index IDX_ErrorInfo_errorAck on ExecutionErrorInfo (ERROR_ACK);
 create index IDX_I18NText_SubjId on I18NText (Task_Subjects_Id);
