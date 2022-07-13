@@ -627,3 +627,5 @@
     create sequence VAR_INST_LOG_ID_SEQ;
 
     create sequence WORKITEMINFO_ID_SEQ;
+
+    create index IDX_EventTypes_element ON EventTypes(element);
