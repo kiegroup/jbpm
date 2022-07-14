@@ -7,6 +7,7 @@ create table TimerMappingInfo (
 	kieSessionId int8 not null, 
 	timerId int8 not null, 
 	uuid varchar(255) not null, 
+	info bytea, 
 	primary key (id)
 );
 

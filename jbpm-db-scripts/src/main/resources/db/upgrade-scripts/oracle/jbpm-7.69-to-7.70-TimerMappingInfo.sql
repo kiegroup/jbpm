@@ -1,0 +1,1 @@
+ALTER TABLE TimerMappingInfo ADD info blob;

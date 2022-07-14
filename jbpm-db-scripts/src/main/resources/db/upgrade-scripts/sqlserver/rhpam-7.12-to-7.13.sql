@@ -6,7 +6,8 @@ create table TimerMappingInfo (
 	externalTimerId varchar(255), 
 	kieSessionId numeric(19,0) not null, 
 	timerId numeric(19,0) not null, 
-	uuid varchar(255) not null, 
+	uuid varchar(255) not null,
+	info image, 
 	primary key (id)
 );
 

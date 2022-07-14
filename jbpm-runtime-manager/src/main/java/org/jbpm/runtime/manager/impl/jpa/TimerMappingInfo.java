@@ -23,6 +23,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
+import javax.persistence.Lob;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
@@ -48,6 +49,10 @@ public class TimerMappingInfo implements Serializable {
 
     @Column(nullable = false)
     private String uuid;
+
+    @Lob
+    @Column(length=2147483647)
+    private byte[] info;
 
     public TimerMappingInfo() {
 
@@ -98,6 +103,14 @@ public class TimerMappingInfo implements Serializable {
 
     public void setTimerId(long timerId) {
         this.timerId = timerId;
+    }
+
+    public byte[] getInfo() {
+        return info;
+    }
+
+    public void setInfo(byte[] info) {
+        this.info = info;
     }
 
     @Override
