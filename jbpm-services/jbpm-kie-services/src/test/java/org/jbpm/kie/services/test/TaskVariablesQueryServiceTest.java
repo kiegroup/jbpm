@@ -579,7 +579,92 @@ public class TaskVariablesQueryServiceTest extends AbstractKieServicesBaseTest {
         
 
     }
-    
+
+
+    @Test
+    public void testUserTaskInstanceWithCustomVarsQueryMapperResult() throws Exception {
+
+        Map<String, String> variableMap = new HashMap<String, String>();
+        variableMap.put("COUNTRY", "string");
+        variableMap.put("PRODUCTCODE", "string");
+        variableMap.put("QUANTITY", "integer");
+        variableMap.put("PRICE", "double");
+        variableMap.put("SALEDATE", "date");
+
+        SqlQueryDefinition query = new SqlQueryDefinition("getAllTaskInstancesWithCustomVariables", "jdbc/testDS1");
+        query.setExpression("select ti.*,  c.country, c.productCode, c.quantity, c.price, c.saleDate " +
+                "from AuditTaskImpl ti " +
+                "    inner join (select mv.map_var_id, mv.taskid from MappedVariable mv) mv " +
+                "      on (mv.taskid = ti.taskId) " +
+                "    inner join ProductSale c " +
+                "      on (c.id = mv.map_var_id)");
+
+        queryService.registerQuery(query);
+
+        SqlQueryDefinition queryTPO = new SqlQueryDefinition("getMyTaskInstancesWithCustomVariables", "jdbc/testDS1", Target.PO_TASK);
+        queryTPO.setExpression("select ti.*,  c.country, c.productCode, c.quantity, c.price, c.saleDate, oe.id oeid " +
+                "from AuditTaskImpl ti " +
+                "    inner join (select mv.map_var_id, mv.taskid from MappedVariable mv) mv " +
+                "      on (mv.taskid = ti.taskId) " +
+                "    inner join ProductSale c " +
+                "      on (c.id = mv.map_var_id), " +
+                "  PeopleAssignments_PotOwners po, OrganizationalEntity oe " +
+                "    where ti.taskId = po.task_id and po.entity_id = oe.id");
+
+        queryService.registerQuery(queryTPO);
+
+        queryService.query(query.getName(),
+                UserTaskInstanceWithCustomVarsQueryMapper.get(variableMap), new QueryContext(),
+                QueryParam.equalsTo("productCode", "EAP"));
+
+        long currentTime = System.currentTimeMillis();
+        Calendar cal = Calendar.getInstance();
+
+        RuntimeManager manager = deploymentService.getRuntimeManager(deploymentUnitSalesId);
+        assertNotNull(manager);
+        Class<?> clazz = Class.forName("org.jbpm.test.ProductSale", true, ((InternalRuntimeManager) manager).getEnvironment().getClassLoader());
+
+        Random random = new Random();
+
+
+        int i = 0;
+        for (i = 0; i < 10000; i++) {
+            cal.setTimeInMillis(currentTime);
+
+            // add random number of days
+            cal.add(Calendar.DAY_OF_YEAR, random.nextInt(60));
+
+            Object product = clazz.newInstance();
+            // set fields
+            setFieldValue(product, "country", countries.get(random.nextInt(9)));
+            setFieldValue(product, "productCode", productCodes.get(random.nextInt(9)));
+            setFieldValue(product, "quantity", random.nextInt(50));
+            setFieldValue(product, "price", (random.nextDouble() * 1000));
+            setFieldValue(product, "saleDate", cal.getTime());
+
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put("product", product);
+            params.put("sales", "john,actor" + i);
+            params.put("salesGroup", "Crusaders");
+
+            logger.debug("Params : " + params);
+            processService.startProcess(deploymentUnitSalesId, "product-sale.sale-product", params);
+        }
+
+        long timestamp = System.currentTimeMillis();
+
+        List<UserTaskInstanceWithVarsDesc> taskInstanceLogs = queryService.query(query.getName(),
+                UserTaskInstanceWithCustomVarsQueryMapper.get(variableMap), new QueryContext(),
+                QueryParam.equalsTo("productCode", "EAP"));
+
+        UserTaskInstanceWithVarsDesc taskInstanceResult = taskInstanceLogs.get(0);
+        assertNotNull(taskInstanceResult.getSubject());
+        assertNotNull(taskInstanceResult.getCorrelationKey());
+        assertNotNull(taskInstanceResult.getProcessType());
+        assertNotNull(taskInstanceResult.getSlaDueDate());
+        assertNotNull(taskInstanceResult.getSlaCompliance());
+    }
+
     protected void setFieldValue(Object instance, String fieldName, Object value) {
         try {
             Field f = instance.getClass().getDeclaredField(fieldName);            
