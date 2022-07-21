@@ -577,3 +577,5 @@ alter table task_comment
     add constraint FK61F475A5F510CB46
     foreign key (TaskData_Comments_Id)
     references Task;
+
+create index IDX_EventTypes_element ON EventTypes(element);
