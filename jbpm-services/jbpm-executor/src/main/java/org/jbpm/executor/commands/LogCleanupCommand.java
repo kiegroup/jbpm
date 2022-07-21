@@ -17,9 +17,13 @@
 package org.jbpm.executor.commands;
 
 import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.persistence.EntityManagerFactory;
 
@@ -66,19 +70,23 @@ public class LogCleanupCommand implements Command, Reoccurring {
     protected final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     public static final String RECORDS_PER_TRANSACTION = "RecordsPerTransaction";
 
-    private long nextScheduleTimeAdd = 24 * 60 * 60 * 1000; // one day in milliseconds
+    private long nextScheduleTimeAdd;
+    private boolean mightBeMore;
 
     @Override
     public Date getScheduleTime() {
-        if (nextScheduleTimeAdd < 0) {
-            return null;
+        Date nextSchedule;
+        if (mightBeMore) {
+            // if there are pending records, reexecute immediately
+            nextSchedule = Date.from(Instant.now().plus(Duration.ofMillis(100)));
         }
-
-        long current = System.currentTimeMillis();
-
-        Date nextSchedule = new Date(current + nextScheduleTimeAdd);
+        else {
+            if (nextScheduleTimeAdd <= 0) {
+                return null;
+            }
+            nextSchedule = Date.from(Instant.now().plus(nextScheduleTimeAdd, ChronoUnit.MILLIS));
+        }
         logger.debug("Next schedule for job {} is set to {}", this.getClass().getSimpleName(), nextSchedule);
-
         return nextSchedule;
     }
 
@@ -102,6 +110,7 @@ public class LogCleanupCommand implements Command, Reoccurring {
         boolean skipTaskLog = ctx.getData().containsKey("SkipTaskLog") ? Boolean.parseBoolean((String) ctx.getData("SkipTaskLog")) : false;
         boolean skipExecutorLog = ctx.getData().containsKey("SkipExecutorLog") ? Boolean.parseBoolean((String) ctx.getData("SkipExecutorLog")) : false;
         int recordsPerTransaction = readInt(ctx.getData(), RECORDS_PER_TRANSACTION, 0);
+        mightBeMore = false;
 
         SimpleDateFormat formatToUse = dateFormat;
 
@@ -115,10 +124,11 @@ public class LogCleanupCommand implements Command, Reoccurring {
         if (emfName == null) {
             emfName = "org.jbpm.domain";
         }
+        nextScheduleTimeAdd = TimeUnit.DAYS.toMillis(1);
         String singleRun = (String) ctx.getData("SingleRun");
         if ("true".equalsIgnoreCase(singleRun)) {
             // disable rescheduling
-            this.nextScheduleTimeAdd = -1;
+            nextScheduleTimeAdd = -1;
         }
         String nextRun = (String) ctx.getData("NextRun");
         if (nextRun != null) {
@@ -150,24 +160,24 @@ public class LogCleanupCommand implements Command, Reoccurring {
 
         if (!skipExecutorLog) {
             // executor tables  
-            long errorInfoLogsRemoved = 0l;
-            errorInfoLogsRemoved = auditLogService.errorInfoLogDeleteBuilder()
+            int errorInfoLogsRemoved = auditLogService.errorInfoLogDeleteBuilder()
                                                   .dateRangeEnd(olderThan == null ? null : formatToUse.parse(olderThan))
                                                   .recordsPerTransaction(recordsPerTransaction)
                                                   .logBelongsToProcessInStatus(status)
                                                   .build()
                                                   .execute();
+            this.mightBeMore|= mightBeMore(errorInfoLogsRemoved, recordsPerTransaction);
             logger.info("ErrorInfoLogsRemoved {}", errorInfoLogsRemoved);
             executionResults.setData("ErrorInfoLogsRemoved", errorInfoLogsRemoved);
 
-            long requestInfoLogsRemoved = 0l;
-            requestInfoLogsRemoved = auditLogService.requestInfoLogDeleteBuilder()
+            int requestInfoLogsRemoved = auditLogService.requestInfoLogDeleteBuilder()
                                                     .dateRangeEnd(olderThan == null ? null : formatToUse.parse(olderThan))
                                                     .recordsPerTransaction(recordsPerTransaction)
                                                     .logBelongsToProcessInStatus(status)
                                                     .status(STATUS.CANCELLED, STATUS.DONE, STATUS.ERROR)
                                                     .build()
                                                     .execute();
+            this.mightBeMore|= mightBeMore(requestInfoLogsRemoved, recordsPerTransaction);
             logger.info("RequestInfoLogsRemoved {}", requestInfoLogsRemoved);
             executionResults.setData("RequestInfoLogsRemoved", requestInfoLogsRemoved);
 
@@ -177,14 +187,14 @@ public class LogCleanupCommand implements Command, Reoccurring {
                                                                .logBelongsToProcessInStatus(status)
                                                                .build()
                                                                .execute();
+            this.mightBeMore|= mightBeMore(executionErrorInfoLogsRemoved, recordsPerTransaction);
             logger.info("ExecutionErrorInfoLogsRemoved {}", executionErrorInfoLogsRemoved);
             executionResults.setData("ExecutionErrorInfoLogsRemoved", executionErrorInfoLogsRemoved);
         }
 
         if (!skipTaskLog) {
             // task tables
-            long taLogsRemoved = 0l;
-            taLogsRemoved = auditLogService.auditTaskDelete()
+            int taLogsRemoved = auditLogService.auditTaskDelete()
                                            .processId(forProcess)
                                            .dateRangeEnd(olderThan == null ? null : formatToUse.parse(olderThan))
                                            .recordsPerTransaction(recordsPerTransaction)
@@ -192,35 +202,34 @@ public class LogCleanupCommand implements Command, Reoccurring {
                                            .logBelongsToProcessInStatus(status)
                                            .build()
                                            .execute();
+            this.mightBeMore|= mightBeMore(taLogsRemoved, recordsPerTransaction);
             logger.info("TaskAuditLogRemoved {}", taLogsRemoved);
             executionResults.setData("TaskAuditLogRemoved", taLogsRemoved);
 
-            long teLogsRemoved = 0l;
-            teLogsRemoved = auditLogService.taskEventInstanceLogDelete()
+            int teLogsRemoved = auditLogService.taskEventInstanceLogDelete()
                                            .dateRangeEnd(olderThan == null ? null : formatToUse.parse(olderThan))
                                            .recordsPerTransaction(recordsPerTransaction)
                                            .logBelongsToProcessInStatus(status)
                                            .build()
                                            .execute();
+            this.mightBeMore|= mightBeMore(teLogsRemoved, recordsPerTransaction);
             logger.info("TaskEventLogRemoved {}", teLogsRemoved);
             executionResults.setData("TaskEventLogRemoved", teLogsRemoved);
 
-            long tvLogsRemoved = 0l;
-            tvLogsRemoved = auditLogService.taskVariableInstanceLogDelete()
+            int tvLogsRemoved  = auditLogService.taskVariableInstanceLogDelete()
                                            .dateRangeEnd(olderThan == null ? null : formatToUse.parse(olderThan))
                                            .recordsPerTransaction(recordsPerTransaction)
                                            .logBelongsToProcessInStatus(status)
                                            .build()
                                            .execute();
+            this.mightBeMore|= mightBeMore(tvLogsRemoved, recordsPerTransaction);
             logger.info("TaskVariableLogRemoved {}", tvLogsRemoved);
             executionResults.setData("TaskVariableLogRemoved", tvLogsRemoved);
         }
 
         if (!skipProcessLog) {
             // process tables			
-            long niLogsRemoved = 0l;
-            niLogsRemoved = auditLogService.nodeInstanceLogDelete()
-
+            int niLogsRemoved = auditLogService.nodeInstanceLogDelete()
                                            .processId(forProcess)
                                            .dateRangeEnd(olderThan == null ? null : formatToUse.parse(olderThan))
                                            .recordsPerTransaction(recordsPerTransaction)
@@ -228,11 +237,11 @@ public class LogCleanupCommand implements Command, Reoccurring {
                                            .logBelongsToProcessInStatus(status)
                                            .build()
                                            .execute();
+            this.mightBeMore|= mightBeMore(niLogsRemoved, recordsPerTransaction);
             logger.info("NodeInstanceLogRemoved {}", niLogsRemoved);
             executionResults.setData("NodeInstanceLogRemoved", niLogsRemoved);
 
-            long viLogsRemoved = 0l;
-            viLogsRemoved = auditLogService.variableInstanceLogDelete()
+            int viLogsRemoved = auditLogService.variableInstanceLogDelete()
                                            .processId(forProcess)
                                            .dateRangeEnd(olderThan == null ? null : formatToUse.parse(olderThan))
                                            .recordsPerTransaction(recordsPerTransaction)
@@ -240,11 +249,12 @@ public class LogCleanupCommand implements Command, Reoccurring {
                                            .logBelongsToProcessInStatus(status)
                                            .build()
                                            .execute();
+            this.mightBeMore|= mightBeMore(viLogsRemoved, recordsPerTransaction);
             logger.info("VariableInstanceLogRemoved {}", viLogsRemoved);
             executionResults.setData("VariableInstanceLogRemoved", viLogsRemoved);
 
-            long piLogsRemoved = 0l;
-            piLogsRemoved = auditLogService.processInstanceLogDelete()
+            if (!mightBeMore) {
+                int piLogsRemoved = auditLogService.processInstanceLogDelete()
                                            .processId(forProcess)
                                            .status(ProcessInstance.STATE_COMPLETED, ProcessInstance.STATE_ABORTED)
                                            .endDateRangeEnd(olderThan == null ? null : formatToUse.parse(olderThan))
@@ -253,14 +263,16 @@ public class LogCleanupCommand implements Command, Reoccurring {
                                            .logBelongsToProcessInStatus(status)
                                            .build()
                                            .execute();
-            logger.info("ProcessInstanceLogRemoved {}", piLogsRemoved);
-            executionResults.setData("ProcessInstanceLogRemoved", piLogsRemoved);
+                this.mightBeMore|= mightBeMore(piLogsRemoved, recordsPerTransaction);
+                logger.info("ProcessInstanceLogRemoved {}", piLogsRemoved);
+                executionResults.setData("ProcessInstanceLogRemoved", piLogsRemoved);
+            }
         }
-
-        // bam tables
-        long bamLogsRemoved = 0l;
-        executionResults.setData("BAMLogRemoved", bamLogsRemoved);
-
+        executionResults.setData("BAMLogRemoved", 0L);
         return executionResults;
+    }
+    
+    private  static boolean mightBeMore (int deleted, int recordPerTransaction) {
+        return recordPerTransaction > 0 && deleted >= recordPerTransaction;
     }
 }

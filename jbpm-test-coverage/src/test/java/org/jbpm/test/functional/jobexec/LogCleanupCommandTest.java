@@ -16,6 +16,12 @@
 
 package org.jbpm.test.functional.jobexec;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -42,12 +48,6 @@ import org.kie.internal.executor.api.CommandContext;
 import org.kie.internal.runtime.error.ExecutionError;
 import org.kie.internal.runtime.error.ExecutionErrorManager;
 import org.kie.internal.runtime.error.ExecutionErrorStorage;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
 
 /**
  * BZ-TODO: SingleRun - only accepts "true"/"false" but is boolean type, other boolean types accept true/false.
@@ -280,26 +280,27 @@ public class LogCleanupCommandTest extends JbpmAsyncJobTestCase {
         Assertions.assertThat(getNodeInstanceLogSize(HELLO_WORLD_ID)).isPositive();
     }
 
-    @Test(timeout = 10000)
+    @Test(timeout=10000)
     public void deleteAllLogsPage() {
-        CountDownAsyncJobListener countDownListener = new CountDownAsyncJobListener(1);
-        ((ExecutorServiceImpl) getExecutorService()).addAsyncJobListener(countDownListener);
         // Generate data
         KieSession kieSession = createKSession(HELLO_WORLD);
         startProcess(kieSession, HELLO_WORLD_ID, 3);
-
         // Verify presence of data
-        Assertions.assertThat(getProcessLogSize(HELLO_WORLD_ID)).isEqualTo(3);
-        Assertions.assertThat(getNodeInstanceLogSize(HELLO_WORLD_ID)).isPositive();
-
+        int processSize = getProcessLogSize(HELLO_WORLD_ID);
+        int nodeSize = getNodeInstanceLogSize(HELLO_WORLD_ID);
+        Assertions.assertThat(processSize).isEqualTo(3);
+        Assertions.assertThat(nodeSize).isPositive();
+        
+        CountDownAsyncJobListener countDownListener = new CountDownAsyncJobListener(processSize + nodeSize);
+        ((ExecutorServiceImpl) getExecutorService()).addAsyncJobListener(countDownListener);
+        
         // Schedule cleanup job
-        scheduleLogCleanup(false, false, false, null, null, HELLO_WORLD_ID, 1);
+        scheduleLogCleanup(false, false, true, null, null, HELLO_WORLD_ID, 1);
         countDownListener.waitTillCompleted();
 
         // Verify absence of data
         Assertions.assertThat(getProcessLogSize(HELLO_WORLD_ID)).isZero();
         Assertions.assertThat(getNodeInstanceLogSize(HELLO_WORLD_ID)).isZero();
-
     }
 
     @Test(timeout=10000)
