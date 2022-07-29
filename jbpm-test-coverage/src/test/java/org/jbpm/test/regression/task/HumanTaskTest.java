@@ -16,6 +16,14 @@
 
 package org.jbpm.test.regression.task;
 
+import static java.util.Collections.emptyMap;
+import static org.jbpm.test.tools.TrackingListenerAssert.assertTriggered;
+import static org.jbpm.test.tools.TrackingListenerAssert.assertTriggeredAndLeft;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +35,6 @@ import org.assertj.core.api.Assertions;
 import org.jbpm.services.task.events.DefaultTaskEventListener;
 import org.jbpm.test.JbpmTestCase;
 import org.jbpm.test.listener.TrackingProcessEventListener;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.RuntimeEngine;
@@ -39,12 +46,6 @@ import org.kie.api.task.model.Status;
 import org.kie.api.task.model.Task;
 import org.kie.api.task.model.TaskSummary;
 import org.kie.internal.task.api.EventService;
-
-import static java.util.Collections.emptyMap;
-import static org.jbpm.test.tools.TrackingListenerAssert.assertTriggered;
-import static org.jbpm.test.tools.TrackingListenerAssert.assertTriggeredAndLeft;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class HumanTaskTest extends JbpmTestCase {
 
@@ -240,6 +241,22 @@ public class HumanTaskTest extends JbpmTestCase {
             @Override
             public void afterTaskActivatedEvent(TaskEvent event) {
                 triggered.increment();
+                assertNotEquals(Status.Created, event.getTask().getTaskData().getStatus());
+            }
+            
+            @Override
+            public void beforeTaskActivatedEvent(TaskEvent event) {
+                assertEquals(Status.Created, event.getTask().getTaskData().getStatus());
+            }
+            
+            @Override
+            public void afterTaskAddedEvent(TaskEvent event) {
+                assertEquals(Status.Created, event.getTask().getTaskData().getStatus());
+            }
+            
+            @Override
+            public void beforeTaskAddedEvent(TaskEvent event) {
+                assertNull(event.getTask().getTaskData().getStatus());
             }
 
         };
