@@ -16,7 +16,11 @@
 
 package org.jbpm.test.functional.task;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.assertj.core.api.Assertions;
+import org.jbpm.runtime.manager.impl.task.SynchronizedTaskService;
 import org.jbpm.services.task.identity.LDAPUserGroupCallbackImpl;
 import org.jbpm.test.LdapJbpmTestCase;
 import org.junit.Before;
@@ -59,4 +63,23 @@ public class HumanTaskWithLDAPTest extends LdapJbpmTestCase {
         Assertions.assertThat(status).isEqualTo(Status.Completed);
     }
 
+    @Test
+    public void testUpdateTaskComment() {
+        long pid = kieSession.startProcess(LDAP_HUMAN_TASK_ID).getId();
+
+        long taskId = taskService.getTasksByProcessInstanceId(pid).get(0);
+
+        taskService.start(taskId, "john");
+
+        // JBPM-10102: invoke addContentFromUser method with a user other than the process initiator
+        Map<String, Object> values = new HashMap<String, Object>();
+        values.put("Content", "testing save");
+        values.put("Author", "mary");
+        ((SynchronizedTaskService)taskService).addContentFromUser(taskId, "mary", values);
+
+        taskService.complete(taskId, "john", null);
+
+        Status status = taskService.getTaskById(taskId).getTaskData().getStatus();
+        Assertions.assertThat(status).isEqualTo(Status.Completed);
+    }
 }
