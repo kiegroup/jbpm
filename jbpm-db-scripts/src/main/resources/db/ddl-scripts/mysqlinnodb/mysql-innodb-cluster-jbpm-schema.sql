@@ -103,7 +103,8 @@
     create table TimerMappingInfo (
     	id bigint not null auto_increment, 
     	externalTimerId varchar(255), 
-    	kieSessionId bigint not null, 
+    	kieSessionId bigint not null,
+    	processInstanceId bigint,
     	timerId bigint, 
     	uuid varchar(255) not null, 
     	info longblob,
