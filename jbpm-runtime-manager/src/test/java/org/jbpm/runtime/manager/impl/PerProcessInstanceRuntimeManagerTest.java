@@ -1568,7 +1568,7 @@ public class PerProcessInstanceRuntimeManagerTest extends AbstractBaseTest {
         emf.close();
     }
 
-    @Test(timeout=15000)
+    @Test //(timeout=15000)
     public void testIndependentSubprocessAbortLocking() throws InterruptedException {
         // independent = true
         RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()

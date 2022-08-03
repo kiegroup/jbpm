@@ -28,6 +28,7 @@ import org.kie.internal.runtime.manager.Disposable;
 import org.kie.internal.runtime.manager.DisposeListener;
 import org.kie.internal.runtime.manager.InternalRuntimeEngine;
 import org.kie.internal.runtime.manager.InternalRuntimeManager;
+import org.kie.internal.runtime.manager.SessionNotFoundException;
 
 /**
  * An implementation of the <code>RuntimeEngine</code> that additionally implements the <code>Disposable</code>
@@ -48,6 +49,7 @@ public class RuntimeEngineImpl implements InternalRuntimeEngine, Disposable {
     protected RuntimeManager manager;
     
     private boolean disposed = false;
+    private boolean invalid = false;
     private boolean afterCompletion = false;
     
     private List<DisposeListener> listeners = new CopyOnWriteArrayList<DisposeListener>();
@@ -86,9 +88,13 @@ public class RuntimeEngineImpl implements InternalRuntimeEngine, Disposable {
         		taskService = initializer.initTaskService(context, (InternalRuntimeManager) manager, this);
         		// init ksession in case there is security manager configured
         		if (((InternalRuntimeManager) manager).hasSecurityManager() && ksession == null && initializer != null) {
-                    
-                    ksession = initializer.initKieSession(context, (InternalRuntimeManager) manager, this);
-                    this.kieSessionId = ksession.getIdentifier();
+                    try {
+                        ksession = initializer.initKieSession(context, (InternalRuntimeManager) manager, this);
+                        this.kieSessionId = ksession.getIdentifier();
+                    } catch (SessionNotFoundException e) {
+                        invalid = true;
+                        throw e;
+                    }
                 }
         	}
         	if (taskService == null) {
@@ -159,12 +165,20 @@ public class RuntimeEngineImpl implements InternalRuntimeEngine, Disposable {
             throw new IllegalStateException("This runtime is already diposed");
         }
         if (ksession == null && initializer != null) {
-            
-            ksession = initializer.initKieSession(context, (InternalRuntimeManager) manager, this);
-            this.kieSessionId = ksession.getIdentifier();
+            try {
+                ksession = initializer.initKieSession(context, (InternalRuntimeManager) manager, this);
+                this.kieSessionId = ksession.getIdentifier();
+            } catch (SessionNotFoundException e) {
+                invalid = true;
+                throw e;
+            }
         }
         return this.ksession;
 	}
+
+	public boolean isInvalid() {
+        return invalid;
+    }
 
 	public boolean isInitialized() {
 	    return ksession != null;
