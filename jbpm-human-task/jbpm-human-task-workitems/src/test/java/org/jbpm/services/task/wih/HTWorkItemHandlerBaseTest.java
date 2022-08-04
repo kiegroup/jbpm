@@ -130,6 +130,80 @@ public abstract class HTWorkItemHandlerBaseTest extends AbstractBaseTest {
     }
     
     @Test
+    public void testTaskDescriptionCopyingFromTaskSubject() throws Exception {
+
+        System.setProperty("org.jbpm.ht.copy.task_subject.to.task_description", "true");
+
+        TestWorkItemManager manager = new TestWorkItemManager();
+        ksession.setWorkItemManager(manager);
+        WorkItemImpl workItem = new WorkItemImpl();
+        workItem.setName("Human Task");
+        workItem.setParameter("NodeName", "TaskName");
+        workItem.setParameter("Comment", "MyComment");
+        workItem.setParameter("Priority", "10");
+        workItem.setParameter("ActorId", "Darth Vader, Dalai Lama");
+        workItem.setProcessInstanceId(10);
+        getHandler().executeWorkItem(workItem, manager);
+
+        List<TaskSummary> tasks = taskService.getTasksAssignedAsPotentialOwner("Darth Vader", "en-UK");
+        assertEquals(1, tasks.size());
+        TaskSummary task = tasks.get(0);
+        assertEquals("TaskName", task.getName());
+        assertEquals(10, task.getPriority().intValue());
+        assertEquals("MyComment", task.getSubject());
+        assertEquals("MyComment", task.getDescription());
+        assertEquals(Status.Ready, task.getStatus());
+
+        taskService.claim(task.getId(), "Darth Vader");
+
+        taskService.start(task.getId(), "Darth Vader");
+
+        taskService.complete(task.getId(), "Darth Vader", null);
+
+        assertTrue(manager.waitTillCompleted(MANAGER_COMPLETION_WAIT_TIME));
+
+        System.clearProperty("org.jbpm.ht.copy.task_subject.to.task_description");
+    }
+
+    @Test
+    public void testTaskDescriptionWithoutCopyingFromTaskSubject() throws Exception {
+
+        System.setProperty("org.jbpm.ht.copy.task_subject.to.task_description", "false");
+
+        TestWorkItemManager manager = new TestWorkItemManager();
+        ksession.setWorkItemManager(manager);
+        WorkItemImpl workItem = new WorkItemImpl();
+        workItem.setName("Human Task");
+        workItem.setParameter("NodeName", "TaskName");
+        workItem.setParameter("Comment", "MyComment");
+        workItem.setParameter("Description", "MyDescription");
+        workItem.setParameter("Priority", "10");
+        workItem.setParameter("ActorId", "Darth Vader, Dalai Lama");
+        workItem.setProcessInstanceId(10);
+        getHandler().executeWorkItem(workItem, manager);
+
+        List<TaskSummary> tasks = taskService.getTasksAssignedAsPotentialOwner("Darth Vader", "en-UK");
+        assertEquals(1, tasks.size());
+        TaskSummary task = tasks.get(0);
+        assertEquals("TaskName", task.getName());
+        assertEquals(10, task.getPriority().intValue());
+        assertEquals("MyComment", task.getSubject());
+        assertEquals("MyDescription", task.getDescription());
+        assertEquals(Status.Ready, task.getStatus());
+
+        taskService.claim(task.getId(), "Darth Vader");
+
+        taskService.start(task.getId(), "Darth Vader");
+
+        taskService.complete(task.getId(), "Darth Vader", null);
+
+        assertTrue(manager.waitTillCompleted(MANAGER_COMPLETION_WAIT_TIME));
+
+        System.clearProperty("org.jbpm.ht.copy.task_subject.to.task_description");
+
+    }
+
+    @Test
     public void testTaskGroupActors() throws Exception {
 
     	TestWorkItemManager manager = new TestWorkItemManager();
