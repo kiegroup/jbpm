@@ -684,14 +684,15 @@ public class CaseRuntimeDataServiceImpl implements CaseRuntimeDataService, Deplo
                                                                                             Arrays.asList(ProcessInstance.STATE_ACTIVE), 
                                                                                             Arrays.asList("DynamicNode"), 
                                                                                             queryContext);
-        Collection<Long> completedNodes = nodes.stream().filter(n -> ((NodeInstanceDesc)n).getType() == 1).map(n -> n.getId()).collect(toList());
+        Collection<Long> completedNodes = filterStagesByStatus(nodes, 1);
+        Collection<Long> cancelledNodes = filterStagesByStatus(nodes, 2);
         
         Map<String, CaseStage> stagesByName = caseDef.getCaseStages().stream()
         .collect(toMap(CaseStage::getId, c -> c)); 
         Predicate<org.jbpm.services.api.model.NodeInstanceDesc> filterNodes = null;
         if (activeOnly) {
             
-            filterNodes = n -> ((NodeInstanceDesc)n).getType() == 0 && !completedNodes.contains(((NodeInstanceDesc)n).getId());             
+            filterNodes = n -> ((NodeInstanceDesc)n).getType() == 0 && !completedNodes.contains(((NodeInstanceDesc)n).getId()) && !cancelledNodes.contains(((NodeInstanceDesc)n).getId());
         } else {
             filterNodes = n -> ((NodeInstanceDesc)n).getType() == 0;
         }
@@ -706,6 +707,9 @@ public class CaseRuntimeDataServiceImpl implements CaseRuntimeDataService, Deplo
                 status = StageStatus.Completed;
             }
             Collection<org.jbpm.services.api.model.NodeInstanceDesc> activeNodes = getActiveNodesForCaseAndStage(caseId, n.getNodeId(), new QueryContext(0, 100));
+            if (cancelledNodes.contains(((NodeInstanceDesc)n).getId())) {
+                status = StageStatus.Canceled;
+            }
             return new CaseStageInstanceImpl(n.getNodeId(), n.getName(), stagesByName.get(n.getNodeId()).getAdHocFragments(), activeNodes, status);
             })
         .forEach(csi -> {
@@ -724,8 +728,7 @@ public class CaseRuntimeDataServiceImpl implements CaseRuntimeDataService, Deplo
         
         return stages;
     }
-    
-    
+
     protected Collection<org.jbpm.services.api.model.NodeInstanceDesc> getActiveNodesForCaseAndStage(String caseId, String stageId, QueryContext queryContext) {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("caseId", caseId + "%");
@@ -755,6 +758,10 @@ public class CaseRuntimeDataServiceImpl implements CaseRuntimeDataService, Deplo
         return result;
     }
     
+
+    private List<Long> filterStagesByStatus(Collection<org.jbpm.services.api.model.NodeInstanceDesc> nodes, int status) {
+        return nodes.stream().filter(n -> ((NodeInstanceDesc)n).getType() == status).map(org.jbpm.services.api.model.NodeInstanceDesc::getId).collect(toList());
+    }
 
     private String collectCaseIdPrefix(Process process) {
         String caseIdPrefix = (String) process.getMetaData().get("customCaseIdPrefix");
