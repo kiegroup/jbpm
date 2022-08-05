@@ -19,6 +19,7 @@ import org.drools.core.time.InternalSchedulerService;
 import org.drools.core.time.JobHandle;
 import org.drools.core.time.SchedulerService;
 import org.drools.core.time.TimerService;
+import org.drools.core.time.impl.TimerJobInstance;
 import org.jbpm.process.core.timer.impl.GlobalTimerService.GlobalJobHandle;
 
 /**
@@ -81,5 +82,9 @@ public interface GlobalSchedulerService extends SchedulerService, InternalSchedu
      */
     default void invalidate(JobHandle jobHandle) {
         
+    }
+
+    default TimerJobInstance getTimerJobInstance(long processInstanceId, long timerId) {
+        return null;
     }
 }
