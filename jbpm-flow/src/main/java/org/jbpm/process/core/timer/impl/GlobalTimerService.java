@@ -107,8 +107,8 @@ public class GlobalTimerService implements TimerService, InternalSchedulerServic
             } else {
                 // check if the given job is already scheduled
                 for (GlobalJobHandle handle : jobHandles) {
-                    long timerId = handle.getTimerId();
-                    if (timerId == processCtx.getTimer().getId()) {
+                    Long timerId = handle.getTimerId();
+                    if (timerId != null && timerId == processCtx.getTimer().getId()) {
                         // this timer job is already registered
                         return handle;
                     }
@@ -123,6 +123,13 @@ public class GlobalTimerService implements TimerService, InternalSchedulerServic
         }
 
         return registerJobHandle(job, ctx, trigger);
+    }
+
+    public void removeJobByTimerId(long processInstanceId, long timerId) {
+        TimerJobInstance instance = this.schedulerService.getTimerJobInstance(processInstanceId, timerId);
+        if (instance != null) {
+            removeJob(instance.getJobHandle());
+        }
     }
 
     @Override
@@ -335,12 +342,16 @@ public class GlobalTimerService implements TimerService, InternalSchedulerServic
             super(id);
         }
         
-        public long getTimerId() {
+        public Long getTimerId() {
             JobContext ctx = this.getTimerJobInstance().getJobContext();
             if (ctx instanceof SelfRemovalJobContext) {
                 ctx = ((SelfRemovalJobContext) ctx).getJobContext();
             }
-            return ((ProcessJobContext)ctx).getTimer().getId();
+            if (ctx instanceof ProcessJobContext) {
+                return ((ProcessJobContext)ctx).getTimer().getId();
+            } else {
+                return null;
+            }
         }
     
         public long getSessionId() {

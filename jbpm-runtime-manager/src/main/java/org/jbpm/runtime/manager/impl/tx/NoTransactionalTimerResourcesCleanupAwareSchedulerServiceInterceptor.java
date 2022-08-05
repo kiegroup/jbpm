@@ -102,7 +102,8 @@ public class NoTransactionalTimerResourcesCleanupAwareSchedulerServiceIntercepto
                 Optional<InternalKnowledgeRuntime> runtime = ctxorig.getInternalKnowledgeRuntime();
                 if (runtime.isPresent()) {
                     TimerManager tm = ((InternalProcessRuntime) runtime.get().getProcessRuntime()).getTimerManager();
-                    tm.cancelTimer(((ProcessJobContext) ctxorig).getTimer().getId());
+                    ProcessJobContext processJobContext = (ProcessJobContext) ctxorig;
+                    tm.cancelTimer(processJobContext.getProcessInstanceId(), processJobContext.getTimer().getId());
                 }
             }
 

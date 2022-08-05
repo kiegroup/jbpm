@@ -75,7 +75,7 @@ create table task_comment (id bigint not null, addedAt datetime2, text varchar(M
 create table TaskDef (id bigint not null, name varchar(255), priority int not null, primary key (id));
 create table TaskEvent (id bigint not null, correlationKey varchar(255), logTime datetime2, message varchar(255), processInstanceId bigint, processType int, taskId bigint, type varchar(255), userId varchar(255), OPTLOCK int, workItemId bigint, currentOwner varchar(255), primary key (id));
 create table TaskVariableImpl (id bigint not null, modificationDate datetime2, name varchar(255), processId varchar(255), processInstanceId bigint, taskId bigint, type int, value varchar(4000), primary key (id));
-create table TimerMappingInfo (id bigint not null, externalTimerId varchar(255), kieSessionId bigint not null, timerId bigint not null, uuid varchar(255) not null, info varbinary(MAX), primary key (id));
+create table TimerMappingInfo (id bigint not null, externalTimerId varchar(255), kieSessionId bigint not null, kieSessionId bigint, timerId bigint, uuid varchar(255) not null, info varbinary(MAX), primary key (id));
 create table VariableInstanceLog (id bigint not null, log_date datetime2, externalId varchar(255), oldValue varchar(255), processId varchar(255), processInstanceId bigint not null, value varchar(255), variableId varchar(255), variableInstanceId varchar(255), primary key (id));
 create table WorkItemInfo (workItemId bigint not null, creationDate datetime2, name varchar(255), processInstanceId bigint not null, state bigint not null, OPTLOCK int, workItemByteArray varbinary(MAX), primary key (workItemId));
 create index IDX_Attachment_Id on Attachment (attachedBy_id);
