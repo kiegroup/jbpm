@@ -377,7 +377,7 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
 
         try {
             // check tx status to disallow dispose when within active transaction       
-            TransactionManager tm = getTransactionManager(((InternalRuntimeEngine) runtime).internalGetKieSession().getEnvironment());
+            TransactionManager tm = getTransactionManager(getEnvironment(runtime));
             if (tm.getStatus() != TransactionManager.STATUS_NO_TRANSACTION
                     && tm.getStatus() != TransactionManager.STATUS_ROLLEDBACK
                     && tm.getStatus() != TransactionManager.STATUS_COMMITTED) {
@@ -389,7 +389,11 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
         
         return true;
     }
-    
+
+    protected Environment getEnvironment(RuntimeEngine runtimeEngine) {
+        return ((InternalRuntimeEngine) runtimeEngine).internalGetKieSession().getEnvironment();
+    }
+
     protected void attachManager(RuntimeEngine runtime) {
         ((InternalRuntimeEngine) runtime).internalGetKieSession().getEnvironment().set(EnvironmentName.RUNTIME_MANAGER, this);
         ((InternalRuntimeEngine) runtime).internalGetKieSession().getEnvironment().set(EnvironmentName.DEPLOYMENT_ID, this.getIdentifier());
@@ -495,7 +499,7 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
     	if (((RuntimeEngineImpl) runtime).isAfterCompletion()) {
     		return false;
     	}
-        TransactionManager tm = getTransactionManager(runtime.getKieSession().getEnvironment());
+        TransactionManager tm = getTransactionManager(getEnvironment(runtime));
         if (tm.getStatus() == TransactionManager.STATUS_NO_TRANSACTION ||
                 tm.getStatus() == TransactionManager.STATUS_ACTIVE) {
             return true;
