@@ -105,7 +105,8 @@
     	id bigint generated not null auto_increment, 
     	externalTimerId varchar(255), 
     	kieSessionId bigint not null, 
-    	timerId bigint not null, 
+    	processInstanceId bigint, 
+    	timerId bigint, 
     	uuid varchar(255) not null, 
     	info longblob,
     	primary key (id)
