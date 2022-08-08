@@ -19,6 +19,15 @@ cn: John Doe
 sn: Doe
 userPassword: john1234;
 
+dn: uid=mary,ou=People,dc=jboss,dc=org
+objectclass: top
+objectclass: uidObject
+objectclass: person
+uid: mary
+cn: Mary Jane
+sn: Jane
+userPassword: mary1234;
+
 dn: ou=Roles,dc=jboss,dc=org
 objectclass: top
 objectclass: organizationalUnit
@@ -28,6 +37,7 @@ dn: cn=manager,ou=Roles,dc=jboss,dc=org
 objectclass: top
 objectclass: groupOfNames
 member: uid=john,ou=People,dc=jboss,dc=org
+member: uid=mary,ou=People,dc=jboss,dc=org
 cn: manager
 
 dn: cn=Administrators,ou=Roles,dc=jboss,dc=org
