@@ -122,7 +122,7 @@ public class EventNodeInstance extends ExtendedNodeInstanceImpl implements Event
         if (this.slaTimerId > -1) {
             TimerManager timerManager = ((InternalProcessRuntime)
                     getProcessInstance().getKnowledgeRuntime().getProcessRuntime()).getTimerManager();
-            timerManager.cancelTimer(this.slaTimerId);
+            timerManager.cancelTimer(this.getProcessInstance().getId(), this.slaTimerId);
             logger.debug("SLA Timer {} has been canceled", this.slaTimerId);
         }
     }

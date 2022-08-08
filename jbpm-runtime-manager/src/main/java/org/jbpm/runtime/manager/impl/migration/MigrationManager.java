@@ -592,7 +592,7 @@ public class MigrationManager {
                         if (active instanceof TimerNodeInstance) {
                             TimerInstance timerInstance = timerManager.getTimerMap().get(((TimerNodeInstance) active).getTimerId());
                             
-                            timerManager.cancelTimer(timerInstance.getId());
+                            timerManager.cancelTimer(processInstance.getId(), timerInstance.getId());
                             result.put(active.getId(), Arrays.asList(timerInstance));
                         } else if (active instanceof StateBasedNodeInstance) {
                             List<Long> timers = ((StateBasedNodeInstance) active).getTimerInstances();
@@ -605,7 +605,7 @@ public class MigrationManager {
                                         report.addEntry(Type.WARN, "Could not find timer instance with id "+timerId+" to cancel.");
                                         continue;
                                     }
-                                    timerManager.cancelTimer(timerInstance.getId());
+                                    timerManager.cancelTimer(processInstance.getId(), timerInstance.getId());
                                     collected.add(timerInstance);
                                 }
                                 result.put(active.getId(), collected);

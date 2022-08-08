@@ -535,6 +535,7 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
     }
 
     private void exceptionHandlingCompleted(ProcessInstance processInstance, ProcessWorkItemHandlerException handlerException) {
+        this.exceptionHandlingProcessInstanceId = -1;
         if (handlerException == null) {
             handlerException = (ProcessWorkItemHandlerException) ((WorkflowProcessInstance)processInstance).getVariable("Error");
         }

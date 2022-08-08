@@ -26,7 +26,10 @@ import java.util.Map.Entry;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
+import org.drools.core.time.JobContext;
 import org.drools.core.time.JobHandle;
+import org.drools.core.time.SelfRemovalJob;
+import org.drools.core.time.SelfRemovalJobContext;
 import org.drools.core.time.TimerService;
 import org.drools.persistence.api.OrderedTransactionSynchronization;
 import org.drools.persistence.api.TransactionManager;
@@ -40,6 +43,7 @@ import org.jbpm.process.core.timer.TimerServiceRegistry;
 import org.jbpm.process.core.timer.impl.GlobalTimerService;
 import org.jbpm.process.core.timer.impl.GlobalTimerService.GlobalJobHandle;
 import org.jbpm.process.core.timer.impl.TimerServiceListener;
+import org.jbpm.process.instance.timer.TimerManager.ProcessJobContext;
 import org.jbpm.runtime.manager.api.SchedulerProvider;
 import org.jbpm.runtime.manager.impl.error.DefaultExecutionErrorStorage;
 import org.jbpm.runtime.manager.impl.error.ExecutionErrorManagerImpl;
@@ -233,7 +237,14 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
                         return;
                     }
                     GlobalJpaTimerJobInstance dtji = (GlobalJpaTimerJobInstance) globalJobHandle.getTimerJobInstance();
-                    TimerMappingInfo info = new TimerMappingInfo(globalJobHandle.getId(), dtji.getExternalTimerId(), globalJobHandle.getSessionId(), globalJobHandle.getUuid());
+                    TimerMappingInfo info = new TimerMappingInfo(globalJobHandle.getTimerId(), dtji.getExternalTimerId(), globalJobHandle.getSessionId(), globalJobHandle.getUuid());
+                    JobContext jobContext = globalJobHandle.getTimerJobInstance().getJobContext();
+                    if (jobContext instanceof SelfRemovalJobContext) {
+                        jobContext = ((SelfRemovalJobContext) jobContext).getJobContext();
+                    }
+                    if (jobContext instanceof ProcessJobContext) {
+                        info.setProcessInstanceId(((ProcessJobContext) jobContext).getProcessInstanceId());
+                    }
                     if(dtji.getTimerInfo() != null) {
                         try {
                             ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -278,6 +289,10 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
             }
             
         });
+    }
+
+    public EntityManager getEntityManager() {
+        return getEntityManager(this);
     }
 
     private EntityManager getEntityManager(RuntimeManager manager) {
@@ -362,7 +377,7 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
 
         try {
             // check tx status to disallow dispose when within active transaction       
-            TransactionManager tm = getTransactionManager(((InternalRuntimeEngine) runtime).internalGetKieSession().getEnvironment());
+            TransactionManager tm = getTransactionManager(getEnvironment(runtime));
             if (tm.getStatus() != TransactionManager.STATUS_NO_TRANSACTION
                     && tm.getStatus() != TransactionManager.STATUS_ROLLEDBACK
                     && tm.getStatus() != TransactionManager.STATUS_COMMITTED) {
@@ -374,7 +389,11 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
         
         return true;
     }
-    
+
+    protected Environment getEnvironment(RuntimeEngine runtimeEngine) {
+        return ((InternalRuntimeEngine) runtimeEngine).internalGetKieSession().getEnvironment();
+    }
+
     protected void attachManager(RuntimeEngine runtime) {
         ((InternalRuntimeEngine) runtime).internalGetKieSession().getEnvironment().set(EnvironmentName.RUNTIME_MANAGER, this);
         ((InternalRuntimeEngine) runtime).internalGetKieSession().getEnvironment().set(EnvironmentName.DEPLOYMENT_ID, this.getIdentifier());
@@ -480,7 +499,7 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
     	if (((RuntimeEngineImpl) runtime).isAfterCompletion()) {
     		return false;
     	}
-        TransactionManager tm = getTransactionManager(runtime.getKieSession().getEnvironment());
+        TransactionManager tm = getTransactionManager(getEnvironment(runtime));
         if (tm.getStatus() == TransactionManager.STATUS_NO_TRANSACTION ||
                 tm.getStatus() == TransactionManager.STATUS_ACTIVE) {
             return true;
