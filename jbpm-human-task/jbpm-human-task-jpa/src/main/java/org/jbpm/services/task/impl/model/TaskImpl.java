@@ -38,6 +38,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.persistence.Version;
 
 import org.jbpm.services.task.utils.CollectionUtils;
@@ -48,6 +49,8 @@ import org.kie.internal.task.api.model.Deadlines;
 import org.kie.internal.task.api.model.Delegation;
 import org.kie.internal.task.api.model.InternalTask;
 import org.kie.internal.task.api.model.SubTasksStrategy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Entity
 @Table(name="Task",
@@ -65,6 +68,14 @@ public class TaskImpl implements InternalTask {
      * WSHT uses a name for the unique identifier, for now we use a generated ID which is also the key, which can be
      * mapped to the name or a unique name field added later.
      */
+	
+    private static final Logger logger = LoggerFactory.getLogger(TaskImpl.class);
+    
+    @Transient
+    private static final int TASK_DESCRIPTION_LENGTH = Integer.parseInt(System.getProperty("org.jbpm.ht.task.description.length", "255"));
+    
+    
+	
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator="taskIdSeq")
     @Column(name = "id")
@@ -431,6 +442,10 @@ public class TaskImpl implements InternalTask {
     }
 
     public void setDescription(String description) {
+        if (description != null && description.length() > TASK_DESCRIPTION_LENGTH) {
+            description = description.substring(0, TASK_DESCRIPTION_LENGTH);
+            logger.warn("Task Description content was trimmed as it was too long (more than {} characters)", TASK_DESCRIPTION_LENGTH);
+        }
         this.description = description;
     }
 
