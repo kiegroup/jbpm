@@ -63,6 +63,8 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
     private static final Logger logger = LoggerFactory.getLogger(JPATaskLifeCycleEventListener.class);
     private List<ArchiveLoggerProvider> archiveLoggerProviders;
 
+    private  final int TASK_DESCRIPTION_LENGTH = Integer.parseInt(System.getProperty("org.jbpm.ht.task.description.length", "255"));
+
     
     public JPATaskLifeCycleEventListener(boolean flag) {
         super(null);
@@ -641,10 +643,10 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
         
     }
 
-    public String getUpdateFieldLog(String fieldName, String previousValue, String value){
-        return "Updated "+ fieldName
-                + " {From: '"+ (previousValue!=null ? previousValue :  "" )
-                + "' to: '"+ (value!=null ? value :  "" ) + "'}" ;
+    public String getUpdateFieldLog(String fieldName, String previousValue, String value) {
+        return "Updated " + fieldName 
+                + " {From: '"+ (previousValue != null ? previousValue : "") 
+                + "' to: '"+ (value != null ? value : "") + "'}";
     }
 
     @Override
@@ -659,10 +661,15 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
                 return;
             }
 
-            if((ti.getDescription() != null && !ti.getDescription().equals(auditTaskImpl.getDescription()))
-                    || (ti.getDescription() == null && auditTaskImpl.getDescription() != null)){
+            if ((ti.getDescription() != null && !ti.getDescription().equals(auditTaskImpl.getDescription()))
+                    || (ti.getDescription() == null && auditTaskImpl.getDescription() != null)) {
                 String message = getUpdateFieldLog("Description", auditTaskImpl.getDescription(), ti.getDescription());
 
+                if (message != null && message.length() > TASK_DESCRIPTION_LENGTH) {
+                    message = message.substring(0, (TASK_DESCRIPTION_LENGTH - 2)) + "'}";
+                    logger.warn("TaskEvent message content was trimmed as it was too long(more than {} characters)", TASK_DESCRIPTION_LENGTH);
+                }
+                
                 TaskEventImpl taskEventImpl = new TaskEventImpl(event,
                                                                 TaskEventType.UPDATED,
                                                                 message);
