@@ -85,7 +85,19 @@ public class ObjectDataType implements DataType {
                 return true;
             }
         } catch (ClassNotFoundException e) {
-            return false;
+            // check class again
+        }
+        // try to expand fundamental classes if it's not a FQCN
+        if(!className.contains(".")) {
+            try {
+                className = "java.lang."+className;
+                Class<?> clazz = Class.forName(className, true, value.getClass().getClassLoader());
+                if (clazz.isInstance(value)) {
+                    return true;
+                }
+            } catch (ClassNotFoundException e) {
+                return false;
+            }
         }
         return false;
     }
