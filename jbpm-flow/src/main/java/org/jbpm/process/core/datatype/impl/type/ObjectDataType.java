@@ -19,6 +19,10 @@ package org.jbpm.process.core.datatype.impl.type;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.Map;
 
 import com.thoughtworks.xstream.XStream;
@@ -81,7 +85,7 @@ public class ObjectDataType implements DataType {
         }
         try {
             Class<?> clazz = Class.forName(className, true, value.getClass().getClassLoader());
-            if (clazz.isInstance(value)) {
+            if (clazz.isInstance(value) || isValidDate(value)) {
                 return true;
             }
         } catch (ClassNotFoundException e) {
@@ -100,6 +104,27 @@ public class ObjectDataType implements DataType {
             }
         }
         return false;
+    }
+
+    private boolean isValidDate(Object value) {
+        String dateString = (String)value;
+        boolean parseable = false;
+        try{
+            parseable = LocalDate.parse(dateString)!=null;
+        } catch(Exception e) {
+            // ignore parse exception
+        }
+        try{
+            parseable = LocalDateTime.parse(dateString)!=null;
+        } catch(Exception e) {
+            // ignore parse exception
+        }
+        try{
+            parseable = ZonedDateTime.parse(dateString)!=null;
+        } catch(Exception e) {
+            // ignore parse exception
+        }
+        return parseable;
     }
 
     public Object readValue(String value) {

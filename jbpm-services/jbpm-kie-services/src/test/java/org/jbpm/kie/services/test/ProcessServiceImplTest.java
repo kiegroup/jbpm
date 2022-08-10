@@ -88,6 +88,7 @@ public class ProcessServiceImplTest extends AbstractKieServicesBaseTest {
         processes.add("repo/processes/parentProcess/subprocess.bpmn");
         processes.add("repo/processes/general/SynchronousProcess.bpmn");
         processes.add("repo/processes/general/MIProcess.bpmn");
+        processes.add("repo/processes/general/DateVariableTestProcess.bpmn");
 
         InternalKieModule kJar1 = createKieJar(ks, releaseId, processes);
         File pom = new File("target/kmodule", "pom.xml");
@@ -162,6 +163,28 @@ public class ProcessServiceImplTest extends AbstractKieServicesBaseTest {
         assertNotNull(processService);
 
         long processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "MIProcess");
+        assertNotNull(processInstanceId);
+
+        ProcessInstance pi = processService.getProcessInstance(processInstanceId);
+        assertNull(pi);
+    }
+
+    @Test
+    public void testStartProcessInstanceWithDateVariable() {
+        assertNotNull(deploymentService);
+
+        KModuleDeploymentUnit deploymentUnit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
+
+        deploymentService.deploy(deploymentUnit);
+        units.add(deploymentUnit);
+        assertNotNull(processService);
+
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("timerIn", "6000000");
+        params.put("DateIn", "2002-07-08T23:17:00.000Z");
+
+
+        long processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "DateVariableTestProcess", params);
         assertNotNull(processInstanceId);
 
         ProcessInstance pi = processService.getProcessInstance(processInstanceId);
