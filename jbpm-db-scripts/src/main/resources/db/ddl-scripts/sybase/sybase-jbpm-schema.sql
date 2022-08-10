@@ -926,7 +926,7 @@
     create index IDX_TaskEvent_processInstanceId on TaskEvent (processInstanceId)
     go
 
-    create index IDX_EventTypes_element ON EventTypes(element)
+    create index IDX_EventTypes_IdElement ON EventTypes(InstanceId,element)
     go
 
     create index IDX_CMI_Context ON ContextMappingInfo(CONTEXT_ID)
