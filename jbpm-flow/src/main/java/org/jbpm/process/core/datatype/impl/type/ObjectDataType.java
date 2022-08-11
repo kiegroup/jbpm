@@ -107,20 +107,19 @@ public class ObjectDataType implements DataType {
     }
 
     private boolean isValidDate(Object value) {
-        String dateString = (String)value;
         boolean parseable = false;
         try{
-            parseable = LocalDate.parse(dateString)!=null;
+            parseable = LocalDate.parse((String)value)!=null;
         } catch(Exception e) {
             // ignore parse exception
         }
         try{
-            parseable = LocalDateTime.parse(dateString)!=null;
+            parseable = LocalDateTime.parse((String)value)!=null;
         } catch(Exception e) {
             // ignore parse exception
         }
         try{
-            parseable = ZonedDateTime.parse(dateString)!=null;
+            parseable = ZonedDateTime.parse((String)value)!=null;
         } catch(Exception e) {
             // ignore parse exception
         }
