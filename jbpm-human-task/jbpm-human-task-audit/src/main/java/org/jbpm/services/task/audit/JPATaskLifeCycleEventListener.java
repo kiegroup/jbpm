@@ -63,7 +63,7 @@ public class JPATaskLifeCycleEventListener extends PersistableEventListener impl
     private static final Logger logger = LoggerFactory.getLogger(JPATaskLifeCycleEventListener.class);
     private List<ArchiveLoggerProvider> archiveLoggerProviders;
 
-    private  final int TASK_DESCRIPTION_LENGTH = Integer.parseInt(System.getProperty("org.jbpm.ht.task.description.length", "255"));
+    private static final int TASK_DESCRIPTION_LENGTH = Integer.parseInt(System.getProperty("org.jbpm.ht.task.description.length", "255"));
 
     
     public JPATaskLifeCycleEventListener(boolean flag) {
