@@ -72,7 +72,7 @@ public class TaskImpl implements InternalTask {
     private static final Logger logger = LoggerFactory.getLogger(TaskImpl.class);
     
     @Transient
-    private final int TASK_DESCRIPTION_LENGTH = Integer.parseInt(System.getProperty("org.jbpm.ht.task.description.length", "255"));
+    private static final int TASK_DESCRIPTION_LENGTH = Integer.parseInt(System.getProperty("org.jbpm.ht.task.description.length", "255"));
     
     
 	
