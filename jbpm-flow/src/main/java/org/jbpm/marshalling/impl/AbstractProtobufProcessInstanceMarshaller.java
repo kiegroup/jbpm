@@ -249,6 +249,7 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
             }
             _task.setTimerInstanceIdSuspendUntil(((HumanTaskNodeInstance) nodeInstance).getSuspendUntilTimerId());
             _task.setErrorHandlingProcessInstanceId(((HumanTaskNodeInstance) nodeInstance).getExceptionHandlingProcessInstanceId());
+            _task.setTriggerCount(((HumanTaskNodeInstance) nodeInstance).getTriggerCount());
             _content = JBPMMessages.ProcessInstance.NodeInstanceContent.newBuilder()
                     .setType( NodeInstanceType.HUMAN_TASK_NODE )
                     .setHumanTask( _task.build() );
@@ -264,6 +265,7 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
                 }
             }
             _wi.setErrorHandlingProcessInstanceId(((WorkItemNodeInstance) nodeInstance).getExceptionHandlingProcessInstanceId());
+            _wi.setTriggerCount(((WorkItemNodeInstance) nodeInstance).getTriggerCount());
             _content = JBPMMessages.ProcessInstance.NodeInstanceContent.newBuilder()
                     .setType( NodeInstanceType.WORK_ITEM_NODE )
                     .setWorkItem( _wi.build() );
@@ -752,6 +754,7 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
                     ((HumanTaskNodeInstance) nodeInstance).internalSetTimerInstances( timerInstances );                    
                 }
                 ((WorkItemNodeInstance) nodeInstance).internalSetProcessInstanceId( _content.getHumanTask().getErrorHandlingProcessInstanceId() );
+                ((WorkItemNodeInstance) nodeInstance).internalSetTriggerCount( _content.getHumanTask().getTriggerCount() );
                 if(_content.getHumanTask().hasTimerInstanceIdSuspendUntil()) {
                     ((HumanTaskNodeInstance) nodeInstance).setSuspendUntilTimerId(_content.getHumanTask().getTimerInstanceIdSuspendUntil());
                 } else {
@@ -769,6 +772,7 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
                     ((WorkItemNodeInstance) nodeInstance).internalSetTimerInstances( timerInstances );
                 }
                 ((WorkItemNodeInstance) nodeInstance).internalSetProcessInstanceId( _content.getWorkItem().getErrorHandlingProcessInstanceId() );
+                ((WorkItemNodeInstance) nodeInstance).internalSetTriggerCount( _content.getWorkItem().getTriggerCount() );
                 break;
             case SUBPROCESS_NODE :
                 nodeInstance = new SubProcessNodeInstance();
