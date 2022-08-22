@@ -19,6 +19,10 @@ package org.jbpm.process.core.datatype.impl.type;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.Map;
 
 import com.thoughtworks.xstream.XStream;
@@ -81,13 +85,45 @@ public class ObjectDataType implements DataType {
         }
         try {
             Class<?> clazz = Class.forName(className, true, value.getClass().getClassLoader());
-            if (clazz.isInstance(value)) {
+            if (clazz.isInstance(value) || isValidDate(value)) {
                 return true;
             }
         } catch (ClassNotFoundException e) {
-            return false;
+            // check class again
+        }
+        // try to expand fundamental classes if it's not a FQCN
+        if(!className.contains(".")) {
+            try {
+                className = "java.lang."+className;
+                Class<?> clazz = Class.forName(className, true, value.getClass().getClassLoader());
+                if (clazz.isInstance(value)) {
+                    return true;
+                }
+            } catch (ClassNotFoundException e) {
+                return false;
+            }
         }
         return false;
+    }
+
+    private boolean isValidDate(Object value) {
+        boolean parseable = false;
+        try{
+            parseable = LocalDate.parse((String)value)!=null;
+        } catch(Exception e) {
+            // ignore parse exception
+        }
+        try{
+            parseable = LocalDateTime.parse((String)value)!=null;
+        } catch(Exception e) {
+            // ignore parse exception
+        }
+        try{
+            parseable = ZonedDateTime.parse((String)value)!=null;
+        } catch(Exception e) {
+            // ignore parse exception
+        }
+        return parseable;
     }
 
     public Object readValue(String value) {
