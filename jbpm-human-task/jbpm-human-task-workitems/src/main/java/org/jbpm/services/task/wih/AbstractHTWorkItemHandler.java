@@ -60,6 +60,8 @@ public abstract class AbstractHTWorkItemHandler implements WorkItemHandler {
     
     protected static final String ADMIN_USER = System.getProperty("org.jbpm.ht.admin.user", "Administrator");
     
+    private static final Boolean COPY_TASK_SUBJECT_TO_TASK_DESCRIPTION = Boolean.parseBoolean(System.getProperty("org.jbpm.ht.copy.task_subject.to.task_description", "true"));
+    
     protected OnErrorAction action = OnErrorAction.LOG;
 
     public AbstractHTWorkItemHandler() {
@@ -107,9 +109,14 @@ public abstract class AbstractHTWorkItemHandler implements WorkItemHandler {
         
         String description = (String) workItem.getParameter("Description");
         if (description == null) {
-            description = comment;
+            if (COPY_TASK_SUBJECT_TO_TASK_DESCRIPTION) {
+                description = comment;
+            } else {
+                description = "";
+            }
+
         }
-        
+
         List<I18NText> descriptions = new ArrayList<I18NText>();
         I18NText descText = TaskModelProvider.getFactory().newI18NText();
         ((InternalI18NText) descText).setLanguage(locale);
