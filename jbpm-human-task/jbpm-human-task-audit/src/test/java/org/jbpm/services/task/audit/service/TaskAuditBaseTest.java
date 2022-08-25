@@ -375,6 +375,63 @@ public abstract class TaskAuditBaseTest extends HumanTaskServicesBaseTest {
                               true,
                               "Updated Description {From: '' to: 'new description'}");
     }
+    
+    private void testLongTaskDescription(String oldDescription,
+            String newDescription,
+            String expectedDescription,
+            boolean changeExpected,
+            String expectedMessage) {
+        Task task = new TaskFluent()
+                .setDescription(oldDescription)
+                .setAdminUser("Administrator")
+                .getTask();
+        taskService.addTask(task, new HashMap<String, Object>());
+        long taskId = task.getId();
+
+        List<I18NText> descriptions = new ArrayList<I18NText>();
+        descriptions.add(new I18NTextImpl("", newDescription));
+        taskService.setDescriptions(taskId, descriptions);
+
+        task = taskService.getTaskById(taskId);
+        Assertions.assertThat(task.getDescription()).isEqualTo(expectedDescription);
+
+        List<AuditTask> auditTasks = taskAuditService.getAllAuditTasks(new QueryFilter());
+        Assertions.assertThat(auditTasks).hasSize(1);
+        Assertions.assertThat(auditTasks.get(0).getDescription()).isEqualTo(expectedDescription);
+
+        List<TaskEvent> taskEvents = taskAuditService.getAllTaskEvents(taskId, new QueryFilter());
+        if (changeExpected) {
+            Assertions.assertThat(taskEvents).hasSize(2);
+            Assertions.assertThat(taskEvents.get(1).getMessage()).isEqualTo(expectedMessage);
+        } else {
+            Assertions.assertThat(taskEvents).hasSize(1);
+        }
+    }
+
+    
+    
+    @Test
+    public void testLongTaskDescriptionUpdateFromEmpty() {
+        System.setProperty("org.jbpm.ht.task.description.length", "255");
+
+        testLongTaskDescription("",
+                                "Long task description to test the jira https://issues.redhat.com/browse/RHPAM-4445Long task description to test the jira https://issues.redhat.com/browse/RHPAM-4445Long task description to test the jira https://issues.redhat.com/browse/RHPAM-44459999999999999",
+                                "Long task description to test the jira https://issues.redhat.com/browse/RHPAM-4445Long task description to test the jira https://issues.redhat.com/browse/RHPAM-4445Long task description to test the jira https://issues.redhat.com/browse/RHPAM-4445999999999",
+                                true,
+                                "Updated Description {From: '' to: 'Long task description to test the jira https://issues.redhat.com/browse/RHPAM-4445Long task description to test the jira https://issues.redhat.com/browse/RHPAM-4445Long task description to test the jira https://issues.'}");
+        System.clearProperty("org.jbpm.ht.task.description.length");
+    }
+
+    @Test
+    public void testLongTaskDescriptionUpdateDifferent() {
+        System.setProperty("org.jbpm.ht.task.description.length", "255");
+        testLongTaskDescription("old Description",
+                                "Long task description to test the jira https://issues.redhat.com/browse/RHPAM-4445Long task description to test the jira https://issues.redhat.com/browse/RHPAM-4445Long task description to test the jira https://issues.redhat.com/browse/RHPAM-44459999999999999",
+                                "Long task description to test the jira https://issues.redhat.com/browse/RHPAM-4445Long task description to test the jira https://issues.redhat.com/browse/RHPAM-4445Long task description to test the jira https://issues.redhat.com/browse/RHPAM-4445999999999",
+                                true,
+                                "Updated Description {From: 'old Description' to: 'Long task description to test the jira https://issues.redhat.com/browse/RHPAM-4445Long task description to test the jira https://issues.redhat.com/browse/RHPAM-4445Long task description to test the jira '}");
+        System.clearProperty("org.jbpm.ht.task.description.length");
+    }
 
     private void testNameUpdate(String oldName,
                                 String newName,
