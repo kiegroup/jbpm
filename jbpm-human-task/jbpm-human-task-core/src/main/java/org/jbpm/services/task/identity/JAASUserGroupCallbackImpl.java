@@ -113,7 +113,7 @@ public class JAASUserGroupCallbackImpl extends AbstractUserGroupInfo implements 
         try {
             Subject subject = getSubjectFromContainer();
     
-            if (subject != null) {
+            if (subject != null && subjectContainsUser(subject, userId)) {
                 Set<Principal> principals = subject.getPrincipals();
     
                 if (principals != null) {
@@ -156,6 +156,10 @@ public class JAASUserGroupCallbackImpl extends AbstractUserGroupInfo implements 
         }
         return roles;
 	}
+
+    private boolean subjectContainsUser(Subject subject, String userId) {
+        return subject.getPrincipals().stream().map(Principal::getName).anyMatch(userId::equals);
+    }
 
 	protected Subject getSubjectFromContainer() {
          try {
