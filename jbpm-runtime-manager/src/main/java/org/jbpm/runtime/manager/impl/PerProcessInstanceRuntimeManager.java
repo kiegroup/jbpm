@@ -162,12 +162,17 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
     public void signalEvent(String type, Object event) {
         
         // first signal with new context in case there are start event with signal
+        KieSession signalSession = null;
         RuntimeEngine runtimeEngine = getRuntimeEngine(ProcessInstanceIdContext.get());
         try {
             // signal execution can rise errors
-            runtimeEngine.getKieSession().signalEvent(type, event);
+            signalSession = runtimeEngine.getKieSession();
+            signalSession.signalEvent(type, event);
         } finally {
             // ensure we clean up
+            if(signalSession!=null) {
+                signalSession.execute(new DestroyKSessionCommand(signalSession, this));
+            }
             disposeRuntimeEngine(runtimeEngine);
         }
     

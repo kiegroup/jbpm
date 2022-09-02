@@ -1333,6 +1333,43 @@ public class PerProcessInstanceRuntimeManagerTest extends AbstractBaseTest {
         manager.close();
     }
     @Test
+    public void testSignalProcessAndCheckCleanup() {
+        RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
+                .newDefaultBuilder()
+                .userGroupCallback(userGroupCallback)
+                .addAsset(ResourceFactory.newClassPathResource("BPMN2-IntermediateCatchEventSignalWithRef.bpmn2"), ResourceType.BPMN2)
+                .get();
+
+        manager = RuntimeManagerFactory.Factory.get().newPerProcessInstanceRuntimeManager(environment);
+        assertNotNull(manager);
+        RuntimeEngine runtime1 = manager.getRuntimeEngine(ProcessInstanceIdContext.get());
+        KieSession ksession1 = runtime1.getKieSession();
+
+        ksession1.startProcess("IntermediateCatchEventWithRef");
+
+
+        List<? extends ProcessInstanceLog> logs = runtime1.getAuditService().findActiveProcessInstances("IntermediateCatchEventWithRef");
+
+        assertEquals(1, logs.size());
+        manager.disposeRuntimeEngine(runtime1);
+
+        manager.signalEvent("Signal1", null);
+
+        runtime1 = manager.getRuntimeEngine(ProcessInstanceIdContext.get());
+        logs = runtime1.getAuditService().findActiveProcessInstances("IntermediateCatchEventWithRef");
+        assertEquals(0, logs.size());
+        manager.disposeRuntimeEngine(runtime1);
+        manager.close();
+
+        String pu = ((InternalRuntimeManager) manager).getDeploymentDescriptor().getPersistenceUnit();
+        EntityManagerFactory emf = EntityManagerFactoryManager.get().getOrCreate(pu);
+        Query sessionInfoQuery = emf.createEntityManager()
+                                     .createQuery("select id from SessionInfo");
+        // there should only be the one SessionInfo entry created for ksession1 above
+        assertEquals(1, sessionInfoQuery.getResultList().size());
+        emf.close();
+    }
+    @Test
     public void testSignalEventWithDeactivate() {
         RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
                 .newDefaultBuilder()
