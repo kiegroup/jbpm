@@ -528,6 +528,7 @@ public class WebServiceWorkItemHandler extends AbstractLogOrThrowWorkItemHandler
         setClientTimeout(workItem, client);
         setEscapeHandler(workItem, client);
         addHeaders(workItem, client);
+        addCDataWriterInterceptor(workItem, client);
         return client;
     }
 
@@ -596,6 +597,14 @@ public class WebServiceWorkItemHandler extends AbstractLogOrThrowWorkItemHandler
             logger.warn("Error instantiating escape handler, characters will be escaped", e);
         }
         return null;
+    }
+    
+    private void addCDataWriterInterceptor(WorkItem workItem, Client client) {
+        String cdataElements = (String) workItem.getParameter("CDataElements");
+        if (cdataElements != null) {
+            logger.debug("Adding CData Interceptor for elements {}", cdataElements);
+            client.getOutInterceptors().add(new CDataWriterInterceptor(cdataElements));
+        }
     }
 
     private static final class LoggingEscapeHandlerInvocationHandler implements InvocationHandler {
