@@ -1332,6 +1332,43 @@ public class PerProcessInstanceRuntimeManagerTest extends AbstractBaseTest {
         manager.disposeRuntimeEngine(runtime);
         manager.close();
     }
+
+    @Test
+    public void testSignalProcessAndCheckCleanup() {
+        RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
+                .newDefaultBuilder()
+                .userGroupCallback(userGroupCallback)
+                .addAsset(ResourceFactory.newClassPathResource("BPMN2-IntermediateCatchEventSignalWithRef.bpmn2"), ResourceType.BPMN2)
+                .get();
+
+        manager = RuntimeManagerFactory.Factory.get().newPerProcessInstanceRuntimeManager(environment);
+        assertNotNull(manager);
+        RuntimeEngine runtime = manager.getRuntimeEngine(ProcessInstanceIdContext.get());
+        KieSession ksession = runtime.getKieSession();
+
+        ksession.startProcess("IntermediateCatchEventWithRef");
+
+
+        List<? extends ProcessInstanceLog> logs = runtime.getAuditService().findActiveProcessInstances("IntermediateCatchEventWithRef");
+
+        assertEquals(1, logs.size());
+        manager.disposeRuntimeEngine(runtime);
+
+        manager.signalEvent("Signal1", null);
+
+        runtime = manager.getRuntimeEngine(ProcessInstanceIdContext.get());
+        logs = runtime.getAuditService().findActiveProcessInstances("IntermediateCatchEventWithRef");
+        assertEquals(0, logs.size());
+        manager.disposeRuntimeEngine(runtime);
+        manager.close();
+
+        Query sessionInfoQuery = emf.createEntityManager()
+                                     .createQuery("select id from SessionInfo");
+        // there should only be the one SessionInfo entry created for ksession above
+        assertEquals(1, sessionInfoQuery.getResultList().size());
+        emf.close();
+    }
+
     @Test
     public void testSignalEventWithDeactivate() {
         RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
