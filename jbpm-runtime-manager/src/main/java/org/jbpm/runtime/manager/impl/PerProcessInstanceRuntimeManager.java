@@ -162,24 +162,22 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
     public void signalEvent(String type, Object event) {
         
         // first signal with new context in case there are start event with signal
-        KieSession signalSession = null;
-        RuntimeEngine runtimeEngine = getRuntimeEngine(ProcessInstanceIdContext.get());
-        try {
-            // signal execution can rise errors
-            signalSession = runtimeEngine.getKieSession();
-            signalSession.signalEvent(type, event);
-        } finally {
-            // ensure we clean up
-            if(signalSession!=null) {
-                signalSession.execute(new DestroyKSessionCommand(signalSession, this));
+        if(!this.getEnvironment().usePersistence()) {
+            KieSession signalSession = null;
+            RuntimeEngine runtimeEngine = getRuntimeEngine(ProcessInstanceIdContext.get());
+            try {
+                // signal execution can rise errors
+                signalSession = runtimeEngine.getKieSession();
+                signalSession.signalEvent(type, event);
+            } finally {
+                disposeRuntimeEngine(runtimeEngine);
             }
-            disposeRuntimeEngine(runtimeEngine);
         }
-    
+
         // next find out all instances waiting for given event type
         List<String> processInstances = ((InternalMapper) mapper).findContextIdForEvent(type, getIdentifier());
         for (String piId : processInstances) {
-            runtimeEngine = getRuntimeEngine(ProcessInstanceIdContext.get(Long.parseLong(piId)));
+            RuntimeEngine runtimeEngine = getRuntimeEngine(ProcessInstanceIdContext.get(Long.parseLong(piId)));
             try {
                 // signal execution can rise errors
                 runtimeEngine.getKieSession().signalEvent(type, event);
