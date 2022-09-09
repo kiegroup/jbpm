@@ -478,7 +478,7 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
                     } catch (SessionNotFoundException e) {
                         logger.debug("Could not found find parent process instance id {} for signaling completion", context.getContextId());
                     } finally {
-                        if(manager != null) {
+                        if(runtime != null) {
                             manager.disposeRuntimeEngine(runtime);
                         }
                     }
