@@ -357,7 +357,7 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
     
     protected void registerDisposeCallback(RuntimeEngine runtime, TransactionSynchronization sync, Environment environment) {
         // register it if there is an active transaction as we assume then to be running in a managed environment e.g CMT       
-        TransactionManager tm = getTransactionManager(environment);
+        TransactionManager tm = getTransactionManagerInternal(environment);
         if (tm.getStatus() != TransactionManager.STATUS_NO_TRANSACTION
                 && tm.getStatus() != TransactionManager.STATUS_ROLLEDBACK
                 && tm.getStatus() != TransactionManager.STATUS_COMMITTED) {
@@ -370,6 +370,13 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
         if (((RuntimeEngineImpl)runtime).isDisposed()) {
             return false;
         }
+
+        // if the runtime is invalid for whatever reason we need to remove it anyway
+        // to avoid deadlocks
+        if (((RuntimeEngineImpl)runtime).isInvalid()) {
+            return true;
+        }
+
         // if this method was called as part of afterCompletion allow to dispose
         if (((RuntimeEngineImpl)runtime).isAfterCompletion()) {
             return true;
@@ -377,7 +384,7 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
 
         try {
             // check tx status to disallow dispose when within active transaction       
-            TransactionManager tm = getTransactionManager(getEnvironment(runtime));
+            TransactionManager tm = getTransactionManagerInternal(getEnvironment(runtime));
             if (tm.getStatus() != TransactionManager.STATUS_NO_TRANSACTION
                     && tm.getStatus() != TransactionManager.STATUS_ROLLEDBACK
                     && tm.getStatus() != TransactionManager.STATUS_COMMITTED) {
@@ -391,7 +398,10 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
     }
 
     protected Environment getEnvironment(RuntimeEngine runtimeEngine) {
-        return ((InternalRuntimeEngine) runtimeEngine).internalGetKieSession().getEnvironment();
+        if (runtimeEngine instanceof RuntimeEngineImpl && ((RuntimeEngineImpl) runtimeEngine).isInitialized()) {
+            return ((InternalRuntimeEngine) runtimeEngine).internalGetKieSession().getEnvironment();
+        }
+        return this.environment.getEnvironment();
     }
 
     protected void attachManager(RuntimeEngine runtime) {
@@ -652,6 +662,7 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
             watcher.unwatch(id);
         }
         runtimeManagerLockStrategy.unlock(id, runtime);
+        logger.debug("Unlocked {} on runtime {}", id, runtime);
     }
 
     protected boolean isActive() {
