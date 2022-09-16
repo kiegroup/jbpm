@@ -15,40 +15,60 @@
  */
 package org.jbpm.test.functional.workitem;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.drools.core.process.instance.WorkItemManager;
+import org.drools.persistence.api.PersistenceContext;
+import org.drools.persistence.jpa.JpaPersistenceContext;
+import org.jbpm.persistence.JpaProcessPersistenceContextManager;
 import org.jbpm.test.JbpmTestCase;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.kie.api.runtime.Environment;
+import org.kie.api.runtime.EnvironmentName;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.runtime.process.NodeInstance;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.task.TaskService;
 import org.kie.api.task.model.TaskSummary;
-import org.kie.internal.runtime.manager.context.EmptyContext;
 
 import static org.junit.Assert.assertEquals;
 
+@RunWith(Parameterized.class)
 public class RetrySyncWorkItemByJPATest extends JbpmTestCase {
 
     private static final String RETRY_WORKITEM_JPA_PROCESS_ID = "org.jbpm.test.retryWorkitem-jpa";
 
-    public RetrySyncWorkItemByJPATest() {
+    private boolean pessimistic;
+
+    public RetrySyncWorkItemByJPATest(boolean pessimistic) {
         super( true, true );
+        this.pessimistic = pessimistic;
+    }
+
+    @Parameterized.Parameters(name = "pessimistic locking={0}")
+    public static Collection<Object[]> pessimisticLocking() {
+        Object[][] data = new Object[][] { { false }, { true } };
+        return Arrays.asList(data);
     }
 
     @Test
     public void workItemRecoveryTestByJPA() {
-        manager = createRuntimeManager( "org/jbpm/test/functional/workitem/retry-workitem-jpa.bpmn2" );
-        RuntimeEngine runtimeEngine = getRuntimeEngine( EmptyContext.get() );
-        KieSession kieSession = runtimeEngine.getKieSession();
-        WorkItemManager workItemManager = (org.drools.core.process.instance.WorkItemManager) kieSession.getWorkItemManager();
+        addEnvironmentEntry(EnvironmentName.USE_PESSIMISTIC_LOCKING, pessimistic);
+        addWorkItemHandler("ExceptionWorkitem", new ExceptionWorkItemHandler());
+        createRuntimeManager( "org/jbpm/test/functional/workitem/retry-workitem-jpa.bpmn2" );
+        RuntimeEngine runtimeEngine = getRuntimeEngine();
 
-        workItemManager.registerWorkItemHandler( "ExceptionWorkitem", new ExceptionWorkItemHandler() );
+        KieSession kieSession = runtimeEngine.getKieSession();
+        Environment env = kieSession.getEnvironment();
+        kieSession.getEnvironment().set(EnvironmentName.PERSISTENCE_CONTEXT_MANAGER, new MyJpaProcessPersistenceContextManager(env));
+
         ProcessInstance pi = kieSession.startProcess( RETRY_WORKITEM_JPA_PROCESS_ID );
         TaskService taskService = runtimeEngine.getTaskService();
 
@@ -63,9 +83,9 @@ public class RetrySyncWorkItemByJPATest extends JbpmTestCase {
         taskService.start( taskSummary.getId(), "john" );
         taskService.complete( taskSummary.getId(), "john", null );
 
-        ProcessInstance processInstance = (org.kie.api.runtime.process.WorkflowProcessInstance) kieSession.getProcessInstance( pi.getId() );
+        ProcessInstance processInstance = kieSession.getProcessInstance(pi.getId() );
         Collection<NodeInstance> nis = ((org.kie.api.runtime.process.WorkflowProcessInstance) processInstance).getNodeInstances();
-        retryWorkItem( workItemManager, nis );
+        retryWorkItem( (org.drools.core.process.instance.WorkItemManager) kieSession.getWorkItemManager(), nis );
         assertProcessInstanceCompleted( processInstance.getId() );
     }
 
@@ -74,6 +94,18 @@ public class RetrySyncWorkItemByJPATest extends JbpmTestCase {
             Map<String, Object> map = new HashMap<String, Object>();
             map.put( "exception", "no" );
             workItemManager.retryWorkItem( di.getId(), map );
+        }
+    }
+
+    private class MyJpaProcessPersistenceContextManager extends JpaProcessPersistenceContextManager {
+
+        public MyJpaProcessPersistenceContextManager(Environment env) {
+            super(env);
+        }
+
+        @Override
+        public PersistenceContext getCommandScopedPersistenceContext() {
+            return new JpaPersistenceContext(getCommandScopedEntityManager(), true, pessimistic, null, txm );
         }
     }
 }
