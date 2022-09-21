@@ -57,7 +57,7 @@
       <bpmn2:incoming>_43956BF3-2AD0-4CD5-84F6-2BA44B709548</bpmn2:incoming>
       <bpmn2:outgoing>_7372C5F4-FFED-496A-91F2-3842D5A7D265</bpmn2:outgoing>
       <bpmn2:timerEventDefinition id="__a6glE-cEeSG1vo6gHFHlQ">
-        <bpmn2:timeDuration xsi:type="bpmn2:tFormalExpression" id="__a6glU-cEeSG1vo6gHFHlQ">500</bpmn2:timeDuration>
+        <bpmn2:timeDuration xsi:type="bpmn2:tFormalExpression" id="__a6glU-cEeSG1vo6gHFHlQ">1000</bpmn2:timeDuration>
       </bpmn2:timerEventDefinition>
     </bpmn2:intermediateCatchEvent>
     <bpmn2:userTask id="_3531C5A2-9C62-42BB-89CE-085B42E881C5" drools:selectable="true" drools:scriptFormat="http://www.java.com/java" name="User Task">

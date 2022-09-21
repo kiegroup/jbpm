@@ -279,6 +279,7 @@ public class ETransactionTest extends AbstractRuntimeEJBServicesTest {
         try {
             processService.signalProcessInstance(processInstanceId, "start", "timer");
             assertThat(hasNodeLeft(processInstanceId, "timer")).isTrue();
+            assertThat(hasNodeLeft(processInstanceId, "Timer")).isFalse();
         } catch (Exception e) {
             ut.rollback();
             throw e;
@@ -286,9 +287,13 @@ public class ETransactionTest extends AbstractRuntimeEJBServicesTest {
 
         ut.rollback();
 
+        assertThat(hasNodeLeft(processInstanceId, "timer")).isFalse();
+        Thread.sleep(2000);
+        assertThat(hasNodeLeft(processInstanceId, "Timer")).isFalse();
+
         ut = InitialContext.doLookup(USER_TRANSACTION_NAME);
         ut.begin();
-
+        listener.reset(1);
         try {
             processService.signalProcessInstance(processInstanceId, "start", "timer");
         } catch (Exception e) {
@@ -298,7 +303,6 @@ public class ETransactionTest extends AbstractRuntimeEJBServicesTest {
 
         ut.commit();
 
-        listener.reset(1);
         listener.waitTillCompleted();
 
         assertThat(hasNodeLeft(processInstanceId, "timer")).isTrue();
