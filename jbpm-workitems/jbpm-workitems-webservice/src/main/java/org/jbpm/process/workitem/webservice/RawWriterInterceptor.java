@@ -17,6 +17,7 @@
 package org.jbpm.process.workitem.webservice;
 
 import java.io.OutputStream;
+import java.util.Collection;
 import javax.xml.stream.XMLStreamWriter;
 import org.apache.cxf.interceptor.AttachmentOutInterceptor;
 import org.apache.cxf.message.Message;
@@ -24,14 +25,14 @@ import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.staxutils.StaxUtils;
 
-public class CDataWriterInterceptor extends AbstractPhaseInterceptor<Message>{
+public class RawWriterInterceptor extends AbstractPhaseInterceptor<Message>{
 
-    private final String cdataElement;
+    private final Collection<String> rawElements;
 
-    public CDataWriterInterceptor(String cdataElement) {
+    public RawWriterInterceptor(Collection<String> rawElements) {
         super(Phase.PRE_STREAM);
         addAfter(AttachmentOutInterceptor.class.getName());
-        this.cdataElement = cdataElement;
+        this.rawElements = rawElements;
     }
 
     @Override
@@ -42,6 +43,6 @@ public class CDataWriterInterceptor extends AbstractPhaseInterceptor<Message>{
         }
         
         message.put("disable.outputstream.optimization", Boolean.TRUE);
-        message.setContent(XMLStreamWriter.class, new CDataXMLStreamWriter(StaxUtils.createXMLStreamWriter(msg), cdataElement));
+        message.setContent(XMLStreamWriter.class, new RawXMLStreamWriter(StaxUtils.createXMLStreamWriter(msg), rawElements));
     }
 }

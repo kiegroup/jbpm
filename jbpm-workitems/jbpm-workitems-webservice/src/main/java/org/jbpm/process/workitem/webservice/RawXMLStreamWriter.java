@@ -16,24 +16,23 @@
 
 package org.jbpm.process.workitem.webservice;
 
-import java.util.Arrays;
-import java.util.List;
-
+import java.util.Collection;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import org.apache.cxf.staxutils.DelegatingXMLStreamWriter;
+import org.codehaus.stax2.XMLStreamWriter2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CDataXMLStreamWriter extends DelegatingXMLStreamWriter {
+public class RawXMLStreamWriter extends DelegatingXMLStreamWriter {
 
-    private static Logger logger = LoggerFactory.getLogger(CDataXMLStreamWriter.class);
-    private final List<String> cdataElements;
+    private static Logger logger = LoggerFactory.getLogger(RawXMLStreamWriter.class);
+    private final Collection<String> rawElements;
     private String currentElementName;
 
-    public CDataXMLStreamWriter(XMLStreamWriter del, String cdataElementStr) {
+    public RawXMLStreamWriter(XMLStreamWriter del, Collection<String> rawElements) {
         super(del);
-        this.cdataElements = Arrays.asList(cdataElementStr.split(","));
+        this.rawElements = rawElements;
     }
 
     @Override
@@ -44,11 +43,11 @@ public class CDataXMLStreamWriter extends DelegatingXMLStreamWriter {
 
     @Override
     public void writeCharacters(char[] text, int start, int len) throws XMLStreamException {
-        if (cdataElements.contains(currentElementName)) { 
-          logger.debug("Writing CDATA for element {}", currentElementName);
-          super.writeCData(new String(text));
+        if (delegate instanceof XMLStreamWriter2 && rawElements.contains(currentElementName)) { 
+          logger.debug("Writing Raw for element {}", currentElementName);
+          ((XMLStreamWriter2) delegate).writeRaw(text, start, len);
         } else {
-            logger.debug("No CDATA replacement for element {}", currentElementName);
+            logger.debug("No Raw replacement for element {} for writer {}", currentElementName, delegate);
             super.writeCharacters(text, start, len);
         }
     }
