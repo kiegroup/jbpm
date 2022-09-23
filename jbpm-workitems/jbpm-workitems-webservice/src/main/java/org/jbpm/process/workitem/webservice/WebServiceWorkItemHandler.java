@@ -25,6 +25,7 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -528,7 +529,7 @@ public class WebServiceWorkItemHandler extends AbstractLogOrThrowWorkItemHandler
         setClientTimeout(workItem, client);
         setEscapeHandler(workItem, client);
         addHeaders(workItem, client);
-        addCDataWriterInterceptor(workItem, client);
+        addRawWriterInterceptor(workItem, client);
         return client;
     }
 
@@ -599,11 +600,11 @@ public class WebServiceWorkItemHandler extends AbstractLogOrThrowWorkItemHandler
         return null;
     }
     
-    private void addCDataWriterInterceptor(WorkItem workItem, Client client) {
-        String cdataElements = (String) workItem.getParameter("CDataElements");
-        if (cdataElements != null) {
-            logger.debug("Adding CData Interceptor for elements {}", cdataElements);
-            client.getOutInterceptors().add(new CDataWriterInterceptor(cdataElements));
+    private void addRawWriterInterceptor(WorkItem workItem, Client client) {
+        String rawElements = (String) workItem.getParameter("RawElements");
+        if (rawElements != null) {
+            logger.debug("Adding Raw Interceptor for elements {}", rawElements);
+            client.getOutInterceptors().add(new RawWriterInterceptor(Arrays.asList(rawElements.split(","))));
         }
     }
 
