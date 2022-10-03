@@ -592,6 +592,14 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
         this.exceptionHandlingProcessInstanceId = processInstanceId;
     }
 
+    public int getTriggerCount() {
+        return triggerCount;
+    }
+    
+    public void internalSetTriggerCount(int triggerCount) {
+        this.triggerCount = triggerCount;
+    }
+
     
     protected KieRuntime getKieRuntimeForExceptionSubprocess() {
         return getKieRuntimeForSubprocess(ProcessInstanceIdContext.get(getExceptionHandlingProcessInstanceId()));

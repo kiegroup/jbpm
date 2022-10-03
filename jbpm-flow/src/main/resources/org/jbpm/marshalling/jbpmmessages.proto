@@ -107,11 +107,13 @@ message ProcessInstance {
             repeated int64 timer_instance_id = 2;
             optional int64 error_handling_process_instance_id = 3;
             optional int64 timer_instance_id_suspendUntil = 4;
+            optional int32 trigger_count = 5;
         }
         message WorkItemNode {
             optional int64 work_item_id = 1;
             repeated int64 timer_instance_id = 2;
             optional int64 error_handling_process_instance_id = 3;
+            optional int32 trigger_count = 4;
         }
         message SubProcessNode {
             optional int64 process_instance_id = 1;
