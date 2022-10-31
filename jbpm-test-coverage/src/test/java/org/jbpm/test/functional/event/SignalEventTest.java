@@ -18,6 +18,7 @@ package org.jbpm.test.functional.event;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,8 +30,11 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.Context;
+import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.runtime.manager.audit.ProcessInstanceLog;
 import org.kie.api.runtime.process.ProcessInstance;
+import org.kie.api.task.model.Status;
+import org.kie.api.task.model.Task;
 import org.kie.internal.runtime.manager.context.EmptyContext;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 
@@ -70,8 +74,13 @@ public class SignalEventTest extends JbpmTestCase {
     private static final String SUBPROCESS_CATCH = "org/jbpm/test/functional/event/Signal-subprocessCatch.bpmn2";
     private static final String SUBPROCESS_CATCH_ID = "org.jbpm.test.functional.event.Signal-subprocessCatch";
 
+    private static final String THROW_MI_SIGNAL = "org/jbpm/test/functional/event/TestSignalClose.bpmn2";
+    private static final String THROW_MI_SIGNAL_ID = "org.jbpm.test.functional.event.TestSignalClose";
+
     private enum Scope {
-        DEFAULT, PROCESS_INSTANCE, PROJECT
+        DEFAULT,
+        PROCESS_INSTANCE,
+        PROJECT
     }
 
     private final Strategy strategy;
@@ -84,13 +93,13 @@ public class SignalEventTest extends JbpmTestCase {
 
     @Parameterized.Parameters(name = "{0} strategy, {1} scope")
     public static Collection<Object[]> parameters() {
-        Object[][] combinations = new Object[][]{
-                {Strategy.SINGLETON, Scope.DEFAULT},
-                {Strategy.SINGLETON, Scope.PROJECT},
-                {Strategy.SINGLETON, Scope.PROCESS_INSTANCE},
-                {Strategy.PROCESS_INSTANCE, Scope.DEFAULT},
-                {Strategy.PROCESS_INSTANCE, Scope.PROJECT},
-                {Strategy.PROCESS_INSTANCE, Scope.PROCESS_INSTANCE}
+        Object[][] combinations = new Object[][] {
+                { Strategy.SINGLETON, Scope.DEFAULT },
+                { Strategy.SINGLETON, Scope.PROJECT },
+                { Strategy.SINGLETON, Scope.PROCESS_INSTANCE },
+                { Strategy.PROCESS_INSTANCE, Scope.DEFAULT },
+                { Strategy.PROCESS_INSTANCE, Scope.PROJECT },
+                { Strategy.PROCESS_INSTANCE, Scope.PROCESS_INSTANCE }
         };
         return Arrays.asList(combinations);
     }
@@ -130,11 +139,9 @@ public class SignalEventTest extends JbpmTestCase {
 
         Assertions.assertThat(instances.get(1).getProcessId()).isEqualTo(INTERMEDIATE_CATCH_ID);
         if (strategy == Strategy.SINGLETON) {
-            Assertions.assertThat(instances.get(1).getStatus()).isEqualTo(scope == Scope.PROCESS_INSTANCE ?
-                    ProcessInstance.STATE_ACTIVE : ProcessInstance.STATE_COMPLETED);
+            Assertions.assertThat(instances.get(1).getStatus()).isEqualTo(scope == Scope.PROCESS_INSTANCE ? ProcessInstance.STATE_ACTIVE : ProcessInstance.STATE_COMPLETED);
         } else if (strategy == Strategy.PROCESS_INSTANCE) {
-            Assertions.assertThat(instances.get(1).getStatus()).isEqualTo(scope == Scope.PROJECT ?
-                    ProcessInstance.STATE_COMPLETED : ProcessInstance.STATE_ACTIVE);
+            Assertions.assertThat(instances.get(1).getStatus()).isEqualTo(scope == Scope.PROJECT ? ProcessInstance.STATE_COMPLETED : ProcessInstance.STATE_ACTIVE);
         }
     }
 
@@ -171,12 +178,10 @@ public class SignalEventTest extends JbpmTestCase {
         Assertions.assertThat(instances.get(1).getProcessId()).isEqualTo(throwingProcessId);
 
         if (strategy == Strategy.SINGLETON) {
-            Assertions.assertThat(instances.get(0).getStatus()).isEqualTo(scope == Scope.PROCESS_INSTANCE ?
-                    ProcessInstance.STATE_ACTIVE : ProcessInstance.STATE_COMPLETED);
+            Assertions.assertThat(instances.get(0).getStatus()).isEqualTo(scope == Scope.PROCESS_INSTANCE ? ProcessInstance.STATE_ACTIVE : ProcessInstance.STATE_COMPLETED);
             Assertions.assertThat(instances.get(1).getStatus()).isEqualTo(ProcessInstance.STATE_COMPLETED);
         } else if (strategy == Strategy.PROCESS_INSTANCE) {
-            Assertions.assertThat(instances.get(0).getStatus()).isEqualTo(scope == Scope.PROJECT ?
-                    ProcessInstance.STATE_COMPLETED : ProcessInstance.STATE_ACTIVE);
+            Assertions.assertThat(instances.get(0).getStatus()).isEqualTo(scope == Scope.PROJECT ? ProcessInstance.STATE_COMPLETED : ProcessInstance.STATE_ACTIVE);
             Assertions.assertThat(instances.get(1).getStatus()).isEqualTo(ProcessInstance.STATE_COMPLETED);
         }
     }
@@ -207,7 +212,7 @@ public class SignalEventTest extends JbpmTestCase {
         getKieSession().startProcess(throwingProcessId);
 
         boolean run = (strategy == Strategy.SINGLETON && scope != Scope.PROCESS_INSTANCE) ||
-                (strategy == Strategy.PROCESS_INSTANCE && scope == Scope.PROJECT) || 
+                (strategy == Strategy.PROCESS_INSTANCE && scope == Scope.PROJECT) ||
                 (strategy == Strategy.PROCESS_INSTANCE && scope == Scope.DEFAULT);
 
         List<? extends ProcessInstanceLog> instances = getRuntimeEngine().getAuditService().findProcessInstances();
@@ -220,6 +225,72 @@ public class SignalEventTest extends JbpmTestCase {
             Assertions.assertThat(instances.get(1).getProcessId()).isEqualTo(START_CATCH_ID);
             Assertions.assertThat(instances.get(1).getStatus()).isEqualTo(ProcessInstance.STATE_COMPLETED);
         }
+    }
+
+    @Test
+    public void testSignalMISubProcess() {
+        createRuntimeManager(strategy, (String) null, THROW_MI_SIGNAL);
+
+        Map<String, Object> vars = new HashMap<>();
+        vars.put("initCount", 0);
+        vars.put("loopsNum", 2);
+        ProcessInstance processInstance = getKieSession().startProcess(THROW_MI_SIGNAL_ID, vars);
+        long pid = processInstance.getId();
+
+        RuntimeEngine runtimeEngine = getRuntimeEngine(ProcessInstanceIdContext.get(pid));
+        // Init preview tasks
+        List<Long> tasks = runtimeEngine.getTaskService().getTasksByProcessInstanceId(pid);
+        tasks.forEach(tid -> {
+            runtimeEngine.getTaskService().claim(tid, "john");
+            runtimeEngine.getTaskService().start(tid, "john");
+            runtimeEngine.getTaskService().complete(tid, "john", Collections.emptyMap());
+        });
+
+        // tasks
+        tasks = runtimeEngine.getTaskService().getTasksByProcessInstanceId(pid);
+        for (Long tid : tasks) {
+            Task task = runtimeEngine.getTaskService().getTaskById(tid);
+            if (task.getName().equals("Cancel-2")) {
+                System.out.println("task: " + task.getName());
+                runtimeEngine.getTaskService().claim(tid, "john");
+                runtimeEngine.getTaskService().start(tid, "john");
+                runtimeEngine.getTaskService().complete(tid, "john", Collections.emptyMap());
+            }
+        }
+
+        for (Long tid : tasks) {
+            Task task = runtimeEngine.getTaskService().getTaskById(tid);
+            if (task.getName().equals("Confirm-2")) {
+                Assertions.assertThat(task.getTaskData().getStatus()).as("task: %s is %s", task.getName(), Status.Exited).isEqualTo(Status.Exited);
+            } else if (task.getName().equals("Confirm-1")) {
+                Assertions.assertThat(task.getTaskData().getStatus()).as("task: %s is %s", task.getName(), Status.Ready).isEqualTo(Status.Ready);
+            }
+        }
+
+        List<? extends ProcessInstanceLog> instances = getRuntimeEngine().getAuditService().findProcessInstances();
+        Assertions.assertThat(instances.get(0).getStatus()).isEqualTo(ProcessInstance.STATE_ACTIVE);
+
+        for (Long tid : tasks) {
+            Task task = runtimeEngine.getTaskService().getTaskById(tid);
+            if (task.getName().equals("Cancel-1")) {
+                System.out.println("task: " + task.getName());
+                runtimeEngine.getTaskService().claim(tid, "john");
+                runtimeEngine.getTaskService().start(tid, "john");
+                runtimeEngine.getTaskService().complete(tid, "john", Collections.emptyMap());
+            }
+        }
+
+        for (Long tid : tasks) {
+            Task task = runtimeEngine.getTaskService().getTaskById(tid);
+            if (task.getName().equals("Confirm-2")) {
+                Assertions.assertThat(task.getTaskData().getStatus()).as("task: %s is %s", task.getName(), Status.Exited).isEqualTo(Status.Exited);
+            } else if (task.getName().equals("Confirm-1")) {
+                Assertions.assertThat(task.getTaskData().getStatus()).as("task: %s is %s", task.getName(), Status.Exited).isEqualTo(Status.Exited);
+            }
+        }
+
+        instances = getRuntimeEngine().getAuditService().findProcessInstances();
+        Assertions.assertThat(instances.get(0).getStatus()).isEqualTo(ProcessInstance.STATE_COMPLETED);
     }
 
     @Test
@@ -259,15 +330,11 @@ public class SignalEventTest extends JbpmTestCase {
         Assertions.assertThat(instances.get(2).getProcessId()).isEqualTo(throwingProcessId);
 
         if (strategy == Strategy.SINGLETON) {
-            Assertions.assertThat(instances.get(0).getStatus()).isEqualTo(scope == Scope.PROCESS_INSTANCE ?
-                    ProcessInstance.STATE_ACTIVE : ProcessInstance.STATE_COMPLETED);
-            Assertions.assertThat(instances.get(1).getStatus()).isEqualTo(scope == Scope.PROCESS_INSTANCE ?
-                    ProcessInstance.STATE_ACTIVE : ProcessInstance.STATE_COMPLETED);
+            Assertions.assertThat(instances.get(0).getStatus()).isEqualTo(scope == Scope.PROCESS_INSTANCE ? ProcessInstance.STATE_ACTIVE : ProcessInstance.STATE_COMPLETED);
+            Assertions.assertThat(instances.get(1).getStatus()).isEqualTo(scope == Scope.PROCESS_INSTANCE ? ProcessInstance.STATE_ACTIVE : ProcessInstance.STATE_COMPLETED);
         } else if (strategy == Strategy.PROCESS_INSTANCE) {
-            Assertions.assertThat(instances.get(0).getStatus()).isEqualTo(scope == Scope.PROJECT ?
-                    ProcessInstance.STATE_COMPLETED : ProcessInstance.STATE_ACTIVE);
-            Assertions.assertThat(instances.get(1).getStatus()).isEqualTo(scope == Scope.PROJECT ?
-                    ProcessInstance.STATE_COMPLETED : ProcessInstance.STATE_ACTIVE);
+            Assertions.assertThat(instances.get(0).getStatus()).isEqualTo(scope == Scope.PROJECT ? ProcessInstance.STATE_COMPLETED : ProcessInstance.STATE_ACTIVE);
+            Assertions.assertThat(instances.get(1).getStatus()).isEqualTo(scope == Scope.PROJECT ? ProcessInstance.STATE_COMPLETED : ProcessInstance.STATE_ACTIVE);
         }
         Assertions.assertThat(instances.get(2).getStatus()).isEqualTo(ProcessInstance.STATE_COMPLETED);
     }
