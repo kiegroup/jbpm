@@ -60,7 +60,7 @@ public class InMemoryMapper extends InternalMapper {
     }
 
     public boolean hasContext(Long ksessionId) {
-    	return mapping.containsValue(ksessionId);
+    	return ksessionId != null && mapping.containsValue(ksessionId);
     }
 
     @Override
