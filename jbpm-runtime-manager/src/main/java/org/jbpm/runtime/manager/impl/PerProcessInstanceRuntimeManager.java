@@ -162,12 +162,17 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
     public void signalEvent(String type, Object event) {
         
         // first signal with new context in case there are start event with signal
+        KieSession signalSession = null;
         RuntimeEngine runtimeEngine = getRuntimeEngine(ProcessInstanceIdContext.get());
         try {
             // signal execution can rise errors
-            runtimeEngine.getKieSession().signalEvent(type, event);
+            signalSession = runtimeEngine.getKieSession();
+            signalSession.signalEvent(type, event);
         } finally {
             // ensure we clean up
+            if(signalSession!=null) {
+                signalSession.execute(new DestroyKSessionCommand(signalSession, this));
+            }
             disposeRuntimeEngine(runtimeEngine);
         }
     
@@ -237,6 +242,7 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
             	if (runtime instanceof Disposable) {
                 	// special handling for in memory to not allow to dispose if there is any context in the mapper
                 	if (mapper instanceof InMemoryMapper && ((InMemoryMapper)mapper).hasContext(ksessionId)){
+                	    logger.debug("Dispose runtime has context {} inMemoryMapper", ksessionId);
                 		return;
                 	}
                     ((Disposable) runtime).dispose();
@@ -250,6 +256,7 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
                         }
                     }
             	}
+            	logger.debug("About to release lock {}", runtime);
             	releaseAndCleanLock(runtime);
         	}
     	} catch (Exception e) {
