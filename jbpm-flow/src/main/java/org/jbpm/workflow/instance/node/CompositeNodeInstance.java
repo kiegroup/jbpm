@@ -93,7 +93,7 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
 			if (node instanceof EventNode) {
 				if ("external".equals(((EventNode) node).getScope())) {
 					getProcessInstance().addEventListener(
-						((EventNode) node).getType(), EMPTY_EVENT_LISTENER,  true);
+					        ((EventNode) node).getType(), EMPTY_EVENT_LISTENER,  true);
 				}
 			} else if (node instanceof EventSubProcessNode) {
                 List<String> events = ((EventSubProcessNode) node).getEvents();
@@ -300,7 +300,7 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
 						List<NodeInstance> nodeInstances = getNodeInstances(node.getId(), currentView);
 						if (nodeInstances != null && !nodeInstances.isEmpty()) {
 							for (NodeInstance nodeInstance : nodeInstances) {
-								((EventNodeInstanceInterface) nodeInstance).signalEvent(type, event);
+							    ((EventNodeInstanceInterface) nodeInstance).signalEvent(type, event);
 							}
 						}
 					}

@@ -20,6 +20,7 @@ import java.util.Collection;
 
 import org.jbpm.workflow.instance.node.CompositeNodeInstance;
 import org.kie.api.runtime.process.NodeInstance;
+import org.kie.api.runtime.process.NodeInstanceContainer;
 import org.kie.api.runtime.process.ProcessContext;
 import org.kie.api.runtime.process.WorkflowProcessInstance;
 
@@ -37,8 +38,15 @@ public class CancelNodeInstanceAction implements Action, Serializable {
 	}
 	
 	public void execute(ProcessContext context) throws Exception {
-		WorkflowProcessInstance pi = context.getNodeInstance().getProcessInstance();
-		NodeInstance nodeInstance = findNodeByUniqueId(pi.getNodeInstances(), attachedToNodeId);
+
+		NodeInstanceContainer container = context.getNodeInstance().getNodeInstanceContainer();
+		NodeInstance nodeInstance = findNodeByUniqueId(container.getNodeInstances(), attachedToNodeId);
+
+		if (nodeInstance == null) {
+		      WorkflowProcessInstance pi = context.getNodeInstance().getProcessInstance();
+		      nodeInstance = findNodeByUniqueId(pi.getNodeInstances(), attachedToNodeId);
+		}
+
 		if (nodeInstance != null) {
             ((org.jbpm.workflow.instance.NodeInstance) nodeInstance).cancel(SKIPPED);
 		}
