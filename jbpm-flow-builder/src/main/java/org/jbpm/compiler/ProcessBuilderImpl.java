@@ -551,15 +551,22 @@ public class ProcessBuilderImpl implements org.drools.compiler.compiler.ProcessB
     }
     
     private String createAdHocActivationRule(Process process, DynamicNode dynamicNode) {
+        String activationSignalName = "RuleFlow-AdHocActivate-";
+        if (dynamicNode.getNodeContainer() instanceof WorkflowProcess) {
+            activationSignalName += ((WorkflowProcess) dynamicNode.getNodeContainer()).getId() + "-" + dynamicNode.getUniqueId();
+        } else if (dynamicNode.getNodeContainer() instanceof org.jbpm.workflow.core.node.CompositeContextNode) {
+            activationSignalName += ((org.jbpm.workflow.core.node.CompositeContextNode) dynamicNode.getNodeContainer()).getId() + "-" + dynamicNode.getUniqueId();
+        }
+
         return
-        "rule \"RuleFlow-AdHocActivate-" + process.getId() + "-" + dynamicNode.getUniqueId() + "\" @Propagation(EAGER) \n" +
+        "rule \"" + activationSignalName + "\" @Propagation(EAGER) \n" +
         "      ruleflow-group \"DROOLS_SYSTEM\" \n" +
         "    when \n" +
         "      " + dynamicNode.getActivationExpression() + "\n" +
         "    then \n" +
         "end \n\n";
     }
-    
+
     private String createActivationRule(Process process, Node node) {
         return
         "rule \"RuleFlow-Activate-" + process.getId() + "-" + node.getMetaData().get("UniqueId") + "\"  \n" +
