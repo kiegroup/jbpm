@@ -25,6 +25,7 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -528,6 +529,7 @@ public class WebServiceWorkItemHandler extends AbstractLogOrThrowWorkItemHandler
         setClientTimeout(workItem, client);
         setEscapeHandler(workItem, client);
         addHeaders(workItem, client);
+        addRawWriterInterceptor(workItem, client);
         return client;
     }
 
@@ -596,6 +598,14 @@ public class WebServiceWorkItemHandler extends AbstractLogOrThrowWorkItemHandler
             logger.warn("Error instantiating escape handler, characters will be escaped", e);
         }
         return null;
+    }
+    
+    private void addRawWriterInterceptor(WorkItem workItem, Client client) {
+        String rawElements = (String) workItem.getParameter("RawElements");
+        if (rawElements != null) {
+            logger.debug("Adding Raw Interceptor for elements {}", rawElements);
+            client.getOutInterceptors().add(new RawWriterInterceptor(Arrays.asList(rawElements.split(","))));
+        }
     }
 
     private static final class LoggingEscapeHandlerInvocationHandler implements InvocationHandler {
