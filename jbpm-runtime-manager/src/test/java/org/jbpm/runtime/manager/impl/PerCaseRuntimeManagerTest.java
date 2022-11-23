@@ -435,6 +435,48 @@ public class PerCaseRuntimeManagerTest extends AbstractBaseTest {
         assertEquals(1, ksessionUsed.size());
         assertEquals(ksession1Id, ksessionUsed.iterator().next().longValue());
     }
+
+    @Test
+    public void testSignalStageWithProcessScope() throws Exception {
+        final List<Long> taskActivations = new ArrayList<Long>();
+
+        RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
+                .newDefaultBuilder()
+                .userGroupCallback(userGroupCallback)
+                .registerableItemsFactory(new DefaultRegisterableItemsFactory(){
+
+                    @Override
+                    public List<ProcessEventListener> getProcessEventListeners(
+                            RuntimeEngine runtime) {
+                        List<ProcessEventListener> listeners = super.getProcessEventListeners(runtime);
+                        listeners.add(new DefaultProcessEventListener(){
+                             @Override
+                             public void afterNodeLeft(ProcessNodeLeftEvent event) {
+                                 if (event.getNodeInstance().getNodeName() != null && event.getNodeInstance().getNodeName().equals("Task2")) {
+                                     taskActivations.add(event.getProcessInstance().getId());
+                                 }
+                             }
+                         });
+                        return listeners;
+                    }
+                })
+                .addAsset(ResourceFactory.newClassPathResource("signal-test.bpmn"), ResourceType.BPMN2)
+                .get();
+
+        manager = RuntimeManagerFactory.Factory.get().newPerCaseRuntimeManager(environment);
+        assertNotNull(manager);
+        // since there is no process instance yet we need to get new session
+        RuntimeEngine runtime = manager.getRuntimeEngine(CaseContext.get("Case-1"));
+        KieSession ksession = runtime.getKieSession();
+
+        ProcessInstance pi1 = ksession.startProcess("signal_test.signal_test");
+        manager.disposeRuntimeEngine(runtime);
+        manager.close();
+
+        // there should be only one Task2 instance activation
+        assertEquals(1, taskActivations.size());
+    }
+
     
     @Test
     public void testSignalEventWithDeactivate() {
