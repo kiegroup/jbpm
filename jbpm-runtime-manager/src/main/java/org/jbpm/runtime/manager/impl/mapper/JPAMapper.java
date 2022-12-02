@@ -58,14 +58,16 @@ public class JPAMapper extends InternalMapper {
     public void saveMapping(Context context, Long ksessionId, String ownerId) {
 		EntityManagerInfo info = getEntityManager(context);
 		EntityManager em = info.getEntityManager();
-		Context<Object> resolvedContext =  resolveContext(context, em);
-		ContextMappingInfo contextMappingInfo =new ContextMappingInfo(resolvedContext.getContextId().toString(), ksessionId, ownerId);
-		logger.debug("Persisting {}", contextMappingInfo);
-		em.persist(contextMappingInfo);
-
-		if (!info.isShared()) {
-			em.close();
-		}
+        try {
+            Context<Object> resolvedContext =  resolveContext(context, em);
+            ContextMappingInfo contextMappingInfo = new ContextMappingInfo(resolvedContext.getContextId().toString(), ksessionId, ownerId);
+            logger.debug("Persisting {}", contextMappingInfo);
+            em.persist(contextMappingInfo);
+        } finally {
+            if (!info.isShared()) {
+                em.close();
+            }
+        }
     }
 
     @Override
@@ -116,15 +118,17 @@ public class JPAMapper extends InternalMapper {
     public void removeMapping(Context context, String ownerId) {
     	EntityManagerInfo info = getEntityManager(context);
     	EntityManager em = info.getEntityManager();
-        
-        ContextMappingInfo contextMappingInfo = findContextByContextId(resolveContext(context, em), ownerId, em);
-        logger.debug("Removing {}", contextMappingInfo);
-        if (contextMappingInfo != null) {
-            em.remove(contextMappingInfo);
+        try {
+            ContextMappingInfo contextMappingInfo = findContextByContextId(resolveContext(context, em), ownerId, em);
+            logger.debug("Removing {}", contextMappingInfo);
+            if (contextMappingInfo != null) {
+                em.remove(contextMappingInfo);
+            }
+        } finally {
+            if (!info.isShared()) {
+                em.close();
+            }
         }
-        if (!info.isShared()) {
-    		em.close();
-    	}
     }
 
     @SuppressWarnings("unchecked")
