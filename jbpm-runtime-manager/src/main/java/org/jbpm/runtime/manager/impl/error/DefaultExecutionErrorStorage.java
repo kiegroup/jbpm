@@ -190,18 +190,20 @@ public class DefaultExecutionErrorStorage implements ExecutionErrorStorage {
     
     protected <R> R call(Function<EntityManager, R> function) {
         
-        boolean transactionOwner = false;    
+        boolean transactionOwner = false;
+        transactionOwner = txm.begin();
+        EntityManager em = emf.createEntityManager();
         try {
-            transactionOwner = txm.begin();
-            EntityManager em = emf.createEntityManager();
             R result = function.apply(em);
             txm.commit( transactionOwner );
-            em.close();
             return result;
         } catch (Exception e) {
             txm.rollback(transactionOwner);
             throw new RuntimeException( "Exception when persisting error information", e);
-        }       
+        }
+        finally {
+            em.close();
+        }
     }
     
 
