@@ -335,7 +335,7 @@ public class LDAPUserGroupCallbackImplTest extends LDAPBaseTest {
             case SYSTEM:
                 System.setProperty("jbpm.usergroup.callback.properties", "/jbpm.usergroup.callback.properties");
             case DEFAULT:
-                return new LDAPUserGroupCallbackImpl(true);
+                return new RandomPortCallback(true);
             default:
                 throw new IllegalArgumentException("unknown config type");
         }
@@ -375,6 +375,24 @@ public class LDAPUserGroupCallbackImplTest extends LDAPBaseTest {
         assertions.assertThat(userGroupCallback.existsGroup("analyst")).as("analyst").isEqualTo(analyst);
         assertions.assertThat(userGroupCallback.existsGroup("developer")).as("developer").isEqualTo(developer);
         assertions.assertAll();
+    }
+
+    public class RandomPortCallback extends LDAPUserGroupCallbackImpl {
+
+        public RandomPortCallback(boolean activate) {
+            super(activate);
+        }
+
+        public RandomPortCallback(Properties config) {
+            super(config);
+        }
+
+        @Override
+        protected Properties readProperties(String propertiesLocation, String defaultProperties) {
+            Properties properties = super.readProperties(propertiesLocation, defaultProperties);
+            properties.setProperty("java.naming.provider.url", SERVER_URL);
+            return properties;
+        }
     }
 
 }
