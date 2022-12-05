@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.UUID;
 
 import javax.persistence.EntityManagerFactory;
 
@@ -67,6 +68,8 @@ public class CleanupExecutionErrorCommandWithProcessTest extends AbstractExecuto
     private ExecutorService executorService;
     private EntityManagerFactory emf = null;
 
+    private ExecutionErrorStorage errorStorage;
+
     @Before
     public void setup() {
         ExecutorTestUtil.cleanupSingletonSessionId();
@@ -76,10 +79,16 @@ public class CleanupExecutionErrorCommandWithProcessTest extends AbstractExecuto
         properties.setProperty("john", "HR");
         userGroupCallback = new JBossUserGroupCallbackImpl(properties);
         executorService = buildExecutorService();
+        RuntimeEnvironment environment = configureEnvironment();
+        manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment, UUID.randomUUID().toString());
+        assertNotNull(manager);
+        errorStorage = ((AbstractRuntimeManager) manager).getExecutionErrorManager().getStorage();
     }
 
     @After
     public void teardown() {
+        executorService.clearAllRequests();
+        executorService.clearAllErrors();
         executorService.destroy();
         if (manager != null) {
             RuntimeManagerRegistry.get().remove(manager.getIdentifier());
@@ -101,12 +110,6 @@ public class CleanupExecutionErrorCommandWithProcessTest extends AbstractExecuto
     @Test(timeout = 30000)
     public void testRunProcessWithAsyncHandlerDeleteUsingOlderThan() throws Exception {
         CountDownAsyncJobListener countDownListener = configureListener(1);
-        RuntimeEnvironment environment = configureEnvironment();
-
-        manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);
-        assertNotNull(manager);
-
-        ExecutionErrorStorage errorStorage = ((AbstractRuntimeManager) manager).getExecutionErrorManager().getStorage();
 
         RuntimeEngine runtime = manager.getRuntimeEngine(EmptyContext.get());
         KieSession ksession = runtime.getKieSession();
@@ -121,8 +124,8 @@ public class CleanupExecutionErrorCommandWithProcessTest extends AbstractExecuto
         List<ExecutionError> errors = errorStorage.list(0, 10);
         assertEquals(1, errors.size());
 
-        scheduleLogCleanup(startDate, null, true, null, "ScriptTask", String.valueOf(processInstanceId), "yyyy-MM-dd", manager.getIdentifier());
         countDownListener.reset(1);
+        scheduleLogCleanup(startDate, null, true, null, "ScriptTask", String.valueOf(processInstanceId), "yyyy-MM-dd", manager.getIdentifier());
         countDownListener.waitTillCompleted();
         System.out.println("Aborting process instance " + processInstance.getId());
         processInstance = runtime.getKieSession().getProcessInstance(processInstance.getId());
@@ -138,8 +141,8 @@ public class CleanupExecutionErrorCommandWithProcessTest extends AbstractExecuto
 
         Thread.sleep(1000);
 
-        scheduleLogCleanup(new Date(), null, true, null, "ScriptTask", String.valueOf(processInstanceId), "yyyy-MM-dd HH:mm:ss", manager.getIdentifier());
         countDownListener.reset(1);
+        scheduleLogCleanup(new Date(), null, true, null, "ScriptTask", String.valueOf(processInstanceId), "yyyy-MM-dd HH:mm:ss", manager.getIdentifier());
         countDownListener.waitTillCompleted();
 
         errors = errorStorage.list(0, 10);
@@ -150,12 +153,6 @@ public class CleanupExecutionErrorCommandWithProcessTest extends AbstractExecuto
     @Test(timeout = 30000)
     public void testRunProcessWithAsyncHandlerDeleteUsingOlderThanPeriod() throws Exception {
         CountDownAsyncJobListener countDownListener = configureListener(1);
-        RuntimeEnvironment environment = configureEnvironment();
-
-        manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);
-        assertNotNull(manager);
-
-        ExecutionErrorStorage errorStorage = ((AbstractRuntimeManager) manager).getExecutionErrorManager().getStorage();
 
         RuntimeEngine runtime = manager.getRuntimeEngine(EmptyContext.get());
         KieSession ksession = runtime.getKieSession();
@@ -172,9 +169,9 @@ public class CleanupExecutionErrorCommandWithProcessTest extends AbstractExecuto
         // advance time 1 second
         Thread.sleep(1000);
 
+        countDownListener.reset(1);
         // delete errors which happened 1s or more ago
         scheduleLogCleanup(null, "1s", true, null, "ScriptTask", String.valueOf(processInstanceId), "yyyy-MM-dd HH:mm:ss", manager.getIdentifier());
-        countDownListener.reset(1);
         countDownListener.waitTillCompleted();
         System.out.println("Aborting process instance " + processInstance.getId());
         processInstance = runtime.getKieSession().getProcessInstance(processInstance.getId());
@@ -188,18 +185,18 @@ public class CleanupExecutionErrorCommandWithProcessTest extends AbstractExecuto
         processInstance = runtime.getKieSession().getProcessInstance(processInstance.getId());
         assertNull(processInstance);
 
+        countDownListener.reset(1);
         // delete errors which happened 5s or more ago
         scheduleLogCleanup(null, "5s", true, null, "ScriptTask", String.valueOf(processInstanceId), "yyyy-MM-dd HH:mm:ss", manager.getIdentifier());
-        countDownListener.reset(1);
         countDownListener.waitTillCompleted();
 
         // should not delete any errors as we wanted to delete errors from 5s ago
         errors = errorStorage.list(0, 10);
         assertEquals(1, errors.size());
 
+        countDownListener.reset(1);
         // delete errors which happened 1s or more ago
         scheduleLogCleanup(null, "0s", true, null, "ScriptTask", String.valueOf(processInstanceId), "yyyy-MM-dd HH:mm:ss", manager.getIdentifier());
-        countDownListener.reset(1);
         countDownListener.waitTillCompleted();
 
         errors = errorStorage.list(0, 10);
@@ -210,12 +207,6 @@ public class CleanupExecutionErrorCommandWithProcessTest extends AbstractExecuto
     @Test(timeout = 30000)
     public void testRunProcessWithAsyncHandlerDeleteUsingReoccurring() throws Exception {
         CountDownAsyncJobListener countDownListener = configureListener(1);
-        RuntimeEnvironment environment = configureEnvironment();
-
-        manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);
-        assertNotNull(manager);
-
-        ExecutionErrorStorage errorStorage = ((AbstractRuntimeManager) manager).getExecutionErrorManager().getStorage();
 
         RuntimeEngine runtime = manager.getRuntimeEngine(EmptyContext.get());
         KieSession ksession = runtime.getKieSession();
@@ -229,12 +220,12 @@ public class CleanupExecutionErrorCommandWithProcessTest extends AbstractExecuto
         List<ExecutionError> errors = errorStorage.list(0, 10);
         assertEquals(0, errors.size());
 
+        countDownListener.reset(1);
         System.out.println("Process starting...");
         ProcessInstance processInstance = ksession.startProcess("ScriptTask");
         System.out.println("Process started...");
         assertEquals(ProcessInstance.STATE_ACTIVE, processInstance.getState());
         // wait for the process instance to generate an error
-        countDownListener.reset(1);
         System.out.println("Waiting to generate an error...");
         countDownListener.waitTillCompleted();
 
