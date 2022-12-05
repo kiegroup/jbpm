@@ -20,9 +20,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EventListener;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import org.drools.core.command.SingleSessionCommandService;
 import org.drools.core.command.impl.CommandBasedStatefulKnowledgeSession;
@@ -274,7 +276,7 @@ public class PerCaseRuntimeManager extends AbstractRuntimeManager {
         // process currently active runtime engines
         Map<Object, RuntimeEngine> currentlyActive = local.get();
         if (currentlyActive != null && !currentlyActive.isEmpty()) {
-            RuntimeEngine[] activeEngines = currentlyActive.values().toArray(new RuntimeEngine[currentlyActive.size()]);
+            Set<RuntimeEngine> activeEngines = new HashSet<>(currentlyActive.values());
             for (RuntimeEngine engine : activeEngines) {
                 Context<?> context = ((RuntimeEngineImpl) engine).getContext();
                 if (context != null && context instanceof ProcessInstanceIdContext && ((ProcessInstanceIdContext) context).getContextId() != null) {
