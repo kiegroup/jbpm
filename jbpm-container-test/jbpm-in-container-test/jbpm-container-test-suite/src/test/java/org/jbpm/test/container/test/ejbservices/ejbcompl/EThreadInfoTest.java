@@ -86,7 +86,7 @@ public class EThreadInfoTest extends AbstractRuntimeEJBServicesTest {
         RestService.stop();
     }
 
-    @Test
+    @Test(timeout = 30000)
     public void testTimerThreadInfo() throws Exception {
         Long pid = startProcessInstance(THREAD_INFO_PROCESS_ID);
 
@@ -117,7 +117,7 @@ public class EThreadInfoTest extends AbstractRuntimeEJBServicesTest {
     }
 
 
-    @Test
+    @Test(timeout = 30000)
     public void testLogThreadInfo() throws Exception {
         Long pid = startProcessInstance(THREAD_INFO_PROCESS_ID);
 
@@ -148,7 +148,7 @@ public class EThreadInfoTest extends AbstractRuntimeEJBServicesTest {
         Assertions.assertThat(threadNameHistory.iterator().next().getNewValue()).startsWith("EE");
     }
 
-    @Test
+    @Test(timeout = 30000)
     public void testRESTThreadInfo() throws Exception {
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("url", RestService.PING_URL);
@@ -194,7 +194,7 @@ public class EThreadInfoTest extends AbstractRuntimeEJBServicesTest {
         Assertions.assertThat(threadNameHistory.iterator().next().getNewValue()).startsWith("EE");
     }
 
-    @Test
+    @Test(timeout = 30000)
     public void testScriptThreadInfo() throws Exception {
         Long pid = startProcessInstance(THREAD_INFO_PROCESS_ID);
 
@@ -224,7 +224,7 @@ public class EThreadInfoTest extends AbstractRuntimeEJBServicesTest {
         Assertions.assertThat(threadNameHistory.iterator().next().getNewValue()).startsWith("EE");
     }
 
-    @Test
+    @Test(timeout = 30000)
     public void testHumanTaskThreadInfo() throws Exception {
         Long pid = startProcessInstance(THREAD_INFO_PROCESS_ID);
 
@@ -259,7 +259,7 @@ public class EThreadInfoTest extends AbstractRuntimeEJBServicesTest {
         Assertions.assertThat(threadNameHistory.iterator().next().getOldValue()).startsWith("EE");
     }
 
-    @Test
+    @Test(timeout = 30000)
     public void testRuleThreadInfo() throws Exception {
         Long pid = startProcessInstance(THREAD_INFO_PROCESS_ID);
 
@@ -289,7 +289,7 @@ public class EThreadInfoTest extends AbstractRuntimeEJBServicesTest {
         Assertions.assertThat(threadNameHistory.iterator().next().getNewValue()).startsWith("EE");
     }
 
-    @Test
+    @Test(timeout = 30000)
     public void testEmbeddedThreadInfo() throws Exception {
         Long pid = startProcessInstance(THREAD_INFO_PROCESS_ID);
 
@@ -319,7 +319,7 @@ public class EThreadInfoTest extends AbstractRuntimeEJBServicesTest {
         Assertions.assertThat(threadNameHistory.iterator().next().getNewValue()).startsWith("EE");
     }
 
-    @Test
+    @Test(timeout = 30000)
     public void testSubProcessThreadInfo() throws Exception {
         Long pid = startProcessInstance(THREAD_INFO_PROCESS_ID);
 
