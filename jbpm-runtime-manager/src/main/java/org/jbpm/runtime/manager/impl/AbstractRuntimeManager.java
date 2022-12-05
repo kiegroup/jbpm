@@ -28,7 +28,6 @@ import javax.persistence.EntityManagerFactory;
 
 import org.drools.core.time.JobContext;
 import org.drools.core.time.JobHandle;
-import org.drools.core.time.SelfRemovalJob;
 import org.drools.core.time.SelfRemovalJobContext;
 import org.drools.core.time.TimerService;
 import org.drools.persistence.api.OrderedTransactionSynchronization;
@@ -84,7 +83,6 @@ import org.kie.internal.runtime.manager.InternalRuntimeManager;
 import org.kie.internal.runtime.manager.RuntimeManagerRegistry;
 import org.kie.internal.runtime.manager.SecurityManager;
 import org.kie.internal.runtime.manager.SessionFactory;
-import org.kie.internal.runtime.manager.SessionNotFoundException;
 import org.kie.internal.runtime.manager.TaskServiceFactory;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 import org.kie.internal.runtime.manager.deploy.DeploymentDescriptorManager;
@@ -366,22 +364,22 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
     }
     
     protected boolean canDispose(RuntimeEngine runtime) {
-        // avoid duplicated dispose
-        if (((RuntimeEngineImpl)runtime).isDisposed()) {
-            return false;
-        }
+        
+        if (runtime instanceof RuntimeEngineImpl) {
+            RuntimeEngineImpl impl = (RuntimeEngineImpl)runtime;
+        
+            // avoid duplicated dispose
+            if (impl.isDisposed()) {
+                return false;
+            }
 
-        // if the runtime is invalid for whatever reason we need to remove it anyway
-        // to avoid deadlocks
-        if (((RuntimeEngineImpl)runtime).isInvalid()) {
-            return true;
+            // if the runtime is invalid for whatever reason we need to remove it anyway
+            //  to avoid deadlocks
+            // or if this method was called as part of afterCompletion allow to dispose
+             if (impl.isInvalid() || impl.isAfterCompletion()) {
+                 return true;
+             }
         }
-
-        // if this method was called as part of afterCompletion allow to dispose
-        if (((RuntimeEngineImpl)runtime).isAfterCompletion()) {
-            return true;
-        }
-
         try {
             // check tx status to disallow dispose when within active transaction       
             TransactionManager tm = getTransactionManagerInternal(getEnvironment(runtime));
@@ -390,12 +388,12 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
                     && tm.getStatus() != TransactionManager.STATUS_COMMITTED) {
                 return false;
             }
-        } catch (SessionNotFoundException e) {
-            // ignore it as it might be thrown for per process instance
-        }
-        
+        } catch (Exception e) {
+            logger.warn("Exception dealing with transaction", e);
+        }        
         return true;
     }
+   
 
     protected Environment getEnvironment(RuntimeEngine runtimeEngine) {
         if (runtimeEngine instanceof RuntimeEngineImpl && ((RuntimeEngineImpl) runtimeEngine).isInitialized()) {
@@ -639,6 +637,7 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
     }
 
     protected void releaseAndCleanLock(RuntimeEngine runtime) {
+        logger.debug("About to release lock {}", runtime);
         if (((RuntimeEngineImpl)runtime).getContext() instanceof ProcessInstanceIdContext) {
             Long piId = ((ProcessInstanceIdContext) ((RuntimeEngineImpl)runtime).getContext()).getContextId();
             if (piId != null) {
