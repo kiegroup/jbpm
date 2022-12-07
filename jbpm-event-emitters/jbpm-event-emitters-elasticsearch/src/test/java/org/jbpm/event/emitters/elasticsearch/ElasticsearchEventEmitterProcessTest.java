@@ -22,6 +22,7 @@ import static org.jbpm.test.persistence.util.PersistenceUtil.createEnvironment;
 import static org.jbpm.test.persistence.util.PersistenceUtil.setupWithPoolingDataSource;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -114,5 +115,11 @@ public class ElasticsearchEventEmitterProcessTest {
 
         assertNotNull(responseCollector);
         assertEquals(1, responseCollector.size());
+
+        String response = responseCollector.get(0);
+        // check process instance creation event
+        assertTrue("Process index event missing", response.contains("\"index\""));
+        // check process instance end event
+        assertTrue("Process state 2 event missing", response.contains("\"state\":2"));
     }
 }

@@ -33,6 +33,7 @@ public class DefaultESInstanceViewTransformer implements ESInstanceViewTransform
 
     @Override
     public ESRequest update(InstanceView<?> view) {
-        return new ESRequest(index, view.getCompositeId(), type, "update", view);
+        // we are sending the full snapshot, not a partial update
+        return index(view);
     }
 }
