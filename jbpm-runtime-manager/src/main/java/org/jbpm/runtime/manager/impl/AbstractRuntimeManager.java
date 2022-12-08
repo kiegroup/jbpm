@@ -254,7 +254,8 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
                         }
                     }
                     em.persist(info);
-                    logger.debug("Created Timer Mapping Info for {}", info);
+                    em.flush();
+                    logger.debug("Created Timer Mapping Info for {} and flushed to DB", info);
                 } finally {
                     em.close();
                 }
