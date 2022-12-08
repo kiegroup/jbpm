@@ -58,7 +58,15 @@ public abstract class LDAPBaseTest {
     @After
     public void stopDirectoryServer() {
         if (server != null) {
+            int listenPort = server.getListenPort();
             server.shutDown(true);
+            while (!SocketUtils.isPortAvailable(listenPort)) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    //ignore
+                }
+            }
         }
     }
 
