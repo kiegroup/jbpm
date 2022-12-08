@@ -57,10 +57,8 @@ public final class SocketUtils {
         return minPort + RND.nextInt(portRange + 1);
     }
 
-    private static boolean isPortAvailable(int port) {
-        try {
-            ServerSocket serverSocket = ServerSocketFactory.getDefault().createServerSocket(port, 1, InetAddress.getByName("localhost"));
-            serverSocket.close();
+    public static boolean isPortAvailable(int port) {
+        try (ServerSocket ignored = ServerSocketFactory.getDefault().createServerSocket(port, 1, InetAddress.getByName("localhost"))) {
             return true;
         } catch (Exception ex) {
             return false;
