@@ -26,12 +26,14 @@ import com.unboundid.ldap.listener.InMemoryListenerConfig;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.LDAPException;
 import org.jbpm.services.task.identity.LDAPUserGroupCallbackImpl;
+import org.jbpm.test.util.SocketUtils;
 import org.junit.After;
 import org.junit.Before;
 
 public abstract class LdapJbpmTestCase extends JbpmTestCase {
 
     private static InMemoryDirectoryServer server;
+    private static final int PORT = SocketUtils.findAvailablePort();
 
     private final String ldif;
 
@@ -41,7 +43,7 @@ public abstract class LdapJbpmTestCase extends JbpmTestCase {
 
     @Before
     public void startDirectoryServer() throws LDAPException {
-        InMemoryListenerConfig listenerConfig = InMemoryListenerConfig.createLDAPConfig("default", 10389);
+        InMemoryListenerConfig listenerConfig = InMemoryListenerConfig.createLDAPConfig("default", PORT);
 
         InMemoryDirectoryServerConfig serverConfig = new InMemoryDirectoryServerConfig(new DN("dc=jboss,dc=org"));
         serverConfig.setListenerConfigs(listenerConfig);
@@ -62,7 +64,7 @@ public abstract class LdapJbpmTestCase extends JbpmTestCase {
 
     protected Properties createUserGroupCallbackProperties() {
         Properties properties = new Properties();
-        properties.setProperty(Context.PROVIDER_URL, "ldap://localhost:10389");
+        properties.setProperty(Context.PROVIDER_URL, "ldap://localhost:" + PORT);
         properties.setProperty(LDAPUserGroupCallbackImpl.USER_CTX, "ou=People,dc=jboss,dc=org");
         properties.setProperty(LDAPUserGroupCallbackImpl.ROLE_CTX, "ou=Roles,dc=jboss,dc=org");
         properties.setProperty(LDAPUserGroupCallbackImpl.USER_FILTER, "(uid={0})");

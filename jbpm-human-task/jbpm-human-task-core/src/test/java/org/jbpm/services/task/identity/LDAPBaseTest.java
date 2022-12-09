@@ -21,12 +21,14 @@ import com.unboundid.ldap.listener.InMemoryDirectoryServerConfig;
 import com.unboundid.ldap.listener.InMemoryListenerConfig;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.LDAPException;
+
+import org.jbpm.test.util.SocketUtils;
 import org.junit.After;
 import org.junit.Before;
 
 public abstract class LDAPBaseTest {
 
-    private static final int PORT = 10389;
+    private static final int PORT = SocketUtils.findAvailablePort();
 
     protected static final String SERVER_URL = "ldap://localhost:" + PORT;
     protected static final String BASE_DN = "dc=jbpm,dc=org";
@@ -56,7 +58,15 @@ public abstract class LDAPBaseTest {
     @After
     public void stopDirectoryServer() {
         if (server != null) {
+            int listenPort = server.getListenPort();
             server.shutDown(true);
+            while (!SocketUtils.isPortAvailable(listenPort)) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    //ignore
+                }
+            }
         }
     }
 
