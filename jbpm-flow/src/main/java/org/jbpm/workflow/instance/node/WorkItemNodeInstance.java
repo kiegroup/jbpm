@@ -317,11 +317,15 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
         
         if (exceptionHandlingProcessInstanceId > -1) {
             ProcessInstance processInstance = null;
-            KieRuntime kruntime = getKieRuntimeForExceptionSubprocess();
-            processInstance = (ProcessInstance) kruntime.getProcessInstance(exceptionHandlingProcessInstanceId);
+            try {
+                KieRuntime kruntime = getKieRuntimeForExceptionSubprocess();
+                processInstance = (ProcessInstance) kruntime.getProcessInstance(exceptionHandlingProcessInstanceId);
 
-            if (processInstance != null) {
-                processInstance.setState(ProcessInstance.STATE_ABORTED);
+                if (processInstance != null) {
+                    processInstance.setState(ProcessInstance.STATE_ABORTED);
+                }
+            } catch(Exception e) {
+                logger.warn("Unable to obtain exceptionHandling processInstance {}", exceptionHandlingProcessInstanceId);
             }
         }
         super.cancel(cancelType);
