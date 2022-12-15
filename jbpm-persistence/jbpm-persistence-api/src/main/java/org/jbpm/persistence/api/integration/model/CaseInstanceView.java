@@ -73,6 +73,7 @@ public class CaseInstanceView implements InstanceView<ProcessInstance> {
     
     public CaseInstanceView(ProcessInstance source) {
         this.source = source;
+        this.id = source.getId();
     }
     
     public String getCompositeId() {
@@ -202,9 +203,6 @@ public class CaseInstanceView implements InstanceView<ProcessInstance> {
     
     @Override
     public void copyFromSource() {
-        if (this.id != null) {
-            return;
-        }
         this.compositeId = System.getProperty("org.kie.server.id", "") + "_" + source.getId();
         this.containerId = ((WorkflowProcessInstance)source).getDeploymentId();
         this.caseId = ((WorkflowProcessInstanceImpl)source).getCorrelationKey();
