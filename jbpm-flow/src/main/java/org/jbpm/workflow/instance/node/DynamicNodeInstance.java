@@ -49,7 +49,7 @@ public class DynamicNodeInstance extends CompositeContextNodeInstance implements
 		return getNodeName();
 	}
 
-	protected DynamicNode getDynamicNode() {
+	public DynamicNode getDynamicNode() {
 		return (DynamicNode) getNode();
 	}	
 
