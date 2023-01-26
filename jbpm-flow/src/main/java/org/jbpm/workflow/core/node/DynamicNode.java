@@ -114,14 +114,8 @@ public class DynamicNode extends CompositeContextNode {
         if (activationExpression == null || activationExpression.isEmpty()) {
             return null;
         }
-        String activationSignalName = "RuleFlow-AdHocActivate-";
-
-        if (getNodeContainer() instanceof WorkflowProcess) {
-            activationSignalName += ((WorkflowProcess)getNodeContainer()).getId() + "-" + getUniqueId();
-        } else if (getNodeContainer() instanceof org.jbpm.workflow.core.node.CompositeContextNode) {
-            activationSignalName += ((org.jbpm.workflow.core.node.CompositeContextNode) getNodeContainer()).getId() + "-" + getUniqueId();
-        }
-
+        String activationSignalName = "RuleFlow-AdHocActivate-" + ((WorkflowProcess)getNodeContainer()).getId() + "-" + getUniqueId();
+        
         return activationSignalName;
     }
 }
