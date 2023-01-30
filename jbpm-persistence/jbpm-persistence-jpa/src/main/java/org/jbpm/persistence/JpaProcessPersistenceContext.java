@@ -128,7 +128,7 @@ public class JpaProcessPersistenceContext extends JpaPersistenceContext
             }
             return correlationKeyInfo;
         } catch (PersistenceException e) {
-            throw new RuntimeException(correlationKeyInfo + " already exists", e);
+            throw new RuntimeException(correlationKeyInfo + " failed to persist", e);
         }
     }
 
