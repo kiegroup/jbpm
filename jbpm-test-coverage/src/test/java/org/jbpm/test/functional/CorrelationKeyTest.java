@@ -90,7 +90,7 @@ public class CorrelationKeyTest extends JbpmTestCase {
             Assertions.fail("Not unique correlation key used. Exception should have been thrown.");
         } catch (RuntimeException ex) {
             ex.printStackTrace();
-            Assertions.assertThat(ex.getMessage()).contains("already exists");
+            Assertions.assertThat(ex.getMessage()).contains("failed to persist");
         }
     }
 
@@ -106,7 +106,7 @@ public class CorrelationKeyTest extends JbpmTestCase {
             Assertions.fail("Not unique correlation key used. Exception should have been thrown.");
         } catch (RuntimeException ex) {
             ex.printStackTrace();
-            Assertions.assertThat(ex.getMessage()).contains("already exists");
+            Assertions.assertThat(ex.getMessage()).contains("failed to persist");
         }
     }
 
