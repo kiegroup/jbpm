@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<entity-mappings xmlns="http://java.sun.com/xml/ns/persistence/orm"
+<entity-mappings xmlns="http://xmlns.jcp.org/xml/ns/persistence/orm"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://java.sun.com/xml/ns/persistence/orm orm_2_0.xsd"
-  version="2.0">
+  xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence/orm orm_2_1.xsd"
+  version="2.1">
 
   <!-- process instance queries -->
   <named-query name="getProcessInstances">
-
     <query>
       select
       new org.jbpm.kie.services.impl.model.ProcessInstanceDesc(
@@ -363,7 +362,6 @@
   </named-query>
   
   <named-query name="getProcessInstancesByVariableName">
-
     <query>
       select
       new org.jbpm.kie.services.impl.model.ProcessInstanceDesc(
@@ -392,7 +390,6 @@
   </named-query>
   
   <named-query name="getProcessInstancesByVariableNameAndValue">
-
     <query>
       select
       new org.jbpm.kie.services.impl.model.ProcessInstanceDesc(
@@ -738,7 +735,405 @@
     </query>
     <!-- hint name="org.hibernate.timeout" value="200"/ -->
   </named-query>
+
+  <!-- deployment store named queries -->
+  <named-query name="getDeploymentUnit">
+    <query>
+      select d from DeploymentStoreEntry d where d.deploymentId=:deploymentId
+    </query>
+    <!-- hint name="org.hibernate.timeout" value="200"/ -->
+  </named-query>
   
+  <named-query name="getDeploymentUnitsByDate">
+    <query>
+      select d from DeploymentStoreEntry d where d.updateDate >= :ludate
+    </query>
+    <!-- hint name="org.hibernate.timeout" value="200"/ -->
+  </named-query>
+  
+  
+  <named-query name="getDeploymentUnitsByState">
+    <query>
+      select d from DeploymentStoreEntry d where d.state in (:state)
+    </query>
+    <!-- hint name="org.hibernate.timeout" value="200"/ -->
+  </named-query>
+  
+  
+  <!-- query definitions storage named queries -->
+  <named-query name="getQueryDefinitionByName">
+    <query>
+      select qd from QueryDefinitionEntity qd where name = :name
+    </query>
+    <!-- hint name="org.hibernate.timeout" value="200"/ -->
+  </named-query>
+  
+  <named-query name="getQueryDefinitions">
+    <query>
+      select qd from QueryDefinitionEntity qd
+    </query>
+    <!-- hint name="org.hibernate.timeout" value="200"/ -->
+  </named-query>
+
+  <!-- admin error handling queries -->
+  <named-query name="getErrorByIdSkipAckCheck">
+    <query>
+     select
+      new org.kie.internal.runtime.error.ExecutionError(
+      error.errorId,
+      error.type,
+      error.deploymentId,
+      error.processInstanceId,
+      error.processId,
+      error.activityId,
+      error.activityName,
+      error.jobId,
+      error.errorMessage,
+      error.error,
+      error.acknowledged,
+      error.acknowledgedBy,
+      error.acknowledgedAt,
+      error.errorDate
+      )
+      from
+        ExecutionErrorInfo error
+      where
+        error.errorId =:errorId  
+      order by 
+        error.errorDate DESC
+    </query>
+    <!-- hint name="org.hibernate.timeout" value="200"/ -->
+  </named-query> 
+
+  <named-query name="getErrorById">
+    <query>
+     select
+      new org.kie.internal.runtime.error.ExecutionError(
+      error.errorId,
+      error.type,
+      error.deploymentId,
+      error.processInstanceId,
+      error.processId,
+      error.activityId,
+      error.activityName,
+      error.jobId,
+      error.errorMessage,
+      error.error,
+      error.acknowledged,
+      error.acknowledgedBy,
+      error.acknowledgedAt,
+      error.errorDate
+      )
+      from
+        ExecutionErrorInfo error
+      where
+        error.errorId =:errorId  and
+        error.acknowledged in (:ack) 
+      order by 
+        error.errorDate DESC
+    </query>
+    <!-- hint name="org.hibernate.timeout" value="200"/ -->
+  </named-query>  
+
+  <named-query name="getErrorsByTaskId">
+    <query>
+     select
+      new org.kie.internal.runtime.error.ExecutionError(
+      error.errorId,
+      error.type,
+      error.deploymentId,
+      error.processInstanceId,
+      error.processId,
+      error.activityId,
+      error.activityName,
+      error.jobId,
+      error.errorMessage,
+      error.acknowledged,
+      error.acknowledgedBy,
+      error.acknowledgedAt,
+      error.errorDate
+      )
+      from
+        ExecutionErrorInfo error
+      where
+        error.type= 'Task' and
+        error.activityId =:taskId and
+        error.acknowledged in (:ack) 
+      order by 
+        error.errorDate DESC
+    </query>
+    <!-- hint name="org.hibernate.timeout" value="200"/ -->
+  </named-query>  
+
+  <named-query name="getErrorsByTaskName">
+    <query>
+     select
+      new org.kie.internal.runtime.error.ExecutionError(
+      error.errorId,
+      error.type,
+      error.deploymentId,
+      error.processInstanceId,
+      error.processId,
+      error.activityId,
+      error.activityName,
+      error.jobId,
+      error.errorMessage,
+      error.acknowledged,
+      error.acknowledgedBy,
+      error.acknowledgedAt,
+      error.errorDate
+      )
+      from
+        ExecutionErrorInfo error 
+      where
+        error.type= 'Task' and
+        error.activityName =:taskName and
+        error.acknowledged in (:ack) 
+      order by 
+        error.errorDate DESC
+    </query>
+    <!-- hint name="org.hibernate.timeout" value="200"/ -->
+  </named-query>  
+
+  <named-query name="getErrorsByTaskNameProcessId">
+    <query>
+     select
+      new org.kie.internal.runtime.error.ExecutionError(
+      error.errorId,
+      error.type,
+      error.deploymentId,
+      error.processInstanceId,
+      error.processId,
+      error.activityId,
+      error.activityName,
+      error.jobId,
+      error.errorMessage,
+      error.acknowledged,
+      error.acknowledgedBy,
+      error.acknowledgedAt,
+      error.errorDate
+      )
+      from
+        ExecutionErrorInfo error
+      where
+        error.type= 'Task' and
+        error.processId =:processId  and
+        error.activityName =:taskName and
+        error.acknowledged in (:ack) 
+      order by 
+        error.errorDate DESC
+    </query>
+    <!-- hint name="org.hibernate.timeout" value="200"/ -->
+  </named-query>  
+
+  <named-query name="getErrorsByTaskNameProcessIdDeploymentId">
+    <query>
+     select
+      new org.kie.internal.runtime.error.ExecutionError(
+      error.errorId,
+      error.type,
+      error.deploymentId,
+      error.processInstanceId,
+      error.processId,
+      error.activityId,
+      error.activityName,
+      error.jobId,
+      error.errorMessage,
+      error.acknowledged,
+      error.acknowledgedBy,
+      error.acknowledgedAt,
+      error.errorDate
+      )
+      from
+        ExecutionErrorInfo error
+      where
+        error.type= 'Task' and
+        error.deploymentId =:deploymentId and
+        error.processId =:processId  and
+        error.activityName =:taskName and
+        error.acknowledged in (:ack) 
+      order by 
+        error.errorDate DESC
+    </query>
+    <!-- hint name="org.hibernate.timeout" value="200"/ -->
+  </named-query> 
+  
+  <named-query name="getErrorsByProcessId">
+    <query>
+     select
+      new org.kie.internal.runtime.error.ExecutionError(
+      error.errorId,
+      error.type,
+      error.deploymentId,
+      error.processInstanceId,
+      error.processId,
+      error.activityId,
+      error.activityName,
+      error.jobId,
+      error.errorMessage,
+      error.acknowledged,
+      error.acknowledgedBy,
+      error.acknowledgedAt,
+      error.errorDate
+      )
+      from
+        ExecutionErrorInfo error 
+      where
+        error.deploymentId =:deploymentId and
+        error.processId =:processId and
+        error.acknowledged in (:ack) 
+      order by 
+        error.errorDate DESC
+    </query>
+    <!-- hint name="org.hibernate.timeout" value="200"/ -->
+  </named-query>  
+
+  <named-query name="getErrorsByProcessInstanceId">
+    <query>
+     select
+      new org.kie.internal.runtime.error.ExecutionError(
+      error.errorId,
+      error.type,
+      error.deploymentId,
+      error.processInstanceId,
+      error.processId,
+      error.activityId,
+      error.activityName,
+      error.jobId,
+      error.errorMessage,
+      error.acknowledged,
+      error.acknowledgedBy,
+      error.acknowledgedAt,
+      error.errorDate
+      )
+      from
+        ExecutionErrorInfo error
+      where
+        error.processInstanceId =:processInstanceId  and
+        error.acknowledged in (:ack) 
+      order by 
+        error.errorDate DESC
+    </query>
+    <!-- hint name="org.hibernate.timeout" value="200"/ -->
+  </named-query>  
+
+  <named-query name="getErrorsByProcessInstanceIdNodeName">
+    <query>
+     select
+      new org.kie.internal.runtime.error.ExecutionError(
+      error.errorId,
+      error.type,
+      error.deploymentId,
+      error.processInstanceId,
+      error.processId,
+      error.activityId,
+      error.activityName,
+      error.jobId,
+      error.errorMessage,
+      error.acknowledged,
+      error.acknowledgedBy,
+      error.acknowledgedAt,
+      error.errorDate
+      )
+      from
+        ExecutionErrorInfo error
+      where
+        error.processInstanceId =:processInstanceId  and
+        error.activityName =:nodeName and
+        error.acknowledged in (:ack) 
+      order by 
+        error.errorDate DESC
+    </query>
+    <!-- hint name="org.hibernate.timeout" value="200"/ -->
+  </named-query>  
+
+  <named-query name="getErrors">
+    <query>
+     select
+      new org.kie.internal.runtime.error.ExecutionError(
+      error.errorId,
+      error.type,
+      error.deploymentId,
+      error.processInstanceId,
+      error.processId,
+      error.activityId,
+      error.activityName,
+      error.jobId,
+      error.errorMessage,
+      error.acknowledged,
+      error.acknowledgedBy,
+      error.acknowledgedAt,
+      error.errorDate
+      )
+      from
+        ExecutionErrorInfo error
+      where
+        error.acknowledged in (:ack) 
+      order by 
+        error.errorDate DESC
+    </query>
+    <!-- hint name="org.hibernate.timeout" value="200"/ -->
+  </named-query> 
+
+  <named-query name="getErrorsByDeploymentId">
+    <query>
+     select
+      new org.kie.internal.runtime.error.ExecutionError(
+      error.errorId,
+      error.type,
+      error.deploymentId,
+      error.processInstanceId,
+      error.processId,
+      error.activityId,
+      error.activityName,
+      error.jobId,
+      error.errorMessage,
+      error.acknowledged,
+      error.acknowledgedBy,
+      error.acknowledgedAt,
+      error.errorDate
+      )
+      from
+        ExecutionErrorInfo error
+      where
+        error.acknowledged in (:ack) and
+        error.deploymentId = :deploymentId
+      order by 
+        error.errorDate DESC
+    </query>
+    <!-- hint name="org.hibernate.timeout" value="200"/ -->
+  </named-query> 
+
+  <named-query name="getTaskErrors">
+    <query>
+     select
+      new org.kie.internal.runtime.error.ExecutionError(
+      error.errorId,
+      error.type,
+      error.deploymentId,
+      error.processInstanceId,
+      error.processId,
+      error.activityId,
+      error.activityName,
+      error.jobId,
+      error.errorMessage,
+      error.acknowledged,
+      error.acknowledgedBy,
+      error.acknowledgedAt,
+      error.errorDate
+      )
+      from
+        ExecutionErrorInfo error
+      where
+        error.type= 'Task' and
+        error.acknowledged in (:ack) 
+      order by 
+        error.errorDate DESC
+    </query>
+    <!-- hint name="org.hibernate.timeout" value="200"/ -->
+  </named-query>   
+
+  <!-- advance runtime queries -->
   <named-native-query name="getTaskInstanceById" result-set-mapping="UserTaskInstanceDesc">
     <query>
             SELECT coalesce(task_union.id, taskId) AS id,
@@ -830,7 +1225,7 @@
     </query>
     <!-- hint name="org.hibernate.timeout" value="200"/ -->
   </named-native-query>
-  
+
   <named-native-query name="getTaskInstanceByWorkItemId" result-set-mapping="UserTaskInstanceDesc">
     <query>
         SELECT coalesce(task_union.id, taskId) AS id,
@@ -922,7 +1317,7 @@
     </query>
     <!-- hint name="org.hibernate.timeout" value="200"/ -->
   </named-native-query>
-  
+
   <named-native-query name="getTaskInstancesByProcessInstanceId" result-set-mapping="UserTaskInstanceDesc">
     <query>
         SELECT coalesce(task_union.id, taskId) AS id,
@@ -1014,437 +1409,7 @@
     </query>
     <!-- hint name="org.hibernate.timeout" value="200"/ -->
   </named-native-query>
-  
-  <sql-result-set-mapping name="UserTaskInstanceDesc">
-     <constructor-result target-class="org.jbpm.kie.services.impl.model.UserTaskInstanceDesc">
-       <column name="id" class ="java.lang.Long"/>
-       <column name="status"/>
-       <column name="activationTime" class ="java.util.Date"/>
-       <column name="name"/>
-       <column name="description"/>
-       <column name="priority" class ="java.lang.Integer"/>
-       <column name="actualOwner"/>
-       <column name="createdBy"/>
-       <column name="deploymentId"/>
-       <column name="processId"/>
-       <column name="processInstanceId" class ="java.lang.Long"/>
-       <column name="createdOn" class ="java.util.Date"/>
-       <column name="expirationTime" class ="java.util.Date"/>
-       <column name="workItemId" class ="java.lang.Long"/>
-       <column name="formName"/>
-       <column name="subject"/>
-       <column name="correlationKey"/>
-       <column name="processType" class ="java.lang.Integer"/>
-     </constructor-result>
-  </sql-result-set-mapping>
-  
 
-  <!-- deployment store named queries -->
-  <named-query name="getDeploymentUnit">
-
-    <query>
-      select d from DeploymentStoreEntry d where d.deploymentId=:deploymentId
-    </query>
-    <!-- hint name="org.hibernate.timeout" value="200"/ -->
-  </named-query>
-  
-  <named-query name="getDeploymentUnitsByDate">
-
-    <query>
-      select d from DeploymentStoreEntry d where d.updateDate >= :ludate
-    </query>
-    <!-- hint name="org.hibernate.timeout" value="200"/ -->
-  </named-query>
-  
-  
-  <named-query name="getDeploymentUnitsByState">
-
-    <query>
-      select d from DeploymentStoreEntry d where d.state in (:state)
-    </query>
-    <!-- hint name="org.hibernate.timeout" value="200"/ -->
-  </named-query>
-  
-  
-  <!-- query definitions storage named queries -->
-  <named-query name="getQueryDefinitionByName">
-
-    <query>
-      select qd from QueryDefinitionEntity qd where name = :name
-    </query>
-    <!-- hint name="org.hibernate.timeout" value="200"/ -->
-  </named-query>
-  
-  <named-query name="getQueryDefinitions">
-
-    <query>
-      select qd from QueryDefinitionEntity qd
-    </query>
-    <!-- hint name="org.hibernate.timeout" value="200"/ -->
-  </named-query>
-  
-  
-  <!-- admin error handling queries -->
-  
-  <named-query name="getErrorByIdSkipAckCheck">
-    <query>
-     select
-      new org.kie.internal.runtime.error.ExecutionError(
-      error.errorId,
-      error.type,
-      error.deploymentId,
-      error.processInstanceId,
-      error.processId,
-      error.activityId,
-      error.activityName,
-      error.jobId,
-      error.errorMessage,
-      error.error,
-      error.acknowledged,
-      error.acknowledgedBy,
-      error.acknowledgedAt,
-      error.errorDate
-      )
-      from
-        ExecutionErrorInfo error
-      where
-        error.errorId =:errorId  
-      order by 
-        error.errorDate DESC
-    </query>
-    <!-- hint name="org.hibernate.timeout" value="200"/ -->
-  </named-query> 
-  
-  <named-query name="getErrorById">
-    <query>
-     select
-      new org.kie.internal.runtime.error.ExecutionError(
-      error.errorId,
-      error.type,
-      error.deploymentId,
-      error.processInstanceId,
-      error.processId,
-      error.activityId,
-      error.activityName,
-      error.jobId,
-      error.errorMessage,
-      error.error,
-      error.acknowledged,
-      error.acknowledgedBy,
-      error.acknowledgedAt,
-      error.errorDate
-      )
-      from
-        ExecutionErrorInfo error
-      where
-        error.errorId =:errorId  and
-        error.acknowledged in (:ack) 
-      order by 
-        error.errorDate DESC
-    </query>
-    <!-- hint name="org.hibernate.timeout" value="200"/ -->
-  </named-query>  
-  
-  <named-query name="getErrorsByTaskId">
-    <query>
-     select
-      new org.kie.internal.runtime.error.ExecutionError(
-      error.errorId,
-      error.type,
-      error.deploymentId,
-      error.processInstanceId,
-      error.processId,
-      error.activityId,
-      error.activityName,
-      error.jobId,
-      error.errorMessage,
-      error.acknowledged,
-      error.acknowledgedBy,
-      error.acknowledgedAt,
-      error.errorDate
-      )
-      from
-        ExecutionErrorInfo error
-      where
-        error.type= 'Task' and
-        error.activityId =:taskId and
-        error.acknowledged in (:ack) 
-      order by 
-        error.errorDate DESC
-    </query>
-    <!-- hint name="org.hibernate.timeout" value="200"/ -->
-  </named-query>  
-  
-  <named-query name="getErrorsByTaskName">
-    <query>
-     select
-      new org.kie.internal.runtime.error.ExecutionError(
-      error.errorId,
-      error.type,
-      error.deploymentId,
-      error.processInstanceId,
-      error.processId,
-      error.activityId,
-      error.activityName,
-      error.jobId,
-      error.errorMessage,
-      error.acknowledged,
-      error.acknowledgedBy,
-      error.acknowledgedAt,
-      error.errorDate
-      )
-      from
-        ExecutionErrorInfo error 
-      where
-        error.type= 'Task' and
-        error.activityName =:taskName and
-        error.acknowledged in (:ack) 
-      order by 
-        error.errorDate DESC
-    </query>
-    <!-- hint name="org.hibernate.timeout" value="200"/ -->
-  </named-query>  
-  
-  <named-query name="getErrorsByTaskNameProcessId">
-    <query>
-     select
-      new org.kie.internal.runtime.error.ExecutionError(
-      error.errorId,
-      error.type,
-      error.deploymentId,
-      error.processInstanceId,
-      error.processId,
-      error.activityId,
-      error.activityName,
-      error.jobId,
-      error.errorMessage,
-      error.acknowledged,
-      error.acknowledgedBy,
-      error.acknowledgedAt,
-      error.errorDate
-      )
-      from
-        ExecutionErrorInfo error
-      where
-        error.type= 'Task' and
-        error.processId =:processId  and
-        error.activityName =:taskName and
-        error.acknowledged in (:ack) 
-      order by 
-        error.errorDate DESC
-    </query>
-    <!-- hint name="org.hibernate.timeout" value="200"/ -->
-  </named-query>  
-  
-  <named-query name="getErrorsByTaskNameProcessIdDeploymentId">
-    <query>
-     select
-      new org.kie.internal.runtime.error.ExecutionError(
-      error.errorId,
-      error.type,
-      error.deploymentId,
-      error.processInstanceId,
-      error.processId,
-      error.activityId,
-      error.activityName,
-      error.jobId,
-      error.errorMessage,
-      error.acknowledged,
-      error.acknowledgedBy,
-      error.acknowledgedAt,
-      error.errorDate
-      )
-      from
-        ExecutionErrorInfo error
-      where
-        error.type= 'Task' and
-        error.deploymentId =:deploymentId and
-        error.processId =:processId  and
-        error.activityName =:taskName and
-        error.acknowledged in (:ack) 
-      order by 
-        error.errorDate DESC
-    </query>
-    <!-- hint name="org.hibernate.timeout" value="200"/ -->
-  </named-query> 
-  
-  <named-query name="getErrorsByProcessId">
-    <query>
-     select
-      new org.kie.internal.runtime.error.ExecutionError(
-      error.errorId,
-      error.type,
-      error.deploymentId,
-      error.processInstanceId,
-      error.processId,
-      error.activityId,
-      error.activityName,
-      error.jobId,
-      error.errorMessage,
-      error.acknowledged,
-      error.acknowledgedBy,
-      error.acknowledgedAt,
-      error.errorDate
-      )
-      from
-        ExecutionErrorInfo error 
-      where
-        error.deploymentId =:deploymentId and
-        error.processId =:processId and
-        error.acknowledged in (:ack) 
-      order by 
-        error.errorDate DESC
-    </query>
-    <!-- hint name="org.hibernate.timeout" value="200"/ -->
-  </named-query>  
-  
-  <named-query name="getErrorsByProcessInstanceId">
-    <query>
-     select
-      new org.kie.internal.runtime.error.ExecutionError(
-      error.errorId,
-      error.type,
-      error.deploymentId,
-      error.processInstanceId,
-      error.processId,
-      error.activityId,
-      error.activityName,
-      error.jobId,
-      error.errorMessage,
-      error.acknowledged,
-      error.acknowledgedBy,
-      error.acknowledgedAt,
-      error.errorDate
-      )
-      from
-        ExecutionErrorInfo error
-      where
-        error.processInstanceId =:processInstanceId  and
-        error.acknowledged in (:ack) 
-      order by 
-        error.errorDate DESC
-    </query>
-    <!-- hint name="org.hibernate.timeout" value="200"/ -->
-  </named-query>  
-  
-  <named-query name="getErrorsByProcessInstanceIdNodeName">
-    <query>
-     select
-      new org.kie.internal.runtime.error.ExecutionError(
-      error.errorId,
-      error.type,
-      error.deploymentId,
-      error.processInstanceId,
-      error.processId,
-      error.activityId,
-      error.activityName,
-      error.jobId,
-      error.errorMessage,
-      error.acknowledged,
-      error.acknowledgedBy,
-      error.acknowledgedAt,
-      error.errorDate
-      )
-      from
-        ExecutionErrorInfo error
-      where
-        error.processInstanceId =:processInstanceId  and
-        error.activityName =:nodeName and
-        error.acknowledged in (:ack) 
-      order by 
-        error.errorDate DESC
-    </query>
-    <!-- hint name="org.hibernate.timeout" value="200"/ -->
-  </named-query>  
-  
-  <named-query name="getErrors">
-    <query>
-     select
-      new org.kie.internal.runtime.error.ExecutionError(
-      error.errorId,
-      error.type,
-      error.deploymentId,
-      error.processInstanceId,
-      error.processId,
-      error.activityId,
-      error.activityName,
-      error.jobId,
-      error.errorMessage,
-      error.acknowledged,
-      error.acknowledgedBy,
-      error.acknowledgedAt,
-      error.errorDate
-      )
-      from
-        ExecutionErrorInfo error
-      where
-        error.acknowledged in (:ack) 
-      order by 
-        error.errorDate DESC
-    </query>
-    <!-- hint name="org.hibernate.timeout" value="200"/ -->
-  </named-query> 
-
-  <named-query name="getErrorsByDeploymentId">
-    <query>
-     select
-      new org.kie.internal.runtime.error.ExecutionError(
-      error.errorId,
-      error.type,
-      error.deploymentId,
-      error.processInstanceId,
-      error.processId,
-      error.activityId,
-      error.activityName,
-      error.jobId,
-      error.errorMessage,
-      error.acknowledged,
-      error.acknowledgedBy,
-      error.acknowledgedAt,
-      error.errorDate
-      )
-      from
-        ExecutionErrorInfo error
-      where
-        error.acknowledged in (:ack) and
-        error.deploymentId = :deploymentId
-      order by 
-        error.errorDate DESC
-    </query>
-    <!-- hint name="org.hibernate.timeout" value="200"/ -->
-  </named-query> 
-  
-  <named-query name="getTaskErrors">
-    <query>
-     select
-      new org.kie.internal.runtime.error.ExecutionError(
-      error.errorId,
-      error.type,
-      error.deploymentId,
-      error.processInstanceId,
-      error.processId,
-      error.activityId,
-      error.activityName,
-      error.jobId,
-      error.errorMessage,
-      error.acknowledged,
-      error.acknowledgedBy,
-      error.acknowledgedAt,
-      error.errorDate
-      )
-      from
-        ExecutionErrorInfo error
-      where
-        error.type= 'Task' and
-        error.acknowledged in (:ack) 
-      order by 
-        error.errorDate DESC
-    </query>
-    <!-- hint name="org.hibernate.timeout" value="200"/ -->
-  </named-query>   
-
-
-  <!-- advance runtime queries -->
   <named-native-query name="GetProcessInstanceByIdList">
       <query>
         SELECT processInstanceId, processId, processName, processVersion, status, externalId, start_date, user_identity, correlationKey 
@@ -1452,7 +1417,7 @@
          WHERE processInstanceId IN (:idList) 
     </query>
   </named-native-query>
-  
+
   <named-native-query name="GetVariablesByProcessInstanceIdList">
       <query>
             SELECT A1.processInstanceId, A1.variableId, A1.value 
@@ -1515,4 +1480,27 @@
                WHERE A2.id IS NULL AND task.id IN (:idList)
       </query>
   </named-native-query>
+
+  <sql-result-set-mapping name="UserTaskInstanceDesc">
+     <constructor-result target-class="org.jbpm.kie.services.impl.model.UserTaskInstanceDesc">
+       <column name="id" class ="java.lang.Long"/>
+       <column name="status"/>
+       <column name="activationTime" class ="java.util.Date"/>
+       <column name="name"/>
+       <column name="description"/>
+       <column name="priority" class ="java.lang.Integer"/>
+       <column name="actualOwner"/>
+       <column name="createdBy"/>
+       <column name="deploymentId"/>
+       <column name="processId"/>
+       <column name="processInstanceId" class ="java.lang.Long"/>
+       <column name="createdOn" class ="java.util.Date"/>
+       <column name="expirationTime" class ="java.util.Date"/>
+       <column name="workItemId" class ="java.lang.Long"/>
+       <column name="formName"/>
+       <column name="subject"/>
+       <column name="correlationKey"/>
+       <column name="processType" class ="java.lang.Integer"/>
+     </constructor-result>
+  </sql-result-set-mapping>
 </entity-mappings>
