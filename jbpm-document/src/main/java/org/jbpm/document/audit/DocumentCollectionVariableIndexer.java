@@ -28,7 +28,7 @@ import java.util.stream.IntStream;
 
 public class DocumentCollectionVariableIndexer implements ProcessVariableIndexer {
 
-    private static final String PATTERN = "{0} ({1}/{2})";
+    private static final String PATTERN = "{0} ({1}_{2})";
 
     @Override
     public boolean accept(Object variable) {
