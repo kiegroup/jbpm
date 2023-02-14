@@ -22,6 +22,7 @@ import static org.jbpm.test.persistence.util.PersistenceUtil.createEnvironment;
 import static org.jbpm.test.persistence.util.PersistenceUtil.setupWithPoolingDataSource;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -114,5 +115,40 @@ public class ElasticsearchEventEmitterProcessTest {
 
         assertNotNull(responseCollector);
         assertEquals(1, responseCollector.size());
+
+        String response = responseCollector.get(0);
+        // check process instance creation event
+        assertTrue("Process index event missing", response.contains("\"index\""));
+        // check process instance end event
+        assertTrue("Process state 2 event missing", response.contains("\"state\":2"));
+    }
+
+    @Test(timeout=10000)
+    public void testIntegrationWithEventManagerSubProcess() throws Exception {
+        KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
+        kbuilder.add(new ClassPathResource("parent.bpmn"), ResourceType.BPMN2);
+        kbuilder.add(new ClassPathResource("child.bpmn"), ResourceType.BPMN2);
+        InternalKnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
+        kbase.addPackages(kbuilder.getKnowledgePackages());
+
+        StatefulKnowledgeSession ksession = JPAKnowledgeService.newStatefulKnowledgeSession(kbase, null, env);
+        ProcessInstance processInstance = ksession.startProcess("parent");
+        assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
+
+        while (responseCollector.isEmpty()) {
+            Thread.sleep(100);
+        }
+
+        assertNotNull(responseCollector);
+        assertEquals(1, responseCollector.size());
+
+        String response = responseCollector.get(0);
+        // check process instance creation event
+        assertTrue("Process index event missing", response.contains("\"index\""));
+        // check process instance end event
+        assertTrue("Process state 2 event missing", response.contains("\"state\":2"));
+        // check both parent and child process events have been sent
+        assertTrue("Process event for child process missing", response.contains("\"processId\":\"child\""));
+        assertTrue("Process event for parent process missing", response.contains("\"processId\":\"parent\""));
     }
 }
