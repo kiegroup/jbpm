@@ -135,7 +135,7 @@ public class ElasticSearchEventEmitter implements EventEmitter {
             try {
                 HttpPut httpPut = new HttpPut(elasticSearchUrl + "/_bulk");
                 httpPut.setEntity(new StringEntity(content.toString(), "UTF-8"));
-                logger.debug("Elastic search request {}", httpPut.getRequestLine());
+                logger.debug("Elastic search request {}", content.toString());
                 httpPut.setHeader("Content-Type", "application/x-ndjson");
 
                 // Create a custom response handler
