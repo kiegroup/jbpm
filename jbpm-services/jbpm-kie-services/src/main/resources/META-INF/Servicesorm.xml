@@ -590,14 +590,44 @@
       from
         NodeInstanceLog log
       where
-        log.type = 1
+        log.type in ( 1, 2, 3 ,4 )
         and log.processInstanceId=:processId
       ORDER BY 
         log.id ASC
     </query>
     <!-- hint name="org.hibernate.timeout" value="200"/ -->
   </named-query>
-  
+
+  <named-query name="getProcessInstanceFinishedNodes">
+    <query>
+      select
+      new org.jbpm.kie.services.impl.model.NodeInstanceDesc(
+      log.nodeInstanceId,
+      log.nodeId,
+      log.nodeName,
+      log.nodeType,
+      log.externalId,
+      log.processInstanceId,
+      log.date,
+      log.connection,
+      log.type,
+      log.workItemId,
+      log.referenceId,
+      log.nodeContainerId,
+      log.slaDueDate,
+      log.slaCompliance
+      )
+      from
+      NodeInstanceLog log
+      where
+      log.type in ( 1, 2, 3 ,4 )
+      and log.processInstanceId=:processId
+      ORDER BY
+      log.id ASC
+    </query>
+    <!-- hint name="org.hibernate.timeout" value="200"/ -->
+  </named-query>
+
   <named-query name="getNodeInstanceForWorkItem">
     <query>
       select
