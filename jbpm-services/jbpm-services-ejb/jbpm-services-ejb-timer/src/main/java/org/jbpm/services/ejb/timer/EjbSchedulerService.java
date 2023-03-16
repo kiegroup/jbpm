@@ -171,14 +171,26 @@ public class EjbSchedulerService implements GlobalSchedulerService {
         String pu = ((InternalRuntimeManager) manager).getDeploymentDescriptor().getPersistenceUnit();
         EntityManagerFactory emf = EntityManagerFactoryManager.get().getOrCreate(pu);
         EntityManager em = emf.createEntityManager();
+        JtaTransactionManager tm = (JtaTransactionManager) TransactionManagerFactory.get().newTransactionManager();
+        boolean txOwner = false;
         try {
+            if (tm != null  && tm.getStatus() == TransactionManager.STATUS_ROLLEDBACK) {
+                txOwner = tm.begin();
+            }
             List<TimerMappingInfo> info = func.apply(em);
             if (!info.isEmpty()) {
                 return info.get(0);
             } else {
                 return null;
             }
+            
+        } catch (Exception ex) {
+            logger.warn("Error getting mapping info ",ex);
+            return null;
         } finally {
+            if (tm != null) {
+                tm.commit(txOwner);
+            }
             em.close();
         }
     }
