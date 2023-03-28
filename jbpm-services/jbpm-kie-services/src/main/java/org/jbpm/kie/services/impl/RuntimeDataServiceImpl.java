@@ -692,6 +692,13 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
         return getProcessInstanceHistory(processId, true, queryContext);
     }
 
+    @Override
+    public Collection<NodeInstanceDesc> getProcessInstanceHistoryFinished(long processId, QueryContext queryContext) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("processId", processId);
+        applyQueryContext(params, queryContext);
+        return commandService.execute(new QueryNameCommand<List<NodeInstanceDesc>>("getProcessInstanceFinishedNodes", params));
+    }
 
     protected Collection<NodeInstanceDesc> getProcessInstanceHistory(long processId, boolean completed, QueryContext queryContext) {
     	Map<String, Object> params = new HashMap<String, Object>();
