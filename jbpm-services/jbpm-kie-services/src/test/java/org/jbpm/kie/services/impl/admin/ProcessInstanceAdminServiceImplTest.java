@@ -273,6 +273,11 @@ public class ProcessInstanceAdminServiceImplTest extends AbstractKieServicesBase
         assertNotNull(completedNodes);
         assertEquals(1, completedNodes.size());
 
+        // test for finished nodes
+        Collection<NodeInstanceDesc> finishedNodes = runtimeDataService.getProcessInstanceHistoryFinished(processInstanceId, new QueryFilter());
+        assertNotNull(finishedNodes);
+        assertEquals(2, finishedNodes.size());
+
         final List<NodeInstanceDesc> nodeInstances = completedNodes.stream().filter(node -> node.getId().equals(active.getId())).collect(Collectors.toList());
         assertEquals(0, nodeInstances.size());
 
