@@ -161,19 +161,18 @@ public class TaskEventSupport extends AbstractEventSupport<TaskLifeCycleEventLis
             notifyAllListeners( event, ( l, e ) -> l.beforeTaskInputVariableChangedEvent( e, variables ) );
         }
     }
-    
-    
+
     public void fireBeforeTaskOutputVariablesChanged(final Task task, TaskContext context, Map<String, Object> variables) {
         if ( hasListeners() ) {
             final TaskEventImpl event = new TaskEventImpl(task, context);
             notifyAllListeners( event, ( l, e ) -> l.beforeTaskOutputVariableChangedEvent( e, variables ) );
         }
     }
-    
-    public void fireBeforeTaskAssignmentsAddedEvent(final Task task, TaskContext context, AssignmentType type, List<OrganizationalEntity> entities) {
+
+    public void fireBeforeTaskAssignmentsAddedEvent(final Task task, TaskContext context, AssignmentType type, List<OrganizationalEntity> entities, List<OrganizationalEntity> beforeChangeEntities) {
         if ( hasListeners() ) {
             final TaskEventImpl event = new TaskEventImpl(task, context);
-            notifyAllListeners( event, ( l, e ) -> l.beforeTaskAssignmentsAddedEvent(e, type, entities) );
+            notifyAllListeners( event, ( l, e ) -> l.beforeTaskAssignmentsAddedEvent(e, type, entities, beforeChangeEntities) );
         }
     }
     
@@ -329,10 +328,10 @@ public class TaskEventSupport extends AbstractEventSupport<TaskLifeCycleEventLis
         }
     }
     
-    public void fireAfterTaskAssignmentsAddedEvent(final Task task, TaskContext context, AssignmentType type, List<OrganizationalEntity> entities) {
+    public void fireAfterTaskAssignmentsAddedEvent(final Task task, TaskContext context, AssignmentType type, List<OrganizationalEntity> entities,  List<OrganizationalEntity> afterChangeEntities) {
         if ( hasListeners() ) {
             final TaskEventImpl event = new TaskEventImpl(task, context);
-            notifyAllListeners( event, ( l, e ) -> l.afterTaskAssignmentsAddedEvent(e, type, entities) );
+            notifyAllListeners( event, ( l, e ) -> l.afterTaskAssignmentsAddedEvent(e, type, entities, afterChangeEntities) );
         }
     }
     
