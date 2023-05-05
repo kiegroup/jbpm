@@ -82,8 +82,15 @@ public class TaskDeadlinesServiceImpl implements TaskDeadlinesService {
         this.persistenceContext = persistenceContext;
     }
 
+    public void scheduleNew(long taskId, long deadlineId, long delay, DeadlineType type) {
+        schedule(taskId, deadlineId, delay, type, true);
+    }
 
     public void schedule(long taskId, long deadlineId, long delay, DeadlineType type) {
+        schedule(taskId, deadlineId, delay, type, false);
+    }
+
+    public void schedule(long taskId, long deadlineId, long delay, DeadlineType type, boolean isNew) {
         Task task = persistenceContext.findTask(taskId);
         String deploymentId = task.getTaskData().getDeploymentId();
 
@@ -99,7 +106,7 @@ public class TaskDeadlinesServiceImpl implements TaskDeadlinesService {
                     0,
                     null,
                     null ) ;
-            JobHandle handle = timerService.scheduleJob(deadlineJob, new TaskDeadlineJobContext(deadlineJob.getId(), task.getTaskData().getProcessInstanceId(), deploymentId), trigger);
+            JobHandle handle = timerService.scheduleJob(deadlineJob, new TaskDeadlineJobContext(deadlineJob.getId(), task.getTaskData().getProcessInstanceId(), deploymentId, isNew), trigger);
             jobHandles.put(deadlineJob.getId(), handle);
 
         } else {
@@ -363,13 +370,24 @@ public class TaskDeadlinesServiceImpl implements TaskDeadlinesService {
         private String jobName;
         private Long processInstanceId;
         private String deploymentId;
+        private boolean isNew;
         
         public TaskDeadlineJobContext(String jobName, Long processInstanceId, String deploymentId) {
+                this(jobName, processInstanceId, deploymentId, false);
+        }
+
+        public TaskDeadlineJobContext(String jobName, Long processInstanceId, String deploymentId, boolean isNew) {
             this.jobName = jobName;
             this.processInstanceId = processInstanceId;
             this.deploymentId = deploymentId;
+            this.isNew = isNew;
         }
         
+        @Override
+        public boolean isNew() {
+            return isNew;
+        }
+
         @Override
         public void setJobHandle(JobHandle jobHandle) {
             this.jobHandle = jobHandle;
