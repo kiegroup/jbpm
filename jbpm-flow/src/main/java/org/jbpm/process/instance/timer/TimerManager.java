@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.drools.core.common.InternalKnowledgeRuntime;
 import org.drools.core.common.InternalWorkingMemory;
@@ -61,8 +62,8 @@ public class TimerManager {
     
     private static final Logger logger = LoggerFactory.getLogger(TimerManager.class);
 
-    private long timerId = 0;
-
+    private static AtomicLong timerCounter = new AtomicLong();
+  
     private InternalKnowledgeRuntime kruntime;
     private TimerService timerService;
     private Map<Long, TimerInstance> timers = new ConcurrentHashMap<Long, TimerInstance>();
@@ -78,7 +79,7 @@ public class TimerManager {
         try {
             kruntime.startOperation();
 
-            timer.setId(++timerId);
+            timer.setId(timerCounter.incrementAndGet());
             timer.setProcessInstanceId(processInstance.getId());
             timer.setSessionId(((KieSession) kruntime).getIdentifier());
             timer.setActivated(new Date());
@@ -109,7 +110,7 @@ public class TimerManager {
         try {
             kruntime.startOperation();
 
-            timer.setId(++timerId);
+            timer.setId(timerCounter.incrementAndGet());
             timer.setProcessInstanceId(-1l);
             timer.setSessionId(((StatefulKnowledgeSession) kruntime).getIdentifier());
             timer.setActivated(new Date());
@@ -211,11 +212,11 @@ public class TimerManager {
     }
 
     public long internalGetTimerId() {
-        return timerId;
+        return timerCounter.get();
     }
 
     public void internalSetTimerId(long timerId) {
-        this.timerId = timerId;
+        timerCounter.set(timerId);
     }
 
     public void setTimerService(TimerService timerService) {
