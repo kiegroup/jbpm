@@ -15,6 +15,7 @@
  */
 package org.jbpm.services.task.commands;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.jbpm.services.task.events.TaskEventSupport;
@@ -64,6 +65,8 @@ public class TaskContext implements org.kie.internal.task.api.TaskContext, Reque
     private org.kie.internal.task.api.TaskContext delegate;
     
     private String userId;
+
+    private Map<String, Object> contextData;
     
     public TaskContext() {
     }   
@@ -238,5 +241,12 @@ public class TaskContext implements org.kie.internal.task.api.TaskContext, Reque
     
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public Map<String, Object> getContextData() {
+        if (contextData == null) {
+            contextData = new HashMap<>();
+        }
+        return contextData;
     }
 }

@@ -246,6 +246,11 @@ public class TaskTransactionInterceptor extends AbstractInterceptor {
 	    public void setUserId(String userId) {
 	        this.userId = userId;
 	    }
+
+		@Override
+		public Map<String, Object> getContextData() {
+			throw new UnsupportedOperationException( "org.jbpm.services.task.persistence.TaskTransactionInterceptor.TransactionContext.getApplicationContext -> TODO" );
+		}
 	}
 	
 	public void initTransactionManager(Environment env) {

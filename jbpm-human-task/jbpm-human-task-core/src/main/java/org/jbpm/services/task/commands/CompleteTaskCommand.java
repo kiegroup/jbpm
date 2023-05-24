@@ -44,6 +44,8 @@ import java.util.Map;
 public class CompleteTaskCommand extends UserGroupCallbackTaskCommand<Void> {
 
 	private static final long serialVersionUID = 412409697422083299L;
+
+    public static final String TASK_OUT_VARS_CONTEXT_KEY = "beforeTaskExecutedOutputVariables";
 	
 	@XmlJavaTypeAdapter(JaxbMapAdapter.class)
     @XmlElement
@@ -75,6 +77,12 @@ public class CompleteTaskCommand extends UserGroupCallbackTaskCommand<Void> {
         Task task = context.getTaskQueryService().getTaskInstanceById(taskId);
         if (task == null) {            
             throw new PermissionDeniedException("Task '" + taskId + "' not found");
+        }
+
+        if (task.getTaskData().getTaskOutputVariables() != null ) {
+            Map<String, Object> taskOutputVariablesContext= new HashMap<>();
+            taskOutputVariablesContext.putAll(task.getTaskData().getTaskOutputVariables());
+            context.getContextData().put(TASK_OUT_VARS_CONTEXT_KEY, taskOutputVariablesContext);
         }
         
         context.loadTaskVariables(task);
