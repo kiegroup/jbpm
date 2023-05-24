@@ -18,11 +18,11 @@ package org.jbpm.process.instance.timer;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.drools.core.common.InternalKnowledgeRuntime;
 import org.drools.core.common.InternalWorkingMemory;
@@ -49,7 +49,10 @@ import org.jbpm.process.instance.InternalProcessRuntime;
 import org.jbpm.process.instance.ProcessInstance;
 import org.jbpm.process.instance.ProcessRuntimeImpl;
 import org.kie.api.runtime.KieSession;
+import org.kie.api.runtime.manager.RuntimeManager;
 import org.kie.api.time.SessionClock;
+import org.jbpm.workflow.instance.NodeInstanceContainer;
+import org.jbpm.workflow.instance.node.TimerNodeInstance;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,7 +65,7 @@ public class TimerManager {
     
     private static final Logger logger = LoggerFactory.getLogger(TimerManager.class);
 
-    private static AtomicLong timerCounter = new AtomicLong();
+    private long timerId;
   
     private InternalKnowledgeRuntime kruntime;
     private TimerService timerService;
@@ -79,7 +82,7 @@ public class TimerManager {
         try {
             kruntime.startOperation();
 
-            timer.setId(timerCounter.incrementAndGet());
+            timer.setId(getTimerId(processInstance));
             timer.setProcessInstanceId(processInstance.getId());
             timer.setSessionId(((KieSession) kruntime).getIdentifier());
             timer.setActivated(new Date());
@@ -106,11 +109,21 @@ public class TimerManager {
         }
     }
 
+    private long getTimerId(ProcessInstance processInstance) {
+        RuntimeManager manager = (RuntimeManager)kruntime.getEnvironment().get("RuntimeManager");
+        if (!(processInstance instanceof NodeInstanceContainer) || manager.getClass().getSimpleName().equals("PerProcessInstanceRuntimeManager")) {
+            return ++timerId;
+        } else {
+            return ((NodeInstanceContainer)processInstance).getNodeInstances(true).stream().filter(TimerNodeInstance.class::isInstance).map(TimerNodeInstance.class::cast)
+               .map(TimerNodeInstance::getTimerId).max(Comparator.comparingLong(Long::longValue)).orElse(timerId) + 1;
+        }
+    }
+
     public void registerTimer(final TimerInstance timer, String processId, Map<String, Object> params) {
         try {
             kruntime.startOperation();
 
-            timer.setId(timerCounter.incrementAndGet());
+            timer.setId(++timerId);
             timer.setProcessInstanceId(-1l);
             timer.setSessionId(((StatefulKnowledgeSession) kruntime).getIdentifier());
             timer.setActivated(new Date());
@@ -212,11 +225,11 @@ public class TimerManager {
     }
 
     public long internalGetTimerId() {
-        return timerCounter.get();
+        return timerId;
     }
 
     public void internalSetTimerId(long timerId) {
-        timerCounter.set(timerId);
+        this.timerId = timerId;
     }
 
     public void setTimerService(TimerService timerService) {
