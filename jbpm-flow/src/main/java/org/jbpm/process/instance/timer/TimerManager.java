@@ -22,6 +22,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.drools.core.common.InternalKnowledgeRuntime;
@@ -110,12 +111,11 @@ public class TimerManager {
 
     private long getTimerId(ProcessInstance processInstance) {
         Object manager = kruntime.getEnvironment().get("RuntimeManager");
-        if (!(processInstance instanceof NodeInstanceContainer) || manager != null && manager.getClass().getSimpleName().equals("PerProcessInstanceRuntimeManager")) {
-            return ++timerId;
-        } else {
-            return ((NodeInstanceContainer)processInstance).getNodeInstances(true).stream().filter(TimerNodeInstance.class::isInstance).map(TimerNodeInstance.class::cast)
-               .map(TimerNodeInstance::getTimerId).max(Comparator.comparingLong(Long::longValue)).map(l -> l +1).orElseGet(()-> ++timerId);
+        if (processInstance instanceof NodeInstanceContainer && manager != null && !manager.getClass().getSimpleName().equals("PerProcessInstanceRuntimeManager")) {
+            ((NodeInstanceContainer)processInstance).getNodeInstances(true).stream().filter(TimerNodeInstance.class::isInstance).map(TimerNodeInstance.class::cast)
+               .map(TimerNodeInstance::getTimerId).max(Comparator.comparingLong(Long::longValue)).filter(l -> l > timerId).ifPresent(l -> timerId=l);
         }
+        return ++timerId;
     }
 
     public void registerTimer(final TimerInstance timer, String processId, Map<String, Object> params) {
