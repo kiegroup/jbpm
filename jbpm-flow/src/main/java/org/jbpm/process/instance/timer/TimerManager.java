@@ -49,7 +49,6 @@ import org.jbpm.process.instance.InternalProcessRuntime;
 import org.jbpm.process.instance.ProcessInstance;
 import org.jbpm.process.instance.ProcessRuntimeImpl;
 import org.kie.api.runtime.KieSession;
-import org.kie.api.runtime.manager.RuntimeManager;
 import org.kie.api.time.SessionClock;
 import org.jbpm.workflow.instance.NodeInstanceContainer;
 import org.jbpm.workflow.instance.node.TimerNodeInstance;

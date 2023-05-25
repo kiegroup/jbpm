@@ -178,7 +178,7 @@ public class TimerUpdateTest extends JbpmTestCase {
         
         //Get the timerId (there is only one)
         Collection<TimerInstance> timers = getTimerManager(kieSession).getTimers();
-        Assertions.assertThat(timers.size()).isEqualTo(1);
+        Assertions.assertThat(timers).hasSize(1);
         long timerId = timers.iterator().next().getId();
         
         //set delay to 3s
