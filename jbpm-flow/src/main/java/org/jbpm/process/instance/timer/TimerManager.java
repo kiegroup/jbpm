@@ -110,12 +110,12 @@ public class TimerManager {
     }
 
     private long getTimerId(ProcessInstance processInstance) {
-        RuntimeManager manager = (RuntimeManager)kruntime.getEnvironment().get("RuntimeManager");
-        if (!(processInstance instanceof NodeInstanceContainer) || manager.getClass().getSimpleName().equals("PerProcessInstanceRuntimeManager")) {
+        Object manager = kruntime.getEnvironment().get("RuntimeManager");
+        if (!(processInstance instanceof NodeInstanceContainer) || manager != null && manager.getClass().getSimpleName().equals("PerProcessInstanceRuntimeManager")) {
             return ++timerId;
         } else {
             return ((NodeInstanceContainer)processInstance).getNodeInstances(true).stream().filter(TimerNodeInstance.class::isInstance).map(TimerNodeInstance.class::cast)
-               .map(TimerNodeInstance::getTimerId).max(Comparator.comparingLong(Long::longValue)).orElse(timerId) + 1;
+               .map(TimerNodeInstance::getTimerId).max(Comparator.comparingLong(Long::longValue)).map(l -> l +1).orElseGet(()-> ++timerId);
         }
     }
 
