@@ -16,12 +16,19 @@
 package org.jbpm.test.functional.timer;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.assertj.core.api.Assertions;
+import org.drools.core.command.SingleSessionCommandService;
+import org.drools.core.command.impl.CommandBasedStatefulKnowledgeSession;
+import org.drools.core.impl.StatefulKnowledgeSessionImpl;
+import org.jbpm.process.instance.InternalProcessRuntime;
 import org.jbpm.process.instance.command.UpdateTimerCommand;
+import org.jbpm.process.instance.timer.TimerInstance;
+import org.jbpm.process.instance.timer.TimerManager;
 import org.jbpm.test.JbpmTestCase;
 import org.jbpm.test.listener.process.DefaultCountDownProcessEventListener;
 import org.jbpm.test.listener.process.NodeLeftCountDownProcessEventListener;
@@ -168,8 +175,14 @@ public class TimerUpdateTest extends JbpmTestCase {
         long id = kieSession.startProcess(PROCESS_NAME).getId();
         long startTime = System.currentTimeMillis();
         Assertions.assertThat(list).isNotEmpty();
+        
+        //Get the timerId (there is only one)
+        Collection<TimerInstance> timers = getTimerManager(kieSession).getTimers();
+        Assertions.assertThat(timers).hasSize(1);
+        long timerId = timers.iterator().next().getId();
+        
         //set delay to 3s
-        kieSession.execute(new UpdateTimerCommand(id, 1, 3));
+        kieSession.execute(new UpdateTimerCommand(id, timerId, 3));
 
         listener.waitTillCompleted();
         Assertions.assertThat(timerHasFired()).isTrue();
@@ -320,5 +333,14 @@ public class TimerUpdateTest extends JbpmTestCase {
         Map<String, Object> parameters = new HashMap<>();
         Assertions.assertThatThrownBy(() -> kieSession.startProcess(ISO_TIMER_NAME, parameters)).hasCauseInstanceOf(IllegalArgumentException.class);
 
+    }
+    
+    private TimerManager getTimerManager(KieSession ksession) {
+        KieSession internal = ksession;
+        if (ksession instanceof CommandBasedStatefulKnowledgeSession) {
+            internal = ((SingleSessionCommandService)((CommandBasedStatefulKnowledgeSession)ksession ).getRunner()).getKieSession();
+        }
+
+        return ((InternalProcessRuntime)((StatefulKnowledgeSessionImpl)internal).getProcessRuntime()).getTimerManager();
     }
 }
