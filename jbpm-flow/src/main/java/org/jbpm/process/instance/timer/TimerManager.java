@@ -18,9 +18,11 @@ package org.jbpm.process.instance.timer;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.drools.core.common.InternalKnowledgeRuntime;
@@ -49,6 +51,8 @@ import org.jbpm.process.instance.ProcessInstance;
 import org.jbpm.process.instance.ProcessRuntimeImpl;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.time.SessionClock;
+import org.jbpm.workflow.instance.NodeInstanceContainer;
+import org.jbpm.workflow.instance.node.TimerNodeInstance;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,8 +65,8 @@ public class TimerManager {
     
     private static final Logger logger = LoggerFactory.getLogger(TimerManager.class);
 
-    private long timerId = 0;
-
+    private long timerId;
+  
     private InternalKnowledgeRuntime kruntime;
     private TimerService timerService;
     private Map<Long, TimerInstance> timers = new ConcurrentHashMap<Long, TimerInstance>();
@@ -78,7 +82,7 @@ public class TimerManager {
         try {
             kruntime.startOperation();
 
-            timer.setId(++timerId);
+            timer.setId(getTimerId(processInstance));
             timer.setProcessInstanceId(processInstance.getId());
             timer.setSessionId(((KieSession) kruntime).getIdentifier());
             timer.setActivated(new Date());
@@ -103,6 +107,15 @@ public class TimerManager {
         } finally {
             kruntime.endOperation();
         }
+    }
+
+    private long getTimerId(ProcessInstance processInstance) {
+        Object manager = kruntime.getEnvironment().get("RuntimeManager");
+        if (processInstance instanceof NodeInstanceContainer && manager != null && !manager.getClass().getSimpleName().equals("PerProcessInstanceRuntimeManager")) {
+            ((NodeInstanceContainer)processInstance).getNodeInstances(true).stream().filter(TimerNodeInstance.class::isInstance).map(TimerNodeInstance.class::cast)
+               .map(TimerNodeInstance::getTimerId).max(Comparator.comparingLong(Long::longValue)).filter(l -> l > timerId).ifPresent(l -> timerId=l);
+        }
+        return ++timerId;
     }
 
     public void registerTimer(final TimerInstance timer, String processId, Map<String, Object> params) {
