@@ -211,17 +211,14 @@ public class VariableScopeInstance extends AbstractContextInstance {
     }
     
     public void setDefaultValue(Process process,VariableScope variableScope,VariableScopeInstance variableScopeInstance) {        
-        if (variableScope != null) {
-            for (Variable variable : variableScope.getVariables()) {
-                String name = variable.getName();
-                Object defaultValue = variable.getMetaData("defaultValue");
-                if (variableScopeInstance.getVariable(name) == null && defaultValue != null) {
-                    variableScopeInstance.setVariable(name,
-                            variableScope.validateVariable(process.getName(), name, defaultValue));
-
-                }
-            }
-        }
+		if (variableScope != null) {
+			for (Variable variable : variableScope.getVariables()) {
+				String name = variable.getName();
+				Object defaultValue = variable.getMetaData("defaultValue");
+				if (variableScopeInstance.getVariable(name) == null && defaultValue != null) {
+					variableScopeInstance.setVariable(name, variable.getType().readValue(defaultValue.toString()));
+				}
+			}
+		}
     }   
-
 }
