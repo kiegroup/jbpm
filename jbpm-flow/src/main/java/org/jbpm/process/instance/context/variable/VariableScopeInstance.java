@@ -209,15 +209,15 @@ public class VariableScopeInstance extends AbstractContextInstance {
         return data != null && (!(data instanceof CharSequence) || !data.toString().trim().isEmpty());
     }
     
-	public void setDefaultValues(VariableScope variableScope, VariableScopeInstance variableScopeInstance) {
-		if (variableScope != null) {
-			for (Variable variable : variableScope.getVariables()) {
-				String name = variable.getName();
-				Object defaultValue = variable.getMetaData("defaultValue");
-				if (variableScopeInstance.getVariable(name) == null && defaultValue != null) {
-					variableScopeInstance.setVariable(name, variable.getType().readValue(defaultValue.toString()));
-				}
-			}
-		}
-	}
+    public void setDefaultValues(VariableScope variableScope, VariableScopeInstance variableScopeInstance) {
+        if (variableScope != null) {
+            for (Variable variable : variableScope.getVariables()) {
+                String name = variable.getName();
+                Object defaultValue = variable.getMetaData("defaultValue");
+                if (variableScopeInstance.getVariable(name) == null && defaultValue != null) {
+                    variableScopeInstance.setVariable(name, variable.getType().readValue(defaultValue.toString()));
+                }
+            }
+        }
+    }
 }
