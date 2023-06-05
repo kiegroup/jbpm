@@ -16,19 +16,56 @@
 package org.jbpm.process.core.datatype.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 import org.jbpm.process.core.datatype.impl.type.ObjectDataType;
 import org.junit.Test;
 
+
 public class ObjectDataTypeTest {
+
+    @Test
+    public void testReadValueNull() {
+        ObjectDataType dateType = new ObjectDataType(Date.class.getCanonicalName());
+        assertThat(dateType.readValue(null)).isNull();
+        assertThat(dateType.valueOf(null)).isNull();
+        assertThat(dateType.verifyDataType(null)).isTrue();
+    }
 
     @Test
     public void testReadValueDate() {
         ObjectDataType dateType = new ObjectDataType(Date.class.getCanonicalName());
         assertThat(dateType.readValue("2012-02-02")).isInstanceOf(Date.class);
-        assertThat(dateType.readValue("2012-02-02 12:12:12")).isInstanceOf(Date.class);
         assertThat(dateType.readValue("12:12:12")).isInstanceOf(Date.class);
+        assertThat(dateType.valueOf("2012-02-02")).isInstanceOf(Date.class);
+        assertThat(dateType.valueOf("12:12:12")).isInstanceOf(Date.class);
+        assertThat(dateType.valueOf("pepe")).isInstanceOf(String.class);
+        assertThatThrownBy(() -> dateType.readValue("pepe")).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void testReadValueLocalDate() {
+        ObjectDataType dateType = new ObjectDataType(LocalDate.class.getCanonicalName());
+        assertThat(dateType.readValue("2012-02-02")).isInstanceOf(LocalDate.class);
+        assertThat(dateType.valueOf("2012-02-02")).isInstanceOf(LocalDate.class);
+    }
+
+    @Test
+    public void testReadValueLocalDateTime() {
+        ObjectDataType dateType = new ObjectDataType(LocalDateTime.class.getCanonicalName());
+        assertThat(dateType.readValue("2012-02-02T12:12:12")).isInstanceOf(LocalDateTime.class);
+        assertThat(dateType.valueOf("2012-02-02T12:12:12")).isInstanceOf(LocalDateTime.class);
+    }
+
+    @Test
+    public void testReadValueZonedDateTime() {
+        ObjectDataType dateType = new ObjectDataType(ZonedDateTime.class.getCanonicalName());
+        assertThat(dateType.readValue("2012-02-02T12:12:12+00:01")).isInstanceOf(ZonedDateTime.class);
+        assertThat(dateType.valueOf("2012-02-02T12:12:12+00:01")).isInstanceOf(ZonedDateTime.class);
     }
 }

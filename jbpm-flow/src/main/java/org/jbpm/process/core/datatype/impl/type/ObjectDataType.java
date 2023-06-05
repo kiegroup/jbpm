@@ -45,7 +45,7 @@ import static org.kie.soup.xstream.XStreamUtils.createTrustingXStream;
  */
 public class ObjectDataType implements DataType {
 
-	private static final Logger logger = LoggerFactory.getLogger(ObjectDataType.class);
+    private static final Logger logger = LoggerFactory.getLogger(ObjectDataType.class);
     private static final long serialVersionUID = 510l;
 
     private String className;
@@ -117,9 +117,6 @@ public class ObjectDataType implements DataType {
     }
 
     private Optional<Object> getObjectFromClass(final Object value) {
-        if (value == null) {
-            return Optional.empty();
-        }
         Optional<Class<?>> clazz = getClass(value);
         if (clazz.isPresent()) {
             Class<?> objectClass = clazz.get();
@@ -158,14 +155,14 @@ public class ObjectDataType implements DataType {
 
     @Override
     public Object readValue(String value) {
-        return getObjectFromClass(value).orElseGet(() -> value == null ? value : getXStream().fromXML(value));
+        return value != null ? getObjectFromClass(value).orElseGet(() -> getXStream().fromXML(value)) : null;
     }
 
     @Override
     public Object valueOf(String value) {
         try {
-            return getObjectFromClass(value).orElse(value);
-        } catch (Exception e) {
+            return value != null ? getObjectFromClass(value).orElse(value) : null;
+        } catch (IllegalArgumentException e) {
             return value;
         }
     }
