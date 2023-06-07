@@ -19,16 +19,24 @@ package org.jbpm.process.core.datatype.impl.type;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
+import java.util.Optional;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.security.ExplicitTypePermission;
 import org.drools.reflective.classloader.ProjectClassLoader;
 import org.jbpm.process.core.datatype.DataType;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 import static org.kie.soup.xstream.XStreamUtils.createTrustingXStream;
 
@@ -37,6 +45,7 @@ import static org.kie.soup.xstream.XStreamUtils.createTrustingXStream;
  */
 public class ObjectDataType implements DataType {
 
+    private static final Logger logger = LoggerFactory.getLogger(ObjectDataType.class);
     private static final long serialVersionUID = 510l;
 
     private String className;
@@ -79,55 +88,83 @@ public class ObjectDataType implements DataType {
         out.writeObject(className);
     }
 
+    private static final Collection<String> prefixes = Arrays.asList("java.lang", "java.util", "java.time");
+
+    private Optional<Class<?>> getClass(Object value) {
+        try {
+            return Optional.of(Class.forName(className, true, value.getClass().getClassLoader()));
+        } catch (ClassNotFoundException e) {
+            logger.info("Error {} loading class {}", e, className);
+        }
+        if (!className.contains(".")) {
+            for (String prefix : prefixes) {
+                String altName = prefix + "." + className;
+                try {
+                    return Optional.of(Class.forName(altName, true, classLoader));
+                } catch (ClassNotFoundException e) {
+                    logger.debug("Error {} loading class {}", e, altName);
+                }
+            }
+        }
+        return Optional.empty();
+    }
+
     public boolean verifyDataType(final Object value) {
         if (value == null || className == null) {
             return true;
         }
-        try {
-            Class<?> clazz = Class.forName(className, true, value.getClass().getClassLoader());
-            if (clazz.isInstance(value) || isValidDate(value)) {
-                return true;
+        return getClass(value).map(c -> c.isInstance(value)).orElse(false);
+    }
+
+    private Optional<Object> getObjectFromClass(final Object value) {
+        Optional<Class<?>> clazz = getClass(value);
+        if (clazz.isPresent()) {
+            Class<?> objectClass = clazz.get();
+            if (objectClass.isInstance(value)) {
+                return Optional.of(value);
             }
-        } catch (ClassNotFoundException e) {
-            // check class again
+            if (Date.class.isAssignableFrom(objectClass)) {
+                return Optional.of(parseDate(value.toString()));
+            } else if (LocalDate.class.isAssignableFrom(objectClass)) {
+                return Optional.of(LocalDate.parse((value.toString())));
+            } else if (LocalDateTime.class.isAssignableFrom(objectClass)) {
+                return Optional.of(LocalDateTime.parse((value.toString())));
+            } else if (ZonedDateTime.class.isAssignableFrom(objectClass)) {
+                return Optional.of(ZonedDateTime.parse((value.toString())));
+            }
         }
-        // try to expand fundamental classes if it's not a FQCN
-        if(!className.contains(".")) {
+        return Optional.empty();
+    }
+
+    private static Collection<DateFormat> dateFormats = Arrays.asList(new SimpleDateFormat("yyyy-MM-ddHH:mm:ss"),
+            new SimpleDateFormat("yyyy-MM-dd"), new SimpleDateFormat("HH:mm:ss"), DateFormat.getDateInstance(),
+            DateFormat.getTimeInstance(),
+            DateFormat.getDateTimeInstance());
+
+    private Date parseDate(String toBeParsed) {
+        StringBuilder sb = new StringBuilder();
+        for (DateFormat dateFormat : dateFormats) {
             try {
-                className = "java.lang."+className;
-                Class<?> clazz = Class.forName(className, true, value.getClass().getClassLoader());
-                if (clazz.isInstance(value)) {
-                    return true;
-                }
-            } catch (ClassNotFoundException e) {
-                return false;
+                return dateFormat.parse(toBeParsed);
+            } catch (ParseException ex) {
+                sb.append(ex.getMessage()).append(System.lineSeparator());
             }
         }
-        return false;
+        throw new IllegalArgumentException(sb.toString());
     }
 
-    private boolean isValidDate(Object value) {
-        boolean parseable = false;
-        try{
-            parseable = LocalDate.parse((String)value)!=null;
-        } catch(Exception e) {
-            // ignore parse exception
-        }
-        try{
-            parseable = LocalDateTime.parse((String)value)!=null;
-        } catch(Exception e) {
-            // ignore parse exception
-        }
-        try{
-            parseable = ZonedDateTime.parse((String)value)!=null;
-        } catch(Exception e) {
-            // ignore parse exception
-        }
-        return parseable;
-    }
-
+    @Override
     public Object readValue(String value) {
-        return getXStream().fromXML(value);
+        return value != null ? getObjectFromClass(value).orElseGet(() -> getXStream().fromXML(value)) : null;
+    }
+
+    @Override
+    public Object valueOf(String value) {
+        try {
+            return value != null ? getObjectFromClass(value).orElse(value) : null;
+        } catch (IllegalArgumentException e) {
+            return value;
+        }
     }
 
     public String writeValue(Object value) {
