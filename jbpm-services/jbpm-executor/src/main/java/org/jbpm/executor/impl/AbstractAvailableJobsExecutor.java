@@ -130,7 +130,10 @@ public abstract class AbstractAvailableJobsExecutor {
                         }
                         // add class loader so internally classes can be created with valid (kjar) deployment
                         ctx.setData("ClassLoader", cl);
-                                                
+
+                        // add scheduled execution time
+                        ctx.setData("scheduledExecutionTime", request.getTime());
+
                         cmd = classCacheManager.findCommand(request.getCommandName(), cl);
                         // increment execution counter directly to cover both success and failure paths
                         request.setExecutions(request.getExecutions() + 1);                        

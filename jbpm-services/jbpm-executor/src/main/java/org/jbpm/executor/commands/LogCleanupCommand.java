@@ -56,6 +56,12 @@ import org.slf4j.LoggerFactory;
  * 	<li>DateFormat - date format for further date related params - if not given yyyy-MM-dd is used (pattern of SimpleDateFormat class)</li>
  * 	<li>EmfName - name of entity manager factory to be used for queries (valid persistence unit name)</li>
  * 	<li>SingleRun - indicates if execution should be single run only (true|false)</li>
+ * 	<li>RepeatMode - defines how the next execution time is calculated
+ * 	 <ul>
+ * 	  <li>FIXED - Scheduled time + NextRun parameter value</li>
+ * 	  <li>INTERVAL - End of execution + NextRun parameter value (default)</li>
+ * 	 </ul>
+ * 	</li>
  * 	<li>NextRun - provides next execution time (valid time expression e.g. 1d, 5h, etc)</li>
  * 	<li>OlderThan - indicates what logs should be deleted - older than given date</li>
  * 	<li>OlderThanPeriod - indicated what logs should be deleted older than given time expression (valid time expression e.g. 1d, 5h, etc)</li>
@@ -125,15 +131,6 @@ public class LogCleanupCommand implements Command, Reoccurring {
             emfName = "org.jbpm.domain";
         }
         nextScheduleTimeAdd = TimeUnit.DAYS.toMillis(1);
-        String singleRun = (String) ctx.getData("SingleRun");
-        if ("true".equalsIgnoreCase(singleRun)) {
-            // disable rescheduling
-            nextScheduleTimeAdd = -1;
-        }
-        String nextRun = (String) ctx.getData("NextRun");
-        if (nextRun != null) {
-            nextScheduleTimeAdd = DateTimeUtils.parseDateAsDuration(nextRun);
-        }
 
         // get hold of persistence and create instance of audit service
         EntityManagerFactory emf = EntityManagerFactoryManager.get().getOrCreate(emfName);
@@ -268,11 +265,40 @@ public class LogCleanupCommand implements Command, Reoccurring {
                 executionResults.setData("ProcessInstanceLogRemoved", piLogsRemoved);
             }
         }
+        calculateNextRun(ctx);
         executionResults.setData("BAMLogRemoved", 0L);
         return executionResults;
     }
     
     private  static boolean mightBeMore (int deleted, int recordPerTransaction) {
         return recordPerTransaction > 0 && deleted >= recordPerTransaction;
+    }
+
+    private void calculateNextRun(CommandContext ctx) {
+        String singleRun = (String) ctx.getData("SingleRun");
+        if ("true".equalsIgnoreCase(singleRun)) {
+            // disable rescheduling
+            nextScheduleTimeAdd = -1;
+            return;
+        }
+
+        String nextRun = (String) ctx.getData("NextRun");
+        if (nextRun != null) {
+            nextScheduleTimeAdd = DateTimeUtils.parseDateAsDuration(nextRun) - calculateExecutionTimeInMillis(ctx);
+        }
+    }
+
+    private long calculateExecutionTimeInMillis(CommandContext ctx) {
+        long executionTimeInMillis = 0;
+        String repeatMode = (String) ctx.getData("RepeatMode");
+        if( "fixed".equalsIgnoreCase(repeatMode) ) {
+            // return diff between scheduled time and actual time
+            Date scheduledExecutionTime = (Date) ctx.getData("scheduledExecutionTime");
+            executionTimeInMillis = Instant.now().minus(scheduledExecutionTime.toInstant().toEpochMilli(), ChronoUnit.MILLIS).toEpochMilli();
+            logger.debug("Calculated execution time {}ms, based on scheduled execution time {}", executionTimeInMillis, scheduledExecutionTime);
+        } else if( "interval".equalsIgnoreCase(repeatMode) ) {
+            // no calculation required
+        }
+        return executionTimeInMillis;
     }
 }
