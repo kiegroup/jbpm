@@ -32,6 +32,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.kie.api.KieServices;
 import org.kie.api.builder.ReleaseId;
+import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.query.QueryContext;
 import org.kie.internal.runtime.conf.DeploymentDescriptor;
 import org.kie.internal.runtime.conf.NamedObjectModel;
@@ -40,10 +41,14 @@ import org.kie.internal.runtime.manager.deploy.DeploymentDescriptorImpl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.kie.scanner.KieMavenRepository.getKieMavenRepository;
+import static org.jbpm.kie.services.impl.IdentityProviderAwareProcessListener.PROCESS_INITIATOR_KEY;
+import static org.jbpm.kie.services.impl.IdentityProviderAwareProcessListener.PROCESS_TERMINATOR_KEY;
 
 public class IdentityProviderAwareProcessListenerTest extends AbstractKieServicesBaseTest {
 
     private KModuleDeploymentUnit deploymentUnit;
+
+    private static final String PROCESS_ID = "org.jbpm.writedocument";
 
     @Before
     public void init() {
@@ -102,14 +107,37 @@ public class IdentityProviderAwareProcessListenerTest extends AbstractKieService
         final String userId = "userId";
         identityProvider.setName(userId);
 
-        long processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument");
+        long processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), PROCESS_ID);
         assertNotNull(processInstanceId);
         try {
-            final String initiator = (String) processService.getProcessInstanceVariable(processInstanceId, "initiator");
+            final String initiator = (String) processService.getProcessInstanceVariable(processInstanceId, PROCESS_INITIATOR_KEY);
             assertEquals(userId, initiator);
         } finally {
             processService.abortProcessInstance(processInstanceId);
         }
+    }
+
+    @Test
+    public void testAbortProcessWithIdentityListener() {
+        assertNotNull(processService);
+
+        final String startUserId = "startUserId";
+        identityProvider.setName(startUserId);
+        long processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), PROCESS_ID);
+        ProcessInstance pi = processService.getProcessInstance(processInstanceId);
+
+        assertNotNull(processInstanceId);
+        final String initiator = (String) processService.getProcessInstanceVariable(processInstanceId, PROCESS_INITIATOR_KEY);
+        assertEquals(startUserId, initiator);
+
+        final String abortUserId = "abortUserId";
+        identityProvider.setName(abortUserId);
+        processService.abortProcessInstance(processInstanceId);
+
+        pi = processService.getProcessInstance(processInstanceId); // null
+        // final String terminator = (String) processService.getProcessInstanceVariable(processInstanceId, PROCESS_TERMINATOR_KEY); TODO find a way how to get variable from aborted process instance
+        //assertEquals(abortUserId, terminator);
+
     }
 
 }

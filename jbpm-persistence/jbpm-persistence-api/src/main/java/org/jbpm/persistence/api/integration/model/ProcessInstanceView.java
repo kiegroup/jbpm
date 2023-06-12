@@ -40,6 +40,7 @@ public class ProcessInstanceView implements InstanceView<ProcessInstance> {
     private Integer state;
     private String containerId;
     private String initiator;
+    private String terminator;
     private Date date;
     private String processInstanceDescription;
     private String correlationKey;
@@ -120,6 +121,14 @@ public class ProcessInstanceView implements InstanceView<ProcessInstance> {
         this.initiator = initiator;
     }
 
+    public String getTerminator() {
+        return terminator;
+    }
+
+    public void setTerminator(String terminator) {
+        this.terminator = terminator;
+    }
+
     public Date getDate() {
         return date;
     }
@@ -185,6 +194,7 @@ public class ProcessInstanceView implements InstanceView<ProcessInstance> {
         this.date = new Date();
         this.id = source.getId();
         this.initiator = (String) ((WorkflowProcessInstanceImpl)source).getVariable("initiator");
+        this.terminator = (String) ((WorkflowProcessInstanceImpl)source).getVariable("terminator");
         this.parentId = source.getParentProcessInstanceId();
         this.processId = source.getProcessId();
         this.processInstanceDescription = ((WorkflowProcessInstanceImpl)source).getDescription();

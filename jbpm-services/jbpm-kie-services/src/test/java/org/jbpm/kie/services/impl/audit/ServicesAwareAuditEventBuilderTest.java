@@ -125,6 +125,8 @@ public class ServicesAwareAuditEventBuilderTest extends AbstractKieServicesBaseT
         assertEquals("testUser", log.getIdentity());
     }
 
+    // TODO test recorded identity when process is aborted
+
     /**
      * Test build the ProcessInstanceLog for a process with initiator metadata
      * and user auth bypass enabled

@@ -61,6 +61,7 @@ public class ServicesAwareAuditEventBuilder extends DefaultAuditEventBuilderImpl
     @Override
     public AuditEvent buildEvent(ProcessCompletedEvent pce, Object log) {
         ProcessInstanceLog instanceLog = (ProcessInstanceLog) super.buildEvent(pce, log);
+        instanceLog.setIdentity(getIdentity(pce));
         instanceLog.setExternalId(deploymentUnitId);
         return instanceLog;
 
@@ -123,6 +124,19 @@ public class ServicesAwareAuditEventBuilder extends DefaultAuditEventBuilderImpl
             String initiator = (String) processVariables.get("initiator");
 
             identity = !StringUtils.isEmpty(initiator) ? initiator : identity;
+        }
+        return identity;
+    }
+
+    private String getIdentity(ProcessCompletedEvent pce) {
+        String identity = identityProvider.getName();
+        if (allowSetInitiator) {
+            ProcessInstance pi = (ProcessInstance) pce.getProcessInstance();
+            VariableScopeInstance variableScope = (VariableScopeInstance) pi.getContextInstance(VariableScope.VARIABLE_SCOPE);
+            Map<String, Object> processVariables = variableScope.getVariables();
+            String terminator = (String) processVariables.get("terminator");
+
+            identity = !StringUtils.isEmpty(terminator) ? terminator : identity;
         }
         return identity;
     }
