@@ -34,32 +34,33 @@ public class ProcessInstanceView implements InstanceView<ProcessInstance> {
 
     private String compositeId;
     private Long id;
-    private String processId;    
-    private String processName;    
+    private String processId;
+    private String processName;
     private String processVersion;
     private Integer state;
     private String containerId;
     private String initiator;
+    private String terminator;
     private Date date;
     private String processInstanceDescription;
     private String correlationKey;
     private Long parentId;
     private Map<String, Object> variables;
-    
+
     private transient ProcessInstance source;
 
-    public ProcessInstanceView() {        
+    public ProcessInstanceView() {
     }
-    
+
     public ProcessInstanceView(ProcessInstance source) {
         this.source = source;
         this.id = source.getId();
     }
-    
+
     public String getCompositeId() {
         return compositeId;
     }
-    
+
     public void setCompositeId(String compositeId) {
         this.compositeId = compositeId;
     }
@@ -120,6 +121,14 @@ public class ProcessInstanceView implements InstanceView<ProcessInstance> {
         this.initiator = initiator;
     }
 
+    public String getTerminator() {
+        return terminator;
+    }
+
+    public void setTerminator(String terminator) {
+        this.terminator = terminator;
+    }
+
     public Date getDate() {
         return date;
     }
@@ -176,7 +185,7 @@ public class ProcessInstanceView implements InstanceView<ProcessInstance> {
     public ProcessInstance getSource() {
         return source;
     }
-    
+
     @Override
     public void copyFromSource() {
         this.compositeId = System.getProperty("org.kie.server.id", "") + "_" + source.getId();
@@ -185,6 +194,7 @@ public class ProcessInstanceView implements InstanceView<ProcessInstance> {
         this.date = new Date();
         this.id = source.getId();
         this.initiator = (String) ((WorkflowProcessInstanceImpl)source).getVariable("initiator");
+        this.terminator = (String) ((WorkflowProcessInstanceImpl)source).getVariable("terminator");
         this.parentId = source.getParentProcessInstanceId();
         this.processId = source.getProcessId();
         this.processInstanceDescription = ((WorkflowProcessInstanceImpl)source).getDescription();

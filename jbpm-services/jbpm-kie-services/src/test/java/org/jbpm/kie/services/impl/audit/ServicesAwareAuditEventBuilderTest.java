@@ -15,25 +15,32 @@
  */
 package org.jbpm.kie.services.impl.audit;
 
+import static org.jbpm.kie.services.impl.IdentityProviderAwareProcessListener.PROCESS_TERMINATOR_KEY;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.assertj.core.api.Assertions;
+import org.drools.core.event.ProcessCompletedEventImpl;
 import org.drools.core.event.ProcessStartedEventImpl;
 import org.jbpm.kie.services.test.ProcessServiceImplTest;
 import org.jbpm.kie.test.util.AbstractKieServicesBaseTest;
 import org.jbpm.process.audit.ProcessInstanceLog;
 import org.jbpm.process.core.context.variable.VariableScope;
+import org.jbpm.process.instance.ProcessInstance;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
 import org.jbpm.process.instance.impl.ProcessInstanceImpl;
+import org.jbpm.services.api.model.VariableDesc;
 import org.jbpm.workflow.core.WorkflowProcess;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.kie.api.event.process.ProcessCompletedEvent;
 import org.kie.api.event.process.ProcessStartedEvent;
 import org.kie.api.runtime.KieSession;
 import org.kie.internal.process.CorrelationKey;
@@ -123,6 +130,26 @@ public class ServicesAwareAuditEventBuilderTest extends AbstractKieServicesBaseT
         ProcessInstanceLog log = (ProcessInstanceLog) builder.buildEvent(pse);
 
         assertEquals("testUser", log.getIdentity());
+    }
+
+    @Test
+    public void testBuildProcessCompletedEventWithTerminatorAndUserAuthBypassEnabled() {
+        // Set up one more specific mock
+        when(processInstance.getState()).thenReturn(ProcessInstance.STATE_ABORTED);
+
+        processMetadata.put("initiator", "john");
+        processMetadata.put("terminator", "arnold");
+
+        enableSetInitiator(builder);
+
+        ProcessStartedEvent pse = new ProcessStartedEventImpl(processInstance, kieRuntime);
+        ProcessCompletedEvent pce = new ProcessCompletedEventImpl(processInstance, kieRuntime);
+
+        ProcessInstanceLog startLog = (ProcessInstanceLog) builder.buildEvent(pse);
+        Assertions.assertThat(startLog.getIdentity()).isEqualTo("john");
+
+        ProcessInstanceLog completeLog = (ProcessInstanceLog) builder.buildEvent(pce, startLog);
+        Assertions.assertThat(completeLog.getIdentity()).isEqualTo("arnold");
     }
 
     /**
