@@ -399,7 +399,7 @@ public class TimerManager {
         private JobHandle jobHandle;
         private Long sessionId;
         
-        private boolean newTimer;
+        private boolean isNew;
 
         public ProcessJobContext(final TimerInstance timer, final Trigger trigger, final Long processInstanceId,
                 final InternalKnowledgeRuntime kruntime) {
@@ -408,17 +408,17 @@ public class TimerManager {
             this.processInstanceId = processInstanceId;
             this.kruntime = kruntime;
             this.sessionId = timer.getSessionId();
-            this.newTimer = true;
+            this.isNew = true;
         }
         
         public ProcessJobContext(final TimerInstance timer, final Trigger trigger, final Long processInstanceId,
-                final InternalKnowledgeRuntime kruntime, boolean newTimer) {
+                final InternalKnowledgeRuntime kruntime, boolean isNew) {
             this.timer = timer;
             this.trigger = trigger;
             this.processInstanceId = processInstanceId;
             this.kruntime = kruntime;
             this.sessionId = timer.getSessionId();
-            this.newTimer = newTimer;
+            this.isNew = isNew;
         }
 
         public Long getProcessInstanceId() {
@@ -457,9 +457,10 @@ public class TimerManager {
         public InternalWorkingMemory getWorkingMemory() {
             return kruntime instanceof InternalWorkingMemory ? (InternalWorkingMemory)kruntime : null;
         }
-        
-        public boolean isNewTimer() {
-            return newTimer;
+
+        @Override
+        public boolean isNew() {
+            return isNew;
         }
     }
 
@@ -493,7 +494,7 @@ public class TimerManager {
         }
 
         @Override
-        public boolean isNewTimer() {
+        public boolean isNew() {
             return false;
         }
 

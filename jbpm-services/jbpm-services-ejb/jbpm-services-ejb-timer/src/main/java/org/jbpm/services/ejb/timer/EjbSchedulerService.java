@@ -47,7 +47,6 @@ import org.jbpm.process.core.timer.SchedulerServiceInterceptor;
 import org.jbpm.process.core.timer.impl.DelegateSchedulerServiceInterceptor;
 import org.jbpm.process.core.timer.impl.GlobalTimerService;
 import org.jbpm.process.core.timer.impl.GlobalTimerService.GlobalJobHandle;
-import org.jbpm.process.instance.timer.TimerManager.ProcessJobContext;
 import org.jbpm.runtime.manager.impl.jpa.EntityManagerFactoryManager;
 import org.jbpm.runtime.manager.impl.jpa.TimerMappingInfo;
 import org.kie.internal.runtime.manager.InternalRuntimeManager;
@@ -76,7 +75,7 @@ public class EjbSchedulerService implements GlobalSchedulerService {
 		TimerJobInstance jobInstance = null;
 		// check if given timer job is marked as new timer meaning it was never scheduled before, 
 		// if so skip the check by timer name as it has no way to exist
-		if (!isNewTimer(ctx)) {
+		if (!ctx.isNew()) {
 		    jobInstance = getTimerJobInstance(jobName);
 		    if (jobInstance == null) {
 		        jobInstance = scheduler.getTimerByName(jobName);
@@ -245,9 +244,4 @@ public class EjbSchedulerService implements GlobalSchedulerService {
     protected String getJobName(JobContext ctx, long id) {
            return JobNameHelper.getJobName(ctx, id);
 	}
-	
-   private boolean isNewTimer(JobContext ctx) {
-       return ctx instanceof ProcessJobContext && ((ProcessJobContext) ctx).isNewTimer();
-   }
-
 }
