@@ -138,7 +138,7 @@ public class DeadlineSchedulerHelper {
         for (Deadline deadline : deadlines) {
             if (Boolean.FALSE.equals(deadline.isEscalated())) {
                 Date date = deadline.getDate();
-                deadlineService.schedule(taskId, deadline.getId(), date.getTime() - now, type);
+                deadlineService.scheduleNew(taskId, deadline.getId(), date.getTime() - now, type);
             }
         }
     }
