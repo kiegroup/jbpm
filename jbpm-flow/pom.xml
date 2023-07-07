@@ -107,6 +107,11 @@
       <artifactId>drools-core</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.jpmml</groupId>
+      <artifactId>pmml-model</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
       <groupId>org.drools</groupId>
       <artifactId>drools-mvel</artifactId>
     </dependency>
