@@ -694,7 +694,7 @@ public class MigrationManagerTest extends AbstractBaseTest {
                 
         runtime = managerV2.getRuntimeEngine(EmptyContext.get());
         taskService = runtime.getTaskService();        
-        assertMigratedTaskAndComplete(taskService, ADDTASKAFTERACTIVE_EXPR_ID_V2, pi1.getId(), "Active Task test");
+        assertMigratedTaskAndComplete(taskService, ADDTASKAFTERACTIVE_EXPR_ID_V2, pi1.getId(), "Active Task test", "test");
 
         managerV2.disposeRuntimeEngine(runtime);        
     }
@@ -730,6 +730,10 @@ public class MigrationManagerTest extends AbstractBaseTest {
     }
     
     protected void assertMigratedTaskAndComplete(TaskService taskService, String processId, Long processInstanceId, String taskName) {
+        assertMigratedTaskAndComplete(taskService, processId, processInstanceId, taskName, null);
+    }
+
+    protected void assertMigratedTaskAndComplete(TaskService taskService, String processId, Long processInstanceId, String taskName, String taskDescription) {
         List<TaskSummary> tasks = taskService.getTasksByStatusByProcessInstanceId(processInstanceId, Arrays.asList(Status.Reserved), "en-UK");
         assertNotNull(tasks);
         assertEquals(1, tasks.size());
@@ -739,6 +743,10 @@ public class MigrationManagerTest extends AbstractBaseTest {
         assertEquals(processId, task.getProcessId());
         assertEquals(DEPLOYMENT_ID_V2, task.getDeploymentId());
         assertEquals(taskName, task.getName());
+        if(taskDescription!=null) {
+            assertEquals(taskDescription, task.getDescription());
+        }
+            
         
         taskService.start(task.getId(), USER_JOHN);
         taskService.complete(task.getId(), USER_JOHN, null);
