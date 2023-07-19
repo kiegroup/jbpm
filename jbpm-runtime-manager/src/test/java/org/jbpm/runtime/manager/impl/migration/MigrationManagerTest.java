@@ -682,6 +682,7 @@ public class MigrationManagerTest extends AbstractBaseTest {
         assertEquals(ADDTASKAFTERACTIVE_EXPR_ID_V1, task.getProcessId());
         assertEquals(DEPLOYMENT_ID_V1, task.getDeploymentId());
         assertEquals("Active Task test", task.getName());
+        assertEquals("test", task.getDescription());
         managerV1.disposeRuntimeEngine(runtime);
         
         MigrationSpec migrationSpec = new MigrationSpec(DEPLOYMENT_ID_V1, pi1.getId(), DEPLOYMENT_ID_V2, ADDTASKAFTERACTIVE_EXPR_ID_V2);        
