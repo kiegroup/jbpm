@@ -213,7 +213,7 @@ public class PersistenceUtil {
                     DRIVER_CLASS_NAME, DATASOURCE_CLASS_NAME,
                     MAX_POOL_SIZE, ALLOW_LOCAL_TXS };
             String[] defaultPropArr = {
-                    "", "", "", "jdbc:h2:mem:jbpm-db;MVCC=true",
+                    "", "", "", "jdbc:h2:mem:jbpm-db;MODE=LEGACY;OLD_INFORMATION_SCHEMA=TRUE",
                     "sa", "",
                     "org.h2.Driver", "org.h2.jdbcx.JdbcDataSource",
                     "16", "true" };

@@ -18,7 +18,9 @@
   <properties>
     <java.module.name>org.jbpm.process.audit</java.module.name>
 
-    <maven.jdbc.url>jdbc:h2:mem:bamTest;MVCC=TRUE</maven.jdbc.url>
+    <!-- appending ;MODE=LEGACY;OLD_INFORMATION_SCHEMA=TRUE to the jdbc url is necessary to workaround the problem reported at -->
+    <!-- https://github.com/h2database/h2database/issues/3325 -->
+    <maven.jdbc.url>jdbc:h2:mem:bamTest;MODE=LEGACY;OLD_INFORMATION_SCHEMA=TRUE</maven.jdbc.url>
   </properties>
 
   <dependencies>
