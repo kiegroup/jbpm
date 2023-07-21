@@ -213,7 +213,7 @@ public class PersistenceUtil {
                     DRIVER_CLASS_NAME, DATASOURCE_CLASS_NAME,
                     MAX_POOL_SIZE, ALLOW_LOCAL_TXS };
             String[] defaultPropArr = {
-                    "", "", "", "jdbc:h2:mem:jbpm-db;MODE=LEGACY;OLD_INFORMATION_SCHEMA=TRUE",
+                    "", "", "", "jdbc:h2:mem:jbpm-db;MODE=LEGACY;OLD_INFORMATION_SCHEMA=TRUE;NON_KEYWORDS=VALUE",
                     "sa", "",
                     "org.h2.Driver", "org.h2.jdbcx.JdbcDataSource",
                     "16", "true" };
@@ -294,7 +294,7 @@ public class PersistenceUtil {
            if (realH2Server == null || !realH2Server.isRunning(false)) {
                try {
                    DeleteDbFiles.execute("", null, true);
-                   realH2Server = Server.createTcpServer((port != null && !port.isEmpty()) ? new String[]{"-tcpPort", port} : new String[0]);
+                   realH2Server = Server.createTcpServer((port != null && !port.isEmpty()) ? new String[]{"-tcpPort", port, "-ifNotExists"} : new String[]{"-ifNotExists"});
                    realH2Server.start();
                } catch (SQLException e) {
                    throw new RuntimeException("can't start h2 server db", e);

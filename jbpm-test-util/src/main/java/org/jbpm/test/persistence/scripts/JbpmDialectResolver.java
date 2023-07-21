@@ -34,7 +34,8 @@ public class JbpmDialectResolver implements DialectResolver {
         if ("Adaptive Server Enterprise".equals(info.getDatabaseName())) {
            return new SybaseJbpmDialect(); 
         } else {
-            d = StandardDialectResolver.INSTANCE.resolveDialect(info);
+            DialectResolver dialectResolver = new StandardDialectResolver();
+            d = dialectResolver.resolveDialect(info);
         }
         logger.info("resolveDialect: {}", d);
         return d;
