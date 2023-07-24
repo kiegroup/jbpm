@@ -75,7 +75,7 @@ public class ProcessMain {
 			properties.put("className", "org.h2.jdbcx.JdbcDataSource");
 			properties.put("user", "sa");
 			properties.put("password", "");
-			properties.put("url", "jdbc:h2:tcp://localhost/~/jbpm-db;MODE=LEGACY;OLD_INFORMATION_SCHEMA=TRUE");
+			properties.put("url", "jdbc:h2:tcp://localhost/~/jbpm-db;MODE=LEGACY;NON_KEYWORDS=VALUE");
 			properties.put("datasourceName", "jdbc/jbpm-ds");
 			PersistenceUtil.setupPoolingDataSource(properties);
 		    Map<String, String> map = new HashMap<String, String>();

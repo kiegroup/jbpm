@@ -35,6 +35,7 @@ import org.jbpm.process.instance.impl.demo.SystemOutWorkItemHandler;
 import org.jbpm.workflow.instance.WorkflowProcessInstance;
 import org.jbpm.workflow.instance.WorkflowRuntimeException;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -77,10 +78,11 @@ public class ErrorEventTest extends JbpmBpmn2TestCase {
     public static void setup() throws Exception {
         setUpDataSource();
     }
-
+    
     @After
     public void dispose() {
         if (ksession != null) {
+            abortProcessInstances(ksession);
             ksession.dispose();
             ksession = null;
         }

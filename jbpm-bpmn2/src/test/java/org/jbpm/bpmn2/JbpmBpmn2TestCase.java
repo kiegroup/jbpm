@@ -106,6 +106,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
+import static org.jbpm.test.persistence.util.PersistenceUtil.cleanUp;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -740,7 +741,6 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
                 logService.findActiveProcessInstances().forEach(pi -> ksession.abortProcessInstance(pi.getId()));
                 
             } catch(Exception e) {
-                
             }
         } 
     }
