@@ -31,7 +31,6 @@ import org.jbpm.process.instance.InternalProcessRuntime;
 import org.jbpm.process.instance.context.AbstractContextInstance;
 import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.instance.node.CompositeContextNodeInstance;
-import org.kie.api.definition.process.Process;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.CaseData;
 import org.kie.api.runtime.process.ProcessInstance;
@@ -210,18 +209,15 @@ public class VariableScopeInstance extends AbstractContextInstance {
         return data != null && (!(data instanceof CharSequence) || !data.toString().trim().isEmpty());
     }
     
-    public void setDefaultValue(Process process,VariableScope variableScope,VariableScopeInstance variableScopeInstance) {        
+    public void setDefaultValues(VariableScope variableScope, VariableScopeInstance variableScopeInstance) {
         if (variableScope != null) {
             for (Variable variable : variableScope.getVariables()) {
                 String name = variable.getName();
                 Object defaultValue = variable.getMetaData("defaultValue");
                 if (variableScopeInstance.getVariable(name) == null && defaultValue != null) {
-                    variableScopeInstance.setVariable(name,
-                            variableScope.validateVariable(process.getName(), name, defaultValue));
-
+                    variableScopeInstance.setVariable(name, variable.getType().readValue(defaultValue.toString()));
                 }
             }
         }
-    }   
-
+    }
 }
