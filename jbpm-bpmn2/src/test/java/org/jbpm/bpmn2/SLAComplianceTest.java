@@ -16,6 +16,7 @@
 
 package org.jbpm.bpmn2;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -31,11 +32,17 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.drools.core.command.SingleSessionCommandService;
+import org.drools.core.command.impl.CommandBasedStatefulKnowledgeSession;
+import org.drools.core.impl.StatefulKnowledgeSessionImpl;
 import org.jbpm.bpmn2.objects.TestWorkItemHandler;
 import org.jbpm.process.audit.NodeInstanceLog;
 import org.jbpm.process.audit.ProcessInstanceLog;
+import org.jbpm.process.instance.InternalProcessRuntime;
 import org.jbpm.process.instance.command.UpdateTimerCommand;
 import org.jbpm.process.instance.impl.demo.SystemOutWorkItemHandler;
+import org.jbpm.process.instance.timer.TimerInstance;
+import org.jbpm.process.instance.timer.TimerManager;
 import org.jbpm.workflow.instance.node.HumanTaskNodeInstance;
 import org.junit.After;
 import org.junit.BeforeClass;
@@ -122,6 +129,49 @@ public class SLAComplianceTest extends JbpmBpmn2TestCase {
         
         slaCompliance = getSLAComplianceForProcessInstance(processInstance);
         assertEquals(ProcessInstance.SLA_VIOLATED, slaCompliance);
+        
+        ksession.dispose();
+    }
+    
+    @Test
+    public void testSLAonProcessUpdated() throws Exception {
+        CountDownLatch latch = new CountDownLatch(1);
+        KieBase kbase = createKnowledgeBase("BPMN2-UserTaskWithSLA.bpmn2");
+        KieSession ksession = createKnowledgeSession(kbase);
+        
+        ProcessInstance processInstance = ksession.startProcess("UserTask");
+        assertTrue(processInstance.getState() == ProcessInstance.STATE_ACTIVE);
+        
+        Date firstSlaDueDate = getSLADueDateForProcessInstance(processInstance.getId(), 
+                                                              (org.jbpm.workflow.instance.WorkflowProcessInstance) processInstance);
+        
+        Collection<TimerInstance> timers = getTimerManager(ksession).getTimers();
+        assertThat(timers.size()).isEqualTo(1);
+
+        ksession.execute(new UpdateTimerCommand(processInstance.getId(), timers.iterator().next().getId(), 7));
+        
+        boolean slaViolated = latch.await(5, TimeUnit.SECONDS);
+        assertFalse("Process SLA was violated while it is not expected after update SLA", slaViolated);
+        
+        processInstance = ksession.getProcessInstance(processInstance.getId());
+        assertTrue(processInstance.getState() == ProcessInstance.STATE_ACTIVE);
+        
+        int slaCompliance = getSLAComplianceForProcessInstance(processInstance);
+        assertEquals(ProcessInstance.SLA_PENDING, slaCompliance);
+        
+        slaViolated = latch.await(5, TimeUnit.SECONDS);
+        assertFalse("Process SLA was not violated while it is expected after 10s", slaViolated);
+        
+        slaCompliance = getSLAComplianceForProcessInstance(processInstance);
+        assertEquals(ProcessInstance.SLA_VIOLATED, slaCompliance);
+        
+        ksession.abortProcessInstance(processInstance.getId());
+        Date updatedSlaDueDate = getSLADueDateForProcessInstance(processInstance.getId(), 
+                                                                (org.jbpm.workflow.instance.WorkflowProcessInstance) processInstance);
+
+        assertTrue(String.format("updatedSlaDueDate '%tc' should be around 4-5 seconds after firstSlaDueDate '%tc'", 
+                                 updatedSlaDueDate, firstSlaDueDate), 
+                                 updatedSlaDueDate.after(firstSlaDueDate));
         
         ksession.dispose();
     }
@@ -306,7 +356,7 @@ public class SLAComplianceTest extends JbpmBpmn2TestCase {
         public TimerIdListener(CountDownLatch latch) {
             this.latch = latch;
         }
-        	
+        
         @Override
         public void afterNodeTriggered(ProcessNodeTriggeredEvent event) {
             if (event.getNodeInstance() instanceof HumanTaskNodeInstance) {
@@ -663,5 +713,32 @@ public class SLAComplianceTest extends JbpmBpmn2TestCase {
         }
         
         throw new RuntimeException("NodeInstanceLog not found for id "+nodeInstance.getId()+" and type "+logType);
+    }
+    
+    private Date getSLADueDateForProcessInstance(long processInstanceId, org.jbpm.workflow.instance.WorkflowProcessInstance processInstance) {
+        if (!sessionPersistence) {
+            return processInstance.getSlaDueDate();
+        }
+        
+        List<ProcessInstanceLog> logs = logService.findProcessInstances();
+        if (logs == null)
+            throw new RuntimeException("ProcessInstanceLog not found");
+        
+        for (ProcessInstanceLog log : logs) {
+            if (log.getId() == processInstanceId) {
+               return log.getSlaDueDate();
+            }
+        }
+        
+        throw new RuntimeException("ProcessInstanceLog not found for id "+processInstanceId);
+    }
+    
+    private TimerManager getTimerManager(KieSession ksession) {
+        KieSession internal = ksession;
+        if (ksession instanceof CommandBasedStatefulKnowledgeSession) {
+            internal = ( (SingleSessionCommandService) ( (CommandBasedStatefulKnowledgeSession) ksession ).getRunner() ).getKieSession();;
+        }
+
+        return ((InternalProcessRuntime)((StatefulKnowledgeSessionImpl)internal).getProcessRuntime()).getTimerManager();
     }
 }

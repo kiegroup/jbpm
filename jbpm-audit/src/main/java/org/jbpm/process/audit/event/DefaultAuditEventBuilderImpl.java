@@ -86,6 +86,7 @@ public class DefaultAuditEventBuilderImpl implements AuditEventBuilder {
         logEvent.setDuration(logEvent.getEnd().getTime() - logEvent.getStart().getTime());
         logEvent.setProcessInstanceDescription( pi.getDescription() );
         logEvent.setSlaCompliance(pi.getSlaCompliance());
+        logEvent.setSlaDueDate(pi.getSlaDueDate());
         return logEvent;
     }
 
