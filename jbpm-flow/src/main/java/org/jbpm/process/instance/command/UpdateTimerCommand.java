@@ -109,6 +109,17 @@ public class UpdateTimerCommand implements ExecutableCommand<Void>, ProcessInsta
         this.repeatLimit = repeatLimit;
     }
 
+    private TimerInstance handleSla(long slaTimerId, TimerManager tm, RuleFlowProcessInstance wfp) {
+        if (slaTimerId != -1 && slaTimerId == timerId) {
+            TimerInstance newTimer = rescheduleTimer(tm.getTimerMap().get(timerId), tm);
+            logger.debug("New SLA timer {} about to be registered", newTimer);
+            tm.registerTimer(newTimer, wfp);
+            logger.debug("New SLA timer {} successfully registered", newTimer);
+            return newTimer;
+        }
+        return null;
+    }
+
     @Override
     public Void execute(Context context ) {
         logger.debug("About to cancel timer in process instance {} by name '{}' or id {}", processInstanceId, timerName, timerId);
@@ -119,32 +130,30 @@ public class UpdateTimerCommand implements ExecutableCommand<Void>, ProcessInsta
         if (wfp == null) {
             throw new IllegalArgumentException("Process instance with id " + processInstanceId + " not found");
         }
+
+        TimerInstance newTimer = handleSla(wfp.getSlaTimerId(), tm, wfp);
+        if (newTimer != null) {
+            wfp.internalSetSlaTimerId(newTimer.getId());
+            wfp.internalSetSlaDueDate(new Date(System.currentTimeMillis() + newTimer.getDelay()));
+            return null;
+        }
+
         for (NodeInstance nodeInstance : wfp.getNodeInstances(true)) {
-            long slaTimerId = ((NodeInstanceImpl) nodeInstance).getSlaTimerId();
-            if (slaTimerId != -1 && slaTimerId == timerId) {
-                TimerInstance timer = tm.getTimerMap().get(timerId);
-                
-                TimerInstance newTimer = rescheduleTimer(timer, tm);
-                logger.debug("New SLA timer {} about to be registered", newTimer);
-                tm.registerTimer(newTimer, wfp);                        
-                
+            newTimer = handleSla(((NodeInstanceImpl) nodeInstance).getSlaTimerId(), tm, wfp);
+            if (newTimer != null) {
                 ((NodeInstanceImpl) nodeInstance).internalSetSlaTimerId(newTimer.getId());
                 ((NodeInstanceImpl) nodeInstance).internalSetSlaDueDate(new Date(System.currentTimeMillis() + newTimer.getDelay()));
-                logger.debug("New SLA timer {} successfully registered", newTimer);
                 break;
             }
-
             if (nodeInstance instanceof TimerNodeInstance) {
                 TimerNodeInstance tni = (TimerNodeInstance) nodeInstance;
                 if (tni.getTimerId() == timerId || (tni.getNodeName() != null && tni.getNodeName().equals(timerName))) {
                     TimerInstance timer = tm.getTimerMap().get(tni.getTimerId());
-                    
-                    TimerInstance newTimer = rescheduleTimer(timer, tm);
+                    newTimer = rescheduleTimer(timer, tm);
                     logger.debug("New timer {} about to be registered", newTimer);
                     tm.registerTimer(newTimer, wfp);                    
                     tni.internalSetTimerId(newTimer.getId());
                     logger.debug("New timer {} successfully registered", newTimer);
-
                     break;
                 }
             }
@@ -157,7 +166,7 @@ public class UpdateTimerCommand implements ExecutableCommand<Void>, ProcessInsta
                     if (timerList != null && timerList.size() == 1) {
                         TimerInstance timer = tm.getTimerMap().get(timerList.get(0));
     
-                        TimerInstance newTimer = rescheduleTimer(timer, tm);
+                        newTimer = rescheduleTimer(timer, tm);
                         logger.debug("New timer {} about to be registered", newTimer);
                         tm.registerTimer(newTimer, wfp);                        
                         timerList.clear();
@@ -174,7 +183,7 @@ public class UpdateTimerCommand implements ExecutableCommand<Void>, ProcessInsta
                 HumanTaskNodeInstance htni = (HumanTaskNodeInstance) nodeInstance;
                 if (htni.getSuspendUntilTimerId() != -1 && htni.getSuspendUntilTimerId() == this.timerId) {
                     TimerInstance timer = tm.getTimerMap().get(this.timerId);
-                    TimerInstance newTimer = rescheduleTimer(timer, tm);
+                    newTimer = rescheduleTimer(timer, tm);
                     logger.debug("New timer {} about to be registered", newTimer);
                     tm.registerTimer(newTimer, wfp); 
                     htni.setSuspendUntilTimerId(newTimer.getId());
