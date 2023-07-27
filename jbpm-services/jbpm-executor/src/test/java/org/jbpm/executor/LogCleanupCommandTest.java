@@ -182,4 +182,44 @@ public class LogCleanupCommandTest {
         long diff = nextExecution - firstExecution;
         assertTrue(diff < 11000);
     }
+
+    @Test(timeout=10000)
+    @BMScript(value = "byteman-scripts/simulateSlowLogCleanupCommand.btm")
+    public void logCleanupNextRunFixedIntervalTooSmallTest() throws InterruptedException {
+        CountDownAsyncJobListener countDownListener = configureListener(1);
+        // this delay will be invoked 3 times during the test, resulting in an overall delay of 2s
+        System.setProperty("byteman.jpaaudit.sleep", "666");
+
+        CommandContext ctxCMD = new CommandContext();
+        ctxCMD.setData("businessKey", UUID.randomUUID().toString());
+        ctxCMD.setData("NextRun", "1s");
+        ctxCMD.setData("EmfName", "org.jbpm.executor");
+        ctxCMD.setData("SkipProcessLog", "true");
+        ctxCMD.setData("SkipTaskLog", "true");
+        ctxCMD.setData("RepeatMode", "fixed");
+        executorService.scheduleRequest("org.jbpm.executor.commands.LogCleanupCommand", ctxCMD);
+
+        countDownListener.waitTillCompleted();
+
+        List<RequestInfo> rescheduled = executorService.getRequestsByBusinessKey((String)ctxCMD.getData("businessKey"), Arrays.asList(STATUS.QUEUED), new QueryContext());
+        // check if the job has been rescheduled
+        assertEquals(1, rescheduled.size());
+
+        List<RequestInfo> inErrorRequests = executorService.getInErrorRequests(new QueryContext());
+        assertEquals(0, inErrorRequests.size());
+        List<RequestInfo> queuedRequests = executorService.getQueuedRequests(new QueryContext());
+        assertEquals(1, queuedRequests.size());
+        List<RequestInfo> executedRequests = executorService.getCompletedRequests(new QueryContext());
+        assertEquals(1, executedRequests.size());
+
+        executorService.cancelRequest(queuedRequests.get(0).getId());
+
+        long firstExecution = executedRequests.get(0).getTime().getTime();
+        long nextExecution = queuedRequests.get(0).getTime().getTime();
+
+        // time difference between first and second should be around 2 seconds (2nd job rescheduled immediately)
+        long diff = nextExecution - firstExecution;
+        assertTrue(diff >= 2000 && diff < 3000);
+        System.clearProperty("byteman.jpaaudit.sleep");
+    }
 }

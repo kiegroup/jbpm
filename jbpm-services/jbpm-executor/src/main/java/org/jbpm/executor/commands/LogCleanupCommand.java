@@ -59,7 +59,7 @@ import org.slf4j.LoggerFactory;
  * 	<li>RepeatMode - defines how the next execution time is calculated
  * 	 <ul>
  * 	  <li>FIXED - Scheduled time + NextRun parameter value</li>
- * 	  <li>INTERVAL - End of execution + NextRun parameter value (default)</li>
+ * 	  <li>INTERVAL (or not present) - End of execution + NextRun parameter value (default)</li>
  * 	 </ul>
  * 	</li>
  * 	<li>NextRun - provides next execution time (valid time expression e.g. 1d, 5h, etc)</li>
@@ -284,7 +284,8 @@ public class LogCleanupCommand implements Command, Reoccurring {
 
         String nextRun = (String) ctx.getData("NextRun");
         if (nextRun != null) {
-            nextScheduleTimeAdd = DateTimeUtils.parseDateAsDuration(nextRun) - calculateExecutionTimeInMillis(ctx);
+            // if calculated next execution time is negative, schedule next run for immediate execution
+            nextScheduleTimeAdd = Math.max(DateTimeUtils.parseDateAsDuration(nextRun) - calculateExecutionTimeInMillis(ctx), 100);
         }
     }
 
@@ -296,9 +297,8 @@ public class LogCleanupCommand implements Command, Reoccurring {
             Date scheduledExecutionTime = (Date) ctx.getData("scheduledExecutionTime");
             executionTimeInMillis = Instant.now().minus(scheduledExecutionTime.toInstant().toEpochMilli(), ChronoUnit.MILLIS).toEpochMilli();
             logger.debug("Calculated execution time {}ms, based on scheduled execution time {}", executionTimeInMillis, scheduledExecutionTime);
-        } else if( "interval".equalsIgnoreCase(repeatMode) ) {
-            // no calculation required
         }
+        // no calculation required for interval (or empty) mode
         return executionTimeInMillis;
     }
 }

@@ -8,8 +8,8 @@ CLASS org.jbpm.process.audit.JPAAuditLogService
 METHOD doDelete
 AT ENTRY
 IF TRUE
-DO debug("Pausing JPAAuditLogService.doDelete for 500ms");
-Thread.sleep(500);
+DO debug("Pausing JPAAuditLogService.doDelete for " + Integer.getInteger("byteman.jpaaudit.sleep", 500) + "ms");
+Thread.sleep(Integer.getInteger("byteman.jpaaudit.sleep", 500));
 return 1
 ENDRULE
 
