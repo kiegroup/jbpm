@@ -56,7 +56,6 @@ import org.jbpm.workflow.instance.node.DynamicUtils;
 import org.jbpm.workflow.instance.node.WorkItemNodeInstance;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -91,7 +90,6 @@ import org.slf4j.LoggerFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.jbpm.test.persistence.util.PersistenceUtil.cleanUp;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
@@ -489,8 +487,7 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
         ksession.getWorkItemManager().registerWorkItemHandler("Human Task",
                 new DoNothingWorkItemHandler());
-        ProcessInstance pi = ksession.startProcess("UserProcess");
-        ksession.abortProcessInstance(pi.getId());
+        ksession.startProcess("UserProcess");
         // we can't test further as user tasks are asynchronous.
     }
 

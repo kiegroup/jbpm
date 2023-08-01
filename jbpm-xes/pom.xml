@@ -30,7 +30,6 @@
   
   <properties>
     <version.commons-cli>1.4</version.commons-cli>
-    <version.com.h2database>2.2.220</version.com.h2database>
   </properties>
    
 

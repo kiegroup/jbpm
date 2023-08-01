@@ -787,10 +787,6 @@ public class StandaloneBPMNProcessTest extends JbpmBpmn2TestCase {
         });
         ksession.signalEvent("MySignal", "NewValue");
         assertThat(list.size()).isEqualTo(1);
-        try {
-          ksession.abortProcessInstance(list.get(0));
-        } catch(Exception e) {
-        }
     }
 
     @Test
@@ -814,10 +810,6 @@ public class StandaloneBPMNProcessTest extends JbpmBpmn2TestCase {
         });
         ksession.signalEvent("Message-HelloMessage", "NewValue");
         assertThat(list.size()).isEqualTo(1);
-        try {
-          ksession.abortProcessInstance(list.get(0));
-        } catch(Exception e) {
-        }
     }
 
     @Test
