@@ -1,0 +1,15 @@
+########################################################################
+#
+# Rule to slow down the execution of JPAAuditLogService.doDelete
+#
+
+RULE JPAAuditLogService.doDelete sleep
+CLASS org.jbpm.process.audit.JPAAuditLogService
+METHOD doDelete
+AT ENTRY
+IF TRUE
+DO debug("Pausing JPAAuditLogService.doDelete for " + Integer.getInteger("byteman.jpaaudit.sleep", 500) + "ms");
+Thread.sleep(Integer.getInteger("byteman.jpaaudit.sleep", 500));
+return 1
+ENDRULE
+
