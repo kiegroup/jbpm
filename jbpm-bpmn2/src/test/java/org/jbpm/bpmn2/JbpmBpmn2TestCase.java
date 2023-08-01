@@ -740,7 +740,6 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
                 logService.findActiveProcessInstances().forEach(pi -> ksession.abortProcessInstance(pi.getId()));
                 
             } catch(Exception e) {
-                
             }
         } 
     }
