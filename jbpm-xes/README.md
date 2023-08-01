@@ -202,7 +202,7 @@ usage: xes -driver <driver> [-file <file>] [-logtype <logtype>]
 ### Example using a local H2 database file
 
 ```
-java -jar target/jbpm-xes-1.0.0-SNAPSHOT-jar-with-dependencies.jar -driver org.h2.Driver -user sa -password sa -url jdbc:h2:file:./spring-boot-jbpm -process evaluation -file jbpm.xes
+java -jar target/jbpm-xes-1.0.0-SNAPSHOT-jar-with-dependencies.jar -driver org.h2.Driver -user sa -password sa -url jdbc:h2:file:./spring-boot-jbpm;MODE=LEGACY;NON_KEYWORDS=VALUE -process evaluation -file jbpm.xes
 ```
 
 ### Example using MySQL database

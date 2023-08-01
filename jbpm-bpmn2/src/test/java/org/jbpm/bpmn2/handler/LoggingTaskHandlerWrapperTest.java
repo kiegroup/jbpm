@@ -59,6 +59,7 @@ public class LoggingTaskHandlerWrapperTest extends JbpmBpmn2TestCase {
     @After
     public void dispose() {
         if (ksession != null) {
+            abortProcessInstances(ksession);
             ksession.dispose();
             ksession = null;
         }
