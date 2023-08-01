@@ -107,6 +107,7 @@ public class CompensationTest extends JbpmBpmn2TestCase {
     @After
     public void dispose() {
         if (ksession != null) {
+            abortProcessInstances(ksession);
             ksession.dispose();
             ksession = null;
         }
@@ -118,7 +119,7 @@ public class CompensationTest extends JbpmBpmn2TestCase {
 
     @Test
     public void compensationViaIntermediateThrowEventProcess() throws Exception {
-        KieSession ksession = createKnowledgeSession("compensation/BPMN2-Compensation-IntermediateThrowEvent.bpmn2");
+        ksession = createKnowledgeSession("compensation/BPMN2-Compensation-IntermediateThrowEvent.bpmn2");
         TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
         ksession.getWorkItemManager().registerWorkItemHandler("Human Task", workItemHandler);
         
@@ -135,7 +136,7 @@ public class CompensationTest extends JbpmBpmn2TestCase {
     
     @Test
     public void compensationTwiceViaSignal() throws Exception {
-        KieSession ksession = createKnowledgeSession("compensation/BPMN2-Compensation-IntermediateThrowEvent.bpmn2");
+        ksession = createKnowledgeSession("compensation/BPMN2-Compensation-IntermediateThrowEvent.bpmn2");
         TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
         ksession.getWorkItemManager().registerWorkItemHandler("Human Task", workItemHandler);
         
@@ -155,7 +156,7 @@ public class CompensationTest extends JbpmBpmn2TestCase {
     
     @Test
     public void subprocessLevelCompensationViaEventSubProcess() throws Exception {
-        KieSession ksession = createKnowledgeSession("compensation/BPMN2-Compensation-EventSubProcess.bpmn2");
+        ksession = createKnowledgeSession("compensation/BPMN2-Compensation-EventSubProcess.bpmn2");
         TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
         ksession.getWorkItemManager().registerWorkItemHandler("Human Task", workItemHandler);
  
@@ -171,7 +172,7 @@ public class CompensationTest extends JbpmBpmn2TestCase {
 
     @Test
     public void processLevelCompensationViaEventSubProcess() throws Exception {
-        KieSession ksession = createKnowledgeSession("compensation/BPMN2-Compensation-EventSubProcess2.bpmn2");
+        ksession = createKnowledgeSession("compensation/BPMN2-Compensation-EventSubProcess2.bpmn2");
 
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("x", "0");
@@ -182,7 +183,7 @@ public class CompensationTest extends JbpmBpmn2TestCase {
     
     @Test
     public void compensationOnlyAfterAssociatedActivityHasCompleted() throws Exception {
-        KieSession ksession = createKnowledgeSession("compensation/BPMN2-Compensation-UserTaskBeforeAssociatedActivity.bpmn2");
+        ksession = createKnowledgeSession("compensation/BPMN2-Compensation-UserTaskBeforeAssociatedActivity.bpmn2");
         ksession.addEventListener(LOGGING_EVENT_LISTENER);
         TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
         ksession.getWorkItemManager().registerWorkItemHandler("Human Task", workItemHandler);
@@ -204,7 +205,7 @@ public class CompensationTest extends JbpmBpmn2TestCase {
     
     @Test
     public void orderedCompensation() throws Exception { 
-        KieSession ksession = createKnowledgeSession("compensation/BPMN2-Compensation-ParallelOrderedCompensation-IntermediateThrowEvent.bpmn2");
+        ksession = createKnowledgeSession("compensation/BPMN2-Compensation-ParallelOrderedCompensation-IntermediateThrowEvent.bpmn2");
         TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
         ksession.getWorkItemManager().registerWorkItemHandler("Human Task", workItemHandler);
         
@@ -242,7 +243,7 @@ public class CompensationTest extends JbpmBpmn2TestCase {
     
     @Test
     public void compensationInSubSubProcesses() throws Exception {
-        KieSession ksession = createKnowledgeSession("compensation/BPMN2-Compensation-InSubSubProcess.bpmn2");
+        ksession = createKnowledgeSession("compensation/BPMN2-Compensation-InSubSubProcess.bpmn2");
         TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
         ksession.getWorkItemManager().registerWorkItemHandler("Human Task", workItemHandler);
         
@@ -263,7 +264,7 @@ public class CompensationTest extends JbpmBpmn2TestCase {
     
     @Test
     public void specificCompensationOfASubProcess() throws Exception {
-        KieSession ksession = createKnowledgeSession("compensation/BPMN2-Compensation-ThrowSpecificForSubProcess.bpmn2");
+        ksession = createKnowledgeSession("compensation/BPMN2-Compensation-ThrowSpecificForSubProcess.bpmn2");
         TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
         ksession.getWorkItemManager().registerWorkItemHandler("Human Task", workItemHandler);
         
@@ -286,7 +287,7 @@ public class CompensationTest extends JbpmBpmn2TestCase {
     @Test
     @Ignore
     public void compensationViaCancellation() throws Exception {
-        KieSession ksession = createKnowledgeSession("compensation/BPMN2-Compensation-IntermediateThrowEvent.bpmn2");
+        ksession = createKnowledgeSession("compensation/BPMN2-Compensation-IntermediateThrowEvent.bpmn2");
         TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
         ksession.getWorkItemManager().registerWorkItemHandler("Human Task", workItemHandler);
         
@@ -304,7 +305,7 @@ public class CompensationTest extends JbpmBpmn2TestCase {
     
     @Test
     public void compensationInvokingSubProcess() throws Exception {
-    	KieSession ksession = createKnowledgeSession("compensation/BPMN2-UserTaskCompensation.bpmn2");
+    	ksession = createKnowledgeSession("compensation/BPMN2-UserTaskCompensation.bpmn2");
         ksession.getWorkItemManager().registerWorkItemHandler("Human Task", new SystemOutWorkItemHandler());
         
         Map<String, Object> params = new HashMap<String, Object>();
@@ -323,7 +324,7 @@ public class CompensationTest extends JbpmBpmn2TestCase {
 	 */
 	@Test
 	public void compensationWithReusableSubprocess() throws Exception {
-		KieSession ksession = createKnowledgeSession("compensation/BPMN2-Booking.bpmn2",
+		ksession = createKnowledgeSession("compensation/BPMN2-Booking.bpmn2",
 				"compensation/BPMN2-BookResource.bpmn2", "compensation/BPMN2-CancelResource.bpmn2");
 		ProcessInstance processInstance = ksession.startProcess("Booking");
 		assertProcessInstanceCompleted(processInstance.getId(), ksession);

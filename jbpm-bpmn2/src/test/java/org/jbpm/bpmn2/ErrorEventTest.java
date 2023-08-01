@@ -77,10 +77,11 @@ public class ErrorEventTest extends JbpmBpmn2TestCase {
     public static void setup() throws Exception {
         setUpDataSource();
     }
-
+    
     @After
     public void dispose() {
         if (ksession != null) {
+            abortProcessInstances(ksession);
             ksession.dispose();
             ksession = null;
         }
