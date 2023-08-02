@@ -204,6 +204,28 @@
       <artifactId>hornetq-jms-server</artifactId>
       <scope>test</scope>
     </dependency>
+
+  <!--  byteman deps for testing -->
+    <dependency>
+      <groupId>org.jboss.byteman</groupId>
+      <artifactId>byteman</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.byteman</groupId>
+      <artifactId>byteman-submit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.byteman</groupId>
+      <artifactId>byteman-install</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.byteman</groupId>
+      <artifactId>byteman-bmunit</artifactId>
+      <scope>test</scope>
+     </dependency>
   </dependencies>
 
   <build>
@@ -219,6 +241,49 @@
     </testResources>
    
      <plugins>
+      <plugin>
+        <!-- We need to fork always as we have tests which are configured by system properties when a JVM starts -->
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <reuseForks>false</reuseForks>
+          <!-- Properties for Byteman which allows it to run on IBM Java as well -->
+          <argLine>
+            -javaagent:${project.build.directory}/agents/byteman.jar=port:9091,boot:${project.build.directory}/agents/byteman.jar
+            -Dfile.encoding=${project.build.sourceEncoding}
+            ${jacoco.agent.line}
+          </argLine>
+          <systemPropertyVariables>
+            <org.jboss.byteman.contrib.bmunit.agent.inhibit>true</org.jboss.byteman.contrib.bmunit.agent.inhibit>
+            <org.jboss.byteman.allow.config.update>true</org.jboss.byteman.allow.config.update>
+          </systemPropertyVariables>
+        </configuration>
+      </plugin>
+
+      <!-- Byteman jar is copied to target/agents directory so Java is able to bootstrap it -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-agent</id>
+            <phase>process-test-classes</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>org.jboss.byteman</groupId>
+                  <artifactId>byteman</artifactId>
+                  <outputDirectory>${project.build.directory}/agents</outputDirectory>
+                  <destFileName>byteman.jar</destFileName>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
      <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
