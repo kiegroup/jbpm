@@ -92,6 +92,9 @@ public class WorkItemNode extends StateBasedNode implements Mappable, ContextCon
     }
 
     public void addInAssociation(DataAssociation dataAssociation) {
+        if (dataAssociation.getTarget().equals("Description")) {
+            getWork().setParameter(dataAssociation.getTarget(), dataAssociation.getAssignments().get(0).getFrom());
+        }
         inMapping.add(dataAssociation);
     }
 
