@@ -41,7 +41,7 @@ public class ArquillianTestWrapperExtension implements LoadableExtension {
             Properties driverProperties = new Properties();
             driverProperties.put("user", "sa");
             driverProperties.put("password", "sasa");
-            driverProperties.put("url", "jdbc:h2:mem:mydb");
+            driverProperties.put("url", "jdbc:h2:mem:mydb;MODE=LEGACY;NON_KEYWORDS=VALUE");
             driverProperties.put("driverClassName", "org.h2.Driver");
             driverProperties.put("className", "org.h2.jdbcx.JdbcDataSource");
             

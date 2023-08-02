@@ -55,7 +55,7 @@ import org.jbpm.workflow.instance.node.DynamicNodeInstance;
 import org.jbpm.workflow.instance.node.DynamicUtils;
 import org.jbpm.workflow.instance.node.WorkItemNodeInstance;
 import org.junit.After;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -115,8 +115,8 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         super(persistence);
     }
 
-    @BeforeClass
-    public static void setup() throws Exception {
+    @Before
+    public void setup() throws Exception {
         setUpDataSource();
     }
 
@@ -128,6 +128,7 @@ public class ActivityTest extends JbpmBpmn2TestCase {
             ksession = null;
         }
         if (ksession2 != null) {
+            abortProcessInstances(ksession2);
             ksession2.dispose();
             ksession2 = null;
         }
@@ -687,7 +688,7 @@ public class ActivityTest extends JbpmBpmn2TestCase {
             VariableScope.setVariableStrictOption(true);
         }
     }
-    
+  
     @Test
     public void testCallActivityMISequential() throws Exception {
         KieBase kbase = createKnowledgeBaseWithoutDumper("BPMN2-CallActivityMISequential.bpmn2",
