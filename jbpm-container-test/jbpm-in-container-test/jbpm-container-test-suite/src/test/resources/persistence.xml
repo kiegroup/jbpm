@@ -18,6 +18,8 @@
       <property name="hibernate.dialect" value="${org.jbpm.persistence.dialect}" />
       <property name="hibernate.hbm2ddl.auto" value="${hibernate.hbm2ddl.auto}" />
       <property name="hibernate.transaction.jta.platform" value="${container.tm}" />
+      <property name="javax.persistence.schema-generation.drop-source" value="${org.jbpm.drop.source}" />
+      <property name="javax.persistence.schema-generation.drop-script-source" value="${org.jbpm.drop.script}" />
       <!-- BZ 841786: AS7/EAP 6/Hib 4 uses new (sequence) generators which seem to cause problems -->
       <property name="hibernate.id.new_generator_mappings" value="false"/>
     </properties>

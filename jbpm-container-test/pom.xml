@@ -35,7 +35,7 @@
     <org.jbpm.persistence.ds/>
     <hibernate.hbm2ddl.auto>create-drop</hibernate.hbm2ddl.auto>
     <org.jbpm.drop.source>script</org.jbpm.drop.source>
-    <org.jbpm.drop.script>drop-tables.sql</org.jbpm.drop.script>
+    <org.jbpm.drop.script>${project.basedir}/src/test/resources/drop-tables.sql</org.jbpm.drop.script>
 
     <!-- Common container-related properties -->
 
