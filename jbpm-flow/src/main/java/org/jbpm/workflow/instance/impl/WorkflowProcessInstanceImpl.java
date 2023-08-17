@@ -622,10 +622,9 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
         for (Node node : getWorkflowProcess().getNodes()) {
             if (node instanceof EventNode && "external".equals(((EventNode) node).getScope())) {
                 String eventType = ((EventNode) node).getType();
+                addEventListener(eventType, EMPTY_EVENT_LISTENER, true);
                 if (isVariableExpression(eventType)) {
                     addEventListener(resolveVariable(eventType), EMPTY_EVENT_LISTENER, true);
-                } else {
-                    addEventListener(eventType, EMPTY_EVENT_LISTENER, true);
                 }
             } else if (node instanceof EventSubProcessNode) {
                 List<String> events = ((EventSubProcessNode) node).getEvents();
@@ -648,10 +647,9 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
         for (Node node : getWorkflowProcess().getNodes()) {
             if (node instanceof EventNode && "external".equals(((EventNode) node).getScope())) {
                 String eventType = ((EventNode) node).getType();
+                removeEventListener(eventType, EMPTY_EVENT_LISTENER, true);
                 if (isVariableExpression(eventType)) {
                     removeEventListener(resolveVariable(eventType), EMPTY_EVENT_LISTENER, true);
-                } else {
-                    removeEventListener(eventType, EMPTY_EVENT_LISTENER, true);
                 }
             }
         }
@@ -909,7 +907,6 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
             if(factory.isResolveable(paramName)) {
                 return Optional.of(factory.getVariableResolver(paramName).getValue());
             }
-
             return Optional.ofNullable(MVELSafeHelper.getEvaluator().eval(paramName, factory));
         } catch (Throwable t) {
             logger.error("Could not find variable scope for variable {}", paramName);
