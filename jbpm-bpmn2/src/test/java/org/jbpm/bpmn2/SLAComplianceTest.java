@@ -136,9 +136,16 @@ public class SLAComplianceTest extends JbpmBpmn2TestCase {
     @Test
     public void testSLAonProcessUpdated() throws Exception {
         CountDownLatch latch = new CountDownLatch(1);
+        final ProcessEventListener listener = new DefaultProcessEventListener(){
+            @Override
+            public void afterSLAViolated(SLAViolatedEvent event) {
+                latch.countDown();
+            }
+        };
         KieBase kbase = createKnowledgeBase("BPMN2-UserTaskWithSLA.bpmn2");
         KieSession ksession = createKnowledgeSession(kbase);
-        
+        ksession.addEventListener(listener);
+
         ProcessInstance processInstance = ksession.startProcess("UserTask");
         assertTrue(processInstance.getState() == ProcessInstance.STATE_ACTIVE);
         
@@ -160,8 +167,11 @@ public class SLAComplianceTest extends JbpmBpmn2TestCase {
         assertEquals(ProcessInstance.SLA_PENDING, slaCompliance);
         
         slaViolated = latch.await(5, TimeUnit.SECONDS);
-        assertFalse("Process SLA was not violated while it is expected after 10s", slaViolated);
-        
+        assertTrue("Process SLA was not violated while it is expected after 10s", slaViolated);
+
+        processInstance = ksession.getProcessInstance(processInstance.getId());
+        assertTrue(processInstance.getState() == ProcessInstance.STATE_ACTIVE);
+
         slaCompliance = getSLAComplianceForProcessInstance(processInstance);
         assertEquals(ProcessInstance.SLA_VIOLATED, slaCompliance);
         
