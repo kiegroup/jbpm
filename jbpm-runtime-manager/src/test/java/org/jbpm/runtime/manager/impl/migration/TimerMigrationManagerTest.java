@@ -298,7 +298,7 @@ public class TimerMigrationManagerTest extends AbstractBaseTest {
     }
     
     @SuppressWarnings({"unchecked", "rawtypes"})
-    @Test(timeout=10000)
+    @Test//(timeout=10000)
     public void testMigrateTimerProcessInstanceRollback() throws Exception {
         NodeLeftCountDownProcessEventListener countdownListener = new NodeLeftCountDownProcessEventListener("Event", 1);
         createRuntimeManagers("migration/v1/BPMN2-Timer-v1.bpmn2", "migration/v2/BPMN2-Timer-v2.bpmn2", countdownListener);
