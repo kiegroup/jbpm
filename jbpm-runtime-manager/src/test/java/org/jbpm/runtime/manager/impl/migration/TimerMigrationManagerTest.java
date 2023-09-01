@@ -41,6 +41,7 @@ import org.jbpm.runtime.manager.util.TestUtil;
 import org.jbpm.services.task.identity.JBossUserGroupCallbackImpl;
 import org.jbpm.services.task.impl.TaskDeadlinesServiceImpl;
 import org.jbpm.test.listener.process.NodeLeftCountDownProcessEventListener;
+import org.jbpm.test.listener.process.SLAViolationCountDownProcessEventListener;
 import org.jbpm.test.util.AbstractBaseTest;
 import org.junit.After;
 import org.junit.Before;
@@ -114,6 +115,13 @@ public class TimerMigrationManagerTest extends AbstractBaseTest {
     
     private static final String USERTASK_BOUNDARY_TIMER_ID_V1 = "UserTaskBoundary-v1";
     private static final String USERTASK_BOUNDARY_TIMER_ID_V2 = "UserTaskBoundary-v2";
+
+    private static final String USERTASK_SLA_ID_V1 = "BPMN2-UserTaskSLA-v1";
+    private static final String USERTASK_SLA_ID_V2 = "BPMN2-UserTaskSLA-v2";
+
+    private static final String PROCESS_SLA_ID_V1 = "BPMN2-ProcessSLA-v1";
+    private static final String PROCESS_SLA_ID_V2 = "BPMN2-ProcessSLA-v2";
+
     private JPAAuditLogService auditService;
     private RuntimeEngine runtime;
     private long pid;
@@ -588,6 +596,104 @@ public class TimerMigrationManagerTest extends AbstractBaseTest {
         completeUserTask(managerV2, USER_MARY);
 
         checkProcessCompleted(countdownListener);
+    }
+
+    @Test(timeout=10000)
+    public void testUserTaskSLA() throws Exception {
+        SLAViolationCountDownProcessEventListener countdownListener = new SLAViolationCountDownProcessEventListener(1);
+        createRuntimeManagers("migration/v1/BPMN2-UserTaskSLA-v1.bpmn2", "migration/v2/BPMN2-UserTaskSLA-v2.bpmn2", countdownListener);
+        assertNotNull(managerV1);
+        assertNotNull(managerV2);
+        
+        RuntimeEngine runtime = managerV1.getRuntimeEngine(EmptyContext.get());
+        KieSession ksession = runtime.getKieSession();
+        assertNotNull(ksession); 
+        
+        ProcessInstance pi1 = ksession.startProcess(USERTASK_SLA_ID_V1);
+        assertNotNull(pi1);
+        assertEquals(ProcessInstance.STATE_ACTIVE, pi1.getState()); 
+        JPAAuditLogService auditService = new JPAAuditLogService(emf);
+        ProcessInstanceLog log = auditService.findProcessInstance(pi1.getId());
+        assertNotNull(log);
+        assertEquals(USERTASK_SLA_ID_V1, log.getProcessId());
+        assertEquals(DEPLOYMENT_ID_V1, log.getExternalId());
+                
+        managerV1.disposeRuntimeEngine(runtime);
+        
+        MigrationSpec migrationSpec = new MigrationSpec(DEPLOYMENT_ID_V1, pi1.getId(), DEPLOYMENT_ID_V2, USERTASK_SLA_ID_V2);
+        
+        MigrationManager migrationManager = new MigrationManager(migrationSpec);
+        MigrationReport report = migrationManager.migrate();
+        
+        assertNotNull(report);
+        assertTrue(report.isSuccessful());
+        
+        log = auditService.findProcessInstance(pi1.getId());
+        assertNotNull(log);
+        assertEquals(USERTASK_SLA_ID_V2, log.getProcessId());
+        assertEquals(DEPLOYMENT_ID_V2, log.getExternalId());
+        assertEquals(ProcessInstance.STATE_ACTIVE, log.getStatus().intValue());
+        
+        
+        // wait till timer fires
+        countdownListener.waitTillCompleted();
+        
+        log = auditService.findProcessInstance(pi1.getId());
+        auditService.dispose();
+        assertNotNull(log);
+        assertEquals(USERTASK_SLA_ID_V2, log.getProcessId());
+        assertEquals(DEPLOYMENT_ID_V2, log.getExternalId());
+        assertEquals(ProcessInstance.STATE_ACTIVE, log.getStatus().intValue());
+
+    }
+
+    @Test(timeout=10000)
+    public void testProcessSLA() throws Exception {
+        SLAViolationCountDownProcessEventListener countdownListener = new SLAViolationCountDownProcessEventListener(1);
+        createRuntimeManagers("migration/v1/BPMN2-ProcessSLA-v1.bpmn2", "migration/v2/BPMN2-ProcessSLA-v2.bpmn2", countdownListener);
+        assertNotNull(managerV1);
+        assertNotNull(managerV2);
+        
+        RuntimeEngine runtime = managerV1.getRuntimeEngine(EmptyContext.get());
+        KieSession ksession = runtime.getKieSession();
+        assertNotNull(ksession); 
+        
+        ProcessInstance pi1 = ksession.startProcess(PROCESS_SLA_ID_V1);
+        assertNotNull(pi1);
+        assertEquals(ProcessInstance.STATE_ACTIVE, pi1.getState()); 
+        JPAAuditLogService auditService = new JPAAuditLogService(emf);
+        ProcessInstanceLog log = auditService.findProcessInstance(pi1.getId());
+        assertNotNull(log);
+        assertEquals(PROCESS_SLA_ID_V1, log.getProcessId());
+        assertEquals(DEPLOYMENT_ID_V1, log.getExternalId());
+                
+        managerV1.disposeRuntimeEngine(runtime);
+        
+        MigrationSpec migrationSpec = new MigrationSpec(DEPLOYMENT_ID_V1, pi1.getId(), DEPLOYMENT_ID_V2, PROCESS_SLA_ID_V2);
+        
+        MigrationManager migrationManager = new MigrationManager(migrationSpec);
+        MigrationReport report = migrationManager.migrate();
+        
+        assertNotNull(report);
+        assertTrue(report.isSuccessful());
+        
+        log = auditService.findProcessInstance(pi1.getId());
+        assertNotNull(log);
+        assertEquals(PROCESS_SLA_ID_V2, log.getProcessId());
+        assertEquals(DEPLOYMENT_ID_V2, log.getExternalId());
+        assertEquals(ProcessInstance.STATE_ACTIVE, log.getStatus().intValue());
+        
+        
+        // wait till timer fires
+        countdownListener.waitTillCompleted();
+        
+        log = auditService.findProcessInstance(pi1.getId());
+        auditService.dispose();
+        assertNotNull(log);
+        assertEquals(PROCESS_SLA_ID_V2, log.getProcessId());
+        assertEquals(DEPLOYMENT_ID_V2, log.getExternalId());
+        assertEquals(ProcessInstance.STATE_ACTIVE, log.getStatus().intValue());
+
     }
 
     protected void createRuntimeManagers(String processV1, String processV2, ProcessEventListener...eventListeners) {
