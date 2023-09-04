@@ -16,15 +16,17 @@
     <bpmn2:participant id="_79DE678D-5C9E-487D-B14A-035878CC1137" name="Pool Participant" processRef="BPMN2_ProcessSLA_v2"/>
   </bpmn2:collaboration>
   <bpmn2:process id="BPMN2-ProcessSLA-v2" drools:packageName="com.example" drools:version="1.0" drools:adHoc="false" name="BPMN2-ProcessSLA-v2" isExecutable="true" processType="Private">
+    <bpmn2:extensionElements>
+      <drools:metaData name="customSLADueDate">
+	      <drools:metaValue><![CDATA[PT5S]]></drools:metaValue>
+      </drools:metaData>
+    </bpmn2:extensionElements>
     <bpmn2:sequenceFlow id="_1-_2" sourceRef="_1" targetRef="_2"/>
     <bpmn2:sequenceFlow id="_2-_3" sourceRef="_2" targetRef="_3"/>
     <bpmn2:startEvent id="_1" name="StartProcess">
       <bpmn2:extensionElements>
         <drools:metaData name="elementname">
           <drools:metaValue><![CDATA[StartProcess]]></drools:metaValue>
-        </drools:metaData>
-        <drools:metaData name="customSLADueDate">
-          <drools:metaValue><![CDATA[3s]]></drools:metaValue>
         </drools:metaData>
       </bpmn2:extensionElements>
       <bpmn2:outgoing>_1-_2</bpmn2:outgoing>

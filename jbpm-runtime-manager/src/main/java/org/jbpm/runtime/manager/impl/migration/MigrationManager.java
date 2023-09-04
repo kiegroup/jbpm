@@ -151,6 +151,7 @@ public class MigrationManager {
         Map<Long, List<TimerInstance>> stateBasedTimer = null;
         Map<Long, List<TimerInstance>> slaTimerMigrated = null;
         Map<Long, List<TimerInstance>> humanTaskSuspended = null;
+        TimerInstance slaProcessInstance = null;
         try {
 
             // collect and cancel any active timers before migration
@@ -158,7 +159,8 @@ public class MigrationManager {
             stateBasedTimer = cancelActiveTimersBeforeMigration(currentManager, StateBasedNodeInstance.class, active -> active.getTimerInstances());          
             slaTimerMigrated = cancelActiveTimersBeforeMigration(currentManager, org.jbpm.workflow.instance.impl.NodeInstanceImpl.class, active -> asList(active.getSlaTimerId()));
             humanTaskSuspended = cancelActiveTimersBeforeMigration(currentManager, HumanTaskNodeInstance.class, active -> asList((active.getSuspendUntilTimerId())));
-
+            slaProcessInstance = cancelSLAActiveTimerProcessInstance(currentManager);
+            
             // start transaction to secure consistency of the migration         
             txm = TransactionManagerFactory.get().newTransactionManager(currentManager.getEnvironment().getEnvironment());
             transactionOwner = txm.begin();
@@ -272,7 +274,7 @@ public class MigrationManager {
                 rescheduleTimersAfterMigration(toBeManager, StateBasedNodeInstance.class, stateBasedTimer, (active, timers) -> active.internalSetTimerInstances(timers.stream().map(TimerInstance::getId).collect(Collectors.toList())));
                 rescheduleTimersAfterMigration(toBeManager, org.jbpm.workflow.instance.impl.NodeInstanceImpl.class, slaTimerMigrated, (active, timers) -> active.internalSetSlaTimerId(toSingletonTimerId(timers)));
                 rescheduleTimersAfterMigration(toBeManager, HumanTaskNodeInstance.class, humanTaskSuspended, (active, timers) -> active.setSuspendUntilTimerId(toSingletonTimerId(timers)));
-
+                rescheduleTimersAfterMigration(toBeManager, slaProcessInstance);
  
                 em.flush();
             } finally {
@@ -292,7 +294,7 @@ public class MigrationManager {
             rescheduleTimersAfterMigration(currentManager, StateBasedNodeInstance.class, stateBasedTimer, (active, timers) -> active.internalSetTimerInstances(timers.stream().map(TimerInstance::getId).collect(Collectors.toList())));
             rescheduleTimersAfterMigration(currentManager, org.jbpm.workflow.instance.impl.NodeInstanceImpl.class, slaTimerMigrated, (active, timers) -> active.internalSetSlaTimerId(toSingletonTimerId(timers)));
             rescheduleTimersAfterMigration(currentManager, HumanTaskNodeInstance.class, humanTaskSuspended, (active, timers) -> active.setSuspendUntilTimerId(toSingletonTimerId(timers)));
-            
+            rescheduleTimersAfterMigration(currentManager, slaProcessInstance);
             report.addEntry(Type.ERROR, "Migration of process instance (" + migrationSpec.getProcessInstanceId() + ") failed due to " + e.getMessage());
 
         } finally {
@@ -592,6 +594,67 @@ public class MigrationManager {
         return ((InternalProcessRuntime) ((StatefulKnowledgeSessionImpl) internal).getProcessRuntime()).getTimerManager();
     }
 
+    protected TimerInstance cancelSLAActiveTimerProcessInstance(RuntimeManager manager) {
+        RuntimeEngine engineBefore = manager.getRuntimeEngine(ProcessInstanceIdContext.get(migrationSpec.getProcessInstanceId()));
+        try {
+            TimerInstance timerMigrated = engineBefore.getKieSession().execute(new ExecutableCommand<TimerInstance>() {
+
+                @Override
+                public TimerInstance execute(Context context) {
+                    KieSession kieSession = ((RegistryContext) context).lookup(KieSession.class);
+                    TimerManager timerManager = getTimerManager(kieSession);
+                    WorkflowProcessInstanceImpl processInstance = (WorkflowProcessInstanceImpl) kieSession.getProcessInstance(migrationSpec.getProcessInstanceId());
+                    if (processInstance.getSlaTimerId() > 0) {
+                        TimerInstance timerInstance = timerManager.getTimerMap().get(processInstance.getSlaTimerId());
+                        if (timerInstance != null) {
+                            timerManager.cancelTimer(processInstance.getId(), timerInstance.getId());
+                        }
+
+                        return timerInstance;
+                    }
+                    return null;
+                }
+                
+            });
+            return timerMigrated;
+        }  finally {
+            manager.disposeRuntimeEngine(engineBefore);
+        }
+
+    }
+    
+    protected void rescheduleTimersAfterMigration(RuntimeManager manager, TimerInstance timerMigrated) {
+        if(timerMigrated == null) {
+            return;
+        }
+        
+        RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(migrationSpec.getProcessInstanceId()));
+        try {
+            engine.getKieSession().execute(new ExecutableCommand<Void>() {
+
+                @Override
+                public Void execute(Context context) {
+                    KieSession kieSession = ((RegistryContext) context).lookup(KieSession.class);
+
+                    TimerManager timerManager = getTimerManager(kieSession);
+
+                    WorkflowProcessInstanceImpl processInstance = (WorkflowProcessInstanceImpl) kieSession.getProcessInstance(migrationSpec.getProcessInstanceId());
+                    
+                    long delay = timerMigrated.getDelay() - (System.currentTimeMillis() - timerMigrated.getActivated().getTime());
+                    timerMigrated.setDelay(delay);
+                    
+                    updateBasedOnTrigger(timerMigrated);
+
+                    timerManager.registerTimer(timerMigrated, processInstance);
+                    
+                    processInstance.internalSetSlaTimerId(timerMigrated.getId());
+                    return null;
+                }});
+        } finally {
+            manager.disposeRuntimeEngine(engine);
+        }
+    }
+    
     protected <T extends NodeInstance> Map<Long, List<TimerInstance>> cancelActiveTimersBeforeMigration(RuntimeManager manager, Class<T> type, Function<T, List<Long>> getTimerInstances ) {
         RuntimeEngine engineBefore = manager.getRuntimeEngine(ProcessInstanceIdContext.get(migrationSpec.getProcessInstanceId()));
         try {
