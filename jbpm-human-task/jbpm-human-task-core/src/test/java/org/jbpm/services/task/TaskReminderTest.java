@@ -21,7 +21,9 @@ import javax.persistence.Persistence;
 
 import org.kie.test.util.db.PoolingDataSourceWrapper;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.kie.internal.task.api.InternalTaskService;
 import org.kie.internal.utils.ChainedProperties;
 import org.kie.internal.utils.ClassLoaderUtil;
@@ -29,9 +31,15 @@ import org.subethamail.wiser.Wiser;
 
 public class TaskReminderTest extends TaskReminderBaseTest {
 
-    private PoolingDataSourceWrapper pds;
-    private EntityManagerFactory emf;
+    private static PoolingDataSourceWrapper pds;
+    private static EntityManagerFactory emf;
 
+    @BeforeClass
+    public static void beforeClass() {
+        pds = setupPoolingDataSource();
+        emf = Persistence.createEntityManagerFactory("org.jbpm.services.task");
+    }
+    
     @Before
     public void setup() {
         final ChainedProperties props = ChainedProperties.getChainedProperties( "email.conf", ClassLoaderUtil.getClassLoader( null, getClass(), false ));
@@ -46,8 +54,6 @@ public class TaskReminderTest extends TaskReminderBaseTest {
             // Do nothing
         }
 
-        pds = setupPoolingDataSource();
-        emf = Persistence.createEntityManagerFactory("org.jbpm.services.task");
         this.taskService = (InternalTaskService) HumanTaskServiceFactory.newTaskServiceConfigurator()
                 .entityManagerFactory(emf)
                 .getTaskService();
@@ -64,6 +70,10 @@ public class TaskReminderTest extends TaskReminderBaseTest {
             }
         }
         super.tearDown();
+    }
+    
+    @AfterClass
+    public static void afterClass() {
         if (emf != null) {
             emf.close();
         }

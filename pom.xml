@@ -31,8 +31,6 @@
         <maven.jdbc.driver.jar/>
         <maven.jdbc.username>sa</maven.jdbc.username>
         <maven.jdbc.password>sasa</maven.jdbc.password>
-        <!-- appending ;MODE=LEGACY;OLD_INFORMATION_SCHEMA=TRUE;NON_KEYWORDS=VALUE to the jdbc url is necessary to workaround the problem reported at -->
-        <!-- https://github.com/h2database/h2database/issues/3325 -->
         <maven.jdbc.url>jdbc:h2:mem:jbpm-db;MODE=LEGACY;OLD_INFORMATION_SCHEMA=TRUE;NON_KEYWORDS=VALUE</maven.jdbc.url>
         <maven.jdbc.schema>PUBLIC</maven.jdbc.schema>
 
@@ -201,6 +199,110 @@
             <modules>
                 <module>jbpm-distribution</module>
             </modules>
+        </profile>
+        
+        <profile>
+            <id>tc-postgres</id>
+            <properties>
+                 <maven.hibernate.dialect>org.hibernate.dialect.PostgreSQL82Dialect</maven.hibernate.dialect>
+                 <maven.datasource.classname>org.postgresql.xa.PGXADataSource</maven.datasource.classname>
+                 <maven.jdbc.driver.class>org.postgresql.Driver</maven.jdbc.driver.class>
+                 <maven.jdbc.username>sa</maven.jdbc.username>
+                 <maven.jdbc.password>sa</maven.jdbc.password>
+                 <maven.jdbc.db.name>tcdb</maven.jdbc.db.name>
+                 <maven.jdbc.schema>public</maven.jdbc.schema>
+                 <postgres.db.version>15.3</postgres.db.version>
+                 <skipTests>false</skipTests>
+            </properties>
+            <dependencyManagement>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.postgresql</groupId>
+                        <artifactId>postgresql</artifactId>
+                        <version>${version.org.postgresql}</version>
+                    </dependency>
+                </dependencies>
+            </dependencyManagement>
+            <dependencies>
+                <dependency>
+                    <groupId>org.postgresql</groupId>
+                    <artifactId>postgresql</artifactId>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.gmaven</groupId>
+                        <artifactId>groovy-maven-plugin</artifactId>
+                        <version>2.1.1</version>
+                        <executions>
+                            <execution>
+                                <id>testcontainers-postgres-start</id>
+                                <phase>generate-test-sources</phase>
+                                <goals>
+                                    <goal>execute</goal>
+                                </goals>
+                                <configuration>
+                                    <source>
+                                        import org.testcontainers.containers.PostgreSQLContainer;
+                                        
+                                        if (${skipTests}) {
+                                          log.info "Skipping execution...";
+                                          return;
+                                        }
+                                        log.info "Starting postgres db testcontainer...";
+                                        db = new PostgreSQLContainer("postgres:${postgres.db.version}-alpine")
+                                                .withUsername("${maven.jdbc.username}")
+                                                .withDatabaseName("${maven.jdbc.db.name}")
+                                                .withPassword("${maven.jdbc.password}")
+                                                .withEnv(Collections.singletonMap("PGDATA","/var/lib/postgresql/data"))
+                                                .withTmpFs(Collections.singletonMap("/var/lib/postgresql/data","rw"))
+                                                .withReuse(true)
+                                                .withCommand("-c max_prepared_transactions=10 -c max_connections=1000");
+                                
+                                        db.start();
+                                        project.properties.setProperty('maven.jdbc.url', db.getJdbcUrl());
+                                        project.properties.setProperty('maven.jdbc.db.port', db.getExposedPorts().toString()); 
+                                        project.properties.setProperty('maven.jdbc.db.server', db.getHost());
+                                        project.properties.setProperty('testcontainer.containerid', db.getContainerId());
+                                        project.properties.setProperty('testcontainer.imageName', db.getDockerImageName());
+                                        log.info "Started postgres db testcontainer at "+db.getJdbcUrl()+":"+db.getExposedPorts().toString();
+                                   </source>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>testcontainers-postgres-stop</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>execute</goal>
+                                </goals>
+                                <configuration>
+                                    <source>
+                                        import org.testcontainers.utility.ResourceReaper;
+                                        
+                                        if (${skipTests}) {
+                                          log.info "Skipping execution...";
+                                          return;
+                                        }
+                                        containerId = "${testcontainer.containerid}"
+                                        imageName = "${testcontainer.imageName}"
+                                        log.info "Stopping postgres-db $containerId - $imageName"
+                                        ResourceReaper.instance().stopAndRemoveContainer(containerId, imageName);
+                                        log.info "Stopped postgres-db $containerId - $imageName"
+                                    </source>
+                                </configuration>
+                            </execution>
+                        </executions>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.testcontainers</groupId>
+                                <artifactId>postgresql</artifactId>
+                                <version>${version.org.testcontainers}</version>
+                            </dependency>
+                        </dependencies>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
 
         <profile>

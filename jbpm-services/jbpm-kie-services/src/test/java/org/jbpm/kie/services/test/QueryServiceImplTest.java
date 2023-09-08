@@ -346,8 +346,15 @@ public class QueryServiceImplTest extends AbstractKieServicesBaseTest {
     public void testGetProcessInstancesWithVariables() {
 
         query = new SqlQueryDefinition("getAllProcessInstancesWithVariables", dataSourceJNDIname);
-        query.setExpression("select pil.*, v.variableId, v.value " + "from ProcessInstanceLog pil " + "inner join (select vil.processInstanceId ,vil.variableId, MAX(vil.ID) maxvilid  FROM VariableInstanceLog vil " + "GROUP BY vil.processInstanceId, vil.variableId ORDER BY vil.processInstanceId)  x " + "ON (v.variableId = x.variableId  AND v.id = x.maxvilid )" + "INNER JOIN VariableInstanceLog v " + "ON (v.processInstanceId = pil.processInstanceId)");
 
+        query.setExpression("SELECT pil.*, v.variableId, v.value " + 
+                "FROM ProcessInstanceLog pil " + 
+                "INNER JOIN (" + 
+                "    SELECT vil.processInstanceId, vil.variableId, MAX(vil.ID) AS maxvilid" + 
+                "    FROM VariableInstanceLog vil" + 
+                "    GROUP BY vil.processInstanceId, vil.variableId" + 
+                ") x ON (pil.processInstanceId = x.processInstanceId) " + 
+                "INNER JOIN VariableInstanceLog v ON (v.variableId = x.variableId AND v.id = x.maxvilid)");
         queryService.registerQuery(query);
 
         Map<String, Object> params = new HashMap<String, Object>();
