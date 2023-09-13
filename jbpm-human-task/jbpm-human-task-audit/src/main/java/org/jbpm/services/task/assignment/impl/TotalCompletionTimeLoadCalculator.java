@@ -50,7 +50,7 @@ public class TotalCompletionTimeLoadCalculator extends AbstractLoadCalculator {
 			+ "select new org.jbpm.services.task.assignment.impl.TaskAverageDuration(avg(bts.duration),t.taskData.deploymentId,t.taskData.processId,bts.taskName) "
 			+ "from BAMTaskSummaryImpl bts left join TaskImpl t on (bts.taskId = t.id) "
 			+ "where (bts.duration is not null) and t.taskData.processId = :procid and t.taskData.deploymentId = :depid and t.name = :taskname "
-			+ "group by t.taskData.deploymentId, t.taskData.processId, t.name";
+			+ "group by t.taskData.deploymentId, t.taskData.processId, t.name, bts.taskName";
 	
 	/**
 	 * Initialize the cache
