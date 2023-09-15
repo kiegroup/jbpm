@@ -71,7 +71,7 @@ public class EjbSchedulerService implements GlobalSchedulerService {
 		if (!ctx.isNew()) {
 		    jobInstance = getTimerJobInstance(jobName);
 		    if (jobInstance == null) {
-		        jobInstance = scheduler.getTimerByName(jobName);
+		        jobInstance = scheduler.getTimerByName(globalTimerService, jobName);
 		    }
     		if (jobInstance != null) {
     			return jobInstance.getJobHandle();

@@ -25,10 +25,13 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -42,14 +45,15 @@ import javax.ejb.Timeout;
 import javax.ejb.Timer;
 import javax.ejb.TimerConfig;
 import javax.ejb.TimerHandle;
-import javax.ejb.TimerService;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 
 import org.drools.core.time.JobHandle;
+import org.drools.core.time.TimerService;
 import org.drools.core.time.impl.TimerJobInstance;
 import org.jbpm.persistence.timer.GlobalJpaTimerJobInstance;
 import org.jbpm.process.core.timer.TimerServiceRegistry;
+import org.jbpm.process.core.timer.impl.GlobalTimerService;
 import org.kie.internal.runtime.manager.SessionNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,10 +75,14 @@ public class EJBTimerScheduler {
 
 	private boolean useLocalCache = Boolean.parseBoolean(System.getProperty("org.jbpm.ejb.timer.local.cache", "false"));
 
-	private ConcurrentMap<String, TimerJobInstance> localCache = new ConcurrentHashMap<String, TimerJobInstance>();
+	private Map<String, TimerJobInstance> localCache = new ConcurrentHashMap<>();
+	
+    private Collection<EJBTimerRetriever<?>> timerRetrievers;
 
+    private EJBTimerRetriever<Void> defaultTimerRetriever;
+	
 	@Resource
-    protected TimerService timerService;
+    protected javax.ejb.TimerService timerService;
 	
     @Resource
     protected SessionContext ctx;
@@ -87,6 +95,8 @@ public class EJBTimerScheduler {
 	public void setup() {
 	    // disable auto init of timers since ejb timer service supports persistence of timers
 	    System.setProperty("org.jbpm.rm.init.timer", "false");
+	    timerRetrievers = Arrays.asList(new WildflyEJBTimerRetriever(timerService));
+	    defaultTimerRetriever = new DefaultEJBTimerRetriever(timerService);
 	    logger.info("Using local cache for EJB timers: {}", useLocalCache);
 	}
 
@@ -308,41 +318,38 @@ public class EJBTimerScheduler {
 	}
 
 
+    public TimerJobInstance getTimerByName(TimerService service, String jobName) {
+        return useLocalCache ? localCache.computeIfAbsent(jobName, k -> queryTimerByName(service, k)) : queryTimerByName(service, jobName);
+    }
 
-	public TimerJobInstance getTimerByName(String jobName) {
-    	if (useLocalCache) {
-    		if (localCache.containsKey(jobName)) {
-    			logger.debug("Found job {} in cache returning", jobName);
-    			return localCache.get(jobName);
-    		}
-    	}
-	    TimerJobInstance found = null;
-
-		for (Timer timer : timerService.getTimers()) {
-		    try {
-    			Serializable info = timer.getInfo();
-    			if (info instanceof EjbTimerJob) {
-    				EjbTimerJob job = (EjbTimerJob) info;
-
-    				EjbGlobalJobHandle handle = (EjbGlobalJobHandle) job.getTimerJobInstance().getJobHandle();
-
-    				if (handle.getUuid().equals(jobName)) {
-    					found = handle.getTimerJobInstance();
-							if (useLocalCache) {
-    					    localCache.putIfAbsent(jobName, found);
-						  }
-    					logger.debug("Job {} does match timer and is going to be returned {}", jobName, found);
-
-    					break;
-    				}
-    			}
-		    } catch (NoSuchObjectLocalException e) {
-                logger.debug("Timer info for {} was not found ", timer);
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private Collection<Object> getTimers(TimerService service, String jobName) {
+        if (service instanceof GlobalTimerService) {
+            for (EJBTimerRetriever retriever : timerRetrievers) {
+                Optional<?> accepted = retriever.accept((GlobalTimerService) service);
+                if (accepted.isPresent()) {
+                    return retriever.getTimers(jobName, accepted.get());
+                }
             }
-		}
+        }
+        return defaultTimerRetriever.getTimers(jobName, null);
+    }
 
-		return found;
-	}
+    private TimerJobInstance queryTimerByName(TimerService service, String jobName) {
+        for (Object timer : getTimers(service, jobName)) {
+            try {
+                if (timer instanceof EjbTimerJob) {
+                    EjbGlobalJobHandle handle = (EjbGlobalJobHandle) ((EjbTimerJob) timer).getTimerJobInstance().getJobHandle();
+                    if (handle.getUuid().equals(jobName)) {
+                        return handle.getTimerJobInstance();
+                    }
+                }
+            } catch (NoSuchObjectLocalException e) {
+                logger.debug("Timer info for {} was not found {}", timer, e.getMessage());
+            }
+        }
+        return null;
+    }	
 
     public void evictCache(JobHandle jobHandle) {
         String jobName =  ((EjbGlobalJobHandle) jobHandle).getUuid();
