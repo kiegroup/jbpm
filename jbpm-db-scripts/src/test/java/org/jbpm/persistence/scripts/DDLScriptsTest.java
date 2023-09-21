@@ -19,7 +19,7 @@ package org.jbpm.persistence.scripts;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-
+import java.io.IOException;
 import org.jbpm.test.persistence.scripts.DatabaseType;
 import org.jbpm.test.persistence.scripts.PersistenceUnit;
 import org.jbpm.test.persistence.scripts.ScriptsBase;
@@ -55,14 +55,17 @@ public class DDLScriptsTest extends ScriptsBase {
 
         ScriptFilter[] sbPg = new ScriptFilter[]{filter("postgresql-springboot-jbpm-schema.sql",
                                                         "quartz_tables_postgres.sql").setSupportedDatabase(DatabaseType.POSTGRESQL)
-                                                                                     .setOptions(Option.DISALLOW_EMPTY_RESULTS, Option.THROW_ON_SCRIPT_ERROR),
+                                                                                     .setOptions(Option.DISALLOW_EMPTY_RESULTS,
+                                                                                                 Option.THROW_ON_SCRIPT_ERROR,
+                                                                                                 Option.NEW_GENERATOR_MAPPINGS_TRUE),
                                                  filter("postgresql-springboot-jbpm-drop-schema.sql",
                                                         "quartz_tables_drop_postgres.sql")};
 
         ScriptFilter[] pqlBytea = new ScriptFilter[]{filter("postgresql-bytea-jbpm-schema.sql",
                                                             "quartz_tables_postgres.sql")
                                                                  .setSupportedDatabase(DatabaseType.POSTGRESQL)
-                                                                                         .setOptions(Option.DISALLOW_EMPTY_RESULTS, Option.THROW_ON_SCRIPT_ERROR)
+                                                                                         .setOptions(Option.DISALLOW_EMPTY_RESULTS,
+                                                                                                     Option.THROW_ON_SCRIPT_ERROR)
                                                                                          .env("org.kie.persistence.postgresql.useBytea", "true"),
                                                      filter("postgresql-bytea-jbpm-drop-schema.sql",
                                                             "quartz_tables_drop_postgres.sql")};
@@ -70,25 +73,30 @@ public class DDLScriptsTest extends ScriptsBase {
         ScriptFilter[] pqlSpringBootBytea = new ScriptFilter[]{filter("postgresql-springboot-bytea-jbpm-schema.sql",
                                                                       "quartz_tables_postgres.sql")
                                                                            .setSupportedDatabase(DatabaseType.POSTGRESQL)
-                                                                                                   .setOptions(Option.DISALLOW_EMPTY_RESULTS, Option.THROW_ON_SCRIPT_ERROR)
+                                                                                                   .setOptions(Option.DISALLOW_EMPTY_RESULTS,
+                                                                                                               Option.THROW_ON_SCRIPT_ERROR,
+                                                                                                               Option.NEW_GENERATOR_MAPPINGS_TRUE)
                                                                                                    .env("org.kie.persistence.postgresql.useBytea", "true"),
                                                                filter("postgresql-springboot-bytea-jbpm-drop-schema.sql",
                                                                       "quartz_tables_drop_postgres.sql")};
 
         ScriptFilter[] sbOracle = new ScriptFilter[]{filter("oracle-springboot-jbpm-schema.sql",
                                                             "quartz_tables_oracle.sql").setSupportedDatabase(DatabaseType.ORACLE)
-                                                                                       .setOptions(Option.DISALLOW_EMPTY_RESULTS, Option.THROW_ON_SCRIPT_ERROR),
+                                                                                       .setOptions(Option.DISALLOW_EMPTY_RESULTS,
+                                                                                                   Option.THROW_ON_SCRIPT_ERROR),
                                                      filter("oracle-springboot-jbpm-drop-schema.sql",
                                                             "quartz_tables_drop_oracle.sql")};
 
         ScriptFilter[] mySqlCluster = new ScriptFilter[]{filter("mysql-innodb-cluster-jbpm-schema.sql",
                                                             "quartz_tables_mysql_innodb.sql").setSupportedDatabase(DatabaseType.MYSQLINNODB)
-                                                                                       .setOptions(Option.DISALLOW_EMPTY_RESULTS, Option.THROW_ON_SCRIPT_ERROR),
+                                                                                       .setOptions(Option.DISALLOW_EMPTY_RESULTS,
+                                                                                                   Option.THROW_ON_SCRIPT_ERROR),
                                                      filter("mysql-innodb-jbpm-drop-schema.sql",
                                                                "quartz_tables_drop_mysql_innodb.sql")};
 
         ScriptFilter[] taskAssigningTables = new ScriptFilter[]{filter(Filter.OUT, "drop", "bytea", "springboot", "cluster")
-                                                                .setOptions(Option.DISALLOW_EMPTY_RESULTS, Option.THROW_ON_SCRIPT_ERROR),
+                                                                .setOptions(Option.DISALLOW_EMPTY_RESULTS,
+                                                                            Option.THROW_ON_SCRIPT_ERROR),
                                                                 filter("jbpm-drop-schema.sql",
                                                                        "quartz_tables_drop_",
                                                                        "task_assigning_tables_drop_")};
@@ -107,7 +115,8 @@ public class DDLScriptsTest extends ScriptsBase {
     private Map<String, Object> oldEnvironment;
 
     @Before
-    public void prepare() {
+    public void prepare() throws IOException {
+        replaceNewGeneratorMappingsValue(createScript);
         oldEnvironment = new HashMap<>();
         Map<String, Object> newEnvironment = createScript.getEnvironment();
         for (Map.Entry<String, Object> entry : newEnvironment.entrySet()) {
