@@ -28,6 +28,7 @@ import org.jbpm.test.persistence.scripts.PersistenceUnit;
 import org.jbpm.test.persistence.scripts.ScriptsBase;
 import org.jbpm.test.persistence.scripts.util.ScriptFilter;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -78,6 +79,11 @@ public class UpgradeScriptsTest extends ScriptsBase {
         TestPersistenceContext ctx = new TestPersistenceContext();
         DatabaseType dbType = ctx.getDatabaseType();
         assumeTrue(dbType!=DB2 && dbType!=SYBASE);
+    }
+    
+    @Before
+    public void prepare() throws IOException {
+        replaceNewGeneratorMappingsValue(ScriptFilter.init(false, false));
     }
     
     private void createSchema60UsingDDLs() throws IOException, SQLException {
