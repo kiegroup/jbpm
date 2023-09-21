@@ -134,7 +134,7 @@
       <property name="hibernate.default_schema" value="${maven.jdbc.schema}"/>
 
       <!-- BZ 841786: AS7/EAP 6/Hib 4 uses new (sequence) generators which seem to cause problems -->
-      <property name="hibernate.id.new_generator_mappings" value="false"/>
+      <property name="hibernate.id.new_generator_mappings" value="${new_generator_mappings.value}"/>
 
       <!-- The following line is what's used in Hibernate 4 instead of a TransactionManagerLookup class -->
       <property name="hibernate.transaction.jta.platform" value="org.hibernate.service.jta.platform.internal.JBossStandAloneJtaPlatform"/>
