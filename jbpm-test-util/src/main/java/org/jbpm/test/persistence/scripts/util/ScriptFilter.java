@@ -35,6 +35,7 @@ public class ScriptFilter {
     public enum Option {
         DISALLOW_EMPTY_RESULTS, // if the filter allow no results
         THROW_ON_SCRIPT_ERROR, // if the filter allows script errors
+        NEW_GENERATOR_MAPPINGS_TRUE //if the new_generator_mappings property switches to true
     }
 
     public enum Filter {
