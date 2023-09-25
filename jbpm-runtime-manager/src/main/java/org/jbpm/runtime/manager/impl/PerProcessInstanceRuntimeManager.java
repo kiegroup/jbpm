@@ -212,7 +212,7 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
                     try {
                         engineImpl.getKieSession().signalEvent(type, event,
                                 ((ProcessInstanceIdContext) context).getContextId());
-                    } catch (SessionNotFoundException ex) {
+                    } catch (org.drools.persistence.api.SessionNotFoundException ex) {
                         logger.warn(
                                 "Signal event cannot proceed because of session not found exception {} for engine {}",
                                 ex.getMessage(), engineImpl.getKieSessionId());
