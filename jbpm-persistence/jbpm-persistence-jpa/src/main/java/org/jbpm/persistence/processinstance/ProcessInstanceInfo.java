@@ -55,11 +55,14 @@ import org.jbpm.process.instance.impl.ProcessInstanceImpl;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 import org.kie.api.runtime.Environment;
 import org.kie.api.runtime.process.ProcessInstance;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Entity
 @SequenceGenerator(name="processInstanceInfoIdSeq", sequenceName="PROCESS_INSTANCE_INFO_ID_SEQ")
 public class ProcessInstanceInfo implements PersistentProcessInstance {
 
+    private static final Logger logger = LoggerFactory.getLogger(ProcessInstanceInfo.class);
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator="processInstanceInfoIdSeq")
     @Column(name = "InstanceId")
@@ -193,6 +196,9 @@ public class ProcessInstanceInfo implements PersistentProcessInstance {
                 context.close();
             } catch ( IOException e ) {
                 throw new IllegalArgumentException( "IOException while loading process instance: " + e.getMessage(), e);
+            } catch (RuntimeException e) {
+                logger.error("Error unmarshalling process instance info {}", processInstanceId, e);
+                throw e;
             }
         }
         ((WorkflowProcessInstanceImpl) processInstance).internalSetStartDate(this.startDate);
