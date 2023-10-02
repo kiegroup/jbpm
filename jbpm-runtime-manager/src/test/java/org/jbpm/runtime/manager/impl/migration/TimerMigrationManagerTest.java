@@ -79,18 +79,21 @@ import org.kie.test.util.db.PoolingDataSourceWrapper;
 @RunWith(Parameterized.class)
 public class TimerMigrationManagerTest extends AbstractBaseTest {
     
-    @Parameters(name = "Strategy : {0}")
+    @Parameters(name = "Strategy : {0}, disableUnmarshallerRegistration : {1}")
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][] {     
-                 {"singleton"}, 
-                 {"processinstance"}
+                 {"singleton", "false"},
+                 {"processinstance", "false"},
+                 {"processinstance", "true"}
            });
     }
     
     private String strategy;
-       
-    public TimerMigrationManagerTest(String strategy) {
+    private String disableUnmarshallerRegistration;
+
+    public TimerMigrationManagerTest(String strategy, String disableUnmarshallerRegistration) {
         this.strategy = strategy;
+        this.disableUnmarshallerRegistration = disableUnmarshallerRegistration;
     }
 
     private PoolingDataSourceWrapper pds;
@@ -143,6 +146,8 @@ public class TimerMigrationManagerTest extends AbstractBaseTest {
     
     @Before
     public void setup() {
+        System.setProperty("org.jbpm.timer.disableUnmarshallerRegistration", disableUnmarshallerRegistration);
+
         TestUtil.cleanupSingletonSessionId();
         pds = TestUtil.setupPoolingDataSource();
         
@@ -169,6 +174,7 @@ public class TimerMigrationManagerTest extends AbstractBaseTest {
         EntityManagerFactoryManager.get().clear();
         TaskDeadlinesServiceImpl.dispose();
         pds.close();
+        System.clearProperty("org.jbpm.timer.disableUnmarshallerRegistration");
     }
     
    
