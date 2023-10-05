@@ -18,6 +18,7 @@ package org.jbpm.process.core.timer.impl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -132,6 +133,12 @@ public class GlobalTimerService implements TimerService, InternalSchedulerServic
         }
     }
 
+    @Override
+    public Optional<TimerJobInstance> getTimerJobInstanceByTimerId(Long processInstanceId, Long timerId) {
+        return Optional.ofNullable(this.schedulerService.getTimerJobInstance(processInstanceId, timerId));
+    }
+    
+    
     @Override
     public boolean removeJob(JobHandle jobHandle) {
         if (jobHandle == null) {
@@ -338,6 +345,8 @@ public class GlobalTimerService implements TimerService, InternalSchedulerServic
     
         private static final long     serialVersionUID = 510l;
     
+        private String uuid;
+        
         public GlobalJobHandle(long id) {
             super(id);
         }
@@ -367,8 +376,12 @@ public class GlobalTimerService implements TimerService, InternalSchedulerServic
             return -1;
         }
 
+        public void setUuid(String uuid) {
+            this.uuid = uuid;
+        }
+        
         public String getUuid() {
-            return null;
+            return uuid;
         }
 
     }

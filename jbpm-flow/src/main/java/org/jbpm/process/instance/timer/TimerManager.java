@@ -29,19 +29,22 @@ import org.drools.core.common.InternalKnowledgeRuntime;
 import org.drools.core.common.InternalWorkingMemory;
 import org.drools.core.marshalling.impl.MarshallerReaderContext;
 import org.drools.core.marshalling.impl.MarshallerWriteContext;
+import org.drools.core.time.Job;
+import org.drools.core.time.JobContext;
+import org.drools.core.time.JobHandle;
+import org.drools.core.time.SelfRemovalJob;
+import org.drools.core.time.SelfRemovalJobContext;
+import org.drools.core.time.TimerService;
+import org.drools.core.time.Trigger;
+import org.drools.core.time.impl.CronTrigger;
+import org.drools.core.time.impl.IntervalTrigger;
+import org.drools.core.time.impl.TimerJobInstance;
 import org.drools.serialization.protobuf.ProtobufInputMarshaller;
 import org.drools.serialization.protobuf.ProtobufMessages;
 import org.drools.serialization.protobuf.ProtobufMessages.Timers.Timer;
 import org.drools.serialization.protobuf.ProtobufOutputMarshaller;
 import org.drools.serialization.protobuf.TimersInputMarshaller;
 import org.drools.serialization.protobuf.TimersOutputMarshaller;
-import org.drools.core.time.Job;
-import org.drools.core.time.JobContext;
-import org.drools.core.time.JobHandle;
-import org.drools.core.time.TimerService;
-import org.drools.core.time.Trigger;
-import org.drools.core.time.impl.CronTrigger;
-import org.drools.core.time.impl.IntervalTrigger;
 import org.jbpm.marshalling.impl.JBPMMessages;
 import org.jbpm.marshalling.impl.ProtobufProcessMarshaller;
 import org.jbpm.process.core.timer.impl.GlobalTimerService;
@@ -49,10 +52,10 @@ import org.jbpm.process.core.timer.impl.RegisteredTimerServiceDelegate;
 import org.jbpm.process.instance.InternalProcessRuntime;
 import org.jbpm.process.instance.ProcessInstance;
 import org.jbpm.process.instance.ProcessRuntimeImpl;
-import org.kie.api.runtime.KieSession;
-import org.kie.api.time.SessionClock;
 import org.jbpm.workflow.instance.NodeInstanceContainer;
 import org.jbpm.workflow.instance.node.TimerNodeInstance;
+import org.kie.api.runtime.KieSession;
+import org.kie.api.time.SessionClock;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -215,6 +218,27 @@ public class TimerManager {
         return this.timerService;
     }
 
+
+    public Optional<TimerInstance> getTimer(Long processInstanceId, Long timerId) {
+        Optional<TimerJobInstance> optinalTimerJobInstance = this.timerService.getTimerJobInstanceByTimerId(processInstanceId, timerId);
+        if(!optinalTimerJobInstance.isPresent()) {
+            return Optional.empty();
+        }
+
+        TimerJobInstance timerJobInstance = optinalTimerJobInstance.get();
+        JobContext jobContext = timerJobInstance.getJobContext();
+        if (timerJobInstance.getJobContext() instanceof SelfRemovalJobContext) {
+            jobContext = ((SelfRemovalJobContext) timerJobInstance.getJobContext()).getJobContext();
+        }
+               
+        if(!(jobContext instanceof ProcessJobContext)) {
+            return Optional.empty();
+        }
+
+        ProcessJobContext processJobContext = (ProcessJobContext) jobContext;
+        return Optional.ofNullable(processJobContext.getTimer());
+    }
+    
     public Collection<TimerInstance> getTimers() {
         return timers.values();
     }
@@ -547,5 +571,6 @@ public class TimerManager {
         }
 
     }
+
 
 }

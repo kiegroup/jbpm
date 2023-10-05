@@ -147,7 +147,7 @@ public class EjbSchedulerService implements GlobalSchedulerService {
             byte[] data = timerMappingInfo.getInfo();
             return ((TimerHandle) new ObjectInputStream(new ByteArrayInputStream(data)).readObject()).getTimer();
         } catch (Exception e) {
-            logger.warn("wast not able to deserialize info field from timer info for uuid");
+            logger.warn("wast not able to deserialize info field from timer info for uuid", e);
             return null;
         }
     }

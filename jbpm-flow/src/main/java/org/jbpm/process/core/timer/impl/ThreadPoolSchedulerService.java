@@ -17,6 +17,7 @@ package org.jbpm.process.core.timer.impl;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
@@ -99,8 +100,8 @@ public class ThreadPoolSchedulerService implements GlobalSchedulerService {
                 return activeTimer.get(jobname);
             }
             
-            GlobalJDKJobHandle jobHandle = new GlobalJDKJobHandle( id);
-            
+            GlobalJDKJobHandle jobHandle = new GlobalJDKJobHandle(id);
+            jobHandle.setUuid(jobname);
             TimerJobInstance jobInstance = globalTimerService.
                                  getTimerJobFactoryManager().createTimerJobInstance( job,
                                                                                      ctx,
@@ -117,6 +118,11 @@ public class ThreadPoolSchedulerService implements GlobalSchedulerService {
 
     }
 
+    @Override
+    public TimerJobInstance getTimerJobInstance(long processInstanceId, long timerId) {
+        return activeTimer.values().stream().map(GlobalJDKJobHandle.class::cast).filter(e -> timerId == e.getTimerId()).map(GlobalJDKJobHandle::getTimerJobInstance).findAny().orElse(null);
+    }
+    
     @Override
     public boolean removeJob(JobHandle jobHandle) {
         if (jobHandle == null) {
@@ -172,7 +178,7 @@ public class ThreadPoolSchedulerService implements GlobalSchedulerService {
         private static final long     serialVersionUID = 510l;
     
         private transient ScheduledFuture<Void> future;       
-    
+            
         public GlobalJDKJobHandle(long id) {
             super(id);
         }
@@ -184,7 +190,7 @@ public class ThreadPoolSchedulerService implements GlobalSchedulerService {
         public void setFuture(ScheduledFuture<Void> future) {
             this.future = future;
         }    
-    
+
     }
 
     @Override

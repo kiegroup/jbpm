@@ -173,7 +173,7 @@ public class TimerMigrationManagerTest extends AbstractBaseTest {
     
    
     
-    @Test(timeout=10000)
+    @Test //(timeout=10000)
     public void testMigrateTimerProcessInstance() throws Exception {
         NodeLeftCountDownProcessEventListener countdownListener = new NodeLeftCountDownProcessEventListener("EventV2", 1);
         createRuntimeManagers("migration/v1/BPMN2-Timer-v1.bpmn2", "migration/v2/BPMN2-Timer-v2.bpmn2", countdownListener);

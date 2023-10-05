@@ -16,6 +16,7 @@
 package org.jbpm.process.core.timer.impl;
 
 import java.util.Collection;
+import java.util.Optional;
 
 import org.drools.core.time.InternalSchedulerService;
 import org.drools.core.time.Job;
@@ -105,6 +106,11 @@ public class RegisteredTimerServiceDelegate implements TimerService, InternalSch
         return timerService.getTimeToNextJob();
     }
 
+    @Override
+    public Optional<TimerJobInstance> getTimerJobInstanceByTimerId(Long processInstanceId, Long timerId) {
+        return timerService.getTimerJobInstanceByTimerId(processInstanceId, timerId);
+    }
+    
     @Override
     public Collection<TimerJobInstance> getTimerJobInstances(long id) {        
         return timerService.getTimerJobInstances(id);

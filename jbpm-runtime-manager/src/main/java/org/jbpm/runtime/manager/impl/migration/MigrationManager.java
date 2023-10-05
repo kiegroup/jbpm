@@ -16,9 +16,6 @@
 
 package org.jbpm.runtime.manager.impl.migration;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -27,8 +24,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -81,6 +78,10 @@ import org.kie.internal.runtime.manager.RuntimeManagerRegistry;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static java.util.Arrays.asList;
+
+
 
 /**
  * MigrationManager is responsible for updating all required components during process instance migration.
@@ -691,6 +692,12 @@ public class MigrationManager {
                             }
 
                             TimerInstance timerInstance = timerManager.getTimerMap().get(timerId);
+                            if (timerInstance == null) {
+                                // cache miss in multi node environment so we search in the service itself
+                                Optional<TimerInstance> optionalTimerInstance = timerManager.getTimer(processInstance.getId(), timerId);
+                                timerInstance = optionalTimerInstance.orElse(timerInstance);
+                            }
+                           
                             if (timerInstance == null) {
                                 report.addEntry(Type.WARN, "Could not find timer instance with id " + timerId + " to cancel.");
                                 continue;
