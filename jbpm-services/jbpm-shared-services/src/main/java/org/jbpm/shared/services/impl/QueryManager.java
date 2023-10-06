@@ -55,36 +55,36 @@ public class QueryManager {
 		}
 	}
 	
-	public String getQuery(String name, Map<String, Object> params) {
-		StringBuffer query = null;
-		if (!queries.containsKey(name)) {
-			return null;
-		}
-		String operand = " and ";
-		
-		StringBuffer buf = new StringBuffer(queries.get(name));
-		if (buf.indexOf("where") == -1) {
-			operand = " where ";
-		}
-		if (params != null && params.containsKey(FILTER)) {
-			
+    public String getQuery(String name, Map<String, Object> params) {
+        StringBuffer query = null;
+        if (!queries.containsKey(name)) {
+            return null;
+        }
+        String operand = " and ";
+
+        StringBuffer buf = new StringBuffer(queries.get(name));
+        if (buf.indexOf("where") == -1) {
+            operand = " where ";
+        }
+        if (params != null && params.containsKey(FILTER)) {
+
             buf.append(operand + params.get(FILTER));
             query = buf;
         }
-		
-		if (params != null && params.containsKey(ORDER_BY_KEY)) {
-			 
-			buf.append(" \n ORDER BY " + adaptOrderBy((String)params.get("orderby")));
-			if (params.containsKey(ASCENDING_KEY)) {
-				buf.append(" ASC");
-			} else if (params.containsKey(DESCENDING_KEY)) {
-				buf.append(" DESC");
-			}
-			query = buf;
-		}
-		
-		 return (query == null ? null : query.toString() );
-	}
+
+        if (params != null && params.containsKey(ORDER_BY_KEY)) {
+            boolean audit = buf.indexOf("AuditTaskImpl") >= 0;
+            buf.append(" \n ORDER BY " + adaptOrderBy(audit, (String) params.get("orderby")));
+            if (params.containsKey(ASCENDING_KEY)) {
+                buf.append(" ASC");
+            } else if (params.containsKey(DESCENDING_KEY)) {
+                buf.append(" DESC");
+            }
+            query = buf;
+        }
+
+        return (query == null ? null : query.toString());
+    }
 	
 	protected void parse(String ormFile) throws XMLStreamException {
 		String name = null;
@@ -128,7 +128,7 @@ public class QueryManager {
 		}
 	}
 	
-	private String adaptOrderBy(String orderBy) {
+	private String adaptOrderBy(boolean audit, String orderBy) {
 		if (orderBy != null) {
 			if (orderBy.equals("ProcessInstanceId")) {
 				return "log.processInstanceId";
@@ -151,13 +151,13 @@ public class QueryManager {
             } else if (orderBy.equalsIgnoreCase("Priority")) {
                 return "t.priority";
             } else if (orderBy.equalsIgnoreCase("Status")) {
-                return "t.taskData.status";
+                return (!audit) ? "t.taskData.status" : "t.status";
             } else if (orderBy.equalsIgnoreCase("CreatedOn")) {
-                return "t.taskData.createdOn";
+                return (!audit) ? "t.taskData.createdOn" : "t.createOn";
             } else if (orderBy.equalsIgnoreCase("CreatedBy")) {
-                return "t.taskData.createdBy.id";
+                return (!audit) ? "t.taskData.createdBy.id" : "t.createdBy";
             } else if (orderBy.equalsIgnoreCase("DueOn")) {
-                return "t.taskData.expirationTime";
+                return (!audit) ? "t.taskData.expirationTime" : "t.dueDate";
             }
 		}
 		return orderBy;
