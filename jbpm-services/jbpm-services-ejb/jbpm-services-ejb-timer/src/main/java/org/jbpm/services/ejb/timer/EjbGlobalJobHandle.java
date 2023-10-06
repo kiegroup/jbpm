@@ -34,6 +34,7 @@ public class EjbGlobalJobHandle extends GlobalJobHandle {
 		return "EjbGlobalJobHandle [uuid=" + getUuid() + "]";
 	}
 
+	@Override
 	public String getDeploymentId() {
 		return deploymentId;
 	}

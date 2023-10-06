@@ -351,6 +351,10 @@ public class GlobalTimerService implements TimerService, InternalSchedulerServic
             super(id);
         }
         
+        public String getDeploymentId() {
+            return null;
+        }
+
         public Long getTimerId() {
             JobContext ctx = this.getTimerJobInstance().getJobContext();
             if (ctx instanceof SelfRemovalJobContext) {

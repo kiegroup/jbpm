@@ -16,6 +16,7 @@
 package org.jbpm.process.core.timer;
 
 import org.drools.core.time.JobContext;
+import org.jbpm.process.core.timer.impl.GlobalTimerService.GlobalJobHandle;
 import org.jbpm.process.instance.timer.TimerManager.ProcessJobContext;
 import org.jbpm.process.instance.timer.TimerManager.StartProcessJobContext;
 import org.kie.api.runtime.EnvironmentName;
@@ -55,7 +56,16 @@ public class JobNameHelper {
         String groupName = "jbpm";
         if (ctx instanceof ProcessJobContext) {
             ProcessJobContext processCtx = (ProcessJobContext) ctx;
-            String deploymentId = (String) processCtx.getKnowledgeRuntime().getEnvironment().get(EnvironmentName.DEPLOYMENT_ID);
+            
+            String deploymentId = null;
+            if (processCtx.getJobHandle() instanceof GlobalJobHandle) {
+                deploymentId = ((GlobalJobHandle) processCtx.getJobHandle()).getDeploymentId(); 
+            }
+            
+            if (deploymentId == null) {
+                deploymentId = (String) processCtx.getKnowledgeRuntime().getEnvironment().get(EnvironmentName.DEPLOYMENT_ID);
+            }
+
             if (deploymentId != null) {
                 groupName = deploymentId;
             }
