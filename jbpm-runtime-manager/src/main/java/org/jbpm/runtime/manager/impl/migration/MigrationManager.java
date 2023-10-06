@@ -607,6 +607,14 @@ public class MigrationManager {
                     WorkflowProcessInstanceImpl processInstance = (WorkflowProcessInstanceImpl) kieSession.getProcessInstance(migrationSpec.getProcessInstanceId());
                     if (processInstance.getSlaTimerId() > 0) {
                         TimerInstance timerInstance = timerManager.getTimerMap().get(processInstance.getSlaTimerId());
+                        
+                        if (timerInstance == null) {
+                            // cache miss in multi node environment so we search in the service itself
+                            Optional<TimerInstance> optionalTimerInstance = timerManager.getTimer(processInstance.getId(), processInstance.getSlaTimerId());
+                            timerInstance = optionalTimerInstance.orElse(timerInstance);
+                        }
+                       
+                        
                         if (timerInstance != null) {
                             timerManager.cancelTimer(processInstance.getId(), timerInstance.getId());
                         }

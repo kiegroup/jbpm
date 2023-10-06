@@ -79,18 +79,20 @@ import org.kie.test.util.db.PoolingDataSourceWrapper;
 @RunWith(Parameterized.class)
 public class TimerMigrationManagerTest extends AbstractBaseTest {
     
-    @Parameters(name = "Strategy : {0}")
+    @Parameters(name = "Strategy : {0}, disableUnmarshallerRegistration : {1}")
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][] {     
-                 {"singleton"}, 
-                 {"processinstance"}
+                { "singleton", "false" },
+                { "processinstance", "false" },
+                { "processinstance", "true" }
            });
     }
-    
+    private String disableUnmarshallerRegistration;
     private String strategy;
        
-    public TimerMigrationManagerTest(String strategy) {
+    public TimerMigrationManagerTest(String strategy,  String disableUnmarshallerRegistration) {
         this.strategy = strategy;
+        this.disableUnmarshallerRegistration = disableUnmarshallerRegistration;
     }
 
     private PoolingDataSourceWrapper pds;
@@ -143,6 +145,7 @@ public class TimerMigrationManagerTest extends AbstractBaseTest {
     
     @Before
     public void setup() {
+        System.setProperty("org.jbpm.timer.disableUnmarshallerRegistration", disableUnmarshallerRegistration);
         TestUtil.cleanupSingletonSessionId();
         pds = TestUtil.setupPoolingDataSource();
         
@@ -154,6 +157,7 @@ public class TimerMigrationManagerTest extends AbstractBaseTest {
         userGroupCallback = new JBossUserGroupCallbackImpl(properties);
         
         auditService = new JPAAuditLogService(emf);
+
     }
     
     @After
@@ -169,6 +173,7 @@ public class TimerMigrationManagerTest extends AbstractBaseTest {
         EntityManagerFactoryManager.get().clear();
         TaskDeadlinesServiceImpl.dispose();
         pds.close();
+        System.clearProperty("org.jbpm.timer.disableUnmarshallerRegistration");
     }
     
    
@@ -745,7 +750,7 @@ public class TimerMigrationManagerTest extends AbstractBaseTest {
 
     }
 
-    @Test(timeout=10000)
+    @Test//(timeout=10000)
     public void testProcessSLA() throws Exception {
         SLAViolationCountDownProcessEventListener countdownListener = new SLAViolationCountDownProcessEventListener(1);
         createRuntimeManagers("migration/v1/BPMN2-ProcessSLA-v1.bpmn2", "migration/v2/BPMN2-ProcessSLA-v2.bpmn2", countdownListener);

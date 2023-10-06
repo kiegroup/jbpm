@@ -195,7 +195,7 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
                 ((SimpleRuntimeEnvironment)environment).addToConfiguration("drools.timerService", 
                         "new org.jbpm.process.core.timer.impl.RegisteredTimerServiceDelegate(\""+timerServiceId+"\")");
                 
-                if(environment.usePersistence()) {
+                if(environment.usePersistence() && schedulerService.isTransactional()) {
                     installPersistentTimerMapping(this, globalTs);
                 }
                 if (!schedulerService.isTransactional()) {
