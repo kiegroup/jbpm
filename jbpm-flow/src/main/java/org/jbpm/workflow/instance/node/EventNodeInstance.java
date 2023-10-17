@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
+import java.util.Collection;
 
 import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.core.event.EventTransformer;
@@ -31,13 +32,22 @@ import org.jbpm.process.instance.ProcessInstance;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
 import org.jbpm.process.instance.timer.TimerInstance;
 import org.jbpm.process.instance.timer.TimerManager;
+import org.jbpm.ruleflow.core.RuleFlowProcess;
+import org.jbpm.services.api.RuntimeDataService;
+import org.jbpm.services.api.model.NodeInstanceDesc;
+import org.jbpm.services.api.service.ServiceRegistry;
 import org.jbpm.util.PatternConstants;
+import org.jbpm.workflow.core.NodeContainer;
 import org.jbpm.workflow.core.node.EventNode;
 import org.jbpm.workflow.instance.WorkflowProcessInstance;
 import org.jbpm.workflow.instance.impl.ExtendedNodeInstanceImpl;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
+import org.kie.api.definition.process.Node;
 import org.kie.api.runtime.process.EventListener;
 import org.kie.api.runtime.process.NodeInstance;
+import org.kie.api.runtime.process.NodeInstanceContainer;
+import org.kie.api.runtime.query.QueryContext;
+import org.kie.dmn.feel.lang.ast.QuantifiedExpressionNode;
 import org.mvel2.MVEL;
 
 import static org.jbpm.workflow.instance.impl.DummyEventListener.EMPTY_EVENT_LISTENER;
@@ -148,7 +158,35 @@ public class EventNodeInstance extends ExtendedNodeInstanceImpl implements Event
             long id = getProcessInstance().getId();
             long nodeInstanceId = getId();
             logger.debug("node definition changed for process instance "+id+". EventNode not found on node id: "+getNodeId()+" searching with node instance id: "+nodeInstanceId);
-            throw e;
+            node = (EventNode)getNodeByNodeInstanceId(id, nodeInstanceId);
+            if (node == null) {
+                throw e;
+            }
+        }
+        return node;
+    }
+
+    /**
+     * Search node by nodeinstanceid and uniqueId, cause node definition id might change
+     * @param id
+     * @param nodeInstanceId
+     * @return
+     */
+    private Node getNodeByNodeInstanceId(long id, long nodeInstanceId) {
+        Node node = null;
+        RuntimeDataService service = (RuntimeDataService) ServiceRegistry.get().service(ServiceRegistry.RUNTIME_DATA_SERVICE);
+        Collection<NodeInstanceDesc> nodes = service.getProcessInstanceFullHistory(id, new QueryContext(0, 999));
+        for (NodeInstanceDesc nodeInstanceDesc : nodes) {
+            if (nodeInstanceId == nodeInstanceDesc.getId()) {
+                String uniqueId = nodeInstanceDesc.getNodeId();
+                logger.debug("found UniqueId: " + uniqueId + " for process instance: " + id + " and node instance id: " + nodeInstanceId);
+                org.jbpm.workflow.instance.NodeInstanceContainer nodeInstanceContainer = (org.jbpm.workflow.instance.NodeInstanceContainer) getNodeInstanceContainer();
+                Node nodeByUniqueId = nodeInstanceContainer.getNodeContainer().getNodeByUniqueId(uniqueId);
+                if (nodeByUniqueId != null) {
+                    node = nodeByUniqueId;
+                }
+                break;
+            }
         }
         return node;
     }
