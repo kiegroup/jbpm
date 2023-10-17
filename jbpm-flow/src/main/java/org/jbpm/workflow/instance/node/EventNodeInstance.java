@@ -175,17 +175,14 @@ public class EventNodeInstance extends ExtendedNodeInstanceImpl implements Event
     private Node getNodeByNodeInstanceId(long id, long nodeInstanceId) {
         Node node = null;
         RuntimeDataService service = (RuntimeDataService) ServiceRegistry.get().service(ServiceRegistry.RUNTIME_DATA_SERVICE);
-        Collection<NodeInstanceDesc> nodes = service.getProcessInstanceFullHistory(id, new QueryContext(0, 999));
-        for (NodeInstanceDesc nodeInstanceDesc : nodes) {
-            if (nodeInstanceId == nodeInstanceDesc.getId()) {
-                String uniqueId = nodeInstanceDesc.getNodeId();
-                logger.debug("found UniqueId: " + uniqueId + " for process instance: " + id + " and node instance id: " + nodeInstanceId);
-                org.jbpm.workflow.instance.NodeInstanceContainer nodeInstanceContainer = (org.jbpm.workflow.instance.NodeInstanceContainer) getNodeInstanceContainer();
-                Node nodeByUniqueId = nodeInstanceContainer.getNodeContainer().getNodeByUniqueId(uniqueId);
-                if (nodeByUniqueId != null) {
-                    node = nodeByUniqueId;
-                }
-                break;
+        Collection<NodeInstanceDesc> nodes = service.getProcessInstanceNodeInstanceHistory(id, nodeInstanceId, new QueryContext(0, 1));
+        if (!nodes.isEmpty ()) {
+            NodeInstanceDesc nodeInstanceDesc = nodes.iterator().next();
+            String uniqueId = nodeInstanceDesc.getNodeId();
+            org.jbpm.workflow.instance.NodeInstanceContainer nodeInstanceContainer = (org.jbpm.workflow.instance.NodeInstanceContainer) getNodeInstanceContainer();
+            Node nodeByUniqueId = nodeInstanceContainer.getNodeContainer().getNodeByUniqueId(uniqueId);
+            if (nodeByUniqueId != null) {
+                node = nodeByUniqueId;
             }
         }
         return node;

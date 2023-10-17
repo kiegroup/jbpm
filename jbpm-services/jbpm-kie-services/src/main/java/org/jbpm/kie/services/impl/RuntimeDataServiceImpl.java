@@ -719,6 +719,19 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
     }
 
     @Override
+    public Collection<NodeInstanceDesc> getProcessInstanceNodeInstanceHistory(long processId, long nodeInstanceId, QueryContext queryContext) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("processId", processId);
+        params.put("nodeInstanceId", String.valueOf(nodeInstanceId));
+        applyQueryContext(params, queryContext);
+        List<NodeInstanceDesc> nodeInstances = commandService.execute(
+                new QueryNameCommand<List<NodeInstanceDesc>>("getProcessInstanceNodeInstanceHistory",
+                        params));
+
+        return nodeInstances;
+    }
+
+    @Override
     public Collection<NodeInstanceDesc> getProcessInstanceFullHistory(long processId, QueryContext queryContext) {
     	Map<String, Object> params = new HashMap<String, Object>();
     	params.put("processId", processId);

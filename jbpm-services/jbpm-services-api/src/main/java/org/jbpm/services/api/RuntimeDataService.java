@@ -256,6 +256,17 @@ public interface RuntimeDataService {
 	Collection<NodeInstanceDesc> getProcessInstanceHistoryFinished(long processInstanceId, QueryContext queryContext);
 
 	/**
+	 * Returns complete trace of all executed (completed) and active nodes for given process instance id
+	 * and node instance id
+	 * @param processInstanceId The id of the process used to start the process instance.
+	 * @param nodeInstanceId The id of the node instance to filter result.
+	 * @param queryContext control parameters for the result e.g. sorting, paging
+	 * @return The {@link NodeInstance} information, in the form of a list of {@link NodeInstanceDesc} instances,
+	 *         that comes from a process instance that matches the given criteria (deploymentId, processId).
+	 */
+	Collection<NodeInstanceDesc> getProcessInstanceNodeInstanceHistory(long processInstanceId, long nodeInstanceId, QueryContext queryContext);
+
+	/**
      * Returns complete trace of all executed (completed) and active nodes for given process instance id
      * @param processInstanceId The id of the process used to start the process instance.
      * @param queryContext control parameters for the result e.g. sorting, paging
