@@ -141,7 +141,16 @@ public class EventNodeInstance extends ExtendedNodeInstanceImpl implements Event
     }
 
     public EventNode getEventNode() {
-        return (EventNode) getNode();
+        EventNode node;
+        try {
+            node = (EventNode) getNode();
+        } catch (ClassCastException e) {
+            long id = getProcessInstance().getId();
+            long nodeInstanceId = getId();
+            logger.debug("node definition changed for process instance "+id+". EventNode not found on node id: "+getNodeId()+" searching with node instance id: "+nodeInstanceId);
+            throw e;
+        }
+        return node;
     }
 
     public void triggerCompleted() {
