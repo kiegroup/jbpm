@@ -160,8 +160,11 @@ public class GlobalTimerService implements TimerService, InternalSchedulerServic
             return unregisterJobHandle(jobHandle);
         } else {
         	logger.debug("No match for job handle {} within handles of session {}", jobHandle, sessionId);
-            return false;
+        	// even if we don't have this we need to trigger the deletion as we could be in cluster env and not 
+        	// having the info in here
+            return unregisterJobHandle(jobHandle);
         }
+
     }
 
     private GlobalJobHandle registerJobHandle (Job job, JobContext ctx, Trigger trigger) {
