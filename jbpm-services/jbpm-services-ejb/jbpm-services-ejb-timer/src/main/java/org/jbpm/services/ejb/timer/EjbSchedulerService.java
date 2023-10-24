@@ -59,6 +59,7 @@ public class EjbSchedulerService implements GlobalSchedulerService {
     private static final Logger logger = LoggerFactory.getLogger(EjbSchedulerService.class);
 
     private static final Boolean TRANSACTIONAL = Boolean.parseBoolean(System.getProperty("org.jbpm.ejb.timer.tx", "true"));
+    private static final Boolean lookupTimers = Boolean.parseBoolean(System.getProperty("org.jbpm.ejb.timer.lookup", "true"));
 
 	private AtomicLong idCounter = new AtomicLong();
 	private TimerService globalTimerService;
@@ -78,7 +79,7 @@ public class EjbSchedulerService implements GlobalSchedulerService {
 		// if so skip the check by timer name as it has no way to exist
 		if (!ctx.isNew()) {
 		    jobInstance = getTimerJobInstance(jobName);
-		    if (jobInstance == null) {
+		    if (lookupTimers && jobInstance == null) {
 		        jobInstance = scheduler.getTimerByName(jobName);
 		    }
     		if (jobInstance != null) {
