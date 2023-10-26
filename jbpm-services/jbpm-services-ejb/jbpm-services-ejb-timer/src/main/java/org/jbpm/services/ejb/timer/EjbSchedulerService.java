@@ -17,7 +17,6 @@
 package org.jbpm.services.ejb.timer;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.List;
@@ -106,9 +105,6 @@ public class EjbSchedulerService implements GlobalSchedulerService {
 
     @Override
     public boolean removeJob(JobHandle jobHandle) {
-        if (TRANSACTIONAL) {
-            return false;
-        }
         final String uuid = ((EjbGlobalJobHandle) jobHandle).getUuid();
         Timer ejbTimer;
         try {
@@ -152,7 +148,7 @@ public class EjbSchedulerService implements GlobalSchedulerService {
         try {
             return unwrapTimerJobInstance(getEjbTimer(getTimerMappinInfo(processInstanceId, timerId)));
         } catch (InvalidEJBTimer e) {
-            logger.warn("Problem retrieving timer for processInstance Id {}, returning null", timerId,
+            logger.warn("Problem retrieving timer {} for processInstance Id {}, returning null", timerId,
                     processInstanceId,
                     e);
             return null;
