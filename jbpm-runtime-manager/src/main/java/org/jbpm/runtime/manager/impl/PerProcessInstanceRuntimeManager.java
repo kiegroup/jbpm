@@ -202,8 +202,13 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
             Set<Object> enginesToDelete = new HashSet<>();
             for (Entry<Object, RuntimeEngine> engine : activeEngines) {
                 RuntimeEngineImpl engineImpl = (RuntimeEngineImpl) engine.getValue();
+                if (engineImpl==null) {
+                     continue;
+                }
                 if (engineImpl.isDisposed() || engineImpl.isInvalid()) {
-                    enginesToDelete.add(engine.getKey());
+                    Object engineKey = engine.getKey();
+                    logger.trace("Engine with key {} is not longer valid", engineKey);
+                    enginesToDelete.add(engineKey);
                     continue;
                 }
                 Context<?> context = engineImpl.getContext();
@@ -221,6 +226,7 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
                 }
             }
             if (!enginesToDelete.isEmpty()) {
+
                 currentlyActive.keySet().removeAll(enginesToDelete);
             }
         }
