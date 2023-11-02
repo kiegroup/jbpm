@@ -56,7 +56,7 @@ public class AsyncEventNode extends EventNode {
 
     @Override
     public Object getMetaData(String name) {
-        return getMetaData(name);
+        return getMetaData().get(name);
     }
 
     @Override
