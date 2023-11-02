@@ -96,6 +96,11 @@ public class AsyncEventNodeInstance extends EventNodeInstance {
     }
  
     @Override
+    protected void configureSla() {
+        // an async event node cannot have an sla event
+    }
+    
+    @Override
     public Node getNode() {
         return new AsyncEventNode(super.getNode());
     }
