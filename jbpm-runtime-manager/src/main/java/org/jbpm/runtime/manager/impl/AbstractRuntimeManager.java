@@ -83,6 +83,7 @@ import org.kie.internal.runtime.manager.InternalRuntimeManager;
 import org.kie.internal.runtime.manager.RuntimeManagerRegistry;
 import org.kie.internal.runtime.manager.SecurityManager;
 import org.kie.internal.runtime.manager.SessionFactory;
+import org.kie.internal.runtime.manager.SessionNotFoundException;
 import org.kie.internal.runtime.manager.TaskServiceFactory;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 import org.kie.internal.runtime.manager.deploy.DeploymentDescriptorManager;
@@ -389,8 +390,8 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
                     && tm.getStatus() != TransactionManager.STATUS_COMMITTED) {
                 return false;
             }
-        } catch (Exception e) {
-            logger.warn("Exception dealing with transaction", e);
+        } catch (SessionNotFoundException e) {
+            logger.warn("Session not found exception", e);
         }        
         return true;
     }
