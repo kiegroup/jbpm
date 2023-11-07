@@ -165,12 +165,14 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
     public void signalEvent(String type, Object event) {
         
         // first signal with new context in case there are start event with signal
+        Set<RuntimeEngine> signalledEngines = new HashSet<>();
         KieSession signalSession = null;
         RuntimeEngine runtimeEngine = getRuntimeEngine(ProcessInstanceIdContext.get());
         try {
             // signal execution can rise errors
             signalSession = runtimeEngine.getKieSession();
             signalSession.signalEvent(type, event);
+            signalledEngines.add(runtimeEngine);
         } finally {
             // ensure we clean up
             if(signalSession!=null) {
@@ -179,20 +181,24 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
             disposeRuntimeEngine(runtimeEngine);
         }
     
+
         // next find out all instances waiting for given event type
         List<String> processInstances = ((InternalMapper) mapper).findContextIdForEvent(type, getIdentifier());
         for (String piId : processInstances) {
             runtimeEngine = getRuntimeEngine(ProcessInstanceIdContext.get(Long.parseLong(piId)));
             try {
                 // signal execution can rise errors
-                runtimeEngine.getKieSession().signalEvent(type, event);
+                if (!signalledEngines.contains(runtimeEngine)) {
+                    runtimeEngine.getKieSession().signalEvent(type, event);
+                    signalledEngines.add(runtimeEngine);
+                }
             } finally {
                 // ensure we clean up
                 disposeRuntimeEngine(runtimeEngine);
             }
         }
         
-        // process currently active runtime engines
+     // process currently active runtime engines
         Map<Object, RuntimeEngine> currentlyActive = local.get();
 
         if (currentlyActive != null && !currentlyActive.isEmpty()) {
@@ -215,8 +221,16 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
                 if (context != null && context instanceof ProcessInstanceIdContext 
                         && ((ProcessInstanceIdContext) context).getContextId() != null) {
                     try {
+<<<<<<< Upstream, based on origin/JBPM-10187
                         engineImpl.getKieSession().signalEvent(type, event,
                                 ((ProcessInstanceIdContext) context).getContextId());
+=======
+                        if (!signalledEngines.contains(engineImpl)) {
+                            engineImpl.getKieSession().signalEvent(type, event,
+                                ((ProcessInstanceIdContext) context).getContextId());
+                            signalledEngines.add(engineImpl);
+                        }
+>>>>>>> 46a7c05 [JBPM-10208] Avoid signalling the same engine more than once
                     } catch (org.drools.persistence.api.SessionNotFoundException ex) {
                         logger.warn(
                                 "Signal event cannot proceed because of session not found exception {} for engine {}",
@@ -226,7 +240,10 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
                 }
             }
             if (!enginesToDelete.isEmpty()) {
+<<<<<<< Upstream, based on origin/JBPM-10187
 
+=======
+>>>>>>> 46a7c05 [JBPM-10208] Avoid signalling the same engine more than once
                 currentlyActive.keySet().removeAll(enginesToDelete);
             }
         }
