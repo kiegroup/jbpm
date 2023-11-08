@@ -161,18 +161,45 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
         return runtime;
     }
     
+    private static class SignalledEvent {
+
+        public SignalledEvent(RuntimeEngine engine, Long piId) {
+            this.engine = engine;
+            this.piId = piId;
+        }
+
+        private final RuntimeEngine engine;
+        private final Long piId;
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(engine, piId);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (!(obj instanceof SignalledEvent)) {
+                return false;
+            }
+            SignalledEvent other = (SignalledEvent) obj;
+            return Objects.equals(engine, other.engine) && Objects.equals(piId, other.piId);
+        }
+    }
+
     @Override
     public void signalEvent(String type, Object event) {
         
         // first signal with new context in case there are start event with signal
         KieSession signalSession = null;
-        Set<RuntimeEngine> signalledEngines = new HashSet<>();
+        Set<SignalledEvent> signalled = new HashSet<>();
         RuntimeEngine runtimeEngine = getRuntimeEngine(ProcessInstanceIdContext.get());
         try {
             // signal execution can rise errors
             signalSession = runtimeEngine.getKieSession();
             signalSession.signalEvent(type, event);
-            signalledEngines.add(runtimeEngine);
         } finally {
             // ensure we clean up
             if(signalSession!=null) {
@@ -184,12 +211,14 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
         // next find out all instances waiting for given event type
         List<String> processInstances = ((InternalMapper) mapper).findContextIdForEvent(type, getIdentifier());
         for (String piId : processInstances) {
-            runtimeEngine = getRuntimeEngine(ProcessInstanceIdContext.get(Long.parseLong(piId)));
+            long processInstanceId = Long.parseLong(piId);
+            runtimeEngine = getRuntimeEngine(ProcessInstanceIdContext.get());
             try {
                 // signal execution can rise errors
-                if (!signalledEngines.contains(runtimeEngine)) {
+                SignalledEvent signal = new SignalledEvent(runtimeEngine, processInstanceId);
+                if (!signalled.contains(signal)) {
                     runtimeEngine.getKieSession().signalEvent(type, event);
-                    signalledEngines.add(runtimeEngine);
+                    signalled.add(signal);
                 }
             } finally {
                 // ensure we clean up
@@ -220,10 +249,11 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
                 if (context != null && context instanceof ProcessInstanceIdContext 
                         && ((ProcessInstanceIdContext) context).getContextId() != null) {
                     try {
-                        if (!signalledEngines.contains(engineImpl)) {
-                            engineImpl.getKieSession().signalEvent(type, event,
-                                    ((ProcessInstanceIdContext) context).getContextId());
-                            signalledEngines.add(engineImpl);
+                        Long processInstanceId = ((ProcessInstanceIdContext) context).getContextId();
+                        SignalledEvent signal = new SignalledEvent(runtimeEngine, processInstanceId);
+                        if (!signalled.contains(signal)) {
+                            engineImpl.getKieSession().signalEvent(type, event, processInstanceId);
+                            signalled.add(signal);
                         }
                     } catch (org.drools.persistence.api.SessionNotFoundException ex) {
                         logger.warn(
