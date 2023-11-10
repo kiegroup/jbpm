@@ -163,11 +163,13 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
         
         // first signal with new context in case there are start event with signal
         KieSession signalSession = null;
+        Set<RuntimeEngine> signalledEngines = new HashSet<>();
         RuntimeEngine runtimeEngine = getRuntimeEngine(ProcessInstanceIdContext.get());
         try {
             // signal execution can rise errors
             signalSession = runtimeEngine.getKieSession();
             signalSession.signalEvent(type, event);
+            signalledEngines.add(runtimeEngine);
         } finally {
             // ensure we clean up
             if(signalSession!=null) {
@@ -182,7 +184,10 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
             runtimeEngine = getRuntimeEngine(ProcessInstanceIdContext.get(Long.parseLong(piId)));
             try {
                 // signal execution can rise errors
-                runtimeEngine.getKieSession().signalEvent(type, event);
+                if (!signalledEngines.contains(runtimeEngine)) {
+                    runtimeEngine.getKieSession().signalEvent(type, event);
+                    signalledEngines.add(runtimeEngine);
+                }
             } finally {
                 // ensure we clean up
                 disposeRuntimeEngine(runtimeEngine);
@@ -197,8 +202,22 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
                 Context<?> context = ((RuntimeEngineImpl) engine).getContext();
                 if (context != null && context instanceof ProcessInstanceIdContext 
                         && ((ProcessInstanceIdContext) context).getContextId() != null) {
-                    engine.getKieSession().signalEvent(type, event, ((ProcessInstanceIdContext) context).getContextId());
+                    try {
+                        if (!signalledEngines.contains(engineImpl)) {
+                            engineImpl.getKieSession().signalEvent(type, event,
+                                    ((ProcessInstanceIdContext) context).getContextId());
+                            signalledEngines.add(engineImpl);
+                        }
+                    } catch (org.drools.persistence.api.SessionNotFoundException ex) {
+                        logger.warn(
+                                "Signal event cannot proceed because of session not found exception {} for engine {}",
+                                ex.getMessage(), engineImpl.getKieSessionId());
+                        enginesToDelete.add(engine.getKey());
+                    }
                 }
+            }
+            if (!enginesToDelete.isEmpty()) {
+                currentlyActive.keySet().removeAll(enginesToDelete);
             }
         }
     }
