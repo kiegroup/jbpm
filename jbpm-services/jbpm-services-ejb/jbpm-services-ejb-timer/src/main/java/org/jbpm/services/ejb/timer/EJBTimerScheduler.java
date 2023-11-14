@@ -32,21 +32,18 @@ import java.util.concurrent.ConcurrentMap;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
-import javax.ejb.ConcurrencyManagement;
-import javax.ejb.ConcurrencyManagementType;
 import javax.ejb.Lock;
 import javax.ejb.LockType;
 import javax.ejb.NoSuchObjectLocalException;
+import javax.ejb.SessionContext;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.ejb.Timeout;
 import javax.ejb.Timer;
 import javax.ejb.TimerConfig;
 import javax.ejb.TimerHandle;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
-import javax.transaction.RollbackException;
-import javax.transaction.UserTransaction;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 
 import org.drools.core.time.JobHandle;
 import org.drools.core.time.impl.TimerJobInstance;
@@ -58,8 +55,6 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 @Startup
-@ConcurrencyManagement(ConcurrencyManagementType.CONTAINER)
-@TransactionManagement(TransactionManagementType.BEAN)
 @Lock(LockType.READ)
 public class EJBTimerScheduler {
 
@@ -77,10 +72,10 @@ public class EJBTimerScheduler {
 
 	@Resource
 	protected javax.ejb.TimerService timerService;
-
+	
     @Resource
-    protected UserTransaction utx;
-
+    protected SessionContext ctx;
+    
     public void setUseLocalCache(boolean useLocalCache) {
         this.useLocalCache = useLocalCache;
     }
@@ -117,7 +112,7 @@ public class EJBTimerScheduler {
             }
         }
         try {
-            transaction(this::executeTimerJobInstance, timerJobInstance);
+            invokeTransaction(this::executeTimerJobInstance, timerJobInstance);
         } catch (SessionNotFoundException e) {
             logger.warn("Process instance is not found. More likely already completed. Timer {} won't be recovered", timerJobInstance, e);
             removeUnrecoverableTimer(timerJob, timer);
@@ -127,11 +122,7 @@ public class EJBTimerScheduler {
     }
 
     private void executeTimerJobInstance(TimerJobInstance timerJobInstance) throws Exception {
-        try {
-            ((Callable<?>) timerJobInstance).call();
-        } catch (Exception e) {
-            throw e;
-        }
+        ((Callable<?>) timerJobInstance).call();
     }
 
     private void removeUnrecoverableTimer(EjbTimerJob ejbTimerJob, Timer timer) {
@@ -141,7 +132,7 @@ public class EJBTimerScheduler {
                     logger.warn("Session not found for timer {}. Timer could not removed.", ejbTimerJob.getTimerJobInstance());
                 }
             };
-            transaction(tx, ejbTimerJob.getTimerJobInstance());
+            invokeTransaction(tx, ejbTimerJob.getTimerJobInstance());
         } catch (Exception e1) {
             logger.warn("There was a problem during timer removal {}", ejbTimerJob.getTimerJobInstance(), e1);
         }
@@ -169,7 +160,7 @@ public class EJBTimerScheduler {
                         logger.debug("Interval trigger {} was removed before rescheduling", ejbTimerJob.getTimerJobInstance());
                     }
                 };
-                transaction(tx, ejbTimerJob.getTimerJobInstance());
+                invokeTransaction(tx, ejbTimerJob.getTimerJobInstance());
             } catch (Exception e1) {
                 logger.warn("Could not schedule the interval trigger {}", ejbTimerJob.getTimerJobInstance(), e1);
             }
@@ -198,7 +189,7 @@ public class EJBTimerScheduler {
             ((GlobalJpaTimerJobInstance) ejbTimerJob.getTimerJobInstance()).setExternalTimerId(getPlatformTimerId(newTimer));
         };
         try {
-            transaction(operation, ejbTimerJob.getTimerJobInstance());
+            invokeTransaction (operation, ejbTimerJob.getTimerJobInstance());
         } catch (Exception e1) {
             logger.error("Failed to executed timer recovery {}", e1.getMessage(), e1);
         }
@@ -218,30 +209,16 @@ public class EJBTimerScheduler {
 
     @FunctionalInterface
     private interface Transaction<I> {
-
         void doWork(I item) throws Exception;
     }
 
-    private <I> void transaction(Transaction<I> operation, I item) throws Exception {
-        try {
-            utx.begin();
-            operation.doWork(item);
-            utx.commit();
-        } catch(RollbackException e) {
-            logger.warn("Transaction was rolled back for {} with status {}", item, utx.getStatus());
-            if(utx.getStatus() == javax.transaction.Status.STATUS_ACTIVE) {
-                utx.rollback();
-            }
-            throw new RuntimeException("jbpm timer has been rolledback", e);
-        } catch (Exception e) {
-            try {
-                utx.rollback();
-            } catch (Exception re) {
-                logger.error("transaction could not be rolled back", re);
-            }
-
-            throw e;
-        }
+    @TransactionAttribute(value = TransactionAttributeType.REQUIRES_NEW)
+    public <I> void transaction(Transaction<I> operation, I item) throws Exception {
+        operation.doWork(item);
+    }
+    
+    private <I> void invokeTransaction (Transaction<I> operation, I item) throws Exception {
+        ctx.getBusinessObject(EJBTimerScheduler.class).transaction(operation,item);
     }
 
     public void internalSchedule(TimerJobInstance timerJobInstance) {

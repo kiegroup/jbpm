@@ -99,34 +99,12 @@ public class EjbSchedulerService implements GlobalSchedulerService {
 
     @Override
     public boolean removeJob(JobHandle jobHandle) {
-        String uuid = ((EjbGlobalJobHandle) jobHandle).getUuid();
-        final Timer ejbTimer = getEjbTimer(getTimerMappinInfo(uuid));
+        final Timer ejbTimer = getEjbTimer(getTimerMappinInfo(((EjbGlobalJobHandle) jobHandle).getUuid()));
         if (TRANSACTIONAL && ejbTimer == null) {
             // this situation needs to be avoided as it should not happen
             return false;
         }
-        JtaTransactionManager tm = (JtaTransactionManager) TransactionManagerFactory.get().newTransactionManager();
-        try {
-            tm.registerTransactionSynchronization(new TransactionSynchronization() {
-                @Override
-                public void beforeCompletion() {
-                }
-
-                @Override
-                public void afterCompletion(int status) {
-                    if (status == TransactionManager.STATUS_COMMITTED) {
-                        logger.debug("remove job {} after commited", jobHandle);
-                        scheduler.removeJob(jobHandle, ejbTimer);
-                    }
-                }
-                
-            });
-            logger.debug("register tx to remove job {}", jobHandle);
-            return true;
-        } catch (Exception e) {
-            logger.debug("remove job {} outside tx", jobHandle);
-            return scheduler.removeJob(jobHandle, ejbTimer);
-        }
+        return scheduler.removeJob(jobHandle, ejbTimer);
     }
 
     private TimerJobInstance getTimerJobInstance (String uuid) {
