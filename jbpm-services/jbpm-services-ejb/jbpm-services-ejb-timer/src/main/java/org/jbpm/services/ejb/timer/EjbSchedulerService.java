@@ -39,7 +39,6 @@ import org.drools.core.time.Trigger;
 import org.drools.core.time.impl.TimerJobInstance;
 import org.drools.persistence.api.TransactionManager;
 import org.drools.persistence.api.TransactionManagerFactory;
-import org.drools.persistence.api.TransactionSynchronization;
 import org.drools.persistence.jta.JtaTransactionManager;
 import org.jbpm.process.core.timer.GlobalSchedulerService;
 import org.jbpm.process.core.timer.JobNameHelper;
