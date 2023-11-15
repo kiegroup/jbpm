@@ -98,12 +98,15 @@ public class EjbSchedulerService implements GlobalSchedulerService {
 
     @Override
     public boolean removeJob(JobHandle jobHandle) {
-        final Timer ejbTimer = getEjbTimer(getTimerMappinInfo(((EjbGlobalJobHandle) jobHandle).getUuid()));
+        String uuid = ((EjbGlobalJobHandle) jobHandle).getUuid();
+        final Timer ejbTimer = getEjbTimer(getTimerMappinInfo(uuid));
         if (TRANSACTIONAL && ejbTimer == null) {
-            // this situation needs to be avoided as it should not happen
+            logger.warn("EJB timer is null for uuid {} and transactional flag is enabled", uuid);
             return false;
         }
-        return scheduler.removeJob(jobHandle, ejbTimer);
+        boolean result = scheduler.removeJob(jobHandle, ejbTimer);
+        logger.debug("Remove job returned {}", result);
+        return result;
     }
 
     private TimerJobInstance getTimerJobInstance (String uuid) {
