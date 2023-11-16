@@ -100,10 +100,6 @@ public class EjbSchedulerService implements GlobalSchedulerService {
     public boolean removeJob(JobHandle jobHandle) {
         String uuid = ((EjbGlobalJobHandle) jobHandle).getUuid();
         final Timer ejbTimer = getEjbTimer(getTimerMappinInfo(uuid));
-        if (TRANSACTIONAL && ejbTimer == null) {
-            logger.warn("EJB timer is null for uuid {} and transactional flag is enabled", uuid);
-            return false;
-        }
         boolean result = scheduler.removeJob(jobHandle, ejbTimer);
         logger.debug("Remove job returned {}", result);
         return result;
@@ -127,7 +123,7 @@ public class EjbSchedulerService implements GlobalSchedulerService {
             byte[] data = timerMappingInfo.getInfo();
             return ((TimerHandle) new ObjectInputStream(new ByteArrayInputStream(data)).readObject()).getTimer();
         } catch (Exception e) {
-            logger.warn("wast not able to deserialize info field from timer info for uuid");
+            logger.warn("Problem retrieving timer for uuid {}", timerMappingInfo.getUuid(), e);
             return null;
         }
     }

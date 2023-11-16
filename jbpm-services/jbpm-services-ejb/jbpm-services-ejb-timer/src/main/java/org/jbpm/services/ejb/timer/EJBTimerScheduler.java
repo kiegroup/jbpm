@@ -42,8 +42,6 @@ import javax.ejb.Timeout;
 import javax.ejb.Timer;
 import javax.ejb.TimerConfig;
 import javax.ejb.TimerHandle;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
 
 import org.drools.core.time.JobHandle;
 import org.drools.core.time.impl.TimerJobInstance;
@@ -111,60 +109,49 @@ public class EJBTimerScheduler {
             Thread.currentThread().interrupt();
         }        
         try {
-            invokeTransaction(this::executeTimerJobInstance, timerJobInstance);
+           ((Callable<?>) timerJobInstance).call();
         } catch (Exception e) {
             recoverTimerJobInstance(timerJob, timer, e);
         }
     }
 
-    private void executeTimerJobInstance(TimerJobInstance timerJobInstance) throws Exception {
-        ((Callable<?>) timerJobInstance).call();
-    }
 
     private void recoverTimerJobInstance(EjbTimerJob ejbTimerJob, Timer timer,  Exception cause) {
-        Transaction<TimerJobInstance> tx;
+        
+        TimerJobInstance timerJobInstance = ejbTimerJob.getTimerJobInstance();
         if (isSessionNotFound(cause)) {
             // if session is not found means the process has already finished. In this case we just need to remove
             // the timer and avoid any recovery as it should not trigger any more timers.
-            tx = timerJobInstance -> {
-                logger.warn("Trying to recover timer. Not possible due to process instance is not found. More likely already completed. Timer {} won't be recovered", timerJobInstance, cause);
-                if (!removeJob(timerJobInstance.getJobHandle(), timer)) {
+            logger.warn("Trying to recover timer. Not possible due to process instance is not found. More likely already completed. Timer {} won't be recovered", timerJobInstance, cause);
+            if (!removeJob(timerJobInstance.getJobHandle(), timer)) {
                     logger.warn("Session not found for timer {}. Timer could not removed.", timerJobInstance);
-                }
-            };
+            }            
         }
-        else if (ejbTimerJob.getTimerJobInstance().getTrigger().hasNextFireTime() != null) {
+        else if (timerJobInstance.getTrigger().hasNextFireTime() != null) {
             // this is an interval trigger. Problem here is that the timer scheduled by DefaultTimerJobInstance is lost
             // because of the transaction, so we need to do this here.
-            tx = timerJobInstance -> {
-                logger.warn("Execution of time failed Interval Trigger failed. Skipping {}", timerJobInstance);
-                if (removeJob(timerJobInstance.getJobHandle(), null)) {
-                    internalSchedule(timerJobInstance);
-                } else {
+            
+            logger.warn("Execution of time failed Interval Trigger failed. Skipping {}", timerJobInstance);
+            if (removeJob(timerJobInstance.getJobHandle(), null)) {
+                internalSchedule(timerJobInstance);
+            } else {
                     logger.debug("Interval trigger {} was removed before rescheduling", timerJobInstance);
-                }
-            };
+            }
+            
         }
         else {
             // if there is not next date to be fired, we need to apply policy otherwise will be lost
-            tx = timerJobInstance -> {
-                logger.warn("Execution of time failed. The timer will be retried {}", timerJobInstance);
-                ZonedDateTime nextRetry = ZonedDateTime.now().plus(TIMER_RETRY_INTERVAL, ChronoUnit.MILLIS);
-                EjbTimerJobRetry info = ejbTimerJob instanceof EjbTimerJobRetry ? ((EjbTimerJobRetry) ejbTimerJob).next() : new EjbTimerJobRetry(timerJobInstance);
-                if (TIMER_RETRY_LIMIT > 0 && info.getRetry() > TIMER_RETRY_LIMIT) {
-                    logger.warn("The timer {} reached retry limit {}. It won't be retried again", timerJobInstance, TIMER_RETRY_LIMIT);
-                } else {
-                    TimerConfig config = new TimerConfig(info, true);
-                    Timer newTimer = timerService.createSingleActionTimer(Date.from(nextRetry.toInstant()), config);
-                    ((GlobalJpaTimerJobInstance) timerJobInstance).setTimerInfo(newTimer.getHandle());
-                    ((GlobalJpaTimerJobInstance) timerJobInstance).setExternalTimerId(getPlatformTimerId(newTimer));
-                }
-            };
-        }
-        try {
-            invokeTransaction (tx, ejbTimerJob.getTimerJobInstance());
-        } catch (Exception e) {
-            logger.error("Failed to executed timer recovery", e);
+            logger.warn("Execution of time failed. The timer will be retried {}", timerJobInstance);
+            ZonedDateTime nextRetry = ZonedDateTime.now().plus(TIMER_RETRY_INTERVAL, ChronoUnit.MILLIS);
+            EjbTimerJobRetry info = ejbTimerJob instanceof EjbTimerJobRetry ? ((EjbTimerJobRetry) ejbTimerJob).next() : new EjbTimerJobRetry(timerJobInstance);
+            if (TIMER_RETRY_LIMIT > 0 && info.getRetry() > TIMER_RETRY_LIMIT) {
+                logger.warn("The timer {} reached retry limit {}. It won't be retried again", timerJobInstance, TIMER_RETRY_LIMIT);
+            } else {
+                TimerConfig config = new TimerConfig(info, true);
+                Timer newTimer = timerService.createSingleActionTimer(Date.from(nextRetry.toInstant()), config);
+                ((GlobalJpaTimerJobInstance) timerJobInstance).setTimerInfo(newTimer.getHandle());
+                ((GlobalJpaTimerJobInstance) timerJobInstance).setExternalTimerId(getPlatformTimerId(newTimer));
+            }
         }
     }
 
@@ -177,20 +164,6 @@ public class EJBTimerScheduler {
             current = current.getCause();
         } while (current != null);
         return false;
-    }
-
-    @FunctionalInterface
-    private interface Transaction<I> {
-        void doWork(I item) throws Exception;
-    }
-
-    @TransactionAttribute(value = TransactionAttributeType.REQUIRES_NEW)
-    public <I> void transaction(Transaction<I> operation, I item) throws Exception {
-        operation.doWork(item);
-    }
-    
-    private <I> void invokeTransaction (Transaction<I> operation, I item) throws Exception {
-        ctx.getBusinessObject(EJBTimerScheduler.class).transaction(operation,item);
     }
 
     public void internalSchedule(TimerJobInstance timerJobInstance) {
@@ -218,7 +191,7 @@ public class EJBTimerScheduler {
             Method method = timer.getClass().getMethod("getId");
             return (String) method.invoke(timer);
         } catch (Exception timerIdException) {
-            logger.trace("Failed to get the platform timer id {}", timerIdException.getMessage(), timerIdException);
+            logger.trace("Failed to get the platform timer id", timerIdException);
             return null;
         }
     }
