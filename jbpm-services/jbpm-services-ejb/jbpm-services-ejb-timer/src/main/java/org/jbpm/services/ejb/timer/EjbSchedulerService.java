@@ -39,7 +39,6 @@ import org.drools.core.time.Trigger;
 import org.drools.core.time.impl.TimerJobInstance;
 import org.drools.persistence.api.TransactionManager;
 import org.drools.persistence.api.TransactionManagerFactory;
-import org.drools.persistence.api.TransactionSynchronization;
 import org.drools.persistence.jta.JtaTransactionManager;
 import org.jbpm.process.core.timer.GlobalSchedulerService;
 import org.jbpm.process.core.timer.JobNameHelper;
@@ -102,31 +101,12 @@ public class EjbSchedulerService implements GlobalSchedulerService {
         String uuid = ((EjbGlobalJobHandle) jobHandle).getUuid();
         final Timer ejbTimer = getEjbTimer(getTimerMappinInfo(uuid));
         if (TRANSACTIONAL && ejbTimer == null) {
-            // this situation needs to be avoided as it should not happen
+            logger.warn("EJB timer is null for uuid {} and transactional flag is enabled", uuid);
             return false;
         }
-        JtaTransactionManager tm = (JtaTransactionManager) TransactionManagerFactory.get().newTransactionManager();
-        try {
-            tm.registerTransactionSynchronization(new TransactionSynchronization() {
-                @Override
-                public void beforeCompletion() {
-                }
-
-                @Override
-                public void afterCompletion(int status) {
-                    if (status == TransactionManager.STATUS_COMMITTED) {
-                        logger.debug("remove job {} after commited", jobHandle);
-                        scheduler.removeJob(jobHandle, ejbTimer);
-                    }
-                }
-                
-            });
-            logger.debug("register tx to remove job {}", jobHandle);
-            return true;
-        } catch (Exception e) {
-            logger.debug("remove job {} outside tx", jobHandle);
-            return scheduler.removeJob(jobHandle, ejbTimer);
-        }
+        boolean result = scheduler.removeJob(jobHandle, ejbTimer);
+        logger.debug("Remove job returned {}", result);
+        return result;
     }
 
     private TimerJobInstance getTimerJobInstance (String uuid) {
