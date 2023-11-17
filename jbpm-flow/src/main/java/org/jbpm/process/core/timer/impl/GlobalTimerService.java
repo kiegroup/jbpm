@@ -37,6 +37,7 @@ import org.drools.core.time.impl.CommandServiceTimerJobFactoryManager;
 import org.drools.core.time.impl.DefaultJobHandle;
 import org.drools.core.time.impl.TimerJobFactoryManager;
 import org.drools.core.time.impl.TimerJobInstance;
+import org.jbpm.process.core.DisposableRuntimeEngine;
 import org.jbpm.process.core.timer.GlobalSchedulerService;
 import org.jbpm.process.core.timer.NamedJobContext;
 import org.jbpm.process.instance.timer.TimerManager.ProcessJobContext;
@@ -420,7 +421,10 @@ public class GlobalTimerService implements TimerService, InternalSchedulerServic
         	
         	return runtime.getKieSession().getEnvironment();
         }
-        
+
+        public boolean isDisposed() {
+            return runtime instanceof DisposableRuntimeEngine  && ((DisposableRuntimeEngine)runtime).isDisposed();
+        }
     }
 
     public List<TimerServiceListener> getListeners() {
