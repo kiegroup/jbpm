@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 
@@ -198,10 +199,24 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
         
         // process currently active runtime engines
         Map<Object, RuntimeEngine> currentlyActive = local.get();
+
         if (currentlyActive != null && !currentlyActive.isEmpty()) {
-            RuntimeEngine[] activeEngines = currentlyActive.values().toArray(new RuntimeEngine[currentlyActive.size()]);
-            for (RuntimeEngine engine : activeEngines) {
-                Context<?> context = ((RuntimeEngineImpl) engine).getContext();
+            @SuppressWarnings("unchecked")
+            Entry<Object, RuntimeEngine> activeEngines[] = currentlyActive.entrySet()
+                    .toArray(new Entry[currentlyActive.size()]);
+            Set<Object> enginesToDelete = new HashSet<>();
+            for (Entry<Object, RuntimeEngine> engine : activeEngines) {
+                RuntimeEngineImpl engineImpl = (RuntimeEngineImpl) engine.getValue();
+                if (engineImpl==null) {
+                     continue;
+                }
+                if (engineImpl.isDisposed() || engineImpl.isInvalid()) {
+                    Object engineKey = engine.getKey();
+                    logger.trace("Engine with key {} is not longer valid", engineKey);
+                    enginesToDelete.add(engineKey);
+                    continue;
+                }
+                Context<?> context = engineImpl.getContext();
                 if (context != null && context instanceof ProcessInstanceIdContext 
                         && ((ProcessInstanceIdContext) context).getContextId() != null) {
                     try {
