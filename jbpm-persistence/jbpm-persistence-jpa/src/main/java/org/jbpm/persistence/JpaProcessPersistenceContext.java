@@ -41,6 +41,7 @@ import org.kie.internal.process.CorrelationKey;
 public class JpaProcessPersistenceContext extends JpaPersistenceContext
     implements
     ProcessPersistenceContext {
+ 
     
     public JpaProcessPersistenceContext(EntityManager em, TransactionManager txm) {
         super( em, txm );
@@ -66,7 +67,10 @@ public class JpaProcessPersistenceContext extends JpaPersistenceContext
     	if( this.pessimisticLocking ) { 
             return em.find( ProcessInstanceInfo.class, processId, lockMode );
         }
-        return em.find( ProcessInstanceInfo.class, processId );
+        logger.trace("Reading process instance info {} with em {}", processId, em);
+        ProcessInstanceInfo pi = em.find(ProcessInstanceInfo.class, processId);
+        logger.trace("Process instance info read {}", pi);
+        return pi;
     }
 
     public void remove(PersistentProcessInstance processInstanceInfo) {
