@@ -16,9 +16,12 @@
 package org.jbpm.runtime.manager.impl;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Set;
 
 import org.drools.core.command.SingleSessionCommandService;
 import org.drools.core.command.impl.CommandBasedStatefulKnowledgeSession;
@@ -191,14 +194,40 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
         
         // process currently active runtime engines
         Map<Object, RuntimeEngine> currentlyActive = local.get();
+
         if (currentlyActive != null && !currentlyActive.isEmpty()) {
-            RuntimeEngine[] activeEngines = currentlyActive.values().toArray(new RuntimeEngine[currentlyActive.size()]);
-            for (RuntimeEngine engine : activeEngines) {
-                Context<?> context = ((RuntimeEngineImpl) engine).getContext();
+            @SuppressWarnings("unchecked")
+            Entry<Object, RuntimeEngine> activeEngines[] = currentlyActive.entrySet()
+                    .toArray(new Entry[currentlyActive.size()]);
+            Set<Object> enginesToDelete = new HashSet<>();
+            for (Entry<Object, RuntimeEngine> engine : activeEngines) {
+                RuntimeEngineImpl engineImpl = (RuntimeEngineImpl) engine.getValue();
+                if (engineImpl==null) {
+                     continue;
+                }
+                if (engineImpl.isDisposed() || engineImpl.isInvalid()) {
+                    Object engineKey = engine.getKey();
+                    logger.trace("Engine with key {} is not longer valid", engineKey);
+                    enginesToDelete.add(engineKey);
+                    continue;
+                }
+                Context<?> context = engineImpl.getContext();
                 if (context != null && context instanceof ProcessInstanceIdContext 
                         && ((ProcessInstanceIdContext) context).getContextId() != null) {
-                    engine.getKieSession().signalEvent(type, event, ((ProcessInstanceIdContext) context).getContextId());
+                    try {
+                        engineImpl.getKieSession().signalEvent(type, event,
+                                ((ProcessInstanceIdContext) context).getContextId());
+                    } catch (org.drools.persistence.api.SessionNotFoundException ex) {
+                        logger.warn(
+                                "Signal event cannot proceed because of session not found exception {} for engine {}",
+                                ex.getMessage(), engineImpl.getKieSessionId());
+                        enginesToDelete.add(engine.getKey());
+                    }
                 }
+            }
+            if (!enginesToDelete.isEmpty()) {
+
+                currentlyActive.keySet().removeAll(enginesToDelete);
             }
         }
     }
