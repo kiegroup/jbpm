@@ -19,14 +19,13 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.jbpm.process.audit.JPAAuditLogService;
+import org.jbpm.process.core.DisposableRuntimeEngine;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.Context;
 import org.kie.api.runtime.manager.RuntimeManager;
 import org.kie.api.runtime.manager.audit.AuditService;
 import org.kie.api.task.TaskService;
-import org.kie.internal.runtime.manager.Disposable;
 import org.kie.internal.runtime.manager.DisposeListener;
-import org.kie.internal.runtime.manager.InternalRuntimeEngine;
 import org.kie.internal.runtime.manager.InternalRuntimeManager;
 import org.kie.internal.runtime.manager.SessionNotFoundException;
 
@@ -36,7 +35,7 @@ import org.kie.internal.runtime.manager.SessionNotFoundException;
  * and work item handlers might be interested in receiving notification when the runtime engine is disposed of,
  * in order deactivate themselves too and not receive any other events.
  */
-public class RuntimeEngineImpl implements InternalRuntimeEngine, Disposable {
+public class RuntimeEngineImpl implements DisposableRuntimeEngine {
 
 	private RuntimeEngineInitlializer initializer;
 	private Context<?> context;
@@ -143,6 +142,7 @@ public class RuntimeEngineImpl implements InternalRuntimeEngine, Disposable {
         this.manager = manager;
     }
 
+    @Override
     public boolean isDisposed() {
         return disposed;
     }

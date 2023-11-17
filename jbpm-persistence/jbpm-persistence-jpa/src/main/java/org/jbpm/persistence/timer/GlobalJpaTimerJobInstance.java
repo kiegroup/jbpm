@@ -65,7 +65,7 @@ public class GlobalJpaTimerJobInstance extends JpaTimerJobInstance {
     @Override
     public Void call() throws Exception {
         AsyncExecutionMarker.markAsync();
-        ExecutableRunner runner = null;
+        ExecutableRunner<?> runner = null;
         TransactionManager jtaTm = null;
         boolean success = false;
         try { 
@@ -88,16 +88,16 @@ public class GlobalJpaTimerJobInstance extends JpaTimerJobInstance {
             success = true;
             return null;
         } catch( Exception e ) { 
-        	e.printStackTrace();
+            logger.error("Exception executing timer", e);
         	success = false;
             throw e;
         } finally {
             AsyncExecutionMarker.reset();
-            if (runner != null && runner instanceof DisposableCommandService) {
-            	if (allowedToDispose(((DisposableCommandService) runner).getEnvironment())) {
-            		logger.debug("Allowed to dispose command service from global timer job instance");
-            		((DisposableCommandService) runner).dispose();
-            	}
+            if (runner != null && runner instanceof DisposableCommandService) {                    
+                if (allowedToDispose(((DisposableCommandService) runner))) {
+                    logger.debug("Allowed to dispose command service from global timer job instance");
+                    ((DisposableCommandService) runner).dispose();
+                }
             }
             closeTansactionIfNeeded(jtaTm, success);
         }
@@ -123,7 +123,11 @@ public class GlobalJpaTimerJobInstance extends JpaTimerJobInstance {
 		return "GlobalJpaTimerJobInstance [timerServiceId=" + timerServiceId
 				+ ", getJobHandle()=" + getJobHandle() + "]";
 	}
-
+    
+    private boolean allowedToDispose(DisposableCommandService disposableCommandService) {
+        return !disposableCommandService.isDisposed() && allowedToDispose (disposableCommandService.getEnvironment());
+    }
+    
 	protected boolean allowedToDispose(Environment environment) {
     	if (hasEnvironmentEntry(environment, "IS_JTA_TRANSACTION", false)) {
     		return true;
