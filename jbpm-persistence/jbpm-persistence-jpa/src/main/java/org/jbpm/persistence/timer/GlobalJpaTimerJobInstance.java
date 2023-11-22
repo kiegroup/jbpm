@@ -160,18 +160,18 @@ public class GlobalJpaTimerJobInstance extends JpaTimerJobInstance {
     
     protected TransactionManager startTxIfNeeded(Environment environment) {
 
-    	try {	    	
-	    	if (hasEnvironmentEntry(environment, "IS_TIMER_CMT", true)) {
-        		return null;
-        	}
-    		if (environment.get(EnvironmentName.TRANSACTION_MANAGER) instanceof ContainerManagedTransactionManager) {
-    			TransactionManager tm = TransactionManagerFactory.get().newTransactionManager();
-    			
-    			if (tm.begin()) {    			
-    				return tm;
-    			}
-    		}
-	    	
+    	try {	
+    	    boolean isTimerCMT = hasEnvironmentEntry(environment, "IS_TIMER_CMT", true);
+    	    logger.debug ("Timer CMT value is {}", isTimerCMT);
+	    	if (!isTimerCMT) {
+	    	    if (environment.get(EnvironmentName.TRANSACTION_MANAGER) instanceof ContainerManagedTransactionManager) {
+	    	        TransactionManager tm = TransactionManagerFactory.get().newTransactionManager();
+	    	        
+	    	        if (tm.begin()) {    			
+	    	            return tm;
+	    	        }
+	    	    }
+	    	}	    	
     	} catch (Exception e) {
     		logger.debug("Unable to optionally start transaction due to {}", e.getMessage(), e);
     	}

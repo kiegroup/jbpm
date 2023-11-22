@@ -47,9 +47,11 @@ import org.jbpm.process.core.timer.SchedulerServiceInterceptor;
 import org.jbpm.process.core.timer.impl.DelegateSchedulerServiceInterceptor;
 import org.jbpm.process.core.timer.impl.GlobalTimerService;
 import org.jbpm.process.core.timer.impl.GlobalTimerService.GlobalJobHandle;
+import org.jbpm.runtime.manager.impl.SimpleRuntimeEnvironment;
 import org.jbpm.runtime.manager.impl.jpa.EntityManagerFactoryManager;
 import org.jbpm.runtime.manager.impl.jpa.TimerMappingInfo;
 import org.kie.internal.runtime.manager.InternalRuntimeManager;
+import org.kie.internal.runtime.manager.RuntimeEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -240,4 +242,12 @@ public class EjbSchedulerService implements GlobalSchedulerService {
     protected String getJobName(JobContext ctx, long id) {
            return JobNameHelper.getJobName(ctx, id);
 	}
+    
+    @Override
+    public
+    void setEnvironment(RuntimeEnvironment environment) {
+        if (environment instanceof SimpleRuntimeEnvironment) {
+            ((SimpleRuntimeEnvironment)environment).addToEnvironment("IS_TIMER_CMT", true);
+        }
+    }
 }
