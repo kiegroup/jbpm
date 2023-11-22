@@ -45,7 +45,6 @@ import javax.ejb.TimerHandle;
 import javax.ejb.TimerService;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
-import javax.naming.InitialContext;
 
 import org.drools.core.time.JobHandle;
 import org.drools.core.time.impl.TimerJobInstance;

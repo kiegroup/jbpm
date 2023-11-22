@@ -65,7 +65,6 @@ public class DefaultRuntimeEnvironment extends SimpleRuntimeEnvironment {
         if (globalSchedulerService != null) {
             globalSchedulerService.setEnvironment(this);
         }
-        
     }
     
     public DefaultRuntimeEnvironment(EntityManagerFactory emf, boolean usePersistence) {
