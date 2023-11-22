@@ -59,15 +59,12 @@ import org.slf4j.LoggerFactory;
 public class EjbSchedulerService implements GlobalSchedulerService {
     private static final Logger logger = LoggerFactory.getLogger(EjbSchedulerService.class);
 
-    private static final Boolean TRANSACTIONAL = Boolean.parseBoolean(System.getProperty("org.jbpm.ejb.timer.tx", "true"));
-
 	private AtomicLong idCounter = new AtomicLong();
 	private TimerService globalTimerService;
 	private EJBTimerScheduler scheduler;
 	
 	private SchedulerServiceInterceptor interceptor = new DelegateSchedulerServiceInterceptor(this);
 	
-
 	@Override
 	public JobHandle scheduleJob(Job job, JobContext ctx, Trigger trigger) {
 		long id = idCounter.getAndIncrement();
@@ -111,7 +108,6 @@ public class EjbSchedulerService implements GlobalSchedulerService {
         return unwrapTimerJobInstance(getEjbTimer(getTimerMappinInfo(uuid)));
     }
 
-
     @Override
     public TimerJobInstance getTimerJobInstance(long processInstanceId, long timerId) {
         return unwrapTimerJobInstance(getEjbTimer(getTimerMappinInfo(processInstanceId, timerId)));
@@ -122,8 +118,7 @@ public class EjbSchedulerService implements GlobalSchedulerService {
             if(timerMappingInfo == null || timerMappingInfo.getInfo() == null) {
                 return null;
             }
-            byte[] data = timerMappingInfo.getInfo();
-            return ((TimerHandle) new ObjectInputStream(new ByteArrayInputStream(data)).readObject()).getTimer();
+            return ((TimerHandle) new ObjectInputStream(new ByteArrayInputStream(timerMappingInfo.getInfo())).readObject()).getTimer();
         } catch (Exception e) {
             logger.warn("Problem retrieving timer for uuid {}", timerMappingInfo.getUuid(), e);
             return null;
@@ -196,7 +191,6 @@ public class EjbSchedulerService implements GlobalSchedulerService {
 	@Override
 	public void shutdown() {
 		// managed by container - no op
-
 	}
 
 	@Override
@@ -207,7 +201,7 @@ public class EjbSchedulerService implements GlobalSchedulerService {
 
 	@Override
 	public boolean isTransactional() {
-		return TRANSACTIONAL;
+		return true;
 	}
 
 	@Override
@@ -222,8 +216,7 @@ public class EjbSchedulerService implements GlobalSchedulerService {
 
 	@Override
 	public boolean isValid(GlobalJobHandle jobHandle) {
-	    
-        return true;	    
+        return true;
 	}
 	
     protected String getJobName(JobContext ctx, long id) {

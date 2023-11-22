@@ -113,7 +113,7 @@ public class EJBTimerScheduler {
             Thread.currentThread().interrupt();
         }        
         try {
-            invokeTransaction(this::executeTimerJobInstance, timerJobInstance);
+            executeTimerJobInstance(timerJobInstance);
         } catch (Exception e) {
             recoverTimerJobInstance(timerJob, timer, e);
         }
