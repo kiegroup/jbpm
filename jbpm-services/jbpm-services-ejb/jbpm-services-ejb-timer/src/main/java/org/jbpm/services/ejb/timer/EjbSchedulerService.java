@@ -57,8 +57,6 @@ import org.slf4j.LoggerFactory;
 public class EjbSchedulerService implements GlobalSchedulerService {
     private static final Logger logger = LoggerFactory.getLogger(EjbSchedulerService.class);
 
-    private static final Boolean TRANSACTIONAL = Boolean.parseBoolean(System.getProperty("org.jbpm.ejb.timer.tx", "true"));
-
 	private AtomicLong idCounter = new AtomicLong();
 	private TimerService globalTimerService;
 	private EJBTimerScheduler scheduler;
@@ -218,7 +216,7 @@ public class EjbSchedulerService implements GlobalSchedulerService {
 
 	@Override
 	public boolean isTransactional() {
-		return TRANSACTIONAL;
+		return false;
 	}
 
 	@Override
