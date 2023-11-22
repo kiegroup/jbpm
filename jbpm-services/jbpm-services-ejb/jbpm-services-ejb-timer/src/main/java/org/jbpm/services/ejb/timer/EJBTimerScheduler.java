@@ -191,7 +191,11 @@ public class EJBTimerScheduler {
         try {
             operation.doWork(item);
         } catch (Exception transactionEx) {
-            ctx.setRollbackOnly();
+            try {
+                ctx.setRollbackOnly();
+            } catch (Exception rollbackEx) {
+                logger.info("Exception occurs when setting rollback only {}", rollbackEx.getMessage());
+            }
             throw transactionEx;
         }
     }
