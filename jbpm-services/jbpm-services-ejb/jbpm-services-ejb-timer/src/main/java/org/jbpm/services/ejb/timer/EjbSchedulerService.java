@@ -29,7 +29,6 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.persistence.EntityManager;
 
-import org.drools.core.time.InternalSchedulerService;
 import org.drools.core.time.Job;
 import org.drools.core.time.JobContext;
 import org.drools.core.time.JobHandle;
@@ -46,7 +45,6 @@ import org.jbpm.process.core.timer.impl.GlobalTimerService.GlobalJobHandle;
 import org.jbpm.runtime.manager.impl.SimpleRuntimeEnvironment;
 import org.jbpm.runtime.manager.impl.jpa.EntityManagerFactoryManager;
 import org.jbpm.runtime.manager.impl.jpa.TimerMappingInfo;
-import org.kie.internal.runtime.manager.InternalRuntimeManager;
 import org.kie.internal.runtime.manager.RuntimeEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +54,7 @@ public class EjbSchedulerService implements GlobalSchedulerService {
     private static final Logger logger = LoggerFactory.getLogger(EjbSchedulerService.class);
 
 	private AtomicLong idCounter = new AtomicLong();
-	private TimerService globalTimerService;
+	private GlobalTimerService globalTimerService;
 	private EJBTimerScheduler scheduler;
 	
 	private SchedulerServiceInterceptor interceptor = new DelegateSchedulerServiceInterceptor(this);
@@ -65,7 +63,7 @@ public class EjbSchedulerService implements GlobalSchedulerService {
 	public JobHandle scheduleJob(Job job, JobContext ctx, Trigger trigger) {
 		long id = idCounter.getAndIncrement();
 		String jobName = getJobName(ctx, id);
-		EjbGlobalJobHandle jobHandle = new EjbGlobalJobHandle(id, jobName, ((GlobalTimerService) globalTimerService).getTimerServiceId());
+		EjbGlobalJobHandle jobHandle = new EjbGlobalJobHandle(id, jobName, globalTimerService.getTimerServiceId());
 		
 		TimerJobInstance jobInstance = null;
 		// check if given timer job is marked as new timer meaning it was never scheduled before, 
@@ -84,7 +82,7 @@ public class EjbSchedulerService implements GlobalSchedulerService {
 														ctx, 
 														trigger, 
 														jobHandle, 
-														(InternalSchedulerService) globalTimerService);
+														globalTimerService);
 		
 		jobHandle.setTimerJobInstance((TimerJobInstance) jobInstance);		
 		interceptor.internalSchedule(jobInstance);
@@ -136,7 +134,7 @@ public class EjbSchedulerService implements GlobalSchedulerService {
 
     private TimerMappingInfo getTimerMappingInfo(Function<EntityManager, List<TimerMappingInfo>> func) {
         EntityManager em = EntityManagerFactoryManager.get()
-                .getOrCreate(((InternalRuntimeManager) ((GlobalTimerService) globalTimerService).getRuntimeManager())
+                .getOrCreate(globalTimerService.getRuntimeManager()
                         .getDeploymentDescriptor().getPersistenceUnit())
                 .createEntityManager();
         try {
@@ -176,7 +174,7 @@ public class EjbSchedulerService implements GlobalSchedulerService {
 
 	@Override
 	public void initScheduler(TimerService timerService) {
-		this.globalTimerService = timerService;
+		this.globalTimerService = (GlobalTimerService)timerService;
 		try {
 			this.scheduler = InitialContext.doLookup("java:module/EJBTimerScheduler");
 		} catch (NamingException e) {
@@ -192,7 +190,7 @@ public class EjbSchedulerService implements GlobalSchedulerService {
 	@Override
 	public JobHandle buildJobHandleForContext(NamedJobContext ctx) {
 
-		return new EjbGlobalJobHandle(-1, getJobName(ctx, -1L), ((GlobalTimerService) globalTimerService).getTimerServiceId());
+		return new EjbGlobalJobHandle(-1, getJobName(ctx, -1L), globalTimerService.getTimerServiceId());
 	}
 
 	@Override
