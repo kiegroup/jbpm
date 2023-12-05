@@ -253,7 +253,8 @@ public class EJBTimerScheduler {
             Timer timer = timerService.createSingleActionTimer(expirationTime, config);
             TimerHandle handle = timer.getHandle();
             ((GlobalJpaTimerJobInstance) timerJobInstance).setTimerInfo(handle);
-            logger.debug("Timer scheduled {} on {} scheduler service", timerJobInstance);
+            String timerServiceId = ((EjbGlobalJobHandle) timerJobInstance.getJobHandle()).getDeploymentId();
+            logger.debug("Timer scheduled {} on {} scheduler service", timerJobInstance, timerServiceId);
             ((GlobalJpaTimerJobInstance) timerJobInstance).setExternalTimerId(getPlatformTimerId(timer));
             if (useLocalCache) {
                 localCache.putIfAbsent(((EjbGlobalJobHandle) timerJobInstance.getJobHandle()).getUuid(), timerJobInstance);

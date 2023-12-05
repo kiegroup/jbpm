@@ -105,6 +105,7 @@ public class EjbSchedulerService implements GlobalSchedulerService {
             // this situation needs to be avoided as it should not happen
             return false;
         }
+        ((GlobalJobHandle) jobHandle).setValid(false);
         JtaTransactionManager tm = (JtaTransactionManager) TransactionManagerFactory.get().newTransactionManager();
         try {
             tm.registerTransactionSynchronization(new TransactionSynchronization() {
@@ -117,9 +118,10 @@ public class EjbSchedulerService implements GlobalSchedulerService {
                     if (status == TransactionManager.STATUS_COMMITTED) {
                         logger.debug("remove job {} after commited", jobHandle);
                         scheduler.removeJob(jobHandle, ejbTimer);
+                    } else {
+                        ((GlobalJobHandle) jobHandle).setValid(true);
                     }
                 }
-                
             });
             logger.debug("register tx to remove job {}", jobHandle);
             return true;
@@ -257,8 +259,7 @@ public class EjbSchedulerService implements GlobalSchedulerService {
 
 	@Override
 	public boolean isValid(GlobalJobHandle jobHandle) {
-	    
-        return true;	    
+        return jobHandle.isValid();
 	}
 	
     protected String getJobName(JobContext ctx, long id) {

@@ -338,10 +338,20 @@ public class GlobalTimerService implements TimerService, InternalSchedulerServic
     
         private static final long     serialVersionUID = 510l;
     
+        private transient boolean valid;
         public GlobalJobHandle(long id) {
             super(id);
+            this.valid = true;
         }
-        
+
+        public boolean isValid() {
+            return valid;
+        }
+
+        public void setValid(boolean valid) {
+            this.valid = valid;
+        }
+
         public Long getTimerId() {
             JobContext ctx = this.getTimerJobInstance().getJobContext();
             if (ctx instanceof SelfRemovalJobContext) {
