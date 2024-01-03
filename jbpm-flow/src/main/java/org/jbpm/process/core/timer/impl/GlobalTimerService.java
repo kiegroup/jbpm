@@ -374,21 +374,16 @@ public class GlobalTimerService implements TimerService, InternalSchedulerServic
 
         @Override
         public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + (int) (this.getId() ^ (this.getId() >>> 32));
-            return result;
+            return (int)getId();
         }
 
         @Override
         public boolean equals(Object obj) {
             if ( this == obj ) return true;
-            if ( obj == null ) return false;
-            if ( getClass() != obj.getClass() ) return false;
-            final DefaultJobHandle other = (DefaultJobHandle) obj;
-            if (this.getId() != other.getId())
-                return false;
-            return true;
+            if (obj == null || !obj.getClass().equals(getClass())) {
+                 return false;
+            }
+            return getId() == ((DefaultJobHandle)obj).getId();
         }
 
     }
