@@ -401,9 +401,9 @@ public abstract class StateBasedNodeInstance extends ExtendedNodeInstanceImpl im
     }
 
     @Override
-	protected void triggerCompleted(String type, boolean remove) {
-	    if (this.slaCompliance == org.kie.api.runtime.process.ProcessInstance.SLA_PENDING) {
-	        if (System.currentTimeMillis() > slaDueDate.getTime()) {
+    protected void triggerCompleted(String type, boolean remove) {
+        if (this.slaCompliance == org.kie.api.runtime.process.ProcessInstance.SLA_PENDING) {
+            if (System.currentTimeMillis() > slaDueDate.getTime()) {
                 // completion of the node instance is after expected SLA due date, mark it accordingly
                 this.slaCompliance = org.kie.api.runtime.process.ProcessInstance.SLA_VIOLATED;
             } else {
