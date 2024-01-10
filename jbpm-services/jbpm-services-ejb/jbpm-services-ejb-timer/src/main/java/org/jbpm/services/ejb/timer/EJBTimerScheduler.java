@@ -42,6 +42,7 @@ import javax.ejb.Timeout;
 import javax.ejb.Timer;
 import javax.ejb.TimerConfig;
 import javax.ejb.TimerHandle;
+import javax.ejb.TimerService;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 
@@ -73,7 +74,7 @@ public class EJBTimerScheduler {
 	private ConcurrentMap<String, TimerJobInstance> localCache = new ConcurrentHashMap<String, TimerJobInstance>();
 
 	@Resource
-	protected javax.ejb.TimerService timerService;
+    protected TimerService timerService;
 	
     @Resource
     protected SessionContext ctx;
@@ -111,7 +112,7 @@ public class EJBTimerScheduler {
             Thread.currentThread().interrupt();
         }        
         try {
-            invokeTransaction(this::executeTimerJobInstance, timerJobInstance);
+            executeTimerJobInstance(timerJobInstance);
         } catch (Exception e) {
             recoverTimerJobInstance(timerJob, timer, e);
         }
@@ -186,7 +187,12 @@ public class EJBTimerScheduler {
 
     @TransactionAttribute(value = TransactionAttributeType.REQUIRES_NEW)
     public <I> void transaction(Transaction<I> operation, I item) throws Exception {
-        operation.doWork(item);
+        try {
+            operation.doWork(item);
+        } catch (Exception transactionEx) {
+            ctx.setRollbackOnly();
+            throw transactionEx;
+        }
     }
     
     private <I> void invokeTransaction (Transaction<I> operation, I item) throws Exception {
