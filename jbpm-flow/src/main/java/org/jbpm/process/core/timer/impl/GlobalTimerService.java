@@ -375,6 +375,20 @@ public class GlobalTimerService implements TimerService, InternalSchedulerServic
             return null;
         }
 
+        @Override
+        public int hashCode() {
+            return (int)getId();
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if ( this == obj ) return true;
+            if (obj == null || !obj.getClass().equals(getClass())) {
+                 return false;
+            }
+            return getId() == ((DefaultJobHandle)obj).getId();
+        }
+
     }
     
     public static class DisposableCommandService implements InternalLocalRunner {
