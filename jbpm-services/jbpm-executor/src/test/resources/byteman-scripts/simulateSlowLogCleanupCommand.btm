@@ -10,6 +10,20 @@ AT ENTRY
 IF TRUE
 DO debug("Pausing JPAAuditLogService.doDelete for " + Integer.getInteger("byteman.jpaaudit.sleep", 500) + "ms");
 Thread.sleep(Integer.getInteger("byteman.jpaaudit.sleep", 500));
-return 1
+return Integer.getInteger("byteman.jpaaudit.delete", 1)
 ENDRULE
 
+########################################################################
+#
+# Rule to slow down the execution of JPAAuditLogService.doPartialDelete
+#
+
+RULE JPAAuditLogService.doPartialDelete sleep
+CLASS org.jbpm.process.audit.JPAAuditLogService
+METHOD doPartialDelete
+AT ENTRY
+IF TRUE
+DO debug("Pausing JPAAuditLogService.doPartialDelete for " + Integer.getInteger("byteman.jpaaudit.sleep", 500) + "ms");
+Thread.sleep(Integer.getInteger("byteman.jpaaudit.sleep", 500));
+return Integer.getInteger("byteman.jpaaudit.delete", 1)
+ENDRULE
