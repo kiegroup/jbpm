@@ -83,7 +83,8 @@ public class DDLScriptsTest extends ScriptsBase {
         ScriptFilter[] sbOracle = new ScriptFilter[]{filter("oracle-springboot-jbpm-schema.sql",
                                                             "quartz_tables_oracle.sql").setSupportedDatabase(DatabaseType.ORACLE)
                                                                                        .setOptions(Option.DISALLOW_EMPTY_RESULTS,
-                                                                                                   Option.THROW_ON_SCRIPT_ERROR),
+                                                                                                   Option.THROW_ON_SCRIPT_ERROR,
+                                                                                                   Option.NEW_GENERATOR_MAPPINGS_TRUE),
                                                      filter("oracle-springboot-jbpm-drop-schema.sql",
                                                             "quartz_tables_drop_oracle.sql")};
 
