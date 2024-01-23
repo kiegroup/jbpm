@@ -222,4 +222,52 @@ public class LogCleanupCommandTest {
         assertTrue(diff >= 2000 && diff < 3000);
         System.clearProperty("byteman.jpaaudit.sleep");
     }
+
+    @Test(timeout=10000)
+    @BMScript(value = "byteman-scripts/simulateSlowLogCleanupCommand.btm")
+    public void logCleanupNextRunFixedPaginationTest() throws InterruptedException {
+        CountDownAsyncJobListener countDownListener = configureListener(1);
+        // this delay will be invoked 3 times during the test, resulting in an overall delay of 2s
+        System.setProperty("byteman.jpaaudit.sleep", "666");
+        // number of records to be returned by JPAAuditLogService.doDelete
+        System.setProperty("byteman.jpaaudit.delete", "1000");
+
+        CommandContext ctxCMD = new CommandContext();
+        ctxCMD.setData("businessKey", UUID.randomUUID().toString());
+        ctxCMD.setData("NextRun", "10s");
+        ctxCMD.setData("EmfName", "org.jbpm.executor");
+        ctxCMD.setData("SkipProcessLog", "true");
+        ctxCMD.setData("SkipTaskLog", "true");
+        ctxCMD.setData("RepeatMode", "fixed");
+        ctxCMD.setData("RecordsPerTransaction", 500);
+        executorService.scheduleRequest("org.jbpm.executor.commands.LogCleanupCommand", ctxCMD);
+
+        // waiting until the first LogCleanupCommand execution is done
+        countDownListener.waitTillCompleted();
+        System.clearProperty("byteman.jpaaudit.delete");
+        // as the number of records to be deleted > RecordsPerTransaction, a second LogCleanupCommand will be scheduled for immediate execution
+        countDownListener.reset(1);
+        countDownListener.waitTillCompleted();
+
+        List<RequestInfo> rescheduled = executorService.getRequestsByBusinessKey((String)ctxCMD.getData("businessKey"), Arrays.asList(STATUS.QUEUED), new QueryContext());
+        // check if the job has been rescheduled
+        assertEquals(1, rescheduled.size());
+
+        List<RequestInfo> inErrorRequests = executorService.getInErrorRequests(new QueryContext());
+        assertEquals(0, inErrorRequests.size());
+        List<RequestInfo> queuedRequests = executorService.getQueuedRequests(new QueryContext());
+        assertEquals(1, queuedRequests.size());
+        List<RequestInfo> executedRequests = executorService.getCompletedRequests(new QueryContext());
+        assertEquals(2, executedRequests.size());
+
+        executorService.cancelRequest(queuedRequests.get(0).getId());
+
+        long firstExecution = executedRequests.get(0).getTime().getTime();
+        long lastExecution = queuedRequests.get(queuedRequests.size()-1).getTime().getTime();
+
+        // time difference between first and last should be around 10 seconds, even if the original command got split into two executions due to RecordsPerTransaction
+        long diff = lastExecution - firstExecution;
+        assertTrue(diff < 11000);
+        System.clearProperty("byteman.jpaaudit.sleep");
+    }
 }
