@@ -224,7 +224,7 @@ public class UpdateTimerCommand implements ExecutableCommand<Void>, ProcessInsta
     
     protected TimerInstance rescheduleTimer(TimerInstance timer, TimerManager tm) {
         logger.debug("Found timer {} that is going to be canceled", timer);
-        tm.cancelTimer(timer.getProcessInstanceId(), timer.getTimerId());
+        tm.cancelTimer(timer.getProcessInstanceId(), timer.getId());
         logger.debug("Timer {} canceled successfully", timer);
         
         TimerInstance newTimer = new TimerInstance();
