@@ -23,13 +23,13 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.dashbuilder.DataSetCore;
-import org.dashbuilder.dataset.def.DataSetDef;
 import org.dashbuilder.dataset.def.SQLDataSetDef;
 import org.drools.compiler.kie.builder.impl.InternalKieModule;
 import org.jbpm.kie.services.impl.KModuleDeploymentUnit;
@@ -44,6 +44,7 @@ import org.jbpm.kie.services.impl.query.mapper.TaskSummaryQueryMapper;
 import org.jbpm.kie.services.impl.query.mapper.UserTaskInstanceQueryMapper;
 import org.jbpm.kie.services.impl.query.mapper.UserTaskInstanceWithCustomVarsQueryMapper;
 import org.jbpm.kie.services.impl.query.mapper.UserTaskInstanceWithVarsQueryMapper;
+import org.jbpm.kie.services.impl.security.DeploymentRolesManager;
 import org.jbpm.kie.services.test.objects.TestQueryParamBuilderFactory;
 import org.jbpm.kie.test.util.AbstractKieServicesBaseTest;
 import org.jbpm.services.api.ProcessInstanceNotFoundException;
@@ -73,6 +74,7 @@ import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.query.AdvancedQueryContext;
 import org.kie.api.runtime.query.QueryContext;
 import org.kie.api.task.model.TaskSummary;
+import org.kie.internal.identity.IdentityProvider;
 import org.kie.internal.runtime.conf.DeploymentDescriptor;
 import org.kie.internal.runtime.manager.InternalRuntimeManager;
 import org.kie.internal.runtime.manager.deploy.DeploymentDescriptorImpl;
@@ -286,6 +288,61 @@ public class QueryServiceImplTest extends AbstractKieServicesBaseTest {
         assertNotNull(instances);
         assertEquals(1, instances.size());
         assertEquals(3, (int) instances.iterator().next().getState());
+    }
+
+    @Test
+    public void testGetProcessInstancesWithFilter() {
+
+        query = new SqlQueryDefinition("getAllProcessInstances", dataSourceJNDIname, Target.FILTERED_PROCESS);
+        query.setExpression("select * from processinstancelog");
+        queryService.registerQuery(query);
+
+        DeploymentRolesManager rolesManager = new DeploymentRolesManager();
+        rolesManager.addRolesForDeployment("org.jbpm.writedocument", Arrays.asList("viewRole"));
+        ((QueryServiceImpl) queryService).setDeploymentRolesManager(rolesManager);
+
+        final SQLDataSetDef dataSetDef = (SQLDataSetDef) DataSetCore.get().getDataSetDefRegistry().getDataSetDef(query.getName());
+        assertNotNull(dataSetDef);
+        assertEquals(query.getName(), dataSetDef.getUUID());
+        assertEquals(query.getName() + "::" + query.getTarget().toString(), dataSetDef.getName());
+        assertEquals(query.getSource(), dataSetDef.getDataSource());
+        assertEquals(query.getExpression(), dataSetDef.getDbSQL());
+        assertEquals(false, dataSetDef.isEstimateSize());
+
+        List<QueryDefinition> queries = queryService.getQueries(new QueryContext());
+        assertNotNull(queries);
+        assertEquals(1, queries.size());
+
+        QueryDefinition registeredQuery = queries.get(0);
+        assertNotNull(registeredQuery);
+        assertEquals(query.getName(), registeredQuery.getName());
+        assertEquals(query.getSource(), registeredQuery.getSource());
+        assertEquals(query.getExpression(), registeredQuery.getExpression());
+        assertEquals(query.getTarget(), registeredQuery.getTarget());
+
+        registeredQuery = queryService.getQuery(query.getName());
+
+        assertNotNull(registeredQuery);
+        assertEquals(query.getName(), registeredQuery.getName());
+        assertEquals(query.getSource(), registeredQuery.getSource());
+        assertEquals(query.getExpression(), registeredQuery.getExpression());
+        assertEquals(query.getTarget(), registeredQuery.getTarget());
+        
+        Map<String, String> resolvedColumns = registeredQuery.getColumns();
+        assertNotNull(resolvedColumns);
+        assertEquals(18, resolvedColumns.size());
+
+        Collection<ProcessInstanceDesc> instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new QueryContext());
+        assertNotNull(instances);
+        assertEquals(0, instances.size());
+
+        processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument");
+        assertNotNull(processInstanceId);
+
+        instances = queryService.query(query.getName(), ProcessInstanceQueryMapper.get(), new QueryContext());
+        assertNotNull(instances);
+        assertEquals(0, instances.size());
+
     }
 
     @Test
