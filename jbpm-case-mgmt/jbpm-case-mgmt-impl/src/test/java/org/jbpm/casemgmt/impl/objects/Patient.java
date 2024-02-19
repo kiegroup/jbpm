@@ -28,7 +28,7 @@ import javax.persistence.TemporalType;
 
 
 @Entity
-@SequenceGenerator(name="patientIdSeq", sequenceName="PATIENT_ID_SEQ")
+@SequenceGenerator(name="patientIdSeq", sequenceName="PATIENT_ID_SEQ", allocationSize = 1)
 public class Patient implements Serializable {
 
     private static final long serialVersionUID = 5264889024424345041L;
