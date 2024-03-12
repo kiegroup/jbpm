@@ -21,6 +21,7 @@ import org.jbpm.process.audit.ProcessInstanceLog;
 import org.jbpm.process.audit.VariableInstanceLog;
 import org.jbpm.process.audit.event.AuditEvent;
 import org.jbpm.process.audit.event.DefaultAuditEventBuilderImpl;
+import org.kie.api.event.process.ProcessDataChangedEvent;
 import org.kie.api.event.process.ProcessCompletedEvent;
 import org.kie.api.event.process.ProcessNodeLeftEvent;
 import org.kie.api.event.process.ProcessAsyncNodeScheduledEvent;
@@ -75,6 +76,13 @@ public class ManagedAuditEventBuilderImpl extends DefaultAuditEventBuilderImpl {
 	    NodeInstanceLog nodeInstanceLog = (NodeInstanceLog) super.buildEvent(pnse);
 	    nodeInstanceLog.setExternalId(ownerId);
 	    return nodeInstanceLog;
+	}
+
+	@Override
+	public AuditEvent buildEvent(ProcessDataChangedEvent pdce) {
+		ProcessInstanceLog instanceLog = (ProcessInstanceLog) super.buildEvent(pdce);
+		instanceLog.setExternalId(ownerId);
+		return instanceLog;
 	}
 
 	public String getOwnerId() {
