@@ -33,6 +33,7 @@ import org.jbpm.process.audit.ProcessInstanceLog;
 import org.jbpm.process.audit.variable.ProcessIndexerManager;
 import org.jbpm.workflow.instance.impl.NodeInstanceImpl;
 import org.kie.api.event.process.ProcessCompletedEvent;
+import org.kie.api.event.process.ProcessDataChangedEvent;
 import org.kie.api.event.process.ProcessNodeLeftEvent;
 import org.kie.api.event.process.ProcessAsyncNodeScheduledEvent;
 import org.kie.api.event.process.ProcessNodeTriggeredEvent;
@@ -185,7 +186,13 @@ public class AsyncAuditLogProducer extends AbstractAuditLogger {
     @Override
     public void beforeProcessCompleted(ProcessCompletedEvent event) {
     }
-    
+
+    @Override
+    public void onProcessDataChangedEvent(ProcessDataChangedEvent event) {
+        ProcessInstanceLog log = (ProcessInstanceLog) builder.buildEvent(event);
+        sendMessage(log, ON_DATA_CHANGE_EVENT_TYPE, 9);
+    }
+
     protected void sendMessage(Object messageContent, Integer eventType, int priority) {
         if (connectionFactory == null && queue == null) {
             throw new IllegalStateException("ConnectionFactory and Queue cannot be null");
