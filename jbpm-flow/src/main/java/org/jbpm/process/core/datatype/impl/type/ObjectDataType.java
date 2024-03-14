@@ -137,11 +137,12 @@ public class ObjectDataType implements DataType {
     }
 
     private static Collection<DateFormat> dateFormats = Arrays.asList(new SimpleDateFormat("yyyy-MM-ddHH:mm:ss"),
+            new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss"),
             new SimpleDateFormat("yyyy-MM-dd"), new SimpleDateFormat("HH:mm:ss"), DateFormat.getDateInstance(),
             DateFormat.getTimeInstance(),
             DateFormat.getDateTimeInstance());
 
-    private Date parseDate(String toBeParsed) {
+    private static Date parseDate(String toBeParsed) {
         StringBuilder sb = new StringBuilder();
         for (DateFormat dateFormat : dateFormats) {
             try {

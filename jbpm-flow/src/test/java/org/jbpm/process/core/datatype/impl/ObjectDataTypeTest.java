@@ -23,6 +23,7 @@ import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.Date;
 
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.jbpm.process.core.datatype.impl.type.ObjectDataType;
 import org.junit.Test;
 
@@ -44,6 +45,8 @@ public class ObjectDataTypeTest {
         assertThat(dateType.readValue("12:12:12")).isInstanceOf(Date.class);
         assertThat(dateType.valueOf("2012-02-02")).isInstanceOf(Date.class);
         assertThat(dateType.valueOf("12:12:12")).isInstanceOf(Date.class);
+        assertThat(dateType.valueOf("2016-01-11T01:06:32")).isInstanceOf(Date.class)
+                .asInstanceOf(InstanceOfAssertFactories.DATE).hasHourOfDay(1).hasMinute(6).hasSecond(32);
         assertThat(dateType.valueOf("pepe")).isInstanceOf(String.class);
         assertThatThrownBy(() -> dateType.readValue("pepe")).isInstanceOf(IllegalArgumentException.class);
     }
