@@ -16,6 +16,7 @@
 
 package org.jbpm.kie.services.impl.admin.commands;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -63,10 +64,12 @@ public class AddPeopleAssignmentsCommand extends UserGroupCallbackTaskCommand<Vo
             throw new PermissionDeniedException("User " + userId + " is not business admin of task " + taskId);
         }
         
+        List<OrganizationalEntity> beforeChangeEntityList = new ArrayList<>();
         List<OrganizationalEntity> entityList = Arrays.asList(entities);
         AssignmentType assignmentType = null;
         switch (type) {
             case POT_OWNER:
+                beforeChangeEntityList.addAll(task.getPeopleAssignments().getPotentialOwners());
                 if (removeExisting) {
                     task.getPeopleAssignments().getPotentialOwners().clear();
                 }
@@ -74,6 +77,7 @@ public class AddPeopleAssignmentsCommand extends UserGroupCallbackTaskCommand<Vo
                 assignmentType = AssignmentType.POT_OWNER;
                 break;
             case EXCL_OWNER:
+                beforeChangeEntityList.addAll(((InternalPeopleAssignments)task.getPeopleAssignments()).getExcludedOwners());
                 if (removeExisting) {
                     ((InternalPeopleAssignments)task.getPeopleAssignments()).getExcludedOwners().clear();
                 }
@@ -81,6 +85,7 @@ public class AddPeopleAssignmentsCommand extends UserGroupCallbackTaskCommand<Vo
                 assignmentType = AssignmentType.EXCL_OWNER;
                 break;
             case ADMIN:
+                beforeChangeEntityList.addAll(task.getPeopleAssignments().getBusinessAdministrators());
                 if (removeExisting) {
                     task.getPeopleAssignments().getBusinessAdministrators().clear();
                 }
@@ -91,10 +96,16 @@ public class AddPeopleAssignmentsCommand extends UserGroupCallbackTaskCommand<Vo
             default:
                 break;
         }
-        taskEventSupport.fireBeforeTaskAssignmentsAddedEvent(task, context, assignmentType, entityList);
-        doCallbackOperationForPeopleAssignments(((InternalPeopleAssignments)task.getPeopleAssignments()), context);
+
+        taskEventSupport.fireBeforeTaskAssignmentsAddedEvent(task, context, assignmentType, entityList, beforeChangeEntityList);
+        doCallbackOperationForPeopleAssignments(((InternalPeopleAssignments) task.getPeopleAssignments()), context);
         context.getPersistenceContext().updateTask(task);
-        taskEventSupport.fireAfterTaskAssignmentsAddedEvent(task, context, assignmentType, entityList);
+
+        List<OrganizationalEntity> afterChangeEntityList = new ArrayList<>(entityList);
+        if (!removeExisting) {
+            afterChangeEntityList.addAll(beforeChangeEntityList);
+        }
+        taskEventSupport.fireAfterTaskAssignmentsAddedEvent(task, context, assignmentType, entityList, afterChangeEntityList);
         return null;
     }
 
