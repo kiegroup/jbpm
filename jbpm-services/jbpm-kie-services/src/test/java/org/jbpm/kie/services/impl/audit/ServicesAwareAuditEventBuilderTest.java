@@ -21,10 +21,14 @@ import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.drools.core.event.ProcessStartedEventImpl;
+import org.drools.core.event.rule.impl.ProcessDataChangedEventImpl;
 import org.jbpm.kie.services.test.ProcessServiceImplTest;
 import org.jbpm.kie.test.util.AbstractKieServicesBaseTest;
 import org.jbpm.process.audit.ProcessInstanceLog;
@@ -35,6 +39,7 @@ import org.jbpm.workflow.core.WorkflowProcess;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.kie.api.event.process.ProcessStartedEvent;
+import org.kie.api.event.process.ProcessDataChangedEvent;
 import org.kie.api.runtime.KieSession;
 import org.kie.internal.process.CorrelationKey;
 import org.mockito.Mock;
@@ -46,6 +51,10 @@ import org.slf4j.LoggerFactory;
 public class ServicesAwareAuditEventBuilderTest extends AbstractKieServicesBaseTest {
 
     private static final Logger logger = LoggerFactory.getLogger(ProcessServiceImplTest.class);
+    
+    private static final Date TEST_DATE = Date.from(LocalDate.of(2024, 3, 14).atStartOfDay(ZoneId.systemDefault()).toInstant());
+    
+    private static final String TEST_DEPLOYMENT_UNIT = "unit1";
 
     private Map<String, Object> processMetadata = new HashMap<>();
 
@@ -73,6 +82,7 @@ public class ServicesAwareAuditEventBuilderTest extends AbstractKieServicesBaseT
 
         builder = new ServicesAwareAuditEventBuilder();
         builder.setIdentityProvider(identityProvider);
+        builder.setDeploymentUnitId(TEST_DEPLOYMENT_UNIT);
 
         setUpMocks();
     }
@@ -83,7 +93,8 @@ public class ServicesAwareAuditEventBuilderTest extends AbstractKieServicesBaseT
         when(processInstance.getId()).thenReturn(1L);
         when(processInstance.getDescription()).thenReturn("Some test Process");
         when(processInstance.getSlaCompliance()).thenReturn(0);
-        when(processInstance.getSlaDueDate()).thenReturn(null);
+        
+        when(processInstance.getSlaDueDate()).thenReturn(TEST_DATE);
         when(processInstance.getMetaData()).thenReturn(processMetadata);
 
         when(processInstance.getProcess()).thenReturn(process);
@@ -108,6 +119,22 @@ public class ServicesAwareAuditEventBuilderTest extends AbstractKieServicesBaseT
         ProcessInstanceLog log = (ProcessInstanceLog) builder.buildEvent(pse);
 
         assertEquals("testUser", log.getIdentity());
+    }
+    
+    /**
+     * Test build the ProcessInstanceLog for data change
+     */
+    @Test
+    public void testBuildProcessDataChangedEventImpl() {
+
+    	ProcessDataChangedEvent pdce = new ProcessDataChangedEventImpl(processInstance, kieRuntime);
+
+        ProcessInstanceLog log = (ProcessInstanceLog) builder.buildEvent(pdce);
+
+        assertEquals(TEST_DATE, log.getSlaDueDate());
+        
+        assertEquals(TEST_DEPLOYMENT_UNIT, log.getExternalId());
+       
     }
 
     /**
