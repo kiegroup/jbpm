@@ -16,11 +16,7 @@
 
 package org.jbpm.test.persistence.processinstance.objects;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.jbpm.persistence.api.integration.EventCollection;
 import org.jbpm.persistence.api.integration.EventEmitter;
@@ -30,7 +26,7 @@ import org.jbpm.persistence.api.integration.base.BaseEventCollection;
 public class TestEventEmitter implements EventEmitter {
 
 
-    private static Set<InstanceView<?>> events = new LinkedHashSet<>();
+    private static List<InstanceView<?>> events = new ArrayList<>();
     
     @Override
     public void deliver(Collection<InstanceView<?>> data) {
@@ -55,6 +51,10 @@ public class TestEventEmitter implements EventEmitter {
     }
     
     public static Set<InstanceView<?>> getEvents() {
+        return new HashSet<>(events);
+    }
+
+    public static List<InstanceView<?>> getListEvents() {
         return events;
     }
     
@@ -65,5 +65,4 @@ public class TestEventEmitter implements EventEmitter {
     @Override
     public void close() {
     }
-
 }

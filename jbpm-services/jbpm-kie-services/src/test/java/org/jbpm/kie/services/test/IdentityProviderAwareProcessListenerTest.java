@@ -21,29 +21,41 @@ import java.io.FileOutputStream;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.drools.compiler.kie.builder.impl.InternalKieModule;
 import org.jbpm.kie.services.impl.KModuleDeploymentUnit;
 import org.jbpm.kie.test.util.AbstractKieServicesBaseTest;
+import org.jbpm.persistence.api.integration.EventManagerProvider;
+import org.jbpm.persistence.api.integration.InstanceView;
+import org.jbpm.persistence.api.integration.model.ProcessInstanceView;
 import org.jbpm.services.api.model.DeployedUnit;
 import org.jbpm.services.api.model.ProcessDefinition;
+import org.jbpm.services.api.model.VariableDesc;
+import org.jbpm.test.persistence.processinstance.objects.TestEventEmitter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.kie.api.KieServices;
 import org.kie.api.builder.ReleaseId;
+import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.query.QueryContext;
 import org.kie.internal.runtime.conf.DeploymentDescriptor;
 import org.kie.internal.runtime.conf.NamedObjectModel;
 import org.kie.internal.runtime.manager.deploy.DeploymentDescriptorImpl;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.kie.scanner.KieMavenRepository.getKieMavenRepository;
+import static org.jbpm.kie.services.impl.IdentityProviderAwareProcessListener.PROCESS_INITIATOR_KEY;
+import static org.jbpm.kie.services.impl.IdentityProviderAwareProcessListener.PROCESS_TERMINATOR_KEY;
 
 public class IdentityProviderAwareProcessListenerTest extends AbstractKieServicesBaseTest {
 
     private KModuleDeploymentUnit deploymentUnit;
+
+    private static final String PROCESS_ID = "org.jbpm.writedocument";
 
     @Before
     public void init() {
@@ -102,7 +114,7 @@ public class IdentityProviderAwareProcessListenerTest extends AbstractKieService
         final String userId = "userId";
         identityProvider.setName(userId);
 
-        long processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument");
+        long processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), PROCESS_ID);
         assertNotNull(processInstanceId);
         try {
             final String initiator = (String) processService.getProcessInstanceVariable(processInstanceId, "initiator");
@@ -110,6 +122,37 @@ public class IdentityProviderAwareProcessListenerTest extends AbstractKieService
         } finally {
             processService.abortProcessInstance(processInstanceId);
         }
+    }
+
+    @Test
+    public void testAbortProcessWithIdentityListener() {
+
+        EventManagerProvider.getInstance().get().setEventEmitter(new TestEventEmitter());
+        assertNotNull(processService);
+
+        final String startUserId = "startUserId";
+        identityProvider.setName(startUserId);
+        long processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), PROCESS_ID);
+
+        final String initiator = (String) processService.getProcessInstanceVariable(processInstanceId, PROCESS_INITIATOR_KEY);
+        assertEquals(startUserId, initiator);
+
+        final String abortUserId = "abortUserId";
+        identityProvider.setName(abortUserId);
+        processService.abortProcessInstance(processInstanceId);
+
+        Collection<VariableDesc> variableHistory = runtimeDataService.getVariableHistory(processInstanceId, PROCESS_TERMINATOR_KEY, null);
+        assertThat(variableHistory).hasSize(1);
+        VariableDesc var = variableHistory.iterator().next();
+        assertThat(var.getVariableId()).isEqualTo(PROCESS_TERMINATOR_KEY);
+        assertThat(var.getNewValue()).isEqualTo(abortUserId);
+
+        List<InstanceView<?>> events = TestEventEmitter.getListEvents();
+        List<ProcessInstanceView> views = events.stream().filter(ProcessInstanceView.class::isInstance).map(ProcessInstanceView.class::cast).collect(Collectors.toList());
+        assertThat(views).hasSize(2);
+        assertThat(views).extracting(ProcessInstanceView::getTerminator).anyMatch(abortUserId::equals);
+        TestEventEmitter.clear();
+
     }
 
 }

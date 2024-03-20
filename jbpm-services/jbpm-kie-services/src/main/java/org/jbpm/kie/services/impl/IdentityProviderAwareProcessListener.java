@@ -18,6 +18,7 @@ package org.jbpm.kie.services.impl;
 
 import org.jbpm.workflow.instance.WorkflowProcessInstance;
 import org.kie.api.event.process.DefaultProcessEventListener;
+import org.kie.api.event.process.ProcessCompletedEvent;
 import org.kie.api.event.process.ProcessStartedEvent;
 import org.kie.api.runtime.KieSession;
 import org.kie.internal.identity.IdentityProvider;
@@ -26,6 +27,9 @@ public class IdentityProviderAwareProcessListener extends DefaultProcessEventLis
 
     private KieSession kieSession;
     private IdentityProvider identityProvider;
+
+    public static final String PROCESS_INITIATOR_KEY = "initiator";
+    public static final String PROCESS_TERMINATOR_KEY = "terminator";
 
     public IdentityProviderAwareProcessListener(final KieSession kieSession) {
         this.kieSession = kieSession;
@@ -47,9 +51,17 @@ public class IdentityProviderAwareProcessListener extends DefaultProcessEventLis
         if (identityProvider != null) {
             final WorkflowProcessInstance wpi = (WorkflowProcessInstance) event.getProcessInstance();
             final String name = identityProvider.getName();
-            wpi.setVariable("initiator", name);
+            wpi.setVariable(PROCESS_INITIATOR_KEY, name);
             wpi.getMetaData().put("OwnerId", name);
         }
     }
 
+    public void beforeProcessCompleted(final ProcessCompletedEvent event) {
+        resolveIdentityProvider();
+        if (identityProvider != null) {
+            final WorkflowProcessInstance wpi = (WorkflowProcessInstance) event.getProcessInstance();
+            final String name = identityProvider.getName();
+            wpi.setVariable(PROCESS_TERMINATOR_KEY, name);
+        }
+    }
 }
