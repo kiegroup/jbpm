@@ -31,6 +31,7 @@ import javax.persistence.EntityManagerFactory;
 
 import org.jbpm.executor.ExecutorServiceFactory;
 import org.jbpm.executor.impl.ExecutorServiceImpl;
+import org.jbpm.executor.impl.jpa.ExecutorJPAAuditService;
 import org.jbpm.executor.test.CountDownAsyncJobListener;
 import org.jbpm.process.audit.JPAAuditLogService;
 import org.jbpm.process.instance.impl.demo.DoNothingWorkItemHandler;
@@ -186,7 +187,7 @@ public class CleanupLogCommandWithProcessTest extends AbstractExecutorBaseTest {
                     public Map<String, WorkItemHandler> getWorkItemHandlers(RuntimeEngine runtime) {
 
                         Map<String, WorkItemHandler> handlers = super.getWorkItemHandlers(runtime);
-                        handlers.put("async", new DoNothingWorkItemHandler());
+                        handlers.put("async", new AsyncWorkItemHandler(executorService, "org.jbpm.executor.ThrowExceptionCommand"));
                         return handlers;
                     }
                     
@@ -204,17 +205,20 @@ public class CleanupLogCommandWithProcessTest extends AbstractExecutorBaseTest {
         assertEquals(0, getNodeInstanceLogSize("ScriptTask"));
         assertEquals(0, getTaskLogSize("ScriptTask"));
         assertEquals(0, getVariableLogSize("ScriptTask"));
+        assertEquals(0, getRequestInfoSize());
+        assertEquals(0, getErrorInfoSize());
         
         Date startDate = new Date();
         
         ProcessInstance processInstance = ksession.startProcess("ScriptTask");
         assertEquals(ProcessInstance.STATE_ACTIVE, processInstance.getState());
-        
+
         assertEquals(1, getProcessLogSize("ScriptTask"));
         assertEquals(5, getNodeInstanceLogSize("ScriptTask"));
         assertEquals(0, getTaskLogSize("ScriptTask"));
         assertEquals(0, getVariableLogSize("ScriptTask"));
-        
+        assertEquals(1, getRequestInfoSize());
+
         scheduleLogCleanup(false, true, false, startDate, "ScriptTask", "yyyy-MM-dd", manager.getIdentifier());
         countDownListener.waitTillCompleted();
         System.out.println("Aborting process instance " + processInstance.getId());
@@ -225,6 +229,8 @@ public class CleanupLogCommandWithProcessTest extends AbstractExecutorBaseTest {
         assertEquals(5, getNodeInstanceLogSize("ScriptTask"));
         assertEquals(0, getTaskLogSize("ScriptTask"));
         assertEquals(0, getVariableLogSize("ScriptTask"));
+        assertEquals(2, getRequestInfoSize());
+        assertEquals(1, getErrorInfoSize());
         
         runtime.getKieSession().abortProcessInstance(processInstance.getId());
 
@@ -235,6 +241,8 @@ public class CleanupLogCommandWithProcessTest extends AbstractExecutorBaseTest {
         assertEquals(6, getNodeInstanceLogSize("ScriptTask"));
         assertEquals(0, getTaskLogSize("ScriptTask"));
         assertEquals(0, getVariableLogSize("ScriptTask"));
+        assertEquals(2, getRequestInfoSize());
+        assertEquals(1, getErrorInfoSize());
         
         // and start another one to keep it active while cleanup happens
         processInstance = ksession.startProcess("ScriptTask");
@@ -244,6 +252,8 @@ public class CleanupLogCommandWithProcessTest extends AbstractExecutorBaseTest {
         assertEquals(11, getNodeInstanceLogSize("ScriptTask"));
         assertEquals(0, getTaskLogSize("ScriptTask"));
         assertEquals(0, getVariableLogSize("ScriptTask"));
+        assertEquals(3, getRequestInfoSize());
+        //assertEquals(2, getErrorInfoSize());
         
         Thread.sleep(1000);
         
@@ -255,6 +265,8 @@ public class CleanupLogCommandWithProcessTest extends AbstractExecutorBaseTest {
         assertEquals(5, getNodeInstanceLogSize("ScriptTask"));
         assertEquals(0, getTaskLogSize("ScriptTask"));
         assertEquals(0, getVariableLogSize("ScriptTask"));
+        assertEquals(2, getRequestInfoSize());
+        assertEquals(1, getErrorInfoSize());
     }
     
     @Test
@@ -327,8 +339,32 @@ public class CleanupLogCommandWithProcessTest extends AbstractExecutorBaseTest {
         executorService = ExecutorServiceFactory.newExecutorService(emf);
         
         executorService.init();
+        executorService.setRetries(0);
         
         return executorService;
+    }
+
+    @Test
+    public void testCleanupLogOfScheduler() throws Exception {
+        CountDownAsyncJobListener countDownListener = configureListener(1);
+        RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get().newDefaultBuilder()
+                .userGroupCallback(userGroupCallback)
+                .entityManagerFactory(emf)
+                .get();
+
+        manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);
+        int NO_OF_JOBS = 3;
+        for(int i=0;i<NO_OF_JOBS;i++) {
+            scheduleLogCleanup(true, true, true, new Date(), null, "yyyy-MM-dd HH:mm:ss", manager.getIdentifier());
+        }
+        assertEquals(NO_OF_JOBS, getRequestInfoSize());
+        Thread.sleep(1000);
+
+        scheduleLogCleanup(true, true, false, new Date(), null, "yyyy-MM-dd HH:mm:ss", manager.getIdentifier());
+        countDownListener.reset(1);
+        countDownListener.waitTillCompleted();
+
+        assertEquals(1, getRequestInfoSize());
     }
     
 	private void scheduleLogCleanup(boolean skipProcessLog,
@@ -383,6 +419,20 @@ public class CleanupLogCommandWithProcessTest extends AbstractExecutorBaseTest {
     private int getTaskVariableLogSize(String processId) {
         return new TaskJPAAuditService(emf).taskVariableQuery()
                 .processId(processId)
+                .build()
+                .getResultList()
+                .size();
+    }
+
+    private int getRequestInfoSize() {
+        return new ExecutorJPAAuditService(emf).requestInfoQueryBuilder()
+                .build()
+                .getResultList()
+                .size();
+    }
+
+    private int getErrorInfoSize() {
+        return new ExecutorJPAAuditService(emf).errorInfoQueryBuilder()
                 .build()
                 .getResultList()
                 .size();

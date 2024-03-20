@@ -112,6 +112,9 @@ public class ExecutorLogCleanTest extends JbpmAsyncJobTestCase {
         List<ErrorInfo> errorList = getExecutorService().getAllErrors(new QueryContext());
         Assertions.assertThat(errorList).hasSize(2);
 
+        // Abort running process instance
+        ksession.abortProcessInstance(pi.getId());
+
         // Delete a record
         int resultCount = auditService.errorInfoLogDeleteBuilder()
                 .date(errorList.get(0).getTime())
@@ -132,9 +135,6 @@ public class ExecutorLogCleanTest extends JbpmAsyncJobTestCase {
 
         // Assert remaining records
         Assertions.assertThat(getExecutorService().getAllErrors(new QueryContext())).hasSize(remaining);
-        
-        // Abort running process instance
-        ksession.abortProcessInstance(pi.getId());
     }
 
 }
