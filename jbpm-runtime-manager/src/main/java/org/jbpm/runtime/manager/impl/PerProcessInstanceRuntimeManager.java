@@ -54,6 +54,7 @@ import org.kie.api.runtime.manager.RuntimeEnvironment;
 import org.kie.api.task.TaskService;
 import org.kie.internal.command.RegistryContext;
 import org.kie.internal.runtime.manager.Disposable;
+import org.kie.internal.runtime.manager.InternalRuntimeEngine;
 import org.kie.internal.runtime.manager.InternalRuntimeManager;
 import org.kie.internal.runtime.manager.Mapper;
 import org.kie.internal.runtime.manager.SessionFactory;
@@ -163,11 +164,10 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
     
     @Override
     public void signalEvent(String type, Object event) {
-        
         // first signal with new context in case there are start event with signal
         KieSession signalSession = null;
         Set<RuntimeEngine> signalledEngines = new HashSet<>();
-        RuntimeEngine runtimeEngine = getRuntimeEngine(ProcessInstanceIdContext.get());
+        RuntimeEngineImpl runtimeEngine = (RuntimeEngineImpl) getRuntimeEngine(ProcessInstanceIdContext.get());
         try {
             // signal execution can rise errors
             signalSession = runtimeEngine.getKieSession();
@@ -182,18 +182,23 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
         }
     
         // next find out all instances waiting for given event type
+        runtimeEngine = null;
         List<String> processInstances = ((InternalMapper) mapper).findContextIdForEvent(type, getIdentifier());
         for (String piId : processInstances) {
-            runtimeEngine = getRuntimeEngine(ProcessInstanceIdContext.get(Long.parseLong(piId)));
             try {
+                runtimeEngine = (RuntimeEngineImpl) getRuntimeEngine(ProcessInstanceIdContext.get(Long.parseLong(piId)));
                 // signal execution can rise errors
                 if (!signalledEngines.contains(runtimeEngine)) {
-                    runtimeEngine.getKieSession().signalEvent(type, event);
                     signalledEngines.add(runtimeEngine);
+                    runtimeEngine.getKieSession().signalEvent(type, event);
                 }
+            } catch (org.drools.persistence.api.SessionNotFoundException  | SessionNotFoundException ex) {
+                logger.debug("Signal event cannot proceed because of session not found exception {} for process instance id {}", ex.getMessage(), piId);
             } finally {
                 // ensure we clean up
-                disposeRuntimeEngine(runtimeEngine);
+                if (runtimeEngine != null) {
+                    disposeRuntimeEngine(runtimeEngine);
+                }
             }
         }
         
