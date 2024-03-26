@@ -788,8 +788,8 @@
     create index IDX_TaskEvent_taskId on TaskEvent (taskId);
     create index IDX_TaskEvent_processInstanceId on TaskEvent (processInstanceId);
 
-    create index IDX_EventTypes_element ON EventTypes(element);
-    create index IDX_EventTypes_compound ON EventTypes(InstanceId, element);
+    create index IDX_EventTypes_Id ON EventTypes(InstanceId);
+    create index IDX_EventTypes_IdElement ON EventTypes(InstanceId, element);
 
     create index IDX_CMI_Context ON ContextMappingInfo(CONTEXT_ID);    
     create index IDX_CMI_KSession ON ContextMappingInfo(KSESSION_ID);    
