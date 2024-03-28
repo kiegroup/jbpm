@@ -16,6 +16,7 @@
 
 package org.jbpm.process.audit.event;
 
+import org.kie.api.event.process.ProcessDataChangedEvent;
 import org.kie.api.event.process.ProcessCompletedEvent;
 import org.kie.api.event.process.ProcessNodeLeftEvent;
 import org.kie.api.event.process.ProcessAsyncNodeScheduledEvent;
@@ -38,4 +39,6 @@ public interface AuditEventBuilder {
     AuditEvent buildEvent(ProcessAsyncNodeScheduledEvent pnle);
     
     AuditEvent buildEvent(ProcessVariableChangedEvent pvce);
+
+    AuditEvent buildEvent(ProcessDataChangedEvent pdce);
 }

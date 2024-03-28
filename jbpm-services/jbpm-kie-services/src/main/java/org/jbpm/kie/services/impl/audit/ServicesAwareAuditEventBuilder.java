@@ -25,6 +25,7 @@ import org.jbpm.process.audit.event.DefaultAuditEventBuilderImpl;
 import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.instance.ProcessInstance;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
+import org.kie.api.event.process.ProcessDataChangedEvent;
 import org.kie.api.event.process.ProcessCompletedEvent;
 import org.kie.api.event.process.ProcessNodeLeftEvent;
 import org.kie.api.event.process.ProcessAsyncNodeScheduledEvent;
@@ -94,6 +95,13 @@ public class ServicesAwareAuditEventBuilder extends DefaultAuditEventBuilderImpl
         VariableInstanceLog variableLog = (VariableInstanceLog) super.buildEvent(pvce);
         variableLog.setExternalId(deploymentUnitId);
         return variableLog;
+    }
+
+    @Override
+    public AuditEvent buildEvent(ProcessDataChangedEvent pdce) {
+        ProcessInstanceLog instanceLog = (ProcessInstanceLog) super.buildEvent(pdce);
+        instanceLog.setExternalId(deploymentUnitId);
+        return instanceLog;
     }
 
     public String getDeploymentUnitId() {
