@@ -35,7 +35,14 @@
     <container.log.file>${container.profile.dir}/profile-log.txt</container.log.file>
 
     <!-- Overridden until jboss-integration-platform-parent is upgraded -->
-    <version.org.jboss.shrinkwrap.resolver>3.1.0</version.org.jboss.shrinkwrap.resolver>
+    <version.org.jboss.shrinkwrap.resolver>3.3.0</version.org.jboss.shrinkwrap.resolver>
+    <version.org.apache.maven>3.9.3</version.org.apache.maven>
+    <version.org.apache.maven.resolver>1.9.13</version.org.apache.maven.resolver>
+    <version.com.google.guava>33.1.0-jre</version.com.google.guava>
+
+    <reuseForks>false</reuseForks>
+    <forkCount>1</forkCount>
+    <useSystemClassLoader>false</useSystemClassLoader>
   </properties>
 
   <dependencyManagement>
