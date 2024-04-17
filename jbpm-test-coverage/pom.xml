@@ -161,6 +161,7 @@
           <artifactId>maven-surefire-plugin</artifactId>
           <configuration>
             <skip>${skipTests}</skip>
+            <argLine>-Xmx4g</argLine>
             <runOrder>alphabetical</runOrder>
           </configuration>
         </plugin>
