@@ -126,8 +126,8 @@ public class JpaProcessPersistenceContext extends JpaPersistenceContext
         try {
             EntityManager em = getEntityManager();
             em.persist(correlationKeyInfo);
-            em.flush();
             if (this.pessimisticLocking) {
+                em.flush();
                 return em.find(CorrelationKeyInfo.class, correlationKeyInfo.getId(), this.lockMode);
             }
             return correlationKeyInfo;
