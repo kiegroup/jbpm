@@ -173,7 +173,9 @@ public class EventHnadlingTest extends AbstractBaseTest {
         
         processInstance = ksession.getProcessInstance(processInstance.getId());
         assertNull(processInstance);
-        
+
+        manager.disposeRuntimeEngine(runtime);
+
         // close manager which will close session maintained by the manager
         manager.close();
     }
