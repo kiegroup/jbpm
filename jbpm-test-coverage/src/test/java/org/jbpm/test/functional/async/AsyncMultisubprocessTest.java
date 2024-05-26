@@ -42,7 +42,7 @@ import org.kie.test.util.db.PoolingDataSourceWrapper;
  */
 public class AsyncMultisubprocessTest extends JbpmTestCase {
 
-    private static CountDownLatch latch = new CountDownLatch(1);
+    private CountDownLatch latch;
 
     private static final String BPMN_AICS = "org/jbpm/test/functional/async/AsyncSubMultiprocess.bpmn2";
     private static final String PROCESS_AICS = "TestSubMult";
@@ -55,6 +55,7 @@ public class AsyncMultisubprocessTest extends JbpmTestCase {
     public void setUp() throws Exception {
         setupDataSource = true;
         super.setUp();
+        latch = new CountDownLatch(1);
 
         executorService = ExecutorServiceFactory.newExecutorService(getEmf());
         executorService.setInterval(1);

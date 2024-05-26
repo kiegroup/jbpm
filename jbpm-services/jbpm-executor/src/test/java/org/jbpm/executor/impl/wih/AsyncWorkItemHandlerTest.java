@@ -498,6 +498,7 @@ public class AsyncWorkItemHandlerTest extends AbstractExecutorBaseTest {
     
     @Test(timeout=10000)
     public void testRunProcessWithAsyncHandlerCallbackErrorRetry() throws Exception {
+        int initialIncrement = IncrementService.get();
         final NodeLeftCountDownProcessEventListener countDownListener = new NodeLeftCountDownProcessEventListener("Task 1", 1);
         RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get().newDefaultBuilder()
                 .userGroupCallback(userGroupCallback)
@@ -527,7 +528,7 @@ public class AsyncWorkItemHandlerTest extends AbstractExecutorBaseTest {
         KieSession ksession = runtime.getKieSession();
         assertNotNull(ksession); 
         
-        assertEquals(0, IncrementService.get());
+        assertEquals(initialIncrement, IncrementService.get());
         
         Map<String, Object> params = new HashMap<String, Object>(); 
         params.put("retryAsync", "1s, 2s, 4s");
@@ -548,7 +549,7 @@ public class AsyncWorkItemHandlerTest extends AbstractExecutorBaseTest {
         processInstance = ksession.getProcessInstance(processInstance.getId());
         assertNull(processInstance);
         
-        assertEquals(1, IncrementService.get());
+        assertEquals(initialIncrement + 1, IncrementService.get());
     }
     
     @Test(timeout=10000)
