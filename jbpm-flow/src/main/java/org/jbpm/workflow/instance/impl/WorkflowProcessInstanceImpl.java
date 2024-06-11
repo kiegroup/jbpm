@@ -694,6 +694,8 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 
 
             try {
+                List<NodeInstance> currentView = getNodeInstances().stream().map(e -> (NodeInstance) e)
+                        .collect(Collectors.toList());
                 this.activatingNodeIds = new ArrayList<>();
                 List<EventListener> listeners = eventListeners.get(type);
                 if (listeners != null) {
@@ -708,7 +710,8 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
                     }
                 }
 
-                signal(this, (node) -> this.getNodeInstance(node), () -> this.getWorkflowProcess().getNodes(),  type, event);
+                signal(currentView, (node) -> this.getNodeInstance(node), () -> this.getWorkflowProcess().getNodes(),
+                        type, event);
 
                 if (((org.jbpm.workflow.core.WorkflowProcess) getWorkflowProcess()).isDynamic()) {
                     for (Node node : getWorkflowProcess().getNodes()) {
@@ -737,8 +740,8 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
         }
     }
 
-    private void signal(NodeInstanceContainer container, Function<Node,NodeInstance> nodeInstanceSupplier, Supplier<Node[]> resolveNodes, String type, Object event) {
-        List<NodeInstance> currentView = container.getNodeInstances().stream().map(e -> (NodeInstance) e).collect(Collectors.toList());
+    private void signal(List<NodeInstance> currentView, Function<Node, NodeInstance> nodeInstanceSupplier,
+            Supplier<Node[]> resolveNodes, String type, Object event) {
         for (Node node : resolveNodes.get()) {
             if (node instanceof EventNodeInterface
                     && ((EventNodeInterface) node).acceptsEvent(type, event, getEventFilterResolver(this, node, currentView))) {
