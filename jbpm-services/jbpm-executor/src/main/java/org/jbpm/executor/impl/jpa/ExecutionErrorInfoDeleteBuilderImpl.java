@@ -20,6 +20,7 @@ import java.util.Date;
 import org.jbpm.process.audit.JPAAuditLogService;
 import org.jbpm.process.audit.query.AbstractAuditDeleteBuilderImpl;
 import org.jbpm.runtime.manager.impl.jpa.ExecutionErrorInfo;
+import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.internal.runtime.manager.audit.query.ExecutionErrorInfoDeleteBuilder;
 
 import static org.kie.internal.query.QueryParameterIdentifiers.ERROR_DATE_LIST;
@@ -51,5 +52,25 @@ public class ExecutionErrorInfoDeleteBuilderImpl extends AbstractAuditDeleteBuil
         rangeEnd = ensureDateNotTimestamp(rangeEnd)[0];
         addRangeParameter(ERROR_DATE_LIST, "date range end", rangeEnd, false);
         return this;
+    }
+
+    @Override
+    protected boolean isSubquerySupported() {
+        return true;
+    }
+
+    @Override
+    protected Subquery applyParameters(Subquery subquery) {
+        return subquery;
+    }
+
+    @Override
+    protected Subquery getSubQuery() {
+        String queryBaseStr = "SELECT spl.processInstanceId FROM ProcessInstanceLog spl where spl.status in (" +
+            ProcessInstance.STATE_PENDING + "," + // 0
+            ProcessInstance.STATE_ACTIVE + "," + // 1
+            ProcessInstance.STATE_SUSPENDED + // 4
+            ")";
+        return new Subquery("l.processInstanceId", queryBaseStr, 1, "not in");
     }
 }
