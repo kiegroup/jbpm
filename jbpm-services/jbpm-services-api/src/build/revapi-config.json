@@ -35,6 +35,15 @@
                    "methodName": "getProcessInstanceHistoryFinished",
                    "elementKind": "method",
                    "justification": "[RHPAM-4653] IntermediateThrowingSignal node from subprocess and the subprocess is not getting marked as executed."
+                 },
+                 {
+                   "code": "java.method.addedToInterface",
+                   "new": "method java.util.Collection<org.jbpm.services.api.model.NodeInstanceDesc> org.jbpm.services.api.RuntimeDataService::getProcessInstanceNodeInstanceHistory(long, long, org.kie.api.runtime.query.QueryContext)",
+                   "package": "org.jbpm.services.api",
+                   "classSimpleName": "RuntimeDataService",
+                   "methodName": "getProcessInstanceNodeInstanceHistory",
+                   "elementKind": "method",
+                   "justification": "[RHPAM-4822] Resolve ClassCastException when bpmn design didn't change"
                  }
             ]
         }
