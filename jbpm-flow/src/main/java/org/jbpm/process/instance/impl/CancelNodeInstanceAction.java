@@ -17,6 +17,7 @@ package org.jbpm.process.instance.impl;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.HashSet;
 
 import org.jbpm.workflow.instance.node.CompositeNodeInstance;
 import org.kie.api.runtime.process.NodeInstance;
@@ -39,36 +40,32 @@ public class CancelNodeInstanceAction implements Action, Serializable {
 	
 	public void execute(ProcessContext context) throws Exception {
 
-		NodeInstanceContainer container = context.getNodeInstance().getNodeInstanceContainer();
-		NodeInstance nodeInstance = findNodeByUniqueId(container.getNodeInstances(), attachedToNodeId);
+        NodeInstanceContainer container = context.getNodeInstance().getNodeInstanceContainer();
+        Collection<NodeInstance> nodeInstances = findNodeByUniqueId(container.getNodeInstances(), attachedToNodeId);
 
-		if (nodeInstance == null) {
+        if (nodeInstances.isEmpty()) {
 		      WorkflowProcessInstance pi = context.getNodeInstance().getProcessInstance();
-		      nodeInstance = findNodeByUniqueId(pi.getNodeInstances(), attachedToNodeId);
+            nodeInstances = findNodeByUniqueId(pi.getNodeInstances(), attachedToNodeId);
 		}
 
-		if (nodeInstance != null) {
-            ((org.jbpm.workflow.instance.NodeInstance) nodeInstance).cancel(SKIPPED);
-		}
+        nodeInstances.forEach(nodeInstance -> ((org.jbpm.workflow.instance.NodeInstance) nodeInstance).cancel(SKIPPED));
 	}
 	
-	private NodeInstance findNodeByUniqueId(Collection<NodeInstance> nodeInstances, String uniqueId) {
+    private Collection<NodeInstance> findNodeByUniqueId(Collection<NodeInstance> nodeInstances, String uniqueId) {
 
+        Collection<NodeInstance> result = new HashSet<>();
         if (nodeInstances != null && !nodeInstances.isEmpty()) {
             for (NodeInstance nInstance : nodeInstances) {
                 String nodeUniqueId = (String) nInstance.getNode().getMetaData().get("UniqueId");
                 if (uniqueId.equals(nodeUniqueId)) {
-                    return nInstance;
+                    result.add(nInstance);
                 }
                 if (nInstance instanceof CompositeNodeInstance) {
-                    NodeInstance nodeInstance = findNodeByUniqueId(((CompositeNodeInstance) nInstance).getNodeInstances(), uniqueId);
-                    if (nodeInstance != null) {
-                        return nodeInstance;
-                    }
+                    result.addAll(findNodeByUniqueId(((CompositeNodeInstance) nInstance).getNodeInstances(), uniqueId));
                 }
             }
         }
-        return null;
+        return result;
     }
 
 }
