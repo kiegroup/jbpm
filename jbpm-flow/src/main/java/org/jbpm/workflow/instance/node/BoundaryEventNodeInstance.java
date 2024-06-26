@@ -17,6 +17,7 @@ package org.jbpm.workflow.instance.node;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -63,35 +64,44 @@ public class BoundaryEventNodeInstance extends EventNodeInstance {
     public void triggerCompleted(String type, Object event) {
         Collection<NodeInstance> nodeInstances = ((NodeInstanceContainer) getNodeInstanceContainer()).getNodeInstances();
         String attachedTo = getEventNode().getAttachedToNodeId();
-        NodeInstance nodeInstance = getAttachedToNodeActive(nodeInstances, attachedTo, type, event);
-        
+        Collection<NodeInstance> attachedNodeInstances = getAttachedToNodeActive(nodeInstances, attachedTo, type,
+                event);
         List<DataAssociation> dataAssociation = getEventNode().getOutAssociations();
-        if(!dataAssociation.isEmpty()) {
-            
-            Map<String, Object> outputData = new HashMap<>();
-            // this is for backward compatibility
-            outputData.put(dataAssociation.get(0).getSources().get(0), event);
-            // added normalized data
-            outputData.put("nodeInstance", nodeInstance);
-            outputData.put("signal", type);
-            outputData.put("event", event);
-            if(nodeInstance instanceof WorkItemNodeInstance) {
-                outputData.put("workItem", ((WorkItemNodeInstance) nodeInstance).getWorkItem());
+        if (!dataAssociation.isEmpty()) {
+            if (attachedNodeInstances.isEmpty()) {
+                mapOutputData(dataAssociation, null, type, event);
+            } else {
+                for (NodeInstance nodeInstance : attachedNodeInstances) {
+                    mapOutputData(dataAssociation, nodeInstance, type, event);
+                }
             }
-
-            mapOutputSetVariables(this, getEventNode().getOutAssociations(), outputData);
         }
         triggerEvent(ExtendedNodeImpl.EVENT_NODE_BOUNDARY);
         super.triggerCompleted();
     }
 
     private boolean isAttachedToNodeActive(Collection<NodeInstance> nodeInstances, String attachedTo, String type, Object event) {
-        return getAttachedToNodeActive(nodeInstances, attachedTo, type, event) != null;
+        return !getAttachedToNodeActive(nodeInstances, attachedTo, type, event).isEmpty();
     }
     
+    private void mapOutputData(List<DataAssociation> dataAssociation, NodeInstance nodeInstance, String type,
+            Object event) {
+        Map<String, Object> outputData = new HashMap<>();
+        // this is for backward compatibility
+        outputData.put(dataAssociation.get(0).getSources().get(0), event);
+        // added normalized data
+        outputData.put("nodeInstance", nodeInstance);
+        outputData.put("signal", type);
+        outputData.put("event", event);
+        if (nodeInstance instanceof WorkItemNodeInstance) {
+            outputData.put("workItem", ((WorkItemNodeInstance) nodeInstance).getWorkItem());
+        }
+        mapOutputSetVariables(this, getEventNode().getOutAssociations(), outputData);
+    }
     
-    
-    private NodeInstance getAttachedToNodeActive(Collection<NodeInstance> nodeInstances, String attachedTo, String type, Object event) {
+    private Collection<NodeInstance> getAttachedToNodeActive(Collection<NodeInstance> nodeInstances, String attachedTo,
+            String type, Object event) {
+        Collection<NodeInstance> result = new HashSet<>();
         if (nodeInstances != null && !nodeInstances.isEmpty()) {
             for (NodeInstance nInstance : nodeInstances) {
                 String nodeUniqueId = (String) nInstance.getNode().getMetaData().get("UniqueId");
@@ -100,21 +110,19 @@ public class BoundaryEventNodeInstance extends EventNodeInstance {
                     // in case this is timer event make sure it corresponds to the proper node instance
                     if (type.startsWith("Timer-")) {
                         if (Long.valueOf(nInstance.getId()).equals(event)) {
-                            return nInstance;
+                            result.add(nInstance);
                         }
                     } else {
-                        return nInstance;
+                        result.add(nInstance);
                     }
                 }
-                if (nInstance instanceof CompositeNodeInstance) {
-                    NodeInstance nodeInstance = getAttachedToNodeActive(((CompositeNodeInstance) nInstance).getNodeInstances(), attachedTo, type, event);
-                    if (nodeInstance != null) {
-                        return nodeInstance;
-                    }
+                else if (nInstance instanceof CompositeNodeInstance) {
+                    result.addAll(getAttachedToNodeActive(((CompositeNodeInstance) nInstance).getNodeInstances(),
+                            attachedTo, type, event));
                 }
             }
         }
-        return null;
+        return result;
     }
     
     private boolean isAttachedToNodeCompleted(String attachedTo) {
