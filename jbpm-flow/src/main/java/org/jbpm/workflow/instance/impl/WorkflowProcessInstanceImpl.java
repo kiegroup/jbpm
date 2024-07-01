@@ -826,16 +826,18 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
             return (varExpression) -> {
                 try {
                     // for each can have multiple outcomes 1 per item of the list so it should be computed like that
-                    ForEachNodeInstance forEachNodeInstance = (ForEachNodeInstance) getNodeInstanceByNodeId(node.getId(), true);
-                    if(forEachNodeInstance == null) {
-                        return new Object[0];
-                    }
-                    List<CompositeContextNodeInstance> data = forEachNodeInstance.getNodeInstances().stream().filter(e -> e instanceof CompositeContextNodeInstance).map(e -> (CompositeContextNodeInstance) e).collect(Collectors.toList());
                     List<Object> outcome = new ArrayList<>();
-                    for(CompositeContextNodeInstance nodeInstance : data) {
-                        Object resolvedValue = resolveExpressionVariable(varExpression, new NodeInstanceResolverFactory(nodeInstance)).orElse(null);
-                        if(resolvedValue != null) {
-                            outcome.add(resolvedValue);
+                    for (NodeInstance item : getNodeInstances(true)) {
+                        if (item.getNodeId() == node.getId() && item instanceof ForEachNodeInstance) {
+                            for (org.kie.api.runtime.process.NodeInstance nodeInstance : ((ForEachNodeInstance) item)
+                                    .getNodeInstances()) {
+                                if (nodeInstance instanceof CompositeContextNodeInstance) {
+                                    resolveExpressionVariable(varExpression,
+                                            new NodeInstanceResolverFactory(
+                                                    (CompositeContextNodeInstance) nodeInstance))
+                                            .ifPresent(outcome::add);
+                                }
+                            }
                         }
                     }
                     return outcome.toArray();
