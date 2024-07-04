@@ -722,6 +722,74 @@
         foreign key (TaskData_Comments_Id) 
         references Task;
 
+    create sequence ATTACHMENT_ID_SEQ;
+
+    create sequence AUDIT_ID_SEQ;
+
+    create sequence BAM_TASK_ID_SEQ;
+
+    create sequence BOOLEANEXPR_ID_SEQ;
+
+    create sequence CASE_ID_INFO_ID_SEQ;
+
+    create sequence CASE_FILE_DATA_LOG_ID_SEQ;
+
+    create sequence CASE_ROLE_ASSIGN_LOG_ID_SEQ;
+
+    create sequence COMMENT_ID_SEQ;
+
+    create sequence CONTENT_ID_SEQ;
+
+    create sequence CONTEXT_MAPPING_INFO_ID_SEQ;
+
+    create sequence TIMER_MAPPING_INFO_ID_SEQ;
+
+    create sequence CORRELATION_KEY_ID_SEQ;
+
+    create sequence CORRELATION_PROP_ID_SEQ;
+
+    create sequence DEADLINE_ID_SEQ;
+
+    create sequence DEPLOY_STORE_ID_SEQ;
+
+    create sequence EMAILNOTIFHEAD_ID_SEQ;
+
+    create sequence ERROR_INFO_ID_SEQ;
+
+    create sequence ESCALATION_ID_SEQ;
+
+    create sequence EXEC_ERROR_INFO_ID_SEQ;
+
+    create sequence I18NTEXT_ID_SEQ;
+
+    create sequence NODE_INST_LOG_ID_SEQ;
+
+    create sequence NOTIFICATION_ID_SEQ;
+
+    create sequence PROCESS_INSTANCE_INFO_ID_SEQ;
+
+    create sequence PROC_INST_LOG_ID_SEQ;
+
+    create sequence QUERY_DEF_ID_SEQ;
+
+    create sequence REASSIGNMENT_ID_SEQ;
+
+    create sequence REQUEST_INFO_ID_SEQ;
+
+    create sequence SESSIONINFO_ID_SEQ;
+
+    create sequence TASK_DEF_ID_SEQ;
+
+    create sequence TASK_EVENT_ID_SEQ;
+
+    create sequence TASK_ID_SEQ;
+
+    create sequence TASK_VAR_ID_SEQ;
+
+    create sequence VAR_INST_LOG_ID_SEQ;
+
+    create sequence WORKITEMINFO_ID_SEQ;
+
 
     create index IDX_Attachment_Id ON Attachment(attachedBy_id);
     create index IDX_Attachment_DataId ON Attachment(TaskData_Attachments_Id);
