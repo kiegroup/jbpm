@@ -85,7 +85,7 @@ public class ProcessInstanceInfo implements PersistentProcessInstance {
     @ElementCollection
     @CollectionTable(name="EventTypes", joinColumns=@JoinColumn(name="InstanceId"),
        indexes = {@Index(name = "IDX_EventTypes_Id",  columnList="InstanceId"),
-                  @Index(name = "IDX_EventTypes_element", columnList="element")})
+                  @Index(name = "IDX_EventTypes_IdElement", columnList="InstanceId, element")})
 
     @Column(name="element")
     private Set<String>                       eventTypes         = new HashSet<String>();
