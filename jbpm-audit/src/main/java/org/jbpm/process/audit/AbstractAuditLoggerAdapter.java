@@ -20,6 +20,7 @@ import org.drools.core.WorkingMemory;
 import org.jbpm.process.instance.impl.ProcessInstanceImpl;
 import org.jbpm.workflow.instance.impl.NodeInstanceImpl;
 import org.kie.api.event.process.ProcessCompletedEvent;
+import org.kie.api.event.process.ProcessDataChangedEvent;
 import org.kie.api.event.process.ProcessNodeLeftEvent;
 import org.kie.api.event.process.ProcessAsyncNodeScheduledEvent;
 import org.kie.api.event.process.ProcessNodeTriggeredEvent;
@@ -145,4 +146,10 @@ public abstract class AbstractAuditLoggerAdapter extends AbstractAuditLogger {
 
     protected abstract void slaProcessInstanceViolated(SLAViolatedEvent event);
 
+    @Override
+    public void onProcessDataChangedEvent(ProcessDataChangedEvent event){
+        processDataChanged(event);
+    }
+
+    protected abstract void processDataChanged(ProcessDataChangedEvent event);
 }
