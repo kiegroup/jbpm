@@ -878,6 +878,7 @@
     create index IDX_PInstLog_pId on ProcessInstanceLog(processId);
     create index IDX_PInstLog_pInsteDescr on ProcessInstanceLog(processInstanceDescription);
     create index IDX_PInstLog_pInstId on ProcessInstanceLog(processInstanceId);
+    create index IDX_PInstLog_pInstId_status ON ProcessInstanceLog (processInstanceId, status)  WHERE status IN (0,1,4);
     create index IDX_PInstLog_pName on ProcessInstanceLog(processName);
     create index IDX_PInstLog_pVersion on ProcessInstanceLog(processVersion);
     create index IDX_PInstLog_start_date on ProcessInstanceLog(start_date);

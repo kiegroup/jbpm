@@ -983,6 +983,8 @@
     go
     create index IDX_PInstLog_pInstId on ProcessInstanceLog(processInstanceId)
     go
+    create index IDX_PInstLog_pInstId_status ON ProcessInstanceLog (processInstanceId, status)  WHERE status IN (0,1,4)
+    go
     create index IDX_PInstLog_pName on ProcessInstanceLog(processName)
     go
     create index IDX_PInstLog_pVersion on ProcessInstanceLog(processVersion)
