@@ -43,7 +43,7 @@ import org.kie.api.task.UserGroupCallback;
  * <li>ldap.user.id.dn (optional, is user id a DN, instructs the callback to query for user DN before searching for roles, default false)</li>
  * <li>ldap.search.scope (optional, if not given 'ONELEVEL_SCOPE' will be used) possible values are: OBJECT_SCOPE, ONELEVEL_SCOPE, SUBTREE_SCOPE</li>
  * <li>ldap.name.escape (optional, instructs to escape - illegal character in user/group name before the query - currently escapes only comma) by default is set to true</li>
- * <li>ldap.entity.ignore.case (optional, perform case insensitive comparison for entity) by default is set to false</li>
+ * <li>ldap.entity.ignore.case (optional, perform case insensitive comparison for exitsEntity) by default is set to false to ensure backward compatibility</li>
  * <li>java.naming.factory.initial</li>
  * <li>java.naming.security.authentication</li>
  * <li>java.naming.security.protocol</li>
@@ -111,10 +111,8 @@ public class LDAPUserGroupCallbackImpl extends AbstractLDAPUserGroupInfo impleme
     private boolean existsEntity(String entityId, String context, String filter, String attributeId) {
         entityId = escapeIllegalChars(entityId);
         String ldapEntityId = ldapSearcher.search(context, filter, entityId).getSingleAttributeResult(attributeId);
-        if(isIgnoreCase()){
-            return entityId.equalsIgnoreCase(ldapEntityId);
-        }
-        return entityId.equals(ldapEntityId);
+        return isIgnoreCase() ? entityId.equalsIgnoreCase(ldapEntityId) : entityId.equals(ldapEntityId) ;
+
     }
 
     @Override
