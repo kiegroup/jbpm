@@ -32,6 +32,7 @@ import org.kie.api.event.process.ProcessAsyncNodeScheduledEvent;
 import org.kie.api.event.process.ProcessNodeTriggeredEvent;
 import org.kie.api.event.process.ProcessStartedEvent;
 import org.kie.api.event.process.ProcessVariableChangedEvent;
+import org.kie.api.event.process.ProcessDataChangedEvent;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.NodeInstance;
 import org.kie.api.runtime.process.ProcessInstance;
@@ -254,6 +255,28 @@ public class DefaultAuditEventBuilderImpl implements AuditEventBuilder {
                 processInstanceId, processId, variableInstanceId, variableId, newValue, oldValue);
         log.setExternalId(""+((KieSession) pvce.getKieRuntime()).getIdentifier());
         return log;
+    }
+
+    @Override
+    public AuditEvent buildEvent(ProcessDataChangedEvent pdce) {
+        ProcessInstanceImpl pi = (ProcessInstanceImpl) pdce.getProcessInstance();
+        ProcessInstanceLog logEvent =  new ProcessInstanceLog(pi.getId(), pi.getProcessId());
+        logEvent.setOutcome(pi.getOutcome());
+        logEvent.setStatus(pi.getState());
+        logEvent.setProcessInstanceDescription( pi.getDescription() );
+        logEvent.setSlaCompliance(pi.getSlaCompliance());
+        logEvent.setSlaDueDate(pi.getSlaDueDate());
+        logEvent.setProcessName(pi.getProcess().getName());
+        logEvent.setProcessVersion(pi.getProcess().getVersion());
+        logEvent.setProcessType(((WorkflowProcess)pi.getProcess()).getProcessType());
+        // store correlation key in its external form
+        CorrelationKey correlationKey = (CorrelationKey) pi.getMetaData().get("CorrelationKey");
+        if (correlationKey != null) {
+            logEvent.setCorrelationKey(correlationKey.toExternalForm());
+        }
+        long parentProcessInstanceId = (Long) pi.getMetaData().getOrDefault("ParentProcessInstanceId", -1L);
+        logEvent.setParentProcessInstanceId(parentProcessInstanceId);
+        return logEvent;
     }
 
     protected String getNodeContainerId(NodeContainer nodeContainer) {

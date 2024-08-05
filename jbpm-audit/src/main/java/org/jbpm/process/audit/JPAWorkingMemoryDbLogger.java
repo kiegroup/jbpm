@@ -44,6 +44,7 @@ import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.core.impl.ProcessImpl;
 import org.kie.api.event.process.ProcessAsyncNodeScheduledEvent;
 import org.kie.api.event.process.ProcessCompletedEvent;
+import org.kie.api.event.process.ProcessDataChangedEvent;
 import org.kie.api.event.process.ProcessEventListener;
 import org.kie.api.event.process.ProcessNodeLeftEvent;
 import org.kie.api.event.process.ProcessNodeTriggeredEvent;
@@ -181,6 +182,27 @@ public class JPAWorkingMemoryDbLogger extends AbstractAuditLoggerAdapter impleme
         persist(log, event);
     }
 
+    @Override
+    protected void processDataChanged(ProcessDataChangedEvent event) {
+        EntityManager em = getEntityManager(event);
+        Object tx = joinTransaction(em);
+        long processInstanceId = event.getProcessInstance().getId();
+        ProcessInstanceLog log = (ProcessInstanceLog) getProcessInstanceMetadata(event.getProcessInstance(), METADATA_PROCESSINTANCE_LOG);
+        if (log == null) {
+            List<ProcessInstanceLog> result = em.createQuery("from ProcessInstanceLog as log where log.processInstanceId = :piId and log.end is null")
+                    .setParameter("piId", processInstanceId).getResultList();
+            if (result != null && !result.isEmpty()) {
+                log = result.get(result.size() - 1);
+            }
+        }
+        if (log != null) {
+            log.setSlaCompliance(((ProcessInstance) event.getProcessInstance()).getSlaCompliance());
+            log.setSlaDueDate(((ProcessInstance) event.getProcessInstance()).getSlaDueDate());
+            setProcessInstanceMetadata(event.getProcessInstance(), METADATA_PROCESSINTANCE_LOG, log);
+            em.merge(log);
+        }
+        leaveTransaction(em, tx);
+    }
 
     @Override
     protected void processCompleted(ProcessCompletedEvent event) {
@@ -227,6 +249,7 @@ public class JPAWorkingMemoryDbLogger extends AbstractAuditLoggerAdapter impleme
         }
         if (log != null) {
             log.setSlaCompliance(((ProcessInstance) event.getProcessInstance()).getSlaCompliance());
+            log.setSlaDueDate(((ProcessInstance) event.getProcessInstance()).getSlaDueDate());
             setProcessInstanceMetadata(event.getProcessInstance(), METADATA_PROCESSINTANCE_LOG, log);
             em.merge(log);
         }
@@ -252,6 +275,7 @@ public class JPAWorkingMemoryDbLogger extends AbstractAuditLoggerAdapter impleme
         }
         if (log != null) {
             log.setSlaCompliance(((NodeInstance) event.getNodeInstance()).getSlaCompliance());
+            log.setSlaDueDate(((ProcessInstance) event.getProcessInstance()).getSlaDueDate());
             setNodeInstanceMetadata(event.getNodeInstance(), METADATA_NODEINSTANCE_LOG, log);
             ((NodeInstanceImpl) event.getNodeInstance()).getMetaData().put(METADATA_NODEINSTANCE_LOG, log);
             em.merge(log);
