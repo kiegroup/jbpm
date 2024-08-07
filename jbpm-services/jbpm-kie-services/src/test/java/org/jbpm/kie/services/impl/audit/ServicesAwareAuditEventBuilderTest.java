@@ -22,7 +22,6 @@ import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.Collection;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
@@ -58,6 +57,10 @@ import org.slf4j.LoggerFactory;
 public class ServicesAwareAuditEventBuilderTest extends AbstractKieServicesBaseTest {
 
     private static final Logger logger = LoggerFactory.getLogger(ProcessServiceImplTest.class);
+    
+    private static final Date TEST_DATE = Date.from(LocalDate.of(2024, 3, 14).atStartOfDay(ZoneId.systemDefault()).toInstant());
+    
+    private static final String TEST_DEPLOYMENT_UNIT = "unit1";
 
     private static final Date TEST_DATE = Date.from(LocalDate.of(2024, 3, 14).atStartOfDay(ZoneId.systemDefault()).toInstant());
 
@@ -100,7 +103,7 @@ public class ServicesAwareAuditEventBuilderTest extends AbstractKieServicesBaseT
         when(processInstance.getId()).thenReturn(1L);
         when(processInstance.getDescription()).thenReturn("Some test Process");
         when(processInstance.getSlaCompliance()).thenReturn(0);
-
+        
         when(processInstance.getSlaDueDate()).thenReturn(TEST_DATE);
         when(processInstance.getMetaData()).thenReturn(processMetadata);
 
@@ -126,6 +129,22 @@ public class ServicesAwareAuditEventBuilderTest extends AbstractKieServicesBaseT
         ProcessInstanceLog log = (ProcessInstanceLog) builder.buildEvent(pse);
 
         assertEquals("testUser", log.getIdentity());
+    }
+    
+    /**
+     * Test build the ProcessInstanceLog for data change
+     */
+    @Test
+    public void testBuildProcessDataChangedEventImpl() {
+
+    	ProcessDataChangedEvent pdce = new ProcessDataChangedEventImpl(processInstance, kieRuntime);
+
+        ProcessInstanceLog log = (ProcessInstanceLog) builder.buildEvent(pdce);
+
+        assertEquals(TEST_DATE, log.getSlaDueDate());
+        
+        assertEquals(TEST_DEPLOYMENT_UNIT, log.getExternalId());
+       
     }
 
     /**
