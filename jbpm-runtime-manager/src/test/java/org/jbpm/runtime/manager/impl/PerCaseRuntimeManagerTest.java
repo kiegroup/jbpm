@@ -364,6 +364,7 @@ public class PerCaseRuntimeManagerTest extends AbstractBaseTest {
         assertEquals(ksession1Id, ksessionUsed.iterator().next().longValue());
         
         
+        manager.disposeRuntimeEngine(runtime);
         manager.close();
     }
     
