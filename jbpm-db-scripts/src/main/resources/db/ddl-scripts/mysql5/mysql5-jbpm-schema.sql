@@ -102,7 +102,7 @@
     );
 
     create table TimerMappingInfo (
-    	id bigint generated not null auto_increment, 
+    	id bigint not null auto_increment,
     	externalTimerId varchar(255), 
     	kieSessionId bigint not null, 
     	processInstanceId bigint, 
