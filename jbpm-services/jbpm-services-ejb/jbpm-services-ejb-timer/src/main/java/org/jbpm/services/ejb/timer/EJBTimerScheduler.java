@@ -114,6 +114,7 @@ public class EJBTimerScheduler {
         try {
             executeTimerJobInstance(timerJobInstance);
         } catch (Exception e) {
+        	logger.error("Error executing timer handle {}", timerJobInstance.getJobHandle(), e);
             recoverTimerJobInstance(timerJob, timer, e);
         }
     }
@@ -139,7 +140,7 @@ public class EJBTimerScheduler {
             // because of the transaction, so we need to do this here.
             tx = timerJobInstance -> {
                 logger.warn("Execution of time failed Interval Trigger failed. Skipping {}", timerJobInstance);
-                if (removeJob(timerJobInstance.getJobHandle(), null)) {
+                if (removeJob(timerJobInstance.getJobHandle(), timer, true)) {
                     internalSchedule(timerJobInstance);
                 } else {
                     logger.debug("Interval trigger {} was removed before rescheduling", timerJobInstance);
@@ -246,7 +247,11 @@ public class EJBTimerScheduler {
         return info;
     }
 
-	public boolean removeJob(JobHandle jobHandle, Timer ejbTimer) {
+    public boolean removeJob(JobHandle jobHandle, Timer ejbTimer) {
+    	return removeJob(jobHandle, ejbTimer, false);
+    }
+    
+	public boolean removeJob(JobHandle jobHandle, Timer ejbTimer, boolean searchIfFailed) {
 		EjbGlobalJobHandle ejbHandle = (EjbGlobalJobHandle) jobHandle;
         if (useLocalCache) {
             boolean removedFromCache = localCache.remove(ejbHandle.getUuid()) != null;
@@ -257,9 +262,11 @@ public class EJBTimerScheduler {
             try {
                 ejbTimer.cancel();
                 return true;
-            } catch (Throwable e) {
-                logger.debug("Timer cancel error due to {}", e.getMessage());
-                return false;
+            } catch (Exception e) {
+                logger.warn("Timer cancel error for handle {}", ejbHandle, e);
+                if (!searchIfFailed) {
+                	return false;
+                }
             }
         }
 
@@ -271,7 +278,7 @@ public class EJBTimerScheduler {
                 try {
                     ((TimerHandle) ejbTimerHandle).getTimer().cancel();
                 } catch (Throwable e) {
-                    logger.debug("Timer cancel error due to {}", e.getMessage());
+                    logger.warn("Timer cancel error for handle {}", ejbTimerHandle,  e);
                     return false;
                 }
                 return true;
@@ -288,12 +295,12 @@ public class EJBTimerScheduler {
 
     				EjbGlobalJobHandle handle = (EjbGlobalJobHandle) job.getTimerJobInstance().getJobHandle();
     				if (handle.getUuid().equals(ejbHandle.getUuid())) {
-    					logger.debug("Job handle {} does match timer and is going to be canceled", jobHandle);
+    					logger.info("Job handle {} does match timer and is going to be canceled", jobHandle);
 
     					try {
     					    timer.cancel();
     					} catch (Throwable e) {
-    					    logger.debug("Timer cancel error due to {}", e.getMessage());
+    					    logger.warn("Timer cancel error for handle {}", handle, e);
     					    return false;
     					}
     					return true;
@@ -303,7 +310,7 @@ public class EJBTimerScheduler {
 			    logger.debug("Timer {} has already expired or was canceled ", timer);
 			}
 		}
-		logger.debug("Job handle {} does not match any timer on {} scheduler service", jobHandle, this);
+		logger.info("Job handle {} does not match any timer on {} scheduler service", jobHandle, this);
 		return false;
 	}
 
