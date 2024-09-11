@@ -282,9 +282,16 @@ public class EJBTimerScheduler {
                     return false;
                 }
                 return true;
+            } else {
+                logger.warn("No TimerHandle found for {}: {}", ejbHandle, ejbTimerHandle);
             }
         } else {
             logger.warn("No timerJobInstance available for {}", ejbHandle);
+        }
+
+        if (!searchIfFailed) {
+            logger.warn("Timer not found for {} and {}, skipping list search", ejbHandle, ejbTimer);
+            return false;
         }
 
 		for (Timer timer : timerService.getTimers()) {
