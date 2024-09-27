@@ -140,7 +140,7 @@ public class EJBTimerScheduler {
             // because of the transaction, so we need to do this here.
             tx = timerJobInstance -> {
                 logger.warn("Execution of time failed Interval Trigger failed. Skipping {}", timerJobInstance);
-                if (removeJob(timerJobInstance.getJobHandle(), timer, true)) {
+                if (removeJob(timerJobInstance.getJobHandle(), timer)) {
                     internalSchedule(timerJobInstance);
                 } else {
                     logger.debug("Interval trigger {} was removed before rescheduling", timerJobInstance);
@@ -247,11 +247,12 @@ public class EJBTimerScheduler {
         return info;
     }
 
-    public boolean removeJob(JobHandle jobHandle, Timer ejbTimer) {
-    	return removeJob(jobHandle, ejbTimer, false);
+    private boolean performLinearSearch() {
+        return Boolean.getBoolean("org.jbpm.ejb.timer.linear.search");
     }
+
     
-	public boolean removeJob(JobHandle jobHandle, Timer ejbTimer, boolean searchIfFailed) {
+    public boolean removeJob(JobHandle jobHandle, Timer ejbTimer) {
 		EjbGlobalJobHandle ejbHandle = (EjbGlobalJobHandle) jobHandle;
         if (useLocalCache) {
             boolean removedFromCache = localCache.remove(ejbHandle.getUuid()) != null;
@@ -263,10 +264,8 @@ public class EJBTimerScheduler {
                 ejbTimer.cancel();
                 return true;
             } catch (Exception e) {
-                logger.warn("Timer cancel error for handle {}", ejbHandle, e);
-                if (!searchIfFailed) {
-                	return false;
-                }
+                logger.warn("Timer cancel error for handle {}", ejbHandle.getUuid(), e);
+                return false;
             }
         }
 
@@ -289,36 +288,36 @@ public class EJBTimerScheduler {
             logger.warn("No timerJobInstance available for {}", ejbHandle);
         }
 
-        if (!searchIfFailed) {
-            logger.warn("Timer not found for {} and {}, skipping list search", ejbHandle, ejbTimer);
+        if (performLinearSearch()) {
+            for (Timer timer : timerService.getTimers()) {
+                try {
+                    Serializable info = timer.getInfo();
+                    if (info instanceof EjbTimerJob) {
+                        EjbTimerJob job = (EjbTimerJob) info;
+
+                        EjbGlobalJobHandle handle = (EjbGlobalJobHandle) job.getTimerJobInstance().getJobHandle();
+                        if (handle.getUuid().equals(ejbHandle.getUuid())) {
+                            logger.info("Job handle {} does match timer and is going to be canceled", jobHandle);
+
+                            try {
+                                timer.cancel();
+                            } catch (Throwable e) {
+                                logger.warn("Timer cancel error for handle {}", handle, e);
+                                return false;
+                            }
+                            return true;
+                        }
+                    }
+                } catch (NoSuchObjectLocalException e) {
+                    logger.debug("Timer {} has already expired or was canceled ", timer);
+                }
+            }
+            logger.info("Job handle {} does not match any timer on {} scheduler service", jobHandle, this);
+            return false;
+        } else {
+            logger.warn("Skipping linear search to delete uuid {}", ejbHandle.getUuid());
             return false;
         }
-
-		for (Timer timer : timerService.getTimers()) {
-			try {
-    		    Serializable info = timer.getInfo();
-    			if (info instanceof EjbTimerJob) {
-    				EjbTimerJob job = (EjbTimerJob) info;
-
-    				EjbGlobalJobHandle handle = (EjbGlobalJobHandle) job.getTimerJobInstance().getJobHandle();
-    				if (handle.getUuid().equals(ejbHandle.getUuid())) {
-    					logger.info("Job handle {} does match timer and is going to be canceled", jobHandle);
-
-    					try {
-    					    timer.cancel();
-    					} catch (Throwable e) {
-    					    logger.warn("Timer cancel error for handle {}", handle, e);
-    					    return false;
-    					}
-    					return true;
-    				}
-    			}
-			} catch (NoSuchObjectLocalException e) {
-			    logger.debug("Timer {} has already expired or was canceled ", timer);
-			}
-		}
-		logger.info("Job handle {} does not match any timer on {} scheduler service", jobHandle, this);
-		return false;
 	}
 
 
@@ -330,33 +329,34 @@ public class EJBTimerScheduler {
     			return localCache.get(jobName);
     		}
     	}
-	    TimerJobInstance found = null;
+        TimerJobInstance found = null;
+        if (performLinearSearch()) {
+            for (Timer timer : timerService.getTimers()) {
+                try {
+                    Serializable info = timer.getInfo();
+                    if (info instanceof EjbTimerJob) {
+                        EjbTimerJob job = (EjbTimerJob) info;
 
-		for (Timer timer : timerService.getTimers()) {
-		    try {
-    			Serializable info = timer.getInfo();
-    			if (info instanceof EjbTimerJob) {
-    				EjbTimerJob job = (EjbTimerJob) info;
+                        EjbGlobalJobHandle handle = (EjbGlobalJobHandle) job.getTimerJobInstance().getJobHandle();
 
-    				EjbGlobalJobHandle handle = (EjbGlobalJobHandle) job.getTimerJobInstance().getJobHandle();
-
-    				if (handle.getUuid().equals(jobName)) {
-    					found = handle.getTimerJobInstance();
-							if (useLocalCache) {
-    					    localCache.putIfAbsent(jobName, found);
-						  }
-    					logger.debug("Job {} does match timer and is going to be returned {}", jobName, found);
-
-    					break;
-    				}
-    			}
-		    } catch (NoSuchObjectLocalException e) {
-                logger.debug("Timer info for {} was not found ", timer);
+                        if (handle.getUuid().equals(jobName)) {
+                            found = handle.getTimerJobInstance();
+                            if (useLocalCache) {
+                                localCache.putIfAbsent(jobName, found);
+                            }
+                            logger.debug("Job {} does match timer and is going to be returned {}", jobName, found);
+                            break;
+                        }
+                    }
+                } catch (NoSuchObjectLocalException e) {
+                    logger.debug("Timer info for {} was not found ", timer);
+                }
             }
-		}
-
-		return found;
-	}
+        } else {
+            logger.warn("Skipping linear search to find uuid {}", jobName);
+        }
+        return found;
+    }
 
     public void evictCache(JobHandle jobHandle) {
         String jobName =  ((EjbGlobalJobHandle) jobHandle).getUuid();
