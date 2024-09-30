@@ -27,8 +27,10 @@ import javax.xml.bind.annotation.XmlSchemaType;
 
 import org.drools.core.command.SingleSessionCommandService;
 import org.drools.core.command.impl.CommandBasedStatefulKnowledgeSession;
+import org.drools.core.common.InternalKnowledgeRuntime;
 import org.drools.core.impl.StatefulKnowledgeSessionImpl;
 import org.jbpm.process.instance.InternalProcessRuntime;
+import org.jbpm.process.instance.ProcessInstance;
 import org.jbpm.process.instance.timer.TimerInstance;
 import org.jbpm.process.instance.timer.TimerManager;
 import org.jbpm.ruleflow.instance.RuleFlowProcessInstance;
@@ -135,6 +137,7 @@ public class UpdateTimerCommand implements ExecutableCommand<Void>, ProcessInsta
         if (newTimer != null) {
             wfp.internalSetSlaTimerId(newTimer.getId());
             wfp.internalSetSlaDueDate(new Date(System.currentTimeMillis() + newTimer.getDelay()));
+            fireProcessInstanceDataChangedEvent(wfp);
             return null;
         }
 
@@ -238,5 +241,11 @@ public class UpdateTimerCommand implements ExecutableCommand<Void>, ProcessInsta
         newTimer.setTimerId(timer.getTimerId());        
         
         return newTimer;
+    }
+
+    private void fireProcessInstanceDataChangedEvent(ProcessInstance processInstance){
+        InternalKnowledgeRuntime kruntime = processInstance.getKnowledgeRuntime();
+        InternalProcessRuntime processRuntime = (InternalProcessRuntime) kruntime.getProcessRuntime();
+        processRuntime.getProcessEventSupport().fireAfterProcessDataChanged(processInstance, kruntime);
     }
 }
