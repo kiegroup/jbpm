@@ -28,7 +28,6 @@ import javax.ejb.TimerService;
 
 import org.drools.core.time.impl.TimerJobInstance;
 import org.jbpm.persistence.timer.GlobalJpaTimerJobInstance;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -42,8 +41,6 @@ public class EJBTimerSchedulerTest {
     
     @Before
     public void setup() {
-
-        System.setProperty("org.jbpm.ejb.timer.linear.search", "true");
         TimerService timerService = mock(TimerService.class);
         when(timerService.getTimers()).thenReturn(timers);
         
@@ -61,11 +58,6 @@ public class EJBTimerSchedulerTest {
         scheduler.timerService = timerService;
     }
     
-    @After
-    public void cleanup() {
-        System.clearProperty("org.jbpm.ejb.timer.linear.search");
-    }
-
     @Test
     public void testEjbTimerSchedulerTestOnTimerLoop() {
         // first call to go over list of timers should not add anything to the cache as there is no matching timers
