@@ -272,7 +272,13 @@ public class EJBTimerScheduler {
         if (timerJobInstance != null) {
             Object ejbTimerHandle = timerJobInstance.getTimerInfo();
             if (ejbTimerHandle instanceof TimerHandle) {
-                return cancelTimer(((TimerHandle) ejbTimerHandle).getTimer(), ejbHandle);
+                try {
+                    ((TimerHandle) ejbTimerHandle).getTimer().cancel();
+                    return true;
+                } catch (Exception ex) {
+                    logger.warn("Cancelling timer failed for handle {}", ejbHandle, ex);
+                    return false;
+                }
             }
         }
         logger.debug("No valid TimerJob instance {} available for Job handle {}", timerJobInstance, ejbHandle);
@@ -284,18 +290,19 @@ public class EJBTimerScheduler {
         if (useLocalCache) {
             TimerJobInstance found = localCache.get(jobName);
             if (found != null) {
-                logger.debug("Timer {} found in cache", jobName);
+                logger.debug("Found timer job instance with  name {} in cache, returning {}", jobName, found);
                 return found;
             }
-            logger.debug("Timer {} not found in cache", jobName);
+            logger.debug("Timer Job Instance with name {} not found in cache", jobName);
         }
         return linearSearch("search", jobName, (timer, job) -> {
-            if (useLocalCache) {
+            if (useLocalCache  && job != null) {
                 localCache.putIfAbsent(jobName, job);
             }
             return job;
         }).orElse(null);
     }
+
 
     private boolean cancelTimer(Timer timer, EjbGlobalJobHandle ejbHandle) {
         try {
@@ -321,7 +328,7 @@ public class EJBTimerScheduler {
                         if (handle.getUuid().equals(uuid)) {
                             logger.debug("UIID {} does match timer {} and handle {}", uuid, timer,
                                     job.getTimerJobInstance());
-                            return Optional.of(function.apply(timer, job.getTimerJobInstance()));
+                            return Optional.ofNullable(function.apply(timer, job.getTimerJobInstance()));
                         }
                     }
                 } catch (NoSuchObjectLocalException e) {
@@ -335,7 +342,7 @@ public class EJBTimerScheduler {
 
     public void evictCache(JobHandle jobHandle) {
         String jobName =  ((EjbGlobalJobHandle) jobHandle).getUuid();
-        logger.debug("Invalidate job {} with job name {} in cache", jobName, localCache.remove(jobName));
+        logger.debug("Invalidate job {} with job name {} in cache", localCache.remove(jobName), jobName);
     }
 
 }
