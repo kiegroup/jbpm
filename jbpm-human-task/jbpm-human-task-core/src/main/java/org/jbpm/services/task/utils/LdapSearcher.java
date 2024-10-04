@@ -111,7 +111,6 @@ public class LdapSearcher {
             log.debug("Protocol: {}", config.getProperty(Context.SECURITY_PROTOCOL));
             log.debug("Provider URL: {}", config.getProperty(Context.PROVIDER_URL));
             log.debug("User DN: {}", config.getProperty(Context.SECURITY_PRINCIPAL));
-            log.debug("Password: {}", config.getProperty(Context.SECURITY_CREDENTIALS));
         }
 
         return new InitialLdapContext(config, null);
