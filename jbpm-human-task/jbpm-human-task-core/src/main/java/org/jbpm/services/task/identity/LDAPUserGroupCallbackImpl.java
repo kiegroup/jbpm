@@ -43,6 +43,7 @@ import org.kie.api.task.UserGroupCallback;
  * <li>ldap.user.id.dn (optional, is user id a DN, instructs the callback to query for user DN before searching for roles, default false)</li>
  * <li>ldap.search.scope (optional, if not given 'ONELEVEL_SCOPE' will be used) possible values are: OBJECT_SCOPE, ONELEVEL_SCOPE, SUBTREE_SCOPE</li>
  * <li>ldap.name.escape (optional, instructs to escape - illegal character in user/group name before the query - currently escapes only comma) by default is set to true</li>
+ * <li>ldap.entity.ignore.case (optional, perform case insensitive comparison for exitsEntity) by default is set to false to ensure backward compatibility</li>
  * <li>java.naming.factory.initial</li>
  * <li>java.naming.security.authentication</li>
  * <li>java.naming.security.protocol</li>
@@ -66,6 +67,7 @@ public class LDAPUserGroupCallbackImpl extends AbstractLDAPUserGroupInfo impleme
     public static final String IS_USER_ID_DN = "ldap.user.id.dn";
     public static final String SEARCH_SCOPE = "ldap.search.scope";
     public static final String LDAP_NAME_ESCAPE = "ldap.name.escape";
+    public static final String LDAP_ENTIY_IGNORE_CASE = "ldap.entity.ignore.case";
 
     private static final String[] REQUIRED_PROPERTIES = {USER_CTX, ROLE_CTX, USER_FILTER, ROLE_FILTER, USER_ROLES_FILTER};
 
@@ -109,7 +111,8 @@ public class LDAPUserGroupCallbackImpl extends AbstractLDAPUserGroupInfo impleme
     private boolean existsEntity(String entityId, String context, String filter, String attributeId) {
         entityId = escapeIllegalChars(entityId);
         String ldapEntityId = ldapSearcher.search(context, filter, entityId).getSingleAttributeResult(attributeId);
-        return entityId.equals(ldapEntityId);
+        return isIgnoreCase() ? entityId.equalsIgnoreCase(ldapEntityId) : entityId.equals(ldapEntityId) ;
+
     }
 
     @Override
@@ -138,6 +141,10 @@ public class LDAPUserGroupCallbackImpl extends AbstractLDAPUserGroupInfo impleme
     
     private boolean escapeOn() {
         return Boolean.parseBoolean(getConfigProperty(LDAP_NAME_ESCAPE, "true"));
+    }
+
+    private boolean isIgnoreCase() {
+        return Boolean.parseBoolean(getConfigProperty(LDAP_ENTIY_IGNORE_CASE, "false"));
     }
     
     protected String escapeIllegalChars(String entityId) {
