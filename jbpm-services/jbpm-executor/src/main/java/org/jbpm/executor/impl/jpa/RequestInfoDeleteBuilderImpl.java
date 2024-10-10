@@ -23,6 +23,7 @@ import org.jbpm.process.audit.JPAAuditLogService;
 import org.jbpm.process.audit.query.AbstractAuditDeleteBuilderImpl;
 import org.kie.api.executor.STATUS;
 import org.kie.api.runtime.CommandExecutor;
+import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.internal.runtime.manager.audit.query.RequestInfoLogDeleteBuilder;
 
 import static org.kie.internal.query.QueryParameterIdentifiers.DEPLOYMENT_ID_LIST;
@@ -84,7 +85,7 @@ public class RequestInfoDeleteBuilderImpl extends AbstractAuditDeleteBuilderImpl
 		if (checkIfNull(status)) {
 			return this;
 		}
-		
+
 		addObjectParameter(EXECUTOR_STATUS_LIST, "status", status);
         return this;
 	}
@@ -99,5 +100,24 @@ public class RequestInfoDeleteBuilderImpl extends AbstractAuditDeleteBuilderImpl
         return REQUES_INFO_LOG_DELETE;
     }
 
+    @Override
+    protected boolean isSubquerySupported() {
+        return true;
+    }
 
+    @Override
+    protected Subquery applyParameters(Subquery subquery) {
+        return subquery;
+    }
+
+    @Override
+    protected Subquery getSubQuery() {
+        String queryBaseStr = "select ri.id from RequestInfo ri where ri.processInstanceId is null " +
+            "or ri.processInstanceId not in (select pil.processInstanceId from ProcessInstanceLog pil where pil.status in (" +
+            ProcessInstance.STATE_PENDING + "," + // 0
+            ProcessInstance.STATE_ACTIVE + "," + // 1
+            ProcessInstance.STATE_SUSPENDED + // 4
+            "))";
+        return new Subquery("l.id", queryBaseStr, 1);
+    }
 }
