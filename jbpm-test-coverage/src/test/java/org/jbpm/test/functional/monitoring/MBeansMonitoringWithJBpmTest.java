@@ -299,6 +299,8 @@ public class MBeansMonitoringWithJBpmTest {
         checkTotalSessions(aggrMonitor2, 3);
         checkStatsForProcess(aggrMonitor2, "com.sample.HelloWorld" ,6,6,18);
         checkStatsForProcess(aggrMonitor2, "com.sample.CiaoWorld"  ,3,3,9);
+
+        kc.dispose();
     }
     
     private void checkStatsForProcess(GenericKieSessionMonitoringMXBean mb, String ruleName, long iStarted, long iCompleted, long nodesTriggered) {

@@ -81,6 +81,7 @@ public class AsyncWIHOnOracleTest extends JbpmAsyncJobTestCase {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+        CounterCommand.resetCounter();
     }
 
     public static class CounterCommand implements Command {
@@ -95,6 +96,10 @@ public class AsyncWIHOnOracleTest extends JbpmAsyncJobTestCase {
 
         public static int getCounter() {
             return counter;
+        }
+
+        public static void resetCounter() {
+            counter = 0;
         }
 
     }
