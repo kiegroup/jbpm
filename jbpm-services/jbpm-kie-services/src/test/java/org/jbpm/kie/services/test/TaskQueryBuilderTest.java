@@ -327,18 +327,15 @@ public class TaskQueryBuilderTest extends AbstractKieServicesBaseTest {
 
         ProcessInstance instance = processService.getProcessInstance(pids[0]);
         assertNotNull(instance);
+        
+        Long hrTaskId = claimAndCompleteTask(pids[0],"katy");
+        Long itTaskId = claimAndCompleteTask(pids[0], "salaboy");
 
-        claimAndCompleteTask(pids[0], 0, "katy");
-        claimAndCompleteTask(pids[0], 1, "salaboy");
-
-        List<Long> taskIds = runtimeDataService.getTasksByProcessInstanceId(pids[0]);
-
-        UserTaskInstanceDesc userTask = runtimeDataService.getTaskById(taskIds.get(2));
-        assertEquals("CreateProposal", userTask.getFormName());
-        assertEquals("Proposal for: ", userTask.getSubject());
-
-        userTask = runtimeDataService.getTaskByWorkItemId(taskIds.get(0));
+        UserTaskInstanceDesc userTask = runtimeDataService.getTaskByWorkItemId(hrTaskId);
         assertEquals("HRInterview", userTask.getFormName());
+        
+        userTask = runtimeDataService.getTaskByWorkItemId(itTaskId);
+        assertEquals("TechInterview", userTask.getFormName());
 
         ProcessInstanceDesc instanceDesc = runtimeDataService.getProcessInstanceById(pids[0]);
         assertNotNull(instanceDesc);
@@ -347,6 +344,7 @@ public class TaskQueryBuilderTest extends AbstractKieServicesBaseTest {
         assertNotNull(tasks);
         assertEquals(1, tasks.size());
         assertEquals("CreateProposal", tasks.get(0).getFormName());
+        assertEquals("Proposal for: ", tasks.get(0).getSubject());
     }
 
     @Test
@@ -364,12 +362,18 @@ public class TaskQueryBuilderTest extends AbstractKieServicesBaseTest {
         assertThat(tasks).extracting("getFormName").contains("HRInterview","TechInterview");
     }
 
-    private void claimAndCompleteTask(Long processInstanceId, int position, String user) {
-        List<Long> taskIds = runtimeDataService.getTasksByProcessInstanceId(processInstanceId);
-        assertTrue(!taskIds.isEmpty());
-        Long taskId = taskIds.get(position);
+    private Long claimAndCompleteTask(Long processInstanceId, String user) {
+        ProcessInstanceDesc instanceDesc = runtimeDataService.getProcessInstanceById(pids[0]);
+        assertNotNull(instanceDesc);
+        List<UserTaskInstanceDesc> tasks = instanceDesc.getActiveTasks();
+        assertNotNull(tasks);
+        assertEquals(1, tasks.size());
+        Long taskId = tasks.get(0).getTaskId();
+        
         userTaskService.claim(taskId, user);
         userTaskService.start(taskId, user);
         userTaskService.complete(taskId, user, new HashMap<>());
+        
+        return taskId;
     }
 }

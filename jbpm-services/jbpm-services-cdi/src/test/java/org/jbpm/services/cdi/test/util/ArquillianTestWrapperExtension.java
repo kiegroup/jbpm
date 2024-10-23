@@ -22,6 +22,7 @@ import org.jboss.arquillian.core.api.annotation.Observes;
 import org.jboss.arquillian.core.spi.LoadableExtension;
 import org.jboss.arquillian.test.spi.event.suite.AfterSuite;
 import org.jboss.arquillian.test.spi.event.suite.BeforeSuite;
+import org.jbpm.test.persistence.util.PersistenceUtil;
 import org.kie.test.util.db.DataSourceFactory;
 import org.kie.test.util.db.PoolingDataSourceWrapper;
 
@@ -39,11 +40,14 @@ public class ArquillianTestWrapperExtension implements LoadableExtension {
         
         public void init(@Observes BeforeSuite event, ContainerRegistry registry) {
             Properties driverProperties = new Properties();
-            driverProperties.put("user", "sa");
-            driverProperties.put("password", "sasa");
-            driverProperties.put("url", "jdbc:h2:mem:mydb;MODE=LEGACY;NON_KEYWORDS=VALUE");
-            driverProperties.put("driverClassName", "org.h2.Driver");
-            driverProperties.put("className", "org.h2.jdbcx.JdbcDataSource");
+            driverProperties.put("user", PersistenceUtil.getDatasourceProperties().getProperty("user"));
+            driverProperties.put("password", PersistenceUtil.getDatasourceProperties().getProperty("password"));
+            driverProperties.put("url", PersistenceUtil.getDatasourceProperties().getProperty("url"));
+            driverProperties.put("driverClassName", PersistenceUtil.getDatasourceProperties().getProperty("driverClassName"));
+            driverProperties.put("className", PersistenceUtil.getDatasourceProperties().getProperty("className"));
+            driverProperties.put("databaseName", PersistenceUtil.getDatasourceProperties().getProperty("databaseName"));
+            driverProperties.put("serverName", PersistenceUtil.getDatasourceProperties().getProperty("serverName"));
+            driverProperties.put("portNumber", PersistenceUtil.getDatasourceProperties().getProperty("portNumber"));
             
             ds = DataSourceFactory.setupPoolingDataSource("jdbc/testDS1", driverProperties);
         }
