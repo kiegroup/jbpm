@@ -238,7 +238,7 @@ public class SubProcessNode extends StateBasedNode implements Mappable, ContextC
         
         String abortParent = (String) getMetaData("customAbortParent");
         if (abortParent == null) {
-            return true;
+            return !Boolean.getBoolean("org.kie.jbpm.continueIfSubprocessFail");
         }
         return Boolean.parseBoolean(abortParent);
     }
