@@ -132,9 +132,8 @@ public abstract class AbstractAvailableJobsExecutor {
                         ctx.setData("ClassLoader", cl);
 
                         // add scheduled execution time
-                        if(ctx.getData("scheduledExecutionTime") == null) {
-                            ctx.setData("scheduledExecutionTime", request.getTime());
-                        }
+                        ctx.setData("scheduledExecutionTime", request.getTime());
+                        
 
                         cmd = classCacheManager.findCommand(request.getCommandName(), cl);
                         // increment execution counter directly to cover both success and failure paths

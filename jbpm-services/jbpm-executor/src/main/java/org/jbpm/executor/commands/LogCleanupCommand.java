@@ -78,6 +78,7 @@ public class LogCleanupCommand implements Command, Reoccurring {
 
     private long nextScheduleTimeAdd;
     private boolean mightBeMore;
+    private Date firstScheduledExecutionTime = null;
 
     @Override
     public Date getScheduleTime() {
@@ -291,10 +292,27 @@ public class LogCleanupCommand implements Command, Reoccurring {
 
     private long calculateExecutionTimeInMillis(CommandContext ctx) {
         long executionTimeInMillis = 0;
+        Date scheduledExecutionTime = null;
+
+         // If this is the first execution, save the scheduledExecutionTime
+        if (firstScheduledExecutionTime == null) {
+            firstScheduledExecutionTime = (Date) ctx.getData("scheduledExecutionTime");
+        }
         String repeatMode = (String) ctx.getData("RepeatMode");
         if( "fixed".equalsIgnoreCase(repeatMode) ) {
+            if(!mightBeMore) {
+                if(firstScheduledExecutionTime != null){
+                scheduledExecutionTime = firstScheduledExecutionTime;
+
+                 // return diff between scheduled time and actual time
+                executionTimeInMillis = Instant.now().minus(scheduledExecutionTime.toInstant().toEpochMilli(), ChronoUnit.MILLIS).toEpochMilli();
+                logger.debug("Calculated execution time {}ms, based on scheduled execution time {}", executionTimeInMillis, scheduledExecutionTime);
+                firstScheduledExecutionTime=null;
+                return executionTimeInMillis;
+                 }
+            } 
             // return diff between scheduled time and actual time
-            Date scheduledExecutionTime = (Date) ctx.getData("scheduledExecutionTime");
+            scheduledExecutionTime = (Date) ctx.getData("scheduledExecutionTime");
             executionTimeInMillis = Instant.now().minus(scheduledExecutionTime.toInstant().toEpochMilli(), ChronoUnit.MILLIS).toEpochMilli();
             logger.debug("Calculated execution time {}ms, based on scheduled execution time {}", executionTimeInMillis, scheduledExecutionTime);
         }
