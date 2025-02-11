@@ -31,9 +31,9 @@
       <!-- Override necessary to be compatible with jboss-remote-naming
            Must put this here so it only overrides version in EJB tests -->
       <dependency>
-        <groupId>org.jboss.remoting</groupId>
-        <artifactId>jboss-remoting</artifactId>
-        <version>${version.org.jboss.remoting.naming}</version>
+        <groupId>org.wildfly.core</groupId>
+        <artifactId>wildfly-remoting</artifactId>
+        <version>${version.org.wildfly.core}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

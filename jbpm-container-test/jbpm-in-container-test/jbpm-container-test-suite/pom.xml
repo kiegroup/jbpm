@@ -254,18 +254,9 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.jboss</groupId>
-      <artifactId>jboss-remote-naming</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>org.jboss.xnio</groupId>
-          <artifactId>xnio-api</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.jboss.remoting</groupId>
-          <artifactId>jboss-remoting</artifactId>
-        </exclusion>
-      </exclusions>
+        <groupId>org.wildfly.core</groupId>
+        <artifactId>wildfly-remoting</artifactId>
+        <version>${version.org.wildfly.core}</version>
     </dependency>
     <dependency>
       <groupId>jakarta.jms</groupId>
