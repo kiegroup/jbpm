@@ -53,9 +53,14 @@
                   <version>${version.org.quartz-scheduler}</version>
                 </additionalDependency>
                 <additionalDependency>
-                  <groupId>jivesoftware</groupId>
-                  <artifactId>smack</artifactId>
-                  <version>${version.jivesoftware.smack}</version>
+                  <groupId>org.igniterealtime.smack</groupId>
+                  <artifactId>smack-core</artifactId>
+                  <version>${version.org.igniterealtime.smack-core}</version>
+                </additionalDependency>
+                <additionalDependency>
+                  <groupId>org.igniterealtime.smack</groupId>
+                  <artifactId>smack-tcp</artifactId>
+                  <version>${version.org.igniterealtime.smack-tcp}</version>
                 </additionalDependency>
                 <additionalDependency>
                   <groupId>rome</groupId>
