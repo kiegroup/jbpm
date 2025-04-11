@@ -270,13 +270,13 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
     }
 
     @Override
-    public void disposeRuntimeEngine(RuntimeEngine runtime) {
+    public void disposeRuntimeEngine(RuntimeEngine runtime, boolean force) {
     	if (isClosed()) {
     	    logger.warn("Runtime manager {} is already closed", identifier);
             return;
     	}
     	try {
-        	if (canDispose(runtime)) {
+        	if (canDispose(runtime, force)) {
             	removeLocalRuntime(runtime);            	
             	
             	Long ksessionId = ((RuntimeEngineImpl)runtime).getKieSessionId();

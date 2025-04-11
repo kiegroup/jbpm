@@ -136,7 +136,7 @@ public class PerRequestRuntimeManager extends AbstractRuntimeManager {
     }
 
     @Override
-    public void disposeRuntimeEngine(RuntimeEngine runtime) {
+    public void disposeRuntimeEngine(RuntimeEngine runtime, boolean force) {
         if (isClosed()) {
             logger.warn("Runtime manager {} is already closed", identifier);
             return;
@@ -144,7 +144,7 @@ public class PerRequestRuntimeManager extends AbstractRuntimeManager {
 
         logger.debug("Trying to dispose PerRequestRuntimeEngine {}", identifier);
         try {
-            if (!canDispose(runtime)) {
+            if (!canDispose(runtime, force)) {
                 logger.debug("Cannot dispose per request runtime engine {}", identifier);
                 return;
             }
