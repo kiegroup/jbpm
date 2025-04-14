@@ -68,7 +68,8 @@ Guides
 There is alot of good information (and books) available on jBPM and it's hard to list them all. Here are some of 
 the most notable ones for quick reference:
 
-- [Getting Started guide](http://jbpm.org/learn/gettingStarted.html) - great resource of getting started guides and videos
+- [Getting started - Using Docker](https://www.jbpm.org/learn/gettingStartedUsingDocker.html) - great resource of getting started guides and videos using Docker image distribution
+- [Getting started - Using Single Zip Distribution](https://www.jbpm.org/learn/gettingStartedUsingSingleZipDistribution.html) - great resource of getting started guides and videos using Single Zip Distribution
 - [Accelerate your business](http://mswiderski.blogspot.com/) blog - includes a ton of great info from the jBPM devs
 - [Slideshare Presentations](https://www.slideshare.net/krisverlaenen/presentations) - includes many jBPM presentations and slides
 - [start.jBPM.org](https://start.jbpm.org/) - site where you can start building your jBPM Business Applications
