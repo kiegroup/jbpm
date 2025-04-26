@@ -1,0 +1,60 @@
+name: Verify Flaky Test
+
+on:
+  push:
+    branches: [ verify-flaky-test ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+          
+      - name: Build with Maven (Skip Tests)
+        run: mvn clean install -DskipTests
+        
+      - name: Run Test Normally (Expected to Pass)
+        run: |
+          echo "Running test without NonDex - should PASS"
+          mvn test -pl jbpm-case-mgmt/jbpm-case-mgmt-impl -Dtest=org.jbpm.casemgmt.impl.CaseServiceImplTest#testStartExpressionCaseWithCaseFile
+          echo "Test passed without NonDex as expected"
+          
+      - name: Run Test with NonDex (Expected to Fail)
+        continue-on-error: true
+        id: nondex-run
+        run: |
+          echo "Running test with NonDex - should FAIL"
+          mvn edu.illinois:nondex-maven-plugin:2.1.1:nondex -pl jbpm-case-mgmt/jbpm-case-mgmt-impl -Dtest=org.jbpm.casemgmt.impl.CaseServiceImplTest#testStartExpressionCaseWithCaseFile
+          # Store the exit code
+          echo "nondex_exit_code=$?" >> $GITHUB_OUTPUT
+          
+      - name: Display NonDex Results
+        run: |
+          echo "Checking NonDex results"
+          ls -la jbpm-case-mgmt/jbpm-case-mgmt-impl/.nondex/ || echo "No .nondex directory found"
+          for dir in jbpm-case-mgmt/jbpm-case-mgmt-impl/.nondex/*/; do
+            if [ -d "$dir" ]; then
+              echo "Contents of $dir:"
+              ls -la "$dir"
+              if [ -f "$dir/failure" ]; then
+                echo "Found failure file in $dir:"
+                cat "$dir/failure"
+              fi
+            fi
+          done
+          
+      - name: Verify Test Flakiness
+        run: |
+          if [ "${{ steps.nondex-run.outputs.nondex_exit_code }}" != "0" ]; then
+            echo " Test is flaky: Passes without NonDex but fails with NonDex"
+          else
+            echo " Test is not flaky: Passes both with and without NonDex"
+            exit 1
+          fi
