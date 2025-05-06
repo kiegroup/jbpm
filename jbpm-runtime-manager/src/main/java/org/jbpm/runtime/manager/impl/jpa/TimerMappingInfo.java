@@ -150,7 +150,7 @@ public class TimerMappingInfo implements Serializable {
     @Override
     public String toString() {
         return "TimerMappingInfo [id=" + id + ", timerId=" + timerId + ", externalTimerId=" + externalTimerId + ", kieSessionId=" + kieSessionId + ", processInstanceId=" + processInstanceId
-                + ", uuid=" + uuid + ", info=" + Arrays.toString(info) + "]";
+                + ", uuid=" + uuid + "]";
     }
 
 
