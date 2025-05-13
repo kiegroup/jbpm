@@ -301,7 +301,7 @@ public class PerCaseRuntimeManager extends AbstractRuntimeManager {
     }
 
     @Override
-    public void disposeRuntimeEngine(RuntimeEngine runtime) {
+    public void disposeRuntimeEngine(RuntimeEngine runtime, boolean force) {
         if (isClosed()) {
             logger.warn("Runtime manager {} is already closed", identifier);
             return;
@@ -310,7 +310,7 @@ public class PerCaseRuntimeManager extends AbstractRuntimeManager {
         Long ksessionId = ((RuntimeEngineImpl) runtime).getLazyKieSessionId();
         logger.debug("Trying to dispose for KieSessionId {} (Kie session id cannot be null at this point)", ksessionId);
         try {
-            if (canDispose(runtime)) {
+            if (canDispose(runtime, force)) {
                 removeLocalRuntime(runtime);
                 logger.debug("About to release and clean runtime engine {}", runtime);
                 releaseAndCleanLock(ksessionId, runtime);
