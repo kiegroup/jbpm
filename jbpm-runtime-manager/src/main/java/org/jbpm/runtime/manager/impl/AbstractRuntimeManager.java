@@ -227,36 +227,45 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
                         return;
                     }
 
-                    List<TimerMappingInfo> tmi = em.createQuery("SELECT o FROM TimerMappingInfo o WHERE o.kieSessionId = :kieSessionId AND o.uuid = :uuid", TimerMappingInfo.class)
+                    List<TimerMappingInfo> tmiList = em.createQuery("SELECT o FROM TimerMappingInfo o WHERE o.kieSessionId = :kieSessionId AND o.uuid = :uuid", TimerMappingInfo.class)
                         .setParameter("kieSessionId", globalJobHandle.getSessionId())
                         .setParameter("uuid", globalJobHandle.getUuid())
                         .getResultList();
 
-                    if(!tmi.isEmpty()) {
-                        return;
-                    }
                     GlobalJpaTimerJobInstance dtji = (GlobalJpaTimerJobInstance) globalJobHandle.getTimerJobInstance();
-                    TimerMappingInfo info = new TimerMappingInfo(globalJobHandle.getTimerId(), dtji.getExternalTimerId(), globalJobHandle.getSessionId(), globalJobHandle.getUuid());
-                    JobContext jobContext = globalJobHandle.getTimerJobInstance().getJobContext();
-                    if (jobContext instanceof SelfRemovalJobContext) {
-                        jobContext = ((SelfRemovalJobContext) jobContext).getJobContext();
-                    }
-                    if (jobContext instanceof ProcessJobContext) {
-                        info.setProcessInstanceId(((ProcessJobContext) jobContext).getProcessInstanceId());
+                    TimerMappingInfo tmi = null;
+
+                    if(!tmiList.isEmpty()) {
+                        tmi = tmiList.get(0);
+                        if (dtji.getExternalTimerId() != null && !dtji.getExternalTimerId().equals(tmi.getExternalTimerId())) {
+                            logger.debug("Updating Timer Mapping Info {}, old externalId {} to new externalId {} ", tmi, tmi.getExternalTimerId(), dtji.getExternalTimerId());
+                            tmi.setExternalTimerId(dtji.getExternalTimerId());
+                        } else {
+                            return;
+                        }
+                    } else {
+                        tmi = new TimerMappingInfo(globalJobHandle.getTimerId(), dtji.getExternalTimerId(), globalJobHandle.getSessionId(), globalJobHandle.getUuid());
+                        JobContext jobContext = globalJobHandle.getTimerJobInstance().getJobContext();
+                        if (jobContext instanceof SelfRemovalJobContext) {
+                            jobContext = ((SelfRemovalJobContext) jobContext).getJobContext();
+                        }
+                        if (jobContext instanceof ProcessJobContext) {
+                            tmi.setProcessInstanceId(((ProcessJobContext) jobContext).getProcessInstanceId());
+                        }
                     }
                     if(dtji.getTimerInfo() != null) {
                         try {
                             ByteArrayOutputStream baos = new ByteArrayOutputStream();
                             ObjectOutputStream os = new ObjectOutputStream(baos);
                             os.writeObject(dtji.getTimerInfo());
-                            info.setInfo(baos.toByteArray());
+                            tmi.setInfo(baos.toByteArray());
                         } catch (IOException e) {
-                            logger.debug("It was not possible to serialize TimerHandler for {}", info);
+                            logger.debug("It was not possible to serialize TimerHandler for {}", tmi);
                         }
                     }
-                    em.persist(info);
+                    em.persist(tmi);
                     em.flush();
-                    logger.debug("Created Timer Mapping Info for {} and flushed to DB", info);
+                    logger.debug("Flushed Timer Mapping Info for {} to DB", tmi);
                 } finally {
                     em.close();
                 }

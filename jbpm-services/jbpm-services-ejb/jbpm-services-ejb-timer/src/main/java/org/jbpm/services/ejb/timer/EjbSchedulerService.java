@@ -170,6 +170,7 @@ public class EjbSchedulerService implements GlobalSchedulerService {
     @Override
     public void internalSchedule(TimerJobInstance timerJobInstance) {
         scheduler.internalSchedule(timerJobInstance);
+        globalTimerService.getListeners().forEach(listener -> listener.fireTimerScheduled((EjbGlobalJobHandle)timerJobInstance.getJobHandle()));
     }
 
 	@Override
