@@ -30,7 +30,6 @@
               <goal>javadoc</goal>
             </goals>
             <configuration>
-              <failOnError>false</failOnError>
               <reportOutputDirectory>${project.build.directory}/aggregated-javadocs</reportOutputDirectory>
               <includeDependencySources>true</includeDependencySources>
               <dependencySourceIncludes>
