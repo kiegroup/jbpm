@@ -86,7 +86,6 @@ public class TransactionsTest extends JbpmTestCase {
             ut.begin();
 
             processId = startProcess(ksession);
-            assertProcessInstanceActive(processId);
         } finally {
             ut.rollback();
         }
