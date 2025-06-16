@@ -125,7 +125,7 @@
     <dependency>
       <groupId>io.netty</groupId>
       <artifactId>netty-handler</artifactId>
-      <version>4.1.118.Final</version>
+      <version>${version.io.netty}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
