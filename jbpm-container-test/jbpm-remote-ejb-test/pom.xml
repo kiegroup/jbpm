@@ -33,7 +33,12 @@
       <dependency>
         <groupId>org.jboss.remoting</groupId>
         <artifactId>jboss-remoting</artifactId>
-        <version>${version.org.jboss.remoting.naming}</version>
+        <version>${version.org.jboss.remoting}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss</groupId>
+        <artifactId>jboss-ejb-client</artifactId>
+        <version>${version.org.jboss.ejb.client}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
