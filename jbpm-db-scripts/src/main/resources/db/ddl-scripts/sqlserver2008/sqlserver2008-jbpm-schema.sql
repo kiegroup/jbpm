@@ -791,6 +791,8 @@
     create index IDX_RequestInfo_status ON RequestInfo(status);
     create index IDX_RequestInfo_timestamp ON RequestInfo(timestamp);
     create index IDX_RequestInfo_owner ON RequestInfo(owner);
+    create index IDX_RequestInfo_status_pInstId ON RequestInfo (status, processInstanceId);
+    
     
     create index IDX_BAMTaskSumm_createdDate on BAMTaskSummary(createdDate);
     create index IDX_BAMTaskSumm_duration on BAMTaskSummary(duration);

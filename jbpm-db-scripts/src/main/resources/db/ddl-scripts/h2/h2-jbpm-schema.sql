@@ -790,6 +790,7 @@
     create index if not exists IDX_RequestInfo_status ON RequestInfo(status);
     create index if not exists IDX_RequestInfo_timestamp ON RequestInfo(timestamp);
     create index if not exists IDX_RequestInfo_owner ON RequestInfo(owner);
+    create index if not exists IDX_RequestInfo_status_pInstId ON RequestInfo (status, processInstanceId);
     
     create index if not exists IDX_BAMTaskSumm_createdDate on BAMTaskSummary(createdDate);
     create index if not exists IDX_BAMTaskSumm_duration on BAMTaskSummary(duration);
@@ -815,6 +816,7 @@
     create index if not exists IDX_PInstLog_start_date on ProcessInstanceLog(start_date);
     create index if not exists IDX_PInstLog_status on ProcessInstanceLog(status);
     create index if not exists IDX_PInstLog_correlation on ProcessInstanceLog(correlationKey);
+    create index if not exists IDX_PInstLog_pInstId_status ON ProcessInstanceLog (processInstanceId, status);
 
     create index if not exists IDX_VInstLog_pInstId on VariableInstanceLog(processInstanceId);
     create index if not exists IDX_VInstLog_varId on VariableInstanceLog(variableId);

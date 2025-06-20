@@ -112,12 +112,15 @@ public class RequestInfoDeleteBuilderImpl extends AbstractAuditDeleteBuilderImpl
 
     @Override
     protected Subquery getSubQuery() {
-        String queryBaseStr = "select ri.id from RequestInfo ri where ri.processInstanceId is null " +
-            "or ri.processInstanceId not in (select pil.processInstanceId from ProcessInstanceLog pil where pil.status in (" +
-            ProcessInstance.STATE_PENDING + "," + // 0
-            ProcessInstance.STATE_ACTIVE + "," + // 1
-            ProcessInstance.STATE_SUSPENDED + // 4
-            "))";
+        String queryBaseStr = "SELECT ri.id FROM RequestInfo ri WHERE ri.status IN ('ERROR', 'CANCELLED', 'DONE') " +
+                "AND (ri.processInstanceId IS NULL OR EXISTS (" +
+                "SELECT 1 FROM ProcessInstanceLog pil WHERE pil.processInstanceId = ri.processInstanceId " +
+                "AND pil.status NOT IN (" +
+                ProcessInstance.STATE_PENDING + ", " + // 0
+                ProcessInstance.STATE_ACTIVE + ", " + // 1
+                ProcessInstance.STATE_SUSPENDED + // 4
+                ")))";
+ 
         return new Subquery("l.id", queryBaseStr, 1);
     }
 }
