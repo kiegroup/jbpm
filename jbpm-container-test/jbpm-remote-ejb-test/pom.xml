@@ -33,7 +33,7 @@
       <dependency>
         <groupId>org.jboss.remoting</groupId>
         <artifactId>jboss-remoting</artifactId>
-        <version>${version.org.jboss.remoting.naming}</version>
+        <version>${version.org.jboss.remoting}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
