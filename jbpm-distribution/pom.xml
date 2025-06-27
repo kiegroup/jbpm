@@ -55,15 +55,20 @@
                 <additionalDependency>
                   <groupId>org.igniterealtime.smack</groupId>
                   <artifactId>smack-core</artifactId>
-                  <version>${version.org.igniterealtime.smack-core}</version>
+                  <version>${version.org.igniterealtime.smack}</version>
+                </additionalDependency>
+                <additionalDependency>
+                  <groupId>org.igniterealtime.smack</groupId>
+                  <artifactId>smack-im</artifactId>
+                  <version>${version.org.igniterealtime.smack}</version>
                 </additionalDependency>
                 <additionalDependency>
                   <groupId>org.igniterealtime.smack</groupId>
                   <artifactId>smack-tcp</artifactId>
-                  <version>${version.org.igniterealtime.smack-tcp}</version>
+                  <version>${version.org.igniterealtime.smack}</version>
                 </additionalDependency>
                 <additionalDependency>
-                  <groupId>rome</groupId>
+                  <groupId>com.rometools</groupId>
                   <artifactId>rome</artifactId>
                   <version>${version.rome}</version>
                 </additionalDependency>
