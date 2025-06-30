@@ -63,6 +63,11 @@ public class TimerUpdateTest extends JbpmTestCase {
     private static final String BOUNDARY_PROCESS_NAME = "UpdateBoundaryTimer";
     private static final String BOUNDARY_TIMER_NAME = "BoundaryTimer";
     private static final String BOUNDARY_TIMER_ATTACHED_TO_NAME = "User";
+
+    private static final String MULTIPLE_BOUNDARY_TIMER_FILE = "org/jbpm/test/functional/timer/UpdateBoundaryTimerWithMultipleTimers.bpmn2";
+    private static final String MULTIPLE_BOUNDARY_PROCESS_NAME = "UpdateBoundaryTimerWithMultipleTimers";
+    private static final String Multiple_BOUNDARY_TIMER_NAME = "BoundaryTimer-1";
+
     
     private static final String TIMER_SUBPROCESS_FILE = "org/jbpm/test/functional/timer/UpdateSubprocessTimer.bpmn2";
     private static final String PROCESS_SUBPROCESS_NAME = "UpdateSubProcessTimer";
@@ -247,6 +252,45 @@ public class TimerUpdateTest extends JbpmTestCase {
         Assertions.assertThat(list).isNotEmpty();
         //set timer delay to 3s
         kieSession.execute(new UpdateTimerCommand(id, BOUNDARY_TIMER_ATTACHED_TO_NAME, 3));
+
+        countDownListener.waitTillCompleted();
+        Assertions.assertThat(timerHasFired()).isTrue();
+        long firedTime = timerFiredTime();
+        long timeDifference = Math.abs(firedTime - startTime - 3000);
+        logger.info("Start time: " + startTime + ", fired time: " + firedTime + ", difference: " + (firedTime-startTime));
+        Assertions.assertThat(timeDifference).isLessThan(1000);
+
+        Assertions.assertThat(kieSession.getProcessInstance(id)).isNull();
+    }
+
+    @Test(timeout = 30000)
+    public void updateBoundaryTimerWithMultipleTimerBoundaryTest() {
+        NodeLeftCountDownProcessEventListener countDownListener = new NodeLeftCountDownProcessEventListener(Multiple_BOUNDARY_TIMER_NAME, 1);
+        //timer is set for long duration (100s)
+        setProcessScenario(MULTIPLE_BOUNDARY_TIMER_FILE);
+
+        final List<Long> list = new ArrayList<Long>();
+        kieSession.addEventListener(new DefaultProcessEventListener() {
+            @Override
+            public void beforeProcessStarted(ProcessStartedEvent event) {
+                list.add(event.getProcessInstance().getId());
+            }
+        });
+        kieSession.addEventListener(countDownListener);
+
+        Assertions.assertThat(list).isEmpty();
+        long id = kieSession.startProcess(MULTIPLE_BOUNDARY_PROCESS_NAME).getId();
+        long startTime = System.currentTimeMillis();
+        Assertions.assertThat(list).isNotEmpty();
+
+
+        //Get the timerId (there are three timers)
+        Collection<TimerInstance> timers = getTimerManager(kieSession).getTimers();
+        Assertions.assertThat(timers).hasSize(2);
+        long timerId = timers.iterator().next().getId();
+        
+        //set delay to 3s
+        kieSession.execute(new UpdateTimerCommand(id, timerId, 3));
 
         countDownListener.waitTillCompleted();
         Assertions.assertThat(timerHasFired()).isTrue();
