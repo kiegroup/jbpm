@@ -166,13 +166,19 @@ public class UpdateTimerCommand implements ExecutableCommand<Void>, ProcessInsta
                 List<Long> timerList = sbni.getTimerInstances();
                 if ((timerList != null && timerList.contains(timerId)) || (sbni.getNodeName() != null && sbni.getNodeName().equals(timerName))) {
                     
-                    if (timerList != null && timerList.size() == 1) {
-                        TimerInstance timer = tm.getTimerMap().get(timerList.get(0));
-    
+                    if (timerList != null && timerList.size() >= 1) {
+                        int index = timerList.indexOf(timerId);
+                        //When UpdateTimerCommand is inited with timername, timerid is set to -1
+                        TimerInstance timer = tm.getTimerMap().get(timerId == -1 ? timerList.get(0) : timerList.get(index));
+                    
                         newTimer = rescheduleTimer(timer, tm);
                         logger.debug("New timer {} about to be registered", newTimer);
-                        tm.registerTimer(newTimer, wfp);                        
-                        timerList.clear();
+                        tm.registerTimer(newTimer, wfp);   
+                        if (timerId == -1 && timerList.size() == 1) {
+                            timerList.clear();
+                        } else {
+                            timerList.remove(index);
+                        }
                         timerList.add(newTimer.getId());
     
                         sbni.internalSetTimerInstances(timerList);
