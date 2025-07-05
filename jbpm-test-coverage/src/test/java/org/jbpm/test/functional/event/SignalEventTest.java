@@ -22,7 +22,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.assertj.core.api.Assertions;
 import org.jbpm.test.JbpmTestCase;
 import org.junit.Test;
@@ -115,7 +114,7 @@ public class SignalEventTest extends JbpmTestCase {
 
         KieSession ksession = getKieSession();
         ProcessInstance pi1 = ksession.startProcess(INTERMEDIATE_CATCH_ID);
-        getKieSession().startProcess(INTERMEDIATE_CATCH_ID);
+        ProcessInstance pi2 = getKieSession().startProcess(INTERMEDIATE_CATCH_ID);
 
         switch (scope) {
             case DEFAULT:
@@ -134,14 +133,16 @@ public class SignalEventTest extends JbpmTestCase {
         List<? extends ProcessInstanceLog> instances = getRuntimeEngine().getAuditService().findProcessInstances();
         Assertions.assertThat(instances).hasSize(2);
 
-        Assertions.assertThat(instances.get(0).getProcessId()).isEqualTo(INTERMEDIATE_CATCH_ID);
-        Assertions.assertThat(instances.get(0).getStatus()).isEqualTo(ProcessInstance.STATE_COMPLETED);
+        ProcessInstanceLog instance1 = getRuntimeEngine().getAuditService().findProcessInstance(pi1.getId());
+        Assertions.assertThat(instance1.getProcessId()).isEqualTo(INTERMEDIATE_CATCH_ID);
+        Assertions.assertThat(instance1.getStatus()).isEqualTo(ProcessInstance.STATE_COMPLETED);
 
-        Assertions.assertThat(instances.get(1).getProcessId()).isEqualTo(INTERMEDIATE_CATCH_ID);
+        ProcessInstanceLog instance2 = getRuntimeEngine().getAuditService().findProcessInstance(pi2.getId());
+        Assertions.assertThat(instance2.getProcessId()).isEqualTo(INTERMEDIATE_CATCH_ID);
         if (strategy == Strategy.SINGLETON) {
-            Assertions.assertThat(instances.get(1).getStatus()).isEqualTo(scope == Scope.PROCESS_INSTANCE ? ProcessInstance.STATE_ACTIVE : ProcessInstance.STATE_COMPLETED);
+            Assertions.assertThat(instance2.getStatus()).isEqualTo(scope == Scope.PROCESS_INSTANCE ? ProcessInstance.STATE_ACTIVE : ProcessInstance.STATE_COMPLETED);
         } else if (strategy == Strategy.PROCESS_INSTANCE) {
-            Assertions.assertThat(instances.get(1).getStatus()).isEqualTo(scope == Scope.PROJECT ? ProcessInstance.STATE_COMPLETED : ProcessInstance.STATE_ACTIVE);
+            Assertions.assertThat(instance2.getStatus()).isEqualTo(scope == Scope.PROJECT ? ProcessInstance.STATE_COMPLETED : ProcessInstance.STATE_ACTIVE);
         }
     }
 
@@ -168,21 +169,23 @@ public class SignalEventTest extends JbpmTestCase {
 
         createRuntimeManager(strategy, null, throwingProcessFile, INTERMEDIATE_CATCH);
 
-        getKieSession().startProcess(INTERMEDIATE_CATCH_ID);
-        getKieSession().startProcess(throwingProcessId);
+        ProcessInstance pi1 = getKieSession().startProcess(INTERMEDIATE_CATCH_ID);
+        ProcessInstance pi2 = getKieSession().startProcess(throwingProcessId);
 
         List<? extends ProcessInstanceLog> instances = getRuntimeEngine().getAuditService().findProcessInstances();
         Assertions.assertThat(instances).hasSize(2);
 
-        Assertions.assertThat(instances.get(0).getProcessId()).isEqualTo(INTERMEDIATE_CATCH_ID);
-        Assertions.assertThat(instances.get(1).getProcessId()).isEqualTo(throwingProcessId);
-
+        ProcessInstanceLog instance1 = getRuntimeEngine().getAuditService().findProcessInstance(pi1.getId());
+        ProcessInstanceLog instance2 = getRuntimeEngine().getAuditService().findProcessInstance(pi2.getId());
+        Assertions.assertThat(instance1.getProcessId()).isEqualTo(INTERMEDIATE_CATCH_ID);
+        Assertions.assertThat(instance2.getProcessId()).isEqualTo(throwingProcessId);
+        
         if (strategy == Strategy.SINGLETON) {
-            Assertions.assertThat(instances.get(0).getStatus()).isEqualTo(scope == Scope.PROCESS_INSTANCE ? ProcessInstance.STATE_ACTIVE : ProcessInstance.STATE_COMPLETED);
-            Assertions.assertThat(instances.get(1).getStatus()).isEqualTo(ProcessInstance.STATE_COMPLETED);
+            Assertions.assertThat(instance1.getStatus()).isEqualTo(scope == Scope.PROCESS_INSTANCE ? ProcessInstance.STATE_ACTIVE : ProcessInstance.STATE_COMPLETED);
+            Assertions.assertThat(instance2.getStatus()).isEqualTo(ProcessInstance.STATE_COMPLETED);
         } else if (strategy == Strategy.PROCESS_INSTANCE) {
-            Assertions.assertThat(instances.get(0).getStatus()).isEqualTo(scope == Scope.PROJECT ? ProcessInstance.STATE_COMPLETED : ProcessInstance.STATE_ACTIVE);
-            Assertions.assertThat(instances.get(1).getStatus()).isEqualTo(ProcessInstance.STATE_COMPLETED);
+            Assertions.assertThat(instance1.getStatus()).isEqualTo(scope == Scope.PROJECT ? ProcessInstance.STATE_COMPLETED : ProcessInstance.STATE_ACTIVE);
+            Assertions.assertThat(instance2.getStatus()).isEqualTo(ProcessInstance.STATE_COMPLETED);
         }
     }
 
@@ -209,7 +212,7 @@ public class SignalEventTest extends JbpmTestCase {
 
         createRuntimeManager(strategy, null, throwingProcessFile, START_CATCH);
 
-        getKieSession().startProcess(throwingProcessId);
+        ProcessInstance throwingPI = getKieSession().startProcess(throwingProcessId);
 
         boolean run = (strategy == Strategy.SINGLETON && scope != Scope.PROCESS_INSTANCE) ||
                 (strategy == Strategy.PROCESS_INSTANCE && scope == Scope.PROJECT) ||
@@ -218,12 +221,14 @@ public class SignalEventTest extends JbpmTestCase {
         List<? extends ProcessInstanceLog> instances = getRuntimeEngine().getAuditService().findProcessInstances();
         Assertions.assertThat(instances).hasSize(run ? 2 : 1);
 
-        Assertions.assertThat(instances.get(0).getProcessId()).isEqualTo(throwingProcessId);
-        Assertions.assertThat(instances.get(0).getStatus()).isEqualTo(ProcessInstance.STATE_COMPLETED);
+        ProcessInstanceLog instance1 = getRuntimeEngine().getAuditService().findProcessInstance(throwingPI.getId());
+        Assertions.assertThat(instance1.getProcessId()).isEqualTo(throwingProcessId);
+        Assertions.assertThat(instance1.getStatus()).isEqualTo(ProcessInstance.STATE_COMPLETED);
 
         if (run) {
-            Assertions.assertThat(instances.get(1).getProcessId()).isEqualTo(START_CATCH_ID);
-            Assertions.assertThat(instances.get(1).getStatus()).isEqualTo(ProcessInstance.STATE_COMPLETED);
+            instances.remove(instance1);
+            Assertions.assertThat(instances.get(0).getProcessId()).isEqualTo(START_CATCH_ID);
+            Assertions.assertThat(instances.get(0).getStatus()).isEqualTo(ProcessInstance.STATE_COMPLETED);
         }
     }
 
@@ -316,27 +321,31 @@ public class SignalEventTest extends JbpmTestCase {
 
         createRuntimeManager(strategy, null, SUBPROCESS_CATCH, throwingProcessFile, INTERMEDIATE_CATCH);
 
-        getKieSession().startProcess(INTERMEDIATE_CATCH_ID);
+        ProcessInstance pi1 = getKieSession().startProcess(INTERMEDIATE_CATCH_ID);
 
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("subprocess", throwingProcessId);
-        getKieSession().startProcess(SUBPROCESS_CATCH_ID, parameters);
+        ProcessInstance pi2 = getKieSession().startProcess(SUBPROCESS_CATCH_ID, parameters);
 
         List<? extends ProcessInstanceLog> instances = getRuntimeEngine().getAuditService().findProcessInstances();
         Assertions.assertThat(instances).hasSize(3);
 
-        Assertions.assertThat(instances.get(0).getProcessId()).isEqualTo(INTERMEDIATE_CATCH_ID);
-        Assertions.assertThat(instances.get(1).getProcessId()).isEqualTo(SUBPROCESS_CATCH_ID);
-        Assertions.assertThat(instances.get(2).getProcessId()).isEqualTo(throwingProcessId);
+        ProcessInstanceLog instance1 = getRuntimeEngine().getAuditService().findProcessInstance(pi1.getId());
+        ProcessInstanceLog instance2 = getRuntimeEngine().getAuditService().findProcessInstance(pi2.getId());
+        instances.removeAll(Arrays.asList(instance1, instance2));
+        ProcessInstanceLog instance3 = instances.get(0); 
+        Assertions.assertThat(instance1.getProcessId()).isEqualTo(INTERMEDIATE_CATCH_ID);
+        Assertions.assertThat(instance2.getProcessId()).isEqualTo(SUBPROCESS_CATCH_ID);
+        Assertions.assertThat(instance3.getProcessId()).isEqualTo(throwingProcessId);
 
         if (strategy == Strategy.SINGLETON) {
-            Assertions.assertThat(instances.get(0).getStatus()).isEqualTo(scope == Scope.PROCESS_INSTANCE ? ProcessInstance.STATE_ACTIVE : ProcessInstance.STATE_COMPLETED);
-            Assertions.assertThat(instances.get(1).getStatus()).isEqualTo(scope == Scope.PROCESS_INSTANCE ? ProcessInstance.STATE_ACTIVE : ProcessInstance.STATE_COMPLETED);
+            Assertions.assertThat(instance1.getStatus()).isEqualTo(scope == Scope.PROCESS_INSTANCE ? ProcessInstance.STATE_ACTIVE : ProcessInstance.STATE_COMPLETED);
+            Assertions.assertThat(instance2.getStatus()).isEqualTo(scope == Scope.PROCESS_INSTANCE ? ProcessInstance.STATE_ACTIVE : ProcessInstance.STATE_COMPLETED);
         } else if (strategy == Strategy.PROCESS_INSTANCE) {
-            Assertions.assertThat(instances.get(0).getStatus()).isEqualTo(scope == Scope.PROJECT ? ProcessInstance.STATE_COMPLETED : ProcessInstance.STATE_ACTIVE);
-            Assertions.assertThat(instances.get(1).getStatus()).isEqualTo(scope == Scope.PROJECT ? ProcessInstance.STATE_COMPLETED : ProcessInstance.STATE_ACTIVE);
+            Assertions.assertThat(instance1.getStatus()).isEqualTo(scope == Scope.PROJECT ? ProcessInstance.STATE_COMPLETED : ProcessInstance.STATE_ACTIVE);
+            Assertions.assertThat(instance2.getStatus()).isEqualTo(scope == Scope.PROJECT ? ProcessInstance.STATE_COMPLETED : ProcessInstance.STATE_ACTIVE);
         }
-        Assertions.assertThat(instances.get(2).getStatus()).isEqualTo(ProcessInstance.STATE_COMPLETED);
+        Assertions.assertThat(instance3.getStatus()).isEqualTo(ProcessInstance.STATE_COMPLETED);
     }
 
 }

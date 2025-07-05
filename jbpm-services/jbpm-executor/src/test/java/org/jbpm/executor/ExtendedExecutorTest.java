@@ -66,9 +66,12 @@ public class ExtendedExecutorTest {
         System.setProperty("org.kie.executor.setDefaultOwner", "true");
         System.setProperty("org.kie.executor.olderThan", "2");
         dsProps = ExecutorTestUtil.getDatasourceProperties();
-        dsProps.setProperty("url", "jdbc:h2:tcp://localhost:9123/./target/jbpm-exec-test;MODE=LEGACY;NON_KEYWORDS=VALUE");
-        dsProps.setProperty("tcpPort", "9123");
-        PersistenceUtil.startH2TcpServer(dsProps);
+        String jdbcUrl = dsProps.getProperty("url");
+        if (jdbcUrl != null && jdbcUrl.matches("jdbc:h2:.*")) {
+            dsProps.setProperty("url", "jdbc:h2:tcp://localhost:9123/./target/jbpm-exec-test;MODE=LEGACY;NON_KEYWORDS=VALUE");
+            dsProps.setProperty("tcpPort", "9123");
+            PersistenceUtil.startH2TcpServer(dsProps);
+        }
         IdProvider.reset();
     }
 
