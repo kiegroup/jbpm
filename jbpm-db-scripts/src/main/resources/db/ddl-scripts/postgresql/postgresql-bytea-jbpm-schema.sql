@@ -166,6 +166,7 @@ create index IDX_ReassignPO_Entity on Reassignment_potentialOwners (entity_id);
 create index IDX_ReassignPO_Task on Reassignment_potentialOwners (task_id);
 create index IDX_RequestInfo_status on RequestInfo (status);
 create index IDX_RequestInfo_owner on RequestInfo (owner);
+create index IDX_RequestInfo_status_pInstId ON RequestInfo (status, processInstanceId);
 create index IDX_Task_Initiator on Task (taskInitiator_id);
 create index IDX_Task_ActualOwner on Task (actualOwner_id);
 create index IDX_Task_CreatedBy on Task (createdBy_id);

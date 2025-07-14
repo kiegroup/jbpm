@@ -945,6 +945,8 @@
     go
     create index IDX_RequestInfo_owner ON RequestInfo(owner)
     go
+    create index IDX_RequestInfo_status_pInstId ON RequestInfo (status, processInstanceId);
+    go
 
     create index IDX_BAMTaskSumm_createdDate on BAMTaskSummary(createdDate)
     go
@@ -992,6 +994,8 @@
     create index IDX_PInstLog_status on ProcessInstanceLog(status)
     go
     create index IDX_PInstLog_correlation on ProcessInstanceLog(correlationKey)
+    go
+    create index IDX_PInstLog_pid_status ON ProcessInstanceLog (processInstanceId, status);
     go
 
     create index IDX_VInstLog_pInstId on VariableInstanceLog(processInstanceId)
