@@ -22,6 +22,7 @@ import org.jbpm.executor.entities.ErrorInfo;
 import org.jbpm.process.audit.JPAAuditLogService;
 import org.jbpm.process.audit.query.AbstractAuditDeleteBuilderImpl;
 import org.kie.api.runtime.CommandExecutor;
+import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.internal.runtime.manager.audit.query.ErrorInfoDeleteBuilder;
 
 import static org.kie.internal.query.QueryParameterIdentifiers.EXECUTOR_TIME_LIST;
@@ -78,4 +79,25 @@ public class ErrorInfoDeleteBuilderImpl extends AbstractAuditDeleteBuilderImpl<E
         return ERROR_INFO_LOG_DELETE;
     }
 
+    @Override
+    protected boolean isSubquerySupported() {
+        return true;
+    }
+
+    @Override
+    protected Subquery applyParameters(Subquery subquery) {
+        return subquery;
+    }
+
+    @Override
+    protected Subquery getSubQuery() {
+        String queryBaseStr = "SELECT r.id from RequestInfo r where r.status in ('ERROR', 'CANCELLED', 'DONE') AND " +
+        "(r.processInstanceId is null OR r.processInstanceId not in " +
+            "(SELECT spl.processInstanceId FROM ProcessInstanceLog spl where spl.status in (" +
+            ProcessInstance.STATE_PENDING + "," + // 0
+            ProcessInstance.STATE_ACTIVE + "," + // 1
+            ProcessInstance.STATE_SUSPENDED + // 4
+            ")))";
+        return new Subquery("l.requestInfo", queryBaseStr, 1);
+    }
 }
