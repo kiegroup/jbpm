@@ -177,7 +177,7 @@ public class CommentNotificationEventListenerTest {
         
         listener.afterCaseCommentAdded(event);
 
-        String expectedNotification = "Publishing notification from cases@jbpm\\.org, with subject You have been mentioned in case \\(CASE-00001\\) comment to \\[\\[UserImpl:'(mary|john)'], \\[UserImpl:'(john|mary)']] with body simple comment for john and mary";
+        String expectedNotification = "Publishing notification from cases@jbpm.org, with subject You have been mentioned in case (CASE-00001) comment to [[UserImpl:'mary'], [UserImpl:'john']] with body simple comment for john and mary";
 
         List<String> published = publisher.get();
         assertThat(published).hasSize(1);
