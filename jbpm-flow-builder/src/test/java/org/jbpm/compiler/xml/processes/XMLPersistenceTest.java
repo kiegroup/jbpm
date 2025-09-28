@@ -146,7 +146,13 @@ public class XMLPersistenceTest extends XMLTestCase {
             throw new IllegalArgumentException("Failed to persist empty nodes!");
         }
        
-        assertXMLEqual(xml, xml2);
+        // Use XML comparison that ignores order of imports since they may be added automatically
+        // and their order is not semantically significant
+        Document control = XMLUnit.buildDocument(XMLUnit.newControlParser(), new StringReader(xml));
+        Document test = XMLUnit.buildDocument(XMLUnit.newTestParser(), new StringReader(xml2));
+        Diff diff = new Diff(control, test, null, new ElementNameAndAttributeQualifier("name"));
+
+        assertTrue( diff.toString(), diff.similar() );
 //        assertEquals(xml, xml2);
     }
 
