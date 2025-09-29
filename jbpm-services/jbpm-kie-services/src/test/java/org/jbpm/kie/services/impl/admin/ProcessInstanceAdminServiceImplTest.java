@@ -21,6 +21,7 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -46,6 +47,7 @@ import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.query.QueryContext;
 import org.kie.api.task.model.TaskSummary;
 import org.kie.internal.query.QueryFilter;
+import org.kie.internal.runtime.conf.DeploymentDescriptor;
 import org.kie.internal.runtime.conf.ObjectModel;
 import org.kie.internal.runtime.error.ExecutionError;
 import org.kie.scanner.KieMavenRepository;
@@ -90,7 +92,9 @@ public class ProcessInstanceAdminServiceImplTest extends AbstractKieServicesBase
         processes.add("repo/processes/general/BPMN2-ProcessSLA.bpmn2");
         processes.add("repo/processes/general/BPMN2-SuspendUntil.bpmn2");
 
-        InternalKieModule kJar1 = createKieJar(ks, releaseId, processes);
+        Map<String, String> extraResources = new LinkedHashMap<>();
+        extraResources.put("src/main/resources/" + DeploymentDescriptor.META_INF_LOCATION, StableDescriptorXml.descriptorXml());
+        InternalKieModule kJar1 = createKieJar(ks, releaseId, processes, extraResources);
         File pom = new File("target/admin", "pom.xml");
         pom.getParentFile().mkdir();
         try {
@@ -584,7 +588,4 @@ public class ProcessInstanceAdminServiceImplTest extends AbstractKieServicesBase
         return listeners;
     }
     
-    protected boolean createDescriptor() {
-        return true;
-    }
 }
