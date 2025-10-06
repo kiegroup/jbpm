@@ -275,7 +275,7 @@ public class JPAWorkingMemoryDbLogger extends AbstractAuditLoggerAdapter impleme
         }
         if (log != null) {
             log.setSlaCompliance(((NodeInstance) event.getNodeInstance()).getSlaCompliance());
-            log.setSlaDueDate(((ProcessInstance) event.getProcessInstance()).getSlaDueDate());
+            log.setSlaDueDate(((NodeInstance) event.getNodeInstance()).getSlaDueDate());
             setNodeInstanceMetadata(event.getNodeInstance(), METADATA_NODEINSTANCE_LOG, log);
             ((NodeInstanceImpl) event.getNodeInstance()).getMetaData().put(METADATA_NODEINSTANCE_LOG, log);
             em.merge(log);
