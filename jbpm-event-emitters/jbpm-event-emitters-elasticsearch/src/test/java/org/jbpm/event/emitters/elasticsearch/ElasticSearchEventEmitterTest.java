@@ -165,7 +165,12 @@ public class ElasticSearchEventEmitterTest {
         emitter.close();
         
         assertThat(responseCollector).hasSize(1);
-        assertThat(responseCollector.get(0)).isEqualToNormalizingNewlines(expectedResult);
+
+        // compare as JSON objects to fix the non-deterministic order of map entries
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode expectedObj = mapper.readTree(expectedResult);
+        JsonNode actualObj = mapper.readTree(responseCollector.get(0));
+        assertThat(actualObj).isEqualTo(expectedObj);
     }
     
     @SuppressWarnings({"rawtypes", "unchecked"})
