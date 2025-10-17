@@ -63,6 +63,8 @@ import org.kie.internal.task.api.model.InternalPeopleAssignments;
 import org.kie.internal.task.api.model.InternalTaskData;
 import org.kie.internal.task.api.model.TaskEvent.TaskEventType;
 import org.mockito.Mockito;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -234,7 +236,12 @@ public class ElasticSearchEventEmitterTest {
         emitter.close();
         
         assertThat(responseCollector).hasSize(1);
-        assertThat(responseCollector.get(0)).isEqualToNormalizingNewlines(expectedResult);
+
+        // compare as JSON objects to fix the non-deterministic order of map entries
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode expectedObj = mapper.readTree(expectedResult);
+        JsonNode actualObj = mapper.readTree(responseCollector.get(0));
+        assertThat(actualObj).isEqualTo(expectedObj);
     }
     
     @Test
