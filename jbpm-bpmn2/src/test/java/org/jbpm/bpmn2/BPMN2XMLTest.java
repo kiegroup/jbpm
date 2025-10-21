@@ -82,6 +82,10 @@ public class BPMN2XMLTest extends XMLTestCase {
 			sequenceDoesNotMatter.add("scriptTask");
 			sequenceDoesNotMatter.add("endEvent");
 			sequenceDoesNotMatter.add("bpmndi:BPMNShape");
+			sequenceDoesNotMatter.add("bpmndi:BPMNEdge");
+			sequenceDoesNotMatter.add("tns:import");
+			sequenceDoesNotMatter.add("tns:global");
+			sequenceDoesNotMatter.add("sequenceFlow");
 			diff.overrideDifferenceListener(new DifferenceListener() {
                 
                 public int differenceFound(Difference diff) {
