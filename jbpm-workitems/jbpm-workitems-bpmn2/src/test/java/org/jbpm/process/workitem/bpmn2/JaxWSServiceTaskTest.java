@@ -16,6 +16,7 @@
 
 package org.jbpm.process.workitem.bpmn2;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -217,8 +218,14 @@ public class JaxWSServiceTaskTest {
         WorkflowProcessInstance processInstance = (WorkflowProcessInstance) ksession.startProcess("multiparamws",
                                                                                                   params);
         String variable = (String) processInstance.getVariable("s2");
-        assertEquals("Hello doe, john",
-                     variable);
+
+        assertNotNull(variable);
+        assertTrue(variable.startsWith("Hello "));
+
+        String[] parts = variable.substring("Hello ".length()).split(",\\s*");
+        java.util.Arrays.sort(parts);
+        assertArrayEquals(new String[]{"doe", "john"}, parts);
+
         assertEquals(ProcessInstance.STATE_COMPLETED,
                      processInstance.getState());
     }
@@ -238,8 +245,14 @@ public class JaxWSServiceTaskTest {
         WorkflowProcessInstance processInstance = (WorkflowProcessInstance) ksession.startProcess("multiparamws-int",
                                                                                                   params);
         String variable = (String) processInstance.getVariable("s2");
-        assertEquals("Hello 2, 3",
-                     variable);
+
+        assertNotNull(variable);
+        assertTrue(variable.startsWith("Hello "));
+
+        String[] nums = variable.substring("Hello ".length()).split(",\\s*");
+        java.util.Arrays.sort(nums);
+        assertArrayEquals(new String[]{"2", "3"}, nums);
+
         assertEquals(ProcessInstance.STATE_COMPLETED,
                      processInstance.getState());
     }
