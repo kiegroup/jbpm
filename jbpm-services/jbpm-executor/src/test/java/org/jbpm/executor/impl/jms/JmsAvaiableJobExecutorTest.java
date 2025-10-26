@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -160,7 +161,7 @@ public class JmsAvaiableJobExecutorTest  {
     public void testAsyncAuditProducerPrioritizedJobs() throws Exception {
         
         CountDownAsyncJobListener countDownListener = configureListener(2);
-        final List<String> executedJobs = new ArrayList<String>();
+        final List<String> executedJobs = new CopyOnWriteArrayList<String>();
         ((ExecutorServiceImpl) executorService).addAsyncJobListener(new AsynchronousJobListener() {
             
             @Override
