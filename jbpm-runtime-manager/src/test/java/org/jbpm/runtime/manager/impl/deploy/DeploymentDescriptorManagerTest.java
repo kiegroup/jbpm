@@ -33,6 +33,7 @@ import javax.xml.bind.annotation.XmlElement;
 
 import org.assertj.core.api.Assertions;
 import org.drools.compiler.kie.builder.impl.InternalKieModule;
+import org.drools.modelcompiler.dsl.pattern.D;
 import org.junit.Test;
 import org.kie.api.KieServices;
 import org.kie.api.builder.ReleaseId;
@@ -371,16 +372,34 @@ public class DeploymentDescriptorManagerTest extends AbstractDeploymentDescripto
         // create dependency kjar
         ReleaseId releaseIdDep = ks.newReleaseId(GROUP_ID, "dependency-data", VERSION);
 
-        DeploymentDescriptor descriptorDep = new DeploymentDescriptorImpl("org.jbpm.domain");
-        descriptorDep.getBuilder()
-                .runtimeStrategy(RuntimeStrategy.PER_PROCESS_INSTANCE)
-                .auditPersistenceUnit("org.jbpm.audit")
-                .addGlobal(new NamedObjectModel("service", "org.jbpm.global.Service"));
+        // Deterministic descriptor for the dependency module
+        final String dependencyDescriptorXml =
+            "<deployment-descriptor>" +
+            "  <persistence-unit>org.jbpm.domain</persistence-unit>" +
+            "  <audit-persistence-unit>org.jbpm.audit</audit-persistence-unit>" +
+            "  <audit-mode>JPA</audit-mode>" +
+            "  <persistence-mode>JPA</persistence-mode>" +
+            "  <runtime-strategy>PER_PROCESS_INSTANCE</runtime-strategy>" +
+            "  <marshalling-strategies/>" +
+            "  <event-listeners/>" +
+            "  <task-event-listeners/>" +
+            "  <globals>" +
+            "    <global>" +
+            "      <name>service</name>" +
+            "    </global>" +
+            "  </globals>" +
+            "  <work-item-handlers/>" +
+            "  <environment-entries/>" +
+            "  <configurations/>" +
+            "  <required-roles/>" +
+            "  <remoteable-classes/>" +
+            "  <limit-serialization-classes>false</limit-serialization-classes>" +
+            "</deployment-descriptor>";
 
         Map<String, String> resourcesDep = new HashMap<String, String>();
         resourcesDep.put("src/main/resources/simple.drl", SIMPLE_DRL);
         resourcesDep.put("src/main/resources/META-INF/kie-deployment-descriptor.xml",
-                         descriptorDep.toXml());
+                         dependencyDescriptorXml);
 
         InternalKieModule kJarDep = createKieJar(ks, releaseIdDep, resourcesDep);
         installKjar(releaseIdDep, kJarDep);
@@ -388,14 +407,30 @@ public class DeploymentDescriptorManagerTest extends AbstractDeploymentDescripto
         // create first kjar that will have dependency to another
         ReleaseId releaseId = ks.newReleaseId(GROUP_ID, ARTIFACT_ID, VERSION);
 
-        DeploymentDescriptor descriptor = new DeploymentDescriptorImpl("org.jbpm.domain");
-        descriptor.getBuilder()
-                .runtimeStrategy(RuntimeStrategy.PER_PROCESS_INSTANCE);
+        // Deterministic descriptor for the main module
+        final String mainDescriptorXml =
+            "<deployment-descriptor>" +
+            "  <persistence-unit>org.jbpm.domain</persistence-unit>" +
+            "  <audit-persistence-unit>org.jbpm.domain</audit-persistence-unit>" +
+            "  <audit-mode>JPA</audit-mode>" +
+            "  <persistence-mode>JPA</persistence-mode>" +
+            "  <runtime-strategy>PER_PROCESS_INSTANCE</runtime-strategy>" +
+            "  <marshalling-strategies/>" +
+            "  <event-listeners/>" +
+            "  <task-event-listeners/>" +
+            "  <globals/>" +
+            "  <work-item-handlers/>" +
+            "  <environment-entries/>" +
+            "  <configurations/>" +
+            "  <required-roles/>" +
+            "  <remoteable-classes/>" +
+            "  <limit-serialization-classes>false</limit-serialization-classes>" +
+            "</deployment-descriptor>";
 
         Map<String, String> resources = new HashMap<String, String>();
         resources.put("src/main/resources/simple.drl", SIMPLE_DRL);
         resources.put("src/main/resources/META-INF/kie-deployment-descriptor.xml",
-                      descriptor.toXml());
+                      mainDescriptorXml);
 
         InternalKieModule kJar1 = createKieJar(ks, releaseId, resources, releaseIdDep);
         installKjar(releaseId, kJar1);
@@ -407,7 +442,7 @@ public class DeploymentDescriptorManagerTest extends AbstractDeploymentDescripto
         assertNotNull(descriptorHierarchy);
         assertEquals(3, descriptorHierarchy.size());
 
-        descriptor = descriptorHierarchy.get(0);
+        DeploymentDescriptor descriptor = descriptorHierarchy.get(0);
 
         assertNotNull(descriptor);
         assertEquals("org.jbpm.domain", descriptor.getPersistenceUnit());
