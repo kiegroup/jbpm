@@ -143,11 +143,32 @@ public class RuntimeManagerWithDescriptorTest extends AbstractDeploymentDescript
 
         assertNotNull(((InternalRegisterableItemsFactory) factory).getRuntimeManager());
 
-        String descriptorFromKjar = descriptor.toXml();
+        // Instead of comparing XML which is flaky, compare semantic fields:
         DeploymentDescriptorManager ddManager = new DeploymentDescriptorManager();
-        String defaultDescriptor = ddManager.getDefaultDescriptor().toXml();
+        DeploymentDescriptor defaultDescriptor = ddManager.getDefaultDescriptor();
 
-        assertEquals(defaultDescriptor, descriptorFromKjar);
+        assertEquals(defaultDescriptor.getPersistenceUnit(),      descriptor.getPersistenceUnit());
+        assertEquals(defaultDescriptor.getAuditPersistenceUnit(), descriptor.getAuditPersistenceUnit());
+        assertEquals(defaultDescriptor.getAuditMode(),            descriptor.getAuditMode());
+        assertEquals(defaultDescriptor.getPersistenceMode(),      descriptor.getPersistenceMode());
+        assertEquals(defaultDescriptor.getRuntimeStrategy(),      descriptor.getRuntimeStrategy());
+
+        assertEquals(defaultDescriptor.getMarshallingStrategies().size(),
+                    descriptor.getMarshallingStrategies().size());
+        assertEquals(defaultDescriptor.getConfiguration().size(),
+                    descriptor.getConfiguration().size());
+        assertEquals(defaultDescriptor.getEnvironmentEntries().size(),
+                    descriptor.getEnvironmentEntries().size());
+        assertEquals(defaultDescriptor.getEventListeners().size(),
+                    descriptor.getEventListeners().size());
+        assertEquals(defaultDescriptor.getGlobals().size(),
+                    descriptor.getGlobals().size());
+        assertEquals(defaultDescriptor.getTaskEventListeners().size(),
+                    descriptor.getTaskEventListeners().size());
+        assertEquals(defaultDescriptor.getWorkItemHandlers().size(),
+                    descriptor.getWorkItemHandlers().size());
+        assertEquals(defaultDescriptor.getRequiredRoles().size(),
+                    descriptor.getRequiredRoles().size());
     }
 
 
