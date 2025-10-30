@@ -172,13 +172,30 @@ public class DeploymentDescriptorManagerTest extends AbstractDeploymentDescripto
         KieServices ks = KieServices.Factory.get();
         ReleaseId releaseId = ks.newReleaseId(GROUP_ID, ARTIFACT_ID, VERSION);
 
-        DeploymentDescriptor descriptor = new DeploymentDescriptorImpl("org.jbpm.domain");
-        descriptor.getBuilder().runtimeStrategy(RuntimeStrategy.PER_PROCESS_INSTANCE);
+        // Deterministic, schema-valid deployment descriptor XML
+        final String descriptorXml =
+            "<deployment-descriptor>" +
+            "  <persistence-unit>org.jbpm.domain</persistence-unit>" +
+            "  <audit-persistence-unit>org.jbpm.domain</audit-persistence-unit>" +
+            "  <audit-mode>JPA</audit-mode>" +
+            "  <persistence-mode>JPA</persistence-mode>" +
+            "  <runtime-strategy>PER_PROCESS_INSTANCE</runtime-strategy>" +
+            "  <marshalling-strategies/>" +
+            "  <event-listeners/>" +
+            "  <task-event-listeners/>" +
+            "  <globals/>" +
+            "  <work-item-handlers/>" +
+            "  <environment-entries/>" +
+            "  <configurations/>" +
+            "  <required-roles/>" +
+            "  <remoteable-classes/>" +
+            "  <limit-serialization-classes>false</limit-serialization-classes>" +
+            "</deployment-descriptor>";
 
         Map<String, String> resources = new HashMap<String, String>();
         resources.put("src/main/resources/simple.drl", SIMPLE_DRL);
         resources.put("src/main/resources/META-INF/kie-deployment-descriptor.xml",
-                      descriptor.toXml());
+                      descriptorXml);
 
         InternalKieModule kJar1 = createKieJar(ks, releaseId, resources);
         installKjar(releaseId, kJar1);
@@ -190,7 +207,7 @@ public class DeploymentDescriptorManagerTest extends AbstractDeploymentDescripto
         assertNotNull(descriptorHierarchy);
         assertEquals(2, descriptorHierarchy.size());
 
-        descriptor = descriptorHierarchy.get(0);
+        DeploymentDescriptor descriptor = descriptorHierarchy.get(0);
 
         assertNotNull(descriptor);
         assertEquals("org.jbpm.domain", descriptor.getPersistenceUnit());
