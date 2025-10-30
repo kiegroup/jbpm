@@ -35,10 +35,8 @@ import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.runtime.manager.RuntimeEnvironment;
 import org.kie.api.runtime.manager.RuntimeManager;
 import org.kie.api.runtime.manager.RuntimeManagerFactory;
-import org.kie.internal.runtime.conf.AuditMode;
 import org.kie.internal.runtime.conf.DeploymentDescriptor;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
-import org.kie.internal.runtime.manager.deploy.DeploymentDescriptorImpl;
 import org.kie.test.util.db.PoolingDataSourceWrapper;
 
 import static org.junit.Assert.assertEquals;
@@ -68,12 +66,16 @@ public class DefaultRegisterableItemsFactoryTest extends AbstractDeploymentDescr
     public void testJmsAuditCacheInstance() throws Exception {
         KieServices ks = KieServices.Factory.get();
         ReleaseId releaseId = ks.newReleaseId("org.jbpm.test.jms", "kjar-jms-audit", "1.0.0");
-
-        DeploymentDescriptor customDescriptor = new DeploymentDescriptorImpl("org.jbpm.persistence.jpa");
-        customDescriptor.getBuilder()
-                        .auditMode(AuditMode.JMS);
+        
+        // Deterministic, schema-valid deployment descriptor XML.
+        String descriptorXml =
+            "<deployment-descriptor>" +
+            "  <persistence-unit>org.jbpm.persistence.jpa</persistence-unit>" +
+            "  <audit-mode>JMS</audit-mode>" +
+            "</deployment-descriptor>";
+        
         Map<String, String> resources = new HashMap<String, String>();
-        resources.put("src/main/resources/" + DeploymentDescriptor.META_INF_LOCATION, customDescriptor.toXml());
+        resources.put("src/main/resources/" + DeploymentDescriptor.META_INF_LOCATION, descriptorXml);
 
         InternalKieModule kJar1 = createKieJar(ks, releaseId, resources);
         installKjar(releaseId, kJar1);
