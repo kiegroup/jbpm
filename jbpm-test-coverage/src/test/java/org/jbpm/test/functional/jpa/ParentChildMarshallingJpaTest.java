@@ -33,6 +33,7 @@ import org.jbpm.services.task.utils.ContentMarshallerHelper;
 import org.jbpm.test.JbpmTestCase;
 import org.jbpm.test.entity.Application;
 import org.jbpm.test.entity.Person;
+import org.junit.After;
 import org.junit.Test;
 import org.kie.api.marshalling.ObjectMarshallingStrategy;
 import org.kie.api.runtime.EnvironmentName;
@@ -58,6 +59,16 @@ public class ParentChildMarshallingJpaTest extends JbpmTestCase {
     public ParentChildMarshallingJpaTest() {
         super(true, true);
     }
+
+	@After
+	public void tearDown() {
+		EntityManager em = emfDomain.createEntityManager();
+		em.getTransaction().begin();
+		em.createQuery("DELETE FROM Application WHERE person IS NOT NULL").executeUpdate();
+		em.createQuery("DELETE FROM Person").executeUpdate();
+		em.getTransaction().commit();
+		em.close();
+	}
 
 	@Test
 	public void testProcess() throws Exception {
@@ -120,6 +131,9 @@ public class ParentChildMarshallingJpaTest extends JbpmTestCase {
 		int size = em.createQuery("select i from Person i").getResultList().size();
 		assertEquals(1, size);
 
+		// close manager which will close session maintained by the manager
+		manager.close();
+		
 	}
 
 }
