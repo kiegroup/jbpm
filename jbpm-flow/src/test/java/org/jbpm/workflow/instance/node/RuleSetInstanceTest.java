@@ -24,6 +24,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import org.jbpm.process.core.context.variable.Variable;
 import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.core.datatype.DataType;
@@ -68,6 +71,7 @@ public class RuleSetInstanceTest extends AbstractBaseTest {
     @Parameters( name = "{index}: Actual: <{0}> Expected: <{1}> Type: <{3}>" )
     public static Collection<Object[]> data() {
         String className = "org.jbpm.workflow.instance.node.RuleSetInstanceTest$MyDataObject";
+        String classNameMapWrapper = "org.jbpm.workflow.instance.node.RuleSetInstanceTest$MapWrapperObject";
 
         Map<String, Object> sourceMap = new HashMap<>();
         sourceMap.put("message", "abc");
@@ -75,6 +79,13 @@ public class RuleSetInstanceTest extends AbstractBaseTest {
         sourceMap.put("code", 1);
 
         MyDataObject targetDataObject = new MyDataObject("abc", true, 1);
+
+         Map<String, Map> sourceMapWrapper = new HashMap<String, Map>();
+         Map<String, String> innerMap = new HashMap<String, String>();
+         innerMap.put("key1", "val1");
+         sourceMapWrapper.put("wrap", innerMap);
+         MapWrapperObject targetDataObjectMapWrapper = new MapWrapperObject();
+         targetDataObjectMapWrapper.put("key1", "val1");
 
         return Arrays.asList(new Object[][] {
                 {"abc", "abc", new StringDataType(), "java.lang.String"},
@@ -85,6 +96,7 @@ public class RuleSetInstanceTest extends AbstractBaseTest {
                 {12.3, 12.3, new ObjectDataType(), "java.lang.Double"},
                 {"12.3", 12.3F, new FloatDataType(), "java.lang.Float"},
                 {sourceMap, targetDataObject, new ObjectDataType(className), className},
+                {sourceMapWrapper, targetDataObjectMapWrapper, new ObjectDataType(classNameMapWrapper), classNameMapWrapper},
         });
     }
 
@@ -193,6 +205,28 @@ public class RuleSetInstanceTest extends AbstractBaseTest {
                     ", status=" + status +
                     ", code=" + code +
                     '}';
+        }
+    }
+
+    @XmlRootElement
+    public static class MapWrapperObject {
+
+        @XmlElement
+        private HashMap<String, String> wrap = new HashMap<String, String>();
+
+        public MapWrapperObject() {
+        }
+
+        public void put(String key, String value) {
+            wrap.put(key, value);
+        }
+
+        public String get(String key) {
+            return wrap.get(key);
+        }
+
+        public String toString() {
+            return wrap.toString();
         }
     }
 }
