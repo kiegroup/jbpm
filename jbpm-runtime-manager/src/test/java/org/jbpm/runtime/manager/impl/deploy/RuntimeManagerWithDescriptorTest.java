@@ -143,11 +143,32 @@ public class RuntimeManagerWithDescriptorTest extends AbstractDeploymentDescript
 
         assertNotNull(((InternalRegisterableItemsFactory) factory).getRuntimeManager());
 
-        String descriptorFromKjar = descriptor.toXml();
+        // Instead of comparing XML which is flaky, compare semantic fields:
         DeploymentDescriptorManager ddManager = new DeploymentDescriptorManager();
-        String defaultDescriptor = ddManager.getDefaultDescriptor().toXml();
+        DeploymentDescriptor defaultDescriptor = ddManager.getDefaultDescriptor();
 
-        assertEquals(defaultDescriptor, descriptorFromKjar);
+        assertEquals(defaultDescriptor.getPersistenceUnit(),      descriptor.getPersistenceUnit());
+        assertEquals(defaultDescriptor.getAuditPersistenceUnit(), descriptor.getAuditPersistenceUnit());
+        assertEquals(defaultDescriptor.getAuditMode(),            descriptor.getAuditMode());
+        assertEquals(defaultDescriptor.getPersistenceMode(),      descriptor.getPersistenceMode());
+        assertEquals(defaultDescriptor.getRuntimeStrategy(),      descriptor.getRuntimeStrategy());
+
+        assertEquals(defaultDescriptor.getMarshallingStrategies().size(),
+                    descriptor.getMarshallingStrategies().size());
+        assertEquals(defaultDescriptor.getConfiguration().size(),
+                    descriptor.getConfiguration().size());
+        assertEquals(defaultDescriptor.getEnvironmentEntries().size(),
+                    descriptor.getEnvironmentEntries().size());
+        assertEquals(defaultDescriptor.getEventListeners().size(),
+                    descriptor.getEventListeners().size());
+        assertEquals(defaultDescriptor.getGlobals().size(),
+                    descriptor.getGlobals().size());
+        assertEquals(defaultDescriptor.getTaskEventListeners().size(),
+                    descriptor.getTaskEventListeners().size());
+        assertEquals(defaultDescriptor.getWorkItemHandlers().size(),
+                    descriptor.getWorkItemHandlers().size());
+        assertEquals(defaultDescriptor.getRequiredRoles().size(),
+                    descriptor.getRequiredRoles().size());
     }
 
 
@@ -157,16 +178,35 @@ public class RuntimeManagerWithDescriptorTest extends AbstractDeploymentDescript
         KieServices ks = KieServices.Factory.get();
         ReleaseId releaseId = ks.newReleaseId("org.jbpm.test.dd", "-kjar-with-dd", "1.0.0");
 
-        DeploymentDescriptor customDescriptor = new DeploymentDescriptorImpl("org.jbpm.persistence.jpa");
-        customDescriptor.getBuilder()
-                .runtimeStrategy(RuntimeStrategy.PER_REQUEST)
-                .addGlobal(new NamedObjectModel("service", "java.util.ArrayList"));
+        final String customDescriptorXml =
+            "<deployment-descriptor>" +
+            "  <persistence-unit>org.jbpm.persistence.jpa</persistence-unit>" +
+            "  <audit-persistence-unit>org.jbpm.persistence.jpa</audit-persistence-unit>" +
+            "  <audit-mode>JPA</audit-mode>" +
+            "  <persistence-mode>JPA</persistence-mode>" +
+            "  <runtime-strategy>PER_REQUEST</runtime-strategy>" +
+            "  <marshalling-strategies/>" +
+            "  <event-listeners/>" +
+            "  <task-event-listeners/>" +
+            "  <globals>" +
+            "    <global>" +
+            "      <identifier>java.util.ArrayList</identifier>" +
+            "      <name>service</name>" +
+            "    </global>" +
+            "  </globals>" +
+            "  <work-item-handlers/>" +
+            "  <environment-entries/>" +
+            "  <configurations/>" +
+            "  <required-roles/>" +
+            "  <remoteable-classes/>" +
+            "  <limit-serialization-classes>false</limit-serialization-classes>" +
+            "</deployment-descriptor>";
 
         String processString = IOUtils.toString(this.getClass().getResourceAsStream("/BPMN2-ScriptTask.bpmn2"), "UTF-8");
 
         Map<String, String> resources = new HashMap<String, String>();
         resources.put("src/main/resources/BPMN2-ScriptTask.bpmn2", processString);
-        resources.put("src/main/resources/" + DeploymentDescriptor.META_INF_LOCATION, customDescriptor.toXml());
+        resources.put("src/main/resources/" + DeploymentDescriptor.META_INF_LOCATION, customDescriptorXml);
 
         String drl = "package org.jbpm; global java.util.List service; "
                 + "	rule \"Start Hello1\"" + "	  when" + "	  then"
