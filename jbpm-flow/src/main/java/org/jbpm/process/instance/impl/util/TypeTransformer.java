@@ -22,6 +22,8 @@ import java.util.List;
 
 import org.kie.dmn.feel.lang.types.impl.ComparablePeriod;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -47,7 +49,8 @@ public class TypeTransformer {
                         .addSerializer(ComparablePeriod.class, new ComparablePeriodSerializer())
                 )
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                .configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
+                .configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true)
+                .setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
         
 
         this.classLoader = classLoader;
