@@ -22,13 +22,15 @@ import java.util.Map;
 import org.jbpm.process.core.impl.DataTransformerRegistry;
 import org.junit.Test;
 import org.kie.api.runtime.process.DataTransformer;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.junit.Assert.*;
 
 public class TransformerJSONandXMLTest {
 
 	@Test
-	public void testJSONTransformer() {
+	public void testJSONTransformer() throws Exception {
 		String expectedJson = "{\"name\":\"john\",\"age\":34}";
 		DataTransformer transformer = DataTransformerRegistry.get().find("http://www.mvel.org/2.0");
 
@@ -46,8 +48,12 @@ public class TransformerJSONandXMLTest {
 
 		Object result = transformer.transform(compiled, parameters);
 
+		ObjectMapper mapper = new ObjectMapper();
+		Map<String, Object> expectedMap = mapper.readValue(expectedJson, new TypeReference<Map<String, Object>>() {});
+		Map<String, Object> resultMap = mapper.readValue((String) result, new TypeReference<Map<String, Object>>() {});	
+		
 		System.out.println(result);
-		assertEquals(expectedJson, result);
+		assertEquals(expectedMap, resultMap);
 
 		Object compiledR = transformer.compile(expressionR, new HashMap<String, Object>());
 
