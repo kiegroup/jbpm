@@ -120,21 +120,19 @@
           <groupId>io.netty</groupId>
           <artifactId>netty-handler</artifactId>
         </exclusion>
+        <exclusion>
+          <groupId>commons-logging</groupId>
+          <artifactId>commons-logging</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId> com.sun.xml.bind</groupId>
+          <artifactId>jaxb-impl</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
       <groupId>io.netty</groupId>
       <artifactId>netty-handler</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.bouncycastle</groupId>
-      <artifactId>bcprov-jdk15to18</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.bouncycastle</groupId>
-      <artifactId>bcpkix-jdk15to18</artifactId>
       <scope>test</scope>
     </dependency>
     <!-- needed for jdk 11 -->
