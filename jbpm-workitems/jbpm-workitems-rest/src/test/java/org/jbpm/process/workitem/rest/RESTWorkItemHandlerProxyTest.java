@@ -46,9 +46,6 @@ public class RESTWorkItemHandlerProxyTest {
 
     @BeforeClass
     public static void startProxy() {
-        //needed mainly for ibm jdk 1.8
-        ConfigurationProperties.useBouncyCastleForKeyAndCertificateGeneration(true);
-
         proxy = ClientAndServer.startClientAndServer();
         System.setProperty("http.proxyHost", "127.0.0.1");
         System.setProperty("http.proxyPort", Integer.toString(proxy.getLocalPort()));
