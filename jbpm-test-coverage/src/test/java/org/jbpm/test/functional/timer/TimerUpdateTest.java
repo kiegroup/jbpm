@@ -32,6 +32,7 @@ import org.jbpm.process.instance.timer.TimerManager;
 import org.jbpm.test.JbpmTestCase;
 import org.jbpm.test.listener.process.DefaultCountDownProcessEventListener;
 import org.jbpm.test.listener.process.NodeLeftCountDownProcessEventListener;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.kie.api.event.process.DefaultProcessEventListener;
@@ -88,6 +89,12 @@ public class TimerUpdateTest extends JbpmTestCase {
         kieSession = null;
         System.clearProperty(TIMER_FIRED_TEXT);
         System.clearProperty(TIMER_FIRED_TIME_PROP);
+    }
+
+    @After
+    public void tearDown() {
+        disposeRuntimeManager();
+        kieSession.dispose();
     }
 
     @Test(timeout = 30000)
