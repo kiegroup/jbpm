@@ -78,6 +78,9 @@ public class RestWorkitemHandlerClientCreationTest {
 
     @Test
     public void testPooledClientCreationWithDefaultTimeouts() {
+        // clear cached client to ensure starting from fresh state
+        RESTWorkItemHandler.cachedClient = null;
+        
         RESTWorkItemHandler handler = spy(RESTWorkItemHandler.class);
         when(handler.getDoCacheClient()).thenReturn(true);
 

@@ -356,6 +356,7 @@ public class FilteredKModuleDeploymentServiceTest extends AbstractKieServicesBas
        limitDeploymentUnit.setDeploymentDescriptor(depDesc);
 
        deploymentService.deploy(limitDeploymentUnit);
+       units.add(limitDeploymentUnit);
        verifyDeployedUnitContainsCorrectClasses(limitDeploymentUnit);
 
        depDesc = new DeploymentDescriptorImpl().getBuilder()
@@ -364,6 +365,7 @@ public class FilteredKModuleDeploymentServiceTest extends AbstractKieServicesBas
        allDeploymentUnit.setDeploymentDescriptor(depDesc);
 
        deploymentService.deploy(allDeploymentUnit);
+       units.add(allDeploymentUnit);
        verifyDeployedUnitContainsCorrectClasses(allDeploymentUnit);
     }
 
@@ -427,6 +429,7 @@ public class FilteredKModuleDeploymentServiceTest extends AbstractKieServicesBas
            .get();
        childDeploymentUnit.setDeploymentDescriptor(depDesc);
        deploymentService.deploy(childDeploymentUnit);
+       units.add(childDeploymentUnit);
 
        KModuleDeploymentUnit parentDeploymentUnit = new KModuleDeploymentUnit(groupId, parentArtifactId, version);
        DeploymentDescriptor parentDepDesc = new DeploymentDescriptorImpl().getBuilder()
@@ -435,6 +438,7 @@ public class FilteredKModuleDeploymentServiceTest extends AbstractKieServicesBas
        parentDeploymentUnit.setDeploymentDescriptor(parentDepDesc);
 
        deploymentService.deploy(parentDeploymentUnit);
+       units.add(parentDeploymentUnit);
 
        verifyDeployedUnitContainsCorrectClasses(parentDeploymentUnit);
     }

@@ -557,7 +557,7 @@ public class PerRequestRuntimeManagerTest extends AbstractBaseTest {
         assertEquals(ProcessInstance.STATE_ACTIVE, processInstance2.getState());
         
         manager.disposeRuntimeEngine(runtime1);
-        manager.disposeRuntimeEngine(runtime2);
+        manager2.disposeRuntimeEngine(runtime2);
         
         // close manager which will close session maintained by the manager
         manager.close();
