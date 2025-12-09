@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,6 +64,10 @@ import static org.kie.scanner.KieMavenRepository.getKieMavenRepository;
 public class KModuleDeploymentServiceTest extends AbstractKieServicesBaseTest {
 
     private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentServiceTest.class);
+
+    private static final String DEFAULT_PERSISTENCE_UNIT = "org.jbpm.domain";
+    private static final HandlerDefinition SIMPLE_LOG_HANDLER = new HandlerDefinition("mvel", "new org.jbpm.process.instance.impl.demo.SystemOutWorkItemHandler()", "Log");
+    private static final HandlerDefinition KIE_CONTAINER_HANDLER = new HandlerDefinition("mvel", "new org.jbpm.kie.services.test.objects.KieConteinerSystemOutWorkItemHandler(kieContainer)", "Log");
 
     private List<DeploymentUnit> units = new ArrayList<DeploymentUnit>();
 
@@ -404,13 +409,8 @@ public class KModuleDeploymentServiceTest extends AbstractKieServicesBaseTest {
         processes.add("repo/processes/general/humanTask.bpmn");
         processes.add("repo/processes/general/import.bpmn");
 
-        DeploymentDescriptor customDescriptor = new DeploymentDescriptorImpl("org.jbpm.domain");
-        customDescriptor.getBuilder()
-                .runtimeStrategy(RuntimeStrategy.PER_REQUEST)
-                .addWorkItemHandler(new NamedObjectModel("Log", "org.jbpm.process.instance.impl.demo.SystemOutWorkItemHandler"));
-
         Map<String, String> resources = new HashMap<String, String>();
-        resources.put("src/main/resources/" + DeploymentDescriptor.META_INF_LOCATION, customDescriptor.toXml());
+        resources.put("src/main/resources/" + DeploymentDescriptor.META_INF_LOCATION, descriptorXml(RuntimeStrategy.PER_REQUEST, SIMPLE_LOG_HANDLER, Collections.emptyList()));
 
         InternalKieModule kJar1 = createKieJar(ks, releaseId, processes, resources);
         File pom = new File("target/kmodule", "pom.xml");
@@ -478,14 +478,8 @@ public class KModuleDeploymentServiceTest extends AbstractKieServicesBaseTest {
         processes.add("repo/processes/general/humanTask.bpmn");
         processes.add("repo/processes/general/import.bpmn");
 
-        DeploymentDescriptor customDescriptor = new DeploymentDescriptorImpl("org.jbpm.domain");
-        customDescriptor.getBuilder()
-                .runtimeStrategy(RuntimeStrategy.PER_PROCESS_INSTANCE)
-                .addWorkItemHandler(new NamedObjectModel("Log", "org.jbpm.process.instance.impl.demo.SystemOutWorkItemHandler"))
-                .addRequiredRole("experts");
-
         Map<String, String> resources = new HashMap<String, String>();
-        resources.put("src/main/resources/" + DeploymentDescriptor.META_INF_LOCATION, customDescriptor.toXml());
+        resources.put("src/main/resources/" + DeploymentDescriptor.META_INF_LOCATION, descriptorXml(RuntimeStrategy.PER_PROCESS_INSTANCE, SIMPLE_LOG_HANDLER, Collections.singletonList("experts")));
 
         InternalKieModule kJar1 = createKieJar(ks, releaseId, processes, resources);
         File pom = new File("target/kmodule", "pom.xml");
@@ -546,13 +540,8 @@ public class KModuleDeploymentServiceTest extends AbstractKieServicesBaseTest {
         processes.add("repo/processes/general/humanTask.bpmn");
         processes.add("repo/processes/general/import.bpmn");
 
-        DeploymentDescriptor customDescriptor = new DeploymentDescriptorImpl("org.jbpm.domain");
-        customDescriptor.getBuilder()
-                .runtimeStrategy(RuntimeStrategy.PER_REQUEST)
-                .addWorkItemHandler(new NamedObjectModel("mvel", "Log", "new org.jbpm.kie.services.test.objects.KieConteinerSystemOutWorkItemHandler(kieContainer)"));
-
         Map<String, String> resources = new HashMap<String, String>();
-        resources.put("src/main/resources/" + DeploymentDescriptor.META_INF_LOCATION, customDescriptor.toXml());
+        resources.put("src/main/resources/" + DeploymentDescriptor.META_INF_LOCATION, descriptorXml(RuntimeStrategy.PER_REQUEST, KIE_CONTAINER_HANDLER, Collections.emptyList()));
 
         InternalKieModule kJar1 = createKieJar(ks, releaseId, processes, resources);
         File pom = new File("target/kmodule", "pom.xml");
@@ -656,13 +645,8 @@ public class KModuleDeploymentServiceTest extends AbstractKieServicesBaseTest {
         processes.add("repo/processes/general/humanTask.bpmn");
         processes.add("repo/processes/general/import.bpmn");
 
-        DeploymentDescriptor customDescriptor = new DeploymentDescriptorImpl("org.jbpm.domain");
-        customDescriptor.getBuilder()
-                .runtimeStrategy(RuntimeStrategy.PER_REQUEST)
-                .addWorkItemHandler(new NamedObjectModel("Log", "org.jbpm.process.instance.impl.demo.SystemOutWorkItemHandler"));
-
         Map<String, String> resources = new HashMap<String, String>();
-        resources.put("src/main/resources/" + DeploymentDescriptor.META_INF_LOCATION, customDescriptor.toXml());
+        resources.put("src/main/resources/" + DeploymentDescriptor.META_INF_LOCATION, descriptorXml(RuntimeStrategy.PER_REQUEST, SIMPLE_LOG_HANDLER, Collections.emptyList()));
 
         InternalKieModule kJar1 = createKieJar(ks, releaseId, processes, resources);
         File pom = new File("target/kmodule", "pom.xml");
@@ -720,6 +704,55 @@ public class KModuleDeploymentServiceTest extends AbstractKieServicesBaseTest {
         manager.disposeRuntimeEngine(engine);
 
         checkFormsDeployment(deploymentUnit.getIdentifier());
+    }
+
+    private String descriptorXml(RuntimeStrategy runtimeStrategy, HandlerDefinition handler, List<String> requiredRoles) {
+        StringBuilder xml = new StringBuilder();
+        xml.append("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n");
+        xml.append("<deployment-descriptor xsi:schemaLocation=\"http://www.jboss.org/jbpm deployment-descriptor.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n");
+        xml.append("  <persistence-unit>").append(DEFAULT_PERSISTENCE_UNIT).append("</persistence-unit>\n");
+        xml.append("  <audit-persistence-unit>").append(DEFAULT_PERSISTENCE_UNIT).append("</audit-persistence-unit>\n");
+        xml.append("  <audit-mode>").append(AuditMode.JPA.name()).append("</audit-mode>\n");
+        xml.append("  <persistence-mode>").append(PersistenceMode.JPA.name()).append("</persistence-mode>\n");
+        xml.append("  <runtime-strategy>").append(runtimeStrategy.name()).append("</runtime-strategy>\n");
+        xml.append("  <marshalling-strategies/>\n");
+        xml.append("  <event-listeners/>\n");
+        xml.append("  <task-event-listeners/>\n");
+        xml.append("  <globals/>\n");
+        xml.append("  <work-item-handlers>\n");
+        xml.append("    <work-item-handler>\n");
+        xml.append("      <resolver>").append(handler.resolver).append("</resolver>\n");
+        xml.append("      <identifier>").append(handler.identifier).append("</identifier>\n");
+        xml.append("      <parameters/>\n");
+        xml.append("      <name>").append(handler.name).append("</name>\n");
+        xml.append("    </work-item-handler>\n");
+        xml.append("  </work-item-handlers>\n");
+        xml.append("  <environment-entries/>\n");
+        xml.append("  <configurations/>\n");
+        if (requiredRoles == null || requiredRoles.isEmpty()) {
+            xml.append("  <required-roles/>\n");
+        } else {
+            xml.append("  <required-roles>\n");
+            for (String role : requiredRoles) {
+                xml.append("    <required-role>").append(role).append("</required-role>\n");
+            }
+            xml.append("  </required-roles>\n");
+        }
+        xml.append("  <remoteable-classes/>\n");
+        xml.append("  <limit-serialization-classes>false</limit-serialization-classes>\n");
+        xml.append("</deployment-descriptor>\n");
+        return xml.toString();
+    }
+
+    private static final class HandlerDefinition {
+        private final String resolver;
+        private final String identifier;
+        private final String name;
+        private HandlerDefinition(String resolver, String identifier, String name) {
+            this.resolver = resolver;
+            this.identifier = identifier;
+            this.name = name;
+        }
     }
 
     protected void checkFormsDeployment(String deploymentId) {
