@@ -73,8 +73,7 @@ public class AsyncAuditLogReceiver implements MessageListener, AuditLoggerArchiv
             String[] voidDeny = {"void.class", "Void.class"};
             xstream.denyTypes(voidDeny);
             xstream.allowTypesByWildcard(new String[] {
-                "org.jbpm.process.audit.*",
-                "org.jbpm.process.audit.event.*"
+                "org.jbpm.process.audit.**"
             });
         }
     }
