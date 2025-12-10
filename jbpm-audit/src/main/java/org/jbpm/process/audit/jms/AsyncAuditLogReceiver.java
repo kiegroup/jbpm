@@ -16,10 +16,9 @@
 
 package org.jbpm.process.audit.jms;
 
-import java.util.ArrayList;
-import java.util.Date;
+import static org.kie.soup.xstream.XStreamUtils.createNonTrustingXStream;
+
 import java.util.List;
-import java.util.ServiceLoader;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -35,8 +34,6 @@ import org.jbpm.process.audit.NodeInstanceLog;
 import org.jbpm.process.audit.ProcessInstanceLog;
 
 import com.thoughtworks.xstream.XStream;
-
-import static org.kie.soup.xstream.XStreamUtils.createTrustingXStream;
 
 /**
  * Asynchronous audit event receiver. Receives messages from JMS queue
@@ -72,9 +69,13 @@ public class AsyncAuditLogReceiver implements MessageListener, AuditLoggerArchiv
 
     private void initXStream() {
         if(xstream==null) {
-            xstream = createTrustingXStream();
+            xstream = createNonTrustingXStream();
             String[] voidDeny = {"void.class", "Void.class"};
             xstream.denyTypes(voidDeny);
+            xstream.allowTypesByWildcard(new String[] {
+                "org.jbpm.process.audit.*",
+                "org.jbpm.process.audit.event.*"
+            });
         }
     }
 
