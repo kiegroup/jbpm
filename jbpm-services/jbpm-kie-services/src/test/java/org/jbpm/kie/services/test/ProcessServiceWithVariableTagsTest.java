@@ -40,6 +40,7 @@ import org.junit.Test;
 import org.kie.api.KieServices;
 import org.kie.api.builder.ReleaseId;
 import org.kie.api.runtime.process.ProcessInstance;
+import org.kie.internal.runtime.conf.DeploymentDescriptor;
 import org.kie.internal.runtime.conf.ObjectModel;
 import org.kie.scanner.KieMavenRepository;
 import org.slf4j.Logger;
@@ -59,8 +60,11 @@ public class ProcessServiceWithVariableTagsTest extends AbstractKieServicesBaseT
         ReleaseId releaseId = ks.newReleaseId(GROUP_ID, ARTIFACT_ID, VERSION);
         List<String> processes = new ArrayList<String>();
         processes.add("repo/processes/general/customtask-with-variable-tags.bpmn");
-        
-        InternalKieModule kJar1 = createKieJar(ks, releaseId, processes);
+
+        Map<String, String> extraResources = new HashMap<>();
+        extraResources.put("src/main/resources/" + DeploymentDescriptor.META_INF_LOCATION, buildDeploymentDescriptorXml());
+
+        InternalKieModule kJar1 = createKieJar(ks, releaseId, processes, extraResources);
         File pom = new File("target/kmodule", "pom.xml");
         pom.getParentFile().mkdir();
         try {
@@ -130,16 +134,39 @@ public class ProcessServiceWithVariableTagsTest extends AbstractKieServicesBaseT
     /*
      * Helper methods 
      */
-    @Override
-    protected List<ObjectModel> getProcessListeners() {
-        List<ObjectModel> listeners = super.getProcessListeners();
-        
-        listeners.add(new ObjectModel("mvel", "new org.jbpm.process.instance.event.listeners.VariableGuardProcessEventListener(\"admin\", identityProvider)"));
-        
-        return listeners;
+    protected boolean createDescriptor() {
+        return false;
     }
 
-    protected boolean createDescriptor() {
-        return true;
+    private String buildDeploymentDescriptorXml() {
+        StringBuilder xml = new StringBuilder();
+        xml.append("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n");
+        xml.append("<deployment-descriptor xsi:schemaLocation=\"http://www.jboss.org/jbpm deployment-descriptor.xsd\" ")
+           .append("xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n");
+        xml.append("  <persistence-unit>").append(puName).append("</persistence-unit>\n");
+        xml.append("  <audit-persistence-unit>").append(puName).append("</audit-persistence-unit>\n");
+        xml.append("  <audit-mode>JPA</audit-mode>\n");
+        xml.append("  <persistence-mode>JPA</persistence-mode>\n");
+        xml.append("  <runtime-strategy>SINGLETON</runtime-strategy>\n");
+        xml.append("  <marshalling-strategies/>\n");
+        xml.append("  <event-listeners>\n");
+        xml.append("    <event-listener>\n");
+        xml.append("      <resolver>mvel</resolver>\n");
+        xml.append("      <identifier>")
+           .append("new org.jbpm.process.instance.event.listeners.VariableGuardProcessEventListener(\"admin\", identityProvider)")
+           .append("</identifier>\n");
+        xml.append("      <parameters/>\n");
+        xml.append("    </event-listener>\n");
+        xml.append("  </event-listeners>\n");
+        xml.append("  <task-event-listeners/>\n");
+        xml.append("  <globals/>\n");
+        xml.append("  <work-item-handlers/>\n");
+        xml.append("  <environment-entries/>\n");
+        xml.append("  <configurations/>\n");
+        xml.append("  <required-roles/>\n");
+        xml.append("  <remoteable-classes/>\n");
+        xml.append("  <limit-serialization-classes>true</limit-serialization-classes>\n");
+        xml.append("</deployment-descriptor>");
+        return xml.toString();
     }
 }
