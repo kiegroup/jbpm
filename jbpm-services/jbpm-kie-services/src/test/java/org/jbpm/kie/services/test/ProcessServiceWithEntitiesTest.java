@@ -65,19 +65,9 @@ public class ProcessServiceWithEntitiesTest extends AbstractKieServicesBaseTest 
         List<String> processes = new ArrayList<String>();
         processes.add("repo/processes/general/entityprocessvar-process.bpmn2");
 
-
-        DeploymentDescriptorImpl customDescriptor = new DeploymentDescriptorImpl("org.jbpm.domain");
-
-        List<String> remotableClasses = java.util.Arrays.asList("example.CaseDetail", "org.drools.persistence.jpa.marshaller.MappedVariable");
-        customDescriptor.setClasses(remotableClasses);
-
-        List<ObjectModel> marshallingStrategies = new ArrayList<ObjectModel>();
-        marshallingStrategies.add(new ObjectModel("mvel", "new org.drools.persistence.jpa.marshaller.JPAPlaceholderResolverStrategy(\"org.jbpm.test:test-module:1.0.0\", classLoader)"));
-        customDescriptor.setMarshallingStrategies(marshallingStrategies);
-
         Map<String, String> extraResources = new HashMap<>();
         extraResources.put(CASEDETAIL_JAVA, getCaseDetailEntitySource());
-        extraResources.put("src/main/resources/" + DeploymentDescriptor.META_INF_LOCATION, customDescriptor.toXml());
+        extraResources.put("src/main/resources/" + DeploymentDescriptor.META_INF_LOCATION, buildDeploymentDescriptorXml());
         extraResources.put("src/main/resources/META-INF/persistence.xml", getPersistenceXml());
 
         InternalKieModule kJar1 = createKieJar(ks, releaseId, processes, extraResources);
@@ -165,6 +155,41 @@ public class ProcessServiceWithEntitiesTest extends AbstractKieServicesBaseTest 
         assertTrue(entitySource.exists());
 
         return IoUtils.readFileAsString(entitySource);
+    }
+
+    private static String buildDeploymentDescriptorXml() {
+        StringBuilder xml = new StringBuilder();
+        xml.append("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n");
+        xml.append("<deployment-descriptor xsi:schemaLocation=\"http://www.jboss.org/jbpm deployment-descriptor.xsd\" ")
+           .append("xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n");
+        xml.append("  <persistence-unit>org.jbpm.domain</persistence-unit>\n");
+        xml.append("  <audit-persistence-unit>org.jbpm.domain</audit-persistence-unit>\n");
+        xml.append("  <audit-mode>JPA</audit-mode>\n");
+        xml.append("  <persistence-mode>JPA</persistence-mode>\n");
+        xml.append("  <runtime-strategy>SINGLETON</runtime-strategy>\n");
+        xml.append("  <marshalling-strategies>\n");
+        xml.append("    <marshalling-strategy>\n");
+        xml.append("      <resolver>mvel</resolver>\n");
+        xml.append("      <identifier>")
+           .append("new org.drools.persistence.jpa.marshaller.JPAPlaceholderResolverStrategy")
+           .append("(&quot;org.jbpm.test:test-module:1.0.0&quot;, classLoader)")
+           .append("</identifier>\n");
+        xml.append("      <parameters/>\n");
+        xml.append("    </marshalling-strategy>\n");
+        xml.append("  </marshalling-strategies>\n");
+        xml.append("  <event-listeners/>\n");
+        xml.append("  <task-event-listeners/>\n");
+        xml.append("  <globals/>\n");
+        xml.append("  <work-item-handlers/>\n");
+        xml.append("  <environment-entries/>\n");
+        xml.append("  <configurations/>\n");
+        xml.append("  <required-roles/>\n");
+        xml.append("  <remoteable-classes>\n");
+        xml.append("    <remoteable-class>example.CaseDetail</remoteable-class>\n");
+        xml.append("    <remoteable-class>org.drools.persistence.jpa.marshaller.MappedVariable</remoteable-class>\n");
+        xml.append("  </remoteable-classes>\n");
+        xml.append("</deployment-descriptor>");
+        return xml.toString();
     }
 
 }
