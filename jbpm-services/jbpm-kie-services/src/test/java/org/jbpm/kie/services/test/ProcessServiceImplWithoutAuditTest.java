@@ -58,6 +58,26 @@ public class ProcessServiceImplWithoutAuditTest extends AbstractKieServicesBaseT
 
     private List<DeploymentUnit> units = new ArrayList<DeploymentUnit>();
 
+    private static final String CUSTOM_DESCRIPTOR_XML = ""
+            + "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
+            + "<deployment-descriptor xsi:schemaLocation=\"http://www.jboss.org/jbpm deployment-descriptor.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+            + "    <persistence-unit>org.jbpm.domain</persistence-unit>\n"
+            + "    <audit-persistence-unit>org.jbpm.domain</audit-persistence-unit>\n"
+            + "    <audit-mode>NONE</audit-mode>\n"
+            + "    <persistence-mode>JPA</persistence-mode>\n"
+            + "    <runtime-strategy>SINGLETON</runtime-strategy>\n"
+            + "    <marshalling-strategies/>\n"
+            + "    <event-listeners/>\n"
+            + "    <task-event-listeners/>\n"
+            + "    <globals/>\n"
+            + "    <work-item-handlers/>\n"
+            + "    <environment-entries/>\n"
+            + "    <configurations/>\n"
+            + "    <required-roles/>\n"
+            + "    <remoteable-classes/>\n"
+            + "    <limit-serialization-classes>true</limit-serialization-classes>\n"
+            + "</deployment-descriptor>\n";
+
     @Before
     public void prepare() {
     	configureServices();
@@ -72,11 +92,8 @@ public class ProcessServiceImplWithoutAuditTest extends AbstractKieServicesBaseT
 		processes.add("repo/processes/general/signalWithExpression.bpmn2");
         processes.add("repo/processes/general/callactivity.bpmn");
         
-        DeploymentDescriptor customDescriptor = new DeploymentDescriptorImpl("org.jbpm.domain");
-        DeploymentDescriptorBuilder ddBuilder = customDescriptor.getBuilder();
-        ddBuilder.auditMode(AuditMode.NONE);        
         Map<String, String> extraResources = new HashMap<String, String>();        
-        extraResources.put("src/main/resources/" + DeploymentDescriptor.META_INF_LOCATION, customDescriptor.toXml());
+        extraResources.put("src/main/resources/" + DeploymentDescriptor.META_INF_LOCATION, CUSTOM_DESCRIPTOR_XML);
 
         InternalKieModule kJar1 = createKieJar(ks, releaseId, processes, extraResources);
         File pom = new File("target/kmodule", "pom.xml");
