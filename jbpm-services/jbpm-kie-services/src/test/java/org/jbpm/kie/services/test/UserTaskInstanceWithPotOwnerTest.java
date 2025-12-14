@@ -46,7 +46,6 @@ import org.kie.api.builder.ReleaseId;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.query.QueryContext;
 import org.kie.internal.runtime.conf.DeploymentDescriptor;
-import org.kie.internal.runtime.manager.deploy.DeploymentDescriptorImpl;
 import org.kie.scanner.KieMavenRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,11 +93,8 @@ public class UserTaskInstanceWithPotOwnerTest extends AbstractKieServicesBaseTes
         processes.add("repo/processes/general/AdHocSubProcess.bpmn2");
         processes.add("repo/processes/general/ExcludedOwner.bpmn2");
 
-        DeploymentDescriptor customDescriptor = new DeploymentDescriptorImpl("org.jbpm.domain");
-        customDescriptor.getBuilder().addRequiredRole("view:managers");
-
         Map<String, String> resources = new HashMap<String, String>();
-        resources.put("src/main/resources/" + DeploymentDescriptor.META_INF_LOCATION, customDescriptor.toXml());
+        resources.put("src/main/resources/" + DeploymentDescriptor.META_INF_LOCATION, buildDeploymentDescriptorXml());
 
         InternalKieModule kJar1 = createKieJar(ks, releaseId, processes, resources);
         File pom = new File("target/kmodule", "pom.xml");
@@ -309,5 +305,31 @@ public class UserTaskInstanceWithPotOwnerTest extends AbstractKieServicesBaseTes
         processService.abortProcessInstance(processInstanceId);
         processInstanceId = null;
         
+    }
+
+    private String buildDeploymentDescriptorXml() {
+        StringBuilder xml = new StringBuilder();
+        xml.append("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n");
+        xml.append("<deployment-descriptor xsi:schemaLocation=\"http://www.jboss.org/jbpm deployment-descriptor.xsd\" ")
+           .append("xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n");
+        xml.append("  <persistence-unit>").append(puName).append("</persistence-unit>\n");
+        xml.append("  <audit-persistence-unit>").append(puName).append("</audit-persistence-unit>\n");
+        xml.append("  <audit-mode>JPA</audit-mode>\n");
+        xml.append("  <persistence-mode>JPA</persistence-mode>\n");
+        xml.append("  <runtime-strategy>SINGLETON</runtime-strategy>\n");
+        xml.append("  <marshalling-strategies/>\n");
+        xml.append("  <event-listeners/>\n");
+        xml.append("  <task-event-listeners/>\n");
+        xml.append("  <globals/>\n");
+        xml.append("  <work-item-handlers/>\n");
+        xml.append("  <environment-entries/>\n");
+        xml.append("  <configurations/>\n");
+        xml.append("  <required-roles>\n");
+        xml.append("    <required-role>view:managers</required-role>\n");
+        xml.append("  </required-roles>\n");
+        xml.append("  <remoteable-classes/>\n");
+        xml.append("  <limit-serialization-classes>false</limit-serialization-classes>\n");
+        xml.append("</deployment-descriptor>");
+        return xml.toString();
     }
 }
