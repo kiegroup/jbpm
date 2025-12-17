@@ -143,11 +143,8 @@ public class QueryServiceImplTest extends AbstractKieServicesBaseTest {
         processes.add("repo/processes/general/AdHocSubProcess.bpmn2");
         processes.add("repo/processes/general/ExcludedOwner.bpmn2");
 
-        DeploymentDescriptor customDescriptor = new DeploymentDescriptorImpl("org.jbpm.domain");
-        customDescriptor.getBuilder().addRequiredRole("view:managers");
-
         Map<String, String> resources = new HashMap<String, String>();
-        resources.put("src/main/resources/" + DeploymentDescriptor.META_INF_LOCATION, customDescriptor.toXml());
+        resources.put("src/main/resources/" + DeploymentDescriptor.META_INF_LOCATION, descriptorXmlWithRoles(Collections.singletonList("view:managers")));
 
         InternalKieModule kJar1 = createKieJar(ks, releaseId, processes, resources);
         File pom = new File("target/kmodule", "pom.xml");
@@ -1453,7 +1450,40 @@ public class QueryServiceImplTest extends AbstractKieServicesBaseTest {
         assertEquals(3, (int) instances.iterator().next().getState());
 
     }
-    
+
+    private String descriptorXmlWithRoles(Collection<String> requiredRoles) {
+        StringBuilder xml = new StringBuilder();
+        xml.append("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n");
+        xml.append("<deployment-descriptor xsi:schemaLocation=\"http://www.jboss.org/jbpm deployment-descriptor.xsd\" ");
+        xml.append("xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n");
+        xml.append("  <persistence-unit>org.jbpm.domain</persistence-unit>\n");
+        xml.append("  <audit-persistence-unit>org.jbpm.domain</audit-persistence-unit>\n");
+        xml.append("  <audit-mode>JPA</audit-mode>\n");
+        xml.append("  <persistence-mode>JPA</persistence-mode>\n");
+        xml.append("  <runtime-strategy>SINGLETON</runtime-strategy>\n");
+        xml.append("  <marshalling-strategies/>\n");
+        xml.append("  <event-listeners/>\n");
+        xml.append("  <task-event-listeners/>\n");
+        xml.append("  <globals/>\n");
+        xml.append("  <work-item-handlers/>\n");
+        xml.append("  <environment-entries/>\n");
+        xml.append("  <configurations/>\n");
+
+        if (requiredRoles != null && !requiredRoles.isEmpty()) {
+            xml.append("  <required-roles>\n");
+            for (String role : requiredRoles) {
+                xml.append("    <required-role>").append(role).append("</required-role>\n");
+            }
+            xml.append("  </required-roles>\n");
+        } else {
+            xml.append("  <required-roles/>\n");
+        }
+
+        xml.append("  <remoteable-classes/>\n");
+        xml.append("</deployment-descriptor>\n");
+        return xml.toString();
+    }
+
     protected void setFieldValue(Object instance, String fieldName, Object value) {
         try {
             Field f = instance.getClass().getDeclaredField(fieldName);
