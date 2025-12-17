@@ -78,15 +78,9 @@ private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentSe
         processes.add("repo/processes/general/humanTask.bpmn");
         processes.add("repo/processes/general/BPMN2-UserTask.bpmn2");
         processes.add("repo/processes/general/timer-process.bpmn2");
-        
-        DeploymentDescriptor customDescriptor = new DeploymentDescriptorImpl("org.jbpm.domain");
-		customDescriptor.getBuilder()
-		.addEventListener(new ObjectModel("mvel", "org.jbpm.kie.test.util.CountDownListenerFactory.get(\"securityTest\", \"timer\", 1)"))
-		.addRequiredRole("view:managers")
-		.addRequiredRole("execute:employees");
 		
         Map<String, String> resources = new HashMap<String, String>();
-		resources.put("src/main/resources/" + DeploymentDescriptor.META_INF_LOCATION, customDescriptor.toXml());
+		resources.put("src/main/resources/META-INF/kie-deployment-descriptor.xml", buildDeploymentDescriptorXml());
         
         InternalKieModule kJar1 = createKieJar(ks, releaseId, processes, resources);
         File pom = new File("target/kmodule", "pom.xml");
@@ -726,6 +720,38 @@ private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentSe
  
     
     }
-    
- 
+
+    private String buildDeploymentDescriptorXml() {
+        StringBuilder xml = new StringBuilder();
+        xml.append("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n");
+        xml.append("<deployment-descriptor xsi:schemaLocation=\"http://www.jboss.org/jbpm deployment-descriptor.xsd\" ")
+                .append("xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n");
+        xml.append("  <persistence-unit>").append(puName).append("</persistence-unit>\n");
+        xml.append("  <audit-persistence-unit>").append(puName).append("</audit-persistence-unit>\n");
+        xml.append("  <audit-mode>JPA</audit-mode>\n");
+        xml.append("  <persistence-mode>JPA</persistence-mode>\n");
+        xml.append("  <runtime-strategy>SINGLETON</runtime-strategy>\n");
+        xml.append("  <marshalling-strategies/>\n");
+        xml.append("  <event-listeners>\n");
+        xml.append("    <event-listener>\n");
+        xml.append("      <resolver>mvel</resolver>\n");
+        xml.append("      <identifier>org.jbpm.kie.test.util.CountDownListenerFactory.get(\"securityTest\", \"timer\", 1)</identifier>\n");
+        xml.append("      <parameters/>\n");
+        xml.append("    </event-listener>\n");
+        xml.append("  </event-listeners>\n");
+        xml.append("  <task-event-listeners/>\n");
+        xml.append("  <globals/>\n");
+        xml.append("  <work-item-handlers/>\n");
+        xml.append("  <environment-entries/>\n");
+        xml.append("  <configurations/>\n");
+        xml.append("  <required-roles>\n");
+        xml.append("    <required-role>view:managers</required-role>\n");
+        xml.append("    <required-role>execute:employees</required-role>\n");
+        xml.append("  </required-roles>\n");
+        xml.append("  <remoteable-classes/>\n");
+        xml.append("  <limit-serialization-classes>false</limit-serialization-classes>\n");
+        xml.append("</deployment-descriptor>");
+        return xml.toString();
+    }
+
 }
