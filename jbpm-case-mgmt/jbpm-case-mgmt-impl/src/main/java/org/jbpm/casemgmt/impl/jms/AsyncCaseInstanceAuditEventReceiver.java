@@ -28,7 +28,6 @@ import static org.jbpm.casemgmt.impl.audit.CaseInstanceAuditConstants.FIND_CASE_
 import static org.jbpm.casemgmt.impl.audit.CaseInstanceAuditConstants.FIND_CASE_DATA_QUERY;
 import static org.jbpm.casemgmt.impl.audit.CaseInstanceAuditConstants.FIND_CASE_PROCESS_INST_ID_QUERY;
 import static org.jbpm.casemgmt.impl.audit.CaseInstanceAuditConstants.UPDATE_CASE_PROCESS_INST_ID_QUERY;
-import static org.kie.soup.xstream.XStreamUtils.createTrustingXStream;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -46,6 +45,7 @@ import org.jbpm.casemgmt.api.audit.CaseFileData;
 import org.jbpm.casemgmt.impl.audit.CaseFileDataLog;
 import org.jbpm.casemgmt.impl.audit.CaseRoleAssignmentLog;
 import org.jbpm.casemgmt.impl.model.AuditCaseInstanceData;
+import org.kie.soup.xstream.XStreamUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,9 +65,10 @@ public class AsyncCaseInstanceAuditEventReceiver implements MessageListener {
 
     private void initXStream() {
         if(xstream==null) {
-            xstream = createTrustingXStream();
+            xstream = XStreamUtils.createNonTrustingXStream();
             String[] voidDeny = {"void.class", "Void.class"};
             xstream.denyTypes(voidDeny);
+            xstream.allowTypesByWildcard(new String[] {"org.jbpm.casemgmt.impl.model.*", "org.jbpm.casemgmt.impl.audit.*"});
         }
     }
     
