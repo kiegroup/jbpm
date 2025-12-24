@@ -431,7 +431,7 @@ public class GlobalTimerService implements TimerService, InternalSchedulerServic
         }
         
         public void dispose() {
-            manager.disposeRuntimeEngine(runtime);
+            manager.disposeRuntimeEngine(runtime, true);
         }
         
         public Environment getEnvironment() {

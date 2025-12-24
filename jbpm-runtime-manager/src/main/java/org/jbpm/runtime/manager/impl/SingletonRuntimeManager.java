@@ -220,7 +220,7 @@ public class SingletonRuntimeManager extends AbstractRuntimeManager {
     }
     
     @Override
-    public void disposeRuntimeEngine(RuntimeEngine runtime) {
+    public void disposeRuntimeEngine(RuntimeEngine runtime, boolean force) {
         // no-op, singleton session is always active
     }
 

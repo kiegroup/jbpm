@@ -1231,7 +1231,7 @@ public class UserTaskServiceImpl implements UserTaskService, VariablesAware {
 		}
 
 		@Override
-		public void disposeRuntimeEngine(RuntimeEngine runtime) {
+		public void disposeRuntimeEngine(RuntimeEngine runtime, boolean force) {
 			// do nothing
 			
 		}

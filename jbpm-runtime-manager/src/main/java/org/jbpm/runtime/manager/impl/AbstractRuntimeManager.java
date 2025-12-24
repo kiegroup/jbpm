@@ -374,7 +374,11 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
         }
     }
     
-    protected boolean canDispose(RuntimeEngine runtime) {
+    protected boolean canDispose (RuntimeEngine runtime) {
+    	return canDispose(runtime, false);
+    }
+    
+    protected boolean canDispose(RuntimeEngine runtime, boolean force) {
         
         if (runtime instanceof RuntimeEngineImpl) {
             RuntimeEngineImpl impl = (RuntimeEngineImpl)runtime;
@@ -394,7 +398,7 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
         try {
             // check tx status to disallow dispose when within active transaction       
             TransactionManager tm = getTransactionManagerInternal(getEnvironment(runtime));
-            if (tm.getStatus() != TransactionManager.STATUS_NO_TRANSACTION
+            if (!force && tm.getStatus() != TransactionManager.STATUS_NO_TRANSACTION
                     && tm.getStatus() != TransactionManager.STATUS_ROLLEDBACK
                     && tm.getStatus() != TransactionManager.STATUS_COMMITTED) {
                 return false;
