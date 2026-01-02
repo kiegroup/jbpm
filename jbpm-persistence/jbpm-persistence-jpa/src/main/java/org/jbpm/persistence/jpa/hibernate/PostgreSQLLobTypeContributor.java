@@ -54,7 +54,7 @@ public class PostgreSQLLobTypeContributor implements TypeContributor {
     @Override
     public void contribute(TypeContributions typeContributions, ServiceRegistry serviceRegistry) {
         final Dialect dialect = serviceRegistry.getService(JdbcServices.class).getDialect();
-        if (dialect instanceof org.hibernate.dialect.PostgreSQL81Dialect) {
+        if (dialect instanceof org.hibernate.dialect.PostgreSQLDialect) {
             if (Boolean.getBoolean("org.kie.persistence.postgresql.useBytea")) {
                 typeContributions.contributeType(new ByteaContributorType());
             }
