@@ -239,7 +239,6 @@
         <filtering>true</filtering>
       </testResource>
     </testResources>
-   
      <plugins>
       <plugin>
         <!-- We need to fork always as we have tests which are configured by system properties when a JVM starts -->
@@ -313,5 +312,21 @@
       </plugin>
     </plugins>
   </build>
-
+  <profiles>
+      <profile>
+        <id>tc-postgres</id>
+        <build>
+          <plugins>
+            <plugin>
+              <artifactId>maven-surefire-plugin</artifactId>
+              <configuration>
+                <excludes>
+                  <exclude>**/DB*Test.java</exclude>
+                </excludes>
+              </configuration>
+            </plugin>
+          </plugins>
+        </build>
+      </profile>
+    </profiles>
 </project>

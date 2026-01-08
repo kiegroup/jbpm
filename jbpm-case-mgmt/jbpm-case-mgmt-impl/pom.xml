@@ -197,5 +197,21 @@
     </testResource>
   </testResources>
   </build>
-
+  <profiles>
+    <profile>
+      <id>tc-postgres</id>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <systemPropertyVariables>
+                <org.kie.persistence.postgresql.useBytea>true</org.kie.persistence.postgresql.useBytea>
+              </systemPropertyVariables>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>

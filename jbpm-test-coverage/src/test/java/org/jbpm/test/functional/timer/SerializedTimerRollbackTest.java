@@ -21,10 +21,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.sql.Blob;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -38,6 +35,7 @@ import javax.transaction.UserTransaction;
 
 import org.drools.core.common.InternalKnowledgeRuntime;
 import org.drools.core.marshalling.impl.MarshallingConfigurationImpl;
+import org.drools.persistence.info.SessionInfo;
 import org.drools.serialization.protobuf.ProtobufMarshaller;
 import org.jbpm.process.instance.InternalProcessRuntime;
 import org.jbpm.process.instance.timer.TimerInstance;
@@ -110,16 +108,13 @@ public class SerializedTimerRollbackTest extends JbpmTestCase {
                 }
             }
 
-            Connection c = getDs().getConnection();
-            Statement st = c.createStatement();
-            ResultSet rs = st.executeQuery("select rulesbytearray from sessioninfo");
-            rs.next();
-            Blob b = rs.getBlob("rulesbytearray");
-            assertNotNull(b);
+            List<SessionInfo> sessionsInfo = getEmf().createEntityManager().createQuery("SELECT o FROM SessionInfo o", SessionInfo.class).getResultList();
+            assertTrue(!sessionsInfo.isEmpty());
+            byte[] b = sessionsInfo.get(0).getData();
 
             KnowledgeBuilder builder = KnowledgeBuilderFactory.newKnowledgeBuilder();
             ProtobufMarshaller marshaller = new ProtobufMarshaller(builder.newKieBase(), new MarshallingConfigurationImpl());
-            StatefulKnowledgeSession session = marshaller.unmarshall(b.getBinaryStream());
+            StatefulKnowledgeSession session = marshaller.unmarshall(new ByteArrayInputStream(b));
             assertNotNull(session);
 
             TimerManager timerManager = ((InternalProcessRuntime) ((InternalKnowledgeRuntime) session).getProcessRuntime()).getTimerManager();
@@ -177,16 +172,13 @@ public class SerializedTimerRollbackTest extends JbpmTestCase {
                 }
             }
 
-            Connection c = getDs().getConnection();
-            Statement st = c.createStatement();
-            ResultSet rs = st.executeQuery("select rulesbytearray from sessioninfo");
-            rs.next();
-            Blob b = rs.getBlob("rulesbytearray");
-            assertNotNull(b);
+            List<SessionInfo> sessionsInfo = getEmf().createEntityManager().createQuery("SELECT o FROM SessionInfo o", SessionInfo.class).getResultList();
+            assertTrue(!sessionsInfo.isEmpty());
+            byte[] b = sessionsInfo.get(0).getData();
 
             KnowledgeBuilder builder = KnowledgeBuilderFactory.newKnowledgeBuilder();
             ProtobufMarshaller marshaller = new ProtobufMarshaller(builder.newKieBase(), new MarshallingConfigurationImpl());
-            StatefulKnowledgeSession session = marshaller.unmarshall(b.getBinaryStream());
+            StatefulKnowledgeSession session = marshaller.unmarshall(new ByteArrayInputStream(b));
             assertNotNull(session);
 
             TimerManager timerManager = ((InternalProcessRuntime) ((InternalKnowledgeRuntime) session).getProcessRuntime()).getTimerManager();

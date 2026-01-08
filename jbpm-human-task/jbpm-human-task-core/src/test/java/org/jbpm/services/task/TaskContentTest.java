@@ -29,20 +29,25 @@ import javax.persistence.Persistence;
 import org.jbpm.services.task.impl.factories.TaskFactory;
 import org.kie.test.util.db.PoolingDataSourceWrapper;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.kie.api.task.model.Task;
 import org.kie.internal.task.api.InternalTaskService;
 
 public class TaskContentTest extends HumanTaskServicesBaseTest {
-    private PoolingDataSourceWrapper pds;
-    private EntityManagerFactory emf;
+    private static PoolingDataSourceWrapper pds;
+    private static EntityManagerFactory emf;
 
-    @Before
-    public void setup() {
+    @BeforeClass
+    public static void beforeClass() {
         pds = setupPoolingDataSource();
         emf = Persistence.createEntityManagerFactory("org.jbpm.services.task");
-
+    }
+    
+    @Before
+    public void setup() {
         this.taskService = (InternalTaskService) HumanTaskServiceFactory.newTaskServiceConfigurator().entityManagerFactory(emf)
                 .getTaskService();
     }
@@ -50,6 +55,10 @@ public class TaskContentTest extends HumanTaskServicesBaseTest {
     @After
     public void clean() {
         super.tearDown();
+    }
+    
+    @AfterClass
+    public static void afterClass() {
         if( emf != null ) {
             emf.close();
         }

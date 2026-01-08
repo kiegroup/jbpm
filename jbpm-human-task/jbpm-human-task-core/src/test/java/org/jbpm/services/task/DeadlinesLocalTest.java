@@ -22,34 +22,51 @@ import org.jbpm.services.task.deadlines.notifications.impl.MockNotificationListe
 import org.jbpm.services.task.impl.TaskDeadlinesServiceImpl;
 import org.kie.test.util.db.PoolingDataSourceWrapper;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.kie.internal.task.api.InternalTaskService;
 
 public class DeadlinesLocalTest extends DeadlinesBaseTest {
 
-	private PoolingDataSourceWrapper pds;
-	private EntityManagerFactory emf;
-	
-	@Before
-	public void setup() {
-		this.notificationListener = new MockNotificationListener();
-		pds = setupPoolingDataSource();
-		emf = Persistence.createEntityManagerFactory( "org.jbpm.services.task" );
-		this.taskService = (InternalTaskService) HumanTaskServiceFactory.newTaskServiceConfigurator()
-												.entityManagerFactory(emf)
-												.getTaskService();
-	}
-	
-	@After
-	public void clean() {
-		TaskDeadlinesServiceImpl.reset();
-		super.tearDown();
-		if (emf != null) {
-			emf.close();
-		}
-		if (pds != null) {
-			pds.close();
-		}
-	}
+    private static boolean setupDataSource = false;
+    private static PoolingDataSourceWrapper pds;
+    private static EntityManagerFactory emf;
+
+    @BeforeClass
+    public static void beforeClass() {
+        setupDataSource = true;
+        pds = setupPoolingDataSource();
+        emf = Persistence.createEntityManagerFactory( "org.jbpm.services.task");
+    }
+    
+    @Before
+    public void setup() {
+        this.notificationListener = new MockNotificationListener();
+        
+        this.taskService = (InternalTaskService) HumanTaskServiceFactory.newTaskServiceConfigurator()
+                                                .entityManagerFactory(emf)
+                                                .getTaskService();
+    }
+    
+    @After
+    public void clean() {
+        TaskDeadlinesServiceImpl.reset();
+        super.tearDown();
+    }
+    
+    @AfterClass
+    public static void afterClass() {
+        if (!setupDataSource) {
+            return;
+        }
+
+        if (emf != null) {
+            emf.close();
+        }
+        if (pds != null) {
+            pds.close();
+        }
+    }
 
 }
