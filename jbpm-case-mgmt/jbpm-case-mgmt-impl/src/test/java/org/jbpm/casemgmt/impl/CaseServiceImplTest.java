@@ -29,7 +29,7 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
+import java.util.LinkedHashMap;
 import javax.persistence.EntityManager;
 
 import org.assertj.core.api.Assertions;
@@ -2798,44 +2798,44 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
             }
         }
     }
+@Test
+public void testStartExpressionCaseWithCaseFile() {
+    // Use LinkedHashMap to ensure deterministic order
+    Map<String, Object> data = new LinkedHashMap<>();
+    data.put("person", new Person("john"));
+    CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), EXPRESSION_CASE_P_ID, data);
 
-    @Test
-    public void testStartExpressionCaseWithCaseFile() {
-        Map<String, Object> data = new HashMap<>();
-        data.put("person", new Person("john"));
-        CaseFileInstance caseFile = caseService.newCaseFileInstance(deploymentUnit.getIdentifier(), EXPRESSION_CASE_P_ID, data);
+    String caseId = caseService.startCase(deploymentUnit.getIdentifier(), EXPRESSION_CASE_P_ID, caseFile);
+    assertNotNull(caseId);
+    assertEquals(FIRST_CASE_ID, caseId);
+    try {
+        CaseInstance cInstance = caseService.getCaseInstance(caseId, true, false, false, false);
+        assertNotNull(cInstance);
+        assertEquals(FIRST_CASE_ID, cInstance.getCaseId());
+        assertNotNull(cInstance.getCaseFile());
+        assertEquals("john", ((Person) cInstance.getCaseFile().getData("person")).getName());
+        assertEquals(deploymentUnit.getIdentifier(), cInstance.getDeploymentId());
+        
+        List<TaskSummary> tasks = caseRuntimeDataService.getCaseTasksAssignedAsPotentialOwner(caseId, "john", null, new QueryContext());
+        assertNotNull(tasks);
+        assertEquals(1, tasks.size());
+        
+        Map<String, Object> taskInputs = userTaskService.getTaskInputContentByTaskId(tasks.get(0).getId());
+        Object personName = taskInputs.get("personName");
+        
+        assertEquals("john", personName);
 
-        String caseId = caseService.startCase(deploymentUnit.getIdentifier(), EXPRESSION_CASE_P_ID, caseFile);
-        assertNotNull(caseId);
-        assertEquals(FIRST_CASE_ID, caseId);
-        try {
-            CaseInstance cInstance = caseService.getCaseInstance(caseId, true, false, false, false);
-            assertNotNull(cInstance);
-            assertEquals(FIRST_CASE_ID, cInstance.getCaseId());
-            assertNotNull(cInstance.getCaseFile());
-            assertEquals("john", ((Person) cInstance.getCaseFile().getData("person")).getName());
-            assertEquals(deploymentUnit.getIdentifier(), cInstance.getDeploymentId());
-            
-            List<TaskSummary> tasks = caseRuntimeDataService.getCaseTasksAssignedAsPotentialOwner(caseId, "john",null, new QueryContext());
-            assertNotNull(tasks);
-            assertEquals(1, tasks.size());
-            
-            Map<String, Object> taskInputs = userTaskService.getTaskInputContentByTaskId(tasks.get(0).getId());
-            Object personName = taskInputs.get("personName");
-            
-            assertEquals("john", personName);
-
+        caseService.cancelCase(caseId);
+        caseId = null;
+    } catch (Exception e) {
+        logger.error("Unexpected error {}", e.getMessage(), e);
+        fail("Unexpected exception " + e.getMessage());
+    } finally {
+        if (caseId != null) {
             caseService.cancelCase(caseId);
-            caseId = null;
-        } catch (Exception e) {
-            logger.error("Unexpected error {}", e.getMessage(), e);
-            fail("Unexpected exception " + e.getMessage());
-        } finally {
-            if (caseId != null) {
-                caseService.cancelCase(caseId);
-            }
         }
     }
+}
     
     @Test
     public void testCaseWithCommentsWithRestrictions() {
