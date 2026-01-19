@@ -41,7 +41,9 @@ public final class BooleanDataType
 
     @Override
     public boolean verifyDataType(final Object value) {
-        if ( value instanceof Boolean ) {
+        if (value == null) {
+            return true;
+        } else if (value instanceof Boolean || "true".equalsIgnoreCase(value.toString()) || "false".equalsIgnoreCase(value.toString())) {
             return true;
         }
         return false;

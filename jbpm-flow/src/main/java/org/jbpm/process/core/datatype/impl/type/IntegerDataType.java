@@ -41,12 +41,15 @@ public class IntegerDataType
 
     @Override
     public boolean verifyDataType(final Object value) {
-        if ( value instanceof Integer ) {
-            return true;
-        } else if ( value == null ) {
+        if (value == null) {
             return true;
         } else {
-            return false;
+            try {
+                Integer.parseInt(value.toString());
+                return true;
+            } catch (NumberFormatException e) {
+                return false;
+            }
         }
     }
 
@@ -74,5 +77,4 @@ public class IntegerDataType
             return value;
         }
     }
-
 }
