@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 
 import javax.naming.directory.SearchResult;
 
+import org.jbpm.services.task.utils.LdapSearcher;
 import org.kie.api.task.UserGroupCallback;
 
 /**
@@ -109,6 +110,7 @@ public class LDAPUserGroupCallbackImpl extends AbstractLDAPUserGroupInfo impleme
     }
 
     private boolean existsEntity(String entityId, String context, String filter, String attributeId) {
+        LdapSearcher ldapSearcher = new LdapSearcher(this.config);
         entityId = escapeIllegalChars(entityId);
         String ldapEntityId = ldapSearcher.search(context, filter, entityId).getSingleAttributeResult(attributeId);
         return isIgnoreCase() ? entityId.equalsIgnoreCase(ldapEntityId) : entityId.equals(ldapEntityId) ;
@@ -117,6 +119,7 @@ public class LDAPUserGroupCallbackImpl extends AbstractLDAPUserGroupInfo impleme
 
     @Override
     public List<String> getGroupsForUser(String userId) {
+        LdapSearcher ldapSearcher = new LdapSearcher(this.config);
         String roleContext = getConfigProperty(USER_ROLES_CTX, getConfigProperty(ROLE_CTX));
         String roleFilter = getConfigProperty(USER_ROLES_FILTER);
         String roleAttributeId = getConfigProperty(ROLE_ATTR_ID, DEFAULT_ROLE_ATTR_ID);

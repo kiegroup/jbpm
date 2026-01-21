@@ -20,7 +20,6 @@ import java.util.Properties;
 
 import javax.naming.Context;
 
-import org.jbpm.services.task.utils.LdapSearcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,9 +33,8 @@ abstract class AbstractLDAPUserGroupInfo extends AbstractUserGroupInfo {
     protected static final String DEFAULT_ROLE_ATTR_ID = "cn";
     protected static final String DEFAULT_USER_ATTR_ID = "uid";
 
-    private Properties config;
+    protected Properties config;
 
-    protected LdapSearcher ldapSearcher;
 
     protected AbstractLDAPUserGroupInfo(String[] requiredProperties, String defaultPropertiesName) {
         String propertiesLocation = System.getProperty(defaultPropertiesName);
@@ -57,7 +55,6 @@ abstract class AbstractLDAPUserGroupInfo extends AbstractUserGroupInfo {
         copyConfigProperty(BIND_USER, Context.SECURITY_PRINCIPAL);
         copyConfigProperty(BIND_PWD, Context.SECURITY_CREDENTIALS);
 
-        ldapSearcher = new LdapSearcher(this.config);
     }
 
     private void copyConfigProperty(String sourceKey, String targetKey) {
