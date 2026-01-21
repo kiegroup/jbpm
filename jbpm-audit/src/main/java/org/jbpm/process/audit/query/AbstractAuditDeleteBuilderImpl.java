@@ -50,14 +50,20 @@ public abstract class AbstractAuditDeleteBuilderImpl<T> extends AbstractDeleteBu
         private String queryBase;
         private int queryParamId;
         private QueryWhere where;
+        private String join;
 
         private QueryAndParameterAppender queryAndParameterAppender;
 
         public Subquery(String field, String queryBase, int queryParamId) {
+            this(field, queryBase, queryParamId, "in");
+        }
+
+        public Subquery(String field, String queryBase, int queryParamId, String join) {
             this.field = field;
             this.queryBase = queryBase;
             this.queryParamId = queryParamId;
             this.where = new QueryWhere();
+            this.join = join;
         }
 
         public Subquery parameter(String listId, Object... values) {
@@ -79,7 +85,7 @@ public abstract class AbstractAuditDeleteBuilderImpl<T> extends AbstractDeleteBu
             if (queryAndParameterAppender == null) {
                 queryAndParameterAppender = QueryHelper.createQuery(queryBase, where, new HashMap<>(), queryParamId);
             }
-            return field + " in (" + queryAndParameterAppender.toSQL() + ")";
+            return field + " " + join + " (" + queryAndParameterAppender.toSQL() + ")";
         }
 
     }
