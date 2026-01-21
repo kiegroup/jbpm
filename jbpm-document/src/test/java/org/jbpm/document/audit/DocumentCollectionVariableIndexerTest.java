@@ -76,7 +76,7 @@ public class DocumentCollectionVariableIndexerTest {
 
     private void testDocument(int index, int max, VariableInstanceLog log, DocumentImpl document) {
         Assertions.assertThat(log)
-                .hasFieldOrPropertyWithValue("variableId", VARIABLE_NAME + " (" + (index + 1) + "/" + max + ")")
+                .hasFieldOrPropertyWithValue("variableId", VARIABLE_NAME + " (" + (index + 1) + "_" + max + ")")
                 .hasFieldOrPropertyWithValue("value", document.toString());
     }
 }
