@@ -45,6 +45,8 @@ public class JmsAvailableJobsExecutor extends AbstractAvailableJobsExecutor impl
                 if (request != null) {
                     logger.debug("Request with id {} is in valid state, processing...", requestId);
                     executeGivenJob(request);
+                } else {
+                    logger.warn("Request with id {} is skipped from execution.",requestId);
                 }
             } catch (JMSException e) {
                 logger.error("JMS Error when processing job with id {} due to {}", requestId, e.getMessage(), e);

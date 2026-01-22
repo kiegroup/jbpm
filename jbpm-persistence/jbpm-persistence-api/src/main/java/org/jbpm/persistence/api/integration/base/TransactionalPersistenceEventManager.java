@@ -39,6 +39,7 @@ public class TransactionalPersistenceEventManager implements PersistenceEventMan
 
     private static final Logger logger = LoggerFactory.getLogger(TransactionalPersistenceEventManager.class);
     private static final String EVENT_COLLECTION = "org.jbpm.integration.events";
+    protected boolean sendUpdateEvents = Boolean.parseBoolean(System.getProperty("org.kie.jbpm.event.emitters.send-update-events", "true"));    
     
     protected TransactionManager tm;
     private EventEmitter emitter;
@@ -73,7 +74,7 @@ public class TransactionalPersistenceEventManager implements PersistenceEventMan
     
     @Override
     public void update(InstanceView<?> item) {
-        if (!isActive()) {
+        if (!isActive()|| !sendUpdateEvents) {
             return;
         }
         EventCollection collection = getCollection();
