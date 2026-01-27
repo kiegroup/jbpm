@@ -148,8 +148,6 @@ public class HumanTaskNodeInstance extends WorkItemNodeInstance {
         }
         if (SUSPEND_SIGNAL.equals(type)) {
             createSuspendTimer((WorkItem) event);
-        } else if (ACTIVATE_SIGNAL.equals(type)) {
-            removeSuspendTimer();
         }
     }
 

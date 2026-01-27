@@ -16,6 +16,8 @@
 
 package org.jbpm.kie.services.impl;
 
+import java.time.Duration;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -25,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.jbpm.kie.services.impl.admin.commands.UpdateTaskCommand;
+import org.jbpm.process.core.timer.DateTimeUtils;
 import org.jbpm.services.api.DeploymentService;
 import org.jbpm.services.api.RuntimeDataService;
 import org.jbpm.services.api.TaskNotFoundException;
@@ -140,6 +143,23 @@ public class UserTaskServiceImpl implements UserTaskService, VariablesAware {
 	        throw new TaskNotFoundException("Task with id " + taskId + " is not associated with " + deploymentId);
 	    }
 	}
+
+	protected void validateTimerExpression(Map<String, Object>  parameters) {
+		long duration;
+		logger.debug("Validating timer expression {} ", parameters.get("suspendUntil"));
+		String suspendUntil = (String) parameters.get("suspendUntil");
+		if(suspendUntil == null) {
+			return;
+		}
+		try {
+		duration = DateTimeUtils.parseDuration(suspendUntil);
+		} catch (RuntimeException e) {
+			throw new IllegalArgumentException("Invalid duration format: " + suspendUntil, e);
+		}
+		if(duration < 0) {
+			throw new IllegalArgumentException("suspendUntil parameter must not be negative: " + suspendUntil);
+		}
+	}	
 	
 	@Override
     public void activate(Long taskId, String userId) {
@@ -529,6 +549,7 @@ public class UserTaskServiceImpl implements UserTaskService, VariablesAware {
 	public void suspend(String deploymentId, Long taskId, String userId, Map<String, Object> parameters) {
 		UserTaskInstanceDesc task = dataService.getTaskById(taskId);
 		validateTask(deploymentId, taskId, task);
+		validateTimerExpression(parameters);
 
 		RuntimeManager manager = getRuntimeManager(task);
 		if (manager == null) {
