@@ -32,12 +32,16 @@ import org.kie.api.runtime.Context;
 import org.kie.internal.query.ParametrizedUpdate;
 import org.kie.internal.query.QueryParameterIdentifiers;
 import org.kie.internal.runtime.manager.audit.query.AuditDeleteBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.kie.internal.query.QueryParameterIdentifiers.DATE_LIST;
 import static org.kie.internal.query.QueryParameterIdentifiers.PROCESS_ID_LIST;
 import static org.kie.internal.query.QueryParameterIdentifiers.PROCESS_INSTANCE_ID_LIST;
 
 public abstract class AbstractAuditDeleteBuilderImpl<T> extends AbstractDeleteBuilderImpl<T> implements AuditDeleteBuilder<T> {
+
+    private static final Logger logger = LoggerFactory.getLogger(AbstractAuditDeleteBuilderImpl.class);
 
     protected Integer[] statuses = new Integer[]{2, 3};
     protected String deploymentId;
@@ -245,7 +249,29 @@ public abstract class AbstractAuditDeleteBuilderImpl<T> extends AbstractDeleteBu
                        .parameter(QueryParameterIdentifiers.SUBQUERY_DEPLOYMENT, deploymentId);
     }
 
+    // DBACLD-202894: To avoid MySQL error 1093 during RequestInfo log cleanup by enabling batched deletes only for this table. 
+    private boolean isMySqlDatabase() {
+        return isMySQLDialect(System.getProperty("org.kie.server.persistence.dialect"))
+            || isMySQLDialect(System.getProperty("spring.jpa.properties.hibernate.dialect"));
+    }
+
+    private boolean isMySQLDialect(String dialect) {
+        return dialect != null && dialect.toLowerCase().contains("mysql");
+    }
+
+    private boolean isRequestInfoDelete() {
+        String table = getQueryTable();
+        return table != null && table.endsWith("RequestInfo");
+    }
+
     public ParametrizedUpdate build() {
+        final int effectiveRecordsPerTransaction;
+        if(isMySqlDatabase() && isRequestInfoDelete() && recordsPerTransaction == 0) {
+            effectiveRecordsPerTransaction=1000;
+            logger.info("MySQL dialect detected, Enabling batched delete (recordsPerTransaction={}) to avoid MySQL DELETE subquery limitation",effectiveRecordsPerTransaction);
+        } else {
+            effectiveRecordsPerTransaction = recordsPerTransaction;
+        }
         return new ParametrizedUpdate() {
             private QueryWhere queryWhere = new QueryWhere(getQueryWhere());
             @Override
@@ -257,9 +283,8 @@ public abstract class AbstractAuditDeleteBuilderImpl<T> extends AbstractDeleteBu
                     subquerySQL = subquery.build();
                     params.putAll(subquery.getQueryParams());
                 }
-                return recordsPerTransaction <= 0 ? getJpaAuditLogService().doDelete(getQueryTable(), queryWhere,
-                        subquerySQL, params) : getJpaAuditLogService().doPartialDelete(getQueryTable(), queryWhere,
-                                subquerySQL, params, recordsPerTransaction);
+                return effectiveRecordsPerTransaction <= 0 ? getJpaAuditLogService().doDelete(getQueryTable(), queryWhere, subquerySQL, params) 
+                                                           : getJpaAuditLogService().doPartialDelete(getQueryTable(), queryWhere, subquerySQL, params, effectiveRecordsPerTransaction);
 
             }
         };
