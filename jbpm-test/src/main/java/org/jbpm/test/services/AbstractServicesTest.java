@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -132,7 +133,7 @@ public abstract class AbstractServicesTest extends AbstractBaseTest {
         DeploymentDescriptor customDescriptor = createDeploymentDescriptor();
 
         if (extraResources == null) {
-            extraResources = new HashMap<>();
+            extraResources = new LinkedHashMap<>();
         }
         if (customDescriptor != null) {
             extraResources.put("src/main/resources/" + DeploymentDescriptor.META_INF_LOCATION, customDescriptor.toXml());
