@@ -137,6 +137,18 @@ public class SingletonRuntimeManager extends AbstractRuntimeManager {
             registerItems(this.singleton);
             attachManager(this.singleton);
             this.registry.register(this);
+            this.singleton.getKieSession().execute(new ExecutableCommand<Void>() {
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                public Void execute(org.kie.api.runtime.Context context) {
+                    KieSession ksession = ((RegistryContext) context).lookup(KieSession.class);
+                    ProcessRuntimeImpl pr = (ProcessRuntimeImpl)
+                            ((InternalKnowledgeRuntime) ksession).getProcessRuntime();
+                    pr.initStartTimers();
+                    return null;
+                }
+            });
             if (tm != null) {
                 tm.commit(owner);
             }

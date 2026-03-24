@@ -22,7 +22,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
+import javax.naming.InitialContext;
+import javax.transaction.UserTransaction;
 import org.drools.core.command.impl.CommandBasedStatefulKnowledgeSession;
 import org.drools.core.runtime.ChainableRunner;
 import org.drools.persistence.PersistableRunner;
@@ -64,6 +69,7 @@ import org.kie.internal.task.api.UserGroupCallback;
 import org.kie.test.util.db.PoolingDataSourceWrapper;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -903,4 +909,68 @@ public class SingletonRuntimeManagerTest extends AbstractBaseTest {
         manager.disposeRuntimeEngine(runtime1);
         
     }
+
+    @Test(timeout = 45000)
+    public void testStartTimerNotReinitializedOnProcessStart() throws Exception {
+    System.setProperty("jbpm.tm.jndi.lookup", "java:comp/UserTransaction");
+
+    final AtomicInteger startTimerStarts = new AtomicInteger(0);
+    final CountDownLatch first = new CountDownLatch(1);
+    final CountDownLatch second = new CountDownLatch(1);
+
+    RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
+            .newDefaultBuilder()
+            .userGroupCallback(userGroupCallback)
+            .addAsset(ResourceFactory.newClassPathResource("BPMN2-StartTimer.bpmn2"), ResourceType.BPMN2)
+            .addAsset(ResourceFactory.newClassPathResource("BPMN2-ScriptTask.bpmn2"), ResourceType.BPMN2)
+            .registerableItemsFactory(new DefaultRegisterableItemsFactory() {
+                @Override
+                public List<ProcessEventListener> getProcessEventListeners(RuntimeEngine runtime) {
+                    List<ProcessEventListener> listeners = super.getProcessEventListeners(runtime);
+                    listeners.add(new DefaultProcessEventListener() {
+                        @Override
+                        public void afterProcessStarted(ProcessStartedEvent event) {
+                            if ("BPMN2-StartTimer".equals(event.getProcessInstance().getProcessId())) {
+                                int c = startTimerStarts.incrementAndGet();
+                                if (c == 1) {
+                                    first.countDown();
+                                } else if (c == 2) {
+                                    second.countDown();
+                                }
+                            }
+                        }
+                    });
+                    return listeners;
+                }
+            })
+            .get();
+
+    try {
+        manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);
+        assertNotNull(manager);
+
+        UserTransaction ut = InitialContext.doLookup("java:comp/UserTransaction");
+        ut.begin();
+        try {
+            RuntimeEngine runtime = manager.getRuntimeEngine(EmptyContext.get());
+            KieSession ksession = runtime.getKieSession();
+
+            ProcessInstance pi = ksession.startProcess("ScriptTask");
+            assertEquals(ProcessInstance.STATE_COMPLETED, pi.getState());
+
+            ut.commit();
+            manager.disposeRuntimeEngine(runtime);
+        } catch (Exception e) {
+            try { ut.rollback(); } catch (Exception ignore) {}
+            throw e;
+        }
+
+        assertTrue(first.await(10, TimeUnit.SECONDS));
+        assertFalse(second.await(5, TimeUnit.SECONDS));
+        assertEquals(1, startTimerStarts.get());
+    } finally {
+        System.clearProperty("jbpm.tm.jndi.lookup");
+    }
+}
+
 }

@@ -17,6 +17,7 @@
 package org.jbpm.runtime.manager.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -25,8 +26,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.naming.InitialContext;
 import javax.persistence.EntityManagerFactory;
+import javax.transaction.UserTransaction;
 
 import org.jbpm.runtime.manager.impl.jpa.EntityManagerFactoryManager;
 import org.jbpm.runtime.manager.util.TestUtil;
@@ -576,5 +582,75 @@ public class PerCaseRuntimeManagerTest extends AbstractBaseTest {
         assertEquals(2, logs.size());
         manager.disposeRuntimeEngine(runtime1);
         
+    }
+
+    @Test(timeout = 45000)
+    public void testStartTimerNotReinitializedOnProcessStart() throws Exception {
+        System.setProperty("jbpm.tm.jndi.lookup", "java:comp/UserTransaction");
+
+        final AtomicInteger startTimerStarts = new AtomicInteger(0);
+        final CountDownLatch first = new CountDownLatch(1);
+        final CountDownLatch second = new CountDownLatch(1);
+
+        RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
+                .newDefaultBuilder()
+                .userGroupCallback(userGroupCallback)
+                .entityManagerFactory(emf)
+                // start-timer process (PT1S)
+                .addAsset(ResourceFactory.newClassPathResource("BPMN2-StartTimer.bpmn2"), ResourceType.BPMN2)
+                // normal process started by the test
+                .addAsset(ResourceFactory.newClassPathResource("BPMN2-ScriptTask.bpmn2"), ResourceType.BPMN2)
+                .registerableItemsFactory(new DefaultRegisterableItemsFactory() {
+                    @Override
+                    public List<ProcessEventListener> getProcessEventListeners(RuntimeEngine runtime) {
+                        List<ProcessEventListener> listeners = super.getProcessEventListeners(runtime);
+                        listeners.add(new DefaultProcessEventListener() {
+                            @Override
+                            public void afterProcessStarted(ProcessStartedEvent event) {
+                                if ("BPMN2-StartTimer".equals(event.getProcessInstance().getProcessId())) {
+                                    int c = startTimerStarts.incrementAndGet();
+                                    if (c == 1) {
+                                        first.countDown();
+                                    } else if (c == 2) {
+                                        second.countDown();
+                                    }
+                                }
+                            }
+                        });
+                        return listeners;
+                    }
+                })
+                .get();
+
+        try {
+            manager = RuntimeManagerFactory.Factory.get().newPerCaseRuntimeManager(environment);
+            assertNotNull(manager);
+
+            // start another process inside JTA (same path as REST)
+            UserTransaction ut = InitialContext.doLookup("java:comp/UserTransaction");
+            ut.begin();
+
+            RuntimeEngine runtime = manager.getRuntimeEngine(CaseContext.get("Case-1"));
+            KieSession ksession = runtime.getKieSession();
+
+            ProcessInstance pi = ksession.startProcess("ScriptTask");
+            assertEquals(ProcessInstance.STATE_COMPLETED, pi.getState());
+
+            ut.commit();
+            manager.disposeRuntimeEngine(runtime);
+
+            // timer should fire once
+            assertTrue(first.await(10, TimeUnit.SECONDS));
+
+            // and must not be scheduled again
+            assertFalse(second.await(5, TimeUnit.SECONDS));
+
+            assertEquals(1, startTimerStarts.get());
+        } finally {
+            System.clearProperty("jbpm.tm.jndi.lookup");
+            if (manager != null) {
+                manager.close();
+            }
+        }
     }
 }

@@ -37,6 +37,7 @@ import org.drools.persistence.api.TransactionManager;
 import org.drools.persistence.api.TransactionManagerHelper;
 import org.jbpm.process.core.timer.TimerServiceRegistry;
 import org.jbpm.process.core.timer.impl.GlobalTimerService;
+import org.jbpm.process.instance.ProcessRuntimeImpl;
 import org.jbpm.runtime.manager.impl.factory.LocalTaskServiceFactory;
 import org.jbpm.runtime.manager.impl.mapper.EnvironmentAwareProcessInstanceContext;
 import org.jbpm.runtime.manager.impl.mapper.InMemoryMapper;
@@ -509,19 +510,25 @@ public class PerCaseRuntimeManager extends AbstractRuntimeManager {
             // need to init one session to bootstrap all case - such as start timers
             KieSession initialKsession = factory.newKieSession();
             // there is a need to call getProcessRuntime otherwise the start listeners are not registered
-            initialKsession.execute(new ExecutableCommand<Void>() {
-                private static final long serialVersionUID = 1L;
+            try {
+                initialKsession.execute(new ExecutableCommand<Void>() {
+                    private static final long serialVersionUID = 1L;
 
-                @Override
-                public Void execute(org.kie.api.runtime.Context context) {
-                    KieSession ksession = ((RegistryContext) context).lookup( KieSession.class );
-                    ((InternalKnowledgeRuntime) ksession).getProcessRuntime();
-                    return null;
-                }
-            });
-            factory.onDispose(initialKsession.getIdentifier());
-            initialKsession.execute(new DestroyKSessionCommand(initialKsession, this));
-    
+                    @Override
+                    public Void execute(org.kie.api.runtime.Context context) {
+                        KieSession ksession = ((RegistryContext) context).lookup(KieSession.class);
+                        ProcessRuntimeImpl pr = (ProcessRuntimeImpl)
+                                ((InternalKnowledgeRuntime) ksession).getProcessRuntime();
+
+                        pr.initStartTimers();
+                        return null;
+                    }
+                });
+            } finally {
+                factory.onDispose(initialKsession.getIdentifier());
+                initialKsession.execute(new DestroyKSessionCommand(initialKsession, this));
+            }
+
             if (!"false".equalsIgnoreCase(System.getProperty("org.jbpm.rm.init.timer"))) {
                 if (mapper instanceof JPAMapper) {
                     List<Long> ksessionsToInit = ((JPAMapper) mapper).findKSessionToInit(this.identifier);
@@ -547,7 +554,21 @@ public class PerCaseRuntimeManager extends AbstractRuntimeManager {
         super.activate();
         // need to init one session to bootstrap all case - such as start timers
         KieSession initialKsession = factory.newKieSession();
-        initialKsession.execute(new DestroyKSessionCommand(initialKsession, this));
+        try {
+            initialKsession.execute(new ExecutableCommand<Void>() {
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                public Void execute(org.kie.api.runtime.Context context) {
+                    KieSession ksession = ((RegistryContext) context).lookup(KieSession.class);
+                    ProcessRuntimeImpl pr = (ProcessRuntimeImpl) ((InternalKnowledgeRuntime) ksession).getProcessRuntime();
+                    pr.initStartTimers();
+                    return null;
+                }
+            });
+        } finally {
+            initialKsession.execute(new DestroyKSessionCommand(initialKsession, this));
+        }
     }
 
     @Override

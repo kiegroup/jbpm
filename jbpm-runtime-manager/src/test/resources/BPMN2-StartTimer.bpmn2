@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                   xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                   xmlns:bpsim="http://www.bpsim.org/schemas/1.0"
+                   xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                   xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                   xmlns:drools="http://www.jboss.org/drools"
+                   id="_StartTimerDef"
+                   xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd
+                                       http://www.jboss.org/drools drools.xsd
+                                       http://www.bpsim.org/schemas/1.0 bpsim.xsd
+                                       http://www.omg.org/spec/DD/20100524/DC DC.xsd
+                                       http://www.omg.org/spec/DD/20100524/DI DI.xsd"
+                   exporter="jBPM Process Modeler"
+                   exporterVersion="2.0"
+                   targetNamespace="http://www.omg.org/bpmn20">
+
+  <bpmn2:signal id="_-567202649" name="continue"/>
+
+  <bpmn2:collaboration id="_Collab_StartTimer" name="Default Collaboration">
+    <bpmn2:participant id="_Participant_StartTimer" name="Pool Participant" processRef="BPMN2-StartTimer"/>
+  </bpmn2:collaboration>
+
+  <bpmn2:process id="BPMN2-StartTimer"
+                 drools:packageName="com.example"
+                 drools:version="1.0"
+                 drools:adHoc="false"
+                 name="BPMN2-StartTimer"
+                 isExecutable="true"
+                 processType="Public">
+
+    <bpmn2:startEvent id="_StartEvent_Timer">
+      <bpmn2:outgoing>_Flow_Start_To_Script</bpmn2:outgoing>
+      <bpmn2:timerEventDefinition>
+        <bpmn2:timeDuration xsi:type="bpmn2:tFormalExpression">PT1S</bpmn2:timeDuration>
+      </bpmn2:timerEventDefinition>
+    </bpmn2:startEvent>
+
+    <bpmn2:scriptTask id="_ScriptTask_Log" name="log" scriptFormat="http://www.java.com/java">
+      <bpmn2:extensionElements>
+        <drools:metaData name="elementname">
+          <drools:metaValue><![CDATA[log]]></drools:metaValue>
+        </drools:metaData>
+      </bpmn2:extensionElements>
+      <bpmn2:incoming>_Flow_Start_To_Script</bpmn2:incoming>
+      <bpmn2:outgoing>_Flow_Script_To_Catch</bpmn2:outgoing>
+      <bpmn2:script>System.out.println("PROCESS STARTED AFTER TIMER");</bpmn2:script>
+    </bpmn2:scriptTask>
+
+    <bpmn2:intermediateCatchEvent id="_Catch_Continue">
+      <bpmn2:incoming>_Flow_Script_To_Catch</bpmn2:incoming>
+      <bpmn2:outgoing>_Flow_Catch_To_End</bpmn2:outgoing>
+      <bpmn2:signalEventDefinition signalRef="_-567202649"/>
+    </bpmn2:intermediateCatchEvent>
+
+    <bpmn2:endEvent id="_EndEvent">
+      <bpmn2:incoming>_Flow_Catch_To_End</bpmn2:incoming>
+    </bpmn2:endEvent>
+
+    <bpmn2:sequenceFlow id="_Flow_Start_To_Script" sourceRef="_StartEvent_Timer" targetRef="_ScriptTask_Log"/>
+    <bpmn2:sequenceFlow id="_Flow_Script_To_Catch" sourceRef="_ScriptTask_Log" targetRef="_Catch_Continue"/>
+    <bpmn2:sequenceFlow id="_Flow_Catch_To_End" sourceRef="_Catch_Continue" targetRef="_EndEvent"/>
+
+  </bpmn2:process>
+
+  <bpmndi:BPMNDiagram id="_Diagram_StartTimer">
+    <bpmndi:BPMNPlane id="_Plane_StartTimer" bpmnElement="BPMN2-StartTimer">
+
+      <bpmndi:BPMNShape id="shape__StartEvent_Timer" bpmnElement="_StartEvent_Timer">
+        <dc:Bounds x="145" y="198" width="56" height="56"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="shape__ScriptTask_Log" bpmnElement="_ScriptTask_Log">
+        <dc:Bounds x="281" y="175" width="154" height="102"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="shape__Catch_Continue" bpmnElement="_Catch_Continue">
+        <dc:Bounds x="515" y="198" width="56" height="56"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="shape__EndEvent" bpmnElement="_EndEvent">
+        <dc:Bounds x="651" y="198" width="56" height="56"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNEdge id="edge__Start_To_Script" bpmnElement="_Flow_Start_To_Script">
+        <di:waypoint x="173" y="226"/>
+        <di:waypoint x="358" y="226"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="edge__Script_To_Catch" bpmnElement="_Flow_Script_To_Catch">
+        <di:waypoint x="358" y="226"/>
+        <di:waypoint x="543" y="226"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="edge__Catch_To_End" bpmnElement="_Flow_Catch_To_End">
+        <di:waypoint x="543" y="226"/>
+        <di:waypoint x="679" y="226"/>
+      </bpmndi:BPMNEdge>
+
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+
+  <bpmn2:relationship id="_BPSimRel_StartTimer" type="BPSimData">
+    <bpmn2:extensionElements>
+      <bpsim:BPSimData>
+        <bpsim:Scenario id="default" name="Simulationscenario">
+          <bpsim:ScenarioParameters/>
+
+          <bpsim:ElementParameters elementRef="_StartEvent_Timer">
+            <bpsim:TimeParameters>
+              <bpsim:ProcessingTime>
+                <bpsim:NormalDistribution mean="0" standardDeviation="0"/>
+              </bpsim:ProcessingTime>
+            </bpsim:TimeParameters>
+          </bpsim:ElementParameters>
+
+          <bpsim:ElementParameters elementRef="_ScriptTask_Log">
+            <bpsim:TimeParameters>
+              <bpsim:ProcessingTime>
+                <bpsim:NormalDistribution mean="0" standardDeviation="0"/>
+              </bpsim:ProcessingTime>
+            </bpsim:TimeParameters>
+            <bpsim:ResourceParameters>
+              <bpsim:Availability>
+                <bpsim:FloatingParameter value="0"/>
+              </bpsim:Availability>
+              <bpsim:Quantity>
+                <bpsim:FloatingParameter value="0"/>
+              </bpsim:Quantity>
+            </bpsim:ResourceParameters>
+            <bpsim:CostParameters>
+              <bpsim:UnitCost>
+                <bpsim:FloatingParameter value="0"/>
+              </bpsim:UnitCost>
+            </bpsim:CostParameters>
+          </bpsim:ElementParameters>
+
+        </bpsim:Scenario>
+      </bpsim:BPSimData>
+    </bpmn2:extensionElements>
+
+    <bpmn2:source>_StartTimerDef</bpmn2:source>
+    <bpmn2:target>_StartTimerDef</bpmn2:target>
+  </bpmn2:relationship>
+
+</bpmn2:definitions>
