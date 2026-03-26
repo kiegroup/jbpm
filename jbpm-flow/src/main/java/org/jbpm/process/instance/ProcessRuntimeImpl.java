@@ -63,6 +63,7 @@ import org.kie.api.event.rule.MatchCreatedEvent;
 import org.kie.api.event.rule.RuleFlowGroupDeactivatedEvent;
 import org.kie.api.internal.utils.ServiceRegistry;
 import org.kie.api.runtime.Context;
+import org.kie.api.runtime.Environment;
 import org.kie.api.runtime.EnvironmentName;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.RuntimeEngine;
@@ -109,6 +110,16 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
 	}
 	
 	public void initStartTimers() {
+	    // Prevent double initialization by checking environment flag
+	    // This persists across ProcessRuntimeImpl deserialization for persistent sessions
+	    Environment env = kruntime.getEnvironment();
+	    if (env != null && Boolean.TRUE.equals(env.get("TIMERS_INITIALIZED"))) {
+	        return;
+	    }
+	    if (env != null) {
+	        env.set("TIMERS_INITIALIZED", Boolean.TRUE);
+	    }
+	    
 	    // if there is no service implementation registered or is cluster coordinator we should start timers
         if(ServiceRegistry.ifSupported(ClusterAwareService.class, cluster -> !cluster.isCoordinator()).orElse(Boolean.FALSE)) {
             return;
