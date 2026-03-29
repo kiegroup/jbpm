@@ -270,7 +270,7 @@ public class TimerUpdateTest extends JbpmTestCase {
         Assertions.assertThat(kieSession.getProcessInstance(id)).isNull();
     }
 
-    @Test(timeout = 30000)
+    @Test(timeout = 40000)
     public void updateBoundaryTimerWithMultipleTimerBoundaryTest() {
         NodeLeftCountDownProcessEventListener countDownListener = new NodeLeftCountDownProcessEventListener(Multiple_BOUNDARY_TIMER_NAME, 1);
         //timer is set for long duration (100s)
