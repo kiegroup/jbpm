@@ -39,7 +39,6 @@ import org.drools.core.audit.WorkingMemoryInMemoryLogger;
 import org.drools.core.audit.event.LogEvent;
 import org.drools.core.audit.event.RuleFlowLogEvent;
 import org.drools.core.audit.event.RuleFlowNodeLogEvent;
-import org.drools.core.common.InternalKnowledgeRuntime;
 import org.drools.core.impl.EnvironmentFactory;
 import org.drools.core.impl.KnowledgeBaseFactory;
 import org.drools.core.util.DroolsStreamUtils;
@@ -60,7 +59,6 @@ import org.jbpm.process.audit.JPAAuditLogService;
 import org.jbpm.process.audit.NodeInstanceLog;
 import org.jbpm.process.audit.ProcessInstanceLog;
 import org.jbpm.process.audit.VariableInstanceLog;
-import org.jbpm.process.instance.ProcessRuntimeImpl;
 import org.jbpm.process.instance.event.DefaultSignalManagerFactory;
 import org.jbpm.process.instance.impl.DefaultProcessInstanceManagerFactory;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
@@ -82,13 +80,11 @@ import org.kie.api.builder.KieBuilder;
 import org.kie.api.builder.KieFileSystem;
 import org.kie.api.builder.KieRepository;
 import org.kie.api.builder.Message.Level;
-import org.kie.api.command.ExecutableCommand;
 import org.kie.api.definition.KiePackage;
 import org.kie.api.definition.process.Node;
 import org.kie.api.definition.process.Process;
 import org.kie.api.io.Resource;
 import org.kie.api.marshalling.ObjectMarshallingStrategy;
-import org.kie.api.runtime.Context;
 import org.kie.api.runtime.Environment;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
@@ -99,7 +95,6 @@ import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.process.WorkflowProcessInstance;
 import org.kie.internal.builder.KnowledgeBuilderConfiguration;
 import org.kie.internal.builder.KnowledgeBuilderFactory;
-import org.kie.internal.command.RegistryContext;
 import org.kie.internal.io.ResourceFactory;
 import org.kie.internal.persistence.jpa.JPAKnowledgeService;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
@@ -465,25 +460,6 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
             result = (StatefulKnowledgeSession) kbase.newKieSession(conf, env);
             logger = new WorkingMemoryInMemoryLogger(result);
         }
-        
-        // Initialize start timers for standalone sessions (no RuntimeManager)
-        // RuntimeManager-based tests handle initialization separately
-        // Use ExecutableCommand to work with both persistent and non-persistent sessions
-        result.execute(new ExecutableCommand<Void>() {
-            private static final long serialVersionUID = 1L;
-            
-            @Override
-            public Void execute(Context context) {
-                KieSession ksession = 
-                    ((RegistryContext) context).lookup(KieSession.class);
-                ProcessRuntimeImpl pr = 
-                    (ProcessRuntimeImpl) 
-                    ((InternalKnowledgeRuntime) ksession).getProcessRuntime();
-                pr.initStartTimers();
-                return null;
-            }
-        });
-        
         return result;
     }
 
