@@ -104,6 +104,7 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
         processEventSupport = new ProcessEventSupport();
         if (isActive()) {
             initProcessEventListeners();                   
+            initStartTimers();
         }
         initProcessActivationListener(); 
 	}
@@ -137,7 +138,8 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
 		timerManager = new TimerManager(kruntime, kruntime.getTimerService());
         processEventSupport = new ProcessEventSupport();
         if (isActive()) {
-            initProcessEventListeners();
+            initProcessEventListeners();                   
+            initStartTimers();
         }
         initProcessActivationListener();
 	}

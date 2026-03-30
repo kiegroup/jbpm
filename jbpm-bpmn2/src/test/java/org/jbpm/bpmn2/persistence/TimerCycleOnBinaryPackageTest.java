@@ -18,12 +18,10 @@ package org.jbpm.bpmn2.persistence;
 
 import org.drools.core.command.SingleSessionCommandService;
 import org.drools.core.command.impl.CommandBasedStatefulKnowledgeSession;
-import org.drools.core.common.InternalKnowledgeRuntime;
 import org.jbpm.bpmn2.JbpmBpmn2TestCase;
 import org.jbpm.process.audit.AuditLoggerFactory;
 import org.jbpm.process.audit.AuditLoggerFactory.Type;
 import org.jbpm.process.instance.event.listeners.TriggerRulesEventListener;
-import org.jbpm.process.instance.ProcessRuntimeImpl;
 import org.jbpm.test.listener.process.NodeLeftCountDownProcessEventListener;
 import org.junit.After;
 import org.junit.Before;
@@ -34,7 +32,6 @@ import org.kie.api.KieBase;
 import org.kie.api.event.process.DefaultProcessEventListener;
 import org.kie.api.event.process.ProcessStartedEvent;
 import org.kie.api.runtime.Environment;
-import org.kie.api.runtime.KieSession;
 import org.kie.internal.persistence.jpa.JPAKnowledgeService;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
 import org.slf4j.Logger;
@@ -76,7 +73,7 @@ public class TimerCycleOnBinaryPackageTest extends JbpmBpmn2TestCase {
         NodeLeftCountDownProcessEventListener countDownListener = new NodeLeftCountDownProcessEventListener("start", 2);
         KieBase kbase = createKnowledgeBaseFromDisc("BPMN2-StartTimerCycle.bpmn2");
         try {
-            ksession = createKnowledgeSession(kbase);
+            StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
             ksession.addEventListener(countDownListener);
             
             assertEquals(0, getNumberOfProcessInstances("defaultPackage.TimerProcess"));
@@ -93,10 +90,7 @@ public class TimerCycleOnBinaryPackageTest extends JbpmBpmn2TestCase {
             ( (SingleSessionCommandService) ( (CommandBasedStatefulKnowledgeSession) ksession ).getRunner() ).getKieSession()
                                                                                                              .addEventListener(new TriggerRulesEventListener(ksession));
     
-            // Explicitly initialize start timers after all listeners are attached
-            KieSession internal = ((SingleSessionCommandService)
-                    ((CommandBasedStatefulKnowledgeSession) ksession).getRunner()).getKieSession();
-            ((ProcessRuntimeImpl) ((InternalKnowledgeRuntime) internal).getProcessRuntime()).initStartTimers();
+            
     
             countDownListener.waitTillCompleted();
     
@@ -121,12 +115,7 @@ public class TimerCycleOnBinaryPackageTest extends JbpmBpmn2TestCase {
             ( (SingleSessionCommandService) ( (CommandBasedStatefulKnowledgeSession) ksession ).getRunner() ).getKieSession()
                     .addEventListener(new TriggerRulesEventListener(ksession));
     
-            // Explicitly initialize start timers after all listeners are attached (reloaded session)
-            KieSession internal2 = ((SingleSessionCommandService)
-                    ((CommandBasedStatefulKnowledgeSession) ksession).getRunner()).getKieSession();
-            ((ProcessRuntimeImpl) ((InternalKnowledgeRuntime) internal2).getProcessRuntime()).initStartTimers();
-    
-            countDownListener.waitTillCompleted();
+            countDownListener.waitTillCompleted();        
             assertEquals(4, getNumberOfProcessInstances("defaultPackage.TimerProcess"));
             
             abortProcessInstances(ksession);
@@ -144,7 +133,7 @@ public class TimerCycleOnBinaryPackageTest extends JbpmBpmn2TestCase {
         NodeLeftCountDownProcessEventListener countDownListener = new NodeLeftCountDownProcessEventListener("start", 2);
         KieBase kbase = createKnowledgeBase("BPMN2-StartTimerCycle.bpmn2");
         try {
-            ksession = createKnowledgeSession(kbase);
+            StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
             ksession.addEventListener(countDownListener);
     
             assertEquals(0, getNumberOfProcessInstances("defaultPackage.TimerProcess"));
@@ -160,11 +149,6 @@ public class TimerCycleOnBinaryPackageTest extends JbpmBpmn2TestCase {
     
             ( (SingleSessionCommandService) ( (CommandBasedStatefulKnowledgeSession) ksession ).getRunner() ).getKieSession()
                     .addEventListener(new TriggerRulesEventListener(ksession));
-    
-            // Explicitly initialize start timers after all listeners are attached
-            KieSession internal = ((SingleSessionCommandService)
-                    ((CommandBasedStatefulKnowledgeSession) ksession).getRunner()).getKieSession();
-            ((ProcessRuntimeImpl) ((InternalKnowledgeRuntime) internal).getProcessRuntime()).initStartTimers();
     
             countDownListener.waitTillCompleted();
     
@@ -187,11 +171,6 @@ public class TimerCycleOnBinaryPackageTest extends JbpmBpmn2TestCase {
     
             ( (SingleSessionCommandService) ( (CommandBasedStatefulKnowledgeSession) ksession ).getRunner() ).getKieSession()
                     .addEventListener(new TriggerRulesEventListener(ksession));
-    
-            // Explicitly initialize start timers after all listeners are attached (reloaded session)
-            KieSession internal2 = ((SingleSessionCommandService)
-                    ((CommandBasedStatefulKnowledgeSession) ksession).getRunner()).getKieSession();
-            ((ProcessRuntimeImpl) ((InternalKnowledgeRuntime) internal2).getProcessRuntime()).initStartTimers();
     
             countDownListener.waitTillCompleted();
             ksession.dispose();
