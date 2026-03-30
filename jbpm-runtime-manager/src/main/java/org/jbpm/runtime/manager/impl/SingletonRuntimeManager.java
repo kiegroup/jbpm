@@ -192,8 +192,6 @@ public class SingletonRuntimeManager extends AbstractRuntimeManager {
             public Void execute(org.kie.api.runtime.Context context) {
                 KieSession ksession = ((RegistryContext) context).lookup( KieSession.class );
                 ksession.getEnvironment().set("Active", false);
-                // Clear timer initialization flag to allow restart on reactivation
-                ksession.getEnvironment().set("TIMERS_INITIALIZED", null);
                 
                 InternalProcessRuntime processRuntime = ((InternalKnowledgeRuntime) ksession).getProcessRuntime();
                 ((ProcessRuntimeImpl) processRuntime).removeProcessEventListeners();

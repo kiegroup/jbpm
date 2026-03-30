@@ -94,10 +94,8 @@ public class TimerCycleOnBinaryPackageTest extends JbpmBpmn2TestCase {
                                                                                                              .addEventListener(new TriggerRulesEventListener(ksession));
     
             // Explicitly initialize start timers after all listeners are attached
-            // Clear auto-init flag first to allow manual initialization
             KieSession internal = ((SingleSessionCommandService)
                     ((CommandBasedStatefulKnowledgeSession) ksession).getRunner()).getKieSession();
-            internal.getEnvironment().set("TIMERS_INITIALIZED", null);
             ((ProcessRuntimeImpl) ((InternalKnowledgeRuntime) internal).getProcessRuntime()).initStartTimers();
     
             countDownListener.waitTillCompleted();
@@ -124,10 +122,8 @@ public class TimerCycleOnBinaryPackageTest extends JbpmBpmn2TestCase {
                     .addEventListener(new TriggerRulesEventListener(ksession));
     
             // Explicitly initialize start timers after all listeners are attached (reloaded session)
-            // Clear auto-init flag first to allow manual initialization
             KieSession internal2 = ((SingleSessionCommandService)
                     ((CommandBasedStatefulKnowledgeSession) ksession).getRunner()).getKieSession();
-            internal2.getEnvironment().set("TIMERS_INITIALIZED", null);
             ((ProcessRuntimeImpl) ((InternalKnowledgeRuntime) internal2).getProcessRuntime()).initStartTimers();
     
             countDownListener.waitTillCompleted();
@@ -166,10 +162,8 @@ public class TimerCycleOnBinaryPackageTest extends JbpmBpmn2TestCase {
                     .addEventListener(new TriggerRulesEventListener(ksession));
     
             // Explicitly initialize start timers after all listeners are attached
-            // Clear auto-init flag first to allow manual initialization
             KieSession internal = ((SingleSessionCommandService)
                     ((CommandBasedStatefulKnowledgeSession) ksession).getRunner()).getKieSession();
-            internal.getEnvironment().set("TIMERS_INITIALIZED", null);
             ((ProcessRuntimeImpl) ((InternalKnowledgeRuntime) internal).getProcessRuntime()).initStartTimers();
     
             countDownListener.waitTillCompleted();
@@ -195,10 +189,8 @@ public class TimerCycleOnBinaryPackageTest extends JbpmBpmn2TestCase {
                     .addEventListener(new TriggerRulesEventListener(ksession));
     
             // Explicitly initialize start timers after all listeners are attached (reloaded session)
-            // Clear auto-init flag first to allow manual initialization
             KieSession internal2 = ((SingleSessionCommandService)
                     ((CommandBasedStatefulKnowledgeSession) ksession).getRunner()).getKieSession();
-            internal2.getEnvironment().set("TIMERS_INITIALIZED", null);
             ((ProcessRuntimeImpl) ((InternalKnowledgeRuntime) internal2).getProcessRuntime()).initStartTimers();
     
             countDownListener.waitTillCompleted();
