@@ -157,7 +157,7 @@ public class RuleSetInstanceTest extends AbstractBaseTest {
 
         assertThat(targetCaptor.getValue()).isEqualTo(targetName);
         assertThat(valueCaptor.getValue().getClass().getTypeName()).isEqualTo(targetDataType);
-        assertThat(valueCaptor.getValue()).isEqualToComparingFieldByField(targetObject);
+        assertThat(valueCaptor.getValue()).usingRecursiveComparison().isEqualTo(targetObject);
     }
 
     public static class MyDataObject {

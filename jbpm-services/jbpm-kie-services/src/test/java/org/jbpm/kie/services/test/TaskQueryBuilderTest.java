@@ -361,7 +361,7 @@ public class TaskQueryBuilderTest extends AbstractKieServicesBaseTest {
         List<UserTaskInstanceDesc> tasks = instanceDesc.getActiveTasks();
         assertNotNull(tasks);
         assertEquals(2, tasks.size());
-        assertThat(tasks).extracting("getFormName").contains("HRInterview","TechInterview");
+        assertThat(tasks).extracting("formName").contains("HRInterview","TechInterview");
     }
 
     private void claimAndCompleteTask(Long processInstanceId, int position, String user) {
