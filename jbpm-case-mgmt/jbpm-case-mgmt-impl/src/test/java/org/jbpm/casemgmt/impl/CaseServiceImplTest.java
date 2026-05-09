@@ -15,15 +15,15 @@
  */
 
 package org.jbpm.casemgmt.impl;
-
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
@@ -3479,13 +3479,16 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
 
             caseService.addCaseComment(FIRST_CASE_ID, "poul", "just a tiny comment", "owner");
 
-            caseComments = caseService.getCaseComments(FIRST_CASE_ID, new QueryContext());
-            assertNotNull(caseComments);
-            assertEquals(1, caseComments.size());
-            CommentInstance comment = caseComments.iterator().next();
+            // FIX: Convert to List and sort to ensure NonDex doesn't shuffle the order
+            List<CommentInstance> commentsList = new ArrayList<>((Collection<CommentInstance>) caseService.getCaseComments(FIRST_CASE_ID, new QueryContext()));
+            commentsList.sort((c1, c2) -> c1.getComment().compareTo(c2.getComment()));
+            
+            assertNotNull(commentsList);
+            assertEquals(1, commentsList.size());
+            CommentInstance comment = commentsList.get(0); // Use index instead of iterator
             assertComment(comment, "poul", "just a tiny comment");
 
-            // mary is not the owner so should not see the comment that is only for role owner role
+            // mary is not the owner so should not see the comment
             identityProvider.setName("mary");
             caseComments = caseService.getCaseComments(FIRST_CASE_ID, new QueryContext());
             assertNotNull(caseComments);
@@ -3495,24 +3498,30 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
                 caseService.updateCaseComment(FIRST_CASE_ID, comment.getId(), comment.getAuthor(), "Updated " + comment.getComment(), "participant", "owner");
                 fail("mary should not be able to update comment that she has no access to");
             } catch (SecurityException e) {
-                // mary is not allowed to update comments that she has no access to
                 assertTrue(e.getMessage().contains("User mary does not have access to comment"));
             }
 
             // System user can do anything with comments
             identityProvider.setName(AuthorizationManager.UNKNOWN_USER);
-            caseComments = caseService.getCaseComments(FIRST_CASE_ID, new QueryContext());
-            assertNotNull(caseComments);
-            assertEquals(1, caseComments.size());
-            comment = caseComments.iterator().next();
+            
+            // FIX: Convert and sort for the System User check
+            List<CommentInstance> systemComments = new ArrayList<>((Collection<CommentInstance>) caseService.getCaseComments(FIRST_CASE_ID, new QueryContext()));
+            systemComments.sort((c1, c2) -> c1.getComment().compareTo(c2.getComment()));
+            
+            assertNotNull(systemComments);
+            assertEquals(1, systemComments.size());
+            comment = systemComments.get(0);
             assertComment(comment, "poul", "just a tiny comment");
 
             caseService.updateCaseComment(FIRST_CASE_ID, comment.getId(), comment.getAuthor(), "System User unknown Updated " + comment.getComment(), "owner");
 
-            caseComments = caseService.getCaseComments(FIRST_CASE_ID, new QueryContext());
-            assertNotNull(caseComments);
-            assertEquals(1, caseComments.size());
-            comment = caseComments.iterator().next();
+            // FIX: Convert and sort after update
+            List<CommentInstance> updatedComments = new ArrayList<>((Collection<CommentInstance>) caseService.getCaseComments(FIRST_CASE_ID, new QueryContext()));
+            updatedComments.sort((c1, c2) -> c1.getComment().compareTo(c2.getComment()));
+            
+            assertNotNull(updatedComments);
+            assertEquals(1, updatedComments.size());
+            comment = updatedComments.get(0);
             assertComment(comment, "poul", "System User unknown Updated just a tiny comment");
 
             // john can see the updated comment
@@ -3533,7 +3542,6 @@ public class CaseServiceImplTest extends AbstractCaseServicesBaseTest {
                 caseService.removeCaseComment(FIRST_CASE_ID, comment.getId());
                 fail("mary should not be able to remove comment that she has no access to");
             } catch (SecurityException e) {
-                // mary is not allowed to removed comments that she has no access to
                 assertTrue(e.getMessage().contains("User mary does not have access to comment"));
             }
 
