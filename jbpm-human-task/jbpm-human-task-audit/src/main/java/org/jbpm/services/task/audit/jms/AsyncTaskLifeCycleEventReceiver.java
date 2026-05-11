@@ -16,8 +16,6 @@
 
 package org.jbpm.services.task.audit.jms;
 
-import static org.kie.soup.xstream.XStreamUtils.createTrustingXStream;
-
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
@@ -32,6 +30,7 @@ import org.jbpm.services.task.audit.impl.model.AuditTaskImpl;
 import org.jbpm.services.task.audit.impl.model.TaskEventImpl;
 import org.jbpm.services.task.audit.impl.model.TaskVariableImpl;
 import org.kie.internal.task.api.TaskVariable.VariableType;
+import org.kie.soup.xstream.XStreamUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,9 +51,10 @@ public class AsyncTaskLifeCycleEventReceiver implements MessageListener {
 
     private void initXStream() {
         if(xstream==null) {
-            xstream = createTrustingXStream();
+            xstream = XStreamUtils.createNonTrustingXStream();
             String[] voidDeny = {"void.class", "Void.class"};
             xstream.denyTypes(voidDeny);
+            xstream.allowTypesByWildcard(new String[] {"org.jbpm.services.task.audit.impl.model.*", "org.jbpm.casemgmt.impl.audit.*"});
         }
     }
     

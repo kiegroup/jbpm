@@ -121,13 +121,13 @@ public class CaseFileInstanceMarshallingStrategy implements ObjectMarshallingStr
     public byte[] marshal(Context context, ObjectOutputStream os, Object object) throws IOException {        
         logger.debug("About to marshal {}", object);
         CaseFileInstanceImpl caseFile = (CaseFileInstanceImpl) object;
-        Map<String, Object> caseFileContent = new HashMap<>();
+        Map<String, Object> caseFileContent = new LinkedHashMap<>();
         caseFileContent.put(CASE_ID_KEY, caseFile.getCaseId());
         caseFileContent.put(CASE_DEF_ID_KEY, caseFile.getDefinitionId());
         caseFileContent.put(CASE_START_KEY, caseFile.getCaseStartDate());
         caseFileContent.put(CASE_END_KEY, caseFile.getCaseEndDate());
         caseFileContent.put(CASE_REOPEN_KEY, caseFile.getCaseReopenDate());
-        caseFileContent.put(CASE_ROLE_ASSIGNMENTS_KEY, new HashMap<>(caseFile.getRolesAssignments()));
+        caseFileContent.put(CASE_ROLE_ASSIGNMENTS_KEY, new LinkedHashMap<>(caseFile.getRolesAssignments()));
         caseFileContent.put(CASE_COMMENTS_KEY, new ArrayList<>(caseFile.getComments()));
         
         logger.debug("CaseFileContent before case file data is {}", caseFileContent);
@@ -154,7 +154,7 @@ public class CaseFileInstanceMarshallingStrategy implements ObjectMarshallingStr
             logger.debug("Serialized content for object {} is {}", dataEntry.getValue(), serializedContent);
         }
         
-        caseFileContent.put(CASE_DATA_RESTRICTIONS_KEY, new HashMap<>(caseFile.getAccessRestrictions()));        
+        caseFileContent.put(CASE_DATA_RESTRICTIONS_KEY, new LinkedHashMap<>(caseFile.getAccessRestrictions()));        
         caseFileContent.put(CASE_PARENT_INSTANCE_ID_KEY, caseFile.getParentInstanceId());
         caseFileContent.put(CASE_PARENT_WORK_ITEM_ID_KEY, caseFile.getParentWorkItemId());
         
