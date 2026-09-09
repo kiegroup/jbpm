@@ -31,6 +31,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -43,6 +44,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
+import org.jbpm.executor.impl.concurrent.JmsSendTransactionSynchronization;
 import org.apache.commons.io.input.ClassLoaderObjectInputStream;
 import org.drools.core.process.instance.WorkItem;
 import org.drools.core.time.TimeUtils;
@@ -396,12 +398,30 @@ public class ExecutorImpl implements Executor {
             
             Consumer<Object> function = null;
             if (useJMS) {
-                // send JMS only for immediate job requests not for these that should be executed in future                 
+                // send JMS only for immediate job requests not for these that should be executed in future
                 if (date == null) {
-                    executorStoreService.persistRequest(requestInfo, null);
-                    logger.debug("Sending JMS message to trigger job execution for job {}", requestInfo.getId());
-                    // send JMS message to trigger processing
-                    sendMessage(String.valueOf(requestInfo.getId()), requestInfo.getPriority());
+                    // Defer the JMS send until after the surrounding JTA transaction commits.
+                    // persistRequest joins the active transaction (if one exists); sending the
+                    // message immediately would deliver it to a consumer before the RequestInfo
+                    // row is visible in the database, or — worse — deliver it even when the
+                    // transaction is later rolled back, creating an orphaned executor job.
+                    //
+                    // If no JTA transaction is active (standalone / non-transactional callers)
+                    // fall back to an immediate send so job scheduling still works.
+                    final String messageBody = String.valueOf(requestInfo.getId());
+                    final int    priority    = requestInfo.getPriority();
+                    if (transactionManager != null &&
+                            transactionManager.getStatus() != TransactionManager.STATUS_NO_TRANSACTION) {
+                        BiConsumer<String, Integer> sendAction = this::sendMessage;
+                        executorStoreService.persistRequest(requestInfo,
+                            (T) -> transactionManager.registerTransactionSynchronization(
+                                new JmsSendTransactionSynchronization(messageBody, priority, sendAction)));
+                        logger.debug("JMS send for job {} deferred until transaction commits", requestInfo.getId());
+                    } else {
+                        executorStoreService.persistRequest(requestInfo, null);
+                        logger.debug("No active transaction - sending JMS message immediately for job {}", requestInfo.getId());
+                        sendMessage(messageBody, priority);
+                    }
                 } else {
                     logger.debug("JMS message not sent for job {} as the job should not be executed immediately but at {}", requestInfo.getId(), date);
                     function = scheduleExecution(requestInfo, date);
